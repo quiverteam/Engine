@@ -1,0 +1,9 @@
+// sample animation script
+
+event Test1
+{
+	Animate Button1 Position	"256 120"	Linear	2.0
+	Animate Button1 FgColor		"255 0 0"	Linear	25.0
+	Animate Button1 BgColor		"0 0 255"	Linear	25.0
+	Animate Button1 Size		"128 24"	Linear	1.5
+}

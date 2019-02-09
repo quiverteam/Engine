@@ -1,0 +1,42 @@
+"//PLATFORM/resource/dmecombinationsystemeditpanel_dominationpage.res"
+{
+	"DominationRules"
+	{
+		"ControlName"	"CDmeCombinationDominationRulesPanel"
+		"fieldName"		"DominationRules"
+		"xpos"			"6"
+		"ypos"			"6"
+		"wide"			"256"
+		"tall"			"256"
+		"AutoResize"	"0"
+		"PinCorner"		"0"
+		"visible"		"1"
+		"enabled"		"1"
+		"tabPosition"	"0"
+		"AutoResize"	"3"
+		"PinCorner"		"0"
+		"PinnedCornerOffsetX" "0"
+		"PinnedCornerOffsetY" "0"
+		"UnpinnedCornerOffsetX" "0"
+		"UnpinnedCornerOffsetY" "0"
+	
+		"DominationRulesList"
+		{
+			"ControlName"	"ListPanel"
+			"fieldName"		"DominationRulesList"
+			"xpos"			"6"
+			"ypos"			"6"
+			"wide"			"256"
+			"tall"			"256"
+			"autoResize"	"3"
+			"pinCorner"		"0"
+			"PinnedCornerOffsetX" "6"
+			"PinnedCornerOffsetY" "6"
+			"UnpinnedCornerOffsetX" "-6"
+			"UnpinnedCornerOffsetY" "-6"
+			"visible"		"1"
+			"enabled"		"1"
+			"tabPosition"	"0"
+		}
+	}
+}

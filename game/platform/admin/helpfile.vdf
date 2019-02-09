@@ -1,0 +1,219 @@
+"Help"
+{
+	"coop"
+	{
+		"text"	"coop: When set to 1 players play against the computer, set to 0 means its deathmatch style"
+	}
+	"deathmatch"
+	{
+		"text"	"deathmatch: When set to 1 players play against each other"
+	}
+	"decalfrequency"
+	{
+		"text"	"decalfrequency: the time in seconds between being able to paint a new decal"
+	}
+	"edgefriction"
+	{
+		"text" "edgefriction: set friction between players and walls or objects. Default:2"
+	}
+"mp_allowmonsters"
+	{
+		"text" "mp_allowmonsters:enable monsters in multiplayer mode. Default:0 "
+	}
+
+"mp_autocrosshair"
+	{
+		"text" "mp_autocrosshair:enable aiming assistance for clients. Default:1"
+	}
+
+"mp_chattime"
+	{
+		"text" "mp_chattime: the time in seconds to spend at the intermission screen. Default:10"
+	}
+
+"mp_consistency"
+	{
+		"text" "mp_consistency: Force file consistency for certain files on the client. Default:1"
+	}
+
+"mp_falldamage"
+	{
+		"text" "mp_falldamage:enable realistic falling damage. Default:0"
+	}
+
+"mp_flashlight"
+	{
+		"text" "mp_flashlight:enable flashlights for clients. Default:0"
+	}
+
+"mp_footsteps"
+	{
+		"text" "mp_footsteps:enable footstep sounds. Default:1"
+	}
+
+"mp_forcerespawn"
+	{
+		"text" "mp_forcerespawn:enable automatic forced respawns for players. Default:1"
+	}
+
+"mp_fraglimit"
+	{
+		"text" "mp_fraglimit:set the maximum number of frags (by any single player) between map changes. Default:0 (disabled)"
+	}
+
+"mp_fragsleft"
+	{
+		"text" "mp_fragsleft: if mp_fraglimit is set, the number of frags left before map change. READ-ONLY"
+	}
+
+"mp_friendlyfire"
+	{
+		"text" "mp_friendlyfire:enable friendly fire in teamplay mode. Default:0"
+	}
+
+"mp_logfile"
+	{
+		"text" "mp_logfile:enable logging during multiplayer. Default:0"
+	}
+
+"mp_teamlist"
+	{
+		"text" "mp_teamlist: The model name for the different teams. Default:hgrunt;scientist"
+	}
+
+"mp_teamplay"
+	{
+		"text" "mp_teamplay: set teamplay mode flags. Default:0"
+	}
+
+"mp_timeleft"
+	{
+		"text" "mp_timeleft: if mp_timelimit is set, the time left in seconds before map change. READ-ONLY"
+	}
+
+"mp_timelimit"
+	{
+		"text" "mp_timelimit: set the time (in minutes) between map changes. Default:30"
+	}
+
+"mp_weaponstay"
+	{
+		"text" "mp_weaponstay: enables whether weapons remain or not after being picked up or not. Default:0"
+	}
+
+"pausable"
+	{
+		"text" "pausable:enable whether or not clients can pause server game. Default:0"
+	}
+
+"sv_accelerate"
+	{
+		"text" "sv_accelerate:set player acceleration. Default:10"
+	}
+
+"sv_aim"
+	{
+		"text" "sv_aim:enable aiming assistance for clients. Default:0 "
+	}
+
+"sv_airaccelerate"
+	{
+		"text" "sv_airaccelerate:set in-air acceleration for a server (higher makes it easier to move while flying through the air or jumping. Default:10"
+	}
+
+"sv_airmove"
+	{
+		"text" "sv_airmove:enable clients ability to move in air. Default:1"
+	}
+
+"sv_allowupload"
+	{
+		"text" "sv_allowupload: allow clients to upload decals to the server. Default:1"
+	}
+
+"sv_bounce"
+	{
+		"text" "sv_bounce: enable bounce pads. Default:1"
+	}
+
+"sv_cheats"
+	{
+		"text" "sv_cheats: enable cheats on the server. Default:0"
+	}
+
+"sv_clienttrace"
+	{
+		"text" "sv_clienttrace:set client bounding box size (for collisions, not clipping). Default:3.5"
+	}
+
+"sv_clipmode"
+	{
+		"text" "sv_clipmode:set client clipping mode. Default:0"
+	}
+
+"sv_contact"
+	{
+		"text" "sv_contact: the contact details for the server admin."
+	}
+
+"sv_friction"
+	{
+		"text" "sv_friction: sets the friction on the server. Default:4"
+	}
+
+"sv_gravity"
+	{
+		"text" "sv_gravity:set gravity (lower is less gravity, higher jumps). Default:800"
+	}
+
+"sv_maxrate"
+	{
+		"text" "sv_maxrate:set the max data transfer rate in bytes per second for any one client on the server. Setting this to 0 or any value over 10000 defaults to 10000. Default:0"
+	}
+
+"sv_maxspeed"
+	{
+		"text" "sv_maxspeed:set max player speed (for ALL clients). Default:270"
+	}
+
+"sv_minrate"
+	{
+		"text" "sv_minrate: set the min data transfer rate in bytes per second for any one client on the server. Setting this to 0 or any value under 500 defaults to 500. Default:0"
+	}
+
+"sv_password"
+	{
+		"text" "sv_password: set server password, 0 means disabled. Default:0"
+	}
+
+"sv_proxies"
+	{
+		"text" "sv_proxies: set number of proxies that can connect to the server. 0 means none, 1 means master proxy only, other values are experimental. Default:1"
+	}
+
+"sv_stepsize"
+	{
+		"text" "sv_stepsize:set monster and player automatic step-up size (larger values allow auto-climbing of steeper slopes). Default:18"
+	}
+
+"sv_stopspeed"
+	{
+		"text" "sv_stopspeed:set the speed at which the server considers a player as beginning to stop (used for prediction). Default:100"
+	}
+
+"sv_voiceenable"
+	{
+		"text" "sv_voiceenable: enabled voice to be used on the server. Default:1"
+	}
+
+"sv_wateraccelerate"
+	{
+		"text" "sv_wateraccelerate: set in-water acceleration. Default:10"
+	}
+
+"sv_waterfriction"
+	{
+		"text" "sv_waterfriction: set friction under water. Default:1"
+	}
+
+}

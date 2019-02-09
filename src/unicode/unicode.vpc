@@ -1,0 +1,41 @@
+//-----------------------------------------------------------------------------
+//	UNICODE.VPC
+//
+//	Project Script
+//-----------------------------------------------------------------------------
+
+$Macro SRCDIR		".."
+$Macro OUTBINDIR	"$SRCDIR\..\game\bin"
+
+$Include "$SRCDIR\vpc_scripts\source_dll_base.vpc"
+
+$Configuration	"Debug"
+{
+	$Compiler
+	{
+		$PreprocessorDefinitions			"$BASE;UNICODE_EXPORTS"
+	}
+}
+
+$Configuration	"Release"
+{
+	$Compiler
+	{
+		$PreprocessorDefinitions			"$BASE;UNICODE_EXPORTS"
+	}
+
+	$Linker
+	{
+		$AdditionalDependencies				"unicows.lib;kernel32.lib"
+		$IgnoreSpecificLibrary				"advapi32.lib,user32.lib,gdi32.lib"
+
+	}
+}
+
+$Project "Unicode"
+{
+	$Folder	"Source Files"
+	{
+		$File	"unicode.cpp"
+	}
+}

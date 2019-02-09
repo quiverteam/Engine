@@ -1,0 +1,80 @@
+//-----------------------------------------------------------------------------
+//	SPEEX.VPC
+//
+//	Project Script
+//-----------------------------------------------------------------------------
+// ***** AUTO-GENERATED: PLEASE FIXUP MANUALLY BEFORE USING THIS SCRIPT! *****
+
+$Macro SRCDIR		"..\..\.."
+$Macro OUTBINDIR	"$SRCDIR\..\game\bin"
+
+$Include "$SRCDIR\vpc_scripts\source_dll_base.vpc"
+
+$Configuration	"Debug"
+{
+	$General
+	{
+		$ConfigurationType					"Dynamic Library (.dll)"
+	}
+
+	$Compiler
+	{
+		$AdditionalIncludeDirectories		"..\frame_encoder,$SRCDIR\public,$SRCDIR\public\tier1,..\..,$SRCDIR\common,.\source\libspeex,..\..\audio\public,$SRCDIR\engine"
+		$PreprocessorDefinitions			"WIN32;_DEBUG;_WINDOWS;_USRDLL;SPEEX_EXPORTS"
+		$Create/UsePrecompiledHeader		"Not Using Precompiled Headers"
+		$PrecompiledHeaderFile				"Debug/speex.pch"
+	}
+
+	$Linker
+	{
+		$AdditionalLibraryDirectories		"$SRCDIR\lib\common"
+	}
+}
+
+$Configuration	"Release"
+{
+	$General
+	{
+		$ConfigurationType					"Dynamic Library (.dll)"
+	}
+
+	$Compiler
+	{
+		$AdditionalIncludeDirectories		"..\frame_encoder,$SRCDIR\public,$SRCDIR\public\tier1,..\..,$SRCDIR\common,.\source\libspeex,..\..\audio\public"
+		$PreprocessorDefinitions			"WIN32;NDEBUG;_WINDOWS;_USRDLL;SPEEX_EXPORTS"
+		$Create/UsePrecompiledHeader		"Not Using Precompiled Headers"
+		$PrecompiledHeaderFile				"Release/speex.pch"
+	}
+
+	$Linker
+	{
+		$AdditionalLibraryDirectories		"$SRCDIR\lib\common"
+	}
+}
+
+$Project "Speex"
+{
+	$Folder	"Source Files"
+	{
+		$File	"$SRCDIR\public\tier0\memoverride.cpp"
+		$File	"..\frame_encoder\voice_codec_frame.cpp"
+		$File	"VoiceEncoder_Speex.cpp"
+	}
+
+	$Folder	"Header Files"
+	{
+		$File	"..\frame_encoder\iframeencoder.h"
+		$File	"$SRCDIR\public\tier1\interface.h"
+		$File	"..\..\audio\public\ivoicecodec.h"
+		$File	"VoiceEncoder_Speex.h"
+	}
+
+	$Folder	"Resource Files"
+	{
+	}
+	//$File	"source\win32\libspeex\Release\libspeex.lib"
+//	$File	"ReadMe.txt"
+	$File	"$SRCDIR\lib\public\tier0.lib"
+	$File	"$SRCDIR\lib\public\tier1.lib"
+	$File	"$SRCDIR\lib\public\vstdlib.lib"
+}

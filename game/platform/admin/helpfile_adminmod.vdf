@@ -1,0 +1,20 @@
+"Help"
+{
+	"allow_client_exec"
+	{
+		"text"	"allow_client_exec: This controls whether or not the execclient() scripting function is enabled in the Admin Mod DLL. If enabled, execclient() is enabled; if disabled, execclient() is disabled. Enabling execclient() functionality allows scripts to execute commands remotely on players."
+	}
+	"default_access "
+	{
+		"text"	"default_access: This controls the default access that people get (aside from being granted special user privileges). It works exactly like the user level access rights, but everyone gets it."
+	}
+	"public_slots_free"
+	{
+		"text"	"public_slots_free: Returns the number of slots free on the server (after taking into account reserved slots). Setting this does nothing."	
+	}
+	"reserve_type"
+	{
+		"text"	"reserve_type:This controls how reserve slots work on the server (the default is 0)."
+	}
+
+}

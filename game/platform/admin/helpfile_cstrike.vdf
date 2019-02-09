@@ -1,0 +1,147 @@
+"Help"
+{
+	"sv_restartround"
+	{
+		"text"	"sv_restartround: Time until the game restarts fresh, or 0 to not restart. This will reset all frags, scores, weapons and money to default. Use this to coordinate clan matches."
+	}
+	"sv_restart"
+	{
+		"text"	"sv_restart: this is the same as sv_restartround"
+	}
+	"mp_maxrounds"
+	{
+		"text"	"mp_maxrounds: Maximum number of rounds to be played on a map, leave at 0 to obey mp_timelimit."
+	}
+	"mp_mapvoteratio"
+	{
+		"text"	"mp_mapvoteratio: The ratio of yes votes for a vote to succeed."
+	}
+	"mp_startmoney"
+	{
+		"text"	"mp_startmoney: Sets the amount of money players start with. 
+maximum: 16000
+minimum: 800
+default: 800"
+	}
+
+"mp_autokick"
+	{
+		"text"	"mp_autokick: Toggles automatic team-killer banning and kicking of idle clients. Default:1"
+	}
+
+"mp_autoteambalance"
+	{
+		"text"	"mp_autoteambalance:enables the forcing of clients into specific teams to make the teams balanced. Default:0"
+	}
+
+
+"mp_buytime"
+	{
+		"text"	"mp_buytime: the time (in minutes) that buying is allowed for from the start of a round. Default:1.5"
+	}
+
+
+"mp_c4timer"
+	{
+		"text"	"mp_c4timer:Sets the amount of time in between C4 placement and its explosion. Default:45"
+	}
+
+
+"mp_fadetoblack"
+	{
+		"text"	"mp_fadetoblack: fade a player's screen to black when they die. Default:0"
+	}
+
+
+"mp_forcecamera"
+	{
+		"text"	"mp_forcamera: forces dead players to go into chasecam mode. The same as mp_forcechasecam. Default:0."
+	}
+
+
+"mp_forcechasecam"
+	{
+		"text"	"mp_forcechasecam:forces dead players to go into chasecam mode. The same as mp_forcecamera. Default:0."
+	}
+
+
+"mp_freezetime"
+	{
+		"text"	"mp_freezetime:Sets the amount of freeze time at the beginning of each round to buy weapons and equipment. Default:6"
+	}
+
+
+"mp_ghostfrequency"
+	{
+		"text"	"mp_ghostfrequency: defines how often ghosts are drawn. Default:0.1"
+	}
+
+
+"mp_hostagepenalty"
+	{
+		"text"	"mp_hostagepenalty:Defines the allowable number of hostages that can be killed before the player is kicked. Default:13"
+	}
+
+
+"mp_kickpercent"
+	{
+		"text"	"mp_kickpercent:the percentage of a team that must vote-kick a team member off. Default:0.66"
+	}
+
+
+"mp_limitteams"
+	{
+		"text"	"mp_limitteams:max number of players 1 team can have over another. Default:2"
+	}
+
+
+"mp_logdetail"
+	{
+		"text"	"mp_logdetail:Bitwise cvar to set the level of detail for logging attacks.
+Bit 0 - Log Enemy Attacks
+Bit 1 - Log Teammate Attacks
+default: 0"
+	}
+
+
+"mp_logmessages"
+	{
+		"text"	"mp_logmessages: enables logging of chat from the server. Default:0"
+	}
+
+
+"mp_mirrordamage"
+	{
+		"text"	"mp_mirrordamage: enables the same amount of damage done to frendly units to be inflicted upon the attacker. Default:0"
+	}
+
+
+"mp_playerid"
+	{
+		"text"	"mp_playerid:toggles what information players can see in the status bar: 0 all names; 1 team names; 2 no names. Default:0"
+	}
+
+
+"mp_tkpunish"
+	{
+		"text"	"mp_tkpunish: Will a TK'er be punished in the next round. Default:0"
+	}
+
+
+"mp_winlimit"
+	{
+		"text"	"mp_winlimit:max number of rounds one team can win before server changes maps. Default:0"
+	}
+
+
+"allow_spectators"
+	{
+		"text"	"allow_spectators:toggles whether the server allows spectator mode or not. Default:1"
+	}
+"mp_roundtime"
+	{
+		"text" "mp_roundtime: set the time (in minutes) each round should go for. Default:5"
+} 
+
+
+}

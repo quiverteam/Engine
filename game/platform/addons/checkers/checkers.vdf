@@ -1,0 +1,9 @@
+"Checkers"
+{
+	"DisplayName"	"Checkers"
+	"interface"	"SteamAddOnCheckers001"
+	"GameID"	"ValveCheckers"
+	"InviteUserMenu" "1"
+	"TrackerMainMenu" "0"
+	"SingleInvite"   "1"
+}

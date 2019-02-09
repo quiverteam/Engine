@@ -1,0 +1,141 @@
+//-----------------------------------------------------------------------------
+//	PARSIFAL.VPC
+//
+//	Project Script
+//-----------------------------------------------------------------------------
+// ***** AUTO-GENERATED: PLEASE FIXUP MANUALLY BEFORE USING THIS SCRIPT! *****
+
+$Macro SRCDIR		"..\..\.."
+$Macro OUTBINDIR	"$SRCDIR\..\game\bin"
+
+$Include "$SRCDIR\vpc_scripts\source_dll_win32_base.vpc"
+
+$Configuration	"Debug"
+{
+	$General
+	{
+		$OutputDirectory					"Debug"
+		$IntermediateDirectory				"Debug"
+		$ConfigurationType					"Dynamic Library (.dll)"
+		$InheritedPropertySheets			"$(VCInstallDir)VCProjectDefaults\UpgradeFromVC60.vsprops"
+		$UseOfMFC							"Use Standard Windows Libraries"
+		$MinimizeCRTUseInATL				"No"
+	}
+
+	$Compiler
+	{
+		$Optimization						"Disabled (/Od)"
+		$AdditionalIncludeDirectories		"../../include/libparsifal"
+		$PreprocessorDefinitions			"_DEBUG;WIN32;_WINDOWS;XMLAPI=__declspec(dllexport);PARSIFAL_EXPORTS;DTD_SUPPORT"
+		$EnableMinimalRebuild				"Yes (/Gm)"
+		$BasicRuntimeChecks					"Both (/RTC1, equiv. to /RTCsu)"
+		$RuntimeLibrary						"Multi-threaded Debug (/MTd)"
+		$PrecompiledHeaderFile				"Debug/parsifal.pch"
+		$ASMListLocation					"Debug/"
+		$ObjectFileName						"Debug/"
+		$ProgramDatabaseFileName			"Debug/"
+		$WarningLevel						"Level 3 (/W3)"
+		$SuppressStartupBanner				"Yes (/NOLOGO)"
+		$DebugInformationFormat				"Program Database for Edit & Continue (/ZI)"
+	}
+
+	$Resources
+	{
+		$PreprocessorDefinitions			"_DEBUG"
+		$Culture							"English (Canada) (0x1009)"
+	}
+
+	$Linker
+	{
+		$EnableIncrementalLinking			"Yes (/INCREMENTAL)"
+		$SuppressStartupBanner				"Yes (/NOLOGO)"
+		$ModuleDefinitionFile				"parsifal.def"
+		$GenerateDebugInfo					"Yes (/DEBUG)"
+		$GenerateMapFile					"Yes (/MAP)"
+		$MapFileName						"$(TargetDir)$(TargetName).map"
+		$TargetMachine						"MachineX86 (/MACHINE:X86)"
+	}
+}
+
+$Configuration	"Release"
+{
+	$General
+	{
+		$OutputDirectory					"Release"
+		$IntermediateDirectory				"Release"
+		$ConfigurationType					"Dynamic Library (.dll)"
+		$InheritedPropertySheets			"$(VCInstallDir)VCProjectDefaults\UpgradeFromVC60.vsprops"
+		$UseOfMFC							"Use Standard Windows Libraries"
+		$MinimizeCRTUseInATL				"No"
+	}
+
+	$Compiler
+	{
+		$Optimization						"Maximize Speed (/O2)"
+		$InlineFunctionExpansion			"Only __inline (/Ob1)"
+		$AdditionalIncludeDirectories		"../../include/libparsifal"
+		$PreprocessorDefinitions			"NDEBUG;WIN32;_WINDOWS;XMLAPI=__declspec(dllexport);PARSIFAL_EXPORTS;DTD_SUPPORT;MAX_SPEED"
+		$EnableStringPooling				"Yes (/GF)"
+		$RuntimeLibrary						"Multi-threaded (/MT)"
+		$EnableFunctionLevelLinking			"Yes (/Gy)"
+		$PrecompiledHeaderFile				"Release/parsifal.pch"
+		$ASMListLocation					"Release/"
+		$ObjectFileName						"Release/"
+		$ProgramDatabaseFileName			"Release/"
+		$WarningLevel						"Level 3 (/W3)"
+		$SuppressStartupBanner				"Yes (/NOLOGO)"
+	}
+
+	$Resources
+	{
+		$PreprocessorDefinitions			"NDEBUG"
+		$Culture							"English (Canada) (0x1009)"
+	}
+
+	$Linker
+	{
+		$OutputFile							"$SRCDIR\..\..\game\bin\parsifal.dll"
+		$EnableIncrementalLinking			"No (/INCREMENTAL:NO)"
+		$SuppressStartupBanner				"Yes (/NOLOGO)"
+		$ModuleDefinitionFile				"parsifal.def"
+		$GenerateProgramDatabaseFile		"$SRCDIR\..\..\game\bin\parsifal.pdb"
+		$BaseAddress						"0x628C0000"
+		$ImportLibrary						"$SRCDIR\lib\parsifal.lib"
+		$TargetMachine						"MachineX86 (/MACHINE:X86)"
+	}
+}
+
+$Project "Parsifal"
+{
+	$Folder	"Source Files"
+	{
+		$File	"..\..\src\bistream.c"
+		$File	"dllmain.c"
+		$File	"..\..\src\encoding.c"
+		$File	"..\..\src\parsifal.c"
+		$File	"parsifal.def"
+		$File	"..\..\src\xmlhash.c"
+		$File	"..\..\src\xmlpool.c"
+		$File	"..\..\src\xmlsbuf.c"
+		$File	"..\..\src\xmlvect.c"
+	}
+
+	$Folder	"Header Files"
+	{
+		$File	"..\..\include\libparsifal\bistream.h"
+		$File	"..\..\include\libparsifal\isrcmem.h"
+		$File	"..\..\include\libparsifal\nametab.h"
+		$File	"..\..\include\libparsifal\optcfg.h"
+		$File	"..\..\include\libparsifal\parsifal.h"
+		$File	"..\..\include\libparsifal\xmlcfg.h"
+		$File	"..\..\include\libparsifal\xmldef.h"
+		$File	"..\..\include\libparsifal\xmlhash.h"
+		$File	"..\..\include\libparsifal\xmlpool.h"
+		$File	"..\..\include\libparsifal\xmlsbuf.h"
+		$File	"..\..\include\libparsifal\xmlvect.h"
+	}
+
+	$Folder	"Resource Files"
+	{
+	}
+}

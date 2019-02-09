@@ -1,0 +1,37 @@
+//-----------------------------------------------------------------------------
+//	UNITTEST.VPC
+//
+//	Project Script
+//-----------------------------------------------------------------------------
+
+$Macro SRCDIR		"..\.."
+$Macro OUTBINDIR	"$SRCDIR\..\game\bin"
+
+$Include "$SRCDIR\vpc_scripts\source_exe_con_base.vpc"
+
+$Configuration
+{
+	$Compiler
+	{
+		$PreprocessorDefinitions			"$BASE;PROTECTED_THINGS_DISABLE"
+	}
+	
+	$Linker
+	{
+		$AdditionalDependencies		"%(AdditionalDependencies)"
+	}
+}
+
+$Project "Unittest"
+{
+	$Folder	"Source Files"
+	{
+		$File	"unittest.cpp"
+	}
+
+	$Folder	"Link Libraries"
+	{
+		$File	"$SRCDIR\lib\public\appframework.lib"
+		$File	"$SRCDIR\lib\public\unitlib.lib"
+	}
+}

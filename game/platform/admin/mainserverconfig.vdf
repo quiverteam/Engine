@@ -1,0 +1,53 @@
+"MainServerConfig"
+{
+	"hostname"
+	{
+		"name"	"Server Name"
+		"type"	"string"
+	}
+	"map"
+	{
+		"name" "Map"
+		"type" "customlist"
+	}
+	"sv_lan"
+	{
+		"name" "Network"
+		"type" "enumeration"
+		"list"
+		{
+			"0" "Internet"
+			"1"	"LAN"
+		}
+	}
+	"rcon_password"
+	{
+		"name" "RCON Password"
+		"type" "string"	
+	}
+	"sv_password"
+	{
+		"name" "Player Password"
+		"type" "string"
+	}
+	"mapcycle"
+	{
+		"name" "Map Cycle"
+		"type" "custom"
+	}
+//	"MOTD"
+//	{
+//		"name" "MOTD"
+//		"type" "multistring"
+//	}
+//	"sv_log"
+//	{
+//		"name" "Activity Log"
+//		"type" "enumeration"
+//		"list"
+//		{
+//			"0"	"Disabled"
+//			"1"	"Enabled"
+//		}
+//	}
+}

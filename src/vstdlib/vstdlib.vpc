@@ -1,0 +1,74 @@
+//-----------------------------------------------------------------------------
+//	VSTDLIB.VPC
+//
+//	Project Script
+//-----------------------------------------------------------------------------
+
+$Macro SRCDIR		".."
+$Macro OUTBINDIR	"$SRCDIR\..\game\bin"
+
+$include "$SRCDIR\vpc_scripts\source_dll_base.vpc"
+
+$Linux
+{
+	$BuildForLinux 1
+	-$File	"processutils.cpp"			[$WIN32]
+	-$file  "$SRCDIR\linux\vstdlib_i686.so"
+}
+
+$Configuration
+{
+	$Compiler
+	{
+		$PreprocessorDefinitions	"$BASE;VSTDLIB_DLL_EXPORT"
+	}
+
+	$Linker
+	{
+		$AdditionalDependencies		"$BASE odbc32.lib odbccp32.lib"			[$WIN32||$LINUX]
+
+		// pc publishes the import library directly
+		$ImportLibrary				"$SRCDIR\lib\public\$(TargetName).lib"	[$WIN32]
+	}
+}
+
+$Configuration	"Release"
+{
+	$Compiler
+	{
+		$BufferSecurityCheck		"No"
+	}
+}
+
+$Project
+{
+	$folder	"Link Libraries"
+	{
+		-$File	"$SRCDIR\lib\public\vstdlib.lib"		[$WIN32||$LINUX]
+	}
+}
+
+$Project "vstdlib"
+{
+	$Folder	"Source Files"
+	{
+		$File	"cvar.cpp"
+		$File	"jobthread.cpp"
+		$File	"KeyValuesSystem.cpp"
+		$File	"processutils.cpp"			[$WIN32]
+		$File	"random.cpp"
+		$File	"vcover.cpp"
+	}
+
+	$Folder	"Public Header Files"
+	{
+		$File	"$SRCDIR\public\vstdlib\cvar.h"
+		$File	"$SRCDIR\public\vstdlib\jobthread.h"
+		$File	"$SRCDIR\public\vstdlib\IKeyValuesSystem.h"
+		$File	"$SRCDIR\public\vstdlib\iprocessutils.h"
+		$File	"$SRCDIR\public\tier1\mempool.h"
+		$File	"$SRCDIR\public\vstdlib\random.h"
+		$File	"$SRCDIR\public\vstdlib\vcover.h"
+		$File	"$SRCDIR\public\vstdlib\vstdlib.h"
+	}
+}

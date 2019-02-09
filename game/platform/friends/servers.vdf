@@ -1,0 +1,23 @@
+"MasterServers"
+{
+	"1"
+	{
+		// friends network server 1
+		"address"	"207.173.177.42:1200"
+	}
+	"2"
+	{
+		// friends network server 2
+		"address"	"207.173.177.43:1200"
+	}
+	"3"
+	{
+		// friends network server 3
+		"address"	"207.173.177.44:1200"
+	}
+	"4"
+	{
+		// friends network server 4
+		"address"	"207.173.177.45:1200"
+	}
+}

@@ -1,0 +1,37 @@
+LIBRARY vstdlib_360.dll
+EXPORTS
+CreateInterfaceThunk                               @1 
+VStdLib_GetICVarFactory                            @2 
+g_pThreadPool                                      @3 DATA
+??0CUniformRandomStream@@QAA@ABV0@@Z               @4 
+??_7CUniformRandomStream@@6B@                      @5 DATA
+??4CUniformRandomStream@@QAAAAV0@ABV0@@Z           @6 
+??4CGaussianRandomStream@@QAAAAV0@ABV0@@Z          @7 
+??_FCGaussianRandomStream@@QAAXXZ                  @8 
+CreateThreadPool                                   @9 
+DestroyThreadPool                                  @10 
+RunThreadPoolTests                                 @11 
+KeyValuesSystem                                    @12 
+??0CUniformRandomStream@@QAA@ABV0@@Z               @13 
+??_7CUniformRandomStream@@6B@                      @14 DATA
+?SetSeed@CUniformRandomStream@@UAAXH@Z             @15 
+?RandomFloat@CUniformRandomStream@@UAAMMM@Z        @16 
+?RandomInt@CUniformRandomStream@@UAAHHH@Z          @17 
+?RandomFloatExp@CUniformRandomStream@@UAAMMMM@Z    @18 
+??4CUniformRandomStream@@QAAAAV0@ABV0@@Z           @19 
+??4CGaussianRandomStream@@QAAAAV0@ABV0@@Z          @20 
+??_FCGaussianRandomStream@@QAAXXZ                  @21 
+??0CGaussianRandomStream@@QAA@PAVIUniformRandomStream@@@Z @22 
+InstallUniformRandomStream                         @23 
+RandomSeed                                         @24 
+RandomFloat                                        @25 
+RandomFloatExp                                     @26 
+RandomInt                                          @27 
+RandomGaussianFloat                                @28 
+?RandomFloat@CGaussianRandomStream@@QAAMMM@Z       @29 
+??0CUniformRandomStream@@QAA@XZ                    @30 
+?GenerateRandomNumber@CUniformRandomStream@@AAAHXZ @31 
+?AttachToStream@CGaussianRandomStream@@QAAXPAVIUniformRandomStream@@@Z @32 
+g_VCoverage                                        @33 DATA
+CreateInterface                                    @34 
+; Do not modify this line! MAX_ORDINAL:34

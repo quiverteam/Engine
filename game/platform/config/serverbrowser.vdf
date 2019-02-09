@@ -1,0 +1,79 @@
+"Filters"
+{
+	"gamelist"		"internet"
+	"Filters"
+	{
+		"InternetGames"
+		{
+			"appid"		"0"
+			"ping"		"0"
+			"NoFull"		"0"
+			"NoEmpty"		"0"
+			"NoPassword"		"0"
+			"Secure"		"0"
+			"gametype"		"notags"
+			"location"		"0"
+		}
+		"FavoriteGames"
+		{
+			"appid"		"0"
+			"ping"		"0"
+			"NoFull"		"0"
+			"NoEmpty"		"0"
+			"NoPassword"		"0"
+			"Secure"		"0"
+			"gametype"		"notags"
+		}
+		"HistoryGames"
+		{
+			"appid"		"0"
+			"ping"		"0"
+			"NoFull"		"0"
+			"NoEmpty"		"0"
+			"NoPassword"		"0"
+			"Secure"		"0"
+			"gametype"		"notags"
+		}
+		"SpectateGames"
+		{
+			"appid"		"0"
+			"ping"		"0"
+			"NoFull"		"0"
+			"NoEmpty"		"0"
+			"NoPassword"		"0"
+			"Secure"		"0"
+			"gametype"		"notags"
+			"location"		"0"
+		}
+		"LanGames"
+		{
+			"appid"		"0"
+			"ping"		"0"
+			"NoFull"		"0"
+			"NoEmpty"		"0"
+			"NoPassword"		"0"
+			"Secure"		"0"
+			"gametype"		"notags"
+		}
+		"FriendsGames"
+		{
+			"appid"		"0"
+			"ping"		"0"
+			"NoFull"		"0"
+			"NoEmpty"		"0"
+			"NoPassword"		"0"
+			"Secure"		"0"
+			"gametype"		"notags"
+		}
+		"CustomGames"
+		{
+			"appid"		"0"
+			"ping"		"0"
+			"NoFull"		"0"
+			"NoEmpty"		"0"
+			"NoPassword"		"0"
+			"Secure"		"0"
+			"location"		"0"
+		}
+	}
+}

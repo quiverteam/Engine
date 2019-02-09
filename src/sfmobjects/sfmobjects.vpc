@@ -1,0 +1,49 @@
+//-----------------------------------------------------------------------------
+//	SFMOBJECTS.VPC
+//
+//	Project Script
+//-----------------------------------------------------------------------------
+
+$macro SRCDIR		".."
+$macro OUTLIBDIR	"$SRCDIR\lib\public"
+
+$include "$SRCDIR\vpc_scripts\source_lib_base.vpc"
+
+$Linux
+{
+	$BuildForLinux 1
+}
+
+$Configuration
+{
+	$Compiler
+	{
+		$PreprocessorDefinitions		"$BASE;SFMOBJECTS_STATIC_LIB"
+	}
+
+	$Librarian [$WIN32]
+	{
+		$AdditionalDependencies			"Rpcrt4.lib"
+	}
+}
+
+$Project "sfmobjects"
+{
+	$Folder	"Source Files"
+	{
+		$File	"exportfacialanimation.cpp"
+		$File	"flexcontrolbuilder.cpp"
+		$File	"sfmanimationsetutils.cpp"
+		$File	"sfmphonemeextractor.cpp"
+		$File	"sfmsession.cpp"
+	}
+
+	$Folder	"Header Files"
+	{
+		$File	"$SRCDIR\public\sfmobjects\exportfacialanimation.h"
+		$File	"$SRCDIR\public\sfmobjects\flexcontrolbuilder.h"
+		$File	"$SRCDIR\public\sfmobjects\sfmanimationsetutils.h"
+		$File	"$SRCDIR\public\sfmobjects\sfmphonemeextractor.h"
+		$File	"$SRCDIR\public\sfmobjects\sfmsession.h"
+	}
+}

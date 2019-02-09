@@ -1,0 +1,86 @@
+//-----------------------------------------------------------------------------
+//	PARSIFAL.VPC
+//
+//	Project Script
+//-----------------------------------------------------------------------------
+// ***** AUTO-GENERATED: PLEASE FIXUP MANUALLY BEFORE USING THIS SCRIPT! *****
+
+$Macro SRCDIR		"..\..\.."
+$Macro OUTBINDIR	"$SRCDIR\..\game\bin"
+
+$Include "$SRCDIR\vpc_scripts\source_dll_base.vpc"
+
+$Configuration	"Debug"
+{
+	$General
+	{
+		$ConfigurationType					"Dynamic Library (.dll)"
+	}
+
+	$Compiler
+	{
+		$AdditionalIncludeDirectories		"../../include/libparsifal;$SRCDIR/public"
+		$PreprocessorDefinitions			"_DEBUG;WIN32;_WINDOWS;XMLAPI=__declspec(dllexport);PARSIFAL_EXPORTS;DTD_SUPPORT"
+		$PrecompiledHeaderFile				"Debug/parsifal.pch"
+	}
+
+	$Linker
+	{
+		$ModuleDefinitionFile				"parsifal.def"
+	}
+}
+
+$Configuration	"Release"
+{
+	$General
+	{
+		$ConfigurationType					"Dynamic Library (.dll)"
+	}
+
+	$Compiler
+	{
+		$AdditionalIncludeDirectories		"../../include/libparsifal;$SRCDIR/public"
+		$PreprocessorDefinitions			"NDEBUG;WIN32;_WINDOWS;XMLAPI=__declspec(dllexport);PARSIFAL_EXPORTS;DTD_SUPPORT;MAX_SPEED"
+		$PrecompiledHeaderFile				"Release/parsifal.pch"
+	}
+
+	$Linker
+	{
+		$ModuleDefinitionFile				"parsifal.def"
+	}
+}
+
+$Project "Parsifal"
+{
+	$Folder	"Source Files"
+	{
+		$File	"..\..\src\bistream.c"
+		$File	"dllmain.c"
+		$File	"..\..\src\encoding.c"
+		$File	"..\..\src\parsifal.c"
+		$File	"parsifal.def"
+		$File	"..\..\src\xmlhash.c"
+		$File	"..\..\src\xmlpool.c"
+		$File	"..\..\src\xmlsbuf.c"
+		$File	"..\..\src\xmlvect.c"
+	}
+
+	$Folder	"Header Files"
+	{
+		$File	"..\..\include\libparsifal\bistream.h"
+		$File	"..\..\include\libparsifal\isrcmem.h"
+		$File	"..\..\include\libparsifal\nametab.h"
+		$File	"..\..\include\libparsifal\optcfg.h"
+		$File	"..\..\include\libparsifal\parsifal.h"
+		$File	"..\..\include\libparsifal\xmlcfg.h"
+		$File	"..\..\include\libparsifal\xmldef.h"
+		$File	"..\..\include\libparsifal\xmlhash.h"
+		$File	"..\..\include\libparsifal\xmlpool.h"
+		$File	"..\..\include\libparsifal\xmlsbuf.h"
+		$File	"..\..\include\libparsifal\xmlvect.h"
+	}
+
+	$Folder	"Resource Files"
+	{
+	}
+}

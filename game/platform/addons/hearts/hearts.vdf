@@ -1,0 +1,9 @@
+"Hearts"
+{
+	"DisplayName"	"Hearts"
+	"interface"	"SteamAddOnHearts001"
+	"GameID"	"ValveHearts"
+	"InviteUserMenu" "1"
+	"TrackerMainMenu" "0"
+	"SingleInvite"   "0"
+}

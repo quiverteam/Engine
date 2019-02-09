@@ -1,0 +1,9 @@
+"Go"
+{
+	"DisplayName"	"Go"
+	"interface"	"SteamAddOnGo001"
+	"GameID"	"ValveGo"
+	"InviteUserMenu" "1"
+	"TrackerMainMenu" "0"
+	"SingleInvite"   "1"
+}
