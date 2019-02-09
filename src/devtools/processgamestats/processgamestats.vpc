@@ -56,12 +56,6 @@ $Project "Processgamestats"
 		$File	"$SRCDIR\public\vstdlib\vstdlib.h"
 	}
 
-	$Folder	"Database Setup"
-	{
-		$File	"ep1_gamestats.db"
-		$File	"ep2_gamestats.db"
-	}
-
 	$Folder	"Link Libraries"
 	{
 		$File	"$SRCDIR\lib\public\tier2.lib"

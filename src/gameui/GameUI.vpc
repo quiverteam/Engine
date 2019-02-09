@@ -227,7 +227,6 @@ $Project "GameUI"
 	$Folder	"Link Libraries" [$WIN32]
 	{
 		$File	"$SRCDIR\lib\public\bitmap.lib"
-		$File	"$SRCDIR\lib\common\vc8\cryptlib.lib"
 		$File	"$SRCDIR\lib\common\jpeglib.lib"
 		$File	"$SRCDIR\lib\public\mathlib.lib"
 		$File	"$SRCDIR\lib\public\tier2.lib"
