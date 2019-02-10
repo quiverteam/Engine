@@ -55,6 +55,7 @@
 #include "tier1/utllinkedlist.h"
 #include "tier1/utlstring.h"
 #include "tier1/UtlSortVector.h"
+#include "tier1/UtlStringMap.h"
 #include "bspfile.h"
 #include "tier1/utldict.h"
 #include "tier1/tier1.h"
@@ -239,9 +240,10 @@ public:
 	// possibly embedded pack
 	int64				m_nBaseOffset;
 
-	CUtlString			m_ZipName;
+	CUtlString			m_PackName;
 
 	bool				m_bIsMapPath;
+	bool				m_bIsVPK;
 	long				m_lPackFileTime;
 
 	int					m_refCount;
@@ -339,6 +341,95 @@ protected:
 	CByteswap					m_swap;
 };
 
+class CVPKFileEntry
+{
+public:
+	unsigned int CRC; // A 32bit CRC of the file's data.
+	unsigned short PreloadBytes; // The number of bytes contained in the index file.
+
+								 // A zero based index of the archive this file's data is contained in.
+								 // If 0x7fff, the data follows the directory.
+	unsigned short ArchiveIndex;
+
+	// If ArchiveIndex is 0x7fff, the offset of the file data relative to the end of the directory (see the header for more details).
+	// Otherwise, the offset of the data from the start of the specified archive.
+	unsigned int EntryOffset;
+
+	// If zero, the entire file is stored in the preload data.
+	// Otherwise, the number of bytes stored starting at EntryOffset.
+	unsigned int EntryLength;
+
+	unsigned short Dummy; //This is always = 0xffff;
+};
+
+class CVPKFile : public CPackFile
+{
+public:
+	CVPKFile( CBaseFileSystem* fs, bool bVolumes, unsigned int nVersion );
+	~CVPKFile();
+
+	// Loads the pack file
+	virtual bool Prepare( int64 fileLen = -1, int64 nFileOfs = 0 );
+	virtual bool FindFile( const char *pFilename, int &nIndex, int64 &nOffset, int &nLength );
+	virtual int  ReadFromPack( int nIndex, void* buffer, int nDestBytes, int nBytes, int64 nOffset  );
+
+	int64 GetPackFileBaseOffset() { return m_nBaseOffset; }
+
+	bool	IndexToFilename( int nIndex, char *pBuffer, int nBufferSize ) { return true; };
+
+	inline bool	UsesVolumes()	{ return m_bVolumes; }
+
+	CUtlStringMap<CUtlStringMap<CUtlStringMap<CVPKFileEntry*>*>*> m_Extensions;
+private:
+	bool m_bVolumes;
+	unsigned int m_nVersion;
+	CVPKFileEntry* m_pLastRequest;
+protected:
+	//From VDC - https://developer.valvesoftware.com/wiki/VPK_File_Format#Tree
+
+	// Entries to the individual files stored inside the pack file.
+
+//	CVPKFileEntry m_VPKFiles;
+
+};
+
+//There is no actual version 0, we just use this struct to determine the actual version
+struct VPK0_t
+{
+	unsigned int Signature;
+	unsigned int Version;
+};
+
+//From VDC - https://developer.valvesoftware.com/wiki/VPK_File_Format#Header
+struct VPK1_t
+{
+	unsigned int Signature;
+	unsigned int Version;
+
+	// The size, in bytes, of the directory tree
+	unsigned int TreeSize;
+};
+
+struct VPK2_t
+{
+	unsigned int Signature;
+	unsigned int Version;
+
+	// The size, in bytes, of the directory tree
+	unsigned int TreeSize;
+
+	// How many bytes of file content are stored in this VPK file (0 in CSGO)
+	unsigned int FileDataSectionSize;
+
+	// The size, in bytes, of the section containing MD5 checksums for external archive content
+	unsigned int ArchiveMD5SectionSize;
+
+	// The size, in bytes, of the section containing MD5 checksums for content in this file (should always be 48)
+	unsigned int OtherMD5SectionSize;
+
+	// The size, in bytes, of the section containing the public key and signature. This is either 0 (CSGO & The Ship) or 296 (HL2, HL2:DM, HL2:EP1, HL2:EP2, HL2:LC, TF2, DOD:S & CS:S)
+	unsigned int SignatureSectionSize;
+};
 
 class CFileLoadInfo
 {
@@ -361,7 +452,8 @@ abstract_class CBaseFileSystem : public CTier1AppSystem< IFileSystem >
 {
 	friend class CPackFileHandle;
 	friend class CPackFile;
-	friend class CXZipPackFile;	
+	friend class CXZipPackFile;
+	friend class CVPKFile;
 	friend class CFileHandle;
 	friend class CFileTracker;
 	friend class CFileOpenInfo;
@@ -396,7 +488,7 @@ public:
 	virtual void				Flush( FileHandle_t file );
 	virtual bool				Precache( const char *pFileName, const char *pPathID );
 	virtual bool				EndOfFile( FileHandle_t file );
- 
+
 	virtual int					Read( void *pOutput, int size, FileHandle_t file );
 	virtual int					ReadEx( void* pOutput, int sizeDest, int size, FileHandle_t file );
 	virtual int					Write( void const* pInput, int size, FileHandle_t file );
@@ -451,7 +543,7 @@ public:
 	virtual bool				IsFileWritable( char const *pFileName, const char *pPathID = NULL );
 	virtual bool				SetFileWritable( char const *pFileName, bool writable, const char *pPathID = 0 );
 	virtual void				FileTimeToString( char *pString, int maxChars, long fileTime );
-	
+
 	virtual const char			*FindFirst( const char *pWildCard, FileFindHandle_t *pHandle );
 	virtual const char			*FindFirstEx( const char *pWildCard, const char *pPathID, FileFindHandle_t *pHandle );
 	virtual const char			*FindNext( FileFindHandle_t handle );
@@ -472,7 +564,7 @@ public:
 	virtual bool				String( const FileNameHandle_t& handle, char *buf, int buflen );
 	virtual int					GetPathIndex( const FileNameHandle_t &handle );
 	long						GetPathTime( const char *pFileName, const char *pPathID );
-	
+
 	bool						ShouldGameReloadFile( const char *pFilename );
 	virtual void				EnableWhitelistFileTracking( bool bEnable );
 	virtual void				RegisterFileWhitelist( IFileList *pWantCRCList, IFileList *pAllowFromDiskList, IFileList **pFilesToReload );
@@ -487,7 +579,7 @@ public:
 
 	// Returns the file system statistics retreived by the implementation.  Returns NULL if not supported.
 	virtual const FileSystemStatistics *GetFilesystemStatistics();
-	
+
 	// Load dlls
 	virtual CSysModule 			*LoadModule( const char *pFileName, const char *pPathID, bool bValidatedDllOnly );
 	virtual void				UnloadModule( CSysModule *pModule );
@@ -874,6 +966,7 @@ protected:
 
 	void						RemoveAllMapSearchPaths( void );
 	void						AddMapPackFile( const char *pPath, const char *pPathID, SearchPathAdd_t addType );
+	void						AddVPKFile( const char *pPath, const char *pPathID, SearchPathAdd_t addType );
 	void						AddPackFiles( const char *pPath, const CUtlSymbol &pathID, SearchPathAdd_t addType );
 	bool						PreparePackFile( CPackFile &packfile, int offsetofpackinmetafile, int64 filelen );
 

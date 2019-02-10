@@ -1417,6 +1417,19 @@ const char * V_GetFileExtension( const char * path )
 	return src;
 }
 
+
+//-----------------------------------------------------------------------------
+// Purpose: Returns a pointer to the filename part of a path string
+// Input:	in - file name 
+// Output:	pointer to beginning of filename (after the "/"). If there were no /, 
+//          output is identical to input
+//-----------------------------------------------------------------------------
+const char * V_GetFileName( const char * path )
+{
+	return V_UnqualifiedFileName( path );
+}
+
+	
 bool V_RemoveDotSlashes( char *pFilename, char separator )
 {
 	// Remove '//' or '\\'
