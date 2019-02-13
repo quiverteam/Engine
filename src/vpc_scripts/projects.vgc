@@ -103,6 +103,7 @@ $Project "client"
 	"game\client\client_hl2.vpc"		[($WIN32||$POSIX) && $HL2]
 	"game\client\client_episodic.vpc"	[($WIN32||$POSIX) && $EPISODIC]
 	"game\client\client_hl2mp.vpc"		[($WIN32||$POSIX) && $HL2MP]
+	"game\client\client_hl2r.vpc"		[($WIN32||$POSIX) && $HL2R]
 }
 
 $Project "client_sdk"
@@ -333,6 +334,7 @@ $Project "server"
 	"game\server\server_hl2.vpc"		[($WIN32||$POSIX) && $HL2]
 	"game\server\server_episodic.vpc"	[($WIN32||$POSIX) && $EPISODIC]
 	"game\server\server_hl2mp.vpc"		[($WIN32||$POSIX) && $HL2MP]
+	"game\server\server_hl2r.vpc"		[($WIN32||$POSIX) && $HL2R]
 }
 
 $Project "simdtest"

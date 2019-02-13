@@ -93,7 +93,7 @@ $Group "game"
 	"vgui_dll"
 	"vgui_surfacelib"
 	"vguimatsurface"
-	"vphysics"
+	//"vphysics"
 	"vstdlib"
 	"vtf" 
 }

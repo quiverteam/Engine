@@ -13,7 +13,7 @@ $Games
 	"EPISODIC"
 	"HL2"
 	"HL2MP"
-	"SDK"
+	"HL2R"
 }
 
 $Include "vpc_scripts\projects.vgc"
