@@ -273,6 +273,10 @@ void V_ExtractFileExtension( const char *path, char *dest, int destSize );
 
 const char *V_GetFileExtension( const char * path );
 
+// returns a pointer to just the filename part of the path
+// (everything after the last path seperator)
+const char *V_GetFileName( const char * path );
+
 // This removes "./" and "../" from the pathname. pFilename should be a full pathname.
 // Returns false if it tries to ".." past the root directory in the drive (in which case 
 // it is an invalid path).
