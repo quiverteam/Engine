@@ -201,8 +201,8 @@ private:
 			SetThreadPriority( m_hRecvThread, THREAD_PRIORITY_LOWEST );
 		}
 		
-		Plat_SetThreadName( dwSendThreadID, "TCPSend" );
-		Plat_SetThreadName( dwRecvThreadID, "TCPRecv" );
+		ThreadSetDebugName( dwSendThreadID, "TCPSend" );
+		ThreadSetDebugName( dwRecvThreadID, "TCPRecv" );
 
 		// Make sure to init the handler before the threads actually run, so it isn't handed data before initializing.
 		m_pHandler->Init( this );

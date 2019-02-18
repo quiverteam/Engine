@@ -861,3 +861,13 @@ void COM_TimestampedLog( char const *fmt, ... )
 
 	s_LastStamp = curStamp;
 }
+
+void CallAssertFailedNotifyFunc( const char *pchFile, int nLine, const char *pchMessage ) 
+{
+	//FIXME
+}
+
+bool HushAsserts()
+{
+	return CommandLine()->CheckParm( "-hushasserts" );
+}

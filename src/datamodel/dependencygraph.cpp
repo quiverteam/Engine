@@ -241,7 +241,7 @@ bool CDependencyGraph::CullAndSortOperators()
 	int oh = on / 2;
 	for ( int oi = 0; oi < oh; ++oi )
 	{
-		swap( m_operators[ oi ], m_operators[ on - oi - 1 ] );
+		V_swap( m_operators[ oi ], m_operators[ on - oi - 1 ] );
 	}
 	return cycle;
 

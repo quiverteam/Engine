@@ -3187,7 +3187,7 @@ void CVTFTexture::MatchCubeMapBorders( int iStage, ImageFormat finalFormat, bool
 			
 			// Swap R and B in these because IMAGE_FORMAT_RGBA8888 is swapped from the way S3RGBAs are.
 			for ( int i=0; i < nTotalBytes/4; i++ )
-				swap( m_OriginalData[i].r, m_OriginalData[i].b );
+				V_swap( m_OriginalData[i].r, m_OriginalData[i].b );
 		
 			return;
 		}

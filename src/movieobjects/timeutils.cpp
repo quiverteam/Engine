@@ -30,11 +30,6 @@ DmeFramerate_t::DmeFramerate_t( int nNumerator, int nDenominator ) :
 {
 }
 
-bool IsIntegralValue( float flValue, float flTolerance = 0.001f )
-{
-	return fabs( RoundFloatToInt( flValue ) - flValue ) < flTolerance;
-}
-
 void DmeFramerate_t::SetFramerate( float flFrameRate )
 {
 	if ( IsIntegralValue( flFrameRate ) )
