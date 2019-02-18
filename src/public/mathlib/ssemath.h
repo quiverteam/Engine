@@ -1,4 +1,4 @@
-//===== Copyright © 1996-2005, Valve Corporation, All rights reserved. ======//
+//========= Copyright Valve Corporation, All rights reserved. ============//
 //
 // Purpose: - defines SIMD "structure of arrays" classes and functions.
 //
@@ -15,12 +15,15 @@
 #include <mathlib/vector.h>
 #include <mathlib/mathlib.h>
 
-#if defined(_LINUX)
+#if defined(GNUC)
 #define USE_STDC_FOR_SIMD 0
 #else
 #define USE_STDC_FOR_SIMD 0
 #endif
 
+#if (!defined(_X360) && (USE_STDC_FOR_SIMD == 0))
+#define _SSE1 1
+#endif
 
 // I thought about defining a class/union for the SIMD packed floats instead of using fltx4,
 // but decided against it because (a) the nature of SIMD code which includes comparisons is to blur
@@ -105,7 +108,7 @@ struct ALIGN16 intx4
 			m_i32[2] == other.m_i32[2] &&
 			m_i32[3] == other.m_i32[3] 	;
 	}
-};
+} ALIGN16_POST;
 
 
 #if defined( _DEBUG ) && defined( _X360 )
@@ -133,18 +136,19 @@ FORCEINLINE void TestVPUFlags() {}
 // miss.)
 #ifndef _X360
 extern const fltx4 Four_Zeros;									// 0 0 0 0
-extern const fltx4 Four_Ones;										// 1 1 1 1
-extern const fltx4 Four_Twos;										// 2 2 2 2
+extern const fltx4 Four_Ones;									// 1 1 1 1
+extern const fltx4 Four_Twos;									// 2 2 2 2
 extern const fltx4 Four_Threes;									// 3 3 3 3
 extern const fltx4 Four_Fours;									// guess.
 extern const fltx4 Four_Point225s;								// .225 .225 .225 .225
 extern const fltx4 Four_PointFives;								// .5 .5 .5 .5
-extern const fltx4 Four_Epsilons;									// FLT_EPSILON FLT_EPSILON FLT_EPSILON FLT_EPSILON
+extern const fltx4 Four_Epsilons;								// FLT_EPSILON FLT_EPSILON FLT_EPSILON FLT_EPSILON
 extern const fltx4 Four_2ToThe21s;								// (1<<21)..
 extern const fltx4 Four_2ToThe22s;								// (1<<22)..
 extern const fltx4 Four_2ToThe23s;								// (1<<23)..
 extern const fltx4 Four_2ToThe24s;								// (1<<24)..
 extern const fltx4 Four_Origin;									// 0 0 0 1 (origin point, like vr0 on the PS2)
+extern const fltx4 Four_NegativeOnes;							// -1 -1 -1 -1 
 #else
 #define			   Four_Zeros XMVectorZero()					// 0 0 0 0
 #define			   Four_Ones XMVectorSplatOne()					// 1 1 1 1
@@ -153,23 +157,45 @@ extern const fltx4 Four_Threes;									// 3 3 3 3
 extern const fltx4 Four_Fours;									// guess.
 extern const fltx4 Four_Point225s;								// .225 .225 .225 .225
 extern const fltx4 Four_PointFives;								// .5 .5 .5 .5
-extern const fltx4 Four_Epsilons;									// FLT_EPSILON FLT_EPSILON FLT_EPSILON FLT_EPSILON
+extern const fltx4 Four_Epsilons;								// FLT_EPSILON FLT_EPSILON FLT_EPSILON FLT_EPSILON
 extern const fltx4 Four_2ToThe21s;								// (1<<21)..
 extern const fltx4 Four_2ToThe22s;								// (1<<22)..
 extern const fltx4 Four_2ToThe23s;								// (1<<23)..
 extern const fltx4 Four_2ToThe24s;								// (1<<24)..
 extern const fltx4 Four_Origin;									// 0 0 0 1 (origin point, like vr0 on the PS2)
+extern const fltx4 Four_NegativeOnes;							// -1 -1 -1 -1 
 #endif
 extern const fltx4 Four_FLT_MAX;								// FLT_MAX, FLT_MAX, FLT_MAX, FLT_MAX
 extern const fltx4 Four_Negative_FLT_MAX;						// -FLT_MAX, -FLT_MAX, -FLT_MAX, -FLT_MAX
+extern const fltx4 g_SIMD_0123;									// 0 1 2 3 as float
 
 // external aligned integer constants
-extern const ALIGN16 int32 g_SIMD_clear_signmask[];			// 0x7fffffff x 4
-extern const ALIGN16 int32 g_SIMD_signmask[];				// 0x80000000 x 4
-extern const ALIGN16 int32 g_SIMD_lsbmask[];				// 0xfffffffe x 4
-extern const ALIGN16 int32 g_SIMD_clear_wmask[];			// -1 -1 -1 0
-extern const ALIGN16 int32 g_SIMD_ComponentMask[4][4];		// [0xFFFFFFFF 0 0 0], [0 0xFFFFFFFF 0 0], [0 0 0xFFFFFFFF 0], [0 0 0 0xFFFFFFFF]
+extern const ALIGN16 int32 g_SIMD_clear_signmask[] ALIGN16_POST;			// 0x7fffffff x 4
+extern const ALIGN16 int32 g_SIMD_signmask[] ALIGN16_POST;				// 0x80000000 x 4
+extern const ALIGN16 int32 g_SIMD_lsbmask[] ALIGN16_POST;				// 0xfffffffe x 4
+extern const ALIGN16 int32 g_SIMD_clear_wmask[] ALIGN16_POST;			// -1 -1 -1 0
+extern const ALIGN16 int32 g_SIMD_ComponentMask[4][4] ALIGN16_POST;		// [0xFFFFFFFF 0 0 0], [0 0xFFFFFFFF 0 0], [0 0 0xFFFFFFFF 0], [0 0 0 0xFFFFFFFF]
+extern const ALIGN16 int32 g_SIMD_AllOnesMask[] ALIGN16_POST;			// ~0,~0,~0,~0
+extern const ALIGN16 int32 g_SIMD_Low16BitsMask[] ALIGN16_POST;			// 0xffff x 4
 
+// this mask is used for skipping the tail of things. If you have N elements in an array, and wish
+// to mask out the tail, g_SIMD_SkipTailMask[N & 3] what you want to use for the last iteration.
+extern const int32 ALIGN16 g_SIMD_SkipTailMask[4][4] ALIGN16_POST;
+
+// Define prefetch macros.
+// The characteristics of cache and prefetch are completely 
+// different between the different platforms, so you DO NOT
+// want to just define one macro that maps to every platform
+// intrinsic under the hood -- you need to prefetch at different
+// intervals between x86 and PPC, for example, and that is
+// a higher level code change. 
+// On the other hand, I'm tired of typing #ifdef _X360
+// all over the place, so this is just a nop on Intel, PS3.
+#ifdef _X360
+#define PREFETCH360(address, offset) __dcbt(offset,address)
+#else
+#define PREFETCH360(x,y) // nothing
+#endif
 
 #if USE_STDC_FOR_SIMD
 
@@ -348,6 +374,11 @@ FORCEINLINE fltx4 MaddSIMD( const fltx4 & a, const fltx4 & b, const fltx4 & c )	
 	return AddSIMD( MulSIMD(a,b), c );
 }
 
+FORCEINLINE fltx4 MsubSIMD( const fltx4 & a, const fltx4 & b, const fltx4 & c )				// c - a*b
+{
+	return SubSIMD( c, MulSIMD(a,b) );
+};
+
 
 FORCEINLINE fltx4 SinSIMD( const fltx4 &radians )
 {
@@ -381,6 +412,27 @@ FORCEINLINE fltx4 ArcSinSIMD( const fltx4 &sine )
 	SubFloat( result, 1 ) = asin( SubFloat( sine, 1 ) );
 	SubFloat( result, 2 ) = asin( SubFloat( sine, 2 ) );
 	SubFloat( result, 3 ) = asin( SubFloat( sine, 3 ) );
+	return result;
+}
+
+FORCEINLINE fltx4 ArcCosSIMD( const fltx4 &cs )
+{
+	fltx4 result;
+	SubFloat( result, 0 ) = acos( SubFloat( cs, 0 ) );
+	SubFloat( result, 1 ) = acos( SubFloat( cs, 1 ) );
+	SubFloat( result, 2 ) = acos( SubFloat( cs, 2 ) );
+	SubFloat( result, 3 ) = acos( SubFloat( cs, 3 ) );
+	return result;
+}
+
+// tan^1(a/b) .. ie, pass sin in as a and cos in as b
+FORCEINLINE fltx4 ArcTan2SIMD( const fltx4 &a, const fltx4 &b )
+{
+	fltx4 result;
+	SubFloat( result, 0 ) = atan2( SubFloat( a, 0 ), SubFloat( b, 0 ) );
+	SubFloat( result, 1 ) = atan2( SubFloat( a, 1 ), SubFloat( b, 1 ) );
+	SubFloat( result, 2 ) = atan2( SubFloat( a, 2 ), SubFloat( b, 2 ) );
+	SubFloat( result, 3 ) = atan2( SubFloat( a, 3 ), SubFloat( b, 3 ) );
 	return result;
 }
 
@@ -443,9 +495,9 @@ FORCEINLINE fltx4 NegSIMD(const fltx4 &a) // negate: -a
 FORCEINLINE bool IsAllZeros( const fltx4 & a )								// all floats of a zero?
 {
 	return	( SubFloat( a, 0 ) == 0.0 ) &&
-			( SubFloat( a, 1 ) == 0.0 ) &&
-			( SubFloat( a, 2 ) == 0.0 ) &&
-			( SubFloat( a, 3 ) == 0.0 ) ;
+		( SubFloat( a, 1 ) == 0.0 ) &&
+		( SubFloat( a, 2 ) == 0.0 ) &&
+		( SubFloat( a, 3 ) == 0.0 ) ;
 }
 
 
@@ -453,27 +505,27 @@ FORCEINLINE bool IsAllZeros( const fltx4 & a )								// all floats of a zero?
 FORCEINLINE bool IsAllGreaterThan( const fltx4 &a, const fltx4 &b )
 {
 	return	SubFloat(a,0) > SubFloat(b,0) &&
-			SubFloat(a,1) > SubFloat(b,1) &&
-			SubFloat(a,2) > SubFloat(b,2) &&
-			SubFloat(a,3) > SubFloat(b,3);
+		SubFloat(a,1) > SubFloat(b,1) &&
+		SubFloat(a,2) > SubFloat(b,2) &&
+		SubFloat(a,3) > SubFloat(b,3);
 }
 
 // for branching when a.xyzw >= b.xyzw
 FORCEINLINE bool IsAllGreaterThanOrEq( const fltx4 &a, const fltx4 &b )
 {
 	return	SubFloat(a,0) >= SubFloat(b,0) &&
-			SubFloat(a,1) >= SubFloat(b,1) &&
-			SubFloat(a,2) >= SubFloat(b,2) &&
-			SubFloat(a,3) >= SubFloat(b,3);
+		SubFloat(a,1) >= SubFloat(b,1) &&
+		SubFloat(a,2) >= SubFloat(b,2) &&
+		SubFloat(a,3) >= SubFloat(b,3);
 }
 
 // For branching if all a.xyzw == b.xyzw
 FORCEINLINE bool IsAllEqual( const fltx4 & a, const fltx4 & b )
 {
 	return	SubFloat(a,0) == SubFloat(b,0) &&
-			SubFloat(a,1) == SubFloat(b,1) &&
-			SubFloat(a,2) == SubFloat(b,2) &&
-			SubFloat(a,3) == SubFloat(b,3);
+		SubFloat(a,1) == SubFloat(b,1) &&
+		SubFloat(a,2) == SubFloat(b,2) &&
+		SubFloat(a,3) == SubFloat(b,3);
 }
 
 FORCEINLINE int TestSignSIMD( const fltx4 & a )								// mask of which floats have the high bit set
@@ -637,6 +689,16 @@ FORCEINLINE fltx4 ReciprocalSqrtEstSIMD( const fltx4 & a )		// 1/sqrt(a), more o
 	return retVal;
 }
 
+FORCEINLINE fltx4 ReciprocalSqrtEstSaturateSIMD( const fltx4 & a )
+{
+	fltx4 retVal;
+	SubFloat( retVal, 0 ) = 1.0 / sqrt( SubFloat( a, 0 ) != 0.0f ? SubFloat( a, 0 ) : FLT_EPSILON );
+	SubFloat( retVal, 1 ) = 1.0 / sqrt( SubFloat( a, 1 ) != 0.0f ? SubFloat( a, 1 ) : FLT_EPSILON );
+	SubFloat( retVal, 2 ) = 1.0 / sqrt( SubFloat( a, 2 ) != 0.0f ? SubFloat( a, 2 ) : FLT_EPSILON );
+	SubFloat( retVal, 3 ) = 1.0 / sqrt( SubFloat( a, 3 ) != 0.0f ? SubFloat( a, 3 ) : FLT_EPSILON );
+	return retVal;
+}
+
 FORCEINLINE fltx4 ReciprocalSqrtSIMD( const fltx4 & a )			// 1/sqrt(a)
 {
 	fltx4 retVal;
@@ -669,6 +731,16 @@ FORCEINLINE fltx4 ReciprocalSIMD( const fltx4 & a )				// 1/a
 
 /// 1/x for all 4 values.
 /// 1/0 will result in a big but NOT infinite result
+FORCEINLINE fltx4 ReciprocalEstSaturateSIMD( const fltx4 & a )
+{
+	fltx4 retVal;
+	SubFloat( retVal, 0 ) = 1.0 / (SubFloat( a, 0 ) == 0.0f ? FLT_EPSILON : SubFloat( a, 0 ));
+	SubFloat( retVal, 1 ) = 1.0 / (SubFloat( a, 1 ) == 0.0f ? FLT_EPSILON : SubFloat( a, 1 ));
+	SubFloat( retVal, 2 ) = 1.0 / (SubFloat( a, 2 ) == 0.0f ? FLT_EPSILON : SubFloat( a, 2 ));
+	SubFloat( retVal, 3 ) = 1.0 / (SubFloat( a, 3 ) == 0.0f ? FLT_EPSILON : SubFloat( a, 3 ));
+	return retVal;
+}
+
 FORCEINLINE fltx4 ReciprocalSaturateSIMD( const fltx4 & a )
 {
 	fltx4 retVal;
@@ -724,17 +796,17 @@ FORCEINLINE fltx4 SetWToZeroSIMD( const fltx4 & a )
 	return retval;
 }
 
-FORCEINLINE fltx4 LoadUnalignedSIMD( const float *pSIMD )
+FORCEINLINE fltx4 LoadUnalignedSIMD( const void *pSIMD )
 {
 	return *( reinterpret_cast< const fltx4 *> ( pSIMD ) );
 }
 
-FORCEINLINE fltx4 LoadUnaligned3SIMD( const float *pSIMD )
+FORCEINLINE fltx4 LoadUnaligned3SIMD( const void *pSIMD )
 {
 	return *( reinterpret_cast< const fltx4 *> ( pSIMD ) );
 }
 
-FORCEINLINE fltx4 LoadAlignedSIMD( const float *pSIMD )
+FORCEINLINE fltx4 LoadAlignedSIMD( const void *pSIMD )
 {
 	return *( reinterpret_cast< const fltx4 *> ( pSIMD ) );
 }
@@ -756,6 +828,13 @@ FORCEINLINE void StoreAlignedSIMD( float *pSIMD, const fltx4 & a )
 FORCEINLINE void StoreUnalignedSIMD( float *pSIMD, const fltx4 & a )
 {
 	*( reinterpret_cast< fltx4 *> ( pSIMD ) ) = a;
+}
+
+FORCEINLINE void StoreUnaligned3SIMD( float *pSIMD, const fltx4 & a )
+{
+	*pSIMD     = SubFloat(a, 0);
+	*(pSIMD+1) = SubFloat(a, 1);
+	*(pSIMD+2) = SubFloat(a, 2);
 }
 
 // strongly typed -- syntactic castor oil used for typechecking as we transition to SIMD
@@ -818,13 +897,13 @@ FORCEINLINE fltx4 IntSetImmediateSIMD( int nValue )
 }
 
 // Load 4 aligned words into a SIMD register
-FORCEINLINE i32x4 LoadAlignedIntSIMD(const int32 * RESTRICT pSIMD)
+FORCEINLINE i32x4 LoadAlignedIntSIMD(const void * RESTRICT pSIMD)
 {
 	return *( reinterpret_cast< const i32x4 *> ( pSIMD ) );
 }
 
 // Load 4 unaligned words into a SIMD register
-FORCEINLINE i32x4 LoadUnalignedIntSIMD(const int32 * RESTRICT pSIMD)
+FORCEINLINE i32x4 LoadUnalignedIntSIMD( const void * RESTRICT pSIMD)
 {
 	return *( reinterpret_cast< const i32x4 *> ( pSIMD ) );
 }
@@ -850,13 +929,13 @@ FORCEINLINE void StoreUnalignedIntSIMD( int32 *pSIMD, const fltx4 & a )
 // fixed point conversion is done.
 FORCEINLINE fltx4 UnsignedIntConvertToFltSIMD( const u32x4 &vSrcA )
 {
-  Assert(0);			/* pc has no such operation */
-  fltx4 retval;
-  SubFloat( retval, 0 ) = ( (float) SubInt( retval, 0 ) );
-  SubFloat( retval, 1 ) = ( (float) SubInt( retval, 1 ) );
-  SubFloat( retval, 2 ) = ( (float) SubInt( retval, 2 ) );
-  SubFloat( retval, 3 ) = ( (float) SubInt( retval, 3 ) );
-  return retval;
+	Assert(0);			/* pc has no such operation */
+	fltx4 retval;
+	SubFloat( retval, 0 ) = ( (float) SubInt( retval, 0 ) );
+	SubFloat( retval, 1 ) = ( (float) SubInt( retval, 1 ) );
+	SubFloat( retval, 2 ) = ( (float) SubInt( retval, 2 ) );
+	SubFloat( retval, 3 ) = ( (float) SubInt( retval, 3 ) );
+	return retval;
 }
 
 
@@ -876,13 +955,13 @@ FORCEINLINE fltx4 SignedIntConvertToFltSIMD( const i32x4 &vSrcA )
 
 
 /*
-works on fltx4's as if they are four uints.
-the first parameter contains the words to be shifted,
-the second contains the amount to shift by AS INTS
+  works on fltx4's as if they are four uints.
+  the first parameter contains the words to be shifted,
+  the second contains the amount to shift by AS INTS
 
-for i = 0 to 3
-shift = vSrcB_i*32:(i*32)+4
-vReturned_i*32:(i*32)+31 = vSrcA_i*32:(i*32)+31 << shift
+  for i = 0 to 3
+  shift = vSrcB_i*32:(i*32)+4
+  vReturned_i*32:(i*32)+31 = vSrcA_i*32:(i*32)+31 << shift
 */
 FORCEINLINE i32x4 IntShiftLeftWordSIMD(const i32x4 &vSrcA, const i32x4 &vSrcB)
 {
@@ -935,6 +1014,11 @@ FORCEINLINE fltx4 MaddSIMD( const fltx4 & a, const fltx4 & b, const fltx4 & c )	
 	return __vmaddfp( a, b, c );
 }
 
+FORCEINLINE fltx4 MsubSIMD( const fltx4 & a, const fltx4 & b, const fltx4 & c )				// c - a*b
+{
+	return __vnmsubfp( a, b, c );
+};
+
 FORCEINLINE fltx4 Dot3SIMD( const fltx4 &a, const fltx4 &b )
 {
 	return __vmsum3fp( a, b );
@@ -955,9 +1039,14 @@ FORCEINLINE void SinCos3SIMD( fltx4 &sine, fltx4 &cosine, const fltx4 &radians )
 	XMVectorSinCos( &sine, &cosine, radians ); 	
 }
 
-FORCEINLINE void SinCosSIMD( fltx4 &sine, fltx4 &cosine, const fltx4 &radians )				// a*b + c
+FORCEINLINE void SinCosSIMD( fltx4 &sine, fltx4 &cosine, const fltx4 &radians )			
 {
 	XMVectorSinCos( &sine, &cosine, radians ); 	
+}
+
+FORCEINLINE void CosSIMD( fltx4 &cosine, const fltx4 &radians )				
+{
+	cosine = XMVectorCos( radians ); 	
 }
 
 FORCEINLINE fltx4 ArcSinSIMD( const fltx4 &sine )
@@ -965,6 +1054,16 @@ FORCEINLINE fltx4 ArcSinSIMD( const fltx4 &sine )
 	return XMVectorASin( sine );
 }
 
+FORCEINLINE fltx4 ArcCosSIMD( const fltx4 &cs )
+{
+	return XMVectorACos( cs );
+}
+
+// tan^1(a/b) .. ie, pass sin in as a and cos in as b
+FORCEINLINE fltx4 ArcTan2SIMD( const fltx4 &a, const fltx4 &b )
+{
+	return XMVectorATan2( a, b );
+}
 
 // DivSIMD defined further down, since it uses ReciprocalSIMD
 
@@ -1182,6 +1281,14 @@ FORCEINLINE fltx4 ReciprocalSqrtEstSIMD( const fltx4 & a )		// 1/sqrt(a), more o
     return __vrsqrtefp( a );
 }
 
+FORCEINLINE fltx4 ReciprocalSqrtEstSaturateSIMD( const fltx4 & a )
+{
+	// Convert zeros to epsilons
+	fltx4 zero_mask = CmpEqSIMD( a, Four_Zeros );
+	fltx4 a_safe = OrSIMD( a, AndSIMD( Four_Epsilons, zero_mask ) );
+	return ReciprocalSqrtEstSIMD( a_safe );
+}
+
 FORCEINLINE fltx4 ReciprocalSqrtSIMD( const fltx4 & a )			// 1/sqrt(a)
 {
 	// This uses Newton-Raphson to improve the HW result
@@ -1209,6 +1316,14 @@ FORCEINLINE fltx4 DivSIMD( const fltx4 & a, const fltx4 & b )	// a/b
 
 /// 1/x for all 4 values.
 /// 1/0 will result in a big but NOT infinite result
+FORCEINLINE fltx4 ReciprocalEstSaturateSIMD( const fltx4 & a )
+{
+	// Convert zeros to epsilons
+	fltx4 zero_mask = CmpEqSIMD( a, Four_Zeros );
+	fltx4 a_safe = OrSIMD( a, AndSIMD( Four_Epsilons, zero_mask ) );
+	return ReciprocalEstSIMD( a_safe );
+}
+
 FORCEINLINE fltx4 ReciprocalSaturateSIMD( const fltx4 & a )
 {
 	// Convert zeros to epsilons
@@ -1235,18 +1350,18 @@ FORCEINLINE fltx4 ClampVectorSIMD( FLTX4 in, FLTX4 min, FLTX4 max)
 	return XMVectorClamp(in, min, max);
 }
 
-FORCEINLINE fltx4 LoadUnalignedSIMD( const float *pSIMD )
+FORCEINLINE fltx4 LoadUnalignedSIMD( const void *pSIMD )
 {
-	return XMLoadVector4( (const void *)pSIMD );
+	return XMLoadVector4( pSIMD );
 }
 
 // load a 3-vector (as opposed to LoadUnalignedSIMD, which loads a 4-vec). 
-FORCEINLINE fltx4 LoadUnaligned3SIMD( const float *pSIMD )
+FORCEINLINE fltx4 LoadUnaligned3SIMD( const void *pSIMD )
 {
-	return XMLoadVector3( (const void *)pSIMD );
+	return XMLoadVector3( pSIMD );
 }
 
-FORCEINLINE fltx4 LoadAlignedSIMD( const float *pSIMD )
+FORCEINLINE fltx4 LoadAlignedSIMD( const void *pSIMD )
 {
 	return *( reinterpret_cast< const fltx4 *> ( pSIMD ) );
 }
@@ -1276,6 +1391,12 @@ FORCEINLINE void StoreUnalignedSIMD( float *pSIMD, const fltx4 & a )
 {
 	XMStoreVector4( pSIMD, a );
 }
+
+FORCEINLINE void StoreUnaligned3SIMD( float *pSIMD, const fltx4 & a )
+{
+	XMStoreVector3( pSIMD, a );
+}
+
 
 // strongly typed -- for typechecking as we transition to SIMD
 FORCEINLINE void StoreAligned3SIMD( VectorAligned * RESTRICT pSIMD, const fltx4 & a )
@@ -1449,7 +1570,7 @@ void TransformManyPointsBy(VectorAligned * RESTRICT pVectors, unsigned int numVe
 FORCEINLINE void TransformManyPointsBy(VectorAligned * RESTRICT pVectors, unsigned int numVectors, const matrix3x4_t &pMatrix)
 {
 	return TransformManyPointsBy(pVectors, numVectors, 
-			LoadUnalignedSIMD(pMatrix[0]), LoadUnalignedSIMD(pMatrix[1]), LoadUnalignedSIMD(pMatrix[2]) );
+								 LoadUnalignedSIMD( pMatrix[0] ), LoadUnalignedSIMD( pMatrix[1] ), LoadUnalignedSIMD( pMatrix[2] ) );
 }
 
 // Transform many (horizontal) points in-place by a 3x4 matrix.
@@ -1460,23 +1581,23 @@ FORCEINLINE void TransformManyPointsBy(VectorAligned * RESTRICT pVectors, unsign
 FORCEINLINE void TransformManyPointsByA(VectorAligned * RESTRICT pVectors, unsigned int numVectors, const matrix3x4_t &pMatrix)
 {
 	return TransformManyPointsBy(pVectors, numVectors, 
-		LoadAlignedSIMD(pMatrix[0]), LoadAlignedSIMD(pMatrix[1]), LoadAlignedSIMD(pMatrix[2]) );
+								 LoadAlignedSIMD( pMatrix[0] ), LoadAlignedSIMD( pMatrix[1] ), LoadAlignedSIMD( pMatrix[2] ) );
 }
 
-	// ------------------------------------
-	// INTEGER SIMD OPERATIONS.
-	// ------------------------------------
+// ------------------------------------
+// INTEGER SIMD OPERATIONS.
+// ------------------------------------
 
 // Load 4 aligned words into a SIMD register
-FORCEINLINE i32x4 LoadAlignedIntSIMD(const int32 * RESTRICT pSIMD)
+FORCEINLINE i32x4 LoadAlignedIntSIMD( const void * RESTRICT pSIMD)
 {
 	return XMLoadVector4A(pSIMD);
 }
 
 // Load 4 unaligned words into a SIMD register
-FORCEINLINE i32x4 LoadUnalignedIntSIMD(const int32 * RESTRICT pSIMD)
+FORCEINLINE i32x4 LoadUnalignedIntSIMD(const void * RESTRICT pSIMD)
 {
-	return XMLoadVector4(pSIMD);
+	return XMLoadVector4( pSIMD );
 }
 
 // save into four words, 16-byte aligned
@@ -1518,10 +1639,10 @@ FORCEINLINE fltx4 SignedIntConvertToFltSIMD( const i32x4 &vSrcA )
 // will be divided by 2^immed after conversion
 // (eg, this is fixed point math). 
 /* as if:
-FORCEINLINE fltx4 UnsignedIntConvertToFltSIMD( const i32x4 &vSrcA, unsigned int uImmed )
-{
-	return __vcfux( vSrcA, uImmed );
-}
+   FORCEINLINE fltx4 UnsignedIntConvertToFltSIMD( const i32x4 &vSrcA, unsigned int uImmed )
+   {
+   return __vcfux( vSrcA, uImmed );
+   }
 */
 #define UnsignedFixedIntConvertToFltSIMD(vSrcA, uImmed) (__vcfux( (vSrcA), (uImmed) ))
 
@@ -1530,30 +1651,30 @@ FORCEINLINE fltx4 UnsignedIntConvertToFltSIMD( const i32x4 &vSrcA, unsigned int 
 // will be divided by 2^immed (eg, this is fixed point
 // math). 
 /* as if:
-FORCEINLINE fltx4 SignedIntConvertToFltSIMD( const i32x4 &vSrcA, unsigned int uImmed )
-{
-	return __vcfsx( vSrcA, uImmed );
-}
+   FORCEINLINE fltx4 SignedIntConvertToFltSIMD( const i32x4 &vSrcA, unsigned int uImmed )
+   {
+   return __vcfsx( vSrcA, uImmed );
+   }
 */
 #define SignedFixedIntConvertToFltSIMD(vSrcA, uImmed) (__vcfsx( (vSrcA), (uImmed) ))
 
 // set all components of a vector to a signed immediate int number.
 /* as if:
-FORCEINLINE fltx4 IntSetImmediateSIMD(int toImmediate)
-{
-	return __vspltisw( toImmediate );
-}
+   FORCEINLINE fltx4 IntSetImmediateSIMD(int toImmediate)
+   {
+   return __vspltisw( toImmediate );
+   }
 */
 #define IntSetImmediateSIMD(x) (__vspltisw(x))
 
 /*
-works on fltx4's as if they are four uints.
-the first parameter contains the words to be shifted,
-the second contains the amount to shift by AS INTS
+  works on fltx4's as if they are four uints.
+  the first parameter contains the words to be shifted,
+  the second contains the amount to shift by AS INTS
 
-for i = 0 to 3
-shift = vSrcB_i*32:(i*32)+4
-vReturned_i*32:(i*32)+31 = vSrcA_i*32:(i*32)+31 << shift
+  for i = 0 to 3
+  shift = vSrcB_i*32:(i*32)+4
+  vReturned_i*32:(i*32)+31 = vSrcA_i*32:(i*32)+31 << shift
 */
 FORCEINLINE fltx4 IntShiftLeftWordSIMD(fltx4 vSrcA, fltx4 vSrcB)
 {
@@ -1609,15 +1730,26 @@ FORCEINLINE void StoreUnalignedSIMD( float * RESTRICT pSIMD, const fltx4 & a )
 	_mm_storeu_ps( pSIMD, a );
 }
 
+
+FORCEINLINE fltx4 RotateLeft( const fltx4 & a );
+FORCEINLINE fltx4 RotateLeft2( const fltx4 & a );
+
+FORCEINLINE void StoreUnaligned3SIMD( float *pSIMD, const fltx4 & a )
+{
+	_mm_store_ss(pSIMD, a);
+	_mm_store_ss(pSIMD+1, RotateLeft(a));
+	_mm_store_ss(pSIMD+2, RotateLeft2(a));
+}
+
 // strongly typed -- syntactic castor oil used for typechecking as we transition to SIMD
 FORCEINLINE void StoreAligned3SIMD( VectorAligned * RESTRICT pSIMD, const fltx4 & a )
 {
 	StoreAlignedSIMD( pSIMD->Base(),a );
 }
 
-FORCEINLINE fltx4 LoadAlignedSIMD( const float *pSIMD )
+FORCEINLINE fltx4 LoadAlignedSIMD( const void *pSIMD )
 {
-	return _mm_load_ps( pSIMD );
+	return _mm_load_ps( reinterpret_cast< const float *> ( pSIMD ) );
 }
 
 FORCEINLINE fltx4 AndSIMD( const fltx4 & a, const fltx4 & b )				// a & b
@@ -1625,7 +1757,7 @@ FORCEINLINE fltx4 AndSIMD( const fltx4 & a, const fltx4 & b )				// a & b
 	return _mm_and_ps( a, b );
 }
 
-FORCEINLINE fltx4 AndNotSIMD( const fltx4 & a, const fltx4 & b )			// a & ~b
+FORCEINLINE fltx4 AndNotSIMD( const fltx4 & a, const fltx4 & b )			// ~a & b
 {
 	return _mm_andnot_ps( a, b );
 }
@@ -1644,7 +1776,7 @@ FORCEINLINE fltx4 OrSIMD( const fltx4 & a, const fltx4 & b )				// a | b
 // Most efficient when you say a = SetWToZeroSIMD(a) (avoids a copy)
 FORCEINLINE fltx4 SetWToZeroSIMD( const fltx4 & a )
 {
-	return AndSIMD( a, LoadAlignedSIMD( ( const float *) g_SIMD_clear_wmask ) );
+	return AndSIMD( a, LoadAlignedSIMD( g_SIMD_clear_wmask ) );
 }
 
 // for the transitional class -- load a 3-by VectorAligned and squash its w component
@@ -1653,14 +1785,14 @@ FORCEINLINE fltx4 LoadAlignedSIMD( const VectorAligned & pSIMD )
 	return SetWToZeroSIMD( LoadAlignedSIMD(pSIMD.Base()) );
 }
 
-FORCEINLINE fltx4 LoadUnalignedSIMD( const float *pSIMD )
+FORCEINLINE fltx4 LoadUnalignedSIMD( const void *pSIMD )
 {
-	return _mm_loadu_ps( pSIMD );
+	return _mm_loadu_ps( reinterpret_cast<const float *>( pSIMD ) );
 }
 
-FORCEINLINE fltx4 LoadUnaligned3SIMD( const float *pSIMD )
+FORCEINLINE fltx4 LoadUnaligned3SIMD( const void *pSIMD )
 {
-	return _mm_loadu_ps( pSIMD );
+	return _mm_loadu_ps( reinterpret_cast<const float *>( pSIMD ) );
 }
 
 /// replicate a single 32 bit integer value to all 4 components of an m128
@@ -1681,7 +1813,7 @@ FORCEINLINE fltx4 ReplicateX4( float flValue )
 FORCEINLINE float SubFloat( const fltx4 & a, int idx )
 {
 	// NOTE: if the output goes into a register, this causes a Load-Hit-Store stall (don't mix fpu/vpu math!)
-#ifndef _LINUX
+#ifndef POSIX
 	return a.m128_f32[ idx ];
 #else
 	return (reinterpret_cast<float const *>(&a))[idx];
@@ -1690,7 +1822,7 @@ FORCEINLINE float SubFloat( const fltx4 & a, int idx )
 
 FORCEINLINE float & SubFloat( fltx4 & a, int idx )
 {
-#ifndef _LINUX
+#ifndef POSIX
 	return a.m128_f32[ idx ];
 #else
 	return (reinterpret_cast<float *>(&a))[idx];
@@ -1704,7 +1836,7 @@ FORCEINLINE uint32 SubFloatConvertToInt( const fltx4 & a, int idx )
 
 FORCEINLINE uint32 SubInt( const fltx4 & a, int idx )
 {
-#ifndef _LINUX
+#ifndef POSIX
 	return a.m128_u32[idx];
 #else
 	return (reinterpret_cast<uint32 const *>(&a))[idx];
@@ -1713,7 +1845,7 @@ FORCEINLINE uint32 SubInt( const fltx4 & a, int idx )
 
 FORCEINLINE uint32 & SubInt( fltx4 & a, int idx )
 {
-#ifndef _LINUX
+#ifndef POSIX
 	return a.m128_u32[idx];
 #else
 	return (reinterpret_cast<uint32 *>(&a))[idx];
@@ -1766,32 +1898,32 @@ FORCEINLINE fltx4 SplatWSIMD( fltx4 const &a )
 
 FORCEINLINE fltx4 SetXSIMD( const fltx4& a, const fltx4& x )
 {
-	fltx4 result = MaskedAssign( LoadAlignedSIMD( (const float *)(g_SIMD_ComponentMask[0]) ), x, a );
+	fltx4 result = MaskedAssign( LoadAlignedSIMD( g_SIMD_ComponentMask[0] ), x, a );
 	return result;
 }
 
 FORCEINLINE fltx4 SetYSIMD( const fltx4& a, const fltx4& y )
 {
-	fltx4 result = MaskedAssign( LoadAlignedSIMD( (const float *)(g_SIMD_ComponentMask[1]) ), y, a );
+	fltx4 result = MaskedAssign( LoadAlignedSIMD( g_SIMD_ComponentMask[1] ), y, a );
 	return result;
 }
 
 FORCEINLINE fltx4 SetZSIMD( const fltx4& a, const fltx4& z )
 {
-	fltx4 result = MaskedAssign( LoadAlignedSIMD( (const float *)(g_SIMD_ComponentMask[2]) ), z, a );
+	fltx4 result = MaskedAssign( LoadAlignedSIMD( g_SIMD_ComponentMask[2] ), z, a );
 	return result;
 }
 
 FORCEINLINE fltx4 SetWSIMD( const fltx4& a, const fltx4& w )
 {
-	fltx4 result = MaskedAssign( LoadAlignedSIMD( (const float *)(g_SIMD_ComponentMask[3]) ), w, a );
+	fltx4 result = MaskedAssign( LoadAlignedSIMD( g_SIMD_ComponentMask[3] ), w, a );
 	return result;
 }
 
 FORCEINLINE fltx4 SetComponentSIMD( const fltx4& a, int nComponent, float flValue )
 {
 	fltx4 val = ReplicateX4( flValue );
-	fltx4 result = MaskedAssign( LoadAlignedSIMD( (const float *)(g_SIMD_ComponentMask[nComponent]) ), val, a );
+	fltx4 result = MaskedAssign( LoadAlignedSIMD( g_SIMD_ComponentMask[nComponent] ), val, a );
 	return result;
 }
 
@@ -1845,6 +1977,11 @@ FORCEINLINE fltx4 MaddSIMD( const fltx4 & a, const fltx4 & b, const fltx4 & c )	
 	return AddSIMD( MulSIMD(a,b), c );
 }
 
+FORCEINLINE fltx4 MsubSIMD( const fltx4 & a, const fltx4 & b, const fltx4 & c )				// c - a*b
+{
+	return SubSIMD( c, MulSIMD(a,b) );
+};
+
 FORCEINLINE fltx4 Dot3SIMD( const fltx4 &a, const fltx4 &b )
 {
 	fltx4 m = MulSIMD( a, b );
@@ -1896,6 +2033,27 @@ FORCEINLINE fltx4 ArcSinSIMD( const fltx4 &sine )
 	SubFloat( result, 1 ) = asin( SubFloat( sine, 1 ) );
 	SubFloat( result, 2 ) = asin( SubFloat( sine, 2 ) );
 	SubFloat( result, 3 ) = asin( SubFloat( sine, 3 ) );
+	return result;
+}
+
+FORCEINLINE fltx4 ArcCosSIMD( const fltx4 &cs )
+{
+	fltx4 result;
+	SubFloat( result, 0 ) = acos( SubFloat( cs, 0 ) );
+	SubFloat( result, 1 ) = acos( SubFloat( cs, 1 ) );
+	SubFloat( result, 2 ) = acos( SubFloat( cs, 2 ) );
+	SubFloat( result, 3 ) = acos( SubFloat( cs, 3 ) );
+	return result;
+}
+
+// tan^1(a/b) .. ie, pass sin in as a and cos in as b
+FORCEINLINE fltx4 ArcTan2SIMD( const fltx4 &a, const fltx4 &b )
+{
+	fltx4 result;
+	SubFloat( result, 0 ) = atan2( SubFloat( a, 0 ), SubFloat( b, 0 ) );
+	SubFloat( result, 1 ) = atan2( SubFloat( a, 1 ), SubFloat( b, 1 ) );
+	SubFloat( result, 2 ) = atan2( SubFloat( a, 2 ), SubFloat( b, 2 ) );
+	SubFloat( result, 3 ) = atan2( SubFloat( a, 3 ), SubFloat( b, 3 ) );
 	return result;
 }
 
@@ -2029,6 +2187,14 @@ FORCEINLINE fltx4 ReciprocalSqrtEstSIMD( const fltx4 & a )			// 1/sqrt(a), more 
 	return _mm_rsqrt_ps( a );
 }
 
+FORCEINLINE fltx4 ReciprocalSqrtEstSaturateSIMD( const fltx4 & a )
+{
+	fltx4 zero_mask = CmpEqSIMD( a, Four_Zeros );
+	fltx4 ret = OrSIMD( a, AndSIMD( Four_Epsilons, zero_mask ) );
+	ret = ReciprocalSqrtEstSIMD( ret );
+	return ret;
+}
+
 /// uses newton iteration for higher precision results than ReciprocalSqrtEstSIMD
 FORCEINLINE fltx4 ReciprocalSqrtSIMD( const fltx4 & a )				// 1/sqrt(a)
 {
@@ -2042,6 +2208,16 @@ FORCEINLINE fltx4 ReciprocalSqrtSIMD( const fltx4 & a )				// 1/sqrt(a)
 FORCEINLINE fltx4 ReciprocalEstSIMD( const fltx4 & a )				// 1/a, more or less
 {
 	return _mm_rcp_ps( a );
+}
+
+/// 1/x for all 4 values, more or less
+/// 1/0 will result in a big but NOT infinite result
+FORCEINLINE fltx4 ReciprocalEstSaturateSIMD( const fltx4 & a )
+{
+	fltx4 zero_mask = CmpEqSIMD( a, Four_Zeros );
+	fltx4 ret = OrSIMD( a, AndSIMD( Four_Epsilons, zero_mask ) );
+	ret = ReciprocalEstSIMD( ret );
+	return ret;
 }
 
 /// 1/x for all 4 values. uses reciprocal approximation instruction plus newton iteration.
@@ -2142,13 +2318,13 @@ FORCEINLINE fltx4 IntSetImmediateSIMD(int to)
 #endif
 
 // Load 4 aligned words into a SIMD register
-FORCEINLINE i32x4 LoadAlignedIntSIMD(const int32 * RESTRICT pSIMD)
+FORCEINLINE i32x4 LoadAlignedIntSIMD( const void * RESTRICT pSIMD)
 {
 	return _mm_load_ps( reinterpret_cast<const float *>(pSIMD) );
 }
 
 // Load 4 unaligned words into a SIMD register
-FORCEINLINE i32x4 LoadUnalignedIntSIMD(const int32 * RESTRICT pSIMD)
+FORCEINLINE i32x4 LoadUnalignedIntSIMD( const void * RESTRICT pSIMD)
 {
 	return _mm_loadu_ps( reinterpret_cast<const float *>(pSIMD) );
 }
@@ -2201,13 +2377,13 @@ FORCEINLINE fltx4 SignedIntConvertToFltSIMD( const i32x4 &vSrcA )
 }
 
 /*
-works on fltx4's as if they are four uints.
-the first parameter contains the words to be shifted,
-the second contains the amount to shift by AS INTS
+  works on fltx4's as if they are four uints.
+  the first parameter contains the words to be shifted,
+  the second contains the amount to shift by AS INTS
 
-for i = 0 to 3
-shift = vSrcB_i*32:(i*32)+4
-vReturned_i*32:(i*32)+31 = vSrcA_i*32:(i*32)+31 << shift
+  for i = 0 to 3
+  shift = vSrcB_i*32:(i*32)+4
+  vReturned_i*32:(i*32)+31 = vSrcA_i*32:(i*32)+31 << shift
 */
 FORCEINLINE i32x4 IntShiftLeftWordSIMD(const i32x4 &vSrcA, const i32x4 &vSrcB)
 {
@@ -2428,10 +2604,10 @@ public:
 		// TransposeSIMD has large sub-expressions that the compiler can't eliminate on x360
 		// use an unfolded implementation here
 #if _X360
-		fltx4 tx = LoadUnalignedSIMD(&a.x);
-		fltx4 ty = LoadUnalignedSIMD(&b.x);
-		fltx4 tz = LoadUnalignedSIMD(&c.x);
-		fltx4 tw = LoadUnalignedSIMD(&d.x);
+		fltx4 tx = LoadUnalignedSIMD( &a.x );
+		fltx4 ty = LoadUnalignedSIMD( &b.x );
+		fltx4 tz = LoadUnalignedSIMD( &c.x );
+		fltx4 tw = LoadUnalignedSIMD( &d.x );
 		fltx4 r0 = __vmrghw(tx, tz);
 		fltx4 r1 = __vmrghw(ty, tw);
 		fltx4 r2 = __vmrglw(tx, tz);
@@ -2441,10 +2617,10 @@ public:
 		y = __vmrglw(r0, r1);
 		z = __vmrghw(r2, r3);
 #else
-		x		= LoadUnalignedSIMD(&(a.x));
-		y		= LoadUnalignedSIMD(&(b.x));
-		z		= LoadUnalignedSIMD(&(c.x));
-		fltx4 w = LoadUnalignedSIMD(&(d.x));
+		x		= LoadUnalignedSIMD( &( a.x ));
+		y		= LoadUnalignedSIMD( &( b.x ));
+		z		= LoadUnalignedSIMD( &( c.x ));
+		fltx4 w = LoadUnalignedSIMD( &( d.x ));
 		// now, matrix is:
 		// x y z ?
 		// x y z ?
@@ -2472,16 +2648,16 @@ public:
 		y = __vmrglw(r0, r1);
 		z = __vmrghw(r2, r3);
 #else
-		x		= LoadAlignedSIMD(a);
-		y		= LoadAlignedSIMD(b);
-		z		= LoadAlignedSIMD(c);
-		fltx4 w = LoadAlignedSIMD(d);
+		x		= LoadAlignedSIMD( a );
+		y		= LoadAlignedSIMD( b );
+		z		= LoadAlignedSIMD( c );
+		fltx4 w = LoadAlignedSIMD( d );
 		// now, matrix is:
 		// x y z ?
 		// x y z ?
 		// x y z ?
 		// x y z ?
-		TransposeSIMD(x, y, z, w);
+		TransposeSIMD( x, y, z, w );
 #endif
 	}
 
@@ -2526,6 +2702,42 @@ public:
 	FORCEINLINE FourVectors(VectorAligned const &a, VectorAligned const &b, VectorAligned const &c, VectorAligned const &d)
 	{
 		LoadAndSwizzleAligned(a,b,c,d);
+	}
+
+	FORCEINLINE fltx4 DistToSqr( FourVectors const &pnt )
+	{
+		fltx4 fl4dX = SubSIMD( pnt.x, x );
+		fltx4 fl4dY = SubSIMD( pnt.y, y );
+		fltx4 fl4dZ = SubSIMD( pnt.z, z );
+		return AddSIMD( MulSIMD( fl4dX, fl4dX), AddSIMD( MulSIMD( fl4dY, fl4dY ), MulSIMD( fl4dZ, fl4dZ ) ) );
+
+	}
+	
+	FORCEINLINE fltx4 TValueOfClosestPointOnLine( FourVectors const &p0, FourVectors const &p1 ) const
+	{
+		FourVectors lineDelta = p1;
+		lineDelta -= p0;
+		fltx4 OOlineDirDotlineDir = ReciprocalSIMD( p1 * p1 );
+		FourVectors v4OurPnt = *this;
+		v4OurPnt -= p0;
+		return MulSIMD( OOlineDirDotlineDir, v4OurPnt * lineDelta );
+	}
+
+	FORCEINLINE fltx4 DistSqrToLineSegment( FourVectors const &p0, FourVectors const &p1 ) const
+	{
+		FourVectors lineDelta = p1;
+		FourVectors v4OurPnt = *this;
+		v4OurPnt -= p0;
+		lineDelta -= p0;
+
+		fltx4 OOlineDirDotlineDir = ReciprocalSIMD( lineDelta * lineDelta );
+
+		fltx4 fl4T = MulSIMD( OOlineDirDotlineDir, v4OurPnt * lineDelta );
+
+		fl4T = MinSIMD( fl4T, Four_Ones );
+		fl4T = MaxSIMD( fl4T, Four_Zeros );
+		lineDelta *= fl4T;
+		return v4OurPnt.DistToSqr( lineDelta );
 	}
 
 };
@@ -2597,33 +2809,33 @@ void FourVectors::RotateBy(const matrix3x4_t& matrix)
 		matSplat10, matSplat11, matSplat12,
 		matSplat20, matSplat21, matSplat22;
 
-	{
-		// Load the matrix into local vectors. Sadly, matrix3x4_ts are 
-		// often unaligned. The w components will be the tranpose row of
-		// the matrix, but we don't really care about that.
-		fltx4 matCol0 = LoadUnalignedSIMD(matrix[0]);
-		fltx4 matCol1 = LoadUnalignedSIMD(matrix[1]);
-		fltx4 matCol2 = LoadUnalignedSIMD(matrix[2]);
+ {
+	// Load the matrix into local vectors. Sadly, matrix3x4_ts are 
+	// often unaligned. The w components will be the tranpose row of
+	// the matrix, but we don't really care about that.
+	fltx4 matCol0 = LoadUnalignedSIMD( matrix[0] );
+	fltx4 matCol1 = LoadUnalignedSIMD( matrix[1] );
+	fltx4 matCol2 = LoadUnalignedSIMD( matrix[2] );
+	
+	matSplat00 = SplatXSIMD( matCol0 );
+	matSplat01 = SplatYSIMD( matCol0 );
+	matSplat02 = SplatZSIMD( matCol0 );
 
-		matSplat00 = SplatXSIMD(matCol0);
-		matSplat01 = SplatYSIMD(matCol0);
-		matSplat02 = SplatZSIMD(matCol0);
-
-		matSplat10 = SplatXSIMD(matCol1);
-		matSplat11 = SplatYSIMD(matCol1);
-		matSplat12 = SplatZSIMD(matCol1);
-
-		matSplat20 = SplatXSIMD(matCol2);
-		matSplat21 = SplatYSIMD(matCol2);
-		matSplat22 = SplatZSIMD(matCol2);
-	}
+	matSplat10 = SplatXSIMD( matCol1 );
+	matSplat11 = SplatYSIMD( matCol1 );
+	matSplat12 = SplatZSIMD( matCol1 );
+	
+	matSplat20 = SplatXSIMD( matCol2 );
+	matSplat21 = SplatYSIMD( matCol2 );
+	matSplat22 = SplatZSIMD( matCol2 );
+ }
 
 	// Trust in the compiler to schedule these operations correctly:
 	fltx4 outX, outY, outZ;
 	outX = AddSIMD( AddSIMD( MulSIMD( x, matSplat00 ), MulSIMD( y, matSplat01 ) ), MulSIMD( z, matSplat02 ) );
 	outY = AddSIMD( AddSIMD( MulSIMD( x, matSplat10 ), MulSIMD( y, matSplat11 ) ), MulSIMD( z, matSplat12 ) );
 	outZ = AddSIMD( AddSIMD( MulSIMD( x, matSplat20 ), MulSIMD( y, matSplat21 ) ), MulSIMD( z, matSplat22 ) );
-
+	
 	x = outX;
 	y = outY;
 	z = outZ;
@@ -2642,37 +2854,37 @@ void FourVectors::TransformBy(const matrix3x4_t& matrix)
 		matSplat10, matSplat11, matSplat12,
 		matSplat20, matSplat21, matSplat22;
 
-	{
-		// Load the matrix into local vectors. Sadly, matrix3x4_ts are 
-		// often unaligned. The w components will be the tranpose row of
-		// the matrix, but we don't really care about that.
-		fltx4 matCol0 = LoadUnalignedSIMD(matrix[0]);
-		fltx4 matCol1 = LoadUnalignedSIMD(matrix[1]);
-		fltx4 matCol2 = LoadUnalignedSIMD(matrix[2]);
-
-		matSplat00 = SplatXSIMD(matCol0);
-		matSplat01 = SplatYSIMD(matCol0);
-		matSplat02 = SplatZSIMD(matCol0);
-
-		matSplat10 = SplatXSIMD(matCol1);
-		matSplat11 = SplatYSIMD(matCol1);
-		matSplat12 = SplatZSIMD(matCol1);
-
-		matSplat20 = SplatXSIMD(matCol2);
-		matSplat21 = SplatYSIMD(matCol2);
-		matSplat22 = SplatZSIMD(matCol2);
-	}
-
+ {
+	// Load the matrix into local vectors. Sadly, matrix3x4_ts are 
+	// often unaligned. The w components will be the tranpose row of
+	// the matrix, but we don't really care about that.
+	fltx4 matCol0 = LoadUnalignedSIMD( matrix[0] );
+	fltx4 matCol1 = LoadUnalignedSIMD( matrix[1] );
+	fltx4 matCol2 = LoadUnalignedSIMD( matrix[2] );
+	
+	matSplat00 = SplatXSIMD( matCol0 );
+	matSplat01 = SplatYSIMD( matCol0 );
+	matSplat02 = SplatZSIMD( matCol0 );
+	
+	matSplat10 = SplatXSIMD( matCol1 );
+	matSplat11 = SplatYSIMD( matCol1 );
+	matSplat12 = SplatZSIMD( matCol1 );
+	
+	matSplat20 = SplatXSIMD( matCol2 );
+	matSplat21 = SplatYSIMD( matCol2 );
+	matSplat22 = SplatZSIMD( matCol2 );
+ }
+	
 	// Trust in the compiler to schedule these operations correctly:
 	fltx4 outX, outY, outZ;
-
+	
 	outX = MaddSIMD( z, matSplat02, AddSIMD( MulSIMD( x, matSplat00 ), MulSIMD( y, matSplat01 ) ) );
 	outY = MaddSIMD( z, matSplat12, AddSIMD( MulSIMD( x, matSplat10 ), MulSIMD( y, matSplat11 ) ) );
 	outZ = MaddSIMD( z, matSplat22, AddSIMD( MulSIMD( x, matSplat20 ), MulSIMD( y, matSplat21 ) ) );
-
-	x = AddSIMD(outX, ReplicateX4(matrix[0][3]));
-	y = AddSIMD(outY, ReplicateX4(matrix[1][3]));
-	z = AddSIMD(outZ, ReplicateX4(matrix[2][3]));
+	
+	x = AddSIMD( outX, ReplicateX4( matrix[0][3] ));
+	y = AddSIMD( outY, ReplicateX4( matrix[1][3] ));
+	 z = AddSIMD( outZ, ReplicateX4( matrix[2][3] ));
 }
 
 
@@ -2682,19 +2894,23 @@ void FourVectors::TransformBy(const matrix3x4_t& matrix)
 fltx4 NoiseSIMD( const fltx4 & x, const fltx4 & y, const fltx4 & z );
 fltx4 NoiseSIMD( FourVectors const &v );
 
+// vector valued noise direction
+FourVectors DNoiseSIMD( FourVectors const &v );
 
+// vector value "curl" noise function. see http://hyperphysics.phy-astr.gsu.edu/hbase/curl.html
+FourVectors CurlNoiseSIMD( FourVectors const &v );
 
 
 /// calculate the absolute value of a packed single
 inline fltx4 fabs( const fltx4 & x )
 {
-	return AndSIMD( x, LoadAlignedSIMD( (float *) g_SIMD_clear_signmask ) );
+	return AndSIMD( x, LoadAlignedSIMD( g_SIMD_clear_signmask ) );
 }
 
 /// negate all four components of a SIMD packed single
 inline fltx4 fnegate( const fltx4 & x )
 {
-	return XorSIMD( x, LoadAlignedSIMD( (float *) g_SIMD_signmask));
+	return XorSIMD( x, LoadAlignedSIMD( g_SIMD_signmask ) );
 }
 
 
@@ -2787,7 +3003,7 @@ FORCEINLINE fltx4 Mod2SIMD( const fltx4 &val )
 
 FORCEINLINE fltx4 Mod2SIMDPositiveInput( const fltx4 &val )
 {
-	fltx4 ival = SubSIMD( AndSIMD( LoadAlignedSIMD( (float *) g_SIMD_lsbmask ), AddSIMD( val, Four_2ToThe23s ) ), Four_2ToThe23s );
+	fltx4 ival = SubSIMD( AndSIMD( LoadAlignedSIMD( g_SIMD_lsbmask ), AddSIMD( val, Four_2ToThe23s ) ), Four_2ToThe23s );
 	ival = MaskedAssign( CmpGtSIMD( ival, val ), SubSIMD( ival, Four_Twos ), ival );
 	return SubSIMD( val, ival );
 }
@@ -2818,7 +3034,7 @@ FORCEINLINE fltx4 SinEst01SIMD( const fltx4 &val )
 	fltx4 fl4OddMask = CmpGeSIMD( fl4Reduced2, Four_Ones );
 	fltx4 fl4val = SubSIMD( fl4Reduced2, AndSIMD( Four_Ones, fl4OddMask ) );
 	fltx4 fl4Sin = _SinEst01SIMD( fl4val );
-	fl4Sin = XorSIMD( fl4Sin, AndSIMD( LoadAlignedSIMD( (float *) g_SIMD_signmask ), XorSIMD( val, fl4OddMask ) ) );
+	fl4Sin = XorSIMD( fl4Sin, AndSIMD( LoadAlignedSIMD( g_SIMD_signmask ), XorSIMD( val, fl4OddMask ) ) );
 	return fl4Sin;
 
 }
@@ -2830,7 +3046,7 @@ FORCEINLINE fltx4 Sin01SIMD( const fltx4 &val )
 	fltx4 fl4OddMask = CmpGeSIMD( fl4Reduced2, Four_Ones );
 	fltx4 fl4val = SubSIMD( fl4Reduced2, AndSIMD( Four_Ones, fl4OddMask ) );
 	fltx4 fl4Sin = _Sin01SIMD( fl4val );
-	fl4Sin = XorSIMD( fl4Sin, AndSIMD( LoadAlignedSIMD( (float *) g_SIMD_signmask ), XorSIMD( val, fl4OddMask ) ) );
+	fl4Sin = XorSIMD( fl4Sin, AndSIMD( LoadAlignedSIMD( g_SIMD_signmask ), XorSIMD( val, fl4OddMask ) ) );
 	return fl4Sin;
 
 }
@@ -2880,4 +3096,3 @@ FORCEINLINE int BoxOnPlaneSideSIMD( const fltx4& emins, const fltx4& emaxs, cons
 }
 
 #endif // _ssemath_h
-

@@ -225,13 +225,13 @@ int GetSpewOutputLevel( void )
 	return -1;
 }
 
-const Color& GetSpewOutputColor( void )
+const Color* GetSpewOutputColor( void )
 {
 	SpewInfo_t *pSpewInfo = g_pSpewInfo;
 	assert( pSpewInfo );
 	if ( pSpewInfo )
-		return *pSpewInfo->m_pSpewOutputColor;
-	return s_DefaultOutputColor;
+		return pSpewInfo->m_pSpewOutputColor;
+	return &s_DefaultOutputColor;
 }
 
 

@@ -1,4 +1,4 @@
-//========= Copyright © 1996-2005, Valve Corporation, All rights reserved. ============//
+//========= Copyright Valve Corporation, All rights reserved. ============//
 //
 // Purpose: 
 //
@@ -9,6 +9,7 @@
 #include "mathlib/polyhedron.h"
 #include "mathlib/vmatrix.h"
 #include <stdlib.h>
+#include <stdio.h>
 #include "tier1/utlvector.h"
 
 
@@ -29,12 +30,18 @@ bool FindConvexShapeLooseAABB( const float *pInwardFacingPlanes, int iPlaneCount
 CPolyhedron *ClipLinkedGeometry( GeneratePolyhedronFromPlanes_UnorderedPolygonLL *pPolygons, GeneratePolyhedronFromPlanes_UnorderedLineLL *pLines, GeneratePolyhedronFromPlanes_UnorderedPointLL *pPoints, const float *pOutwardFacingPlanes, int iPlaneCount, float fOnPlaneEpsilon, bool bUseTemporaryMemory );
 CPolyhedron *ConvertLinkedGeometryToPolyhedron( GeneratePolyhedronFromPlanes_UnorderedPolygonLL *pPolygons, GeneratePolyhedronFromPlanes_UnorderedLineLL *pLines, GeneratePolyhedronFromPlanes_UnorderedPointLL *pPoints, bool bUseTemporaryMemory );
 
+//#define ENABLE_DEBUG_POLYHEDRON_DUMPS //Dumps debug information to disk for use with glview. Requires that tier2 also be in all projects using debug mathlib
+//#define DEBUG_DUMP_POLYHEDRONS_TO_NUMBERED_GLVIEWS //dumps successfully generated polyhedrons
+
 #ifdef _DEBUG
-#include "filesystem.h"
 void DumpPolyhedronToGLView( const CPolyhedron *pPolyhedron, const char *pFilename, const VMatrix *pTransform );
 void DumpPlaneToGlView( const float *pPlane, float fGrayScale, const char *pszFileName, const VMatrix *pTransform );
-void DumpLineToGLView( const Vector &vPoint1, const Vector &vColor1, const Vector &vPoint2, const Vector &vColor2, float fThickness, FileHandle_t fp );
-void DumpAABBToGLView( const Vector &vCenter, const Vector &vExtents, const Vector &vColor, FileHandle_t fp );
+void DumpLineToGLView( const Vector &vPoint1, const Vector &vColor1, const Vector &vPoint2, const Vector &vColor2, float fThickness, FILE *pFile );
+void DumpAABBToGLView( const Vector &vCenter, const Vector &vExtents, const Vector &vColor, FILE *pFile );
+
+#if defined( ENABLE_DEBUG_POLYHEDRON_DUMPS ) && defined( WIN32 )
+#include "winlite.h"
+#endif
 
 static VMatrix s_matIdentity( 1.0f, 0.0f, 0.0f, 0.0f, 
 							 0.0f, 1.0f, 0.0f, 0.0f, 
@@ -42,8 +49,23 @@ static VMatrix s_matIdentity( 1.0f, 0.0f, 0.0f, 0.0f,
 							 0.0f, 0.0f, 0.0f, 1.0f );
 #endif
 
+#if defined( DEBUG_DUMP_POLYHEDRONS_TO_NUMBERED_GLVIEWS )
+static int g_iPolyhedronDumpCounter = 0;
+#endif
+
 // memdbgon must be the last include file in a .cpp file!!!
 #include "tier0/memdbgon.h"
+
+#if defined( _DEBUG ) && defined( ENABLE_DEBUG_POLYHEDRON_DUMPS )
+void CreateDumpDirectory( const char *szDirectoryName )
+{
+#if defined( WIN32 )
+	CreateDirectory( szDirectoryName, NULL );
+#else
+	Assert( false ); //TODO: create directories in linux
+#endif
+}
+#endif
 
 
 
@@ -80,19 +102,19 @@ CPolyhedron_AllocByNew *CPolyhedron_AllocByNew::Allocate( unsigned short iVertic
 class CPolyhedron_TempMemory : public CPolyhedron
 {
 public:
-#ifdef _DEBUG
+#ifdef DBGFLAG_ASSERT
 	int iReferenceCount;
 #endif
 
 	virtual void Release( void )
 	{
-#ifdef _DEBUG
+#ifdef DBGFLAG_ASSERT
 		--iReferenceCount;
 #endif
 	}
 
 	CPolyhedron_TempMemory( void )
-#ifdef _DEBUG
+#ifdef DBGFLAG_ASSERT
 		: iReferenceCount( 0 )
 #endif
 	{ };
@@ -105,7 +127,7 @@ static CPolyhedron_TempMemory s_TempMemoryPolyhedron;
 CPolyhedron *GetTempPolyhedron( unsigned short iVertices, unsigned short iLines, unsigned short iIndices, unsigned short iPolygons ) //grab the temporary polyhedron. Avoids new/delete for quick work. Can only be in use by one chunk of code at a time
 {
 	AssertMsg( s_TempMemoryPolyhedron.iReferenceCount == 0, "Temporary polyhedron memory being rewritten before released" );
-#ifdef _DEBUG
+#ifdef DBGFLAG_ASSERT
 	++s_TempMemoryPolyhedron.iReferenceCount;
 #endif
 	s_TempMemoryPolyhedron_Buffer.SetCount( (sizeof( Vector ) * iVertices) +
@@ -742,24 +764,15 @@ CPolyhedron *ConvertLinkedGeometryToPolyhedron( GeneratePolyhedronFromPlanes_Uno
 		pActivePolygonWalk = pActivePolygonWalk->pNext;	
 	}
 
-#ifdef DEBUG_DUMP_POLYHEDRONS_TO_NUMBERED_GLVIEWS
-	/*if( szDumpFile )
-	{
-		DumpPolyhedronToGLView( pReturn, szDumpFile );
-		pReturn->Release();
-		return NULL;
-	}
-	else
-	{*/
-		char szCollisionFile[128];
-		g_pFullFileSystem->CreateDirHierarchy( "PolyhedronDumps" );
-		Q_snprintf( szCollisionFile, 128, "PolyhedronDumps/NewStyle_PolyhedronDump%i.txt", g_iPolyhedronDumpCounter );
-		++g_iPolyhedronDumpCounter;
+#if defined( _DEBUG ) && defined( ENABLE_DEBUG_POLYHEDRON_DUMPS ) && defined( DEBUG_DUMP_POLYHEDRONS_TO_NUMBERED_GLVIEWS )
+	char szCollisionFile[128];
+	CreateDumpDirectory( "PolyhedronDumps" );
+	Q_snprintf( szCollisionFile, 128, "PolyhedronDumps/NewStyle_PolyhedronDump%i.txt", g_iPolyhedronDumpCounter );
+	++g_iPolyhedronDumpCounter;
 
-		g_pFullFileSystem->RemoveFile( szCollisionFile );
-		DumpPolyhedronToGLView( pReturn, szCollisionFile );
-		DumpPolyhedronToGLView( pReturn, "PolyhedronDumps/NewStyle_PolyhedronDump_All-Appended.txt" );
-	//}
+	remove( szCollisionFile );
+	DumpPolyhedronToGLView( pReturn, szCollisionFile, &s_matIdentity );
+	DumpPolyhedronToGLView( pReturn, "PolyhedronDumps/NewStyle_PolyhedronDump_All-Appended.txt", &s_matIdentity );
 #endif
 
 	return pReturn;
@@ -771,38 +784,32 @@ CPolyhedron *ConvertLinkedGeometryToPolyhedron( GeneratePolyhedronFromPlanes_Uno
 
 void DumpPointListToGLView( GeneratePolyhedronFromPlanes_UnorderedPointLL *pHead, PolyhedronPointPlanarity planarity, const Vector &vColor, const char *szDumpFile, const VMatrix *pTransform )
 {
+#ifdef ENABLE_DEBUG_POLYHEDRON_DUMPS
 	if( pTransform == NULL )
 		pTransform = &s_matIdentity;
 	
-	FileHandle_t fp = g_pFullFileSystem->Open( szDumpFile, "ab" );
-
+	FILE *pFile = fopen( szDumpFile, "ab" );
+	
 	while( pHead )
 	{
 		if( pHead->pPoint->planarity == planarity )
 		{
 			const Vector vPointExtents( 0.5f, 0.5f, 0.01f );
-			DumpAABBToGLView( (*pTransform) * pHead->pPoint->ptPosition, vPointExtents, vColor, fp );
+			DumpAABBToGLView( (*pTransform) * pHead->pPoint->ptPosition, vPointExtents, vColor, pFile );
 		}
 		pHead = pHead->pNext;
 	}
 
-	g_pFullFileSystem->Close( fp );
+	fclose( pFile );
+#endif
 }
 
 const char * DumpPolyhedronCutHistory( const CUtlVector<CPolyhedron *> &DumpedHistory, const CUtlVector<const float *> &CutHistory, const VMatrix *pTransform )
 {
+#ifdef ENABLE_DEBUG_POLYHEDRON_DUMPS
 	if( pTransform == NULL )
 		pTransform = &s_matIdentity;
 
-	FileFindHandle_t oldDumpsHandle;
-	const char *szOldFile = g_pFullFileSystem->FindFirst( "FailedPolyhedronCut_*.txt", &oldDumpsHandle );
-	while( szOldFile )
-	{
-		g_pFullFileSystem->RemoveFile( szOldFile, "GAME" );
-		szOldFile = g_pFullFileSystem->FindNext( oldDumpsHandle );
-	}
-	g_pFullFileSystem->FindClose( oldDumpsHandle );
-	
 	static char szDumpFile[100] = "FailedPolyhedronCut_Error.txt"; //most recent filename returned for further dumping
 
 	for( int i = 0; i != DumpedHistory.Count(); ++i )
@@ -816,8 +823,12 @@ const char * DumpPolyhedronCutHistory( const CUtlVector<CPolyhedron *> &DumpedHi
 	}
 
 	return szDumpFile;
+#else
+	return NULL;
+#endif
 }
 
+#ifdef ENABLE_DEBUG_POLYHEDRON_DUMPS
 #define AssertMsg_DumpPolyhedron(condition, message)\
 	if( (condition) == false )\
 	{\
@@ -831,13 +842,16 @@ const char * DumpPolyhedronCutHistory( const CUtlVector<CPolyhedron *> &DumpedHi
 		DumpPointListToGLView( pDeadPointCollection, POINT_DEAD, Vector( 0.1f, 0.1f, 0.1f ), szLastDumpFile, &matTransform );\
 		if( pStartPoint )\
 		{\
-			FileHandle_t fpDumpRepairProgress = g_pFullFileSystem->Open( szLastDumpFile, "ab" );\
-			DumpAABBToGLView( matTransform * pStartPoint->ptPosition, Vector( 2.0f, 0.05f, 0.05f ), Vector( 0.0f, 1.0f, 0.0f ), fpDumpRepairProgress );\
-			DumpAABBToGLView( matTransform * pWorkPoint->ptPosition, Vector( 2.0f, 0.05f, 0.05f ), Vector( 1.0f, 0.0f, 0.0f ), fpDumpRepairProgress );\
-			g_pFullFileSystem->Close( fpDumpRepairProgress );\
+			FILE *pFileDumpRepairProgress = fopen( szLastDumpFile, "ab" );\
+			DumpAABBToGLView( matTransform * pStartPoint->ptPosition, Vector( 2.0f, 0.05f, 0.05f ), Vector( 0.0f, 1.0f, 0.0f ), pFileDumpRepairProgress );\
+			DumpAABBToGLView( matTransform * pWorkPoint->ptPosition, Vector( 2.0f, 0.05f, 0.05f ), Vector( 1.0f, 0.0f, 0.0f ), pFileDumpRepairProgress );\
+			fclose( pFileDumpRepairProgress );\
 		}\
 		AssertMsg( condition, message );\
 	}
+#else
+#define AssertMsg_DumpPolyhedron(condition, message) AssertMsg( condition, message )
+#endif
 #define Assert_DumpPolyhedron(condition) AssertMsg_DumpPolyhedron( condition, #condition )
 
 #else
@@ -2034,98 +2048,101 @@ CPolyhedron *GeneratePolyhedronFromPlanes( const float *pOutwardFacingPlanes, in
 
 
 #ifdef _DEBUG
-void DumpAABBToGLView( const Vector &vCenter, const Vector &vExtents, const Vector &vColor, FileHandle_t fp )
+void DumpAABBToGLView( const Vector &vCenter, const Vector &vExtents, const Vector &vColor, FILE *pFile )
 {
+#ifdef ENABLE_DEBUG_POLYHEDRON_DUMPS
 	Vector vMins = vCenter - vExtents;
 	Vector vMaxs = vCenter + vExtents;
 
 	//x min side
-	g_pFullFileSystem->FPrintf( fp, "4\n" );
-	g_pFullFileSystem->FPrintf( fp, "%6.3f %6.3f %6.3f %.2f %.2f %.2f\n", vMins.x, vMins.y, vMins.z, vColor.x, vColor.y, vColor.z );
-	g_pFullFileSystem->FPrintf( fp, "%6.3f %6.3f %6.3f %.2f %.2f %.2f\n", vMins.x, vMins.y, vMaxs.z, vColor.x, vColor.y, vColor.z );
-	g_pFullFileSystem->FPrintf( fp, "%6.3f %6.3f %6.3f %.2f %.2f %.2f\n", vMins.x, vMaxs.y, vMaxs.z, vColor.x, vColor.y, vColor.z );
-	g_pFullFileSystem->FPrintf( fp, "%6.3f %6.3f %6.3f %.2f %.2f %.2f\n", vMins.x, vMaxs.y, vMins.z, vColor.x, vColor.y, vColor.z );
+	fprintf( pFile, "4\n" );
+	fprintf( pFile, "%6.3f %6.3f %6.3f %.2f %.2f %.2f\n", vMins.x, vMins.y, vMins.z, vColor.x, vColor.y, vColor.z );
+	fprintf( pFile, "%6.3f %6.3f %6.3f %.2f %.2f %.2f\n", vMins.x, vMins.y, vMaxs.z, vColor.x, vColor.y, vColor.z );
+	fprintf( pFile, "%6.3f %6.3f %6.3f %.2f %.2f %.2f\n", vMins.x, vMaxs.y, vMaxs.z, vColor.x, vColor.y, vColor.z );
+	fprintf( pFile, "%6.3f %6.3f %6.3f %.2f %.2f %.2f\n", vMins.x, vMaxs.y, vMins.z, vColor.x, vColor.y, vColor.z );
 
-	g_pFullFileSystem->FPrintf( fp, "4\n" );	
-	g_pFullFileSystem->FPrintf( fp, "%6.3f %6.3f %6.3f %.2f %.2f %.2f\n", vMins.x, vMaxs.y, vMins.z, vColor.x, vColor.y, vColor.z );
-	g_pFullFileSystem->FPrintf( fp, "%6.3f %6.3f %6.3f %.2f %.2f %.2f\n", vMins.x, vMaxs.y, vMaxs.z, vColor.x, vColor.y, vColor.z );
-	g_pFullFileSystem->FPrintf( fp, "%6.3f %6.3f %6.3f %.2f %.2f %.2f\n", vMins.x, vMins.y, vMaxs.z, vColor.x, vColor.y, vColor.z );
-	g_pFullFileSystem->FPrintf( fp, "%6.3f %6.3f %6.3f %.2f %.2f %.2f\n", vMins.x, vMins.y, vMins.z, vColor.x, vColor.y, vColor.z );
+	fprintf( pFile, "4\n" );	
+	fprintf( pFile, "%6.3f %6.3f %6.3f %.2f %.2f %.2f\n", vMins.x, vMaxs.y, vMins.z, vColor.x, vColor.y, vColor.z );
+	fprintf( pFile, "%6.3f %6.3f %6.3f %.2f %.2f %.2f\n", vMins.x, vMaxs.y, vMaxs.z, vColor.x, vColor.y, vColor.z );
+	fprintf( pFile, "%6.3f %6.3f %6.3f %.2f %.2f %.2f\n", vMins.x, vMins.y, vMaxs.z, vColor.x, vColor.y, vColor.z );
+	fprintf( pFile, "%6.3f %6.3f %6.3f %.2f %.2f %.2f\n", vMins.x, vMins.y, vMins.z, vColor.x, vColor.y, vColor.z );
 
 	//x max side
-	g_pFullFileSystem->FPrintf( fp, "4\n" );
-	g_pFullFileSystem->FPrintf( fp, "%6.3f %6.3f %6.3f %.2f %.2f %.2f\n", vMaxs.x, vMins.y, vMins.z, vColor.x, vColor.y, vColor.z );
-	g_pFullFileSystem->FPrintf( fp, "%6.3f %6.3f %6.3f %.2f %.2f %.2f\n", vMaxs.x, vMins.y, vMaxs.z, vColor.x, vColor.y, vColor.z );
-	g_pFullFileSystem->FPrintf( fp, "%6.3f %6.3f %6.3f %.2f %.2f %.2f\n", vMaxs.x, vMaxs.y, vMaxs.z, vColor.x, vColor.y, vColor.z );
-	g_pFullFileSystem->FPrintf( fp, "%6.3f %6.3f %6.3f %.2f %.2f %.2f\n", vMaxs.x, vMaxs.y, vMins.z, vColor.x, vColor.y, vColor.z );
+	fprintf( pFile, "4\n" );
+	fprintf( pFile, "%6.3f %6.3f %6.3f %.2f %.2f %.2f\n", vMaxs.x, vMins.y, vMins.z, vColor.x, vColor.y, vColor.z );
+	fprintf( pFile, "%6.3f %6.3f %6.3f %.2f %.2f %.2f\n", vMaxs.x, vMins.y, vMaxs.z, vColor.x, vColor.y, vColor.z );
+	fprintf( pFile, "%6.3f %6.3f %6.3f %.2f %.2f %.2f\n", vMaxs.x, vMaxs.y, vMaxs.z, vColor.x, vColor.y, vColor.z );
+	fprintf( pFile, "%6.3f %6.3f %6.3f %.2f %.2f %.2f\n", vMaxs.x, vMaxs.y, vMins.z, vColor.x, vColor.y, vColor.z );
 
-	g_pFullFileSystem->FPrintf( fp, "4\n" );	
-	g_pFullFileSystem->FPrintf( fp, "%6.3f %6.3f %6.3f %.2f %.2f %.2f\n", vMaxs.x, vMaxs.y, vMins.z, vColor.x, vColor.y, vColor.z );
-	g_pFullFileSystem->FPrintf( fp, "%6.3f %6.3f %6.3f %.2f %.2f %.2f\n", vMaxs.x, vMaxs.y, vMaxs.z, vColor.x, vColor.y, vColor.z );
-	g_pFullFileSystem->FPrintf( fp, "%6.3f %6.3f %6.3f %.2f %.2f %.2f\n", vMaxs.x, vMins.y, vMaxs.z, vColor.x, vColor.y, vColor.z );
-	g_pFullFileSystem->FPrintf( fp, "%6.3f %6.3f %6.3f %.2f %.2f %.2f\n", vMaxs.x, vMins.y, vMins.z, vColor.x, vColor.y, vColor.z );
+	fprintf( pFile, "4\n" );	
+	fprintf( pFile, "%6.3f %6.3f %6.3f %.2f %.2f %.2f\n", vMaxs.x, vMaxs.y, vMins.z, vColor.x, vColor.y, vColor.z );
+	fprintf( pFile, "%6.3f %6.3f %6.3f %.2f %.2f %.2f\n", vMaxs.x, vMaxs.y, vMaxs.z, vColor.x, vColor.y, vColor.z );
+	fprintf( pFile, "%6.3f %6.3f %6.3f %.2f %.2f %.2f\n", vMaxs.x, vMins.y, vMaxs.z, vColor.x, vColor.y, vColor.z );
+	fprintf( pFile, "%6.3f %6.3f %6.3f %.2f %.2f %.2f\n", vMaxs.x, vMins.y, vMins.z, vColor.x, vColor.y, vColor.z );
 
 
 	//y min side
-	g_pFullFileSystem->FPrintf( fp, "4\n" );
-	g_pFullFileSystem->FPrintf( fp, "%6.3f %6.3f %6.3f %.2f %.2f %.2f\n", vMins.x, vMins.y, vMins.z, vColor.x, vColor.y, vColor.z );
-	g_pFullFileSystem->FPrintf( fp, "%6.3f %6.3f %6.3f %.2f %.2f %.2f\n", vMins.x, vMins.y, vMaxs.z, vColor.x, vColor.y, vColor.z );
-	g_pFullFileSystem->FPrintf( fp, "%6.3f %6.3f %6.3f %.2f %.2f %.2f\n", vMaxs.x, vMins.y, vMaxs.z, vColor.x, vColor.y, vColor.z );
-	g_pFullFileSystem->FPrintf( fp, "%6.3f %6.3f %6.3f %.2f %.2f %.2f\n", vMaxs.x, vMins.y, vMins.z, vColor.x, vColor.y, vColor.z );
+	fprintf( pFile, "4\n" );
+	fprintf( pFile, "%6.3f %6.3f %6.3f %.2f %.2f %.2f\n", vMins.x, vMins.y, vMins.z, vColor.x, vColor.y, vColor.z );
+	fprintf( pFile, "%6.3f %6.3f %6.3f %.2f %.2f %.2f\n", vMins.x, vMins.y, vMaxs.z, vColor.x, vColor.y, vColor.z );
+	fprintf( pFile, "%6.3f %6.3f %6.3f %.2f %.2f %.2f\n", vMaxs.x, vMins.y, vMaxs.z, vColor.x, vColor.y, vColor.z );
+	fprintf( pFile, "%6.3f %6.3f %6.3f %.2f %.2f %.2f\n", vMaxs.x, vMins.y, vMins.z, vColor.x, vColor.y, vColor.z );
 
-	g_pFullFileSystem->FPrintf( fp, "4\n" );	
-	g_pFullFileSystem->FPrintf( fp, "%6.3f %6.3f %6.3f %.2f %.2f %.2f\n", vMaxs.x, vMins.y, vMins.z, vColor.x, vColor.y, vColor.z );
-	g_pFullFileSystem->FPrintf( fp, "%6.3f %6.3f %6.3f %.2f %.2f %.2f\n", vMaxs.x, vMins.y, vMaxs.z, vColor.x, vColor.y, vColor.z );
-	g_pFullFileSystem->FPrintf( fp, "%6.3f %6.3f %6.3f %.2f %.2f %.2f\n", vMins.x, vMins.y, vMaxs.z, vColor.x, vColor.y, vColor.z );
-	g_pFullFileSystem->FPrintf( fp, "%6.3f %6.3f %6.3f %.2f %.2f %.2f\n", vMins.x, vMins.y, vMins.z, vColor.x, vColor.y, vColor.z );
+	fprintf( pFile, "4\n" );	
+	fprintf( pFile, "%6.3f %6.3f %6.3f %.2f %.2f %.2f\n", vMaxs.x, vMins.y, vMins.z, vColor.x, vColor.y, vColor.z );
+	fprintf( pFile, "%6.3f %6.3f %6.3f %.2f %.2f %.2f\n", vMaxs.x, vMins.y, vMaxs.z, vColor.x, vColor.y, vColor.z );
+	fprintf( pFile, "%6.3f %6.3f %6.3f %.2f %.2f %.2f\n", vMins.x, vMins.y, vMaxs.z, vColor.x, vColor.y, vColor.z );
+	fprintf( pFile, "%6.3f %6.3f %6.3f %.2f %.2f %.2f\n", vMins.x, vMins.y, vMins.z, vColor.x, vColor.y, vColor.z );
 
 
 
 	//y max side
-	g_pFullFileSystem->FPrintf( fp, "4\n" );
-	g_pFullFileSystem->FPrintf( fp, "%6.3f %6.3f %6.3f %.2f %.2f %.2f\n", vMins.x, vMaxs.y, vMins.z, vColor.x, vColor.y, vColor.z );
-	g_pFullFileSystem->FPrintf( fp, "%6.3f %6.3f %6.3f %.2f %.2f %.2f\n", vMins.x, vMaxs.y, vMaxs.z, vColor.x, vColor.y, vColor.z );
-	g_pFullFileSystem->FPrintf( fp, "%6.3f %6.3f %6.3f %.2f %.2f %.2f\n", vMaxs.x, vMaxs.y, vMaxs.z, vColor.x, vColor.y, vColor.z );
-	g_pFullFileSystem->FPrintf( fp, "%6.3f %6.3f %6.3f %.2f %.2f %.2f\n", vMaxs.x, vMaxs.y, vMins.z, vColor.x, vColor.y, vColor.z );
+	fprintf( pFile, "4\n" );
+	fprintf( pFile, "%6.3f %6.3f %6.3f %.2f %.2f %.2f\n", vMins.x, vMaxs.y, vMins.z, vColor.x, vColor.y, vColor.z );
+	fprintf( pFile, "%6.3f %6.3f %6.3f %.2f %.2f %.2f\n", vMins.x, vMaxs.y, vMaxs.z, vColor.x, vColor.y, vColor.z );
+	fprintf( pFile, "%6.3f %6.3f %6.3f %.2f %.2f %.2f\n", vMaxs.x, vMaxs.y, vMaxs.z, vColor.x, vColor.y, vColor.z );
+	fprintf( pFile, "%6.3f %6.3f %6.3f %.2f %.2f %.2f\n", vMaxs.x, vMaxs.y, vMins.z, vColor.x, vColor.y, vColor.z );
 
-	g_pFullFileSystem->FPrintf( fp, "4\n" );	
-	g_pFullFileSystem->FPrintf( fp, "%6.3f %6.3f %6.3f %.2f %.2f %.2f\n", vMaxs.x, vMaxs.y, vMins.z, vColor.x, vColor.y, vColor.z );
-	g_pFullFileSystem->FPrintf( fp, "%6.3f %6.3f %6.3f %.2f %.2f %.2f\n", vMaxs.x, vMaxs.y, vMaxs.z, vColor.x, vColor.y, vColor.z );
-	g_pFullFileSystem->FPrintf( fp, "%6.3f %6.3f %6.3f %.2f %.2f %.2f\n", vMins.x, vMaxs.y, vMaxs.z, vColor.x, vColor.y, vColor.z );
-	g_pFullFileSystem->FPrintf( fp, "%6.3f %6.3f %6.3f %.2f %.2f %.2f\n", vMins.x, vMaxs.y, vMins.z, vColor.x, vColor.y, vColor.z );
+	fprintf( pFile, "4\n" );	
+	fprintf( pFile, "%6.3f %6.3f %6.3f %.2f %.2f %.2f\n", vMaxs.x, vMaxs.y, vMins.z, vColor.x, vColor.y, vColor.z );
+	fprintf( pFile, "%6.3f %6.3f %6.3f %.2f %.2f %.2f\n", vMaxs.x, vMaxs.y, vMaxs.z, vColor.x, vColor.y, vColor.z );
+	fprintf( pFile, "%6.3f %6.3f %6.3f %.2f %.2f %.2f\n", vMins.x, vMaxs.y, vMaxs.z, vColor.x, vColor.y, vColor.z );
+	fprintf( pFile, "%6.3f %6.3f %6.3f %.2f %.2f %.2f\n", vMins.x, vMaxs.y, vMins.z, vColor.x, vColor.y, vColor.z );
 
 
 
 	//z min side
-	g_pFullFileSystem->FPrintf( fp, "4\n" );
-	g_pFullFileSystem->FPrintf( fp, "%6.3f %6.3f %6.3f %.2f %.2f %.2f\n", vMins.x, vMins.y, vMins.z, vColor.x, vColor.y, vColor.z );
-	g_pFullFileSystem->FPrintf( fp, "%6.3f %6.3f %6.3f %.2f %.2f %.2f\n", vMins.x, vMaxs.y, vMins.z, vColor.x, vColor.y, vColor.z );
-	g_pFullFileSystem->FPrintf( fp, "%6.3f %6.3f %6.3f %.2f %.2f %.2f\n", vMaxs.x, vMaxs.y, vMins.z, vColor.x, vColor.y, vColor.z );
-	g_pFullFileSystem->FPrintf( fp, "%6.3f %6.3f %6.3f %.2f %.2f %.2f\n", vMaxs.x, vMins.y, vMins.z, vColor.x, vColor.y, vColor.z );
+	fprintf( pFile, "4\n" );
+	fprintf( pFile, "%6.3f %6.3f %6.3f %.2f %.2f %.2f\n", vMins.x, vMins.y, vMins.z, vColor.x, vColor.y, vColor.z );
+	fprintf( pFile, "%6.3f %6.3f %6.3f %.2f %.2f %.2f\n", vMins.x, vMaxs.y, vMins.z, vColor.x, vColor.y, vColor.z );
+	fprintf( pFile, "%6.3f %6.3f %6.3f %.2f %.2f %.2f\n", vMaxs.x, vMaxs.y, vMins.z, vColor.x, vColor.y, vColor.z );
+	fprintf( pFile, "%6.3f %6.3f %6.3f %.2f %.2f %.2f\n", vMaxs.x, vMins.y, vMins.z, vColor.x, vColor.y, vColor.z );
 
-	g_pFullFileSystem->FPrintf( fp, "4\n" );	
-	g_pFullFileSystem->FPrintf( fp, "%6.3f %6.3f %6.3f %.2f %.2f %.2f\n", vMaxs.x, vMins.y, vMins.z, vColor.x, vColor.y, vColor.z );
-	g_pFullFileSystem->FPrintf( fp, "%6.3f %6.3f %6.3f %.2f %.2f %.2f\n", vMaxs.x, vMaxs.y, vMins.z, vColor.x, vColor.y, vColor.z );
-	g_pFullFileSystem->FPrintf( fp, "%6.3f %6.3f %6.3f %.2f %.2f %.2f\n", vMins.x, vMaxs.y, vMins.z, vColor.x, vColor.y, vColor.z );
-	g_pFullFileSystem->FPrintf( fp, "%6.3f %6.3f %6.3f %.2f %.2f %.2f\n", vMins.x, vMins.y, vMins.z, vColor.x, vColor.y, vColor.z );
+	fprintf( pFile, "4\n" );	
+	fprintf( pFile, "%6.3f %6.3f %6.3f %.2f %.2f %.2f\n", vMaxs.x, vMins.y, vMins.z, vColor.x, vColor.y, vColor.z );
+	fprintf( pFile, "%6.3f %6.3f %6.3f %.2f %.2f %.2f\n", vMaxs.x, vMaxs.y, vMins.z, vColor.x, vColor.y, vColor.z );
+	fprintf( pFile, "%6.3f %6.3f %6.3f %.2f %.2f %.2f\n", vMins.x, vMaxs.y, vMins.z, vColor.x, vColor.y, vColor.z );
+	fprintf( pFile, "%6.3f %6.3f %6.3f %.2f %.2f %.2f\n", vMins.x, vMins.y, vMins.z, vColor.x, vColor.y, vColor.z );
 
 
 	//z max side
-	g_pFullFileSystem->FPrintf( fp, "4\n" );
-	g_pFullFileSystem->FPrintf( fp, "%6.3f %6.3f %6.3f %.2f %.2f %.2f\n", vMins.x, vMins.y, vMaxs.z, vColor.x, vColor.y, vColor.z );
-	g_pFullFileSystem->FPrintf( fp, "%6.3f %6.3f %6.3f %.2f %.2f %.2f\n", vMins.x, vMaxs.y, vMaxs.z, vColor.x, vColor.y, vColor.z );
-	g_pFullFileSystem->FPrintf( fp, "%6.3f %6.3f %6.3f %.2f %.2f %.2f\n", vMaxs.x, vMaxs.y, vMaxs.z, vColor.x, vColor.y, vColor.z );
-	g_pFullFileSystem->FPrintf( fp, "%6.3f %6.3f %6.3f %.2f %.2f %.2f\n", vMaxs.x, vMins.y, vMaxs.z, vColor.x, vColor.y, vColor.z );
+	fprintf( pFile, "4\n" );
+	fprintf( pFile, "%6.3f %6.3f %6.3f %.2f %.2f %.2f\n", vMins.x, vMins.y, vMaxs.z, vColor.x, vColor.y, vColor.z );
+	fprintf( pFile, "%6.3f %6.3f %6.3f %.2f %.2f %.2f\n", vMins.x, vMaxs.y, vMaxs.z, vColor.x, vColor.y, vColor.z );
+	fprintf( pFile, "%6.3f %6.3f %6.3f %.2f %.2f %.2f\n", vMaxs.x, vMaxs.y, vMaxs.z, vColor.x, vColor.y, vColor.z );
+	fprintf( pFile, "%6.3f %6.3f %6.3f %.2f %.2f %.2f\n", vMaxs.x, vMins.y, vMaxs.z, vColor.x, vColor.y, vColor.z );
 
-	g_pFullFileSystem->FPrintf( fp, "4\n" );
-	g_pFullFileSystem->FPrintf( fp, "%6.3f %6.3f %6.3f %.2f %.2f %.2f\n", vMaxs.x, vMins.y, vMaxs.z, vColor.x, vColor.y, vColor.z );
-	g_pFullFileSystem->FPrintf( fp, "%6.3f %6.3f %6.3f %.2f %.2f %.2f\n", vMaxs.x, vMaxs.y, vMaxs.z, vColor.x, vColor.y, vColor.z );
-	g_pFullFileSystem->FPrintf( fp, "%6.3f %6.3f %6.3f %.2f %.2f %.2f\n", vMins.x, vMaxs.y, vMaxs.z, vColor.x, vColor.y, vColor.z );
-	g_pFullFileSystem->FPrintf( fp, "%6.3f %6.3f %6.3f %.2f %.2f %.2f\n", vMins.x, vMins.y, vMaxs.z, vColor.x, vColor.y, vColor.z );
+	fprintf( pFile, "4\n" );
+	fprintf( pFile, "%6.3f %6.3f %6.3f %.2f %.2f %.2f\n", vMaxs.x, vMins.y, vMaxs.z, vColor.x, vColor.y, vColor.z );
+	fprintf( pFile, "%6.3f %6.3f %6.3f %.2f %.2f %.2f\n", vMaxs.x, vMaxs.y, vMaxs.z, vColor.x, vColor.y, vColor.z );
+	fprintf( pFile, "%6.3f %6.3f %6.3f %.2f %.2f %.2f\n", vMins.x, vMaxs.y, vMaxs.z, vColor.x, vColor.y, vColor.z );
+	fprintf( pFile, "%6.3f %6.3f %6.3f %.2f %.2f %.2f\n", vMins.x, vMins.y, vMaxs.z, vColor.x, vColor.y, vColor.z );
+#endif
 }
 
-void DumpLineToGLView( const Vector &vPoint1, const Vector &vColor1, const Vector &vPoint2, const Vector &vColor2, float fThickness, FileHandle_t fp )
+void DumpLineToGLView( const Vector &vPoint1, const Vector &vColor1, const Vector &vPoint2, const Vector &vColor2, float fThickness, FILE *pFile )
 {
+#ifdef ENABLE_DEBUG_POLYHEDRON_DUMPS
 	Vector vDirection = vPoint2 - vPoint1;
 	vDirection.NormalizeInPlace();
 
@@ -2161,14 +2178,14 @@ void DumpLineToGLView( const Vector &vPoint1, const Vector &vColor1, const Vecto
 	const Vector *pLineColors[8] = { &vColor1, &vColor1, &vColor1, &vColor1, &vColor2, &vColor2, &vColor2, &vColor2 };
 
 
-#define DPTGLV_LINE_WRITEPOINT(index) g_pFullFileSystem->FPrintf( fp, "%6.3f %6.3f %6.3f %.2f %.2f %.2f\n", vLinePoints[index].x, vLinePoints[index].y, vLinePoints[index].z, pLineColors[index]->x, pLineColors[index]->y, pLineColors[index]->z );
+#define DPTGLV_LINE_WRITEPOINT(index) fprintf( pFile, "%6.3f %6.3f %6.3f %.2f %.2f %.2f\n", vLinePoints[index].x, vLinePoints[index].y, vLinePoints[index].z, pLineColors[index]->x, pLineColors[index]->y, pLineColors[index]->z );
 #define DPTGLV_LINE_DOUBLESIDEDQUAD(index1,index2,index3,index4)\
-	g_pFullFileSystem->FPrintf( fp, "4\n" );\
+	fprintf( pFile, "4\n" );\
 	DPTGLV_LINE_WRITEPOINT(index1);\
 	DPTGLV_LINE_WRITEPOINT(index2);\
 	DPTGLV_LINE_WRITEPOINT(index3);\
 	DPTGLV_LINE_WRITEPOINT(index4);\
-	g_pFullFileSystem->FPrintf( fp, "4\n" );\
+	fprintf( pFile, "4\n" );\
 	DPTGLV_LINE_WRITEPOINT(index4);\
 	DPTGLV_LINE_WRITEPOINT(index3);\
 	DPTGLV_LINE_WRITEPOINT(index2);\
@@ -2181,10 +2198,12 @@ void DumpLineToGLView( const Vector &vPoint1, const Vector &vColor1, const Vecto
 	DPTGLV_LINE_DOUBLESIDEDQUAD(2,6,7,3);
 	DPTGLV_LINE_DOUBLESIDEDQUAD(0,2,3,1);
 	DPTGLV_LINE_DOUBLESIDEDQUAD(5,7,6,4);
+#endif
 }
 
 void DumpPolyhedronToGLView( const CPolyhedron *pPolyhedron, const char *pFilename, const VMatrix *pTransform )
 {
+#ifdef ENABLE_DEBUG_POLYHEDRON_DUMPS
 	if ( (pPolyhedron == NULL) || (pPolyhedron->iVertexCount == 0) )
 		return;
 
@@ -2193,7 +2212,7 @@ void DumpPolyhedronToGLView( const CPolyhedron *pPolyhedron, const char *pFilena
 
 	printf("Writing %s...\n", pFilename );
 
-	FileHandle_t fp = g_pFullFileSystem->Open( pFilename, "ab" );
+	FILE *pFile = fopen( pFilename, "ab" );
 
 	//randomizing an array of colors to help spot shared/unshared vertices
 	Vector *pColors = (Vector *)stackalloc( sizeof( Vector ) * pPolyhedron->iVertexCount );	
@@ -2211,7 +2230,7 @@ void DumpPolyhedronToGLView( const CPolyhedron *pPolyhedron, const char *pFilena
 
 	for ( counter = 0; counter != pPolyhedron->iPolygonCount; ++counter )
 	{
-		g_pFullFileSystem->FPrintf( fp, "%i\n", pPolyhedron->pPolygons[counter].iIndexCount );
+		fprintf( pFile, "%i\n", pPolyhedron->pPolygons[counter].iIndexCount );
 		int counter2;
 		for( counter2 = 0; counter2 != pPolyhedron->pPolygons[counter].iIndexCount; ++counter2 )
 		{
@@ -2219,7 +2238,7 @@ void DumpPolyhedronToGLView( const CPolyhedron *pPolyhedron, const char *pFilena
 
 			Vector *pVertex = &pTransformedPoints[pPolyhedron->pLines[pLineReference->iLineIndex].iPointIndices[pLineReference->iEndPointIndex]];
 			Vector *pColor = &pColors[pPolyhedron->pLines[pLineReference->iLineIndex].iPointIndices[pLineReference->iEndPointIndex]];
-			g_pFullFileSystem->FPrintf( fp, "%6.3f %6.3f %6.3f %.2f %.2f %.2f\n",pVertex->x, pVertex->y, pVertex->z, pColor->x, pColor->y, pColor->z );
+			fprintf( pFile, "%6.3f %6.3f %6.3f %.2f %.2f %.2f\n",pVertex->x, pVertex->y, pVertex->z, pColor->x, pColor->y, pColor->z );
 		}
 	}
 
@@ -2228,25 +2247,27 @@ void DumpPolyhedronToGLView( const CPolyhedron *pPolyhedron, const char *pFilena
 		const Vector vOne( 1.0f, 1.0f, 1.0f );
 		DumpLineToGLView( pTransformedPoints[pPolyhedron->pLines[counter].iPointIndices[0]], vOne - pColors[pPolyhedron->pLines[counter].iPointIndices[0]],
 							pTransformedPoints[pPolyhedron->pLines[counter].iPointIndices[1]], vOne - pColors[pPolyhedron->pLines[counter].iPointIndices[1]], 
-							0.1f, fp );
+							0.1f, pFile );
 	}
 
 	for( counter = 0; counter != pPolyhedron->iVertexCount; ++counter )
 	{
 		const Vector vPointHalfSize(0.15f, 0.15f, 0.15f );
-		DumpAABBToGLView( pTransformedPoints[counter], vPointHalfSize, pColors[counter], fp );
+		DumpAABBToGLView( pTransformedPoints[counter], vPointHalfSize, pColors[counter], pFile );
 	}
 
-	g_pFullFileSystem->Close( fp );
+	fclose( pFile );
+#endif
 }
 
 
 void DumpPlaneToGlView( const float *pPlane, float fGrayScale, const char *pszFileName, const VMatrix *pTransform )
 {
+#ifdef ENABLE_DEBUG_POLYHEDRON_DUMPS
 	if( pTransform == NULL )
 		pTransform = &s_matIdentity;
 
-	FileHandle_t fp = g_pFullFileSystem->Open( pszFileName, "ab" );
+	FILE *pFile = fopen( pszFileName, "ab" );
 
 	//transform the plane
 	Vector vNormal = pTransform->ApplyRotation( *(Vector *)pPlane );
@@ -2257,14 +2278,15 @@ void DumpPlaneToGlView( const float *pPlane, float fGrayScale, const char *pszFi
 
 	PolyFromPlane( vPlaneVerts, vNormal, fDist, 100000.0f );
 
-	g_pFullFileSystem->FPrintf( fp, "4\n" );
+	fprintf( pFile, "4\n" );
 
-	g_pFullFileSystem->FPrintf( fp, "%6.3f %6.3f %6.3f %.2f %.2f %.2f\n", vPlaneVerts[0].x, vPlaneVerts[0].y, vPlaneVerts[0].z, fGrayScale, fGrayScale, fGrayScale );
-	g_pFullFileSystem->FPrintf( fp, "%6.3f %6.3f %6.3f %.2f %.2f %.2f\n", vPlaneVerts[1].x, vPlaneVerts[1].y, vPlaneVerts[1].z, fGrayScale, fGrayScale, fGrayScale );
-	g_pFullFileSystem->FPrintf( fp, "%6.3f %6.3f %6.3f %.2f %.2f %.2f\n", vPlaneVerts[2].x, vPlaneVerts[2].y, vPlaneVerts[2].z, fGrayScale, fGrayScale, fGrayScale );
-	g_pFullFileSystem->FPrintf( fp, "%6.3f %6.3f %6.3f %.2f %.2f %.2f\n", vPlaneVerts[3].x, vPlaneVerts[3].y, vPlaneVerts[3].z, fGrayScale, fGrayScale, fGrayScale );
+	fprintf( pFile, "%6.3f %6.3f %6.3f %.2f %.2f %.2f\n", vPlaneVerts[0].x, vPlaneVerts[0].y, vPlaneVerts[0].z, fGrayScale, fGrayScale, fGrayScale );
+	fprintf( pFile, "%6.3f %6.3f %6.3f %.2f %.2f %.2f\n", vPlaneVerts[1].x, vPlaneVerts[1].y, vPlaneVerts[1].z, fGrayScale, fGrayScale, fGrayScale );
+	fprintf( pFile, "%6.3f %6.3f %6.3f %.2f %.2f %.2f\n", vPlaneVerts[2].x, vPlaneVerts[2].y, vPlaneVerts[2].z, fGrayScale, fGrayScale, fGrayScale );
+	fprintf( pFile, "%6.3f %6.3f %6.3f %.2f %.2f %.2f\n", vPlaneVerts[3].x, vPlaneVerts[3].y, vPlaneVerts[3].z, fGrayScale, fGrayScale, fGrayScale );
 
-	g_pFullFileSystem->Close( fp );
+	fclose( pFile );
+#endif
 }
 #endif
 

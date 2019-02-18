@@ -338,13 +338,13 @@ static int64 CalculateClockSpeed()
 #endif
 }
 
-const CPUInformation& GetCPUInformation()
+const CPUInformation* GetCPUInformation()
 {
 	static CPUInformation pi;
 
 	// Has the structure already been initialized and filled out?
 	if ( pi.m_Size == sizeof(pi) )
-		return pi;
+		return &pi;
 
 	// Redundant, but just in case the user somehow messes with the size.
 	memset(&pi, 0x0, sizeof(pi));
@@ -394,6 +394,6 @@ const CPUInformation& GetCPUInformation()
 	pi.m_szProcessorID = (tchar*)GetProcessorVendorId();
 	pi.m_bHT		   = HTSupported();
 
-	return pi;
+	return &pi;
 }
 

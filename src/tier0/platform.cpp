@@ -68,7 +68,7 @@ double Plat_FloatTime()
 #endif
 }
 
-unsigned long Plat_MSTime()
+unsigned int Plat_MSTime()
 {
 	InitTime();
 

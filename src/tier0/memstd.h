@@ -250,6 +250,13 @@ public:
 
 	virtual size_t MemoryAllocFailed();
 
+	virtual uint32 GetDebugInfoSize() { return 0; }
+	virtual void SaveDebugInfo( void *pvDebugInfo ) {}
+	virtual void RestoreDebugInfo( const void *pvDebugInfo ) {}
+	virtual void InitDebugInfo( void *pvDebugInfo, const char *pchRootFileName, int nLine ) {}
+
+	virtual void GlobalMemoryStatus( size_t *pUsedMemory, size_t *pFreeMemory ) {}
+
 	void		SetCRTAllocFailed( size_t nMemSize );
 
 	MemAllocFailHandler_t m_pfnFailHandler;
