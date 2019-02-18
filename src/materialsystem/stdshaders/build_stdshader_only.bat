@@ -46,7 +46,7 @@ rem =================================
 set ARG_EXTRA=
 
 @REM dynamic shaders only builds the required files (inc) to build stdshader_dx*.dll
-set dynamic_shaders=0
+set dynamic_shaders=1
 
 REM ****************
 REM PC SHADERS

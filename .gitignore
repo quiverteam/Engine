@@ -33,7 +33,11 @@ ipch
 
 # ----------------------
 # Shader Files
-*.inc # made during build
+# made during build
+*.inc
+*.tmp
+#*.vcs # can't build all shader's yet
+/src/materialsystem/stdshaders/vshtmp9_tmp/*.pl
 
 # Windows build products
 [Dd]ebug*/
@@ -70,12 +74,41 @@ lib/public/**/raytrace.*
 lib/public/**/tier*.*
 lib/public/**/vgui_controls.*
 
+# ----------------------
+# Engine Assets
+*.dat
+# i see no reason for this file existing currently
+
+*.vmt
+*.vtf
+
+*.ani
+*.mdl
+*.phy
+*.sw.vtx
+*.vvd
+*.dx80.vtx
+*.dx90.vtx
+
+# probably shouldn't remove
+#*.pcf
+
+config.cfg
+gamestate.txt
+stats.txt
+
+*.dt
+*.inf
+# ----------------------
+# general
+*.wav
+*.mp3
+*.jpg
+*.ico
+#*.cur
+#*.scr
+
+
 .vs
 *.vpc_crc
 *.asi
-
-#lib/public/**/fgdlib.*
-#lib/public/**/mathlib.*
-#lib/public/**/raytrace.*
-#lib/public/**/tier*.*
-#lib/public/**/vgui_controls.*
