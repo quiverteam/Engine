@@ -415,7 +415,7 @@ void CUtlVector<T, A>::Sort( int (__cdecl *pfnCompare)(const T *, const T *) )
 			{
 				if ( pfnCompare( &Element( j - 1 ), &Element( j ) ) < 0 )
 				{
-					swap( Element( j - 1 ), Element( j ) );
+					V_swap( Element( j - 1 ), Element( j ) );
 				}
 			}
 		}

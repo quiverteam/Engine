@@ -7,7 +7,7 @@ $Configuration
 	$Compiler
 	{
 		$PreprocessorDefinitions	"$BASE;LIBNAME=$OUTLIBNAME"
-		$PreprocessorDefinitions		"$BASE" [$SOURCESDK]
+		$PreprocessorDefinitions	"$BASE;RAD_TELEMETRY_DISABLED"
 	}
 
 	$General	

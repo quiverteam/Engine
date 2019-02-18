@@ -320,12 +320,12 @@ void C_OP_FadeAndKill::InitParams( CParticleSystemDefinition *pDef, CDmxElement 
 	
 	if ( m_flStartFadeOutTime < m_flStartFadeInTime )
 	{
-		swap( m_flStartFadeInTime, m_flStartFadeOutTime );
+		V_swap( m_flStartFadeInTime, m_flStartFadeOutTime );
 	}
 
 	if ( m_flEndFadeOutTime < m_flEndFadeInTime )
 	{
-		swap( m_flEndFadeInTime, m_flEndFadeOutTime );
+		V_swap( m_flEndFadeInTime, m_flEndFadeOutTime );
 	}
 }
 

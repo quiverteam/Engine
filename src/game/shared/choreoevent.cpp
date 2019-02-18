@@ -788,9 +788,9 @@ float CFlexAnimationTrack::GetFracIntensity( float time, int type )
 	prev = max( -1, prev );
 	next = min( next, rampCount );
 
-	bool clamp[ 2 ];
-	CExpressionSample *esPre = GetBoundedSample( prev, clamp[ 0 ], type );
-	CExpressionSample *esNext = GetBoundedSample( next, clamp[ 1 ], type );
+	bool bclamp[ 2 ];
+	CExpressionSample *esPre = GetBoundedSample( prev, bclamp[ 0 ], type );
+	CExpressionSample *esNext = GetBoundedSample( next, bclamp[ 1 ], type );
 
 	float dt = esEnd->time - esStart->time;
 
@@ -1655,9 +1655,9 @@ float CCurveData::GetIntensity( ICurveDataAccessor *data, float time )
 	prev = max( -1, prev );
 	next = min( next, rampCount );
 
-	bool clamp[ 2 ];
-	CExpressionSample *esPre = GetBoundedSample( data, prev, clamp[ 0 ] );
-	CExpressionSample *esNext = GetBoundedSample( data, next, clamp[ 1 ] );
+	bool bclamp[ 2 ];
+	CExpressionSample *esPre = GetBoundedSample( data, prev, bclamp[ 0 ] );
+	CExpressionSample *esNext = GetBoundedSample( data, next, bclamp[ 1 ] );
 
 	float dt = esEnd->time - esStart->time;
 
@@ -1666,12 +1666,12 @@ float CCurveData::GetIntensity( ICurveDataAccessor *data, float time )
 	Vector vEnd( esEnd->time, esEnd->value, 0 );
 	Vector vNext( esNext->time, esNext->value, 0 );
 
-	if ( clamp[ 0 ] )
+	if ( bclamp[ 0 ] )
 	{
 		vPre.x = vStart.x;
 	}
 
-	if ( clamp[ 1 ] )
+	if ( bclamp[ 1 ] )
 	{
 		vNext.x = vEnd.x;
 	}
@@ -1837,9 +1837,9 @@ float CCurveData::GetIntensityArea( ICurveDataAccessor *data, float time )
 	prev = max( -1, prev );
 	next = min( next, rampCount );
 
-	bool clamp[ 2 ];
-	CExpressionSample *esPre = GetBoundedSample( data, prev, clamp[ 0 ] );
-	CExpressionSample *esNext = GetBoundedSample( data, next, clamp[ 1 ] );
+	bool bclamp[ 2 ];
+	CExpressionSample *esPre = GetBoundedSample( data, prev, bclamp[ 0 ] );
+	CExpressionSample *esNext = GetBoundedSample( data, next, bclamp[ 1 ] );
 
 	float dt = esEnd->time - esStart->time;
 
@@ -1848,12 +1848,12 @@ float CCurveData::GetIntensityArea( ICurveDataAccessor *data, float time )
 	Vector vEnd( esEnd->time, esEnd->value, 0 );
 	Vector vNext( esNext->time, esNext->value, 0 );
 
-	if ( clamp[ 0 ] )
+	if ( bclamp[ 0 ] )
 	{
 		vPre.x = vStart.x;
 	}
 
-	if ( clamp[ 1 ] )
+	if ( bclamp[ 1 ] )
 	{
 		vNext.x = vEnd.x;
 	}

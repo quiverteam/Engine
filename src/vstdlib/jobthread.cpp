@@ -544,7 +544,7 @@ int CThreadPool::YieldWait( CThreadEvent *pEvents, int nEvents, bool bWaitAll, u
 	Assert( timeout == TT_INFINITE ); // unimplemented
 	int result;
 	CJob *pJob;
-	while ( ( result = ThreadWaitForEvents( nEvents, pEvents, bWaitAll, 0 ) ) == WAIT_TIMEOUT )
+	while ( ( result = ThreadWaitForEvents( nEvents, &pEvents, bWaitAll, 0 ) ) == WAIT_TIMEOUT )
 	{
 		if ( m_SharedQueue.Pop( &pJob ) )
 		{
@@ -837,14 +837,13 @@ bool CThreadPool::Start( const ThreadPoolStartParams_t &startParams, const char 
 
 	if ( nThreads < 0 )
 	{
-		const CPUInformation &ci = GetCPUInformation();
 		if ( startParams.bIOThreads )
 		{
-			nThreads = ci.m_nLogicalProcessors;
+			nThreads = GetCPUInformation()->m_nLogicalProcessors;
 		}
 		else
 		{
-			nThreads = ( ci.m_nLogicalProcessors / (( ci.m_bHT ) ? 2 : 1) ) - 1; // One per
+			nThreads = ( GetCPUInformation()->m_nLogicalProcessors / (( GetCPUInformation()->m_bHT ) ? 2 : 1) ) - 1; // One per
 			if ( IsPC() )
 			{
 				if ( nThreads > 3 )
@@ -931,9 +930,8 @@ void CThreadPool::Distribute( bool bDistribute, int *pAffinityTable )
 {
 	if ( bDistribute )
 	{
-		const CPUInformation &ci = GetCPUInformation();
-		int nHwThreadsPer = (( ci.m_bHT ) ? 2 : 1);
-		if ( ci.m_nLogicalProcessors > 1 )
+		int nHwThreadsPer = (( GetCPUInformation()->m_bHT ) ? 2 : 1);
+		if ( GetCPUInformation()->m_nLogicalProcessors > 1 )
 		{
 			if ( !pAffinityTable )
 			{
@@ -942,9 +940,9 @@ void CThreadPool::Distribute( bool bDistribute, int *pAffinityTable )
 				for ( int i = 0; i < m_Threads.Count(); i++ )
 				{
 					iProc += nHwThreadsPer;
-					if ( iProc >= ci.m_nLogicalProcessors )
+					if ( iProc >= GetCPUInformation()->m_nLogicalProcessors )
 					{
-						iProc %= ci.m_nLogicalProcessors;
+						iProc %= GetCPUInformation()->m_nLogicalProcessors;
 						if ( nHwThreadsPer > 1 )
 						{
 							iProc = ( iProc + 1 ) % nHwThreadsPer;

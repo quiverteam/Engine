@@ -647,7 +647,7 @@ class C_INIT_VelocityRandom : public CParticleOperatorInstance
 		m_bHasLocalSpeed = ( m_LocalCoordinateSystemSpeedMin != vec3_origin ) || ( m_LocalCoordinateSystemSpeedMax != vec3_origin );  
 		if ( m_fSpeedMax < m_fSpeedMin )
 		{
-			swap( m_fSpeedMin, m_fSpeedMax );
+			V_swap( m_fSpeedMin, m_fSpeedMax );
 		}
 	}
 
