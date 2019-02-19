@@ -663,7 +663,10 @@ CON_COMMAND( mat_configcurrent, "show the current video control panel config for
 CON_COMMAND( mat_setvideomode, "sets the width, height, windowed state of the material system" )
 {
 	if ( args.ArgC() != 4 )
+	{
+		ConMsg ( "usage: width, height, windowed\n" );
 		return;
+	}
 
 	int nWidth = Q_atoi( args[1] );
 	int nHeight = Q_atoi( args[2] );
