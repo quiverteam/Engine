@@ -31,11 +31,7 @@
 		SearchPaths
 		{
 			Game				|gameinfo_path|.
-			Game				hl2
-			
-			Game				"C:\sourceengine\extracted_games\HL2\hl2\"
-			Game				"C:\sourceengine\extracted_games\HL2\misc"
-			
+			Game				hl2			
 			Platform			platform
 		}
 	}

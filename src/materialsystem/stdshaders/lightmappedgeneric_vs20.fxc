@@ -86,11 +86,9 @@ struct VS_OUTPUT
 	float4 vertexBlendX_fogFactorW	: COLOR1;
 
 	// Extra iterators on 360, used in flashlight combo
-#if defined( _X360 )
-#if FLASHLIGHT
+#if defined( _X360 ) && FLASHLIGHT
 	float4 flashlightSpacePos		: TEXCOORD8;
 	float4 vProjPos					: TEXCOORD9;
-#endif
 #endif
 
 };
@@ -240,11 +238,9 @@ VS_OUTPUT main( const VS_INPUT v )
 #endif
 
 // On 360, we have extra iterators and can fold the flashlight into this shader
-#if defined( _X360 )
-	#if FLASHLIGHT
-		o.flashlightSpacePos = mul( float4( worldPos, 1.0f ), g_FlashlightWorldToTexture );
-		o.vProjPos = projPos;
-	#endif
+#if defined( _X360 ) && FLASHLIGHT
+	o.flashlightSpacePos = mul( float4( worldPos, 1.0f ), g_FlashlightWorldToTexture );
+	o.vProjPos = vProjPos;
 #endif
 
 	if ( g_bVertexAlphaTexBlendFactor )

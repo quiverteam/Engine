@@ -426,7 +426,8 @@ extern "C"
 void CShaderSystem::VerifyBaseShaderDLL( CSysModule *pModule )
 {
 #if defined( _WIN32 ) && !defined( _X360 )
-	const char *pErrorStr = "Corrupt save data settings.";
+	//const tchar *pErrorStr = "Corrupt save data settings.";
+	const tchar *pErrorStr = "Error Veryifing stdshader_ DLL";
 
 	unsigned char *testData1 = new unsigned char[SHADER_DLL_VERIFY_DATA_LEN1];
 
@@ -499,10 +500,11 @@ bool CShaderSystem::LoadShaderDLL( const char *pFullPath, const char *pPathID, b
 
 	// Make sure it's a valid base shader DLL if necessary.
 	//HACKHACK get rid of this when VAC2 comes online.
-	if ( !bModShaderDLL )
+	//DOUBLEHACK this doesn't work for me, so bye
+	/*if ( !bModShaderDLL )
 	{
 		VerifyBaseShaderDLL( hInstance );
-	}
+	}*/
 
 	// Allow the DLL to try to connect to interfaces it needs
 	if ( !pShaderDLL->Connect( Sys_GetFactoryThis(), false ) )

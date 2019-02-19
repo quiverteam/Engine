@@ -19,7 +19,7 @@ $Configuration	"Debug"
 
 	$Compiler
 	{
-		$AdditionalIncludeDirectories		"..\frame_encoder,$SRCDIR\public,$SRCDIR\public\tier1,..\..,$SRCDIR\common,.\source\libspeex,..\..\audio\public,$SRCDIR\engine"
+		//$AdditionalIncludeDirectories		"..\frame_encoder,$SRCDIR\public,$SRCDIR\public\tier1,..\..,$SRCDIR\common,.\source\libspeex,..\..\audio\public,$SRCDIR\engine"
 		$PreprocessorDefinitions			"WIN32;_DEBUG;_WINDOWS;_USRDLL;SPEEX_EXPORTS"
 		$Create/UsePrecompiledHeader		"Not Using Precompiled Headers"
 		$PrecompiledHeaderFile				"Debug/speex.pch"
