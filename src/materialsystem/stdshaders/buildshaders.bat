@@ -28,6 +28,7 @@ set ChangeToDir=../../../game/bin
 set shaderDir=shaders
 set SDKArgs=
 set SHADERINCPATH=vshtmp9/... fxctmp9/...
+set threadcount=11
 
 @REM should be removed, idk
 set ENGINEBINDIR=../../../game/bin
@@ -195,7 +196,7 @@ if exist "filelist.txt" if exist "uniquefilestocopy.txt" if not "%dynamic_shader
 	cd /D %ChangeToDir%
 	@REM %shadercompilecommand% -mpi_MaxWorkers %shadercompileworkers% -shaderpath "%shader_path_cd:/=\%" -allowdebug
 	@REM -verbose -subprocess X
-	%shadercompilecommand% -nompi -shaderpath "%shader_path_cd:/=\%" -allowdebug
+	%shadercompilecommand% -nompi -threads %threadcount% -shaderpath "%shader_path_cd:/=\%" -allowdebug
 	cd /D %shader_path_cd%
 	pause
 )
