@@ -17,8 +17,8 @@ Scheme
 	{
 		// base colors
 		"White"				"255 255 255 255"
-		"OffWhite"			"216 216 216 255"
-		"DullWhite"			"142 142 142 255"
+		"OffWhite"			"221 221 221 255"
+		"DullWhite"			"190 190 190 255"
 		"Orange"			"255 155 0 255"
 		"TransparentBlack"	"0 0 0 128"
 		"Black"				"0 0 0 255"
@@ -51,7 +51,7 @@ Scheme
 		Button.DepressedBgColor			"Blank"
 		Button.FocusBorderColor			"Black"
 
-		CheckButton.TextColor			"White"
+		CheckButton.TextColor			"DullWhite"
 		CheckButton.SelectedTextColor		"White"
 		CheckButton.BgColor			"TransparentBlack"
 		CheckButton.Border1  			"Border.Dark" 		// the left checkbutton border
@@ -130,7 +130,7 @@ Scheme
 		PropertySheet.SelectedTextColor	"White"
 		PropertySheet.TransitionEffectTime	"0.25"	// time to change from one tab to another
 
-		RadioButton.TextColor			"DullWhite"
+		RadioButton.TextColor			"OffWhite"
 		RadioButton.SelectedTextColor	"White"
 
 		RichText.TextColor				"OffWhite"
@@ -189,7 +189,7 @@ Scheme
 		// scheme-specific colors
 		MainMenu.TextColor			"White"				[$WIN32]
 		MainMenu.TextColor			"200 200 200 255"	[$X360]
-		MainMenu.ArmedTextColor		"100 100 100 255"	[$WIN32]
+		MainMenu.ArmedTextColor		"200 200 200 255"	[$WIN32]
 		MainMenu.ArmedTextColor		"White"				[$X360]
 		MainMenu.DepressedTextColor	"192 186 80 255"
 		MainMenu.MenuItemHeight		"30"				[$WIN32]
@@ -239,8 +239,8 @@ Scheme
 		{
 			"1"
 			{
-				"name"		"Courier New"
-				"tall"		"10"
+				"name"		"Consolas"
+				"tall"		"12"
 				"weight"	"500"
 				"antialias" "1"
 			}
@@ -250,8 +250,8 @@ Scheme
 		{
 			"1"
 			{
-				"name"		"Courier New"
-				"tall"		"7"
+				"name"		"Consolas"
+				"tall"		"10"
 				"weight"	"500"
 				"antialias" "1"
 			}
@@ -262,8 +262,6 @@ Scheme
 			{
 				"name"		 "Lucida Console" [$WINDOWS]
 				"name"		 "Lucida Console" [$X360]
-				"name"		 "Verdana" [$POSIX]
-				"tall"		"11" [$POSIX]
 				"tall"		 "10"
 				"tall_lodef" "15"
 				"tall_hidef" "20"
@@ -275,8 +273,7 @@ Scheme
 		{
 			"1"
 			{
-				"name"		"Tahoma" [!$OSX]
-				"name"		"Verdana" [$OSX]
+				"name"		"Tahoma"
 				"tall"		"16"
 				"weight"	"500"
 			}
@@ -285,8 +282,7 @@ Scheme
 		{
 			"1"
 			{
-				"name"		"Tahoma" [!$OSX]
-				"name"		"Verdana Bold" [$OSX]
+				"name"		"Tahoma"
 				"tall"		"16"
 				"weight"	"1000"
 			}
@@ -295,8 +291,7 @@ Scheme
 		{
 			"1"
 			{
-				"name"		"Tahoma" [!$OSX]
-				"name"		"Verdana" [$OSX]
+				"name"		"Tahoma"
 				"tall"		"16"
 				"weight"	"500"
 				"underline" "1"
@@ -306,21 +301,18 @@ Scheme
 		{
 			"1"
 			{
-				"name"		"Tahoma" [!$OSX]
-				"name"		"Verdana" [$OSX]
-				"tall"		"12" [!$OSX]
-				"tall"		"13" [$OSX]
-				"weight"	"0"
+				"name"		"Tahoma"
+				"tall"		"13"
+				"weight"	"10"
 			}
 		}
 		"DefaultSmallDropShadow"
 		{
 			"1"
 			{
-				"name"		"Tahoma" [!$OSX]
-				"name"		"Verdana" [$OSX]
+				"name"		"Tahoma"
 				"tall"		"13"
-				"weight"	"0"
+				"weight"	"10"
 				"dropshadow" "1"
 			}
 		}
@@ -328,10 +320,9 @@ Scheme
 		{
 			"1"
 			{
-				"name"		"Tahoma" [!$OSX]
-				"name"		"Verdana" [$OSX]
+				"name"		"Tahoma"
 				"tall"		"12"
-				"weight"	"0"
+				"weight"	"10"
 			}
 		}
 
@@ -339,18 +330,17 @@ Scheme
 		{
 			"1"
 			{
-				"name"		"Tahoma" [!$OSX]
-				"name"		"Verdana" [$OSX]
+				"name"		"Tahoma"
+				"antialias"	"1"
 				"tall"		"18"
-				"weight"	"0"
+				"weight"	"10"
 			}
 		}
 		"UiBold"
 		{
 			"1"	[$WIN32]
 			{
-				"name"		"Tahoma" [!$OSX]
-				"name"		"Verdana" [$OSX]
+				"name"		"Tahoma"
 				"tall"		"12"
 				"weight"	"1000"
 			}
@@ -387,7 +377,7 @@ Scheme
 		}
 		"MenuLarge"
 		{
-			"1"	[$OSX]
+			"1"	[$POSIX]
 			{
 				"name"		"Helvetica Bold"
 				"tall"		"20"
@@ -477,9 +467,7 @@ Scheme
 			{
 				"name"		 "Lucida Console" [$WINDOWS]
 				"name"		 "Lucida Console" [$X360]
-				"name"		 "Verdana" [$POSIX]
-				"tall"		"11" [$POSIX]
-				"tall"		"10"
+				"tall"		"12"
 				"weight"	"500"
 			}
 		}
@@ -588,17 +576,15 @@ Scheme
 			{
 				"name"		 "Lucida Console" [$WINDOWS]
 				"name"		 "Lucida Console" [$X360]
-				"name"		 "Verdana" [$POSIX]
-				"tall"		"11" [$POSIX]
-				"tall"		"10"
-				"weight"	"0"
+				"tall"		"12"
+				"weight"	"10"
 			}
-//			"1"
-//			{
-//				"name"		"FixedSys"
-//				"tall"		"20"
-//				"weight"	"0"
-//			}
+			"2"
+			{
+				"name"		"FixedSys"
+				"tall"		"20"
+				"weight"	"10"
+			}
 		}
 
 		"DefaultFixedDropShadow"
@@ -607,26 +593,23 @@ Scheme
 			{
 				"name"		 "Lucida Console" [$WINDOWS]
 				"name"		 "Lucida Console" [$X360]
-				"name"		 "Verdana" [$POSIX]
-				"tall"		"11" [$POSIX]
-				"tall"		"10"
-				"weight"	"0"
+				"tall"		"12"
+				"weight"	"10"
 				"dropshadow" "1"
 			}
-//			"1"
-//			{
-//				"name"		"FixedSys"
-//				"tall"		"20"
-//				"weight"	"0"
-//			}
+			"2"
+			{
+				"name"		"FixedSys"
+				"tall"		"20"
+				"weight"	"10"
+			}
 		}
 
 		"CloseCaption_Normal"
 		{
 			"1"
 			{
-				"name"		"Tahoma" [!$OSX]
-				"name"		"Verdana" [$OSX]
+				"name"		"Tahoma"
 				"tall"		"16"
 				"weight"	"500"
 			}
@@ -635,8 +618,7 @@ Scheme
 		{
 			"1"
 			{
-				"name"		"Tahoma" [!$OSX]
-				"name"		"Verdana Italic" [$OSX]
+				"name"		"Tahoma"
 				"tall"		"16"
 				"weight"	"500"
 				"italic"	"1"
@@ -646,8 +628,7 @@ Scheme
 		{
 			"1"
 			{
-				"name"		"Tahoma" [!$OSX]
-				"name"		"Verdana Bold" [$OSX]
+				"name"		"Tahoma"
 				"tall"		"16"
 				"weight"	"900"
 			}
@@ -656,8 +637,7 @@ Scheme
 		{
 			"1"
 			{
-				"name"		"Tahoma" [!$OSX]
-				"name"		"Verdana Bold Italic" [$OSX]
+				"name"		"Tahoma"
 				"tall"		"16"
 				"weight"	"900"
 				"italic"	"1"
@@ -718,8 +698,7 @@ Scheme
 		{
 			"1"
 			{
-				"name"		"Arial" [!$OSX]
-				"name"		"Verdana Bold" [$OSX]
+				"name"		"Arial"
 				"weight"		"2000"
 				"tall"			"20"
 				"antialias"		"1"
@@ -730,8 +709,7 @@ Scheme
 		{
 			"1"
 			{
-				"name"		"Arial" [!$OSX]
-				"name"		"Verdana Bold" [$OSX]
+				"name"		"Arial"
 				"weight"		"2000"
 				"tall"			"18"
 				"antialias"		"1"
@@ -742,11 +720,9 @@ Scheme
 		{
 			"1"
 			{
-				"name"		"Arial" [!$OSX]
-				"name"		"Verdana Bold" [$OSX]
+				"name"		"Arial"
 				"weight"		"1500"
-				"tall"			"16" [!$OSX]
-				"tall"			"18" [$OSX]
+				"tall"			"16"
 				"antialias"		"1"
 			}
 		}
@@ -755,8 +731,7 @@ Scheme
 		{
 			"1"
 			{
-				"name"		"Arial" [!$OSX]
-				"name"		"Verdana Bold" [$OSX]
+				"name"		"Arial"
 				"weight"		"1500"
 				"tall"			"16"
 				"antialias"		"1"
@@ -768,11 +743,9 @@ Scheme
 		{
 			"1"
 			{
-				"name"		"Arial" [!$OSX]
-				"name"		"Verdana Bold" [$OSX]
+				"name"		"Arial"
 				"weight"		"1500"
-				"tall"			"14" [!$OSX]
-				"tall"			"16" [$OSX]
+				"tall"			"14"
 				"antialias"		"1"
 			}
 		}
@@ -781,11 +754,9 @@ Scheme
 		{
 			"1"
 			{
-				"name"		"Arial" [!$OSX]
-				"name"		"Verdana Bold" [$OSX]
+				"name"		"Arial"
 				"weight"		"1500"
-				"tall"			"18" [!$OSX]
-				"tall"			"19" [$OSX]
+				"tall"			"18"
 				"antialias"		"1"
 			}
 		}
@@ -794,11 +765,9 @@ Scheme
 		{
 			"1"
 			{
-				"name"		"Arial" [!$OSX]
-				"name"		"Verdana" [$OSX]
+				"name"		"Arial"
 				"weight"		"1000"
-				"tall"			"14" [!$OSX]
-				"tall"			"15" [$OSX]
+				"tall"			"14"
 				"antialias"		"1"
 			}
 		}
@@ -808,8 +777,8 @@ Scheme
 		{
 			"1"
 			{
-				"name"		"Tahoma" [!$OSX]
-				"name"		"Verdana" [$OSX]
+				"name"		"Tahoma" [!$POSIX]
+				"name"		"Verdana" [$POSIX]
 				"tall"		"35"
 				"tall_lodef"	"40"
 				"weight"	"500"
@@ -888,6 +857,7 @@ Scheme
 
 		DepressedBorder
 		{
+			"backgroundtype" "2"
 			"inset" "0 0 1 1"
 			Left
 			{
@@ -927,6 +897,7 @@ Scheme
 		}
 		RaisedBorder
 		{
+			"backgroundtype" "2"
 			"inset" "0 0 1 1"
 			Left
 			{
@@ -982,6 +953,7 @@ Scheme
 
 		ScrollBarButtonBorder
 		{
+			"backgroundtype" "2"
 			"inset" "2 2 0 0" [!$OSX]
 			"inset" "-3 2 0 0" [$OSX]
 			Left
@@ -1023,6 +995,7 @@ Scheme
 		
 		ScrollBarButtonDepressedBorder
 		{
+			"backgroundtype" "2"
 			"inset" "2 2 0 0" [!$OSX]
 			"inset" "-3 2 0 0" [$OSX]
 			Left
@@ -1064,6 +1037,7 @@ Scheme
 
 		TabBorder
 		{
+			"backgroundtype" "2"
 			"inset" "0 0 1 1"
 			Left
 			{
@@ -1096,6 +1070,7 @@ Scheme
 
 		TabActiveBorder
 		{
+			"backgroundtype" "2"
 			"inset" "0 0 1 0"
 			Left
 			{
@@ -1170,6 +1145,7 @@ Scheme
 		// this is the border used for default buttons (the button that gets pressed when you hit enter)
 		ButtonKeyFocusBorder
 		{
+			"backgroundtype" "2"
 			"inset" "0 0 1 1"
 			Left
 			{
@@ -1227,6 +1203,7 @@ Scheme
 
 		ButtonDepressedBorder
 		{
+			"backgroundtype" "2"
 			"inset" "2 1 1 1"
 			Left
 			{
@@ -1272,7 +1249,6 @@ Scheme
 	CustomFontFiles
 	{
 		"1"		"resource/HALFLIFE2.ttf"
-		"2"		"resource/HL2EP2.ttf"	
-		"3"		"resource/marlett.ttf"
+		"2"		"resource/HL2EP2.ttf"
 	}
 }
