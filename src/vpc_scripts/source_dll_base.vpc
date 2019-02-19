@@ -19,6 +19,5 @@ $Configuration
 		$PreprocessorDefinitions			"$BASE;_PROFILE"						[$PROFILE && !$RETAIL]
 		$PreprocessorDefinitions			"$BASE;RETAIL_ASSERTS"					[$RETAIL && $RETAILASSERTS]
 		$PreprocessorDefinitions			"$BASE;FRAME_POINTER_OMISSION_DISABLED" // This is now always true.
-		$PreprocessorDefinitions			"$BASE;RAD_TELEMETRY_DISABLED"
 	}
 }
