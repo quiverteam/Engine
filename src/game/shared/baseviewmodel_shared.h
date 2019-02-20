@@ -137,12 +137,6 @@ public:
 	// Should this object cast shadows?
 	virtual ShadowType_t	ShadowCastType() { return SHADOWS_NONE; }
 
-	// Should this object receive shadows?
-	virtual bool			ShouldReceiveProjectedTextures( int flags )
-	{
-		return false;
-	}
-
 	// Add entity to visible view models list?
 	virtual void			AddEntity( void );
 

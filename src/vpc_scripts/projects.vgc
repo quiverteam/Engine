@@ -274,6 +274,14 @@ $Project "GameUI"
 	"gameui\GameUI.vpc" [$WIN32||$POSIX]
 }
 
+$Project "gameui_client"
+{
+	"game\gameui\gameui_hl2.vpc"		[($WIN32||$POSIX) && $HL2]
+	"game\gameui\gameui_episodic.vpc"	[($WIN32||$POSIX) && $EPISODIC]
+	"game\gameui\gameui_hl2mp.vpc"		[($WIN32||$POSIX) && $HL2MP]
+	"game\gameui\gameui_hl2r.vpc"		[($WIN32||$POSIX) && $HL2R]
+}
+
 $Project "game_shader_generic_advanced"
 {
 	"sdkshaders\advanced\game_shader_generic_advanced.vpc" [$WIN32]

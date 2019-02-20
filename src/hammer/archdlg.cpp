@@ -172,7 +172,6 @@ CArchDlg::~CArchDlg()
 
 void CArchDlg::DrawArch(CDC* pDC)
 {
-	int i;
 	float fOuterPoints[ARC_MAX_POINTS][2];
 	float fInnerPoints[ARC_MAX_POINTS][2];
 
@@ -229,7 +228,7 @@ void CArchDlg::DrawArch(CDC* pDC)
 	
 	BOOL bCreateSouthFace = TRUE;
 	float fCenter[3];
-	for (i = 0; i < 3; i++)
+	for (int i = 0; i < 3; i++)
 		fCenter[i] = (bmins[i] + bmaxs[i])/2.0;
 	
 	if((iWallWidth*2+8)  >= (bmaxs[0] - bmins[0]) ||
@@ -243,7 +242,7 @@ void CArchDlg::DrawArch(CDC* pDC)
 		bCreateSouthFace = FALSE;
 	}
 
-	for (i = 0; i < iSides; i++)
+	for (int i = 0; i < iSides; i++)
 	{
 		int iNextPoint = i+1;
 		if (iNextPoint >= iSides + 1)

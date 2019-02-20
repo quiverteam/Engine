@@ -129,8 +129,8 @@ bool CBSPLighting::Load( char const *pFilename )
 	{
 		usedFaces[iCountFace] = 0;
 
-		if( file.dfaces[iCountFace].m_LightmapTextureSizeInLuxels[0] != 0 || 
-			file.dfaces[iCountFace].m_LightmapTextureSizeInLuxels[0] != 0 )
+		if( file.dfaces[iCountFace].m_LightmapTextureSizeInLuxels[0] != 0 /*|| 
+			file.dfaces[iCountFace].m_LightmapTextureSizeInLuxels[0] != 0 */)
 		{
 			texinfo_t *pTexInfo = &file.texinfo[ file.dfaces[iCountFace].texinfo ];
 

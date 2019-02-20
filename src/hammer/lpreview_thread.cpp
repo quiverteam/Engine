@@ -650,7 +650,7 @@ void CLightingPreviewThread::CalculateForLightTask( int nLineMask, int nLineMatc
 	CIncrementalLightInfo *l_info=l.m_pIncrementalInfo;
 	CSIMDVectorMatrix &rslt=l_info->m_CalculatedContribution;
 	// figure out what lines to do
-	fltx4 ThresholdBrightness=ReplicateX4( 1.0/ 1024.0 );
+	fltx4 ThresholdBrightness=ReplicateX4( 0.1 / 1024.0 );
 	FourVectors LastLinesTotalLight=zero_vector;
 	int work_line_number=0;									// for task masking
 	for(int y=0;y<rslt.m_nHeight;y++)

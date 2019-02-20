@@ -337,7 +337,7 @@ public:
 
 	virtual bool ShouldAppearInRaytracedLightingPreview(void)
 	{
-		return false;
+		return true; //false
 	}
 
 	inline bool IsVisible(void) { return(m_bVisible); }

@@ -1,0 +1,17 @@
+//-----------------------------------------------------------------------------
+//	GAMEUI.VPC
+//
+//	Project Script
+//-----------------------------------------------------------------------------
+
+$Macro GAMENAME 	"hl2r"
+
+$include "gameui_base.vpc"	[$WIN32]//[$WIN32||$LINUX]
+
+$Project "GameUI (HL2R)"
+{
+	$Folder	"Game_MapLab"
+	{
+		$File	"maplab\ui_defines.h"
+	}
+}

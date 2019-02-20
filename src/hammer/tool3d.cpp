@@ -72,6 +72,7 @@ bool Tool3D::UpdateTranslation(const Vector &vUpdate, UINT flags /* = 0 */)
 
 	m_pDocument->UpdateAllViews( MAPVIEW_UPDATE_TOOL );
 
+
 	return true;
 }
 
