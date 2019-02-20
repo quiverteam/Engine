@@ -2743,7 +2743,7 @@ bool ScreenSpaceRectFromPoints( IMatRenderContext *pRenderContext, Vector vClipp
 // Turn this optimization off by default
 static ConVar r_flashlightclip("r_flashlightclip", "0", FCVAR_CHEAT );
 static ConVar r_flashlightdrawclip("r_flashlightdrawclip", "0", FCVAR_CHEAT );
-static ConVar r_flashlightscissor( "r_flashlightscissor", "1", FCVAR_CHEAT );
+//static ConVar r_flashlightscissor( "r_flashlightscissor", "1", FCVAR_CHEAT );
 
 void ExtractFrustumPlanes( Frustum frustumPlanes, float flPlaneEpsilon )
 {
@@ -3036,7 +3036,7 @@ TODO: do we even need to do the far plane?
 
 	// Calculate scissoring rect
 	flashlightInfo.m_FlashlightState.m_bScissor = false;
-	if ( r_flashlightscissor.GetBool() && (nNumPolygons > 0) )
+	/*if ( r_flashlightscissor.GetBool() && (nNumPolygons > 0) )
 	{
 		int nLeft, nTop, nRight, nBottom;
 		flashlightInfo.m_FlashlightState.m_bScissor = ScreenSpaceRectFromPoints( pRenderContext, vClippedPolygons, nNumVertices, nNumPolygons, &nLeft, &nTop, &nRight, &nBottom );
@@ -3047,7 +3047,7 @@ TODO: do we even need to do the far plane?
 			flashlightInfo.m_FlashlightState.m_nRight  = nRight;
 			flashlightInfo.m_FlashlightState.m_nBottom = nBottom;
 		}
-	}
+	}*/
 
 	if ( r_flashlightdrawclip.GetBool() && r_flashlightclip.GetBool() && bUseStencil )
 	{
@@ -3120,8 +3120,8 @@ void CShadowMgr::SetFlashlightStencilMasks( bool bDoMasking )
 		return;
 
 	// Bail out if we're not doing any of these optimizations
-	if ( !( r_flashlightclip.GetBool() || r_flashlightscissor.GetBool()) )
-		return;
+	/*if ( !( r_flashlightclip.GetBool() || r_flashlightscissor.GetBool()) )
+		return;*/
 
 	FlashlightHandle_t flashlightID = m_FlashlightStates.Head();
 	if ( flashlightID == m_FlashlightStates.InvalidIndex() )
@@ -3148,10 +3148,10 @@ void CShadowMgr::DisableStencilAndScissorMasking( IMatRenderContext *pRenderCont
 	}
 
 	// Scissor even if we're not shadow depth mapping
-	if ( r_flashlightscissor.GetBool() )
+	/*if ( r_flashlightscissor.GetBool() )
 	{
 		pRenderContext->SetScissorRect( -1, -1, -1, -1, false );
-	}
+	}*/
 }
 
 
@@ -3161,8 +3161,8 @@ void CShadowMgr::DisableStencilAndScissorMasking( IMatRenderContext *pRenderCont
 void CShadowMgr::EnableStencilAndScissorMasking( IMatRenderContext *pRenderContext, const FlashlightInfo_t &flashlightInfo, bool bDoMasking )
 {
 	// Bail out if we're not doing any of these optimizations
-	if ( !( r_flashlightclip.GetBool() || r_flashlightscissor.GetBool()) || !bDoMasking )
-		return;
+	/*if ( !( r_flashlightclip.GetBool() || r_flashlightscissor.GetBool()) || !bDoMasking )
+		return;*/
 
 	// Only turn on scissor when rendering to the back buffer
 	if ( pRenderContext->GetRenderTarget() == NULL )
@@ -3184,11 +3184,11 @@ void CShadowMgr::EnableStencilAndScissorMasking( IMatRenderContext *pRenderConte
 		}
 
 		// Scissor even if we're not shadow depth mapping
-		if ( r_flashlightscissor.GetBool() && flashlightInfo.m_FlashlightState.m_bScissor )
+		/*if ( r_flashlightscissor.GetBool() && flashlightInfo.m_FlashlightState.m_bScissor )
 		{
 			pRenderContext->SetScissorRect( flashlightInfo.m_FlashlightState.m_nLeft, flashlightInfo.m_FlashlightState.m_nTop,
 											flashlightInfo.m_FlashlightState.m_nRight, flashlightInfo.m_FlashlightState.m_nBottom, true );
-		}
+		}*/
 	}
 	else // disable
 	{

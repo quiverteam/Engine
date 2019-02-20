@@ -6389,9 +6389,8 @@
 		5: "Additive"
 	]
 ]
-
-// lightprop("models/editor/spot.mdl") <---- use this once the orientation is unfucked
-@PointClass base(Targetname, Parentname, Angles) size(-2 -2 -2, 2 2 2) frustum(lightfov,nearz,farz,lightcolor,-1) = env_projectedtexture : 
+// originally used models/editor/cone_helper.mdl
+@PointClass base(Targetname, Parentname, Angles) studio("models/editor/spot.mdl") frustum(lightfov,nearz,farz,lightcolor,-1) = env_projectedtexture : 
 	"Projected texture entity."
 [
 	spawnflags(flags) =

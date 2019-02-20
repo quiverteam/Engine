@@ -442,9 +442,9 @@ int CStudioRender::R_StudioRenderFinal( IMatRenderContext *pRenderContext,
 	return numTrianglesRendered;
 }
 
-static ConVar r_flashlightscissor( "r_flashlightscissor", "1", FCVAR_CHEAT );
+//static ConVar r_flashlightscissor( "r_flashlightscissor", "1", FCVAR_CHEAT );
 
-void CStudioRender::EnableScissor( FlashlightState_t *state )
+/*void CStudioRender::EnableScissor( FlashlightState_t *state )
 {
 	CMatRenderContextPtr pRenderContext( g_pMaterialSystem );
 
@@ -463,7 +463,7 @@ void CStudioRender::DisableScissor()
 	{
 		pRenderContext->SetScissorRect( -1, -1, -1, -1, false );
 	}
-}
+}*/
 
 
 //-----------------------------------------------------------------------------

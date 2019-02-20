@@ -1213,7 +1213,8 @@ void CRender3D::EndRenderFrame(void)
 				static float Last_SendTime=0;
 				// now, lets create floatbms with the deferred rendering data, so we can pass it to the lpreview thread
 				float newtime=Plat_FloatTime();
-				if (( n_gbufs_queued < 1 ) && ( newtime-Last_SendTime > 1.0) )
+				//if (( n_gbufs_queued < 1 ) && ( newtime-Last_SendTime > 1.0) )
+				if (( n_gbufs_queued < 1 ) && ( newtime-Last_SendTime > 0.2 ) )
 				{
 					SendShadowTriangles();
 					SendLightList();							// send light list to render thread
@@ -2302,9 +2303,12 @@ void CRender3D::RenderMapClass(CMapClass *pMapClass)
 				}
 				else
 				{
-					if (
+					/*if (
 						(m_eCurrentRenderMode != RENDER_MODE_LIGHT_PREVIEW2) &&
 						(m_eCurrentRenderMode != RENDER_MODE_LIGHT_PREVIEW_RAYTRACED) )
+					{*/
+					// entities now appear in the lighting preview, but not the raytraced one still
+					if (m_eCurrentRenderMode != RENDER_MODE_LIGHT_PREVIEW_RAYTRACED)
 					{
 						AddTranslucentDeferredRendering( pMapClass );
 					}
