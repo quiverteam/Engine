@@ -15,9 +15,6 @@ $Configuration	"Debug"
 	{
 		$OutputDirectory		"Debug_dx9"			[$WIN32]
 		$IntermediateDirectory	"Debug_dx9"			[$WIN32]
-		
-		$OutputDirectory		"Debug_dx9_360"		[$X360]
-		$IntermediateDirectory	"Debug_dx9_360"		[$X360]
 	}
 }
 
@@ -27,9 +24,6 @@ $Configuration	"Release"
 	{
 		$OutputDirectory		"Release_dx9"		[$WIN32]
 		$IntermediateDirectory	"Release_dx9"		[$WIN32]
-
-		$OutputDirectory		"Release_dx9_360"	[$X360]
-		$IntermediateDirectory	"Release_dx9_360"	[$X360]
 	}
 }
 
@@ -39,14 +33,12 @@ $Configuration
 	$Compiler
 	{
 		$AdditionalIncludeDirectories	"$BASE;fxctmp9;vshtmp9;..\..\dx9sdk\include"	[$WIN32]
-		$AdditionalIncludeDirectories	"$BASE;fxctmp9_360;vshtmp9_360"					[$X360]
 		$PreprocessorDefinitions		"$BASE;STDSHADER_DX9_DLL_EXPORT;FAST_MATERIALVAR_ACCESS"
 	}
 
 	$Linker
 	{
 		$AdditionalDependencies			"$BASE version.lib winmm.lib"	[$WIN32]
-		$ModuleDefinitionFile			"xbox\xbox_dx9.def"				[$X360]
 	}
 }
 
@@ -114,7 +106,6 @@ $Project "stdshader_dx9"
 		$File	"portal_refract_helper.cpp"
 		$File	"refract.cpp"
 		$File	"refract_dx9_helper.cpp"
-		$File	"rendertargetblit_x360.cpp"					[$X360]	
 		$File	"sample4x4.cpp"
 		$File	"sample4x4_blend.cpp"
 		$File	"screenspace_general.cpp"
@@ -159,32 +150,13 @@ $Project "stdshader_dx9"
 //			$File	"..\shader_dll_verify.h"
 //		}
 
-		// 360 collapes stdshader_dbg.dll into stdshader_dx9.dll
-		$Folder	"stdshader_dbg Files" [$X360]
-		{
-			$File	"debugdepth.cpp"
-			$File	"DebugDrawEnvmapMask.cpp"
-			$File	"debugluxel.cpp"
-			$File	"debugnormalmap.cpp"
-			$File	"debugtangentspace.cpp"
-			$File	"fillrate.cpp"
-			$File	"fillrate_dx6.cpp"
-
-			// dead shader, but hl2 models have it
-			$File	"eyeball.cpp"
-		}
-	}
-
-	$Folder "Xbox"	[$X360]
-	{
-		-$File	"xbox\xbox.def"
-		$File	"xbox\xbox_dx9.def"
 	}
 
 	$Folder	"Header Files"
 	{
 		$File	"BaseVSShader.h"
 		$File	"cloak_dx9_helper.h"
+		//$File	"common_flashlight_fxc.h"
 		$File	"common_fxc.h"
 		$File	"common_hlsl_cpp_consts.h"
 		$File	"common_ps_fxc.h"
@@ -209,12 +181,6 @@ $Project "stdshader_dx9"
 		$File	"$SRCDIR\lib\public\shaderlib.lib"
 	}
 
-	$Folder	"Link Libraries" [$X360]
-	{
-		$File	"$SRCDIR\lib\public\mathlib_360.lib"	
-		$File	"$SRCDIR\lib\public\shaderlib_360.lib"
-	}
-
 	$File	"$SRCDIR\devtools\bin\vsh_prep.pl"
 	$File	"$SRCDIR\devtools\bin\psh_prep.pl"
 	$File	"$SRCDIR\devtools\bin\fxc_prep.pl"
@@ -227,5 +193,5 @@ $Project "stdshader_dx9"
 
 	$Shaders	"stdshader_dx9_20b.txt"
 	$Shaders	"stdshader_dx9_30.txt"
-	$Shaders	"stdshader_dx10.txt"
+	//$Shaders	"stdshader_dx10.txt" // none yet
 }
