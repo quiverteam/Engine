@@ -2909,7 +2909,7 @@ bool BGetLocalFormattedDateAndTime( time_t timeVal, char *pchDate, int cubDate, 
 	{
 		// Convert it to our local time
 		struct tm tmStruct;
-		struct tm tmToDisplay = *( Plat_localtime( ( const time_t* )&timeVal, &tmStruct ) );
+		struct tm tmToDisplay = *( Plat_localtime( &timeVal, &tmStruct ) );
 #ifdef POSIX
 		if ( pchDate != NULL )
 		{

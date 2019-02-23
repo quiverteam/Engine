@@ -98,6 +98,13 @@ public:
 	virtual void			PublishToVXConsole( );
 #endif
 
+	virtual bool			IsMaterialThreadSetAllowed() const { return false; }
+	virtual void			QueueMaterialThreadSetValue( ConVar *pConVar, const char *pValue ){}
+	virtual void			QueueMaterialThreadSetValue( ConVar *pConVar, int nValue ) {}
+	virtual void			QueueMaterialThreadSetValue( ConVar *pConVar, float flValue ) {}
+	virtual bool			HasQueuedMaterialThreadConVarSets() const { return false; }
+	virtual int				ProcessQueuedMaterialThreadConVarSets() { return 0; }
+
 private:
 	enum
 	{
@@ -557,7 +564,7 @@ void CCvar::DisplayQueuedMessages( )
 		}
 		nStringLength = m_TempConsoleBuffer.PeekStringLength();
 		char* pTemp = (char*)_alloca( nStringLength + 1 );
-		m_TempConsoleBuffer.GetString( pTemp );
+		m_TempConsoleBuffer.GetStringManualCharCount( pTemp, nStringLength + 1 );
 
 		switch( nType )
 		{

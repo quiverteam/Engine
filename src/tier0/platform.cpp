@@ -79,6 +79,12 @@ unsigned int Plat_MSTime()
 	return (unsigned long) ( ( CurrentTime.QuadPart - g_ClockStart.QuadPart ) / g_MSPerformanceFrequency.QuadPart);
 }
 
+struct tm * Plat_localtime( const time_t *timep, struct tm *result )
+{
+	result = localtime( timep );
+	return result;
+}
+
 void GetCurrentDate( int *pDay, int *pMonth, int *pYear )
 {
 	struct tm *pNewTime;

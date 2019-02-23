@@ -51,7 +51,7 @@ public:
 
 private:
 #ifdef KEYVALUES_USE_POOL
-	CMemoryPool *m_pMemPool;
+	CUtlMemoryPool *m_pMemPool;
 #endif
 	int m_iMaxKeyValuesSize;
 
@@ -62,7 +62,7 @@ private:
 		int stringIndex;
 		hash_item_t *next;
 	};
-	CMemoryPool m_HashItemMemPool;
+	CUtlMemoryPool m_HashItemMemPool;
 	CUtlVector<hash_item_t> m_HashTable;
 	int CaseInsensitiveHash(const char *string, int iBounds);
 
@@ -95,7 +95,7 @@ IKeyValuesSystem *KeyValuesSystem()
 //-----------------------------------------------------------------------------
 // Purpose: Constructor
 //-----------------------------------------------------------------------------
-CKeyValuesSystem::CKeyValuesSystem() : m_HashItemMemPool(sizeof(hash_item_t), 64, CMemoryPool::GROW_FAST, "CKeyValuesSystem::m_HashItemMemPool"), m_KeyValuesTrackingList(0, 0, MemoryLeakTrackerLessFunc)
+CKeyValuesSystem::CKeyValuesSystem() : m_HashItemMemPool(sizeof(hash_item_t), 64, CUtlMemoryPool::GROW_FAST, "CKeyValuesSystem::m_HashItemMemPool"), m_KeyValuesTrackingList(0, 0, MemoryLeakTrackerLessFunc)
 {
 	// initialize hash table
 	m_HashTable.AddMultipleToTail(2047);
@@ -176,7 +176,7 @@ void *CKeyValuesSystem::AllocKeyValuesMemory(int size)
 	// allocate, if we don't have one yet
 	if (!m_pMemPool)
 	{
-		m_pMemPool = new CMemoryPool(m_iMaxKeyValuesSize, 1024, CMemoryPool::GROW_FAST, "CKeyValuesSystem::m_pMemPool" );
+		m_pMemPool = new CUtlMemoryPool(m_iMaxKeyValuesSize, 1024, CUtlMemoryPool::GROW_FAST, "CKeyValuesSystem::m_pMemPool" );
 		m_pMemPool->SetErrorReportFunc( KVLeak );
 	}
 

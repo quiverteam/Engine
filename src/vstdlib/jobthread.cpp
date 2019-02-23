@@ -202,7 +202,7 @@ public:
 	//-----------------------------------------------------
 	// Offer the current thread to the pool
 	//-----------------------------------------------------
-	virtual int YieldWait( CThreadEvent *pEvents, int nEvents, bool bWaitAll = true, unsigned timeout = TT_INFINITE );
+	virtual int YieldWait( CThreadEvent **pEvents, int nEvents, bool bWaitAll = true, unsigned timeout = TT_INFINITE );
 	virtual int YieldWait( CJob **, int nJobs, bool bWaitAll = true, unsigned timeout = TT_INFINITE );
 	void Yield( unsigned timeout );
 
@@ -211,6 +211,13 @@ public:
 	//-----------------------------------------------------
 	void AddJob( CJob * );
 	void InsertJobInQueue( CJob * );
+
+	//-----------------------------------------------------
+	// All threads execute pFunctor asap. Thread will either wake up
+	//  and execute or execute pFunctor right after completing current job and
+	//  before looking for another job.
+	//-----------------------------------------------------
+	virtual void ExecuteHighPriorityFunctor( CFunctor *pFunctor ) {};
 
 	//-----------------------------------------------------
 	// Add an function object to the queue (master thread)
@@ -539,12 +546,12 @@ void CThreadPool::WaitForIdle( bool bAll )
 
 //---------------------------------------------------------
 
-int CThreadPool::YieldWait( CThreadEvent *pEvents, int nEvents, bool bWaitAll, unsigned timeout )
+int CThreadPool::YieldWait( CThreadEvent **pEvents, int nEvents, bool bWaitAll, unsigned timeout )
 {
 	Assert( timeout == TT_INFINITE ); // unimplemented
 	int result;
 	CJob *pJob;
-	while ( ( result = ThreadWaitForEvents( nEvents, &pEvents, bWaitAll, 0 ) ) == WAIT_TIMEOUT )
+	while ( ( result = ThreadWaitForEvents( nEvents, pEvents, bWaitAll, 0 ) ) == WAIT_TIMEOUT )
 	{
 		if ( m_SharedQueue.Pop( &pJob ) )
 		{
@@ -575,7 +582,7 @@ int CThreadPool::YieldWait( CJob **ppJobs, int nJobs, bool bWaitAll, unsigned ti
 		handles.AddToTail( *(ppJobs[i]->AccessEvent()) );
 	}
 
-	return YieldWait( (CThreadEvent *)handles.Base(), handles.Count(), bWaitAll, timeout);
+	return YieldWait( (CThreadEvent **)handles.Base(), handles.Count(), bWaitAll, timeout);
 }
 
 //---------------------------------------------------------

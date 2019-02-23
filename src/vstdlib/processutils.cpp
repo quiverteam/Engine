@@ -134,7 +134,7 @@ ProcessHandle_t CProcessUtils::CreateProcess( ProcessInfo_t &info, bool bConnect
 	}
 
 	PROCESS_INFORMATION pi;
-	if ( ::CreateProcess( NULL, info.m_CommandLine.Get(), NULL, NULL, TRUE, DETACHED_PROCESS, NULL, NULL, &si, &pi ) )
+	if ( ::CreateProcess( NULL, info.m_CommandLine.GetForModify(), NULL, NULL, TRUE, DETACHED_PROCESS, NULL, NULL, &si, &pi ) )
 	{
 		info.m_hProcess = pi.hProcess;
 		m_hCurrentProcess = m_Processes.AddToTail( info );
