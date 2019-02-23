@@ -1,4 +1,4 @@
-//===== Copyright © 2005-2005, Valve Corporation, All rights reserved. ======//
+//========= Copyright Valve Corporation, All rights reserved. ============//
 //
 // Purpose: A higher level link library for general use in the game and tools.
 //
@@ -29,7 +29,9 @@ class IProcessUtils;
 // It is hoped that setting this, and using this library will be the common mechanism for
 // allowing link libraries to access tier1 library interfaces
 //-----------------------------------------------------------------------------
-extern ICvar *cvar;
+
+// These are marked DLL_EXPORT for Linux.
+DLL_EXPORT ICvar *cvar;
 extern ICvar *g_pCVar;
 extern IProcessUtils *g_pProcessUtils;
 
@@ -60,7 +62,7 @@ public:
 		if ( !BaseClass::Connect( factory ) )
 			return false;
 
-		if ( IsPrimaryAppSystem() )
+		if ( BaseClass::IsPrimaryAppSystem() )
 		{
 			ConnectTier1Libraries( &factory, 1 );
 		}
@@ -69,7 +71,7 @@ public:
 
 	virtual void Disconnect() 
 	{
-		if ( IsPrimaryAppSystem() )
+		if ( BaseClass::IsPrimaryAppSystem() )
 		{
 			DisconnectTier1Libraries();
 		}
@@ -82,7 +84,7 @@ public:
 		if ( nRetVal != INIT_OK )
 			return nRetVal;
 
-		if ( g_pCVar && IsPrimaryAppSystem() )
+		if ( g_pCVar && BaseClass::IsPrimaryAppSystem() )
 		{
 			ConVar_Register( ConVarFlag );
 		}
@@ -91,7 +93,7 @@ public:
 
 	virtual void Shutdown()
 	{
-		if ( g_pCVar && IsPrimaryAppSystem() )
+		if ( g_pCVar && BaseClass::IsPrimaryAppSystem() )
 		{
 			ConVar_Unregister( );
 		}

@@ -1,7 +1,4 @@
-//===== Copyright © 1996-2006, Valve Corporation, All rights reserved. ======//
-//
-// Purpose: class for keeping track of all the references that exist to an object.  When the object
-// being referenced is freed, all of the pointers pointing at it will become null.
+//========= Copyright Valve Corporation, All rights reserved. ============//
 //
 // $Revision: $
 // $NoKeywords: $
@@ -18,27 +15,43 @@
 #include "mathlib/mathlib.h"
 
 
+// Purpose: class for keeping track of all the references that exist to an object.  When the object
+// being referenced is freed, all of the references pointing at it will become null.
+//
+// To Use:
+//   Add a DECLARE_REFERENCED_CLASS to the class that you want to use CutlReferences with.
+//   Replace pointers to that class with CUtlReferences.
+//   Check these references for null in appropriate places.
+//
+//  NOTE : You can still happily use pointers instead of references where you want to - these
+//  pointers will not magically become null like references would, but if you know no one is going
+//  to delete the underlying object during a partcular section of code, it doesn't
+//  matter. Basically, CUtlReferences don't rely on every use of an object using one.
+
+
+
+
 template<class T> class CUtlReference
 {
 public:
-	CUtlReference(void)
+	FORCEINLINE CUtlReference(void)
 	{
 		m_pNext = m_pPrev = NULL;
 		m_pObject = NULL;
 	}
   
-	CUtlReference(T *pObj)
+	FORCEINLINE CUtlReference(T *pObj)
 	{
 		m_pNext = m_pPrev = NULL;
 		AddRef( pObj );
 	}
 
-	~CUtlReference(void)
+	FORCEINLINE ~CUtlReference(void)
 	{
 		KillRef();
 	}
   
-	void Set(T *pObj)
+	FORCEINLINE void Set(T *pObj)
 	{
 		if ( m_pObject != pObj )
 		{
@@ -47,38 +60,45 @@ public:
 		}
 	}
   
-	T * operator()(void) const
+	FORCEINLINE T * operator()(void) const
 	{
 		return m_pObject;
 	}
 
-	operator T*()
+	FORCEINLINE operator T*()
 	{
 		return m_pObject;
 	}
 
-	operator const T*() const
+	FORCEINLINE operator const T*() const
 	{
 		return m_pObject;
 	}
 
-	T* operator->()
+	FORCEINLINE T* operator->()
 	{ 
 		return m_pObject; 
 	}
 
-	const T* operator->() const
+	FORCEINLINE const T* operator->() const
 	{ 
 		return m_pObject; 
 	}
 
-	CUtlReference &operator=( const CUtlReference& otherRef )
+	FORCEINLINE CUtlReference &operator=( const CUtlReference& otherRef )
 	{
 		Set( otherRef.m_pObject );
 		return *this;
 	}
 
-	bool operator==( const CUtlReference& o ) const
+	FORCEINLINE CUtlReference &operator=( T *pObj )
+	{
+		Set( pObj );
+		return *this;
+	}
+
+
+	FORCEINLINE bool operator==( const CUtlReference& o ) const
 	{
 		return ( o.m_pObject == m_pObject );
 	}	
@@ -89,7 +109,7 @@ public:
 
 	T *m_pObject;
 
-	void AddRef( T *pObj )
+	FORCEINLINE void AddRef( T *pObj )
 	{
 		m_pObject = pObj;
 		if ( pObj )
@@ -98,7 +118,7 @@ public:
 		}
 	}
 
-	void KillRef(void)
+	FORCEINLINE void KillRef(void)
 	{
 		if ( m_pObject )
 		{

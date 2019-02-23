@@ -39,6 +39,12 @@ public:
 	// for debugging, adds KeyValues record into global list so we can track memory leaks
 	virtual void AddKeyValuesToMemoryLeakList(void *pMem, HKeySymbol name) = 0;
 	virtual void RemoveKeyValuesFromMemoryLeakList(void *pMem) = 0;
+/*	FIX ME: needs updated vstdlib
+	// maintain a cache of KeyValues we load from disk. This saves us quite a lot of time on app startup. 
+	virtual void AddFileKeyValuesToCache( const KeyValues* _kv, const char *resourceName, const char *pathID ) = 0;
+	virtual bool LoadFileKeyValuesFromCache( KeyValues* _outKv, const char *resourceName, const char *pathID, IBaseFileSystem *filesystem ) const = 0;
+	virtual void InvalidateCache( ) = 0;
+	virtual void InvalidateCacheForFile( const char *resourceName, const char *pathID ) = 0;*/
 };
 
 VSTDLIB_INTERFACE IKeyValuesSystem *KeyValuesSystem();

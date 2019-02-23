@@ -1,4 +1,4 @@
-//========= Copyright © 1996-2005, Valve Corporation, All rights reserved. ============//
+//========= Copyright Valve Corporation, All rights reserved. ============//
 //
 // Purpose: 
 //
@@ -24,6 +24,8 @@
 #endif
 
 #include "stdio.h"
+
+#if 0
 
 void CBitWrite::StartWriting( void *pData, int nBytes, int iStartBit, int nBits )
 {
@@ -150,7 +152,7 @@ void CBitWrite::WriteBytes( const void *pBuf, int nBytes )
 void CBitWrite::WriteBitCoord (const float f)
 {
 	int		signbit = (f <= -COORD_RESOLUTION);
-	int		intval = abs((int)f);
+	int		intval = (int)abs(f);
 	int		fractval = abs((int)(f*COORD_DENOMINATOR)) & (COORD_DENOMINATOR-1);
 
 
@@ -182,7 +184,7 @@ void CBitWrite::WriteBitCoord (const float f)
 void CBitWrite::WriteBitCoordMP (const float f, bool bIntegral, bool bLowPrecision )
 {
 	int		signbit = (f <= -( bLowPrecision ? COORD_RESOLUTION_LOWPRECISION : COORD_RESOLUTION ));
-	int		intval = abs((int)f);
+	int		intval = (int)abs(f);
 	int		fractval = bLowPrecision ? 
 		( abs((int)(f*COORD_DENOMINATOR_LOWPRECISION)) & (COORD_DENOMINATOR_LOWPRECISION-1) ) :
 		( abs((int)(f*COORD_DENOMINATOR)) & (COORD_DENOMINATOR-1) );
@@ -711,3 +713,5 @@ void CBitRead::ReadBitAngles( QAngle& fa )
 	ReadBitVec3Coord( tmp );
 	fa.Init( tmp.x, tmp.y, tmp.z );
 }
+
+#endif
