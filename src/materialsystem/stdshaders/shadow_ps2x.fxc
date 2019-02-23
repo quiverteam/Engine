@@ -1,7 +1,6 @@
 // DYNAMIC: "PIXELFOGTYPE"		"0..1"
 
-// STATIC: "CONVERT_TO_SRGB"	"0..1"	[ps20b][= g_pHardwareConfig->NeedsShaderSRGBConversion()] [PC]
-// STATIC: "CONVERT_TO_SRGB"	"0..0"	[= 0] [XBOX]
+// STATIC: "CONVERT_TO_SRGB"	"0..1"	[ps20b][= g_pHardwareConfig->NeedsShaderSRGBConversion()]
 
 #define HDRTYPE HDR_TYPE_NONE
 #include "common_ps_fxc.h"

@@ -33,15 +33,8 @@ const bool g_bUseInstancing			: register( SHADER_SPECIFIC_BOOL_CONST_2 );
 #define START_FAR_FADE  ( SizeParms2.x )
 #define FAR_FADE_FACTOR ( SizeParms2.y )	   // alpha = 1-min(1,max(0, (dist-start_fade)*factor))
 
-// Define stuff for instancing on 360
-#if ( defined( _X360 ) && defined( SHADER_MODEL_VS_2_0 ) )
-#define CONST_PC 
-#define VERTEX_INDEX_PARAM_360 ,int Index:INDEX
-#define DO_INSTANCING 1
-#else
 #define CONST_PC const
 #define VERTEX_INDEX_PARAM_360
-#endif
 
 
 struct VS_INPUT
@@ -79,11 +72,7 @@ struct VS_OUTPUT
 	float2 vSeq2TexCoord1   : TEXCOORD6;
 #endif
 
-#if defined( _X360 )
-	float4 vScreenPos_ReverseZ		: TEXCOORD7;
-#else
 	float4 vScreenPos		: TEXCOORD7;
-#endif
 };
 
 #define BLENDFACTOR v.vParms.x
@@ -329,12 +318,7 @@ VS_OUTPUT main( CONST_PC VS_INPUT v
 	vScreenPos.x = projPos.x;
 	vScreenPos.y = -projPos.y; // invert Y
 	vScreenPos = (vScreenPos + projPos.w) * 0.5f;
-	
-#if defined( _X360 )
-	o.vScreenPos_ReverseZ = float4(vScreenPos.x, vScreenPos.y, projPos.w - projPos.z, projPos.w );
-#else
 	o.vScreenPos = float4(vScreenPos.x, vScreenPos.y, projPos.z, projPos.w );
-#endif
 
 	o.argbcolor = tint;
 	return o;

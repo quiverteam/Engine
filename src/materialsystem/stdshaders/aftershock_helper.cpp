@@ -7,8 +7,9 @@
 
 // Auto generated inc files
 #include "aftershock_vs20.inc"
-#include "aftershock_ps20.inc"
-#include "aftershock_ps20b.inc"
+//#include "aftershock_ps20.inc"
+//#include "aftershock_ps20b.inc"
+#include "aftershock_ps30.inc"
 
 
 void InitParamsAftershock( CBaseVSShader *pShader, IMaterialVar** params, const char *pMaterialName, AftershockVars_t &info )
@@ -91,7 +92,7 @@ void DrawAftershock( CBaseVSShader *pShader, IMaterialVar** params, IShaderDynam
 		SET_STATIC_VERTEX_SHADER( aftershock_vs20 );
 	
 		// Pixel Shader
-		if( g_pHardwareConfig->SupportsPixelShaders_2_b() )
+		/*if( g_pHardwareConfig->SupportsPixelShaders_2_b() )
 		{
 			DECLARE_STATIC_PIXEL_SHADER( aftershock_ps20b );
 			SET_STATIC_PIXEL_SHADER( aftershock_ps20b );
@@ -100,7 +101,10 @@ void DrawAftershock( CBaseVSShader *pShader, IMaterialVar** params, IShaderDynam
 		{
 			DECLARE_STATIC_PIXEL_SHADER( aftershock_ps20 );
 			SET_STATIC_PIXEL_SHADER( aftershock_ps20 );
-		}
+		}*/
+
+		DECLARE_STATIC_PIXEL_SHADER( aftershock_ps30 );
+		SET_STATIC_PIXEL_SHADER( aftershock_ps30 );
 
 		// Textures
 		pShaderShadow->EnableTexture( SHADER_SAMPLER0, true ); // Refraction texture
@@ -138,7 +142,7 @@ void DrawAftershock( CBaseVSShader *pShader, IMaterialVar** params, IShaderDynam
 		pShaderAPI->SetVertexShaderConstant( VERTEX_SHADER_SHADER_SPECIFIC_CONST_0, vPackedVsConst1, 1 );
 
 		// Set Pixel Shader Combos
-		if( g_pHardwareConfig->SupportsPixelShaders_2_b() )
+		/*if( g_pHardwareConfig->SupportsPixelShaders_2_b() )
 		{
 			DECLARE_DYNAMIC_PIXEL_SHADER( aftershock_ps20b );
 			SET_DYNAMIC_PIXEL_SHADER( aftershock_ps20b );
@@ -147,7 +151,11 @@ void DrawAftershock( CBaseVSShader *pShader, IMaterialVar** params, IShaderDynam
 		{
 			DECLARE_DYNAMIC_PIXEL_SHADER( aftershock_ps20 );
 			SET_DYNAMIC_PIXEL_SHADER( aftershock_ps20 );
-		}
+		}*/
+
+		
+		DECLARE_DYNAMIC_PIXEL_SHADER( aftershock_ps30 );
+		SET_DYNAMIC_PIXEL_SHADER( aftershock_ps30 );
 
 		// Bind textures
 		pShaderAPI->BindStandardTexture( SHADER_SAMPLER0, TEXTURE_FRAME_BUFFER_FULL_TEXTURE_0 ); // Refraction Map

@@ -4,8 +4,7 @@
 //
 //=============================================================================
 
-// DYNAMIC: "WRITE_DEPTH_TO_DESTALPHA"	"0..1"	[ps20b] [PC]
-// DYNAMIC: "WRITE_DEPTH_TO_DESTALPHA"	"0..0"	[ps20b] [XBOX]
+// DYNAMIC: "WRITE_DEPTH_TO_DESTALPHA"	"0..1"	[ps20b]
 // DYNAMIC: "WRITE_DEPTH_TO_DESTALPHA"  "0..1"	[ps30]
 // DYNAMIC: "PIXELFOGTYPE"				"0..1"
 

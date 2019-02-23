@@ -2,17 +2,17 @@
 setlocal enabledelayedexpansion
 echo.
 rem == Setup path to nmake.exe ==
-
+@REM call find_vs_version.bat
 @REM find vs2017 directory, if vswhere doesn't exist, skip
 if exist "%ProgramFiles(x86)%\Microsoft Visual Studio\Installer\vswhere.exe" (
 	for /f "usebackq tokens=1* delims=: " %%i in (`"%ProgramFiles(x86)%\Microsoft Visual Studio\Installer\vswhere.exe" -latest -requires Microsoft.VisualStudio.Workload.NativeDesktop`) do (
-		if /i "%%i"=="installationPath" (
-			set VSDIR=%%j
+		if /i "%%i"=="installationPath" set VSDIR=%%j
+		if not "!VSDIR!"=="" (
 			call "!VSDIR!\Common7\Tools\VsDevCmd.bat" >nul
 			echo Using VS2017 tools
 			goto :start
 		)
-	)	
+	)
 ) else if exist "%VS140COMNTOOLS%vsvars32.bat" (
 	call "%VS140COMNTOOLS%vsvars32.bat"
 	echo Using VS2015 tools
@@ -25,8 +25,12 @@ if exist "%ProgramFiles(x86)%\Microsoft Visual Studio\Installer\vswhere.exe" (
 	call "%VS100COMNTOOLS%vsvars32.bat"
 	echo Using VS2010 tools
 	
-) else echo Install Either Visual Studio Version 2010, 2013, 2015, or 2017
-
+) else (
+	echo Install Either Visual Studio Version 2010, 2013, 2015, or 2017
+	echo.
+	pause
+	exit
+)
 
 :start
 set TTEXE=..\..\devtools\bin\timeprecise.exe
@@ -37,8 +41,9 @@ goto no_ttexe_end
 set TTEXE=time /t
 :no_ttexe_end
 
+
 echo.
-echo ~~~~~~~~~~~~ buildallshaders %* ~~~~~~~~~~~~
+echo ~~~~~~~~~~~~~~~~~~~~~~~~ buildshaders_flashlight ~~~~~~~~~~~~~~~~~~~~~~~~
 %TTEXE% -cur-Q
 set tt_all_start=%ERRORLEVEL%
 set tt_all_chkpt=%tt_start%
@@ -67,26 +72,16 @@ set dynamic_shaders=0
 rem ==== LAUNCH CONFIGURATIONS END ====
 rem ===================================
 
-@REM maybe set something up like this? idk
-@REM For /f "tokens=2-4 delims=/ " %%a in ('date /t') do (set mydate=%%c-%%a-%%b)
-@REM For /f "tokens=1-2 delims=/:" %%a in ('time /t') do (set mytime=%%a%%b)
-
-
 REM ****************
-REM BUILD SHADERS
+REM PC SHADERS
 REM ****************
-@REM shove the full log into another file 
-%BUILD_SHADER% stdshader_dx9_20b		-game %GAMEDIR% -source %SOURCEDIR% %dynamic_shaders% >buildallshaders_stdshader_dx9_20b.txt
-@REM %BUILD_SHADER% stdshader_dx9_20b_testing	-game %GAMEDIR% -source %SOURCEDIR% %dynamic_shaders% >buildallshaders_stdshader_dx9_20b.txt
+%BUILD_SHADER% stdshader_flashlight_dx9_20b		-game %GAMEDIR% -source %SOURCEDIR% %dynamic_shaders%
 echo --------------------------------------------------------------------------------------------
-@REM %BUILD_SHADER% stdshader_dx9_30_test			-game %GAMEDIR% -source %SOURCEDIR% %dynamic_shaders% -dx9_30 -force30 >buildallshaders_stdshader_dx9_30.txt
-%BUILD_SHADER% stdshader_dx9_30			-game %GAMEDIR% -source %SOURCEDIR% %dynamic_shaders% -dx9_30 -force30 >buildallshaders_stdshader_dx9_30.txt
+%BUILD_SHADER% stdshader_flashlight_dx9_30			-game %GAMEDIR% -source %SOURCEDIR% %dynamic_shaders% -dx9_30 -force30
 echo --------------------------------------------------------------------------------------------
-@REM %BUILD_SHADER% stdshader_dx10			-game %GAMEDIR% -source %SOURCEDIR% %dynamic_shaders% -dx10
+@REM %BUILD_SHADER% stdshader_flashlight_dx10			-game %GAMEDIR% -source %SOURCEDIR% %dynamic_shaders% -dx10
 @REM dx10 is empty right now
 echo.
-
-
 
 REM ****************
 REM END
@@ -95,13 +90,12 @@ REM ****************
 
 rem echo.
 if not "%dynamic_shaders%" == "1" (
-  echo Finished full buildallshaders %*
+  echo Finished full buildshaders_flashlight
 ) else (
-  echo Finished dynamic buildallshaders %*
+  echo Finished dynamic buildshaders_flashlight
 )
 
 %TTEXE% -diff %tt_all_start% -cur
 echo.
 
-echo Press any key to exit . . .
-pause >nul
+pause

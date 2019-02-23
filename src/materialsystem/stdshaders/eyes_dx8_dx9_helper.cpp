@@ -9,9 +9,7 @@
 #include "mathlib/VMatrix.h"
 #include "eyes_dx8_dx9_helper.h"
 #include "cpp_shader_constant_register_map.h"
-#include "eyes.inc"
-#include "eyes_flashlight_vs11.inc"
-#include "eyes_flashlight_ps11.inc"
+#include "eyes.inc"=
 
 #ifdef STDSHADER_DX9_DLL_EXPORT
 
@@ -133,9 +131,7 @@ static void DrawFlashlight( bool bDX9, CBaseVSShader *pShader, IMaterialVar** pa
 		if ( bDX9 )
 		{
 			int nShadowFilterMode = g_pHardwareConfig->GetShadowFilterMode();	// Based upon vendor and device dependent formats
-#ifndef _X360
 			if ( !g_pHardwareConfig->HasFastVertexTextures() )
-#endif
 			{
 				DECLARE_STATIC_VERTEX_SHADER( eyes_flashlight_vs20 );
 				SET_STATIC_VERTEX_SHADER( eyes_flashlight_vs20 );
@@ -152,7 +148,6 @@ static void DrawFlashlight( bool bDX9, CBaseVSShader *pShader, IMaterialVar** pa
 					SET_STATIC_PIXEL_SHADER( eyes_flashlight_ps20 );
 				}
 			}
-#ifndef _X360
 			else
 			{
 				// The vertex shader uses the vertex id stream
@@ -165,7 +160,6 @@ static void DrawFlashlight( bool bDX9, CBaseVSShader *pShader, IMaterialVar** pa
 				SET_STATIC_PIXEL_SHADER_COMBO( FLASHLIGHTDEPTHFILTERMODE, nShadowFilterMode );
 				SET_STATIC_PIXEL_SHADER( eyes_flashlight_ps30 );
 			}
-#endif
 
 			// On DX9, get the gamma read and write correct
 			pShaderShadow->EnableSRGBRead( SHADER_SAMPLER0, true );			// Spot
@@ -180,16 +174,8 @@ static void DrawFlashlight( bool bDX9, CBaseVSShader *pShader, IMaterialVar** pa
 				pShaderShadow->EnableTexture( SHADER_SAMPLER5, true );			// Shadow noise rotation map
 			}
 		}
-		else
 #endif
-		{
-			// DX8 uses old asm shaders
-			eyes_flashlight_vs11_Static_Index	vshIndex;
-			pShaderShadow->SetVertexShader( "eyes_flashlight_vs11", vshIndex.GetIndex() );
-
-			eyes_flashlight_ps11_Static_Index	pshIndex;
-			pShaderShadow->SetPixelShader( "eyes_flashlight_ps11", pshIndex.GetIndex() );
-		}
+		
 		
 		pShader->FogToBlack();
 	}
@@ -212,13 +198,9 @@ static void DrawFlashlight( bool bDX9, CBaseVSShader *pShader, IMaterialVar** pa
 		pShaderAPI->BindStandardTexture( SHADER_SAMPLER2, TEXTURE_NORMALIZATION_CUBEMAP );
 		pShader->BindTexture( SHADER_SAMPLER3, info.m_nIris, info.m_nIrisFrame );
 
-#ifdef STDSHADER_DX9_DLL_EXPORT
 		if ( bDX9 )
 		{
-
-#ifndef _X360
 			if ( !g_pHardwareConfig->HasFastVertexTextures() )
-#endif
 			{
 				DECLARE_DYNAMIC_VERTEX_SHADER( eyes_flashlight_vs20 );
 				SET_DYNAMIC_VERTEX_SHADER_COMBO( DOWATERFOG, pShaderAPI->GetSceneFogMode() == MATERIAL_FOG_LINEAR_BELOW_FOG_Z );
@@ -226,7 +208,6 @@ static void DrawFlashlight( bool bDX9, CBaseVSShader *pShader, IMaterialVar** pa
 				SET_DYNAMIC_VERTEX_SHADER_COMBO( COMPRESSED_VERTS, (int)vertexCompression );
 				SET_DYNAMIC_VERTEX_SHADER( eyes_flashlight_vs20 );
 			}
-#ifndef _X360
 			else
 			{
 				pShader->SetHWMorphVertexShaderState( VERTEX_SHADER_SHADER_SPECIFIC_CONST_10, VERTEX_SHADER_SHADER_SPECIFIC_CONST_11, SHADER_VERTEXTEXTURE_SAMPLER0 );
@@ -238,7 +219,6 @@ static void DrawFlashlight( bool bDX9, CBaseVSShader *pShader, IMaterialVar** pa
 				SET_DYNAMIC_VERTEX_SHADER_COMBO( COMPRESSED_VERTS, (int)vertexCompression );
 				SET_DYNAMIC_VERTEX_SHADER( eyes_flashlight_vs30 );
 			}
-#endif
 
 //			float vPSConst[4] = {params[info.m_nDilation]->GetFloatValue(), 0.0f, 0.0f, 0.0f};
 //			pShaderAPI->SetPixelShaderConstant( 0, vPSConst, 1 );
@@ -261,9 +241,7 @@ static void DrawFlashlight( bool bDX9, CBaseVSShader *pShader, IMaterialVar** pa
 			vEyePos_SpecExponent[3] = 0.0f;
 			pShaderAPI->SetPixelShaderConstant( PSREG_EYEPOS_SPEC_EXPONENT, vEyePos_SpecExponent, 1 );
 
-#ifndef _X360
 			if ( !g_pHardwareConfig->HasFastVertexTextures() )
-#endif
 			{
 				if ( g_pHardwareConfig->SupportsPixelShaders_2_b() )
 				{
@@ -281,7 +259,6 @@ static void DrawFlashlight( bool bDX9, CBaseVSShader *pShader, IMaterialVar** pa
 					SET_DYNAMIC_PIXEL_SHADER( eyes_flashlight_ps20 );
 				}
 			}
-#ifndef _X360
 			else
 			{
 				DECLARE_DYNAMIC_PIXEL_SHADER( eyes_flashlight_ps30 );
@@ -291,18 +268,6 @@ static void DrawFlashlight( bool bDX9, CBaseVSShader *pShader, IMaterialVar** pa
 
 				SetDepthFlashlightParams( pShader, pShaderAPI, worldToTexture, flashlightState );
 			}
-#endif
-		}
-		else // older asm shaders for DX8
-#endif
-		{
-			eyes_flashlight_vs11_Dynamic_Index vshIndex;
-			vshIndex.SetDOWATERFOG( pShaderAPI->GetSceneFogMode() == MATERIAL_FOG_LINEAR_BELOW_FOG_Z );
-			vshIndex.SetSKINNING( pShaderAPI->GetCurrentNumBones() > 0 );
-			pShaderAPI->SetVertexShaderIndex( vshIndex.GetIndex() );
-
-			eyes_flashlight_ps11_Dynamic_Index pshIndex;
-			pShaderAPI->SetPixelShaderIndex( pshIndex.GetIndex() );
 		}
 
 		// This uses from VERTEX_SHADER_SHADER_SPECIFIC_CONST_0 to VERTEX_SHADER_SHADER_SPECIFIC_CONST_5

@@ -18,14 +18,12 @@
 // STATIC: "SOFT_MASK"                  "0..1"
 // STATIC: "OUTLINE"                    "0..1"
 // STATIC: "OUTER_GLOW"                 "0..1"
-// STATIC: "FLASHLIGHTDEPTHFILTERMODE"	"0..2"	[ps20b] [PC]
-// STATIC: "FLASHLIGHTDEPTHFILTERMODE"	"0..2"	[ps30]  [PC]
-// STATIC: "FLASHLIGHTDEPTHFILTERMODE"	"0..0"	[ps20b] [XBOX]
+// STATIC: "FLASHLIGHTDEPTHFILTERMODE"	"0..2"	[ps20b]
+// STATIC: "FLASHLIGHTDEPTHFILTERMODE"	"0..2"	[ps30]
 // STATIC: "DEPTHBLEND"					"0..1"	[ps20b] [ps30]
 
 // DYNAMIC: "PIXELFOGTYPE"				"0..1"  [ps20]
-// DYNAMIC: "LIGHTING_PREVIEW"          "0..2"	[PC]
-// DYNAMIC: "LIGHTING_PREVIEW"          "0..0"	[XBOX]
+// DYNAMIC: "LIGHTING_PREVIEW"          "0..2"
 // DYNAMIC: "FLASHLIGHTSHADOWS"			"0..1"	[ps20b]
 // DYNAMIC: "FLASHLIGHTSHADOWS"			"0..1"	[ps30]
 
@@ -102,12 +100,6 @@ struct PS_INPUT
 	float4 color					: TEXCOORD2;	// Vertex color (from lighting or unlit)
 	float3 worldVertToEyeVector		: TEXCOORD3;	// Necessary for reflection
 	float3 worldSpaceNormal			: TEXCOORD4;	// Necessary for cubemaps and flashlight
-
-#if defined ( _X360 )
-#if FLASHLIGHT
-	float4 flashlightSpacePos		: TEXCOORD5;
-#endif
-#endif
 
 	float4 projPos					: TEXCOORD6;
 	float4 worldPos_projPosZ		: TEXCOORD7;
@@ -321,22 +313,14 @@ float4 main( PS_INPUT i ) : COLOR
 		bDoShadows = true;
 #endif
 
-#if defined ( _X360 )
-		float4 flashlightSpacePosition = i.flashlightSpacePos;
-#else
 		float4 flashlightSpacePosition = mul( float4( i.worldPos_projPosZ.xyz, 1.0f ), g_FlashlightWorldToTexture );
-#endif
 
 		float3 flashlightColor = DoFlashlight( g_FlashlightPos, i.worldPos_projPosZ.xyz, flashlightSpacePosition,
 			i.worldSpaceNormal, g_FlashlightAttenuationFactors.xyz, 
 			g_FlashlightAttenuationFactors.w, FlashlightSampler, ShadowDepthSampler,
 			RandRotSampler, nShadowSampleLevel, bDoShadows, false, i.projPos.xy / i.projPos.w, false, g_EnvmapContrast_ShadowTweaks, false );
 
-#if defined ( _X360 )
-		diffuseLighting += flashlightColor;
-#else
 		diffuseLighting = flashlightColor;
-#endif
 	}
 #endif
 
@@ -358,7 +342,7 @@ float4 main( PS_INPUT i ) : COLOR
 		TextureCombinePostLighting( diffuseComponent, detailColor, DETAIL_BLEND_MODE, g_DetailBlendFactor );
 #endif
 
-#if !FLASHLIGHT || defined ( _X360 )
+#if !FLASHLIGHT
 	#if SELFILLUM_ENVMAPMASK_ALPHA
 		// range of alpha:
 	    // 0 - 0.125 = lerp(diffuse,selfillum,alpha*8)
@@ -377,7 +361,7 @@ float4 main( PS_INPUT i ) : COLOR
 #endif
 
 	HALF3 specularLighting = HALF3( 0.0f, 0.0f, 0.0f );
-#if !FLASHLIGHT || defined ( _X360 )
+#if !FLASHLIGHT
 	if( bCubemap )
 	{
 		HALF3 reflectVect = CalcReflectionVectorUnnormalized( i.worldSpaceNormal, i.worldVertToEyeVector.xyz );

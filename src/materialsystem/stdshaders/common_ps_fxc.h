@@ -222,16 +222,16 @@ float CalcWaterFogAlpha( const float flWaterZ, const float flEyePosZ, const floa
 	// Calculate the ratio of water fog to regular fog (ie. how much of the distance from the viewer
 	// to the vert is actually underwater.
 	float flDepthFromEye = flEyePosZ - flWorldPosZ;
-	float f = (flDepthFromWater / flDepthFromEye) * flProjPosZ;
+	float f = saturate(flDepthFromWater * (1.0/flDepthFromEye));
 
 	// $tmp.w is now the distance that we see through water.
-	return saturate( f * flFogOORange );
+	return saturate(f * flProjPosZ * flFogOORange);
 }
 
-float CalcRangeFog( const float flProjPosZ, const float flFogEndOverRange, const float flFogMaxDensity, const float flFogOORange )
+float CalcRangeFog( const float flProjPosZ, const float flFogStartOverRange, const float flFogMaxDensity, const float flFogOORange )
 {
 #if !(defined(SHADER_MODEL_PS_1_1) || defined(SHADER_MODEL_PS_1_4) || defined(SHADER_MODEL_PS_2_0)) //Minimum requirement of ps2b
-	return min( flFogMaxDensity, ( saturate( 1.0 - (flFogEndOverRange - (flProjPosZ * flFogOORange)) ) ) );
+	return saturate( min( flFogMaxDensity, (flProjPosZ * flFogOORange) - flFogStartOverRange ) );
 #else
 	return 0.0f; //ps20 shaders will never have range fog enabled because too many ran out of slots.
 #endif
@@ -283,8 +283,11 @@ float3 BlendPixelFog( const float3 vShaderColor, float pixelFogFactor, const flo
 	}
 }
 
-
-#if ((defined(SHADER_MODEL_PS_2_B) || defined(SHADER_MODEL_PS_3_0)) && ( CONVERT_TO_SRGB != 0 ) )
+// i have NO CLUE why shader model 2.0b doesn't like result.g here
+// because this is the EXACT SAME in other branches (ASW and Source 2013)
+// and it works PERFECTLY FINE in those, so kill me now please
+//#if ((defined(SHADER_MODEL_PS_2_B) || defined(SHADER_MODEL_PS_3_0)) && ( CONVERT_TO_SRGB != 0 ) )
+#if ( defined(SHADER_MODEL_PS_3_0) && ( CONVERT_TO_SRGB != 0 ) )
 sampler1D GammaTableSampler : register( s15 );
 
 float3 SRGBOutput( const float3 vShaderColor )
@@ -298,10 +301,10 @@ float3 SRGBOutput( const float3 vShaderColor )
 }
 
 #else
-
+	
 float3 SRGBOutput( const float3 vShaderColor )
 {
-	return vShaderColor; //ps 1.1, 1.4, and 2.0 never do srgb conversion in the pixel shader
+	return vShaderColor; //ps 1.1, 1.4, and 2.0 never do srgb conversion in the pixel shader // maybe 2.0b as well?
 }
 
 #endif
@@ -733,10 +736,15 @@ float3 TextureCombinePostLighting( float3 lit_baseColor, float4 detailColor, int
 	{
  		// fade in an unusual way - instead of fading out color, remap an increasing band of it from
  		// 0..1
-		if ( fBlendFactor > 0.5)
-			lit_baseColor += min(1, (1.0/fBlendFactor)*max(0, detailColor.rgb-(1-fBlendFactor) ) );
-		else
-			lit_baseColor += 2*fBlendFactor*2*max(0, detailColor.rgb-.5);
+		//if (fBlendFactor > 0.5)
+		//	lit_baseColor += min(1, (1.0/fBlendFactor)*max(0, detailColor.rgb-(1-fBlendFactor) ) );
+		//else
+		//	lit_baseColor += 2*fBlendFactor*2*max(0, detailColor.rgb-.5);
+
+		float f = fBlendFactor - 0.5;
+		float fMult = (f >= 0) ? 1.0/fBlendFactor : 4*fBlendFactor;
+		float fAdd = (f >= 0) ? 1.0-fMult : -0.5*fMult;
+		lit_baseColor += saturate(fMult * detailColor.rgb + fAdd);
 	}
 	return lit_baseColor;
 }

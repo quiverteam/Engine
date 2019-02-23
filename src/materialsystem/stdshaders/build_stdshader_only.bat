@@ -6,13 +6,14 @@ rem == Setup path to nmake.exe ==
 @REM find vs2017 directory, if vswhere doesn't exist, skip
 if exist "%ProgramFiles(x86)%\Microsoft Visual Studio\Installer\vswhere.exe" (
 	for /f "usebackq tokens=1* delims=: " %%i in (`"%ProgramFiles(x86)%\Microsoft Visual Studio\Installer\vswhere.exe" -latest -requires Microsoft.VisualStudio.Workload.NativeDesktop`) do (
-		if /i "%%i"=="installationPath" set VSDIR=%%j
-		if not "!VSDIR!"=="" (
+		if /i "%%i"=="installationPath" (
+			set VSDIR=%%j
 			call "!VSDIR!\Common7\Tools\VsDevCmd.bat" >nul
 			echo Using VS2017 tools
 			goto :start
 		)
-) ) else if exist "%VS140COMNTOOLS%vsvars32.bat" (
+	)	
+) else if exist "%VS140COMNTOOLS%vsvars32.bat" (
 	call "%VS140COMNTOOLS%vsvars32.bat"
 	echo Using VS2015 tools
 	
@@ -70,13 +71,14 @@ set ARG_EXTRA=
 
 
 REM ****************
-REM PC SHADERS
+REM BUILD SHADERS
 REM ****************
-%BUILD_SHADER% stdshader_dx9_20b		-game %GAMEDIR% -source %SOURCEDIR% %dynamic_shaders%
+@REM shove the full log into another file 
+@REM %BUILD_SHADER% stdshader_dx9_20b		-game %GAMEDIR% -source %SOURCEDIR% %dynamic_shaders% >buildallshaders_stdshader_dx9_20b.txt
+@REM %BUILD_SHADER% stdshader_dx9_20b_testing	-game %GAMEDIR% -source %SOURCEDIR% %dynamic_shaders% >buildallshaders_stdshader_dx9_20b.txt
 echo --------------------------------------------------------------------------------------------
-%BUILD_SHADER% stdshader_dx9_20b_new	-game %GAMEDIR% -source %SOURCEDIR% %dynamic_shaders% -dx9_30
-echo --------------------------------------------------------------------------------------------
-%BUILD_SHADER% stdshader_dx9_30			-game %GAMEDIR% -source %SOURCEDIR% %dynamic_shaders% -dx9_30	-force30
+@REM %BUILD_SHADER% stdshader_dx9_30_test			-game %GAMEDIR% -source %SOURCEDIR% %dynamic_shaders% -dx9_30 -force30 >buildallshaders_stdshader_dx9_30.txt
+%BUILD_SHADER% stdshader_dx9_30			-game %GAMEDIR% -source %SOURCEDIR% %dynamic_shaders% -dx9_30 -force30 >buildallshaders_stdshader_dx9_30.txt
 echo --------------------------------------------------------------------------------------------
 @REM %BUILD_SHADER% stdshader_dx10			-game %GAMEDIR% -source %SOURCEDIR% %dynamic_shaders% -dx10
 @REM dx10 is empty right now

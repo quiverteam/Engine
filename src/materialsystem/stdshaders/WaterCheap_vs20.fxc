@@ -13,9 +13,7 @@ struct VS_INPUT
 struct VS_OUTPUT
 {
     float4 projPos					: POSITION;	
-#if !defined( _X360 )
 	float  fog						: FOG;
-#endif
 	float2 normalMapTexCoord		: TEXCOORD0;
 	float3 worldVertToEyeVector		: TEXCOORD1;
 	float3x3 tangentSpaceTranspose	: TEXCOORD2;
@@ -75,9 +73,7 @@ VS_OUTPUT main( const VS_INPUT v )
 	o.vExtraBumpTexCoord.w=v.vNormalMapCoord.x*0.45+TexOffsets.w;
 
 	o.fogFactorW = CalcFog( worldPos, projPos, FOGTYPE_RANGE );
-#if !defined( _X360 )
 	o.fog = o.fogFactorW;
-#endif
 	return o;
 }
 

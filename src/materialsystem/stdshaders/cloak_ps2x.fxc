@@ -4,9 +4,8 @@
 //
 //=============================================================================
 
-// STATIC: "CONVERT_TO_SRGB"			"0..1"	[ps20b][= g_pHardwareConfig->NeedsShaderSRGBConversion()] [PC]
-// STATIC: "CONVERT_TO_SRGB"			"0..1"	[ps30][= g_pHardwareConfig->NeedsShaderSRGBConversion()] [PC]
-// STATIC: "CONVERT_TO_SRGB"			"0..0"	[= 0] [XBOX]
+// STATIC: "CONVERT_TO_SRGB"			"0..1"	[ps20b][= g_pHardwareConfig->NeedsShaderSRGBConversion()]
+// STATIC: "CONVERT_TO_SRGB"			"0..1"	[ps30][= g_pHardwareConfig->NeedsShaderSRGBConversion()]
 // STATIC:  "LIGHTWARPTEXTURE"			"0..1"
 // DYNAMIC: "PIXELFOGTYPE"				"0..1"
 // DYNAMIC: "WRITEWATERFOGTODESTALPHA"	"0..1"

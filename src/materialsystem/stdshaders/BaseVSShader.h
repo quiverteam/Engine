@@ -18,13 +18,8 @@
 #include "ConVar.h"
 #include <renderparm.h>
 
-#ifdef _X360
 #define SUPPORT_DX8 0
 #define SUPPORT_DX7 0
-#else
-#define SUPPORT_DX8 1
-#define SUPPORT_DX7 1
-#endif
 //-----------------------------------------------------------------------------
 // Helper macro for vertex shaders
 //-----------------------------------------------------------------------------
@@ -234,7 +229,7 @@ public:
 	void DrawWorldBumpedDiffuseLighting_Blend_ps14( int bumpmapVar, int bumpFrameVar, int bumpTransformVar, 
 		int baseTextureVar, int baseTextureTransformVar, int baseTextureFrameVar, 
 		int baseTexture2Var, int baseTextureTransform2Var, int baseTextureFrame2Var);
-	void DrawWorldBumpedUsingVertexShader( int baseTextureVar, int baseTextureTransformVar,
+	/*void DrawWorldBumpedUsingVertexShader( int baseTextureVar, int baseTextureTransformVar,
 										   int bumpmapVar, int bumpFrameVar, 
 										   int bumpTransformVar,
 										   int envmapMaskVar, int envmapMaskFrame,
@@ -247,7 +242,7 @@ public:
 										   int baseTextureTransform2Var,
 										   int baseTextureFrame2Var,
 										   bool bSSBump
-		);
+		);*/
 	
 	// Sets up hw morphing state for the vertex shader
 	void SetHWMorphVertexShaderState( int nDimConst, int nSubrectConst, VertexTextureSampler_t morphSampler );
