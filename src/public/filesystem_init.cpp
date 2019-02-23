@@ -557,15 +557,7 @@ static void FileSystem_AddLoadedSearchPath(
 	
 	// Add language, mod, and gamebin search paths automatically.
 	if ( Q_stricmp( pPathID, "game" ) == 0 )
-	{
-		// add the low violence path
-		if ( bLowViolence )
-		{
-			char szPath[MAX_PATH];
-			Q_snprintf( szPath, sizeof(szPath), "%s_lv", fullLocationPath );
-			initInfo.m_pFileSystem->AddSearchPath( szPath, pPathID, PATH_ADD_TO_TAIL );
-		}
-		
+	{		
 		// add the language path
 		if ( initInfo.m_pLanguage )
 		{
@@ -578,17 +570,6 @@ static void FileSystem_AddLoadedSearchPath(
 			Q_snprintf( szPath, sizeof(szPath), "%s_tempcontent", fullLocationPath );
 			initInfo.m_pFileSystem->AddSearchPath( szPath, pPathID, PATH_ADD_TO_TAIL );
 		}
-
-		// mark the first "game" dir as the "MOD" dir
-		if ( *bFirstGamePath )
-		{
-			*bFirstGamePath = false;
-			initInfo.m_pFileSystem->AddSearchPath( fullLocationPath, "MOD", PATH_ADD_TO_TAIL );
-			Q_strncpy( initInfo.m_ModPath, fullLocationPath, sizeof( initInfo.m_ModPath ) );
-		}
-	
-		// add the game bin
-		AddGameBinDir( initInfo.m_pFileSystem, fullLocationPath );
 	}
 
 	initInfo.m_pFileSystem->AddSearchPath( fullLocationPath, pPathID, PATH_ADD_TO_TAIL );
