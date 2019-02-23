@@ -618,6 +618,9 @@ int CHardwareConfig::GetShadowFilterMode() const
 	return 0;
 }
 
+float CHardwareConfig::GetShadowDepthBias() const { return FlashlightState_t().m_flShadowDepthBias; }
+float CHardwareConfig::GetShadowSlopeScaleDepthBias() const { return FlashlightState_t().m_flShadowSlopeScaleDepthBias; }
+
 static ConVar r_shader_srgb( "r_shader_srgb", "0", 0, "-1 = use hardware caps. 0 = use hardware srgb. 1 = use shader srgb(software lookup)" );		// -1=use caps 0=off 1=on
 
 int CHardwareConfig::NeedsShaderSRGBConversion() const

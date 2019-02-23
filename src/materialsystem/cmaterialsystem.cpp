@@ -1330,8 +1330,8 @@ static ConVar mat_depthbias_normal( "mat_depthbias_normal", "0.0f", FCVAR_CHEAT 
 static ConVar mat_slopescaledepthbias_decal( "mat_slopescaledepthbias_decal", "-0.5", FCVAR_CHEAT );		// Reciprocals of these biases sent to API
 static ConVar mat_depthbias_decal(	"mat_depthbias_decal", "-262144", FCVAR_CHEAT  );						//
 
-static ConVar mat_slopescaledepthbias_shadowmap( "mat_slopescaledepthbias_shadowmap", "16", FCVAR_CHEAT );
-static ConVar mat_depthbias_shadowmap(	"mat_depthbias_shadowmap", "0.0005", FCVAR_CHEAT  );
+//static ConVar mat_slopescaledepthbias_shadowmap( "mat_slopescaledepthbias_shadowmap", "16", FCVAR_CHEAT );
+//static ConVar mat_depthbias_shadowmap(	"mat_depthbias_shadowmap", "0.0005", FCVAR_CHEAT  );
 
 static ConVar mat_monitorgamma(		"mat_monitorgamma", "2.2", 0, "monitor gamma (typically 2.2 for CRT and 1.7 for LCD)", true, 1.6f, true, 2.6f  );
 static ConVar mat_monitorgamma_tv_range_min( "mat_monitorgamma_tv_range_min", "16" );
@@ -1398,8 +1398,10 @@ void CMaterialSystem::ReadConfigFromConVars( MaterialSystem_Config_t *pConfig )
 	pConfig->m_DepthBias_Decal = mat_depthbias_decal.GetFloat();
 	pConfig->m_SlopeScaleDepthBias_Normal = mat_slopescaledepthbias_normal.GetFloat();
 	pConfig->m_DepthBias_Normal = mat_depthbias_normal.GetFloat();
-	pConfig->m_SlopeScaleDepthBias_ShadowMap = mat_slopescaledepthbias_shadowmap.GetFloat();
-	pConfig->m_DepthBias_ShadowMap = mat_depthbias_shadowmap.GetFloat();
+	//pConfig->m_SlopeScaleDepthBias_ShadowMap = mat_slopescaledepthbias_shadowmap.GetFloat();
+	pConfig->m_SlopeScaleDepthBias_ShadowMap = g_pMaterialSystemHardwareConfig->GetShadowSlopeScaleDepthBias();
+	//pConfig->m_DepthBias_ShadowMap = mat_depthbias_shadowmap.GetFloat();
+	pConfig->m_DepthBias_ShadowMap = g_pMaterialSystemHardwareConfig->GetShadowDepthBias();
 
 	pConfig->m_fMonitorGamma = mat_monitorgamma.GetFloat();
 	pConfig->m_fGammaTVRangeMin = mat_monitorgamma_tv_range_min.GetFloat();
@@ -1628,8 +1630,8 @@ void CMaterialSystem::WriteConfigIntoConVars( const MaterialSystem_Config_t &con
 	mat_depthbias_normal.SetValue( config.m_DepthBias_Normal );
 	mat_slopescaledepthbias_decal.SetValue( config.m_SlopeScaleDepthBias_Decal );
 	mat_depthbias_decal.SetValue( config.m_DepthBias_Decal );
-	mat_slopescaledepthbias_shadowmap.SetValue( config.m_SlopeScaleDepthBias_ShadowMap );
-	mat_depthbias_shadowmap.SetValue( config.m_DepthBias_ShadowMap );
+	//mat_slopescaledepthbias_shadowmap.SetValue( config.m_SlopeScaleDepthBias_ShadowMap );
+	//mat_depthbias_shadowmap.SetValue( config.m_DepthBias_ShadowMap );
 
 	mat_monitorgamma.SetValue( config.m_fMonitorGamma );
 	mat_monitorgamma_tv_range_min.SetValue( config.m_fGammaTVRangeMin );
@@ -3430,6 +3432,9 @@ bool CMaterialSystem::SupportsFetch4( void )
 {
 	return g_pShaderAPI->SupportsFetch4();
 }
+
+float CMaterialSystem::GetShadowDepthBias( void ) { return FlashlightState_t().m_flShadowDepthBias; }
+float CMaterialSystem::GetShadowSlopeScaleDepthBias( void ) { return FlashlightState_t().m_flShadowSlopeScaleDepthBias; }
 
 // Vendor-dependent shadow depth texture format
 ImageFormat CMaterialSystem::GetShadowDepthTextureFormat( void )

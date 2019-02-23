@@ -5,6 +5,7 @@
 //=============================================================================
 
 #include "cbase.h"
+#include "c_env_projectedtexture.h"
 #include "shareddefs.h"
 #include "materialsystem/imesh.h"
 #include "materialsystem/imaterial.h"
@@ -17,49 +18,9 @@
 // memdbgon must be the last include file in a .cpp file!!!
 #include "tier0/memdbgon.h"
 
-static ConVar mat_slopescaledepthbias_shadowmap( "mat_slopescaledepthbias_shadowmap", "16", FCVAR_CHEAT );
-static ConVar mat_depthbias_shadowmap(	"mat_depthbias_shadowmap", "0.0005", FCVAR_CHEAT  );
-
 //-----------------------------------------------------------------------------
 // Purpose: 
 //-----------------------------------------------------------------------------
-class C_EnvProjectedTexture : public C_BaseEntity
-{
-	DECLARE_CLASS( C_EnvProjectedTexture, C_BaseEntity );
-public:
-	DECLARE_CLIENTCLASS();
-
-	virtual void OnDataChanged( DataUpdateType_t updateType );
-	void	ShutDownLightHandle( void );
-
-	virtual void Simulate();
-
-	void	UpdateLight( bool bForceUpdate );
-
-	C_EnvProjectedTexture();
-	~C_EnvProjectedTexture();
-
-private:
-
-	ClientShadowHandle_t m_LightHandle;
-
-	EHANDLE	m_hTargetEntity;
-
-	bool	m_bState;
-	float	m_flLightFOV;
-	bool	m_bEnableShadows;
-	bool	m_bLightOnlyTarget;
-	bool	m_bLightWorld;
-	bool	m_bCameraSpace;
-	Vector	m_LinearFloatLightColor;
-	float	m_flAmbient;
-	float	m_flNearZ;
-	float	m_flFarZ;
-	char	m_SpotlightTextureName[ MAX_PATH ];
-	int		m_nSpotlightTextureFrame;
-	int		m_nShadowQuality;
-};
-
 IMPLEMENT_CLIENTCLASS_DT( C_EnvProjectedTexture, DT_EnvProjectedTexture, CEnvProjectedTexture )
 	RecvPropEHandle( RECVINFO( m_hTargetEntity )	),
 	RecvPropBool(	 RECVINFO( m_bState )			),
@@ -190,8 +151,10 @@ void C_EnvProjectedTexture::UpdateLight( bool bForceUpdate )
 	state.m_Color[3] = 0.0f; // fixme: need to make ambient work m_flAmbient;
 	state.m_NearZ = m_flNearZ;
 	state.m_FarZ = m_flFarZ;
-	state.m_flShadowSlopeScaleDepthBias = mat_slopescaledepthbias_shadowmap.GetFloat();
-	state.m_flShadowDepthBias = mat_depthbias_shadowmap.GetFloat();
+	//state.m_flShadowSlopeScaleDepthBias = mat_slopescaledepthbias_shadowmap.GetFloat();
+	state.m_flShadowSlopeScaleDepthBias = g_pMaterialSystemHardwareConfig->GetShadowSlopeScaleDepthBias();
+	//state.m_flShadowDepthBias = mat_depthbias_shadowmap.GetFloat();
+	state.m_flShadowDepthBias = g_pMaterialSystemHardwareConfig->GetShadowDepthBias();
 	state.m_bEnableShadows = m_bEnableShadows;
 	state.m_pSpotlightTexture = materials->FindTexture( m_SpotlightTextureName, TEXTURE_GROUP_OTHER, false );
 	state.m_nSpotlightTextureFrame = m_nSpotlightTextureFrame;
