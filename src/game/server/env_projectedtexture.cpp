@@ -124,12 +124,11 @@ CEnvProjectedTexture::CEnvProjectedTexture( void )
 	m_bLightWorld = true;
 	m_bCameraSpace = false;
 
+// this is here as a reminder since it's not removed from everything else yet,
+// only remove it once this is completely gone, whatever it is
 // if ( g_pHardwareConfig->SupportsBorderColor() )
-#if defined( _X360 )
-		Q_strcpy( m_SpotlightTextureName.GetForModify(), "effects/flashlight_border" );
-#else
-		Q_strcpy( m_SpotlightTextureName.GetForModify(), "effects/flashlight001" );
-#endif
+	//Q_strcpy( m_SpotlightTextureName.GetForModify(), "effects/flashlight_border" );
+	Q_strcpy( m_SpotlightTextureName.GetForModify(), "effects/flashlight001" );
 
 	m_nSpotlightTextureFrame = 0;
 	m_LinearFloatLightColor.Init( 1.0f, 1.0f, 1.0f );

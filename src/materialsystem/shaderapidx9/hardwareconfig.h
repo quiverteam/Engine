@@ -253,6 +253,9 @@ public:
 	virtual bool GetHDREnabled( void ) const { return m_bHDREnabled; }
 	virtual void SetHDREnabled( bool bEnable ) { m_bHDREnabled = bEnable; }
 
+	virtual float GetShadowSlopeScaleDepthBias() const;
+	virtual float GetShadowDepthBias() const;
+
 protected:
 	// Gets the recommended configuration associated with a particular dx level
 	void ForceCapsToDXLevel( HardwareCaps_t *pCaps, int nDxLevel, const HardwareCaps_t &actualCaps );

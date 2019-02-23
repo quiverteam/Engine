@@ -184,6 +184,9 @@ public:
 	// Reports support for fetch4 texture access (useful for shadow map PCF in shader)
 	bool									SupportsFetch4( void );
 
+	float									GetShadowDepthBias( void );
+	float									GetShadowSlopeScaleDepthBias( void );
+
 	// Vendor-dependent shadow depth texture format
 	ImageFormat								GetShadowDepthTextureFormat( void );
 

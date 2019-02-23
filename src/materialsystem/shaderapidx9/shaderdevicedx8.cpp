@@ -430,8 +430,8 @@ void CShaderDeviceMgrDx8::CheckVendorDependentAlphaToCoverage( HardwareCaps_t *p
 }
 
 ConVar mat_hdr_level( "mat_hdr_level", "2" );
-ConVar mat_slopescaledepthbias_shadowmap( "mat_slopescaledepthbias_shadowmap", "16", FCVAR_CHEAT );
-ConVar mat_depthbias_shadowmap(	"mat_depthbias_shadowmap", "0.0005", FCVAR_CHEAT  );
+//ConVar mat_slopescaledepthbias_shadowmap( "mat_slopescaledepthbias_shadowmap", "16", FCVAR_CHEAT );
+//ConVar mat_depthbias_shadowmap(	"mat_depthbias_shadowmap", "0.0005", FCVAR_CHEAT  );
 
 //-----------------------------------------------------------------------------
 // Determine capabilities
@@ -856,8 +856,12 @@ bool CShaderDeviceMgrDx8::ComputeCapsFromD3D( HardwareCaps_t *pCaps, int nAdapte
 	// If we're not on a 3.0 part, these values are more appropriate (X800 & X850 parts from ATI do shadow mapping but not 3.0 )
 	if ( !pCaps->m_SupportsShaderModel_3_0 )
 	{
-		mat_slopescaledepthbias_shadowmap.SetValue( 5.9f );
-		mat_depthbias_shadowmap.SetValue( 0.003f );
+		FlashlightState_t state;
+
+		state.m_flShadowSlopeScaleDepthBias = 5.9f;
+		state.m_flShadowDepthBias = 0.003f;
+		//mat_slopescaledepthbias_shadowmap.SetValue( 5.9f );
+		//mat_depthbias_shadowmap.SetValue( 0.003f );
 	}
 
 	if( pCaps->m_MaxUserClipPlanes == 0 )

@@ -4627,6 +4627,10 @@ void CShadowDepthView::Draw()
 		render->Push3DView( (*this), VIEW_CLEAR_DEPTH, m_pRenderTarget, GetFrustum() );
 	}
 
+	pRenderContext.GetFrom(materials);
+	pRenderContext->PushRenderTargetAndViewport(m_pRenderTarget, m_pDepthTexture, 0, 0, m_pDepthTexture->GetMappingWidth(), m_pDepthTexture->GetMappingWidth());
+	pRenderContext.SafeRelease();
+
 	SetupCurrentView( origin, angles, VIEW_SHADOW_DEPTH_TEXTURE );
 
 	MDLCACHE_CRITICAL_SECTION();
@@ -4670,6 +4674,8 @@ void CShadowDepthView::Draw()
 		//Resolve() the depth texture here. Before the pop so the copy will recognize that the resolutions are the same
 		pRenderContext->CopyRenderTargetToTextureEx( m_pDepthTexture, -1, NULL, NULL );
 	}
+
+	pRenderContext->PopRenderTargetAndViewport();
 
 	render->PopView( GetFrustum() );
 
@@ -4803,7 +4809,7 @@ void CBaseWorldView::PushView( float waterHeight )
 	if( m_DrawFlags & DF_RENDER_REFRACTION )
 	{
 		pRenderContext->SetFogZ( waterHeight );
-		pRenderContext->SetHeightClipZ( waterHeight );
+		pRenderContext->SetHeightClipZ( waterHeight + 5.0f );
 		pRenderContext->SetHeightClipMode( clipMode );
 
 		// Have to re-set up the view since we reset the size
@@ -4824,7 +4830,7 @@ void CBaseWorldView::PushView( float waterHeight )
 			waterHeight = origin[2] + r_eyewaterepsilon.GetFloat();
 		}
 
-		pRenderContext->SetHeightClipZ( waterHeight );
+		pRenderContext->SetHeightClipZ( waterHeight + 1.0f );
 		pRenderContext->SetHeightClipMode( clipMode );
 
 		render->Push3DView( *this, m_ClearFlags, pTexture, GetFrustum() );
