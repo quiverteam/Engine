@@ -322,8 +322,6 @@ void CL_InitHL2DemoFlag()
 			s_bIsHL2Demo = true;
 		}
 	}
-#else
-	s_bIsHL2Demo = false;
 #endif
 #endif
 }
@@ -1369,11 +1367,6 @@ void CL_TakeSnapshotAndSwap()
 
 	// take screenshot for bx movie maker
 	EngineTool_UpdateScreenshot();
-}
-
-bool IsIntegralValue( float flValue, float flTolerance = 0.001f )
-{
-	return fabs( RoundFloatToInt( flValue ) - flValue ) < flTolerance;
 }
 
 static float s_flPreviousHostFramerate = 0;

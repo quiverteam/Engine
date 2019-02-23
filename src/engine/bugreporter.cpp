@@ -1896,7 +1896,7 @@ void CBugUIPanel::OnSubmit()
 	m_pBugReporter->SetExeName( "hl2.exe" );
 	m_pBugReporter->SetGameDirectory( com_gamedir );
 
-	const CPUInformation& pi = GetCPUInformation();
+	const CPUInformation& pi = *GetCPUInformation();
 
 	m_pBugReporter->SetRAM( GetRam() );
 

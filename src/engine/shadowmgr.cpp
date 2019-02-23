@@ -1470,7 +1470,7 @@ void DrawFrustum( Frustum_t &frustum )
 			}
 			numPoints = ClipPolyToPlane( in, numPoints, out, frustum.GetPlane( j )->normal, frustum.GetPlane( j )->dist );
 			Assert( numPoints <= maxPoints );
-			swap( in, out );
+			V_swap( in, out );
 		}
 		int c;
 		for( c = 0; c < numPoints; c++ )

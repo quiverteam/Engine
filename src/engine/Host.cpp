@@ -3158,7 +3158,7 @@ void Host_CheckGore( void )
 //-----------------------------------------------------------------------------
 void Host_InitProcessor( void )
 {
-	const CPUInformation& pi = GetCPUInformation();
+	const CPUInformation& pi = *GetCPUInformation();
 
 	// Compute Frequency in Mhz: 
 	char* szFrequencyDenomination = "Mhz";

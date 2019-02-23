@@ -1422,8 +1422,8 @@ static const byte *AddWorldLightToLightingState( dworldlight_t* pWorldLight,
 			// convinced it's any better of a metric though, so ratios for now...
 
 			// found a light was was dimmer, swap it with the current light
-			swap( pWorldLight, lightingState.locallight[minLightIndex] );
-			swap( illum, info.m_pIllum[minLightIndex] );
+			V_swap( pWorldLight, lightingState.locallight[minLightIndex] );
+			V_swap( illum, info.m_pIllum[minLightIndex] );
 
 			// FIXME: Avoid these recomputations 
 			// But I don't know how to do it without storing a ton of data
@@ -1745,8 +1745,8 @@ static void	AddWorldLightToLightingStateForStaticProps( dworldlight_t* pWorldLig
 			// convinced it's any better of a metric though, so ratios for now...
 
 			// found a light was was dimmer, swap it with the current light
-			swap( pWorldLight, lightingState.locallight[minLightIndex] );
-			swap( illum, info.m_pIllum[minLightIndex] );
+			V_swap( pWorldLight, lightingState.locallight[minLightIndex] );
+			V_swap( illum, info.m_pIllum[minLightIndex] );
 
 			// FIXME: Avoid these recomputations 
 			// But I don't know how to do it without storing a ton of data
