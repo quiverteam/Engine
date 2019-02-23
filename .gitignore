@@ -113,3 +113,5 @@ stats.txt
 *.vpc_crc
 *.asi
 uniquefilestocopy.txt
+vcslist.txt
+inclist.txt
