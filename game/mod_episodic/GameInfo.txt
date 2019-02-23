@@ -31,9 +31,10 @@
 		//
 		SearchPaths
 		{
+			gamebin				mod_hl2/bin
 			Game				|gameinfo_path|.
-			Game				episodic
-			Game				hl2
+			Game				mod_episodic
+			Game				mod_hl2
 			Platform			platform
 		}
 	}
