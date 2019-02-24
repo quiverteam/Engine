@@ -135,6 +135,8 @@ portalstaticoverlay_ps2x.fxc-----portalstaticoverlay_ps20
 portalstaticoverlay_ps2x.fxc-----portalstaticoverlay_ps20b
 portalstaticoverlay_vs20.fxc-----portalstaticoverlay_vs20
 portal_refract_vs20.fxc-----portal_refract_vs20
+Refract_ps2x.fxc-----Refract_ps20
+Refract_ps2x.fxc-----Refract_ps20b
 Refract_vs20.fxc-----Refract_vs20
 rendertargetblit_ps2x.fxc-----rendertargetblit_ps20
 rendertargetblit_ps2x.fxc-----rendertargetblit_ps20b
@@ -164,6 +166,7 @@ DebugTextureView_ps2x.fxc-----DebugTextureView_ps20
 DebugTextureView_ps2x.fxc-----DebugTextureView_ps20b
 showz_ps2x.fxc-----showz_ps20
 showz_ps2x.fxc-----showz_ps20b
+showz_vs20.fxc-----showz_vs20
 skin_ps20b.fxc-----skin_ps20b
 skin_vs20.fxc-----skin_vs20
 sky_ps2x.fxc-----sky_ps20
@@ -205,7 +208,6 @@ vertexlit_and_unlit_generic_bump_ps2x.fxc-----vertexlit_and_unlit_generic_bump_p
 vertexlit_and_unlit_generic_bump_vs20.fxc-----vertexlit_and_unlit_generic_bump_vs20
 vertexlit_and_unlit_generic_ps2x.fxc-----vertexlit_and_unlit_generic_ps20
 vertexlit_and_unlit_generic_ps2x.fxc-----vertexlit_and_unlit_generic_ps20b
-vertexlit_and_unlit_generic_vs20.fxc-----vertexlit_and_unlit_generic_vs20
 volume_clouds_vs20.fxc-----volume_clouds_vs20
 vortwarp_ps2x.fxc-----vortwarp_ps20
 vortwarp_ps2x.fxc-----vortwarp_ps20b
@@ -237,13 +239,3 @@ teeth_flashlight_ps2x.fxc-----teeth_flashlight_ps20b
 volume_clouds_ps2x.fxc-----volume_clouds_ps20
 volume_clouds_ps2x.fxc-----volume_clouds_ps20b
 vertexlitgeneric_flashlight_vs20.fxc-----vertexlitgeneric_flashlight_vs20
-aftershock_ps2x.fxc-----aftershock_ps20
-aftershock_ps2x.fxc-----aftershock_ps20b
-core_ps2x.fxc-----core_ps20
-core_ps2x.fxc-----core_ps20b
-eye_refract_ps2x.fxc-----eye_refract_ps20
-eye_refract_ps2x.fxc-----eye_refract_ps20b
-portal_refract_ps2x.fxc-----portal_refract_ps20
-portal_refract_ps2x.fxc-----portal_refract_ps20b
-Water_ps2x.fxc-----Water_ps20
-Water_ps2x.fxc-----Water_ps20b

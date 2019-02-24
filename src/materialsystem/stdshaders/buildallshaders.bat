@@ -72,21 +72,28 @@ rem ===================================
 @REM For /f "tokens=1-2 delims=/:" %%a in ('time /t') do (set mytime=%%a%%b)
 
 
+
 REM ****************
 REM BUILD SHADERS
 REM ****************
 @REM shove the full log into another file 
-%BUILD_SHADER% stdshader_dx9_20b		-game %GAMEDIR% -source %SOURCEDIR% %dynamic_shaders% >buildallshaders_stdshader_dx9_20b.txt
-@REM %BUILD_SHADER% stdshader_dx9_20b_testing	-game %GAMEDIR% -source %SOURCEDIR% %dynamic_shaders% >buildallshaders_stdshader_dx9_20b.txt
+echo Exporting Log to buildallshaders_stdshader_dx8_1x_needed.txt
+%BUILD_SHADER% stdshader_dx8_1x_needed			-game %GAMEDIR% -source %SOURCEDIR% %dynamic_shaders% >buildallshaders_stdshader_dx8_1x_needed.txt
 echo --------------------------------------------------------------------------------------------
-@REM %BUILD_SHADER% stdshader_dx9_30_test			-game %GAMEDIR% -source %SOURCEDIR% %dynamic_shaders% -dx9_30 -force30 >buildallshaders_stdshader_dx9_30.txt
-%BUILD_SHADER% stdshader_dx9_30			-game %GAMEDIR% -source %SOURCEDIR% %dynamic_shaders% -dx9_30 -force30 >buildallshaders_stdshader_dx9_30.txt
+echo Exporting Log to buildallshaders_stdshader_dx9_20b_nointercept.txt
+call buildshaders_nointercept.bat stdshader_dx9_20b_nointercept		-game %GAMEDIR% -source %SOURCEDIR% %dynamic_shaders% >buildallshaders_stdshader_dx9_20b_nointercept.txt
+echo --------------------------------------------------------------------------------------------
+echo Exporting Log to buildallshaders_stdshader_dx9_20b.txt
+%BUILD_SHADER% stdshader_dx9_20b				-game %GAMEDIR% -source %SOURCEDIR% %dynamic_shaders% >buildallshaders_stdshader_dx9_20b.txt
+echo --------------------------------------------------------------------------------------------
+echo Exporting Log to buildallshaders_stdshader_dx9_20b_temp.txt
+%BUILD_SHADER% stdshader_dx9_20b_temp			-game %GAMEDIR% -source %SOURCEDIR% 1 >buildallshaders_stdshader_dx9_20b_temp.txt
+echo --------------------------------------------------------------------------------------------
+echo Exporting Log to buildallshaders_stdshader_dx9_30.txt
+%BUILD_SHADER% stdshader_dx9_30					-game %GAMEDIR% -source %SOURCEDIR% %dynamic_shaders% -dx9_30 -force30 >buildallshaders_stdshader_dx9_30.txt
 echo --------------------------------------------------------------------------------------------
 @REM %BUILD_SHADER% stdshader_dx10			-game %GAMEDIR% -source %SOURCEDIR% %dynamic_shaders% -dx10
-@REM dx10 is empty right now
 echo.
-
-
 
 REM ****************
 REM END

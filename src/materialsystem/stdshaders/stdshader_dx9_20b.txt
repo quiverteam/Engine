@@ -144,6 +144,7 @@ portalstaticoverlay_vs20.fxc
 
 portal_refract_vs20.fxc
 
+Refract_ps2x.fxc
 Refract_vs20.fxc
 
 rendertargetblit_ps2x.fxc
@@ -172,6 +173,7 @@ DebugTextureView_vs20.fxc
 DebugTextureView_ps2x.fxc
 
 showz_ps2x.fxc
+showz_vs20.fxc
 
 skin_ps20b.fxc
 skin_vs20.fxc
@@ -208,7 +210,7 @@ vertexlit_and_unlit_generic_bump_ps2x.fxc
 vertexlit_and_unlit_generic_bump_vs20.fxc
 
 vertexlit_and_unlit_generic_ps2x.fxc
-vertexlit_and_unlit_generic_vs20.fxc
+//vertexlit_and_unlit_generic_vs20.fxc
 
 volume_clouds_vs20.fxc
 
@@ -251,8 +253,8 @@ vertexlitgeneric_flashlight_vs20.fxc
 // These work perfectly fine with -nointercept though
 //
 // --------------------------------------------------------------------------
-aftershock_ps2x.fxc
-core_ps2x.fxc
-eye_refract_ps2x.fxc
-portal_refract_ps2x.fxc
-Water_ps2x.fxc
+//aftershock_ps2x.fxc
+//core_ps2x.fxc
+//eye_refract_ps2x.fxc
+//portal_refract_ps2x.fxc
+//Water_ps2x.fxc

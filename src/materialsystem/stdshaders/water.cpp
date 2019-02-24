@@ -16,6 +16,7 @@
 #include "water_vs20.inc"
 #include "water_ps20.inc"
 #include "water_ps20b.inc"
+#include "water_ps30.inc"
 
 #ifndef _X360
 static ConVar r_waterforceexpensive( "r_waterforceexpensive", "0" );
@@ -243,8 +244,19 @@ BEGIN_VS_SHADER( Water_DX90,
 
 			// "REFLECT" "0..1"
 			// "REFRACT" "0..1"
-			
-			if ( g_pHardwareConfig->SupportsPixelShaders_2_b() )
+			if ( g_pHardwareConfig->SupportsShaderModel_3_0() )
+			{
+				DECLARE_STATIC_PIXEL_SHADER( water_ps30 );
+				SET_STATIC_PIXEL_SHADER_COMBO( REFLECT,  bReflection );
+				SET_STATIC_PIXEL_SHADER_COMBO( REFRACT,  bRefraction );
+				SET_STATIC_PIXEL_SHADER_COMBO( ABOVEWATER,  params[ABOVEWATER]->GetIntValue() );
+				SET_STATIC_PIXEL_SHADER_COMBO( MULTITEXTURE,fabs(Scroll1.x) > 0.0);
+				SET_STATIC_PIXEL_SHADER_COMBO( BASETEXTURE, params[BASETEXTURE]->IsTexture() );
+				SET_STATIC_PIXEL_SHADER_COMBO( BLURRY_REFRACT, params[BLURREFRACT]->GetIntValue() );
+				SET_STATIC_PIXEL_SHADER_COMBO( NORMAL_DECODE_MODE, (int) nNormalDecodeMode );
+				SET_STATIC_PIXEL_SHADER( water_ps30 );
+			}
+			else if ( g_pHardwareConfig->SupportsPixelShaders_2_b() )
 			{
 				DECLARE_STATIC_PIXEL_SHADER( water_ps20b );
 				SET_STATIC_PIXEL_SHADER_COMBO( REFLECT,  bReflection );

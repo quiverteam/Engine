@@ -2,7 +2,7 @@
 //
 //=============================================================================
 
-// STATIC: "CONVERT_TO_SRGB"				"0..1" [= g_pHardwareConfig->NeedsShaderSRGBConversion()]
+// STATIC: "CONVERT_TO_SRGB"				"0..1" [ps20b][= g_pHardwareConfig->NeedsShaderSRGBConversion()]
 // STATIC: "BLUR"							"0..1"
 // STATIC: "FADEOUTONSILHOUETTE"			"0..1"
 // STATIC: "CUBEMAP"						"0..1"
@@ -13,7 +13,7 @@
 // STATIC: "NORMAL_DECODE_MODE"				"0..0"
 
 // DYNAMIC: "PIXELFOGTYPE"					"0..1"
-// DYNAMIC: "WRITE_DEPTH_TO_DESTALPHA"		"0..1"
+// DYNAMIC: "WRITE_DEPTH_TO_DESTALPHA"		"0..1" [ps20b]
 
 // SKIP: $MASKED && $BLUR
 

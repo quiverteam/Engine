@@ -33,12 +33,16 @@
 			gamebin				|gameinfo_path|bin.
 			Game				|gameinfo_path|.
 			Game				mod_hl2			
-			game				|all_source_engine_paths|hl2/hl2_textures.vpk"
-			game+mod			|all_source_engine_paths|hl2/hl2_sound_vo_english.vpk"
-			game+mod			|all_source_engine_paths|hl2/hl2_pak.vpk"
-			game				|all_source_engine_paths|hl2/hl2_sound_misc.vpk"
-			game				|all_source_engine_paths|hl2/hl2_misc.vpk"
-			platform			|all_source_engine_paths|platform/platform_misc.vpk
+			
+			// |all_source_engine_paths| isn't working for me
+			game				"C:\Program Files (x86)\Steam\steamapps\common\Half-Life 2\hl2\hl2_sound_vo_english.vpk"
+			game				"C:\Program Files (x86)\Steam\steamapps\common\Half-Life 2\hl2\hl2_pak.vpk"
+			game				"C:\Program Files (x86)\Steam\steamapps\common\Half-Life 2\hl2\hl2_textures.vpk"
+			game				"C:\Program Files (x86)\Steam\steamapps\common\Half-Life 2\hl2\hl2_sound_misc.vpk"
+			//game				"C:\Program Files (x86)\Steam\steamapps\common\Half-Life 2\hl2\hl2_misc.vpk"
+			game				"C:\sourceengine\extracted_games\HL2\misc"
+			game				"C:\Program Files (x86)\Steam\steamapps\common\Half-Life 2\hl2"
+			
 			Platform			platform
 		}
 	}

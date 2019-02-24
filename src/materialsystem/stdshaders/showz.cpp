@@ -10,7 +10,8 @@
 #include "convar.h"
 #include "BaseVSShader.h"
 
-#include "showz_vs11.inc"
+//#include "showz_vs11.inc"
+#include "showz_vs20.inc"
 #include "showz_ps20.inc"
 #include "showz_ps20b.inc"
 
@@ -48,8 +49,8 @@ BEGIN_VS_SHADER_FLAGS( showz, "Help for ShowZ", SHADER_NOT_EDITABLE )
 		{
 			pShaderShadow->EnableTexture( SHADER_SAMPLER0, true );
 
-			showz_vs11_Static_Index vshIndex;
-			pShaderShadow->SetVertexShader( "showz_vs11", vshIndex.GetIndex() );
+			showz_vs20_Static_Index vshIndex;
+			pShaderShadow->SetVertexShader( "showz_vs20", vshIndex.GetIndex() );
 
 			int nShadowFilterMode = g_pHardwareConfig->GetShadowFilterMode();	// Based upon vendor and device dependent formats
 
@@ -75,7 +76,7 @@ BEGIN_VS_SHADER_FLAGS( showz, "Help for ShowZ", SHADER_NOT_EDITABLE )
 		{
 			BindTexture( SHADER_SAMPLER0, BASETEXTURE, FRAME );	// Bind shadow depth map
 
-			showz_vs11_Dynamic_Index vshIndex;
+			showz_vs20_Dynamic_Index vshIndex;
 			pShaderAPI->SetVertexShaderIndex( vshIndex.GetIndex() );
 
 			if( g_pHardwareConfig->SupportsPixelShaders_2_b() )

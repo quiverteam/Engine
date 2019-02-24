@@ -115,3 +115,9 @@ stats.txt
 uniquefilestocopy.txt
 vcslist.txt
 inclist.txt
+/src/materialsystem/stdshaders/shaders/fxc/*.vcs
+/src/materialsystem/stdshaders/*.copy
+/src/materialsystem/stdshaders/filestocopy.txt
+/src/materialsystem/stdshaders/filelistgen.txt
+/src/materialsystem/stdshaders/filelist.txt
+/src/materialsystem/stdshaders/shaders/vsh/*.vcs
