@@ -1,8 +1,12 @@
 //========= Copyright © 1996-2007, Valve Corporation, All rights reserved. ============//
 
-// STATIC: "CONVERT_TO_SRGB"	"0..1" [= g_pHardwareConfig->NeedsShaderSRGBConversion()]
+// STATIC: "CONVERT_TO_SRGB"	"0..1" [ps20b][= g_pHardwareConfig->NeedsShaderSRGBConversion()]
 // STATIC:  "STAGE"				"0..2"
-// DYNAMIC: "PIXELFOGTYPE"		"0..1"
+// DYNAMIC: "PIXELFOGTYPE"		"0..1" [ps20b]
+
+#if defined(SHADER_MODEL_PS_2_0)
+	#define PIXELFOGTYPE PIXEL_FOG_TYPE_NONE
+#endif
 
 // Includes =======================================================================================
 #include "common_vertexlitgeneric_dx9.h"

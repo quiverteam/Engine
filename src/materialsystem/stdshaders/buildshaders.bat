@@ -200,8 +200,7 @@ if exist "filelist.txt" if exist "uniquefilestocopy.txt" if not "%dynamic_shader
 	@REM %shadercompilecommand% -mpi_MaxWorkers %shadercompileworkers% -shaderpath "%shader_path_cd:/=\%" -allowdebug
 	@REM -verbose -subprocess X
 	@REM -nointercept		Uses old slow technique - runs 'fxc.exe' / Uses new faster Vitaliy's implementation
-	@REM %shadercompilecommand% -nompi -threads %threadcount% -shaderpath "%shader_path_cd:/=\%" -allowdebug
-	%shadercompilecommand% -nompi -shaderpath "%shader_path_cd:/=\%" -allowdebug
+	%shadercompilecommand% -nompi -threads %threadcount% -shaderpath "%shader_path_cd:/=\%" -allowdebug
 	cd /D %shader_path_cd%
 )
 

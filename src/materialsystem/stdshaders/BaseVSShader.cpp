@@ -18,12 +18,19 @@
 #include "vertexlit_and_unlit_generic_hdr_ps20b.inc"
 #endif
 
+/*#if SUPPORT_DX8
+#include "lightmappedgeneric_flashlight_vs11.inc"
+#include "flashlight_ps11.inc"
+#include "vertexlitgeneric_flashlight_vs11.inc"
+#endif*/
+
 //#ifdef STDSHADER_DX9_DLL_EXPORT
 #include "lightmappedgeneric_flashlight_vs20.inc"
 #include "flashlight_ps20.inc"
 #include "flashlight_ps20b.inc"
+#ifdef STDSHADER_DX9_DLL_EXPORT
 #include "vertexlitgeneric_flashlight_vs20.inc"
-//#endif
+#endif
 
 // memdbgon must be the last include file in a .cpp file!!!
 #include "tier0/memdbgon.h"
@@ -721,6 +728,16 @@ void CBaseVSShader::SetEnvMapTintPixelShaderDynamicState( int pixelReg, int tint
 	s_pShaderAPI->SetPixelShaderConstant( pixelReg, color, 1 );
 }
 
+void CBaseVSShader::SetAmbientCubeDynamicStateVertexShader( )
+{
+	s_pShaderAPI->SetVertexShaderStateAmbientLightCube();
+}
+
+float CBaseVSShader::GetAmbientLightCubeLuminance( )
+{
+	return s_pShaderAPI->GetAmbientLightCubeLuminance();
+}
+
 //-----------------------------------------------------------------------------
 // Sets up hw morphing state for the vertex shader
 //-----------------------------------------------------------------------------
@@ -919,9 +936,11 @@ void CBaseVSShader::DrawFlashlight_dx90( IMaterialVar** params, IShaderDynamicAP
 		}
 		else
 		{
-			vertexlitgeneric_flashlight_vs11_Static_Index vshIndex;
+			//vertexlitgeneric_flashlight_vs11_Static_Index vshIndex;
+			vertexlitgeneric_flashlight_vs20_Static_Index vshIndex;
 			vshIndex.SetTEETH( vars.m_bTeeth );
-			pShaderShadow->SetVertexShader( "vertexlitgeneric_flashlight_vs11", vshIndex.GetIndex() );
+			//pShaderShadow->SetVertexShader( "vertexlitgeneric_flashlight_vs11", vshIndex.GetIndex() );
+			pShaderShadow->SetVertexShader( "vertexlitgeneric_flashlight_vs20", vshIndex.GetIndex() );
 
 			unsigned int flags = VERTEX_POSITION | VERTEX_NORMAL;
 			int numTexCoords = 1;
@@ -1057,7 +1076,8 @@ void CBaseVSShader::DrawFlashlight_dx90( IMaterialVar** params, IShaderDynamicAP
 		}
 		else
 		{
-			vertexlitgeneric_flashlight_vs11_Dynamic_Index vshIndex;
+			//vertexlitgeneric_flashlight_vs11_Dynamic_Index vshIndex;
+			vertexlitgeneric_flashlight_vs20_Dynamic_Index vshIndex;
 			vshIndex.SetDOWATERFOG( pShaderAPI->GetSceneFogMode() == MATERIAL_FOG_LINEAR_BELOW_FOG_Z );
 			vshIndex.SetSKINNING( pShaderAPI->GetCurrentNumBones() > 0 );
 			pShaderAPI->SetVertexShaderIndex( vshIndex.GetIndex() );
@@ -1121,6 +1141,7 @@ void CBaseVSShader::HashShadow2DJitter( const float fJitterSeed, float *fU, floa
 }
 #endif
 
+#endif // !_STATIC_LINKED || STDSHADER_DX8_DLL_EXPORT
 
 void CBaseVSShader::DrawEqualDepthToDestAlpha( void )
 {
@@ -1152,6 +1173,5 @@ void CBaseVSShader::DrawEqualDepthToDestAlpha( void )
 	}
 #else
 	Assert( 0 ); //probably just needs a shader update to the latest
-#endif
 #endif
 }

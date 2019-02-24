@@ -1,6 +1,6 @@
 @echo off
 
-set cmdLine=-sw -game mod_hl2
+set cmdLine=-console -sw -game mod_hl2
 
 start "" quiver.exe %cmdLine%
 echo quiver.exe %cmdLine%

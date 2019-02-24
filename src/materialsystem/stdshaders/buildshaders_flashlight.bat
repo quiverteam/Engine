@@ -77,7 +77,7 @@ REM PC SHADERS
 REM ****************
 %BUILD_SHADER% stdshader_flashlight_dx9_20b		-game %GAMEDIR% -source %SOURCEDIR% %dynamic_shaders%
 echo --------------------------------------------------------------------------------------------
-%BUILD_SHADER% stdshader_flashlight_dx9_30			-game %GAMEDIR% -source %SOURCEDIR% %dynamic_shaders% -dx9_30 -force30
+%BUILD_SHADER% stdshader_flashlight_dx9_30		-game %GAMEDIR% -source %SOURCEDIR% %dynamic_shaders% -dx9_30 -force30
 echo --------------------------------------------------------------------------------------------
 @REM %BUILD_SHADER% stdshader_flashlight_dx10			-game %GAMEDIR% -source %SOURCEDIR% %dynamic_shaders% -dx10
 @REM dx10 is empty right now
@@ -97,5 +97,7 @@ if not "%dynamic_shaders%" == "1" (
 
 %TTEXE% -diff %tt_all_start% -cur
 echo.
+
+..\..\devtools\bin\vpc.exe /f /hl2r +gamedlls +shaders_all /mksln game_hl2r.sln
 
 pause
