@@ -1,8 +1,10 @@
 @echo off
 
-set cmdLine=-sw -game hl2r
+set cmdLine=-console +volume 0.25 -sw -game hl2r
 
 start "" quiver.exe %cmdLine%
 echo quiver.exe %cmdLine%
 
-timeout 5
+timeout 3
+
+start "" "quiver.exe" -hijack +map test_projtex

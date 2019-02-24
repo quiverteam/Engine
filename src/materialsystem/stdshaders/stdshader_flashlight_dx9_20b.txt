@@ -12,8 +12,11 @@ eyes_flashlight_vs20.fxc
 
 flashlight_ps2x.fxc
 
+// make this file
+//lightmappedgeneric_flashlight_ps2x.fxc
 lightmappedgeneric_flashlight_vs20.fxc
 
 teeth_flashlight_vs20.fxc
 
+// fix fog shit
 //vertexlitgeneric_flashlight_vs20.fxc

@@ -204,17 +204,7 @@ if exist "filelist.txt" if exist "uniquefilestocopy.txt" if not "%dynamic_shader
 	cd /D %shader_path_cd%
 )
 
-REM ****************
-REM PC Shader copy
-REM Publish the generated files to the output dir using XCOPY
-REM This batch file may have been invoked standalone or slaved (master does final smart mirror copy)
-REM ****************
-:DoXCopy
-if not "%dynamic_shaders%" == "1" (
-	if not exist "%targetdir%" md "%targetdir%"
-	if not "%targetdir%"=="%shaderDir%" xcopy %shaderDir%\*.* "%targetdir%" /e /y
-)
-goto end
+
 
 REM ****************
 REM END

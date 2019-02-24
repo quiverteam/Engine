@@ -76,12 +76,28 @@ REM ****************
 REM PC SHADERS
 REM ****************
 %BUILD_SHADER% stdshader_flashlight_dx9_20b		-game %GAMEDIR% -source %SOURCEDIR% %dynamic_shaders%
+
 echo --------------------------------------------------------------------------------------------
 %BUILD_SHADER% stdshader_flashlight_dx9_30		-game %GAMEDIR% -source %SOURCEDIR% %dynamic_shaders% -dx9_30 -force30
+
 echo --------------------------------------------------------------------------------------------
 @REM %BUILD_SHADER% stdshader_flashlight_dx10			-game %GAMEDIR% -source %SOURCEDIR% %dynamic_shaders% -dx10
 @REM dx10 is empty right now
 echo.
+
+REM ****************
+REM PC Shader copy
+REM Publish the generated files to the output dir using XCOPY
+REM This batch file may have been invoked standalone or slaved (master does final smart mirror copy)
+REM ****************
+:DoXCopy
+if not "%dynamic_shaders%" == "1" (
+	if not exist "%targetdir%" md "%targetdir%"
+	@REM if not "%targetdir%"=="%shaderDir%" xcopy %shaderDir%\*.* "%targetdir%" /e /y
+	xcopy "C:\sourceengine\projects-community\quiver\flashlight-upgrade\src\materialsystem\stdshaders\shaders\*.*" "C:\sourceengine\projects-community\quiver\flashlight-upgrade\game\mod_hl2\shaders\" /e /y >nul
+	echo copied shaders
+)
+goto end
 
 REM ****************
 REM END
@@ -97,7 +113,9 @@ if not "%dynamic_shaders%" == "1" (
 
 %TTEXE% -diff %tt_all_start% -cur
 echo.
-
-..\..\devtools\bin\vpc.exe /f /hl2r +gamedlls +shaders_all /mksln game_hl2r.sln
-
 pause
+
+@REM ..\..\devtools\bin\vpc.exe /f /hl2r +gamedlls +shaders_all /mksln game_hl2r.sln
+..\..\devtools\bin\vpc.exe /f /hl2r +gamedlls +shaders_all
+@REM pause
+@REM start "" "..\..\game_hl2r.sln"

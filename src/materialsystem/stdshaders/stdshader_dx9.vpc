@@ -195,4 +195,7 @@ $Project "stdshader_dx9"
 	$Shaders	"stdshader_dx9_20b.txt"
 	$Shaders	"stdshader_dx9_30.txt"
 	//$Shaders	"stdshader_dx10.txt" // none yet
+	
+	$Shaders	"stdshader_flashlight_dx9_20b.txt"
+	$Shaders	"stdshader_flashlight_dx9_30.txt"
 }
