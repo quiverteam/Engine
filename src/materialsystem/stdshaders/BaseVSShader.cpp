@@ -24,13 +24,12 @@
 #include "vertexlitgeneric_flashlight_vs11.inc"
 #endif*/
 
-//#ifdef STDSHADER_DX9_DLL_EXPORT
 #include "lightmappedgeneric_flashlight_vs20.inc"
 #include "flashlight_ps20.inc"
 #include "flashlight_ps20b.inc"
-#ifdef STDSHADER_DX9_DLL_EXPORT
+#include "flashlight_ps30.inc"
 #include "vertexlitgeneric_flashlight_vs20.inc"
-#endif
+//#include "vertexlitgeneric_flashlight_vs30.inc"
 
 // memdbgon must be the last include file in a .cpp file!!!
 #include "tier0/memdbgon.h"
@@ -952,7 +951,22 @@ void CBaseVSShader::DrawFlashlight_dx90( IMaterialVar** params, IShaderDynamicAP
 		{
 			nBumpMapVariant = ( vars.m_bSSBump ) ? 2 : 1;
 		}
-		if ( g_pHardwareConfig->SupportsPixelShaders_2_b() )
+		
+		if ( g_pHardwareConfig->SupportsShaderModel_3_0() )
+		{
+			int nShadowFilterMode = g_pHardwareConfig->GetShadowFilterMode();
+
+			flashlight_ps30_Static_Index	pshIndex;
+			pshIndex.SetNORMALMAP( nBumpMapVariant );
+			pshIndex.SetNORMALMAP2( bBump2 );
+			pshIndex.SetWORLDVERTEXTRANSITION( vars.m_bWorldVertexTransition );
+			pshIndex.SetSEAMLESS( bSeamless );
+			pshIndex.SetDETAILTEXTURE( bDetail );
+			pshIndex.SetDETAIL_BLEND_MODE( nDetailBlendMode );
+			pshIndex.SetFLASHLIGHTDEPTHFILTERMODE( nShadowFilterMode );
+			pShaderShadow->SetPixelShader( "flashlight_ps30", pshIndex.GetIndex() );
+		}
+		else if ( g_pHardwareConfig->SupportsPixelShaders_2_b() )
 		{
 			int nShadowFilterMode = g_pHardwareConfig->GetShadowFilterMode();
 
@@ -984,6 +998,9 @@ void CBaseVSShader::DrawFlashlight_dx90( IMaterialVar** params, IShaderDynamicAP
 		VMatrix worldToTexture;
 		ITexture *pFlashlightDepthTexture;
 		FlashlightState_t flashlightState = pShaderAPI->GetFlashlightStateEx( worldToTexture, &pFlashlightDepthTexture );
+
+		float flFlashlightPos[4] = { XYZ( flashlightState.m_vecLightOrigin ) };
+		pShaderAPI->SetPixelShaderConstant( PSREG_FRESNEL_SPEC_PARAMS, flFlashlightPos );
 
 		SetFlashLightColorFromState( flashlightState, pShaderAPI );
 
@@ -1100,6 +1117,13 @@ void CBaseVSShader::DrawFlashlight_dx90( IMaterialVar** params, IShaderDynamicAP
 		vEyePos_SpecExponent[3] = 0.0f;
 		pShaderAPI->SetPixelShaderConstant( PSREG_EYEPOS_SPEC_EXPONENT, vEyePos_SpecExponent, 1 );
 
+		if ( g_pHardwareConfig->SupportsShaderModel_3_0() )
+		{
+			DECLARE_DYNAMIC_PIXEL_SHADER( flashlight_ps30 );
+			SET_DYNAMIC_PIXEL_SHADER_COMBO( PIXELFOGTYPE,  pShaderAPI->GetPixelFogCombo() );
+			SET_DYNAMIC_PIXEL_SHADER_COMBO( FLASHLIGHTSHADOWS, flashlightState.m_bEnableShadows );
+			SET_DYNAMIC_PIXEL_SHADER( flashlight_ps30 );
+		}
 		if ( g_pHardwareConfig->SupportsPixelShaders_2_b() )
 		{
 			DECLARE_DYNAMIC_PIXEL_SHADER( flashlight_ps20b );

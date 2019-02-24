@@ -4,18 +4,16 @@
 //
 //=============================================================================
 
-
-
 // STATIC: "NORMALMAP"					"0..2"
 // STATIC: "NORMALMAP2"					"0..1"
 // STATIC: "WORLDVERTEXTRANSITION"		"0..1"
 // STATIC: "SEAMLESS"               	"0..1"
 // STATIC: "DETAILTEXTURE"             	"0..1"
 // STATIC: "DETAIL_BLEND_MODE"			"0..1"
-// STATIC: "FLASHLIGHTDEPTHFILTERMODE"	"0..2"	[ps20b]
+// STATIC: "FLASHLIGHTDEPTHFILTERMODE"	"0..2"	[ps20b] [ps30]
 
 // DYNAMIC: "PIXELFOGTYPE"				"0..1"
-// DYNAMIC: "FLASHLIGHTSHADOWS"			"0..1"	[ps20b]
+// DYNAMIC: "FLASHLIGHTSHADOWS"			"0..1"	[ps20b] [ps30]
 
 // SKIP: !$WORLDVERTEXTRANSITION && $NORMALMAP2
 // SKIP: !$NORMALMAP && $NORMALMAP2
@@ -30,6 +28,7 @@ const float4 g_FogParams					: register( PSREG_FOG_PARAMS );
 const float4 g_EyePos						: register( PSREG_EYEPOS_SPEC_EXPONENT );
 const float4 g_FlashlightAttenuation		: register( PSREG_FLASHLIGHT_ATTENUATION );
 const float4 g_DetailConstants				: register( c0 );
+const float3 g_FlashLightPos				: register( PSREG_FRESNEL_SPEC_PARAMS );
 
 sampler SpotSampler							: register( s0 );
 sampler BaseTextureSampler					: register( s1 );
@@ -174,7 +173,7 @@ float4 main( PS_INPUT i ) : COLOR
 	spotColor.rgb *= cFlashlightColor.rgb;
 
 	// Compute per-pixel distance attenuation
-	float3 delta = g_EyePos.xyz - i.worldPos_worldTransition.xyz;
+	float3 delta = g_FlashLightPos  - i.worldPos_worldTransition.xyz;
 	float distSquared = dot( delta, delta );
 	float dist = sqrt( distSquared );
 	float farZ = g_FlashlightAttenuation.w;
@@ -188,7 +187,7 @@ float4 main( PS_INPUT i ) : COLOR
 	spotColor *= flShadow;
 #endif
 
-#if WORLDVERTEXTRANSITION
+#if WORLDVERTEXTRANSITION && !defined( SHADER_MODEL_PS_2_0 )
 	baseColor.xyz = lerp( baseColor2.xyz, baseColor.xyz, lerpAlpha );
 #endif
 

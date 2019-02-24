@@ -423,7 +423,8 @@ void Draw_Eyes_Refract_Internal( CBaseVSShader *pShader, IMaterialVar** params, 
 			pShaderAPI->SetPixelShaderConstant( 9, tweaks, 1 );
 
 			// Dimensions of screen, used for screen-space noise map sampling
-			float vScreenScale[4] = {1280.0f / 32.0f, 720.0f / 32.0f, 0, 0};
+			//float vScreenScale[4] = {1280.0f / 32.0f, 720.0f / 32.0f, 0, 0};
+			float vScreenScale[4] = {1920.0f / 32.0f, 1080.0f / 32.0f, 0, 0};
 			int nWidth, nHeight;
 			pShaderAPI->GetBackBufferDimensions( nWidth, nHeight );
 			vScreenScale[0] = (float) nWidth  / 32.0f;
