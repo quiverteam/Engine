@@ -7,8 +7,7 @@ This uses v121 compilers (VS2013)
 
 1. run createlibprojects.bat and compile lib files in RELEASE ONLY
 
-(need to change this, as this is dumb as hell, only to compile shadercompiler.exe / .dll)
-2. Open createhl2r.bat and compile all in release only
+2. Open createhl2r.bat and compile all in release only (need to change this, as this is dumb as hell, only to compile shadercompiler.exe / .dll)
 
 3. Install Perl if you haven't (I use strawberry perl: http://strawberryperl.com/ )
 
