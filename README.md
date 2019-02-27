@@ -11,6 +11,8 @@ This uses v121 compilers (VS2013)
 
 3. Install Perl if you haven't (I use strawberry perl: http://strawberryperl.com/ )
 
+4. Clone this into your perl lib directory (C:/Strawberry/perl/lib if you use straberry perl): https://github.com/leejo/string-crc32
+
 4. compile buildallshaders.bat in materialsystem\stdshaders\
 
 5. run createeverything.bat or createbinprojects.bat and compile all in release only
