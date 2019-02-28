@@ -510,3 +510,46 @@ $Group "libraries"
 	"bzip2"
 	"mxtoolkitwin32"
 }
+
+
+$Group "core"
+{
+	// Static Libraries
+	"tier0"
+	"tier1"
+	"tier2"
+	"tier3"
+	"vtf"
+	"bitmap"
+	"shaderlib"
+	"jpeglib"
+	"mathlib"
+	"fgdlib"
+	"vstdlib"
+	"vmpi"
+	"raytrace"
+	"appframework"
+	"vgui_controls"
+	"vgui_surfacelib"
+	"toolutils"
+	"movieobjects"
+	"matsys_controls"
+	"dmserializers"
+	"dme_controls"
+	"datamodel"
+	"choreoobjects"
+	"unitlib"
+	"nvtristriplib"
+	"dmxloader"
+	"particles"
+	"lzma"
+	"bzip2"
+	"mxtoolkitwin32"
+	
+	// Other projects needed
+	"shadercompile_dll"
+	"shadercompile_launcher"
+	"filesystem_stdio"
+	"filesystem_steam"
+	"mysql_wrapper" // vmpi shit
+}
