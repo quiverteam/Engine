@@ -151,14 +151,6 @@ typedef LPDISPLAY_DEVICEA LPDISPLAY_DEVICE;
 //
 //-----------------------------------------------------------------------------
 
-#ifndef _MULTIMON_USE_SECURE_CRT
-#if defined(__GOT_SECURE_LIB__) && __GOT_SECURE_LIB__ >= 200402L
-#define _MULTIMON_USE_SECURE_CRT 1
-#else
-#define _MULTIMON_USE_SECURE_CRT 0
-#endif
-#endif
-
 #ifndef MULTIMON_FNS_DEFINED
 
 int      (WINAPI* g_pfnGetSystemMetrics)(int) = NULL;
@@ -319,7 +311,7 @@ xMonitorFromWindow(HWND hWnd, DWORD dwFlags)
 }
 
 BOOL WINAPI
-xGetMonitorInfo(HMONITOR hMonitor, __inout LPMONITORINFO lpMonitorInfo)
+xGetMonitorInfo(HMONITOR hMonitor, LPMONITORINFO lpMonitorInfo)
 {
     RECT rcWork;
 
@@ -354,11 +346,7 @@ xGetMonitorInfo(HMONITOR hMonitor, __inout LPMONITORINFO lpMonitorInfo)
 #ifdef UNICODE
             MultiByteToWideChar(CP_ACP, 0, "DISPLAY", -1, ((MONITORINFOEX*)lpMonitorInfo)->szDevice, (sizeof(((MONITORINFOEX*)lpMonitorInfo)->szDevice)/sizeof(TCHAR)));
 #else // UNICODE
-#if _MULTIMON_USE_SECURE_CRT
-            strncpy_s(((MONITORINFOEX*)lpMonitorInfo)->szDevice, (sizeof(((MONITORINFOEX*)lpMonitorInfo)->szDevice)/sizeof(TCHAR)), TEXT("DISPLAY"), (sizeof(((MONITORINFOEX*)lpMonitorInfo)->szDevice)/sizeof(TCHAR)) - 1);
-#else
-            lstrcpyn(((MONITORINFOEX*)lpMonitorInfo)->szDevice, TEXT("DISPLAY"), (sizeof(((MONITORINFOEX*)lpMonitorInfo)->szDevice)/sizeof(TCHAR)));
-#endif // _MULTIMON_USE_SECURE_CRT
+            lstrcpy(((MONITORINFOEX*)lpMonitorInfo)->szDevice, TEXT("DISPLAY"));
 #endif // UNICODE
         }
 
@@ -436,7 +424,7 @@ BOOL WINAPI
 xEnumDisplayDevices(
     PVOID Unused,
     DWORD iDevNum,
-    __inout PDISPLAY_DEVICE lpDisplayDevice,
+    PDISPLAY_DEVICE lpDisplayDevice,
     DWORD dwFlags)
 {
     if (InitMultipleMonitorStubs())
@@ -453,15 +441,10 @@ xEnumDisplayDevices(
 
 #ifdef UNICODE
     MultiByteToWideChar(CP_ACP, 0, "DISPLAY", -1, lpDisplayDevice->DeviceName, (sizeof(lpDisplayDevice->DeviceName)/sizeof(TCHAR)));
-    MultiByteToWideChar(CP_ACP, 0, "DISPLAY", -1, lpDisplayDevice->DeviceString, (sizeof(lpDisplayDevice->DeviceString)/sizeof(TCHAR)));
+    MultiByteToWideChar(CP_ACP, 0, "DISPLAY", -1, lpDisplayDevice->DeviceString, (sizeof(lpDisplayDevice->DeviceName)/sizeof(TCHAR)));
 #else // UNICODE
-#if _MULTIMON_USE_SECURE_CRT
-    strncpy_s((LPTSTR)lpDisplayDevice->DeviceName, (sizeof(lpDisplayDevice->DeviceName)/sizeof(TCHAR)), TEXT("DISPLAY"), (sizeof(lpDisplayDevice->DeviceName)/sizeof(TCHAR)) - 1);
-    strncpy_s((LPTSTR)lpDisplayDevice->DeviceString, (sizeof(lpDisplayDevice->DeviceString)/sizeof(TCHAR)), TEXT("DISPLAY"), (sizeof(lpDisplayDevice->DeviceName)/sizeof(TCHAR)) - 1);
-#else
-    lstrcpyn((LPTSTR)lpDisplayDevice->DeviceName,   TEXT("DISPLAY"), (sizeof(lpDisplayDevice->DeviceName)/sizeof(TCHAR)));
-    lstrcpyn((LPTSTR)lpDisplayDevice->DeviceString, TEXT("DISPLAY"), (sizeof(lpDisplayDevice->DeviceString)/sizeof(TCHAR)));
-#endif // _MULTIMON_USE_SECURE_CRT
+    lstrcpy((LPTSTR)lpDisplayDevice->DeviceName,   TEXT("DISPLAY"));
+    lstrcpy((LPTSTR)lpDisplayDevice->DeviceString, TEXT("DISPLAY"));
 #endif // UNICODE
 
     lpDisplayDevice->StateFlags = DISPLAY_DEVICE_ATTACHED_TO_DESKTOP | DISPLAY_DEVICE_PRIMARY_DEVICE;

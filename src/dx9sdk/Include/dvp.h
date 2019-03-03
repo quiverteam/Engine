@@ -109,7 +109,7 @@ DECLARE_INTERFACE_( IDDVideoPortContainer, IUnknown )
     /*** IDirectDrawVideoPort methods ***/
     STDMETHOD(CreateVideoPort)(THIS_ DWORD, LPDDVIDEOPORTDESC, LPDIRECTDRAWVIDEOPORT FAR *, IUnknown FAR *) PURE;
     STDMETHOD(EnumVideoPorts)(THIS_ DWORD, LPDDVIDEOPORTCAPS, LPVOID,LPDDENUMVIDEOCALLBACK ) PURE;
-    STDMETHOD(GetVideoPortConnectInfo)(THIS_ DWORD, __inout LPDWORD pcInfo, __out_ecount_part_opt(*pcInfo, *pcInfo) LPDDVIDEOPORTCONNECT ) PURE;
+    STDMETHOD(GetVideoPortConnectInfo)(THIS_ DWORD, LPDWORD, LPDDVIDEOPORTCONNECT ) PURE;
     STDMETHOD(QueryVideoPortStatus)(THIS_ DWORD, LPDDVIDEOPORTSTATUS ) PURE;
 };
 
@@ -150,8 +150,8 @@ DECLARE_INTERFACE_( IDirectDrawVideoPort, IUnknown )
     STDMETHOD(Flip)(THIS_ LPDIRECTDRAWSURFACE, DWORD) PURE;
     STDMETHOD(GetBandwidthInfo)(THIS_ LPDDPIXELFORMAT, DWORD, DWORD, DWORD, LPDDVIDEOPORTBANDWIDTH) PURE;
     STDMETHOD(GetColorControls)(THIS_ LPDDCOLORCONTROL) PURE;
-    STDMETHOD(GetInputFormats)(THIS_ LPDWORD lpNumFormats, __out_ecount_part_opt(*lpNumFormats, *lpNumFormats) LPDDPIXELFORMAT, DWORD) PURE;
-    STDMETHOD(GetOutputFormats)(THIS_ LPDDPIXELFORMAT, LPDWORD lpNumFormats, __out_ecount_part_opt(*lpNumFormats, *lpNumFormats) LPDDPIXELFORMAT, DWORD) PURE;
+    STDMETHOD(GetInputFormats)(THIS_ LPDWORD, LPDDPIXELFORMAT, DWORD) PURE;
+    STDMETHOD(GetOutputFormats)(THIS_ LPDDPIXELFORMAT, LPDWORD, LPDDPIXELFORMAT, DWORD) PURE;
     STDMETHOD(GetFieldPolarity)(THIS_ LPBOOL) PURE;
     STDMETHOD(GetVideoLine)(THIS_ LPDWORD) PURE;
     STDMETHOD(GetVideoSignalStatus)(THIS_ LPDWORD) PURE;
@@ -206,7 +206,6 @@ DECLARE_INTERFACE_( IDirectDrawVideoPort, IUnknown )
 /*
  * IDirectDrawVideoPort
  */
-#if (_WIN32_WINNT >= _WIN32_WINNT_WINXP)
 #if defined( _WIN32 ) && !defined( _NO_COM )
 #undef INTERFACE
 #define INTERFACE IDirectDrawVideoPortNotify
@@ -235,7 +234,6 @@ DECLARE_INTERFACE_( IDirectDrawVideoPortNotify, IUnknown )
 #define IVideoPortNotify_ReleaseNotification(p,a)   (p)->lpVtbl->ReleaseNotification(a)
 #endif
 
-#endif
 #endif
 
 /*
