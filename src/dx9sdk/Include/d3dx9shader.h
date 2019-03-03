@@ -101,6 +101,12 @@
 
 
 //----------------------------------------------------------------------------
+// D3DXFRAGMENT flags:
+// -------------------
+
+#define D3DXFRAGMENT_LARGEADDRESSAWARE            (1 << 17)
+
+//----------------------------------------------------------------------------
 // D3DXCONSTTABLE flags:
 // -------------------
 
@@ -150,6 +156,18 @@ typedef struct _D3DXSEMANTIC
 
 } D3DXSEMANTIC, *LPD3DXSEMANTIC;
 
+
+
+//----------------------------------------------------------------------------
+// D3DXFRAGMENT_DESC:
+//----------------------------------------------------------------------------
+
+typedef struct _D3DXFRAGMENT_DESC
+{
+    LPCSTR Name;
+    DWORD Target;
+
+} D3DXFRAGMENT_DESC, *LPD3DXFRAGMENT_DESC;
 
 
 //----------------------------------------------------------------------------
@@ -371,6 +389,53 @@ DECLARE_INTERFACE_(ID3DXTextureShader, IUnknown)
 };
 
 
+
+//----------------------------------------------------------------------------
+// ID3DXFragmentLinker
+//----------------------------------------------------------------------------
+
+typedef interface ID3DXFragmentLinker ID3DXFragmentLinker;
+typedef interface ID3DXFragmentLinker *LPD3DXFRAGMENTLINKER;
+
+// {1A2C0CC2-E5B6-4ebc-9E8D-390E057811B6}
+DEFINE_GUID(IID_ID3DXFragmentLinker, 
+0x1a2c0cc2, 0xe5b6, 0x4ebc, 0x9e, 0x8d, 0x39, 0xe, 0x5, 0x78, 0x11, 0xb6);
+
+#undef INTERFACE
+#define INTERFACE ID3DXFragmentLinker
+
+DECLARE_INTERFACE_(ID3DXFragmentLinker, IUnknown)
+{
+    // IUnknown
+    STDMETHOD(QueryInterface)(THIS_ REFIID iid, LPVOID *ppv) PURE;
+    STDMETHOD_(ULONG, AddRef)(THIS) PURE;
+    STDMETHOD_(ULONG, Release)(THIS) PURE;
+
+    // ID3DXFragmentLinker
+
+    // fragment access and information retrieval functions
+    STDMETHOD(GetDevice)(THIS_ LPDIRECT3DDEVICE9* ppDevice) PURE;
+    STDMETHOD_(UINT, GetNumberOfFragments)(THIS) PURE;
+
+    STDMETHOD_(D3DXHANDLE, GetFragmentHandleByIndex)(THIS_ UINT Index) PURE;
+    STDMETHOD_(D3DXHANDLE, GetFragmentHandleByName)(THIS_ LPCSTR Name) PURE;
+    STDMETHOD(GetFragmentDesc)(THIS_ D3DXHANDLE Name, LPD3DXFRAGMENT_DESC FragDesc) PURE;
+
+    // add the fragments in the buffer to the linker
+    STDMETHOD(AddFragments)(THIS_ CONST DWORD *Fragments) PURE;
+
+    // Create a buffer containing the fragments.  Suitable for saving to disk
+    STDMETHOD(GetAllFragments)(THIS_ LPD3DXBUFFER *ppBuffer) PURE;
+    STDMETHOD(GetFragment)(THIS_ D3DXHANDLE Name, LPD3DXBUFFER *ppBuffer) PURE;
+
+    STDMETHOD(LinkShader)(THIS_ LPCSTR pProfile, DWORD Flags, CONST D3DXHANDLE *rgFragmentHandles, UINT cFragments, LPD3DXBUFFER *ppBuffer, LPD3DXBUFFER *ppErrorMsgs) PURE;
+    STDMETHOD(LinkVertexShader)(THIS_ LPCSTR pProfile, DWORD Flags, CONST D3DXHANDLE *rgFragmentHandles, UINT cFragments, LPDIRECT3DVERTEXSHADER9 *pVShader, LPD3DXBUFFER *ppErrorMsgs) PURE;
+    STDMETHOD(LinkPixelShader)(THIS_ LPCSTR pProfile, DWORD Flags, CONST D3DXHANDLE *rgFragmentHandles, UINT cFragments, LPDIRECT3DPIXELSHADER9 *pPShader, LPD3DXBUFFER *ppErrorMsgs) PURE;
+
+    STDMETHOD(ClearCache)(THIS) PURE;
+};
+
+
 //----------------------------------------------------------------------------
 // D3DXINCLUDE_TYPE:
 //----------------------------------------------------------------------------
@@ -396,7 +461,7 @@ typedef enum _D3DXINCLUDE_TYPE
 // Open()
 //    Opens an include file.  If successful, it should fill in ppData and
 //    pBytes.  The data pointer returned must remain valid until Close is
-//    subsequently called.  The name of the file is encoded in UTF-8 format.
+//    subsequently called.
 // Close()
 //    Closes an include file.  If Open was successful, Close is guaranteed
 //    to be called before the API using this interface returns.
@@ -849,6 +914,138 @@ HRESULT WINAPI
     D3DXCreateTextureShader(
         CONST DWORD*                    pFunction, 
         LPD3DXTEXTURESHADER*            ppTextureShader);
+
+
+
+//----------------------------------------------------------------------------
+// D3DXGatherFragments:
+// -------------------
+// Assembles shader fragments into a buffer to be passed to a fragment linker.
+//   will generate shader fragments for all fragments in the file
+//
+// Parameters:
+//  pSrcFile
+//      Source file name
+//  hSrcModule
+//      Module handle. if NULL, current module will be used
+//  pSrcResource
+//      Resource name in module
+//  pSrcData
+//      Pointer to source code
+//  SrcDataLen
+//      Size of source code, in bytes
+//  pDefines
+//      Optional NULL-terminated array of preprocessor macro definitions.
+//  pInclude
+//      Optional interface pointer to use for handling #include directives.
+//      If this parameter is NULL, #includes will be honored when assembling
+//      from file, and will error when assembling from resource or memory.
+//  Flags
+//      See D3DXSHADER_xxx flags
+//  ppShader
+//      Returns a buffer containing the created shader fragments.  This buffer contains
+//      the assembled shader code, as well as any embedded debug info.
+//  ppErrorMsgs
+//      Returns a buffer containing a listing of errors and warnings that were
+//      encountered during assembly.  If you are running in a debugger,
+//      these are the same messages you will see in your debug output.
+//----------------------------------------------------------------------------
+
+
+HRESULT WINAPI
+D3DXGatherFragmentsFromFileA(
+        LPCSTR                          pSrcFile,
+        CONST D3DXMACRO*                pDefines,
+        LPD3DXINCLUDE                   pInclude,
+        DWORD                           Flags,
+        LPD3DXBUFFER*                   ppShader,
+        LPD3DXBUFFER*                   ppErrorMsgs);
+
+HRESULT WINAPI
+D3DXGatherFragmentsFromFileW(
+        LPCWSTR                         pSrcFile,
+        CONST D3DXMACRO*                pDefines,
+        LPD3DXINCLUDE                   pInclude,
+        DWORD                           Flags,
+        LPD3DXBUFFER*                   ppShader,
+        LPD3DXBUFFER*                   ppErrorMsgs);
+
+#ifdef UNICODE
+#define D3DXGatherFragmentsFromFile D3DXGatherFragmentsFromFileW
+#else
+#define D3DXGatherFragmentsFromFile D3DXGatherFragmentsFromFileA
+#endif
+
+
+HRESULT WINAPI
+    D3DXGatherFragmentsFromResourceA(
+        HMODULE                         hSrcModule,
+        LPCSTR                          pSrcResource,
+        CONST D3DXMACRO*                pDefines,
+        LPD3DXINCLUDE                   pInclude,
+        DWORD                           Flags,
+        LPD3DXBUFFER*                   ppShader,
+        LPD3DXBUFFER*                   ppErrorMsgs);
+
+HRESULT WINAPI
+    D3DXGatherFragmentsFromResourceW(
+        HMODULE                         hSrcModule,
+        LPCWSTR                         pSrcResource,
+        CONST D3DXMACRO*                pDefines,
+        LPD3DXINCLUDE                   pInclude,
+        DWORD                           Flags,
+        LPD3DXBUFFER*                   ppShader,
+        LPD3DXBUFFER*                   ppErrorMsgs);
+
+#ifdef UNICODE
+#define D3DXGatherFragmentsFromResource D3DXGatherFragmentsFromResourceW
+#else
+#define D3DXGatherFragmentsFromResource D3DXGatherFragmentsFromResourceA
+#endif
+
+
+HRESULT WINAPI
+    D3DXGatherFragments(
+        LPCSTR                          pSrcData,
+        UINT                            SrcDataLen,
+        CONST D3DXMACRO*                pDefines,
+        LPD3DXINCLUDE                   pInclude,
+        DWORD                           Flags,
+        LPD3DXBUFFER*                   ppShader,
+        LPD3DXBUFFER*                   ppErrorMsgs);
+
+
+
+//----------------------------------------------------------------------------
+// D3DXCreateFragmentLinker:
+// -------------------------
+// Creates a fragment linker with a given cache size.  The interface returned 
+// can be used to link together shader fragments.  (both HLSL & ASM fragements)
+//
+// Parameters:
+//  pDevice
+//      Pointer to the device on which to create the shaders
+//  ShaderCacheSize
+//      Size of the shader cache
+//  Flags
+//      See D3DXFRAGMENT_xxx flags
+//  ppFragmentLinker
+//      pointer to a memory location to put the created interface pointer
+//
+//----------------------------------------------------------------------------
+
+HRESULT WINAPI
+    D3DXCreateFragmentLinker(
+        LPDIRECT3DDEVICE9               pDevice,
+        UINT                            ShaderCacheSize,
+        LPD3DXFRAGMENTLINKER*           ppFragmentLinker);
+
+HRESULT WINAPI
+    D3DXCreateFragmentLinkerEx(
+        LPDIRECT3DDEVICE9               pDevice,
+        UINT                            ShaderCacheSize,
+        DWORD                           Flags,
+        LPD3DXFRAGMENTLINKER*           ppFragmentLinker);
 
 
 //----------------------------------------------------------------------------
