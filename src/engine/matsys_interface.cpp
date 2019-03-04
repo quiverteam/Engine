@@ -131,10 +131,8 @@ ConVar r_drawbrushmodels( "r_drawbrushmodels", "1", FCVAR_CHEAT, "Render brush m
 
 ConVar r_shadowrendertotexture( "r_shadowrendertotexture", "0" );
 ConVar r_flashlightdepthtexture( "r_flashlightdepthtexture", "1" );
-#ifndef _X360
-ConVar r_waterforceexpensive( "r_waterforceexpensive", "0" );
-#endif
-ConVar r_waterforcereflectentities( "r_waterforcereflectentities", "0" );
+ConVar r_waterforceexpensive( "r_waterforceexpensive", "1" );
+ConVar r_waterforcereflectentities( "r_waterforcereflectentities", "1" );
 ConVar mat_motion_blur_enabled( "mat_motion_blur_enabled", "1" );
 
 // Note: this is only here so we can ship an update without changing materialsystem.dll.

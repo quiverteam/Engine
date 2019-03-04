@@ -6389,13 +6389,54 @@
 		5: "Additive"
 	]
 ]
-// originally used models/editor/cone_helper.mdl
-@PointClass base(Targetname, Parentname, Angles) studio("models/editor/spot.mdl") frustum(lightfov,nearz,farz,lightcolor,-1) = env_projectedtexture : 
+
+
+//-------------------------------------------------------------------------
+// Global Light and Projected Texture
+//-------------------------------------------------------------------------
+
+// need to make a new model for this, similar to the sun model in source 2
+@PointClass base(Targetname, EnableDisable) studio("models/editor/cone_helper.mdl") = env_global_light : 
+	"An entity to control the sunlight that casts shadows in the map."
+[
+	angles(string) : "Pitch Yaw Roll (Y Z X)" : "50 40 0" : "This is the light cast direction. Pitch is rotation around the Y axis, yaw is the rotation around the Z axis, and roll is the rotation around the X axis."
+
+	color(color255) : "Light Color" : "255 255 255 1" : "This is the color of the sunlight."
+	colortransitiontime(float) : "Color Transition Time" : "0.5" : "This is the number of seconds it takes to get from 0 to 255."
+	distance(float) : "Distance" : 10000 : "This is the distance of the sun, greater distances produce more orthogonal shadows."
+	orthosize(float) : "Ortho Size" : 1000 : "Size of the area the light covers."
+	fov(float) : "FOV" : 5 : "This is the field of view that the sunlight casts in. Use lower values for more distant sun and sharper shadows."
+	nearz(float) : "NearZ Distance" : 512 : "This controls the near clipping plane's distance from the player."
+	northoffset(float) : "North Offset" : 200 : "This offsets the from the player position where the sun is attached."
+	texturename(material) : "Texture Name" : "effects/flashlight001"
+	enableshadows(Choices) : "Enable Shadows" : 1 : "Enables/disables shadows from this projected texture." =
+	[
+		0 : "No"
+		1 : "Yes"
+	]
+
+	// Inputs
+	input LightColor(color255) : "Set the light color."
+	input SetAngles(string) : "Set the sun direction."
+	input SetDistance(float) : "Set the distance of the sun."
+	input SetFOV(float) : "Set the field of view the sun casts."
+	input SetNearZDistance(float) : "Set the near z distance."
+	input SetNorthOffset(float) : "Sets the north offset."
+	input SetTexture(string) : "Set the texture cookie of the sunlight."
+	input EnableShadows(bool)		: "Set the if shadows are enabled"
+]
+
+
+// could use ("models/editor/spot.mdl"), but then would get mixed up with light_spot maybe
+@PointClass base(Targetname, Parentname, Angles) studio("models/editor/cone_helper.mdl") frustum(lightfov,nearz,farz,lightcolor,-1) = env_projectedtexture : 
 	"Projected texture entity."
 [
 	spawnflags(flags) =
 	[
-		1  : "Enabled"				: 1
+		1  : "Enabled"							: 1
+		2  : "Always Update (moving light)"		: 0
+		//4  : "Uberlight Enabled"				: 4
+		//8  : "Volumetrics Enabled"				: 8
 	]
 
 	target(target_destination)	: "target" : : "target"	
@@ -6403,33 +6444,58 @@
 	nearz(float)				: "NearZ" : "4.0" : "Near Z for projected texture"
 	farz(float)					: "FarZ" : "750.0" : "Far Z for projected texture"	
 	
-	enableshadows(Choices) : "Enable Shadows" : 0 : "Enables/disables shadows from this projected texture." =
+	enableshadows(Choices) : "Enable Shadows" : 1 : "Enables/disables shadows from this projected texture." =
 	[
 		0 : "No"
 		1 : "Yes"
 	]
+	
 	shadowquality(Choices) : "Shadow Quality" : 1 : "Quality of shadows." =
 	[
 		0 : "Low"
 		1 : "High"
 	]
+	
 	lightonlytarget(Choices) : "Light Only Target" : 0 : "Limit flashlight effect to only effect target entity." =
 	[
 		0 : "No"
 		1 : "Yes"
 	]
+	
 	lightworld(Choices) : "Light World" : 1 : "Control whether flashlight effects static world geometry." =
 	[
 		0 : "No"
 		1 : "Yes"
 	]
+	
+	//brightnessscale(float)		: "Brightness Scale" : "1.0" : "Scale the light color by this brightness"	
+	
 	lightcolor(color255)		: "Light Color" : "255 255 255 200" : "Light Color RGB-Intensity"
+	constant(integer)			: "Constant" : 0
+	linear(integer)				: "Linear" : 0
+	quadratic(integer)			: "Quadratic" : 100 // raise to 10000 or something when you get proper light color working
+	
+	//colortransitiontime(float)	: "Color Transition Time" : "0.5" : "Amount of time it takes for a color change to occur."
 	cameraspace(integer)		: "Camera Space" : 0 : "Angles are interpreted as being relative to camera."
-
+	
+	//texturename(material) : "Texture Name" : "effects/flashlight001"
+	
+	//mingpulevel(integer) : "Min GPU level" : 0 : "If set and nonzero, this entity will be drawn only if the GPU level is equal or higher to this value. GPU level is Shader Detail setting of Graphics Settings, ranges from 1 which is Low to 4 which is Very High. "
+	
 	// Inputs
 	input TurnOn(void)		: "Turn on the texture"
 	input TurnOff(void)		: "Turn off the texture"
+	input AlwaysUpdateOn(void)	: "Turn on per frame updating (for moving lights)"
+	input AlwaysUpdateOff(void)	: "Turn off per frame updating (for moving lights)"
 	input SetFOV(float)		: "Set FOV"
+	input SpotlightTexture(string)		: "Set the spotlight texture"
+	input EnableShadows(bool)		: "Set the if shadows are enabled"
+	input LightColor(color255)		: "Change the light color/brightness"
+	//input BrightnessScale(float)	: "Set BrightnessScale"
+	
+	//input EnableVolumetrics(void)	: "Enable Volumetrics"
+	//input EnableUberLight(void)		: "Enable Uberlight"
+	//input DisableUberLight(void)	: "Disable Uberlight"
 ]
 
 

@@ -10,26 +10,6 @@
 
 #include "common_ps_fxc.h"
 
-#if SHADER_MODEL_PS_3_0
-#define NEW_SHADOW_FILTERS // Comment if you want to enable retail shadow filter.
-
-#define	PSREG_UBERLIGHT_SMOOTH_EDGE_0			c33
-#define	PSREG_UBERLIGHT_SMOOTH_EDGE_1			c34
-#define	PSREG_UBERLIGHT_SMOOTH_EDGE_OOW			c35
-#define	PSREG_UBERLIGHT_SHEAR_ROUND				c36
-#define	PSREG_UBERLIGHT_AABB					c37
-#define PSREG_UBERLIGHT_WORLD_TO_LIGHT			c38
-//		PSREG_UBERLIGHT_WORLD_TO_LIGHT			c39
-//		PSREG_UBERLIGHT_WORLD_TO_LIGHT			c40
-//		PSREG_UBERLIGHT_WORLD_TO_LIGHT			c41
-
-// Vectorized smoothstep for doing three smoothsteps at once.  Used by uberlight
-float3 smoothstep3( float3 edge0, float3 edge1, float3 OneOverWidth, float3 x )
-{
-	x = saturate((x - edge0) * OneOverWidth);	// Scale, bias and saturate x to the range of zero to one
-	return x*x*(3-2*x);							// Evaluate polynomial
-}
-
 // Superellipse soft clipping
 //
 // Input:
@@ -42,7 +22,7 @@ float3 smoothstep3( float3 edge0, float3 edge1, float3 OneOverWidth, float3 x )
 //   - 0 if Q was inside the inner ellipse
 //   - 1 if Q was outside the outer ellipse
 //   - smoothly varying from 0 to 1 in between
-float2 ClipSuperellipse( float2 Q,			// Point on the xy plane
+/*float2 ClipSuperellipse( float2 Q,			// Point on the xy plane
 						 float4 aAbB,		// Dimensions of superellipses
 						 float2 rounds )	// Same roundness for both ellipses
 {
@@ -86,30 +66,25 @@ float uberlight(float3 PL,					// Point in light space
 
 	// Modulate the three resulting attenuations (flipping the sense of the attenuation from the superellipse and the far clip)
 	return (1.0f - atten3.x) * atten3.y * (1.0f - atten3.z);
-}
-
-#endif
+}*/
 
 // JasonM - TODO: remove this simpleton version
-float DoShadow( sampler DepthSampler, float4 texCoord )
+//float DoShadow( sampler DepthSampler, float4 texCoord )
+float DoShadowOld( sampler DepthSampler, float3 texCoord )
 {
 	const float g_flShadowBias = 0.0005f;
 	float2 uoffset = float2( 0.5f/512.f, 0.0f );
 	float2 voffset = float2( 0.0f, 0.5f/512.f );
-	float3 projTexCoord = texCoord.xyz / texCoord.w;
+	//float3 projTexCoord = texCoord.xyz / texCoord.w;
+	float3 projTexCoord = texCoord.xyz;
 	float4 flashlightDepth = float4(	tex2D( DepthSampler, projTexCoord.xy + uoffset + voffset ).x,
 										tex2D( DepthSampler, projTexCoord.xy + uoffset - voffset ).x,
 										tex2D( DepthSampler, projTexCoord.xy - uoffset + voffset ).x,
 										tex2D( DepthSampler, projTexCoord.xy - uoffset - voffset ).x	);
 
-#	if ( defined( REVERSE_DEPTH_ON_X360 ) )
-	{
-		flashlightDepth = 1.0f - flashlightDepth;
-	}
-#	endif
-
 	float shadowed = 0.0f;
-	float z = texCoord.z/texCoord.w;
+	//float z = texCoord.z/texCoord.w;
+	float z = texCoord.z;
 	float4 dz = float4(z,z,z,z) - (flashlightDepth + float4( g_flShadowBias, g_flShadowBias, g_flShadowBias, g_flShadowBias));
 	float4 shadow = float4(0.25f,0.25f,0.25f,0.25f);
 
@@ -125,12 +100,43 @@ float DoShadow( sampler DepthSampler, float4 texCoord )
 	return shadowed;
 }
 
-
-float DoShadowNvidiaRAWZOneTap( sampler DepthSampler, const float3 shadowMapPos )
+/*float DoShadow( sampler DepthSampler, const float3 shadowMapPos, const float4 vShadowTweaks )
 {
-	//float ooW = 1.0f / shadowMapPos.w;								// 1 / w
-	//float3 shadowMapCenter_objDepth = shadowMapPos.xyz * ooW;		// Do both projections at once
-	float3 shadowMapCenter_objDepth = shadowMapPos.xyz;		// Do both projections at once
+	const float g_flShadowBias = vShadowTweaks.y;
+	float flResolution = vShadowTweaks.x;
+	
+	float2 uoffset = float2( vShadowTweaks.x, 0.0f );
+	float2 voffset = float2( 0.0f, vShadowTweaks.x );
+	
+	float3 projTexCoord = texCoord.xyz;
+	float4 flashlightDepth = float4(	tex2D( DepthSampler, projTexCoord.xy + uoffset + voffset ).x,
+										tex2D( DepthSampler, projTexCoord.xy + uoffset - voffset ).x,
+										tex2D( DepthSampler, projTexCoord.xy - uoffset + voffset ).x,
+										tex2D( DepthSampler, projTexCoord.xy - uoffset - voffset ).x	);
+
+	float shadowed = 0.0f;
+	//float z = texCoord.z/texCoord.w;
+	float z = texCoord.z;
+	float4 dz = float4(z,z,z,z) - (flashlightDepth + float4( g_flShadowBias, g_flShadowBias, g_flShadowBias, g_flShadowBias));
+	float4 shadow = float4(0.25f,0.25f,0.25f,0.25f);
+
+	if( dz.x <= 0.0f )
+		shadowed += shadow.x;
+	if( dz.y <= 0.0f )
+		shadowed += shadow.y;
+	if( dz.z <= 0.0f )
+		shadowed += shadow.z;
+	if( dz.w <= 0.0f )
+		shadowed += shadow.w;
+
+	return shadowed;
+}*/
+
+float DoShadowNvidiaRAWZOneTap( sampler DepthSampler, const float3 shadowMapPos, const float4 vShadowTweaks )
+{
+	//float ooW = 1.0f / vShadowTweaks.x;								// 1 / w
+	float3 shadowMapCenter_objDepth = shadowMapPos.xyz * vShadowTweaks.x;		// Do both projections at once
+	//float3 shadowMapCenter_objDepth = shadowMapPos.xyz;		// Do both projections at once
 
 	float2 shadowMapCenter = shadowMapCenter_objDepth.xy;			// Center of shadow filter
 	float objDepth = shadowMapCenter_objDepth.z;					// Object depth in shadow space
@@ -141,14 +147,14 @@ float DoShadowNvidiaRAWZOneTap( sampler DepthSampler, const float3 shadowMapPos 
 }
 
 
-float DoShadowNvidiaRAWZ( sampler DepthSampler, const float3 shadowMapPos )
+float DoShadowNvidiaRAWZ( sampler DepthSampler, const float3 shadowMapPos, const float4 vShadowTweaks )
 {
-	float fE = 1.0f / 512.0f;	 // Epsilon
+	//float fE = ( vShadowTweaks.x / 2 );	 // Epsilon
+	float fE = 1.0f / 1024.0f;	 // Epsilon
 
-	//float ooW = 1.0f / shadowMapPos.w;								// 1 / w
-	//float3 shadowMapCenter_objDepth = shadowMapPos.xyz * ooW;		// Do both projections at once
-	float3 shadowMapCenter_objDepth = shadowMapPos.xyz;		// Do both projections at once
-
+	float ooW = 1.0f / vShadowTweaks.x;								// 1 / w
+	float3 shadowMapCenter_objDepth = shadowMapPos.xyz * ooW;		// Do both projections at once
+	
 	float2 shadowMapCenter = shadowMapCenter_objDepth.xy;			// Center of shadow filter
 	float objDepth = shadowMapCenter_objDepth.z;					// Object depth in shadow space
 
@@ -162,9 +168,9 @@ float DoShadowNvidiaRAWZ( sampler DepthSampler, const float3 shadowMapPos )
 }
 
 
-float DoShadowNvidiaCheap( sampler DepthSampler, const float3 shadowMapPos )
+float DoShadowNvidiaCheap( sampler DepthSampler, const float3 shadowMapPos, const float4 vShadowTweaks )
 {
-	float fTexelEpsilon = 1.0f / 1024.0f;
+	float fTexelEpsilon = vShadowTweaks.x;
 
 	//float ooW = 1.0f / shadowMapPos.w;								// 1 / w
 	//float3 shadowMapCenter_objDepth = shadowMapPos.xyz * ooW;		// Do both projections at once
@@ -179,23 +185,20 @@ float DoShadowNvidiaCheap( sampler DepthSampler, const float3 shadowMapPos )
 	vTaps.z = tex2Dproj( DepthSampler, float4( shadowMapCenter + float2(  fTexelEpsilon, -fTexelEpsilon), objDepth, 1 ) ).x;
 	vTaps.w = tex2Dproj( DepthSampler, float4( shadowMapCenter + float2( -fTexelEpsilon, -fTexelEpsilon), objDepth, 1 ) ).x;
 
-	return dot(vTaps, float4(0.25, 0.25, 0.25, 0.25));
+	return dot( vTaps, float4(0.125, 0.125, 0.125, 0.125) );
 }
 
-#if defined( NEW_SHADOW_FILTERS )
-float DoShadowNvidiaPCF3x3Box( sampler DepthSampler, const float3 shadowMapPos )
-#else
-float DoShadowNvidiaPCF3x3Box( sampler DepthSampler, const float4 shadowMapPos )
-#endif
+// i don't think this is right at all
+//
+//	1	1	1
+//	1	idk	1	
+//	1	1	1
+//
+float DoShadowNvidiaPCF3x3Box( sampler DepthSampler, const float3 shadowMapPos, const float4 vShadowTweaks )
 {
-	float fTexelEpsilon = 1.0f / 1024.0f;
+	float fTexelEpsilon = vShadowTweaks.x;
 
-#if !defined( NEW_SHADOW_FILTERS )
-	float ooW = 1.0f / shadowMapPos.w;								// 1 / w
-	float3 shadowMapCenter_objDepth = shadowMapPos.xyz * ooW;		// Do both projections at once
-#else
 	float3 shadowMapCenter_objDepth = shadowMapPos.xyz;
-#endif
 
 	float2 shadowMapCenter = shadowMapCenter_objDepth.xy;			// Center of shadow filter
 	float objDepth = shadowMapCenter_objDepth.z;					// Object depth in shadow space
@@ -228,33 +231,21 @@ float DoShadowNvidiaPCF3x3Box( sampler DepthSampler, const float4 shadowMapPos )
 //	4	20	33	20	4
 //	1	4	7	4	1
 //
-#if defined( NEW_SHADOW_FILTERS )
-float DoShadowNvidiaPCF5x5Gaussian( sampler DepthSampler, const float3 shadowMapPos, const float2 vShadowTweaks )
-//float DoShadowNvidiaPCF5x5Gaussian( sampler DepthSampler, const float3 shadowMapPos, const float4 vShadowTweaks )
-#else
-float DoShadowNvidiaPCF5x5Gaussian( sampler DepthSampler, const float4 shadowMapPos )
-#endif
+//float DoShadowNvidiaPCF5x5Gaussian( sampler DepthSampler, const float3 shadowMapPos )
+// add bool bForceSimple maybe, along with more
+// need to also make a 3x3 one, and maybe a 7x7 or 9x9 one (how much can sm3 even do? hopefully don't need sm4 for that)
+float DoShadowNvidiaPCF5x5Gaussian( sampler DepthSampler, const float3 shadowMapPos, const float4 vShadowTweaks )
 {
+	// vShadowTweaks grabs the filterscale divided by the resolution, slope scale, and attentuation i think?
+	//float4(filterscale/reslution, 0.0005f, 0.0f, 0.0f)
 	
-#if defined( NEW_SHADOW_FILTERS )
 	float fEpsilonX    = vShadowTweaks.x;
 	float fTwoEpsilonX = 2.0f * fEpsilonX;
-	float fEpsilonY    = vShadowTweaks.y;
+	float fEpsilonY    = vShadowTweaks.x;
 	float fTwoEpsilonY = 2.0f * fEpsilonY;
-#else
-	float fEpsilonX    = 1.0 / 512.0;
-	float fTwoEpsilonX = 2.0f * fEpsilonX;
-	float fEpsilonY    = fEpsilonX;
-	float fTwoEpsilonY = fTwoEpsilonX;
-#endif
 
 	//float ooW = 1.0f / shadowMapPos.w;								// 1 / w
-	//float3 shadowMapCenter_objDepth = shadowMapPos.xyz * ooW;		// Do both projections at once
-#if defined( NEW_SHADOW_FILTERS )	
 	float3 shadowMapCenter_objDepth = shadowMapPos.xyz;					// Do both projections at once
-#else
-	float3 shadowMapCenter_objDepth = shadowMapPos.xyz/ shadowMapPos.w;		// Do both projections at once
-#endif
 
 	float2 shadowMapCenter = shadowMapCenter_objDepth.xy;			// Center of shadow filter
 	float objDepth = shadowMapCenter_objDepth.z;					// Object depth in shadow space
@@ -273,7 +264,7 @@ float DoShadowNvidiaPCF5x5Gaussian( sampler DepthSampler, const float4 shadowMap
 	vSevenTaps.w = tex2Dproj( DepthSampler, float4( shadowMapCenter + float2(  0, -fTwoEpsilonY ), objDepth, 1 ) ).x;
 	float flSevenTaps = dot( vSevenTaps, float4( 7.0f / 331.0f, 7.0f / 331.0f, 7.0f / 331.0f, 7.0f / 331.0f ) );
 
-	float4 vFourTapsA, vFourTapsB;
+	float4 vFourTapsA, vFourTapsB;;
 	vFourTapsA.x = tex2Dproj( DepthSampler, float4( shadowMapCenter + float2(  fTwoEpsilonX,  fEpsilonY    ), objDepth, 1 ) ).x;
 	vFourTapsA.y = tex2Dproj( DepthSampler, float4( shadowMapCenter + float2(  fEpsilonX,     fTwoEpsilonY ), objDepth, 1 ) ).x;
 	vFourTapsA.z = tex2Dproj( DepthSampler, float4( shadowMapCenter + float2( -fEpsilonX,     fTwoEpsilonY ), objDepth, 1 ) ).x;
@@ -320,11 +311,10 @@ float DoShadowATICheap( sampler DepthSampler, const float4 shadowMapPos )
 
 // Original One Used
 // Poisson disc, randomly rotated at different UVs
-float DoShadowPoisson16Sample( sampler DepthSampler, sampler RandomRotationSampler, const float3 vProjCoords, const float2 vScreenPos, const float4 vShadowTweaks, bool bNvidiaHardwarePCF, bool bFetch4 )
+/*float DoShadowPoisson16Sample( sampler DepthSampler, sampler RandomRotationSampler, const float3 vProjCoords, const float2 vScreenPos, const float4 vShadowTweaks, bool bForceSimple, bool bNvidiaHardwarePCF, bool bFetch4 )
 {
 	float2 vPoissonOffset[8] = { float2(  0.3475f,  0.0042f ), float2(  0.8806f,  0.3430f ), float2( -0.0041f, -0.6197f ), float2(  0.0472f,  0.4964f ),
 								 float2( -0.3730f,  0.0874f ), float2( -0.9217f, -0.3177f ), float2( -0.6289f,  0.7388f ), float2(  0.5744f, -0.7741f ) };
-
 
 
 	float flScaleOverMapSize = vShadowTweaks.x * 2;		// Tweak parameters to shader
@@ -424,27 +414,33 @@ float DoShadowPoisson16Sample( sampler DepthSampler, sampler RandomRotationSampl
 
 		return dot( accum, float4( 0.125, 0.125, 0.125, 0.125) );
 	}
-}
+}*/
 
 float DoFlashlightShadow( sampler DepthSampler, sampler RandomRotationSampler, float3 vProjCoords, float2 vScreenPos, int nShadowLevel, float4 vShadowTweaks, bool bAllowHighQuality, bool bForceSimple = false )
 {
 	float flShadow = 1.0f;
+	
+//#if defined( SHADER_MODEL_PS_3_0 )
 
-	//if( nShadowLevel == NVIDIA_PCF_POISSON )
-//#if defined( NEW_SHADOW_FILTERS ) && defined( SHADER_MODEL_PS_3_0 )
+// later just make a 3x3Gaussian for SM2.0
+// this is only an issue on vertexlit_and_unlit_generic_ps2x so that's cool
+
+// TODO: make a PCFGaussian for AMD Cards
 #if defined( SHADER_MODEL_PS_3_0 )
-		// Let's replace noise filter with gaussian blur, like in Portal 2.
-		// Make sure the number is equal to the shadowmap res
-		flShadow = DoShadowNvidiaPCF5x5Gaussian( DepthSampler, vProjCoords, float2( 1.0 / 2048.0, 1.0 / 2048.0 ) );
-		//flShadow = DoShadowNvidiaPCF5x5Gaussian( DepthSampler, vProjCoords, vShadowTweaks );
-		//flShadow = DoShadowNvidiaRAWZ( DepthSampler, vProjCoords );
-		//flShadow = DoShadowNvidiaRAWZOneTap( DepthSampler, vProjCoords );
-		//flShadow = DoShadowNvidiaPCF3x3Box( DepthSampler, vProjCoords );
-		//flShadow = DoShadowPoisson16Sample( DepthSampler, RandomRotationSampler, vProjCoords, vScreenPos, vShadowTweaks, true, false );
+	flShadow = DoShadowNvidiaPCF5x5Gaussian( DepthSampler, vProjCoords, vShadowTweaks );
 #else
-		//flShadow = DoShadowPoisson16Sample( DepthSampler, RandomRotationSampler, vProjCoords, vScreenPos, vShadowTweaks, true, false );
+	// TODO: make a DoShadowNvidiaPCF3x3Gaussian
+	flShadow = DoShadowNvidiaPCF3x3Box( DepthSampler, vProjCoords, vShadowTweaks );
+	//flShadow = DoShadowOld( DepthSampler, vProjCoords );
 #endif
-	/*else if( nShadowLevel == ATI_NOPCF )
+/*
+	if( nShadowLevel == NVIDIA_BOX_3X )
+		//flShadow = DoShadowNvidiaPCF3x3Box( DepthSampler, vProjCoords, vShadowTweaks );
+	
+	if( nShadowLevel == NVIDIA_PCF_POISSON ) // ew
+		//flShadow = DoShadowPoisson16Sample( DepthSampler, RandomRotationSampler, vProjCoords, vScreenPos, vShadowTweaks, true, false );
+	
+	else if( nShadowLevel == ATI_NOPCF )
 		flShadow = DoShadowPoisson16Sample( DepthSampler, RandomRotationSampler, vProjCoords, vScreenPos, vShadowTweaks, false, false );
 	else if( nShadowLevel == ATI_NO_PCF_FETCH4 )
 		flShadow = DoShadowPoisson16Sample( DepthSampler, RandomRotationSampler, vProjCoords, vScreenPos, vShadowTweaks, false, true );
@@ -471,7 +467,7 @@ float3 SpecularLight( const float3 vWorldNormal, const float3 vLightDir, const f
 void DoSpecularFlashlight( float3 flashlightPos, float3 worldPos, float4 flashlightSpacePosition, float3 worldNormal,  
 					float3 attenuationFactors, float farZ, sampler FlashlightSampler, sampler FlashlightDepthSampler, sampler RandomRotationSampler,
 					int nShadowLevel, bool bDoShadows, bool bAllowHighQuality, const float2 vScreenPos, const float fSpecularExponent, const float3 vEyeDir,
-					const bool bDoSpecularWarp, sampler specularWarpSampler, float fFresnel, float4 vShadowTweaks,
+					/*const bool bDoDiffuseWarp, sampler DiffuseWarpSampler,*/ const bool bDoSpecularWarp, sampler specularWarpSampler, float fFresnel, float4 vShadowTweaks,
 
 					// Outputs of this shader...separate shadowed diffuse and specular from the flashlight
 					out float3 diffuseLighting, out float3 specularLighting )
@@ -482,6 +478,13 @@ void DoSpecularFlashlight( float3 flashlightPos, float3 worldPos, float4 flashli
 	flashlightColor = tex2D( FlashlightSampler, vProjCoords );
 
 
+#if defined(SHADER_MODEL_PS_2_0) || defined(SHADER_MODEL_PS_2_B) || defined(SHADER_MODEL_PS_3_0)
+	//flashlightColor *= cFlashlightColor.xyz;						// Flashlight color
+	//asw
+	flashlightColor *= flashlightSpacePosition.www > float3(0,0,0);	// Catch back projection (PC-only, ps2b and up)
+#endif
+
+//asw
 #if defined(SHADER_MODEL_PS_2_0) || defined(SHADER_MODEL_PS_2_B) || defined(SHADER_MODEL_PS_3_0)
 	flashlightColor *= cFlashlightColor.xyz;						// Flashlight color
 #endif
@@ -508,11 +511,31 @@ void DoSpecularFlashlight( float3 flashlightPos, float3 worldPos, float4 flashli
 #endif
 
 	diffuseLighting = fAtten;
-#if defined(SHADER_MODEL_PS_2_0) || defined(SHADER_MODEL_PS_2_B) || defined(SHADER_MODEL_PS_3_0)
+	
+	float NdotL = dot( L.xyz, worldNormal.xyz );
+
+	// JasonM - experimenting with light-warping the flashlight
+	if ( false )//bDoDiffuseWarp )
+	{
+		float warpCoord = saturate(NdotL * 0.5f + 0.5f);							// 0..1
+		diffuseLighting *= tex2D( DiffuseWarpSampler, float2( warpCoord, 0.0f) );	// Look up warped light
+	}
+	else // common path
+	{
+	
+/*#if defined(SHADER_MODEL_PS_2_0) || defined(SHADER_MODEL_PS_2_B) || defined(SHADER_MODEL_PS_3_0)
 		diffuseLighting *= saturate( dot( L.xyz, worldNormal.xyz ) + flFlashlightNoLambertValue ); // Lambertian term
 #else
 		diffuseLighting *= saturate( dot( L.xyz, worldNormal.xyz ) ); // Lambertian (not Half-Lambert) term
+#endif*/
+	
+//asw
+#if defined(SHADER_MODEL_PS_2_0) || defined(SHADER_MODEL_PS_2_B) || defined(SHADER_MODEL_PS_3_0)
+		NdotL += flFlashlightNoLambertValue;
 #endif
+		diffuseLighting *= saturate( NdotL ); // Lambertian term
+	}
+	
 	diffuseLighting *= flashlightColor;
 	diffuseLighting *= endFalloffFactor;
 
@@ -580,11 +603,11 @@ float3 DoFlashlight( float3 flashlightPos, float3 worldPos, float4 flashlightSpa
 	diffuseLighting *= endFalloffFactor;
 
 	return diffuseLighting;
-//	}
 }
 
-/*#ifdef NEW_SHADOW_FILTERS
-float DoCascadedShadow( sampler depthSampler, sampler randomSampler, float3 worldNormal, float3 lightDirection,
+// i don't think i need this atm, since this is the actual cascading part, not the lightmap blending
+// want to use the lightmap blending on env_global_light first before i start messing with this
+/*float DoCascadedShadow( sampler depthSampler, sampler randomSampler, float3 worldNormal, float3 lightDirection,
 	float3 closePosition, float3 worldPosition, int nShadowLevel, float3 cascadedStepData,
 	float2 vScreenPos, float4 vShadowTweaks, const bool bCheckDot = true )
 {
@@ -599,7 +622,7 @@ float DoCascadedShadow( sampler depthSampler, sampler randomSampler, float3 worl
 
 	float shadow;
 	//if ( nShadowLevel == NVIDIA_PCF_POISSON )
-		shadow = DoShadowNvidiaPCF5x5Gaussian( depthSampler, closePosition, float2( 1.0 / 2048.0, 1.0 / 1024.0 ) );
+		shadow = DoShadowNvidiaPCF5x5Gaussian( depthSampler, closePosition, float2( 1.0 / 2048.0, 1.0 / 2048.0 ) );
 	//else if( nShadowLevel == ATI_NOPCF )
 	//	shadow = DoShadowPoisson16Sample( depthSampler, randomSampler, closePosition, vScreenPos, vShadowTweaks, false, false );
 	//else //if( nShadowLevel == ATI_NO_PCF_FETCH4 )

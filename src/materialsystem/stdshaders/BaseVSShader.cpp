@@ -941,6 +941,11 @@ void CBaseVSShader::DrawFlashlight_dx90( IMaterialVar** params, IShaderDynamicAP
 			//pShaderShadow->SetVertexShader( "vertexlitgeneric_flashlight_vs11", vshIndex.GetIndex() );
 			pShaderShadow->SetVertexShader( "vertexlitgeneric_flashlight_vs20", vshIndex.GetIndex() );
 
+			// fix the water fog shit
+			//DECLARE_DYNAMIC_VERTEX_SHADER( vertexlitgeneric_flashlight_vs20 );
+			//SET_DYNAMIC_VERTEX_SHADER_COMBO( SKINNING, pShaderAPI->GetCurrentNumBones() > 0 );
+			//SET_DYNAMIC_VERTEX_SHADER( vertexlitgeneric_flashlight_vs20 );
+
 			unsigned int flags = VERTEX_POSITION | VERTEX_NORMAL;
 			int numTexCoords = 1;
 			pShaderShadow->VertexShaderVertexFormat( flags, numTexCoords, 0, vars.m_bBump ? 4 : 0 );
@@ -1019,7 +1024,7 @@ void CBaseVSShader::DrawFlashlight_dx90( IMaterialVar** params, IShaderDynamicAP
 			pShaderAPI->SetPixelShaderConstant( PSREG_ENVMAP_TINT__SHADOW_TWEAKS, tweaks, 1 );
 
 			// Dimensions of screen, used for screen-space noise map sampling
-			float vScreenScale[4] = {1280.0f / 32.0f, 720.0f / 32.0f, 0, 0};
+			float vScreenScale[4] = {1920.0f / 32.0f, 1080.0f / 32.0f, 0, 0};
 			int nWidth, nHeight;
 			pShaderAPI->GetBackBufferDimensions( nWidth, nHeight );
 			vScreenScale[0] = (float) nWidth  / 32.0f;

@@ -300,6 +300,7 @@ void RecvProxy_Int32ToInt8   ( const CRecvProxyData *pData, void *pStruct, void 
 void RecvProxy_Int32ToInt16  ( const CRecvProxyData *pData, void *pStruct, void *pOut );
 void RecvProxy_StringToString( const CRecvProxyData *pData, void *pStruct, void *pOut );
 void RecvProxy_Int32ToInt32  ( const CRecvProxyData *pData, void *pStruct, void *pOut );
+void RecvProxy_Int32ToColor32( const CRecvProxyData *pData, void *pStruct, void *pOut );
 
 // StaticDataTable does *pOut = pData.
 void DataTableRecvProxy_StaticDataTable(const RecvProp *pProp, void **pOut, void *pData, int objectID);

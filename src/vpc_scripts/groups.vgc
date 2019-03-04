@@ -42,8 +42,8 @@ $Group "shaders"
 
 $Group "shaders_all"
 {
-	"shadercompile_dll"
-	"shadercompile_launcher"
+	//"shadercompile_dll"
+	//"shadercompile_launcher"
 	"materialsystem"
 	"shaderapidx9"
 	"shaderapidx10"

@@ -121,9 +121,9 @@ int main( int argc, char **argv )
 	CommandLine()->CreateCmdLine( argc, argv );
 	FileSystem_Init( "" );
 	PrintHeader();
-	LoadShaderDLL( "stdshader_dx6.dll" );
+	/*LoadShaderDLL( "stdshader_dx6.dll" );
 	LoadShaderDLL( "stdshader_dx7.dll" );
-	LoadShaderDLL( "stdshader_dx8.dll" );
+	LoadShaderDLL( "stdshader_dx8.dll" );*/
 	LoadShaderDLL( "stdshader_dx9.dll" );
 	int i;
 	for( i = 0; i < g_ShaderDLLs.Count(); i++ )
