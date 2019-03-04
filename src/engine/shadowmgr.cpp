@@ -557,6 +557,7 @@ void CShadowMgr::SetMaterial( Shadow_t& shadow, IMaterial* pMaterial, IMaterial*
 	shadow.m_pBindProxy = pBindProxy;
 
 	// We're holding onto this material
+	// flashlight material crashes this when debugging
 	pMaterial->IncrementReferenceCount();
 	pModelMaterial->IncrementReferenceCount();
 

@@ -129,7 +129,7 @@ REM make sure that target dirs exist
 REM files will be built in these targets and copied to their final destination
 if not exist %shaderDir% mkdir %shaderDir%
 if not exist %shaderDir%\fxc mkdir %shaderDir%\fxc
-@REM if not exist %shaderDir%\vsh mkdir %shaderDir%\vsh
+if not exist %shaderDir%\vsh mkdir %shaderDir%\vsh
 @REM if not exist %shaderDir%\psh mkdir %shaderDir%\psh
 REM Nuke some files that we will add to later.
 if exist filelist.txt del /f /q filelist.txt
@@ -168,10 +168,10 @@ if /i "%DIRECTX_SDK_VER%" == "pc09.00" (
 	rem echo "Copy extra files for dx 9 std
 )
 if /i "%DIRECTX_SDK_VER%" == "pc09.30" (
-	@REM echo %SrcDirBase%\devtools\bin\d3dx9_33.dll >> filestocopy.txt
+	echo %SrcDirBase%\devtools\bin\d3dx9_33.dll >> filestocopy.txt
 )
 if /i "%DIRECTX_SDK_VER%" == "pc10.00" (
-	@REM echo %SrcDirBase%\devtools\bin\d3dx10_33.dll >> filestocopy.txt
+	echo %SrcDirBase%\devtools\bin\d3dx10_33.dll >> filestocopy.txt
 )
 
 echo %SrcDirBase%\%DIRECTX_SDK_BIN_DIR%\dx_proxy.dll >> filestocopy.txt

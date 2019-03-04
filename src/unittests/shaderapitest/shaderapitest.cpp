@@ -914,7 +914,7 @@ void CShaderAPITestApp::LoadShaderFile( const char *pName, bool bVertexShader )
 {
 	// next, try the fxc dir
 	char pFileName[MAX_PATH];
-	Q_snprintf( pFileName, MAX_PATH, "..\\hl2\\shaders\\fxc\\%s.vcs", pName );
+	Q_snprintf( pFileName, MAX_PATH, "..\\hl2\\shaders\\fxc\\%.vcs", pName );
 
 	FileHandle_t hFile = g_pFullFileSystem->Open( pFileName, "rb", "EXECUTABLE_PATH" );
 	if ( hFile == FILESYSTEM_INVALID_HANDLE )

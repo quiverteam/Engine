@@ -378,6 +378,36 @@ FORCEINLINE float ShadowFilterFromState( FlashlightState_t const &state )
 	return state.m_flShadowFilterSize / 1024.0f;
 }
 
+/*FORCEINLINE void SetupUberlightFromState( IShaderDynamicAPI *pShaderAPI, FlashlightState_t const &state )
+{
+	// Bail if we can't do ps30 or we don't even want an uberlight
+	if ( !g_pHardwareConfig->HasFastVertexTextures() || !state.m_bUberlight || !pShaderAPI )
+		return;
+
+	UberlightState_t u = state.m_uberlightState;
+
+	// Set uberlight shader parameters as function of user controls from UberlightState_t
+	Vector4D vSmoothEdge0		= Vector4D( 0.0f,			u.m_fCutOn - u.m_fNearEdge,	u.m_fCutOff,				0.0f );
+	Vector4D vSmoothEdge1		= Vector4D( 0.0f,			u.m_fCutOn,					u.m_fCutOff + u.m_fFarEdge,	0.0f );
+	Vector4D vSmoothOneOverW	= Vector4D( 0.0f,			1.0f / u.m_fNearEdge,		1.0f / u.m_fFarEdge,		0.0f );
+	Vector4D vShearRound		= Vector4D( u.m_fShearx,	u.m_fSheary,				2.0f / u.m_fRoundness,	   -u.m_fRoundness / 2.0f );
+	Vector4D vaAbB				= Vector4D( u.m_fWidth,		u.m_fWidth + u.m_fWedge,	u.m_fHeight,				u.m_fHeight + u.m_fHedge );
+
+	pShaderAPI->SetPixelShaderConstant( PSREG_UBERLIGHT_SMOOTH_EDGE_0, vSmoothEdge0.Base(), 1 );
+	pShaderAPI->SetPixelShaderConstant( PSREG_UBERLIGHT_SMOOTH_EDGE_1, vSmoothEdge1.Base(), 1 );
+	pShaderAPI->SetPixelShaderConstant( PSREG_UBERLIGHT_SMOOTH_EDGE_OOW, vSmoothOneOverW.Base(), 1 );
+	pShaderAPI->SetPixelShaderConstant( PSREG_UBERLIGHT_SHEAR_ROUND, vShearRound.Base(), 1 );
+	pShaderAPI->SetPixelShaderConstant( PSREG_UBERLIGHT_AABB, vaAbB.Base(), 1 );
+
+	QAngle angles;
+	QuaternionAngles( state.m_quatOrientation, angles );
+
+	// World to Light's View matrix
+	matrix3x4_t viewMatrix, viewMatrixInverse;
+	AngleMatrix( angles, state.m_vecLightOrigin, viewMatrixInverse );
+	MatrixInvert( viewMatrixInverse, viewMatrix );
+	pShaderAPI->SetPixelShaderConstant( PSREG_UBERLIGHT_WORLD_TO_LIGHT, viewMatrix.Base(), 4 );
+}*/
 
 // convenient material variable access functions for helpers to use.
 FORCEINLINE bool IsTextureSet( int nVar, IMaterialVar **params )

@@ -1,386 +1,0 @@
-Building inc files, asm vcs files, and VMPI worklist for stdshader_dx9_30...
-
-
-Publishing shader inc files to target...
-Generating action list...
-Running distributed shader compilation...
-Compiling 38,931 commands.         Compiling 38,931 commands in 432 static combos.
-Compiling  vertexlit_and_unlit_generic_vs30  [ 221 remaining ] ...         Compiling  vertexlit_and_unlit_generic_vs30  [ 210 remaining ] ...         Compiling  vertexlit_and_unlit_generic_vs30  [ 199 remaining ] ...         Compiling  vertexlit_and_unlit_generic_vs30  [ 188 remaining ] ...         Compiling  vertexlit_and_unlit_generic_vs30  [ 177 remaining ] ...         Compiling  vertexlit_and_unlit_generic_vs30  [ 167 remaining ] ...         Compiling  vertexlit_and_unlit_generic_vs30  [ 157 remaining ] ...         Compiling  vertexlit_and_unlit_generic_vs30  [ 146 remaining ] ...         Compiling  vertexlit_and_unlit_generic_vs30  [ 135 remaining ] ...         Compiling  vertexlit_and_unlit_generic_vs30  [ 92 remaining ] ...         Compiling  vertexlit_and_unlit_generic_vs30  [ 81 remaining ] ...         Compiling  vertexlit_and_unlit_generic_vs30  [ 70 remaining ] ...         Compiling  vertexlit_and_unlit_generic_vs30  [ 59 remaining ] ...         Compiling  vertexlit_and_unlit_generic_vs30  [ 48 remaining ] ...         Compiling  vertexlit_and_unlit_generic_vs30  [ 37 remaining ] ...         Compiling  vertexlit_and_unlit_generic_vs30  [ 26 remaining ] ...         Compiling  vertexlit_and_unlit_generic_vs30  [ 15 remaining ] ...         Compiling  vertexlit_and_unlit_generic_vs30  [  4 remaining ] ...         Removing failed vertexlit_and_unlit_generic_...   Compiling  eye_refract_vs30  [ 13 remaining ] ...         Compiling  eye_refract_vs30  [  8 remaining ] ...         Compiling  eye_refract_vs30  [  3 remaining ] ...         Removing failed eye_refract_vs30...   Removing failed eyes_vs30...   Compiling  Refract_ps30  [ 125 remaining ] ...         Removing failed Refract_ps30...   Removing failed vertexlit_and_unlit_generic_...   Removing failed teeth_vs30...   Removing failed skin_vs30...   Removing failed teeth_bump_vs30...   Removing failed cloak_vs30...   Removing failed teeth_flashlight_vs30...   Removing failed vortwarp_vs30...   Removing failed cloak_blended_pass_vs30...   Removing failed eyes_flashlight_vs30...   Removing failed depthwrite_vs30...   Removing failed emissive_scroll_blended_pass...   Removing failed portal_refract_ps30...                                                                                                                     
-vertexlit_and_unlit_generic_vs20.fxc(50,67): error X3089: 'D3DVERTEXTEXTURESAMPLER0': invalid shader target/usage
-    Reported 24576 time(s), example command:
-    fxc.exe /DTOTALSHADERCOMBOS=32768 /DCENTROIDMASK=0 /DNUMDYNAMICCOMBOS=128 /DFLAGS=0x0 /DSHADERCOMBO=28671 /DCOMPRESSED_VERTS=1 /DDYNAMIC_LIGHT=1 /DSTATIC_LIGHT=1 /DDOWATERFOG=1 /DSKINNING=1 /DLIGHTING_PREVIEW=1 /DMORPHING=1 /DVERTEXCOLOR=1 /DCUBEMAP=1 /DHALFLAMBERT=1 /DFLASHLIGHT=1 /DSEAMLESS_BASE=1 /DSEAMLESS_DETAIL=0 /DSEPARATE_DETAIL_UVS=1 /DDECAL=1 /Dmain=main /Emain /Tvs_3_0 /DSHADER_MODEL_VS_3_0=1 /nologo /Foshader.o vertexlit_and_unlit_generic_vs20.fxc>output.txt 2>&1
-
-
-eye_refract_vs20.fxc(44,66): error X3089: 'D3DVERTEXTEXTURESAMPLER0': invalid shader target/usage
-    Reported 5120 time(s), example command:
-    fxc.exe /DTOTALSHADERCOMBOS=5120 /DCENTROIDMASK=0 /DNUMDYNAMICCOMBOS=320 /DFLAGS=0x0 /DSHADERCOMBO=5110 /DCOMPRESSED_VERTS=0 /DSKINNING=1 /DDOWATERFOG=1 /DDYNAMIC_LIGHT=0 /DSTATIC_LIGHT=1 /DNUM_LIGHTS=4 /DMORPHING=1 /DINTRO=1 /DHALFLAMBERT=1 /DFLASHLIGHT=1 /DLIGHTWARPTEXTURE=1 /Dmain=main /Emain /Tvs_3_0 /DSHADER_MODEL_VS_3_0=1 /nologo /Foshader.o eye_refract_vs20.fxc>output.txt 2>&1
-
-
-eyes_vs20.fxc(44,67): error X3089: 'D3DVERTEXTEXTURESAMPLER0': invalid shader target/usage
-    Reported 256 time(s), example command:
-    fxc.exe /DTOTALSHADERCOMBOS=256 /DCENTROIDMASK=0 /DNUMDYNAMICCOMBOS=64 /DFLAGS=0x0 /DSHADERCOMBO=246 /DCOMPRESSED_VERTS=0 /DSKINNING=1 /DDOWATERFOG=1 /DDYNAMIC_LIGHT=0 /DSTATIC_LIGHT=1 /DMORPHING=1 /DINTRO=1 /DHALFLAMBERT=1 /Dmain=main /Emain /Tvs_3_0 /DSHADER_MODEL_VS_3_0=1 /nologo /Foshader.o eyes_vs20.fxc>output.txt 2>&1
-
-
-Refract_ps2x.fxc(198,103): error X3004: undeclared identifier 'WRITE_DEPTH_TO_DESTALPHA'
-    Reported 192 time(s), example command:
-    fxc.exe /DTOTALSHADERCOMBOS=256 /DCENTROIDMASK=0 /DNUMDYNAMICCOMBOS=2 /DFLAGS=0x0 /DSHADERCOMBO=237 /DPIXELFOGTYPE=1 /DBLUR=0 /DFADEOUTONSILHOUETTE=1 /DCUBEMAP=1 /DREFRACTTINTTEXTURE=0 /DMASKED=1 /DCOLORMODULATE=1 /DSECONDARY_NORMAL=1 /DNORMAL_DECODE_MODE=0 /Dmain=main /Emain /Tps_3_0 /DSHADER_MODEL_PS_3_0=1 /nologo /Foshader.o Refract_ps2x.fxc>output.txt 2>&1
-
-
-vertexlit_and_unlit_generic_bump_vs20.fxc(26,62): error X3089: 'D3DVERTEXTEXTURESAMPLER0': invalid shader target/usage
-    Reported 128 time(s), example command:
-    fxc.exe /DTOTALSHADERCOMBOS=128 /DCENTROIDMASK=0 /DNUMDYNAMICCOMBOS=16 /DFLAGS=0x0 /DSHADERCOMBO=126 /DCOMPRESSED_VERTS=0 /DDOWATERFOG=1 /DSKINNING=1 /DMORPHING=1 /DHALFLAMBERT=1 /DUSE_WITH_2B=1 /DDECAL=1 /Dmain=main /Emain /Tvs_3_0 /DSHADER_MODEL_VS_3_0=1 /nologo /Foshader.o vertexlit_and_unlit_generic_bump_vs20.fxc>output.txt 2>&1
-
-
-teeth_vs20.fxc(30,62): error X3089: 'D3DVERTEXTEXTURESAMPLER0': invalid shader target/usage
-    Reported 128 time(s), example command:
-    fxc.exe /DTOTALSHADERCOMBOS=128 /DCENTROIDMASK=0 /DNUMDYNAMICCOMBOS=64 /DFLAGS=0x0 /DSHADERCOMBO=125 /DCOMPRESSED_VERTS=1 /DDOWATERFOG=0 /DSKINNING=1 /DDYNAMIC_LIGHT=1 /DSTATIC_LIGHT=1 /DMORPHING=1 /DINTRO=1 /Dmain=main /Emain /Tvs_3_0 /DSHADER_MODEL_VS_3_0=1 /nologo /Foshader.o teeth_vs20.fxc>output.txt 2>&1
-
-
-skin_vs20.fxc(25,62): error X3089: 'D3DVERTEXTEXTURESAMPLER0': invalid shader target/usage
-    Reported 64 time(s), example command:
-    fxc.exe /DTOTALSHADERCOMBOS=64 /DCENTROIDMASK=0 /DNUMDYNAMICCOMBOS=32 /DFLAGS=0x0 /DSHADERCOMBO=60 /DCOMPRESSED_VERTS=0 /DDOWATERFOG=0 /DSKINNING=1 /DLIGHTING_PREVIEW=1 /DMORPHING=1 /DDECAL=1 /Dmain=main /Emain /Tvs_3_0 /DSHADER_MODEL_VS_3_0=1 /nologo /Foshader.o skin_vs20.fxc>output.txt 2>&1
-
-
-teeth_bump_vs20.fxc(29,62): error X3089: 'D3DVERTEXTEXTURESAMPLER0': invalid shader target/usage
-    Reported 64 time(s), example command:
-    fxc.exe /DTOTALSHADERCOMBOS=64 /DCENTROIDMASK=0 /DNUMDYNAMICCOMBOS=32 /DFLAGS=0x0 /DSHADERCOMBO=54 /DCOMPRESSED_VERTS=0 /DDOWATERFOG=1 /DSKINNING=1 /DSTATIC_LIGHT=0 /DMORPHING=1 /DINTRO=1 /Dmain=main /Emain /Tvs_3_0 /DSHADER_MODEL_VS_3_0=1 /nologo /Foshader.o teeth_bump_vs20.fxc>output.txt 2>&1
-
-
-cloak_vs20.fxc(25,62): error X3089: 'D3DVERTEXTEXTURESAMPLER0': invalid shader target/usage
-    Reported 32 time(s), example command:
-    fxc.exe /DTOTALSHADERCOMBOS=32 /DCENTROIDMASK=0 /DNUMDYNAMICCOMBOS=16 /DFLAGS=0x0 /DSHADERCOMBO=30 /DCOMPRESSED_VERTS=0 /DDOWATERFOG=1 /DSKINNING=1 /DMORPHING=1 /DMODEL=1 /Dmain=main /Emain /Tvs_3_0 /DSHADER_MODEL_VS_3_0=1 /nologo /Foshader.o cloak_vs20.fxc>output.txt 2>&1
-
-
-teeth_flashlight_vs20.fxc(35,65): error X3089: 'D3DVERTEXTEXTURESAMPLER0': invalid shader target/usage
-    Reported 32 time(s), example command:
-    fxc.exe /DTOTALSHADERCOMBOS=32 /DCENTROIDMASK=0 /DNUMDYNAMICCOMBOS=16 /DFLAGS=0x0 /DSHADERCOMBO=31 /DCOMPRESSED_VERTS=1 /DDOWATERFOG=1 /DSKINNING=1 /DMORPHING=1 /DINTRO=1 /Dmain=main /Emain /Tvs_3_0 /DSHADER_MODEL_VS_3_0=1 /nologo /Foshader.o teeth_flashlight_vs20.fxc>output.txt 2>&1
-
-
-vortwarp_vs20.fxc(29,66): error X3089: 'D3DVERTEXTEXTURESAMPLER0': invalid shader target/usage
-    Reported 16 time(s), example command:
-    fxc.exe /DTOTALSHADERCOMBOS=32 /DCENTROIDMASK=0 /DNUMDYNAMICCOMBOS=16 /DFLAGS=0x0 /DSHADERCOMBO=12 /DCOMPRESSED_VERTS=0 /DDOWATERFOG=0 /DSKINNING=1 /DMORPHING=1 /DHALFLAMBERT=0 /Dmain=main /Emain /Tvs_3_0 /DSHADER_MODEL_VS_3_0=1 /nologo /Foshader.o vortwarp_vs20.fxc>output.txt 2>&1
-
-
-cloak_blended_pass_vs20.fxc(22,62): error X3089: 'D3DVERTEXTEXTURESAMPLER0': invalid shader target/usage
-    Reported 16 time(s), example command:
-    fxc.exe /DTOTALSHADERCOMBOS=16 /DCENTROIDMASK=0 /DNUMDYNAMICCOMBOS=8 /DFLAGS=0x0 /DSHADERCOMBO=8 /DCOMPRESSED_VERTS=0 /DSKINNING=0 /DMORPHING=0 /DBUMPMAP=1 /Dmain=main /Emain /Tvs_3_0 /DSHADER_MODEL_VS_3_0=1 /nologo /Foshader.o cloak_blended_pass_vs20.fxc>output.txt 2>&1
-
-
-eyes_flashlight_vs20.fxc(39,64): error X3089: 'D3DVERTEXTEXTURESAMPLER0': invalid shader target/usage
-    Reported 16 time(s), example command:
-    fxc.exe /DTOTALSHADERCOMBOS=16 /DCENTROIDMASK=0 /DNUMDYNAMICCOMBOS=16 /DFLAGS=0x0 /DSHADERCOMBO=7 /DCOMPRESSED_VERTS=1 /DSKINNING=1 /DDOWATERFOG=1 /DMORPHING=0 /Dmain=main /Emain /Tvs_3_0 /DSHADER_MODEL_VS_3_0=1 /nologo /Foshader.o eyes_flashlight_vs20.fxc>output.txt 2>&1
-
-
-depthwrite_vs20.fxc(17,62): error X3089: 'D3DVERTEXTEXTURESAMPLER0': invalid shader target/usage
-    Reported 8 time(s), example command:
-    fxc.exe /DTOTALSHADERCOMBOS=8 /DCENTROIDMASK=0 /DNUMDYNAMICCOMBOS=8 /DFLAGS=0x0 /DSHADERCOMBO=0 /DCOMPRESSED_VERTS=0 /DSKINNING=0 /DMORPHING=0 /DONLY_PROJECT_POSITION=0 /Dmain=main /Emain /Tvs_3_0 /DSHADER_MODEL_VS_3_0=1 /nologo /Foshader.o depthwrite_vs20.fxc>output.txt 2>&1
-
-
-emissive_scroll_blended_pass_vs20.fxc(19,62): error X3089: 'D3DVERTEXTEXTURESAMPLER0': invalid shader target/usage
-    Reported 8 time(s), example command:
-    fxc.exe /DTOTALSHADERCOMBOS=8 /DCENTROIDMASK=0 /DNUMDYNAMICCOMBOS=8 /DFLAGS=0x0 /DSHADERCOMBO=3 /DCOMPRESSED_VERTS=1 /DSKINNING=1 /DMORPHING=0 /Dmain=main /Emain /Tvs_3_0 /DSHADER_MODEL_VS_3_0=1 /nologo /Foshader.o emissive_scroll_blended_pass_vs20.fxc>output.txt 2>&1
-
-
-portal_refract_ps2x.fxc(210,41): error X3004: undeclared identifier 'PIXELFOGTYPE'
-    Reported 1 time(s), example command:
-    fxc.exe /DTOTALSHADERCOMBOS=3 /DCENTROIDMASK=0 /DNUMDYNAMICCOMBOS=1 /DFLAGS=0x0 /DSHADERCOMBO=2 /DSTAGE=2 /Dmain=main /Emain /Tps_3_0 /DSHADER_MODEL_PS_3_0=1 /nologo /Foshader.o portal_refract_ps2x.fxc>output.txt 2>&1
-
-FAILED:    vertexlit_and_unlit_generic_vs30
-FAILED:    eye_refract_vs30
-FAILED:    eyes_vs30
-FAILED:    Refract_ps30
-FAILED:    vertexlit_and_unlit_generic_bump_vs30
-FAILED:    teeth_vs30
-FAILED:    skin_vs30
-FAILED:    teeth_bump_vs30
-FAILED:    cloak_vs30
-FAILED:    teeth_flashlight_vs30
-FAILED:    vortwarp_vs30
-FAILED:    cloak_blended_pass_vs30
-FAILED:    eyes_flashlight_vs30
-FAILED:    depthwrite_vs30
-FAILED:    emissive_scroll_blended_pass_vs30
-FAILED:    portal_refract_ps30
-shaders\fxc\accumbuff4sample_ps20.vcs
-shaders\fxc\accumbuff4sample_ps20b.vcs
-shaders\fxc\accumbuff5sample_ps20.vcs
-shaders\fxc\accumbuff5sample_ps20b.vcs
-shaders\fxc\aftershock_ps20.vcs
-shaders\fxc\aftershock_ps20b.vcs
-shaders\fxc\aftershock_ps30.vcs
-shaders\fxc\aftershock_vs20.vcs
-shaders\fxc\appchooser360movie_ps20.vcs
-shaders\fxc\appchooser360movie_ps20b.vcs
-shaders\fxc\bik_ps20.vcs
-shaders\fxc\bik_ps20b.vcs
-shaders\fxc\bik_vs20.vcs
-shaders\fxc\bloomadd_ps20.vcs
-shaders\fxc\bloomadd_ps20b.vcs
-shaders\fxc\bloom_ps20.vcs
-shaders\fxc\bloom_ps20b.vcs
-shaders\fxc\blurfilter_ps20.vcs
-shaders\fxc\blurfilter_ps20b.vcs
-shaders\fxc\blurfilter_vs20.vcs
-shaders\fxc\bufferclearobeystencil_ps20.vcs
-shaders\fxc\bufferclearobeystencil_ps20b.vcs
-shaders\fxc\bufferclearobeystencil_vs20.vcs
-shaders\fxc\cable_ps20.vcs
-shaders\fxc\cable_ps20b.vcs
-shaders\fxc\cable_vs20.vcs
-shaders\fxc\cloak_blended_pass_ps20.vcs
-shaders\fxc\cloak_blended_pass_ps20b.vcs
-shaders\fxc\cloak_blended_pass_ps30.vcs
-shaders\fxc\cloak_blended_pass_vs20.vcs
-shaders\fxc\cloak_ps20.vcs
-shaders\fxc\cloak_ps20b.vcs
-shaders\fxc\cloak_ps30.vcs
-shaders\fxc\cloak_vs20.vcs
-shaders\fxc\colorcorrection_ps20.vcs
-shaders\fxc\colorcorrection_ps20b.vcs
-shaders\fxc\constant_color_ps20.vcs
-shaders\fxc\constant_color_ps20b.vcs
-shaders\fxc\copy_fp_rt_ps20.vcs
-shaders\fxc\copy_fp_rt_ps20b.vcs
-shaders\fxc\core_ps20.vcs
-shaders\fxc\core_ps20b.vcs
-shaders\fxc\core_ps30.vcs
-shaders\fxc\core_vs20.vcs
-shaders\fxc\debugdrawdepth_ps20.vcs
-shaders\fxc\debugdrawdepth_ps20b.vcs
-shaders\fxc\debugdrawdepth_vs20.vcs
-shaders\fxc\debugdrawenvmapmask_ps20.vcs
-shaders\fxc\debugdrawenvmapmask_ps20b.vcs
-shaders\fxc\debugdrawenvmapmask_vs20.vcs
-shaders\fxc\debugmorphaccumulator_ps30.vcs
-shaders\fxc\debugmorphaccumulator_vs30.vcs
-shaders\fxc\debugmrttexture_ps20.vcs
-shaders\fxc\debugmrttexture_ps20b.vcs
-shaders\fxc\debugmrttexture_vs20.vcs
-shaders\fxc\debugtangentspace_vs20.vcs
-shaders\fxc\debugtextureview_ps20.vcs
-shaders\fxc\debugtextureview_ps20b.vcs
-shaders\fxc\debugtextureview_vs20.vcs
-shaders\fxc\decalbasetimeslightmapalphablendselfillum2_ps20.vcs
-shaders\fxc\decalbasetimeslightmapalphablendselfillum2_ps20b.vcs
-shaders\fxc\decalmodulate_ps20.vcs
-shaders\fxc\decalmodulate_ps20b.vcs
-shaders\fxc\decalmodulate_ps30.vcs
-shaders\fxc\depthtodestalpha_ps20b.vcs
-shaders\fxc\depthtodestalpha_vs20.vcs
-shaders\fxc\depthwrite_ps20.vcs
-shaders\fxc\depthwrite_ps20b.vcs
-shaders\fxc\depthwrite_ps30.vcs
-shaders\fxc\depthwrite_vs20.vcs
-shaders\fxc\downsample_nohdr_ps20.vcs
-shaders\fxc\downsample_nohdr_ps20b.vcs
-shaders\fxc\downsample_ps20.vcs
-shaders\fxc\downsample_ps20b.vcs
-shaders\fxc\downsample_vs20.vcs
-shaders\fxc\emissive_scroll_blended_pass_ps20.vcs
-shaders\fxc\emissive_scroll_blended_pass_ps20b.vcs
-shaders\fxc\emissive_scroll_blended_pass_ps30.vcs
-shaders\fxc\emissive_scroll_blended_pass_vs20.vcs
-shaders\fxc\engine_post_ps20.vcs
-shaders\fxc\engine_post_ps20b.vcs
-shaders\fxc\engine_post_ps30.vcs
-shaders\fxc\eyeglint_ps20.vcs
-shaders\fxc\eyeglint_ps20b.vcs
-shaders\fxc\eyeglint_vs20.vcs
-shaders\fxc\eyes_flashlight_ps20.vcs
-shaders\fxc\eyes_flashlight_ps20b.vcs
-shaders\fxc\eyes_flashlight_ps30.vcs
-shaders\fxc\eyes_flashlight_vs20.vcs
-shaders\fxc\eyes_ps20.vcs
-shaders\fxc\eyes_ps20b.vcs
-shaders\fxc\eyes_ps30.vcs
-shaders\fxc\eyes_vs20.vcs
-shaders\fxc\eye_refract_ps20.vcs
-shaders\fxc\eye_refract_ps20b.vcs
-shaders\fxc\eye_refract_ps30.vcs
-shaders\fxc\eye_refract_vs20.vcs
-shaders\fxc\fillrate_ps20.vcs
-shaders\fxc\fillrate_ps20b.vcs
-shaders\fxc\fillrate_vs20.vcs
-shaders\fxc\filmgrain_vs20.vcs
-shaders\fxc\flashlight_ps20.vcs
-shaders\fxc\flashlight_ps20b.vcs
-shaders\fxc\flesh_interior_blended_pass_ps20.vcs
-shaders\fxc\flesh_interior_blended_pass_ps20b.vcs
-shaders\fxc\flesh_interior_blended_pass_ps30.vcs
-shaders\fxc\flesh_interior_blended_pass_vs20.vcs
-shaders\fxc\floatcombine_autoexpose_ps20.vcs
-shaders\fxc\floatcombine_autoexpose_ps20b.vcs
-shaders\fxc\floatcombine_ps20.vcs
-shaders\fxc\floatcombine_ps20b.vcs
-shaders\fxc\floattoscreen_notonemap_ps20.vcs
-shaders\fxc\floattoscreen_notonemap_ps20b.vcs
-shaders\fxc\floattoscreen_ps20.vcs
-shaders\fxc\floattoscreen_ps20b.vcs
-shaders\fxc\floattoscreen_vanilla_ps20.vcs
-shaders\fxc\floattoscreen_vanilla_ps20b.vcs
-shaders\fxc\hdrcombineto16bit_ps20.vcs
-shaders\fxc\hdrcombineto16bit_ps20b.vcs
-shaders\fxc\hdrcombineto16bit_vs20.vcs
-shaders\fxc\hdrselectrange_ps20.vcs
-shaders\fxc\hdrselectrange_ps20b.vcs
-shaders\fxc\hdrselectrange_vs20.vcs
-shaders\fxc\hsl_filmgrain_pass1_ps20.vcs
-shaders\fxc\hsl_filmgrain_pass1_ps20b.vcs
-shaders\fxc\hsl_filmgrain_pass2_ps20.vcs
-shaders\fxc\hsl_filmgrain_pass2_ps20b.vcs
-shaders\fxc\hsv_ps20.vcs
-shaders\fxc\hsv_ps20b.vcs
-shaders\fxc\introscreenspaceeffect_ps20.vcs
-shaders\fxc\introscreenspaceeffect_ps20b.vcs
-shaders\fxc\lightmappedgeneric_decal_ps20.vcs
-shaders\fxc\lightmappedgeneric_decal_ps20b.vcs
-shaders\fxc\lightmappedgeneric_decal_vs20.vcs
-shaders\fxc\lightmappedgeneric_flashlight_vs20.vcs
-shaders\fxc\lightmappedgeneric_ps20.vcs
-shaders\fxc\lightmappedgeneric_ps20b.vcs
-shaders\fxc\lightmappedgeneric_vs20.vcs
-shaders\fxc\lightmappedreflective_ps20.vcs
-shaders\fxc\lightmappedreflective_ps20b.vcs
-shaders\fxc\lightmappedreflective_vs20.vcs
-shaders\fxc\lpreview1_ps20.vcs
-shaders\fxc\lpreview1_ps20b.vcs
-shaders\fxc\lpreview_output_ps20.vcs
-shaders\fxc\lpreview_output_ps20b.vcs
-shaders\fxc\luminance_compare_ps20.vcs
-shaders\fxc\luminance_compare_ps20b.vcs
-shaders\fxc\modulate_ps20.vcs
-shaders\fxc\modulate_ps20b.vcs
-shaders\fxc\monitorscreen_ps20.vcs
-shaders\fxc\monitorscreen_ps20b.vcs
-shaders\fxc\morphaccumulate_ps30.vcs
-shaders\fxc\morphaccumulate_vs30.vcs
-shaders\fxc\morphweight_ps30.vcs
-shaders\fxc\morphweight_vs30.vcs
-shaders\fxc\motion_blur_ps20.vcs
-shaders\fxc\motion_blur_ps20b.vcs
-shaders\fxc\motion_blur_vs20.vcs
-shaders\fxc\particlesphere_ps20.vcs
-shaders\fxc\particlesphere_ps20b.vcs
-shaders\fxc\particlesphere_vs20.vcs
-shaders\fxc\portalstaticoverlay_ps20.vcs
-shaders\fxc\portalstaticoverlay_ps20b.vcs
-shaders\fxc\portalstaticoverlay_vs20.vcs
-shaders\fxc\portal_ps20.vcs
-shaders\fxc\portal_ps20b.vcs
-shaders\fxc\portal_refract_ps20.vcs
-shaders\fxc\portal_refract_ps20b.vcs
-shaders\fxc\portal_refract_vs20.vcs
-shaders\fxc\portal_vs20.vcs
-shaders\fxc\refract_ps20b.vcs
-shaders\fxc\refract_vs20.vcs
-shaders\fxc\rendertargetblit_ps20.vcs
-shaders\fxc\rendertargetblit_ps20b.vcs
-shaders\fxc\rendertargetblit_vs20.vcs
-shaders\fxc\sample4x4delog_ps20.vcs
-shaders\fxc\sample4x4delog_ps20b.vcs
-shaders\fxc\sample4x4log_ps20.vcs
-shaders\fxc\sample4x4log_ps20b.vcs
-shaders\fxc\sample4x4maxmin_ps20.vcs
-shaders\fxc\sample4x4maxmin_ps20b.vcs
-shaders\fxc\sample4x4_blend_ps20.vcs
-shaders\fxc\sample4x4_blend_ps20b.vcs
-shaders\fxc\sample4x4_ps20.vcs
-shaders\fxc\sample4x4_ps20b.vcs
-shaders\fxc\screenspaceeffect_vs20.vcs
-shaders\fxc\sfm_combine_vs20.vcs
-shaders\fxc\sfm_integercombine_ps20.vcs
-shaders\fxc\sfm_integercombine_ps20b.vcs
-shaders\fxc\shadowbuildtexture_ps20.vcs
-shaders\fxc\shadowbuildtexture_ps20b.vcs
-shaders\fxc\shadow_ps20.vcs
-shaders\fxc\shadow_ps20b.vcs
-shaders\fxc\shadow_vs20.vcs
-shaders\fxc\shatteredglass_ps20.vcs
-shaders\fxc\shatteredglass_ps20b.vcs
-shaders\fxc\shatteredglass_ps30.vcs
-shaders\fxc\shatteredglass_vs20.vcs
-shaders\fxc\showz_ps20.vcs
-shaders\fxc\showz_ps20b.vcs
-shaders\fxc\showz_vs20.vcs
-shaders\fxc\skin_ps20b.vcs
-shaders\fxc\skin_ps30.vcs
-shaders\fxc\skin_vs20.vcs
-shaders\fxc\sky_hdr_compressed_ps20.vcs
-shaders\fxc\sky_hdr_compressed_ps20b.vcs
-shaders\fxc\sky_hdr_compressed_rgbs_ps20.vcs
-shaders\fxc\sky_hdr_compressed_rgbs_ps20b.vcs
-shaders\fxc\sky_ps20.vcs
-shaders\fxc\sky_ps20b.vcs
-shaders\fxc\sky_vs20.vcs
-shaders\fxc\splinecard_vs11.vcs
-shaders\fxc\splinecard_vs20.vcs
-shaders\fxc\spritecard_ps20.vcs
-shaders\fxc\spritecard_ps20b.vcs
-shaders\fxc\spritecard_vs11.vcs
-shaders\fxc\spritecard_vs20.vcs
-shaders\fxc\sprite_ps20.vcs
-shaders\fxc\sprite_ps20b.vcs
-shaders\fxc\sprite_vs20.vcs
-shaders\fxc\teeth_bump_ps20.vcs
-shaders\fxc\teeth_bump_ps20b.vcs
-shaders\fxc\teeth_bump_ps30.vcs
-shaders\fxc\teeth_bump_vs20.vcs
-shaders\fxc\teeth_flashlight_ps20.vcs
-shaders\fxc\teeth_flashlight_ps20b.vcs
-shaders\fxc\teeth_flashlight_ps30.vcs
-shaders\fxc\teeth_flashlight_vs20.vcs
-shaders\fxc\teeth_ps20.vcs
-shaders\fxc\teeth_ps20b.vcs
-shaders\fxc\teeth_ps30.vcs
-shaders\fxc\teeth_vs20.vcs
-shaders\fxc\treeleaf_ps20.vcs
-shaders\fxc\treeleaf_ps20b.vcs
-shaders\fxc\treeleaf_vs20.vcs
-shaders\fxc\unlitgeneric_notexture_ps20.vcs
-shaders\fxc\unlitgeneric_notexture_ps20b.vcs
-shaders\fxc\unlitgeneric_ps20.vcs
-shaders\fxc\unlitgeneric_ps20b.vcs
-shaders\fxc\unlitgeneric_vs20.vcs
-shaders\fxc\unlittwotexture_ps20.vcs
-shaders\fxc\unlittwotexture_ps20b.vcs
-shaders\fxc\unlittwotexture_vs20.vcs
-shaders\fxc\vertexlit_and_unlit_generic_bump_ps20.vcs
-shaders\fxc\vertexlit_and_unlit_generic_bump_ps20b.vcs
-shaders\fxc\vertexlit_and_unlit_generic_bump_ps30.vcs
-shaders\fxc\vertexlit_and_unlit_generic_bump_vs20.vcs
-shaders\fxc\vertexlit_and_unlit_generic_ps20.vcs
-shaders\fxc\vertexlit_and_unlit_generic_ps20b.vcs
-shaders\fxc\vertexlit_and_unlit_generic_ps30.vcs
-shaders\fxc\vertexlit_and_unlit_generic_vs20.vcs
-shaders\fxc\volume_clouds_ps20.vcs
-shaders\fxc\volume_clouds_ps20b.vcs
-shaders\fxc\volume_clouds_ps30.vcs
-shaders\fxc\volume_clouds_vs20.vcs
-shaders\fxc\vortwarp_ps20.vcs
-shaders\fxc\vortwarp_ps20b.vcs
-shaders\fxc\vortwarp_ps30.vcs
-shaders\fxc\vortwarp_vs20.vcs
-shaders\fxc\watercheap_ps20.vcs
-shaders\fxc\watercheap_ps20b.vcs
-shaders\fxc\watercheap_vs20.vcs
-shaders\fxc\water_ps20.vcs
-shaders\fxc\water_ps20b.vcs
-shaders\fxc\water_ps30.vcs
-shaders\fxc\water_vs20.vcs
-shaders\fxc\white_ps20.vcs
-shaders\fxc\white_ps20b.vcs
-shaders\fxc\windowimposter_ps20.vcs
-shaders\fxc\windowimposter_ps20b.vcs
-shaders\fxc\windowimposter_vs20.vcs
-shaders\fxc\worldtwotextureblend_ps20.vcs
-shaders\fxc\worldtwotextureblend_ps20b.vcs
-shaders\fxc\worldvertexalpha_ps20.vcs
-shaders\fxc\worldvertexalpha_ps20b.vcs
-shaders\fxc\worldvertextransition_ps20.vcs
-shaders\fxc\worldvertextransition_ps20b.vcs
-shaders\fxc\writez_vs20.vcs
-shaders\vsh\ShadowModel.vcs
-shaders\vsh\shadow_vs14.vcs
-280 File(s) copied
-27 sec.
-

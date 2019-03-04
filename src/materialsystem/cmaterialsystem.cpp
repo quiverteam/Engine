@@ -1438,7 +1438,7 @@ void CMaterialSystem::ReadConfigFromConVars( MaterialSystem_Config_t *pConfig )
 	pConfig->SetFlag( MATSYS_VIDCFG_FLAGS_ENABLE_HDR, HardwareConfig() && HardwareConfig()->GetHDREnabled() );
 
 	// Render-to-texture shadows are disabled for dxlevel 70 because of material issues
-	if ( pConfig->dxSupportLevel < 80 )
+	/*if ( pConfig->dxSupportLevel < 80 )
 	{
 		r_shadowrendertotexture.SetValue( 0 );
 #ifndef _X360
@@ -1453,7 +1453,7 @@ void CMaterialSystem::ReadConfigFromConVars( MaterialSystem_Config_t *pConfig )
 		pConfig->m_bShadowDepthTexture = false;
 		pConfig->m_bMotionBlur = false;
 		pConfig->SetFlag( MATSYS_VIDCFG_FLAGS_ENABLE_HDR, false );
-	}
+	}*/
 }
 
 
