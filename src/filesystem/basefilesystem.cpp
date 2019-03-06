@@ -1695,8 +1695,8 @@ bool CVPKFile::Prepare( int64 fileLen, int64 nFileOfs )
 bool CVPKFile::FindFile( const char *pFilename, int &nIndex, int64 &nOffset, int &nLength )
 {
 	//Extension
-	char extension[MAX_PATH];
-	Q_ExtractFileExtension( pFilename, extension, MAX_PATH );
+	char extension[FILENAME_MAX];
+	Q_ExtractFileExtension( pFilename, extension, FILENAME_MAX );
 
 	//Path
 	char path[MAX_FILEPATH];
@@ -1708,9 +1708,9 @@ bool CVPKFile::FindFile( const char *pFilename, int &nIndex, int64 &nOffset, int
 	V_StripTrailingSlash( path );
 	V_StripTrailingSlash( path );
 	//File
-	char file[MAX_PATH];
+	char file[FILENAME_MAX];
 	strcpy( file, V_GetFileName( pFilename ) );
-	V_StripExtension( file, file, MAX_PATH );
+	V_StripExtension( file, file, FILENAME_MAX );
 
 	UtlSymId_t i = m_Extensions.Find( extension );
 	if ( i == m_Extensions.InvalidIndex() )
@@ -1769,9 +1769,9 @@ void CBaseFileSystem::AddVPKFile( const char *pPath, const char *pPathID, Search
 {
 	CPackFile *pf = NULL;
 	bool bVolumes = false;
-	char path[ MAX_PATH ];
+	char path[ MAX_FILEPATH ];
 	strcpy( path, pPath );
-	char pathlower[ MAX_PATH ];
+	char pathlower[ MAX_FILEPATH ];
 	strcpy( pathlower, pPath );
 	V_strlower( pathlower );
 
@@ -1781,8 +1781,8 @@ void CBaseFileSystem::AddVPKFile( const char *pPath, const char *pPathID, Search
 	//Not found? maybe this vpk uses volumes, try to open the one with "_dir" at the end
 	if ( !dirvpk )
 	{
-		V_StripExtension( path, path, MAX_PATH );
-		V_strncat( path, "_dir.vpk", MAX_PATH, COPY_ALL_CHARACTERS );
+		V_StripExtension( path, path, MAX_FILEPATH );
+		V_strncat( path, "_dir.vpk", MAX_FILEPATH, COPY_ALL_CHARACTERS );
 		dirvpk = Trace_FOpen( path, "rb", 0, NULL );
 		if ( dirvpk )
 			bVolumes = true;
