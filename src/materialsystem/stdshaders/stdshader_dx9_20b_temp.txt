@@ -5,4 +5,4 @@ vertexlit_and_unlit_generic_vs20.fxc
 
 // this one just crashes shader compiler, so just make inc files for it
 // plus we can use the shader model 3.0 one for now anyway
-Water_ps2x.fxc
+Refract_ps2x.fxc

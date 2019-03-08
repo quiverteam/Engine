@@ -47,6 +47,7 @@
 #include "tier0/memdbgon.h"
 
 // uncomment to get dynamic compilation for HLSL shaders
+// i don't think this works atm, but im probably using this wrong
 // X360 NOTE: By default, the system looks for a shared folder named "stdshaders" on the host machine and is completely compatible with -dvd. Ensure that the share is writable if you plan on generating UPDB's.
 //#define DYNAMIC_SHADER_COMPILE
 
@@ -1669,7 +1670,8 @@ bool CShaderManager::LoadAndCreateShaders_Dynamic( ShaderLookup_t &lookup, bool 
 //-----------------------------------------------------------------------------
 FileHandle_t CShaderManager::OpenFileAndLoadHeader( const char *pFileName, ShaderHeader_t *pHeader )
 {
-	FileHandle_t fp = g_pFullFileSystem->Open( pFileName, "rb", "GAME" );
+	//FileHandle_t fp = g_pFullFileSystem->Open( pFileName, "rb", "GAME" );
+	FileHandle_t fp = g_pFullFileSystem->Open( pFileName, "rb", "PLATFORM" );
 	if ( fp == FILESYSTEM_INVALID_HANDLE )
 	{
 		return FILESYSTEM_INVALID_HANDLE;
@@ -2401,18 +2403,6 @@ void CShaderManager::SetVertexShader( VertexShader_t shader )
 		dxshader = CompileShader( m_ShaderSymbolTable.String( vshLookup.m_Name ), 
 			vshLookup.m_nStaticIndex, vshIndex, true );
 		Assert( dxshader != INVALID_HARDWARE_SHADER );
-
-		if( IsX360() )
-		{
-			//360 does not respond well at all to bad shaders or Error() calls. So we're staying here until we get something that compiles
-			while( dxshader == INVALID_HARDWARE_SHADER )
-			{
-				Warning( "A dynamically compiled vertex shader has failed to build. Pausing for 5 seconds and attempting rebuild.\n" );
-				Sleep( 5000 );
-				dxshader = CompileShader( m_ShaderSymbolTable.String( vshLookup.m_Name ), 
-					vshLookup.m_nStaticIndex, vshIndex, true );
-			}
-		}
 	}
 #else
 	ShaderLookup_t &lookup = m_VertexShaderDict[shader];

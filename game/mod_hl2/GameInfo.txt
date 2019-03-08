@@ -35,13 +35,14 @@
 			Game				mod_hl2			
 			
 			// |all_source_engine_paths| isn't working for me
-			game				"C:\Program Files (x86)\Steam\steamapps\common\Half-Life 2\hl2\hl2_sound_vo_english.vpk"
-			game				"C:\Program Files (x86)\Steam\steamapps\common\Half-Life 2\hl2\hl2_pak.vpk"
-			game				"C:\Program Files (x86)\Steam\steamapps\common\Half-Life 2\hl2\hl2_textures.vpk"
-			game				"C:\Program Files (x86)\Steam\steamapps\common\Half-Life 2\hl2\hl2_sound_misc.vpk"
+			//game				"C:\Program Files (x86)\Steam\steamapps\common\Half-Life 2\hl2\hl2_sound_vo_english.vpk"
+			//game				"C:\Program Files (x86)\Steam\steamapps\common\Half-Life 2\hl2\hl2_pak.vpk"
+			//game				"C:\Program Files (x86)\Steam\steamapps\common\Half-Life 2\hl2\hl2_textures.vpk"
+			//game				"C:\Program Files (x86)\Steam\steamapps\common\Half-Life 2\hl2\hl2_sound_misc.vpk"
 			//game				"C:\Program Files (x86)\Steam\steamapps\common\Half-Life 2\hl2\hl2_misc.vpk"
-			game				"C:\sourceengine\extracted_games\HL2\misc"
 			game				"C:\Program Files (x86)\Steam\steamapps\common\Half-Life 2\hl2"
+			game				"C:\sourceengine\extracted_games\HL2\hl2"
+			//game				"C:\sourceengine\extracted_games\HL2\misc"
 			
 			Platform			platform
 		}

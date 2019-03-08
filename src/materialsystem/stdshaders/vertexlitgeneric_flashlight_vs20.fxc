@@ -1,8 +1,8 @@
 //========== Copyright (c) Valve Corporation, All rights reserved. ==========//
 
-//  STATIC: "TEETH"			"0..1"
+// STATIC: "TEETH"				"0..1"
 
-//	DYNAMIC: "SKINNING"		"0..1"
+// DYNAMIC: "SKINNING"			"0..1"
 
 #include "common_fog_vs_supportsvertexfog_fxc.h"
 #include "common_vs_fxc.h"
@@ -11,6 +11,7 @@ static const bool g_bSkinning		= SKINNING ? true : false;
 static const int  g_FogType			= DOWATERFOG;
 static const bool g_bTeeth			= TEETH ? true: false;
 
+const float4 g_FogParams								: register( PSREG_FOG_PARAMS );
 const float4 cLightPosition								: register( SHADER_SPECIFIC_CONST_0 );
 const float4 cWorldToTextureTransform[4]				: register( SHADER_SPECIFIC_CONST_1 );
 const float4 cAttenuationFactors						: register( SHADER_SPECIFIC_CONST_5 );
@@ -43,7 +44,8 @@ struct VS_OUTPUT
 	float3 worldNormal						: TEXCOORD3;
 
 	//float2 detailCoords					: TEXCOORD4;
-	float3 worldPos							: TEXCOORD5;	
+	float3 worldPos							: TEXCOORD5;
+
 #if HARDWAREFOGBLEND || DOPIXELFOG
 	float3 projPos_fogFactorW				: TEXCOORD6;
 #else
@@ -75,11 +77,20 @@ VS_OUTPUT main( const VS_INPUT v )
 	o.worldPos = worldPos;
 	o.projPos_fogFactorW.xyz = o.vProjPos.xyz;
 
-#if HARDWAREFOGBLEND
+/*#if HARDWAREFOGBLEND
 	o.fog = CalcFixedFunctionFog( worldPos, g_FogType );
 #endif
 #if !DOPIXELFOG && !HARDWAREFOGBLEND
 	o.projPos_fogFactorW.w = CalcNonFixedFunctionFog( worldPos, g_FogType );
+#endif*/
+
+//float CalcFog( const float3 worldPos, const float3 projPos, const bool bWaterFog )
+// this probably won't work, but oh well
+#if HARDWAREFOGBLEND
+	o.fog = CalcFog( worldPos, g_FogType, false ); // this probably won't work, but oh well
+#endif
+#if !DOPIXELFOG && !HARDWAREFOGBLEND
+	o.projPos_fogFactorW.w = CalcFog( worldPos, g_FogType, false ); 
 #endif
 
 	o.spotTexCoord.x = dot( worldPos, cWorldToTextureTransform[0] ) + cWorldToTextureTransform[0].w;

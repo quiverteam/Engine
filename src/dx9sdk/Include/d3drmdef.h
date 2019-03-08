@@ -1,6 +1,6 @@
 /*==========================================================================;
  *
- *  Copyright (c) Microsoft Corporation.  All rights reserved.
+ *  Copyright (C) 1995-1997 Microsoft Corporation.  All Rights Reserved.
  *
  *  File:       d3drm.h
  *  Content:    Direct3DRM include file
@@ -315,7 +315,7 @@ typedef struct _D3DRMMATERIALOVERRIDE
 #define D3DRMRAYPICK_IGNOREFURTHERPRIMITIVES    2
 #define D3DRMRAYPICK_INTERPOLATEUV              4
 #define D3DRMRAYPICK_INTERPOLATECOLOR           8
-#define D3DRMRAYPICK_INTERPOLATENORMAL          0x10
+#define D3DRMRAYPICK_INTERPOLATENORMAL          0x10    
 
 /*
  * Values for flags in MeshBuilder3::AddFacesIndexed.
@@ -461,14 +461,14 @@ typedef enum _D3DRMUSERVISUALREASON {
 } D3DRMUSERVISUALREASON, *LPD3DRMUSERVISUALREASON;
 
 
-typedef struct _D3DRMANIMATIONKEY
+typedef struct _D3DRMANIMATIONKEY 
 {
     DWORD dwSize;
     DWORD dwKeyType;
     D3DVALUE dvTime;
     DWORD dwID;
 #if (!defined __cplusplus) || (!defined D3D_OVERLOADS)
-    union
+    union 
     {
         D3DRMQUATERNION dqRotateKey;
         D3DVECTOR dvScaleKey;

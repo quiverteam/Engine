@@ -168,7 +168,7 @@ sub DoAsmShader
 
 if( scalar( @ARGV ) == 0 )
 {
-	die "Usage updateshaders.pl shaderprojectbasename\n\tie: updateshaders.pl stdshaders_dx6\n";
+	die "Usage updateshaders.pl shaderprojectbasename\n\tie: updateshaders.pl stdshaders_dx9\n";
 }
 
 $g_x360			= 0;

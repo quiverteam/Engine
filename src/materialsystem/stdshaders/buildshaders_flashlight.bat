@@ -1,6 +1,9 @@
 @echo off
 setlocal enabledelayedexpansion
 echo.
+
+call kill_shadercompiler.bat
+
 rem == Setup path to nmake.exe ==
 @REM call find_vs_version.bat
 @REM find vs2017 directory, if vswhere doesn't exist, skip
@@ -62,7 +65,7 @@ rem ==  Set the Path to your mod's root source code ==
 rem This should already be correct, accepts relative paths only!
 set SOURCEDIR=..\..
 
-set "targetdir=..\..\..\game\hl2\shaders"
+set "targetdir=..\..\..\game\platform\shaders"
 
 set BUILD_SHADER=call buildshaders.bat
 
@@ -75,13 +78,26 @@ rem ===================================
 REM ****************
 REM PC SHADERS
 REM ****************
-%BUILD_SHADER% stdshader_flashlight_dx9_20b		-game %GAMEDIR% -source %SOURCEDIR% %dynamic_shaders%
+@REM %BUILD_SHADER% stdshader_flashlight_dx9_20b		-game %GAMEDIR% -source %SOURCEDIR% %dynamic_shaders%
 echo --------------------------------------------------------------------------------------------
-%BUILD_SHADER% stdshader_flashlight_dx9_30		-game %GAMEDIR% -source %SOURCEDIR% %dynamic_shaders% -dx9_30 -force30
+@REM %BUILD_SHADER% stdshader_flashlight_dx9_30		-game %GAMEDIR% -source %SOURCEDIR% %dynamic_shaders% -dx9_30 -force30
+
 echo --------------------------------------------------------------------------------------------
 @REM %BUILD_SHADER% stdshader_flashlight_dx10			-game %GAMEDIR% -source %SOURCEDIR% %dynamic_shaders% -dx10
 @REM dx10 is empty right now
 echo.
+
+REM ****************
+REM PC Shader copy
+REM Publish the generated files to the output dir using XCOPY
+REM This batch file may have been invoked standalone or slaved (master does final smart mirror copy)
+REM ****************
+:DoXCopy
+if not "%dynamic_shaders%" == "1" (
+	if not exist "%targetdir%" md "%targetdir%"
+	xcopy "%cd%\shaders" "%cd%\%targetdir%\" /q /e /y	
+)
+goto end
 
 REM ****************
 REM END
@@ -97,7 +113,6 @@ if not "%dynamic_shaders%" == "1" (
 
 %TTEXE% -diff %tt_all_start% -cur
 echo.
-
-..\..\devtools\bin\vpc.exe /f /hl2r +gamedlls +shaders_all /mksln game_hl2r.sln
-
 pause
+
+..\..\devtools\bin\vpc.exe /f +shaders_all

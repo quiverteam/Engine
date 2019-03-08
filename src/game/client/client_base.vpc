@@ -107,6 +107,7 @@ $Project
 		$File	"c_entitydissolve.cpp"
 		$File	"c_entityparticletrail.cpp"
 		$File	"c_env_fog_controller.cpp"
+		$File	"c_env_global_light.cpp"
 		$File	"c_env_particlescript.cpp"
 		$File	"c_env_projectedtexture.cpp"
 		$File	"c_env_screenoverlay.cpp"
