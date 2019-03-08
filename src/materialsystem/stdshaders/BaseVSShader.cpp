@@ -24,13 +24,12 @@
 #include "vertexlitgeneric_flashlight_vs11.inc"
 #endif*/
 
-//#ifdef STDSHADER_DX9_DLL_EXPORT
 #include "lightmappedgeneric_flashlight_vs20.inc"
 #include "flashlight_ps20.inc"
 #include "flashlight_ps20b.inc"
-#ifdef STDSHADER_DX9_DLL_EXPORT
+#include "flashlight_ps30.inc"
 #include "vertexlitgeneric_flashlight_vs20.inc"
-#endif
+//#include "vertexlitgeneric_flashlight_vs30.inc"
 
 // memdbgon must be the last include file in a .cpp file!!!
 #include "tier0/memdbgon.h"
@@ -942,6 +941,11 @@ void CBaseVSShader::DrawFlashlight_dx90( IMaterialVar** params, IShaderDynamicAP
 			//pShaderShadow->SetVertexShader( "vertexlitgeneric_flashlight_vs11", vshIndex.GetIndex() );
 			pShaderShadow->SetVertexShader( "vertexlitgeneric_flashlight_vs20", vshIndex.GetIndex() );
 
+			// fix the water fog shit
+			//DECLARE_DYNAMIC_VERTEX_SHADER( vertexlitgeneric_flashlight_vs20 );
+			//SET_DYNAMIC_VERTEX_SHADER_COMBO( SKINNING, pShaderAPI->GetCurrentNumBones() > 0 );
+			//SET_DYNAMIC_VERTEX_SHADER( vertexlitgeneric_flashlight_vs20 );
+
 			unsigned int flags = VERTEX_POSITION | VERTEX_NORMAL;
 			int numTexCoords = 1;
 			pShaderShadow->VertexShaderVertexFormat( flags, numTexCoords, 0, vars.m_bBump ? 4 : 0 );
@@ -952,7 +956,22 @@ void CBaseVSShader::DrawFlashlight_dx90( IMaterialVar** params, IShaderDynamicAP
 		{
 			nBumpMapVariant = ( vars.m_bSSBump ) ? 2 : 1;
 		}
-		if ( g_pHardwareConfig->SupportsPixelShaders_2_b() )
+		
+		if ( g_pHardwareConfig->SupportsShaderModel_3_0() )
+		{
+			int nShadowFilterMode = g_pHardwareConfig->GetShadowFilterMode();
+
+			flashlight_ps30_Static_Index	pshIndex;
+			pshIndex.SetNORMALMAP( nBumpMapVariant );
+			pshIndex.SetNORMALMAP2( bBump2 );
+			pshIndex.SetWORLDVERTEXTRANSITION( vars.m_bWorldVertexTransition );
+			pshIndex.SetSEAMLESS( bSeamless );
+			pshIndex.SetDETAILTEXTURE( bDetail );
+			pshIndex.SetDETAIL_BLEND_MODE( nDetailBlendMode );
+			pshIndex.SetFLASHLIGHTDEPTHFILTERMODE( nShadowFilterMode );
+			pShaderShadow->SetPixelShader( "flashlight_ps30", pshIndex.GetIndex() );
+		}
+		else if ( g_pHardwareConfig->SupportsPixelShaders_2_b() )
 		{
 			int nShadowFilterMode = g_pHardwareConfig->GetShadowFilterMode();
 
@@ -985,6 +1004,9 @@ void CBaseVSShader::DrawFlashlight_dx90( IMaterialVar** params, IShaderDynamicAP
 		ITexture *pFlashlightDepthTexture;
 		FlashlightState_t flashlightState = pShaderAPI->GetFlashlightStateEx( worldToTexture, &pFlashlightDepthTexture );
 
+		float flFlashlightPos[4] = { XYZ( flashlightState.m_vecLightOrigin ) };
+		pShaderAPI->SetPixelShaderConstant( PSREG_FRESNEL_SPEC_PARAMS, flFlashlightPos );
+
 		SetFlashLightColorFromState( flashlightState, pShaderAPI );
 
 		BindTexture( SHADER_SAMPLER0, flashlightState.m_pSpotlightTexture, flashlightState.m_nSpotlightTextureFrame );
@@ -1002,7 +1024,7 @@ void CBaseVSShader::DrawFlashlight_dx90( IMaterialVar** params, IShaderDynamicAP
 			pShaderAPI->SetPixelShaderConstant( PSREG_ENVMAP_TINT__SHADOW_TWEAKS, tweaks, 1 );
 
 			// Dimensions of screen, used for screen-space noise map sampling
-			float vScreenScale[4] = {1280.0f / 32.0f, 720.0f / 32.0f, 0, 0};
+			float vScreenScale[4] = {1920.0f / 32.0f, 1080.0f / 32.0f, 0, 0};
 			int nWidth, nHeight;
 			pShaderAPI->GetBackBufferDimensions( nWidth, nHeight );
 			vScreenScale[0] = (float) nWidth  / 32.0f;
@@ -1100,6 +1122,13 @@ void CBaseVSShader::DrawFlashlight_dx90( IMaterialVar** params, IShaderDynamicAP
 		vEyePos_SpecExponent[3] = 0.0f;
 		pShaderAPI->SetPixelShaderConstant( PSREG_EYEPOS_SPEC_EXPONENT, vEyePos_SpecExponent, 1 );
 
+		if ( g_pHardwareConfig->SupportsShaderModel_3_0() )
+		{
+			DECLARE_DYNAMIC_PIXEL_SHADER( flashlight_ps30 );
+			SET_DYNAMIC_PIXEL_SHADER_COMBO( PIXELFOGTYPE,  pShaderAPI->GetPixelFogCombo() );
+			SET_DYNAMIC_PIXEL_SHADER_COMBO( FLASHLIGHTSHADOWS, flashlightState.m_bEnableShadows );
+			SET_DYNAMIC_PIXEL_SHADER( flashlight_ps30 );
+		}
 		if ( g_pHardwareConfig->SupportsPixelShaders_2_b() )
 		{
 			DECLARE_DYNAMIC_PIXEL_SHADER( flashlight_ps20b );

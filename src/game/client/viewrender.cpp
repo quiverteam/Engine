@@ -66,7 +66,7 @@
 #endif // USE_MONITORS
 
 // Projective textures
-#include "c_env_projected_texture.h"
+#include "c_env_projectedtexture.h"
 
 // memdbgon must be the last include file in a .cpp file!!!
 #include "tier0/memdbgon.h"
@@ -1224,6 +1224,8 @@ void CViewRender::ViewDrawScene( bool bDrew3dSkybox, SkyboxVisibility_t nSkyboxV
 	if ( r_flashlightdepthtexture.GetBool() && (viewID == VIEW_MAIN) )
 	{
 		g_pClientShadowMgr->ComputeShadowDepthTextures( view );
+
+		//CMatRenderContextPtr pRenderContext( materials );
 	}
 
 	m_BaseDrawFlags = baseDrawFlags;
@@ -4627,8 +4629,8 @@ void CShadowDepthView::Draw()
 		render->Push3DView( (*this), VIEW_CLEAR_DEPTH, m_pRenderTarget, GetFrustum() );
 	}
 
-	pRenderContext.GetFrom(materials);
-	pRenderContext->PushRenderTargetAndViewport(m_pRenderTarget, m_pDepthTexture, 0, 0, m_pDepthTexture->GetMappingWidth(), m_pDepthTexture->GetMappingWidth());
+	pRenderContext.GetFrom( materials );
+	pRenderContext->PushRenderTargetAndViewport( m_pRenderTarget, m_pDepthTexture, x, y, width, height );
 	pRenderContext.SafeRelease();
 
 	SetupCurrentView( origin, angles, VIEW_SHADOW_DEPTH_TEXTURE );

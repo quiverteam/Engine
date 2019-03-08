@@ -38,40 +38,6 @@ const char * WINAPI GetDllVersion( void );
 
 #endif // #ifdef DX9_V00_PC
 
-
-//
-// DX9_X360
-//
-// D3DX win32 static library
-// MSFT X360 SDK
-//
-#ifdef DX9_V00_X360
-
-#ifdef DX_PROXY_INC_CONFIG
-#	error "DX9_V00_X360: Multiple DX_PROXY configurations disallowed!"
-#endif
-#define DX_PROXY_INC_CONFIG
-#pragma message ( "Compiling DX_PROXY for DX9_V00_X360" )
-
-// Avoid including XBOX math stuff
-#define _NO_XBOXMATH
-#define __D3DX9MATH_INL__
-
-#ifdef _DEBUG
-#pragma comment ( lib, "../../x360xdk/lib/win32/vs2005/d3d9d" )
-#pragma comment ( lib, "../../x360xdk/lib/win32/vs2005/d3dx9d" )
-#pragma comment ( lib, "../../x360xdk/lib/win32/vs2005/xgraphicsd" )
-#else
-#pragma comment ( lib, "../../x360xdk/lib/win32/vs2005/d3d9" )
-#pragma comment ( lib, "../../x360xdk/lib/win32/vs2005/d3dx9" )
-#pragma comment ( lib, "../../x360xdk/lib/win32/vs2005/xgraphics" )
-#endif
-
-#include "../../x360xdk/include/win32/vs2005/d3dx9shader.h"
-
-#endif // #ifdef DX9_V00_X360
-
-
 //
 // DX9_V30_PC
 //

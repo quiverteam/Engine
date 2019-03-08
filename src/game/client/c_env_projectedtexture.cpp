@@ -15,8 +15,31 @@
 #include "texture_group_names.h"
 #include "tier0/icommandline.h"
 
+// shoud really remove and put in cbase.h, like in ASW
+#include "vprof.h"
+
 // memdbgon must be the last include file in a .cpp file!!!
 #include "tier0/memdbgon.h"
+
+extern ConVar r_flashlightdepthres;
+
+static ConVar r_projtex_filtersize( "r_projtex_filtersize", "0.5", 0 );
+
+/*static ConVar r_projtex_r( "r_projtex_r", "10", 0 );
+static ConVar r_projtex_g( "r_projtex_g", "10", 0 );
+static ConVar r_projtex_b( "r_projtex_b", "2", 0 );*/
+
+static ConVar r_projtex_quadratic( "r_projtex_quadratic", "0", 0 );
+static ConVar r_projtex_linear( "r_projtex_linear", "100", 0 );
+static ConVar r_projtex_constant( "r_projtex_constant", "0", 0 );
+
+/*static ConVar r_projtex_slopescale( "r_projtex_slopescale", "3.0", 0 );
+static ConVar r_projtex_depthbias( "r_projtex_depthbias", "0.00001", 0 );*/
+
+// maybe rename to r_shadowmap_quality or r_shadowmap_sharpness?
+static ConVar r_projtex_quality( "r_projtex_quality", "-1", FCVAR_ARCHIVE,
+	"\n-1 to use custom settings \n0 - 512 with filter size of 2.0 \n1 - 1024 with filter size of 1.0 \n2 - 2048 with filter size of 0.5 \n3 - 4096 with filter size of 0.25 (overkill) \n4 - 8192 with filter size of 0.125 (RIP PC) \nMap needs to be reloaded to completely take effect atm." );
+
 
 //-----------------------------------------------------------------------------
 // Purpose: 
@@ -24,12 +47,18 @@
 IMPLEMENT_CLIENTCLASS_DT( C_EnvProjectedTexture, DT_EnvProjectedTexture, CEnvProjectedTexture )
 	RecvPropEHandle( RECVINFO( m_hTargetEntity )	),
 	RecvPropBool(	 RECVINFO( m_bState )			),
+	RecvPropBool(	 RECVINFO( m_bAlwaysUpdate )	),
 	RecvPropFloat(	 RECVINFO( m_flLightFOV )		),
 	RecvPropBool(	 RECVINFO( m_bEnableShadows )	),
 	RecvPropBool(	 RECVINFO( m_bLightOnlyTarget ) ),
 	RecvPropBool(	 RECVINFO( m_bLightWorld )		),
 	RecvPropBool(	 RECVINFO( m_bCameraSpace )		),
+
 	RecvPropVector(	 RECVINFO( m_LinearFloatLightColor )		),
+	RecvPropInt(	 RECVINFO( m_nLinear )	),
+	RecvPropInt(	 RECVINFO( m_nQuadratic )	),
+	RecvPropInt(	 RECVINFO( m_nConstant )	),
+
 	RecvPropFloat(	 RECVINFO( m_flAmbient )		),
 	RecvPropString(  RECVINFO( m_SpotlightTextureName ) ),
 	RecvPropInt(	 RECVINFO( m_nSpotlightTextureFrame ) ),
@@ -64,12 +93,22 @@ void C_EnvProjectedTexture::ShutDownLightHandle( void )
 //-----------------------------------------------------------------------------
 void C_EnvProjectedTexture::OnDataChanged( DataUpdateType_t updateType )
 {
-	UpdateLight( true );
+	UpdateLight();
 	BaseClass::OnDataChanged( updateType );
 }
 
-void C_EnvProjectedTexture::UpdateLight( bool bForceUpdate )
+void C_EnvProjectedTexture::UpdateLight( void )
 {
+	if ( m_bAlwaysUpdate )
+	{
+		m_bForceUpdate = true;
+	}
+
+	/*if ( !m_bForceUpdate )
+	{
+		bVisible = IsBBoxVisible();		
+	}*/
+
 	if ( m_bState == false )
 	{
 		if ( m_LightHandle != CLIENTSHADOW_INVALID_HANDLE )
@@ -79,7 +118,7 @@ void C_EnvProjectedTexture::UpdateLight( bool bForceUpdate )
 
 		return;
 	}
-
+	
 	Vector vForward, vRight, vUp, vPos = GetAbsOrigin();
 	FlashlightState_t state;
 
@@ -142,9 +181,14 @@ void C_EnvProjectedTexture::UpdateLight( bool bForceUpdate )
 	state.m_vecLightOrigin = vPos;
 	BasisToQuaternion( vForward, vRight, vUp, state.m_quatOrientation );
 
-	state.m_fQuadraticAtten = 0.0;
-	state.m_fLinearAtten = 100;
-	state.m_fConstantAtten = 0.0f;
+	/*state.m_fQuadraticAtten = r_projtex_quadratic.GetInt(); //0
+	state.m_fLinearAtten = r_projtex_linear.GetInt(); //100
+	state.m_fConstantAtten = r_projtex_constant.GetInt(); //0*/
+
+	state.m_fQuadraticAtten = m_nLinear; //0
+	state.m_fLinearAtten = m_nQuadratic; //100
+	state.m_fConstantAtten = m_nConstant;
+
 	state.m_Color[0] = m_LinearFloatLightColor.x;
 	state.m_Color[1] = m_LinearFloatLightColor.y;
 	state.m_Color[2] = m_LinearFloatLightColor.z;
@@ -161,16 +205,56 @@ void C_EnvProjectedTexture::UpdateLight( bool bForceUpdate )
 
 	state.m_nShadowQuality = m_nShadowQuality; // Allow entity to affect shadow quality
 
+	// NOTE: need to reload map when changing filtersize for this entity apparently, not for the flashlight though
+	// also the filtersize change only takes effect on map reload aaaa
+	// need to check to see if one of the values are changed, then set this to -1
+	// also this is all setup for DoShadowNvidiaPCF5x5Gaussian lol
+	/*if ( r_projtex_quality.GetInt() == 0 )
+	{
+		r_flashlightdepthres.SetValue( 512.0f );
+		r_projtex_filtersize.SetValue( 2.0f );
+	}
+	else if ( r_projtex_quality.GetInt() == 1 )
+	{
+		r_flashlightdepthres.SetValue( 1024.0f );
+		r_projtex_filtersize.SetValue( 1.0f );
+	}
+	else if ( r_projtex_quality.GetInt() == 2 )
+	{
+		r_flashlightdepthres.SetValue( 2048.0f );
+		r_projtex_filtersize.SetValue( 0.5f );
+	}
+	else if ( r_projtex_quality.GetInt() == 3 )
+	{
+		r_flashlightdepthres.SetValue( 4096.0f );
+		r_projtex_filtersize.SetValue( 0.25f );
+	}
+	else if ( r_projtex_quality.GetInt() == 4 )
+	{
+		r_flashlightdepthres.SetValue( 8192.0f );
+		r_projtex_filtersize.SetValue( 0.125f );
+	}*/
+	
+	state.m_flShadowFilterSize = r_projtex_filtersize.GetFloat();
+
 	if( m_LightHandle == CLIENTSHADOW_INVALID_HANDLE )
 	{
 		m_LightHandle = g_pClientShadowMgr->CreateFlashlight( state );
+
+		if ( m_LightHandle != CLIENTSHADOW_INVALID_HANDLE )
+		{
+			m_bForceUpdate = false;
+		}
 	}
 	else
 	{
-		if ( m_hTargetEntity != NULL || bForceUpdate == true )
+		if ( m_hTargetEntity != NULL || m_bForceUpdate == true )
 		{
 			g_pClientShadowMgr->UpdateFlashlightState( m_LightHandle, state );
 		}
+
+		//g_pClientShadowMgr->UpdateFlashlightState( m_LightHandle, state );
+		m_bForceUpdate = false;
 	}
 
 	if( m_bLightOnlyTarget )
@@ -184,7 +268,7 @@ void C_EnvProjectedTexture::UpdateLight( bool bForceUpdate )
 
 	g_pClientShadowMgr->SetFlashlightLightWorld( m_LightHandle, m_bLightWorld );
 
-	if ( bForceUpdate == false )
+	if ( !m_bForceUpdate )
 	{
 		g_pClientShadowMgr->UpdateProjectedTexture( m_LightHandle, true );
 	}
@@ -192,8 +276,9 @@ void C_EnvProjectedTexture::UpdateLight( bool bForceUpdate )
 
 void C_EnvProjectedTexture::Simulate( void )
 {
-	UpdateLight( false );
+	UpdateLight();
 
 	BaseClass::Simulate();
+	//return true;
 }
 

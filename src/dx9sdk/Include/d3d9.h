@@ -141,23 +141,6 @@ DEFINE_GUID(IID_IDirect3DDevice9Ex, 0xb18b10ce, 0x2649, 0x405a, 0x87, 0xf, 0x95,
 /* {91886CAF-1C3D-4d2e-A0AB-3E4C7D8D3303} */
 DEFINE_GUID(IID_IDirect3DSwapChain9Ex, 0x91886caf, 0x1c3d, 0x4d2e, 0xa0, 0xab, 0x3e, 0x4c, 0x7d, 0x8d, 0x33, 0x3);
 
-/* IID_IDirect3D9ExOverlayExtension */
-/* {187aeb13-aaf5-4c59-876d-e059088c0df8} */
-DEFINE_GUID(IID_IDirect3D9ExOverlayExtension, 0x187aeb13, 0xaaf5, 0x4c59, 0x87, 0x6d, 0xe0, 0x59, 0x8, 0x8c, 0xd, 0xf8);
-
-/* IID_IDirect3DDevice9Video */
-// {26DC4561-A1EE-4ae7-96DA-118A36C0EC95}
-DEFINE_GUID(IID_IDirect3DDevice9Video, 0x26dc4561, 0xa1ee, 0x4ae7, 0x96, 0xda, 0x11, 0x8a, 0x36, 0xc0, 0xec, 0x95);
-
-/* IID_IDirect3D9AuthenticatedChannel */
-// {FF24BEEE-DA21-4beb-98B5-D2F899F98AF9}
-DEFINE_GUID(IID_IDirect3DAuthenticatedChannel9, 0xff24beee, 0xda21, 0x4beb, 0x98, 0xb5, 0xd2, 0xf8, 0x99, 0xf9, 0x8a, 0xf9);
-
-/* IID_IDirect3DCryptoSession9 */
-// {FA0AB799-7A9C-48ca-8C5B-237E71A54434}
-DEFINE_GUID(IID_IDirect3DCryptoSession9, 0xfa0ab799, 0x7a9c, 0x48ca, 0x8c, 0x5b, 0x23, 0x7e, 0x71, 0xa5, 0x44, 0x34);
-
-
 #endif // !D3D_DISABLE_9EX
 /* -- D3D9Ex only */
 
@@ -202,10 +185,6 @@ interface DECLSPEC_UUID("d9771460-a695-4f26-bbd3-27b840b541cc") IDirect3DQuery9;
 interface DECLSPEC_UUID("02177241-69FC-400C-8FF1-93A44DF6861D") IDirect3D9Ex;
 interface DECLSPEC_UUID("B18B10CE-2649-405a-870F-95F777D4313A") IDirect3DDevice9Ex;
 interface DECLSPEC_UUID("91886CAF-1C3D-4d2e-A0AB-3E4C7D8D3303") IDirect3DSwapChain9Ex;
-interface DECLSPEC_UUID("187AEB13-AAF5-4C59-876D-E059088C0DF8") IDirect3D9ExOverlayExtension;
-interface DECLSPEC_UUID("26DC4561-A1EE-4ae7-96DA-118A36C0EC95") IDirect3DDevice9Video;
-interface DECLSPEC_UUID("FF24BEEE-DA21-4beb-98B5-D2F899F98AF9") IDirect3DAuthenticatedChannel9;
-interface DECLSPEC_UUID("FA0AB799-7A9C-48CA-8C5B-237E71A54434") IDirect3DCryptoSession9;
 
 #endif // !D3D_DISABLE_9EX
 /* -- D3D9Ex only */
@@ -240,10 +219,6 @@ _COM_SMARTPTR_TYPEDEF(IDirect3DQuery9, __uuidof(IDirect3DQuery9));
 _COM_SMARTPTR_TYPEDEF(IDirect3D9Ex, __uuidof(IDirect3D9Ex));
 _COM_SMARTPTR_TYPEDEF(IDirect3DDevice9Ex, __uuidof(IDirect3DDevice9Ex));
 _COM_SMARTPTR_TYPEDEF(IDirect3DSwapChain9Ex, __uuidof(IDirect3DSwapChain9Ex));
-_COM_SMARTPTR_TYPEDEF(IDirect3D9ExOverlayExtension, __uuidof(IDirect3D9ExOverlayExtension));
-_COM_SMARTPTR_TYPEDEF(IDirect3DDevice9Video, __uuidof(IDirect3DDevice9Video));
-_COM_SMARTPTR_TYPEDEF(IDirect3DAuthenticatedChannel9, __uuidof(IDirect3DAuthenticatedChannel9));
-_COM_SMARTPTR_TYPEDEF(IDirect3DCryptoSession9, __uuidof(IDirect3DCryptoSession9));
 
 #endif // !D3D_DISABLE_9EX
 /* -- D3D9Ex only */
@@ -275,14 +250,9 @@ typedef interface IDirect3DQuery9               IDirect3DQuery9;
 /* D3D9Ex only -- */
 #if !defined(D3D_DISABLE_9EX)
 
-
-typedef interface IDirect3D9Ex                   IDirect3D9Ex;
-typedef interface IDirect3DDevice9Ex             IDirect3DDevice9Ex;
-typedef interface IDirect3DSwapChain9Ex          IDirect3DSwapChain9Ex;
-typedef interface IDirect3D9ExOverlayExtension   IDirect3D9ExOverlayExtension;
-typedef interface IDirect3DDevice9Video          IDirect3DDevice9Video;
-typedef interface IDirect3DAuthenticatedChannel9 IDirect3DAuthenticatedChannel9;
-typedef interface IDirect3DCryptoSession9        IDirect3DCryptoSession9;
+typedef interface IDirect3D9Ex                  IDirect3D9Ex;
+typedef interface IDirect3DDevice9Ex            IDirect3DDevice9Ex;
+typedef interface IDirect3DSwapChain9Ex         IDirect3DSwapChain9Ex;
 
 #endif // !D3D_DISABLE_9EX
 /* -- D3D9Ex only */
@@ -1950,10 +1920,6 @@ typedef struct IDirect3DQuery9 *LPDIRECT3DQUERY9, *PDIRECT3DQUERY9;
 #define D3DPRESENT_DONOTFLIP                   0x00000004L
 #define D3DPRESENT_FLIPRESTART                 0x00000008L
 #define D3DPRESENT_VIDEO_RESTRICT_TO_MONITOR   0x00000010L
-#define D3DPRESENT_UPDATEOVERLAYONLY           0x00000020L
-#define D3DPRESENT_HIDEOVERLAY                 0x00000040L
-#define D3DPRESENT_UPDATECOLORKEY              0x00000080L
-#define D3DPRESENT_FORCEIMMEDIATE              0x00000100L
 
 #endif // !D3D_DISABLE_9EX
 /* -- D3D9Ex only */
@@ -2014,11 +1980,6 @@ typedef struct IDirect3DQuery9 *LPDIRECT3DQUERY9, *PDIRECT3DQUERY9;
 #define S_PRESENT_MODE_CHANGED                  MAKE_D3DSTATUS(2167)
 #define S_PRESENT_OCCLUDED                      MAKE_D3DSTATUS(2168)
 #define D3DERR_DEVICEHUNG                       MAKE_D3DHRESULT(2164)
-#define D3DERR_UNSUPPORTEDOVERLAY               MAKE_D3DHRESULT(2171)
-#define D3DERR_UNSUPPORTEDOVERLAYFORMAT         MAKE_D3DHRESULT(2172)
-#define D3DERR_CANNOTPROTECTCONTENT             MAKE_D3DHRESULT(2173)
-#define D3DERR_UNSUPPORTEDCRYPTO                MAKE_D3DHRESULT(2174)
-#define D3DERR_PRESENT_STATISTICS_DISJOINT      MAKE_D3DHRESULT(2180)
 
 
 /*********************
@@ -2610,168 +2571,6 @@ typedef struct IDirect3DSwapChain9Ex *LPDIRECT3DSWAPCHAIN9EX, *PDIRECT3DSWAPCHAI
 #endif // !D3D_DISABLE_9EX
 /* -- D3D9Ex only */
 
-
-
-#undef INTERFACE
-#define INTERFACE IDirect3D9ExOverlayExtension
-
-DECLARE_INTERFACE_(IDirect3D9ExOverlayExtension, IUnknown)
-{
-    /*** IUnknown methods ***/
-    STDMETHOD(QueryInterface)(THIS_ REFIID riid, void** ppvObj) PURE;
-    STDMETHOD_(ULONG,AddRef)(THIS) PURE;
-    STDMETHOD_(ULONG,Release)(THIS) PURE;
-
-    /*** IDirect3D9ExOverlayExtension methods ***/
-    STDMETHOD(CheckDeviceOverlayType)(THIS_ UINT Adapter,D3DDEVTYPE DevType,UINT OverlayWidth,UINT OverlayHeight,D3DFORMAT OverlayFormat,D3DDISPLAYMODEEX* pDisplayMode,D3DDISPLAYROTATION DisplayRotation,D3DOVERLAYCAPS* pOverlayCaps) PURE;
-};
-    
-typedef struct IDirect3D9ExOverlayExtension *LPDIRECT3D9EXOVERLAYEXTENSION, *PDIRECT3D9EXOVERLAYEXTENSION;
-
-#if !defined(__cplusplus) || defined(CINTERFACE)
-#define IDirect3D9ExOverlayExtension_QueryInterface(p,a,b) (p)->lpVtbl->QueryInterface(p,a,b)
-#define IDirect3D9ExOverlayExtension_AddRef(p) (p)->lpVtbl->AddRef(p)
-#define IDirect3D9ExOverlayExtension_Release(p) (p)->lpVtbl->Release(p)
-#define IDirect3D9ExOverlayExtension_CheckDeviceOverlayType(p,a,b,c,d,e,f,g,h) (p)->lpVtbl->CheckDeviceOverlayType(p,a,b,c,d,e,f,g,h)
-#else
-#define IDirect3D9ExOverlayExtension_QueryInterface(p,a,b) (p)->QueryInterface(a,b)
-#define IDirect3D9ExOverlayExtension_AddRef(p) (p)->AddRef()
-#define IDirect3D9ExOverlayExtension_Release(p) (p)->Release()
-#define IDirect3D9ExOverlayExtension_CheckDeviceOverlayType(p,a,b,c,d,e,f,g,h) (p)->CheckDeviceOverlayType(a,b,c,d,e,f,g,h)
-#endif
-
-
-
-#undef INTERFACE
-#define INTERFACE IDirect3DDevice9Video
-
-DECLARE_INTERFACE_(IDirect3DDevice9Video, IUnknown)
-{
-    /*** IUnknown methods ***/
-    STDMETHOD(QueryInterface)(THIS_ REFIID riid, void** ppvObj) PURE;
-    STDMETHOD_(ULONG,AddRef)(THIS) PURE;
-    STDMETHOD_(ULONG,Release)(THIS) PURE;
-
-    /*** IDirect3DDevice9Video methods ***/
-    STDMETHOD(GetContentProtectionCaps)(THIS_ CONST GUID* pCryptoType,CONST GUID* pDecodeProfile,D3DCONTENTPROTECTIONCAPS* pCaps) PURE;
-    STDMETHOD(CreateAuthenticatedChannel)(THIS_ D3DAUTHENTICATEDCHANNELTYPE ChannelType,IDirect3DAuthenticatedChannel9** ppAuthenticatedChannel,HANDLE* pChannelHandle) PURE;
-    STDMETHOD(CreateCryptoSession)(THIS_ CONST GUID* pCryptoType,CONST GUID* pDecodeProfile,IDirect3DCryptoSession9** ppCryptoSession,HANDLE* pCryptoHandle) PURE;
-};
-    
-typedef struct IDirect3DDevice9Video *LPDIRECT3DDEVICE9VIDEO, *PDIRECT3DDEVICE9VIDEO;
-
-#if !defined(__cplusplus) || defined(CINTERFACE)
-#define IDirect3DDevice9Video_QueryInterface(p,a,b) (p)->lpVtbl->QueryInterface(p,a,b)
-#define IDirect3DDevice9Video_AddRef(p) (p)->lpVtbl->AddRef(p)
-#define IDirect3DDevice9Video_Release(p) (p)->lpVtbl->Release(p)
-#define IDirect3DDevice9Video_GetContentProtectionCaps(p,a,b,c) (p)->lpVtbl->GetContentProtectionCaps(p,a,b,c)
-#define IDirect3DDevice9Video_CreateAuthenticatedChannel(p,a,b,c) (p)->lpVtbl->CreateAuthenticatedChannel(p,a,b,c)
-#define IDirect3DDevice9Video_CreateCryptoSession(p,a,b,c,d) (p)->lpVtbl->CreateCryptoSession(p,a,b,c,d)
-#else
-#define IDirect3DDevice9Video_QueryInterface(p,a,b) (p)->QueryInterface(a,b)
-#define IDirect3DDevice9Video_AddRef(p) (p)->AddRef()
-#define IDirect3DDevice9Video_Release(p) (p)->Release()
-#define IDirect3DDevice9Video_GetContentProtectionCaps(p,a,b,c) (p)->GetContentProtectionCaps(a,b,c)
-#define IDirect3DDevice9Video_CreateAuthenticatedChannel(p,a,b,c) (p)->CreateAuthenticatedChannel(a,b,c)
-#define IDirect3DDevice9Video_CreateCryptoSession(p,a,b,c,d) (p)->CreateCryptoSession(a,b,c,d)
-#endif
-
-
-
-
-#undef INTERFACE
-#define INTERFACE IDirect3DAuthenticatedChannel9
-
-DECLARE_INTERFACE_(IDirect3DAuthenticatedChannel9, IUnknown)
-{
-    /*** IUnknown methods ***/
-    STDMETHOD(QueryInterface)(THIS_ REFIID riid, void** ppvObj) PURE;
-    STDMETHOD_(ULONG,AddRef)(THIS) PURE;
-    STDMETHOD_(ULONG,Release)(THIS) PURE;
-
-    /*** IDirect3DAuthenticatedChannel9 methods ***/
-    STDMETHOD(GetCertificateSize)(THIS_ UINT* pCertificateSize) PURE;
-    STDMETHOD(GetCertificate)(THIS_ UINT CertifacteSize,BYTE* ppCertificate) PURE;
-    STDMETHOD(NegotiateKeyExchange)(THIS_ UINT DataSize,VOID* pData) PURE;
-    STDMETHOD(Query)(THIS_ UINT InputSize,CONST VOID* pInput,UINT OutputSize,VOID* pOutput) PURE;
-    STDMETHOD(Configure)(THIS_ UINT InputSize,CONST VOID* pInput,D3DAUTHENTICATEDCHANNEL_CONFIGURE_OUTPUT* pOutput) PURE;
-};
-    
-typedef struct IDirect3DAuthenticatedChannel9 *LPDIRECT3DAUTHENTICATEDCHANNEL9, *PDIRECT3DAUTHENTICATEDCHANNEL9;
-
-#if !defined(__cplusplus) || defined(CINTERFACE)
-#define IDirect3DAuthenticatedChannel9_QueryInterface(p,a,b) (p)->lpVtbl->QueryInterface(p,a,b)
-#define IDirect3DAuthenticatedChannel9_AddRef(p) (p)->lpVtbl->AddRef(p)
-#define IDirect3DAuthenticatedChannel9_Release(p) (p)->lpVtbl->Release(p)
-#define IDirect3DAuthenticatedChannel9_GetCertificateSize(p,a) (p)->lpVtbl->GetCertificateSize(p,a)
-#define IDirect3DAuthenticatedChannel9_GetCertificate(p,a,b) (p)->lpVtbl->GetCertificate(p,a,b)
-#define IDirect3DAuthenticatedChannel9_NegotiateKeyExchange(p,a,b) (p)->lpVtbl->NegotiateKeyExchange(p,a,b)
-#define IDirect3DAuthenticatedChannel9_Query(p,a,b,c,d) (p)->lpVtbl->Query(p,a,b,c,d)
-#define IDirect3DAuthenticatedChannel9_Configure(p,a,b,c) (p)->lpVtbl->Configure(p,a,b,c)
-#else
-#define IDirect3DAuthenticatedChannel9_QueryInterface(p,a,b) (p)->QueryInterface(a,b)
-#define IDirect3DAuthenticatedChannel9_AddRef(p) (p)->AddRef()
-#define IDirect3DAuthenticatedChannel9_Release(p) (p)->Release()
-#define IDirect3DAuthenticatedChannel9_GetCertificateSize(p,a) (p)->GetCertificateSize(a)
-#define IDirect3DAuthenticatedChannel9_GetCertificate(p,a,b) (p)->GetCertificate(a,b)
-#define IDirect3DAuthenticatedChannel9_NegotiateKeyExchange(p,a,b) (p)->NegotiateKeyExchange(a,b)
-#define IDirect3DAuthenticatedChannel9_Query(p,a,b,c,d) (p)->Query(a,b,c,d)
-#define IDirect3DAuthenticatedChannel9_Configure(p,a,b,c) (p)->Configure(a,b,c)
-#endif
-
-
-
-#undef INTERFACE
-#define INTERFACE IDirect3DCryptoSession9
-
-DECLARE_INTERFACE_(IDirect3DCryptoSession9, IUnknown)
-{
-    /*** IUnknown methods ***/
-    STDMETHOD(QueryInterface)(THIS_ REFIID riid, void** ppvObj) PURE;
-    STDMETHOD_(ULONG,AddRef)(THIS) PURE;
-    STDMETHOD_(ULONG,Release)(THIS) PURE;
-
-    /*** IDirect3DCryptoSession9 methods ***/
-    STDMETHOD(GetCertificateSize)(THIS_ UINT* pCertificateSize) PURE;
-    STDMETHOD(GetCertificate)(THIS_ UINT CertifacteSize,BYTE* ppCertificate) PURE;
-    STDMETHOD(NegotiateKeyExchange)(THIS_ UINT DataSize,VOID* pData) PURE;
-    STDMETHOD(EncryptionBlt)(THIS_ IDirect3DSurface9* pSrcSurface,IDirect3DSurface9* pDstSurface,UINT DstSurfaceSize,VOID* pIV) PURE;
-    STDMETHOD(DecryptionBlt)(THIS_ IDirect3DSurface9* pSrcSurface,IDirect3DSurface9* pDstSurface,UINT SrcSurfaceSize,D3DENCRYPTED_BLOCK_INFO* pEncryptedBlockInfo,VOID* pContentKey,VOID* pIV) PURE;
-    STDMETHOD(GetSurfacePitch)(THIS_ IDirect3DSurface9* pSrcSurface,UINT* pSurfacePitch) PURE;
-    STDMETHOD(StartSessionKeyRefresh)(THIS_ VOID* pRandomNumber,UINT RandomNumberSize) PURE;
-    STDMETHOD(FinishSessionKeyRefresh)(THIS) PURE;
-    STDMETHOD(GetEncryptionBltKey)(THIS_ VOID* pReadbackKey,UINT KeySize) PURE;
-};
-    
-typedef struct IDirect3DCryptoSession9 *LPDIRECT3DCRYPTOSESSION9, *PDIRECT3DCRYPTOSESSION9;
-
-#if !defined(__cplusplus) || defined(CINTERFACE)
-#define IDirect3DCryptoSession9_QueryInterface(p,a,b) (p)->lpVtbl->QueryInterface(p,a,b)
-#define IDirect3DCryptoSession9_AddRef(p) (p)->lpVtbl->AddRef(p)
-#define IDirect3DCryptoSession9_Release(p) (p)->lpVtbl->Release(p)
-#define IDirect3DCryptoSession9_GetCertificateSize(p,a) (p)->lpVtbl->GetCertificateSize(p,a)
-#define IDirect3DCryptoSession9_GetCertificate(p,a,b) (p)->lpVtbl->GetCertificate(p,a,b)
-#define IDirect3DCryptoSession9_NegotiateKeyExchange(p,a,b) (p)->lpVtbl->NegotiateKeyExchange(p,a,b)
-#define IDirect3DCryptoSession9_EncryptionBlt(p,a,b,c,d) (p)->lpVtbl->EncryptionBlt(p,a,b,c,d)
-#define IDirect3DCryptoSession9_DecryptionBlt(p,a,b,c,d,e,f) (p)->lpVtbl->DecryptionBlt(p,a,b,c,d,e,f)
-#define IDirect3DCryptoSession9_GetSurfacePitch(p,a,b) (p)->lpVtbl->GetSurfacePitch(p,a,b)
-#define IDirect3DCryptoSession9_StartSessionKeyRefresh(p,a,b) (p)->lpVtbl->StartSessionKeyRefresh(p,a,b)
-#define IDirect3DCryptoSession9_FinishSessionKeyRefresh(p) (p)->lpVtbl->FinishSessionKeyRefresh(p)
-#define IDirect3DCryptoSession9_GetEncryptionBltKey(p,a,b) (p)->lpVtbl->GetEncryptionBltKey(p,a,b)
-#else
-#define IDirect3DCryptoSession9_QueryInterface(p,a,b) (p)->QueryInterface(a,b)
-#define IDirect3DCryptoSession9_AddRef(p) (p)->AddRef()
-#define IDirect3DCryptoSession9_Release(p) (p)->Release()
-#define IDirect3DCryptoSession9_GetCertificateSize(p,a) (p)->GetCertificateSize(a)
-#define IDirect3DCryptoSession9_GetCertificate(p,a,b) (p)->GetCertificate(a,b)
-#define IDirect3DCryptoSession9_NegotiateKeyExchange(p,a,b) (p)->NegotiateKeyExchange(a,b)
-#define IDirect3DCryptoSession9_EncryptionBlt(p,a,b,c,d) (p)->EncryptionBlt(a,b,c,d)
-#define IDirect3DCryptoSession9_DecryptionBlt(p,a,b,c,d,e,f) (p)->DecryptionBlt(a,b,c,d,e,f)
-#define IDirect3DCryptoSession9_GetSurfacePitch(p,a,b) (p)->GetSurfacePitch(a,b)
-#define IDirect3DCryptoSession9_StartSessionKeyRefresh(p,a,b) (p)->StartSessionKeyRefresh(a,b)
-#define IDirect3DCryptoSession9_FinishSessionKeyRefresh(p) (p)->FinishSessionKeyRefresh()
-#define IDirect3DCryptoSession9_GetEncryptionBltKey(p,a,b) (p)->GetEncryptionBltKey(a,b)
-#endif
 
 
 #ifdef __cplusplus

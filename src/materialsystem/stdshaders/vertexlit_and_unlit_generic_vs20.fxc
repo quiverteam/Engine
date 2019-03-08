@@ -14,8 +14,8 @@
 //	DYNAMIC: "STATIC_LIGHT"			"0..1"
 //	DYNAMIC: "DOWATERFOG"			"0..1"
 //	DYNAMIC: "SKINNING"				"0..1"
-//  DYNAMIC: "LIGHTING_PREVIEW"		"0..1"	[PC]
-//  DYNAMIC: "MORPHING"				"0..1"  [vs30]
+//  DYNAMIC: "LIGHTING_PREVIEW"		"0..1"
+//  DYNAMIC: "MORPHING"				"0..1" [vs30]
 
 // SKIP: ($SEPARATE_DETAIL_UVS) && ($SEAMLESS_DETAIL)
 
@@ -116,7 +116,7 @@ VS_OUTPUT main( const VS_INPUT v )
 
 	float4 vPosition = v.vPos;
 	float3 vNormal = 0;
-	if ( bDoLighting || SEAMLESS_BASE || SEAMLESS_DETAIL || LIGHTING_PREVIEW || g_bDecalOffset )
+	if ( bDoLighting || FLASHLIGHT || SEAMLESS_BASE || SEAMLESS_DETAIL || LIGHTING_PREVIEW || g_bDecalOffset )
 	{
 		// The vertex only contains valid normals if they are actually needed (fetching them when absent makes D3D complain)
 		DecompressVertex_Normal( v.vNormal, vNormal );
@@ -169,8 +169,31 @@ VS_OUTPUT main( const VS_INPUT v )
 	o.worldVertToEyeVector.xyz = VSHADER_VECT_SCALE * (cEyePos - worldPos);
 #endif
 
-	o.color = float4( 0.0f, 0.0f, 0.0f, 0.0f );
-
+#if FLASHLIGHT
+o.color = float4( 0.0f, 0.0f, 0.0f, 0.0f );
+#else
+	if ( g_bVertexColor )
+	{
+		// Assume that this is unlitgeneric if you are using vertex color.
+		o.color.rgb = GammaToLinear( v.vColor.rgb );
+		o.color.a = v.vColor.a;
+	}
+	else
+	{
+		// Compute vertex lighting
+		//o.color.xyz = DoLighting( worldPos, worldNormal, v.vSpecular, bStaticLight, bDynamicLight, g_bHalfLambert );
+		
+		/*#if SHADER_MODEL_VS_3_0
+		{*/
+			o.color.xyz = DoLighting( worldPos, worldNormal, v.vSpecular, bStaticLight, bDynamicLight, g_bHalfLambert );
+		/*}
+		#else
+		{
+			o.color.xyz = DoLightingUnrolled( worldPos, worldNormal, v.vSpecular, bStaticLight, bDynamicLight, g_bHalfLambert, NUM_LIGHTS );
+		}
+		#endif*/
+	}
+#endif
 #if SEAMLESS_BASE
 	o.SeamlessTexCoord.xyz = SEAMLESS_SCALE * v.vPos.xyz;
 #else

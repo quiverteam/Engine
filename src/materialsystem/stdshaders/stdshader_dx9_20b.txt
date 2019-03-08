@@ -253,8 +253,8 @@ vertexlitgeneric_flashlight_vs20.fxc
 // These work perfectly fine with -nointercept though
 //
 // --------------------------------------------------------------------------
-//aftershock_ps2x.fxc
-//core_ps2x.fxc
-//eye_refract_ps2x.fxc
-//portal_refract_ps2x.fxc
-//Water_ps2x.fxc
+aftershock_ps2x.fxc
+core_ps2x.fxc
+eye_refract_ps2x.fxc
+portal_refract_ps2x.fxc
+Water_ps2x.fxc
