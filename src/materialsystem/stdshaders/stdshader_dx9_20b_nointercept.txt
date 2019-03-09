@@ -13,7 +13,6 @@
 //
 // Too Complex for Shader Model 2.0 / 2.0b
 // This might cause issues when using mat_dxlevel 90
-// These work perfectly fine with -nointercept though
 //
 // --------------------------------------------------------------------------
 aftershock_ps2x.fxc

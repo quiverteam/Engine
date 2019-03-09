@@ -5,12 +5,11 @@ echo.
 call kill_shadercompiler.bat
 
 rem == Setup path to nmake.exe ==
-@REM call find_vs_version.bat
 @REM find vs2017 directory, if vswhere doesn't exist, skip
 if exist "%ProgramFiles(x86)%\Microsoft Visual Studio\Installer\vswhere.exe" (
 	for /f "usebackq tokens=1* delims=: " %%i in (`"%ProgramFiles(x86)%\Microsoft Visual Studio\Installer\vswhere.exe" -latest -requires Microsoft.VisualStudio.Workload.NativeDesktop`) do (
-		if /i "%%i"=="installationPath" set VSDIR=%%j
-		if not "!VSDIR!"=="" (
+		if /i "%%i"=="installationPath"
+			set VSDIR=%%j
 			call "!VSDIR!\Common7\Tools\VsDevCmd.bat" >nul
 			echo Using VS2017 tools
 			goto :start

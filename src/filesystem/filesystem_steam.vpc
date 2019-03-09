@@ -63,6 +63,6 @@ $Project "FileSystem_Steam"
 
 	$Folder	"Link Libraries"
 	{
-		$File	"$SRCDIR\lib\public\tier2.lib"
+		$DynamicFile	"$SRCDIR\lib\public\tier2.lib"
 	}
 }

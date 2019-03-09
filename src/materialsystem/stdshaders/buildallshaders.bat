@@ -1,8 +1,10 @@
 @echo off
 setlocal enabledelayedexpansion
 echo.
-rem == Setup path to nmake.exe ==
 
+call kill_shadercompiler.bat
+
+rem == Setup path to nmake.exe ==
 @REM find vs2017 directory, if vswhere doesn't exist, skip
 if exist "%ProgramFiles(x86)%\Microsoft Visual Studio\Installer\vswhere.exe" (
 	for /f "usebackq tokens=1* delims=: " %%i in (`"%ProgramFiles(x86)%\Microsoft Visual Studio\Installer\vswhere.exe" -latest -requires Microsoft.VisualStudio.Workload.NativeDesktop`) do (
@@ -57,7 +59,7 @@ rem ==  Set the Path to your mod's root source code ==
 rem This should already be correct, accepts relative paths only!
 set SOURCEDIR=..\..
 
-set "targetdir=..\..\..\game\hl2\shaders"
+set "targetdir=..\..\..\game\platform\shaders"
 
 set BUILD_SHADER=call buildshaders.bat
 
@@ -76,24 +78,28 @@ rem ===================================
 REM ****************
 REM BUILD SHADERS
 REM ****************
-@REM shove the full log into another file 
-echo Exporting Log to buildallshaders_stdshader_dx8_1x_needed.txt
-%BUILD_SHADER% stdshader_dx8_1x_needed			-game %GAMEDIR% -source %SOURCEDIR% %dynamic_shaders% >buildallshaders_stdshader_dx8_1x_needed.txt
+@REM shove the output into txt file 
 echo --------------------------------------------------------------------------------------------
-echo Exporting Log to buildallshaders_stdshader_dx9_20b_nointercept.txt
-call buildshaders_nointercept.bat stdshader_dx9_20b_nointercept		-game %GAMEDIR% -source %SOURCEDIR% %dynamic_shaders% >buildallshaders_stdshader_dx9_20b_nointercept.txt
+echo Outputting to log_stdshader_dx9_20b.txt
+%BUILD_SHADER% stdshader_dx9_20b				-game %GAMEDIR% -source %SOURCEDIR% %dynamic_shaders% >log_stdshader_dx9_20b.txt
 echo --------------------------------------------------------------------------------------------
-echo Exporting Log to buildallshaders_stdshader_dx9_20b.txt
-%BUILD_SHADER% stdshader_dx9_20b				-game %GAMEDIR% -source %SOURCEDIR% %dynamic_shaders% >buildallshaders_stdshader_dx9_20b.txt
-echo --------------------------------------------------------------------------------------------
-echo Exporting Log to buildallshaders_stdshader_dx9_20b_temp.txt
-%BUILD_SHADER% stdshader_dx9_20b_temp			-game %GAMEDIR% -source %SOURCEDIR% 1 >buildallshaders_stdshader_dx9_20b_temp.txt
-echo --------------------------------------------------------------------------------------------
-echo Exporting Log to buildallshaders_stdshader_dx9_30.txt
-%BUILD_SHADER% stdshader_dx9_30					-game %GAMEDIR% -source %SOURCEDIR% %dynamic_shaders% -dx9_30 -force30 >buildallshaders_stdshader_dx9_30.txt
+echo Outputting to log_stdshader_dx9_30.txt
+%BUILD_SHADER% stdshader_dx9_30					-game %GAMEDIR% -source %SOURCEDIR% %dynamic_shaders% -dx9_30 -force30 >log_stdshader_dx9_30.txt
 echo --------------------------------------------------------------------------------------------
 @REM %BUILD_SHADER% stdshader_dx10			-game %GAMEDIR% -source %SOURCEDIR% %dynamic_shaders% -dx10
 echo.
+
+REM ****************
+REM PC Shader copy
+REM Publish the generated files to the output dir using XCOPY
+REM This batch file may have been invoked standalone or slaved (master does final smart mirror copy)
+REM ****************
+:DoXCopy
+if not "%dynamic_shaders%" == "1" (
+	if not exist "%targetdir%" md "%targetdir%"
+	xcopy "%cd%\shaders" "%cd%\%targetdir%\" /q /e /y	
+)
+goto end
 
 REM ****************
 REM END
@@ -110,5 +116,7 @@ if not "%dynamic_shaders%" == "1" (
 %TTEXE% -diff %tt_all_start% -cur
 echo.
 
-echo Press any key to exit . . .
+echo Press any key to rebuild shaders group and exit . . .
 pause >nul
+
+..\..\devtools\bin\vpc.exe /f +shaders_all
