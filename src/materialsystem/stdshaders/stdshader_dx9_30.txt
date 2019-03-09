@@ -7,59 +7,54 @@
 //	    _vs30.vcs
 //
 
-aftershock_ps2x.fxc
+cloak_vs20.fxc
 cloak_ps2x.fxc
+cloak_blended_pass_vs20.fxc
 cloak_blended_pass_ps2x.fxc
-core_ps2x.fxc
 debugmorphaccumulator_vs30.fxc
 debugmorphaccumulator_ps30.fxc
 decalmodulate_ps2x.fxc
-depthwrite_ps2x.fxc
-Engine_Post_ps2x.fxc
+emissive_scroll_blended_pass_vs20.fxc
 emissive_scroll_blended_pass_ps2x.fxc
+eye_refract_vs20.fxc
 eye_refract_ps2x.fxc
+eyes_vs20.fxc
 eyes_ps2x.fxc
+eyes_flashlight_vs20.fxc
 eyes_flashlight_ps2x.fxc
-flesh_interior_blended_pass_ps2x.fxc
+flashlight_ps2x.fxc
 morphaccumulate_vs30.fxc
 morphaccumulate_ps30.fxc
 morphweight_vs30.fxc
 morphweight_ps30.fxc
-portal_refract_ps2x.fxc
-Refract_ps2x.fxc
-ShatteredGlass_ps2x.fxc
-skin_ps20b.fxc
-teeth_ps2x.fxc
-teeth_bump_ps2x.fxc
-teeth_flashlight_ps2x.fxc
-vertexlit_and_unlit_generic_ps2x.fxc
-vertexlit_and_unlit_generic_bump_ps2x.fxc
-vortwarp_ps2x.fxc
-volume_clouds_ps2x.fxc
-Water_ps2x.fxc
-
-
-// --------------------------------------------------------------------------
-//
-// These all give the error:
-// error X3089: 'D3DVERTEXTEXTURESAMPLER0': invalid shader target/usage
-// 
-// All occuring on this line:
-// sampler2D morphSampler	: register( D3DVERTEXTEXTURESAMPLER0, s0 );
-//
-// --------------------------------------------------------------------------
-eye_refract_vs20.fxc
-eyes_vs20.fxc
-teeth_vs20.fxc
-teeth_bump_vs20.fxc
 skin_vs20.fxc
-vortwarp_vs20.fxc
+skin_ps20b.fxc
+teeth_vs20.fxc
+teeth_ps2x.fxc
+teeth_bump_vs20.fxc
+teeth_bump_ps2x.fxc
 teeth_flashlight_vs20.fxc
-cloak_vs20.fxc
-eyes_flashlight_vs20.fxc
-cloak_blended_pass_vs20.fxc
-emissive_scroll_blended_pass_vs20.fxc
-depthwrite_vs20.fxc
+teeth_flashlight_ps2x.fxc
 vertexlit_and_unlit_generic_vs20.fxc
+vertexlit_and_unlit_generic_ps2x.fxc
 vertexlit_and_unlit_generic_bump_vs20.fxc
+vertexlit_and_unlit_generic_bump_ps2x.fxc
+vortwarp_vs20.fxc
+vortwarp_ps2x.fxc
+depthwrite_ps2x.fxc
+depthwrite_vs20.fxc
 
+// -----------------------------------------------------------------------------------------
+//
+// Only using as Shader Model 3 since for some reason it doesn't work as shader model 2
+//
+// -----------------------------------------------------------------------------------------
+aftershock_ps2x.fxc
+//aftershock_vs20.fxc
+core_ps2x.fxc
+//core_vs20.fxc
+portal_refract_ps2x.fxc
+//portal_refract_vs20.fxc
+//Water_vs20.fxc
+Refract_ps2x.fxc
+//Refract_vs20.fxc

@@ -515,13 +515,13 @@ void DoSpecularFlashlight( float3 flashlightPos, float3 worldPos, float4 flashli
 	float NdotL = dot( L.xyz, worldNormal.xyz );
 
 	// JasonM - experimenting with light-warping the flashlight
-	if ( false )//bDoDiffuseWarp )
+	/*if ( false )//bDoDiffuseWarp )
 	{
 		float warpCoord = saturate(NdotL * 0.5f + 0.5f);							// 0..1
 		diffuseLighting *= tex2D( DiffuseWarpSampler, float2( warpCoord, 0.0f) );	// Look up warped light
 	}
 	else // common path
-	{
+	{*/
 	
 /*#if defined(SHADER_MODEL_PS_2_0) || defined(SHADER_MODEL_PS_2_B) || defined(SHADER_MODEL_PS_3_0)
 		diffuseLighting *= saturate( dot( L.xyz, worldNormal.xyz ) + flFlashlightNoLambertValue ); // Lambertian term
@@ -534,7 +534,7 @@ void DoSpecularFlashlight( float3 flashlightPos, float3 worldPos, float4 flashli
 		NdotL += flFlashlightNoLambertValue;
 #endif
 		diffuseLighting *= saturate( NdotL ); // Lambertian term
-	}
+	//}
 	
 	diffuseLighting *= flashlightColor;
 	diffuseLighting *= endFalloffFactor;
