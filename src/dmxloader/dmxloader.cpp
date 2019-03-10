@@ -351,7 +351,7 @@ bool CDmxSerializer::UnserializeAttributes( CUtlBuffer &buf, CDmxElement *pEleme
 		}
 		else
 		{
-			buf.GetString( nameBuf, sizeof( nameBuf ) );
+			buf.GetStringManualCharCount( nameBuf, sizeof( nameBuf ) );
 			pName = nameBuf;
 		}
 		DmAttributeType_t nAttributeType = (DmAttributeType_t)buf.GetChar();
@@ -462,10 +462,10 @@ bool CDmxSerializer::Unserialize( CUtlBuffer &buf, int nEncodingVersion, CDmxEle
 		}
 		else
 		{
-			buf.GetString( pTypeBuf, sizeof( pTypeBuf ) );
+			buf.GetStringManualCharCount( pTypeBuf, sizeof( pTypeBuf ) );
 			pType = pTypeBuf;
 		}
-		buf.GetString( pName, 2048 );
+		buf.GetStringManualCharCount( pName, 2048 );
 		buf.Get( &id, sizeof(DmObjectId_t) );
 
 		CDmxElement *pElement = new CDmxElement( pType );

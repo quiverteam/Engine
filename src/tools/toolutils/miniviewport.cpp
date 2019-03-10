@@ -273,7 +273,7 @@ void CMiniViewportEngineRenderArea::PaintOverlayText( )
 	int ly = ch - 10 - nTextHeight;
 	g_pMatSystemSurface->DrawColoredTextRect( m_OverlayTextFont, 
 		lx, ly, cw - lx, ch - ly,
-		255, 255, 255, 255, m_OverlayText.Get() );
+		255, 255, 255, 255, m_OverlayText.GetForModify() );
 }
 
 

@@ -1,4 +1,4 @@
-//========= Copyright © 1996-2005, Valve Corporation, All rights reserved. ============//
+//========= Copyright Valve Corporation, All rights reserved. ============//
 //
 // Purpose: 
 //
@@ -15,7 +15,7 @@
 #include <utllinkedlist.h>
 #include <utlvector.h>
 #include <vgui/VGUI.h>
-#include <vgui_controls/Panel.h>
+#include <vgui_controls/EditablePanel.h>
 
 class KeyValues;
 
@@ -24,10 +24,10 @@ namespace vgui
 
 //-----------------------------------------------------------------------------
 // Purpose: A list of variable height child panels
-//  each list item consists of a label-panel pair. Height of the item is
-// determined from the lable.
+// each list item consists of a label-panel pair. Height of the item is
+// determined from the label.
 //-----------------------------------------------------------------------------
-class PanelListPanel : public Panel
+class PanelListPanel : public EditablePanel
 {
 	DECLARE_CLASS_SIMPLE( PanelListPanel, Panel );
 
@@ -48,6 +48,8 @@ public:
 
 	virtual Panel *GetItemLabel(int itemID); 
 	virtual Panel *GetItemPanel(int itemID); 
+
+    ScrollBar*  GetScrollbar() { return m_vbar; }
 
 	virtual void RemoveItem(int itemID); // removes an item from the table (changing the indices of all following items)
 	virtual void DeleteAllItems(); // clears and deletes all the memory used by the data items
@@ -76,6 +78,13 @@ public:
 
 	void		ScrollToItem( int itemNumber );
 
+	CUtlVector< int > *GetSortedVector( void )
+	{
+		return &m_SortedItems;
+	}
+
+	int	ComputeVPixelsNeeded();
+
 protected:
 	// overrides
 	virtual void OnSizeChanged(int wide, int tall);
@@ -85,7 +94,7 @@ protected:
 	virtual void OnMouseWheeled(int delta);
 
 private:
-	int	ComputeVPixelsNeeded();
+	
 
 	enum { DEFAULT_HEIGHT = 24, PANELBUFFER = 5 };
 
@@ -109,6 +118,8 @@ private:
 	int						m_iNumColumns;
 	int						m_iDefaultHeight;
 	int						m_iPanelBuffer;
+
+	CPanelAnimationVar( bool, m_bAutoHideScrollbar, "autohide_scrollbar", "0" );
 };
 
 }

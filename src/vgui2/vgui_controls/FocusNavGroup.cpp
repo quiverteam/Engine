@@ -1,4 +1,4 @@
-//========= Copyright © 1996-2005, Valve Corporation, All rights reserved. ============//
+//========= Copyright Valve Corporation, All rights reserved. ============//
 //
 // Purpose: 
 //
@@ -48,7 +48,7 @@ FocusNavGroup::~FocusNavGroup()
 //-----------------------------------------------------------------------------
 bool FocusNavGroup::RequestFocusPrev(VPANEL panel)
 {
-	if(panel==NULL)
+	if(panel==0)
 		return false;
 
 	_currentFocus = NULL;
@@ -290,13 +290,14 @@ void FocusNavGroup::SetFocusTopLevel(bool state)
 //-----------------------------------------------------------------------------
 void FocusNavGroup::SetDefaultButton(Panel *panel)
 {
-	if ((panel == NULL && _defaultButton.Get() == NULL) || panel->GetVPanel() == _defaultButton.Get())
+	VPANEL vpanel = panel ? panel->GetVPanel() : NULL;
+	if ( vpanel == _defaultButton.Get() )
 		return;
 
-    Assert(CanButtonBeDefault(panel->GetVPanel()));
+//	Assert(CanButtonBeDefault(vpanel));
 
-	_defaultButton = panel->GetVPanel();
-    SetCurrentDefaultButton(_defaultButton);
+	_defaultButton = vpanel;
+	SetCurrentDefaultButton(_defaultButton);
 }
 
 //-----------------------------------------------------------------------------
@@ -307,14 +308,14 @@ void FocusNavGroup::SetCurrentDefaultButton(VPANEL panel, bool sendCurrentDefaul
 	if (panel == _currentDefaultButton.Get())
 		return;
 
-	if ( sendCurrentDefaultButtonMessage && _currentDefaultButton.Get() != NULL)
+	if ( sendCurrentDefaultButtonMessage && _currentDefaultButton.Get() != 0)
 	{
 		ivgui()->PostMessage(_currentDefaultButton, new KeyValues("SetAsCurrentDefaultButton", "state", 0), NULL);
 	}
 
 	_currentDefaultButton = panel;
 
-	if ( sendCurrentDefaultButtonMessage && _currentDefaultButton.Get() != NULL)
+	if ( sendCurrentDefaultButtonMessage && _currentDefaultButton.Get() != 0)
 	{
 		ivgui()->PostMessage(_currentDefaultButton, new KeyValues("SetAsCurrentDefaultButton", "state", 1), NULL);
 	}
@@ -395,7 +396,7 @@ VPANEL FocusNavGroup::SetCurrentFocus(VPANEL focus, VPANEL defaultPanel)
 	_currentFocus = focus;
 
     // if we haven't found a default panel yet, let's see if we know of one
-    if (defaultPanel == NULL)
+    if (defaultPanel == 0)
     {
         // can this focus itself by the default
         if (CanButtonBeDefault(focus))
@@ -417,6 +418,9 @@ VPANEL FocusNavGroup::SetCurrentFocus(VPANEL focus, VPANEL defaultPanel)
 //-----------------------------------------------------------------------------
 bool FocusNavGroup::CanButtonBeDefault(VPANEL panel)
 {
+	if( panel == 0 )
+		return false;
+
 	KeyValues *data = new KeyValues("CanBeDefaultButton");
 
 	bool bResult = false;

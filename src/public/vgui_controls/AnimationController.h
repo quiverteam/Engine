@@ -1,4 +1,4 @@
-//========= Copyright © 1996-2005, Valve Corporation, All rights reserved. ============//
+//========= Copyright Valve Corporation, All rights reserved. ============//
 //
 // Purpose: 
 //
@@ -39,6 +39,8 @@ public:
 
 	// runs a frame of animation (time is passed in so slow motion, etc. works)
 	void UpdateAnimations( float curtime );
+	
+	int	 GetNumActiveAnimations( void ) { return m_ActiveAnimations.Count(); }
 
 	// plays all animations to completion instantly
 	void RunAllAnimationsToCompletion();
@@ -49,6 +51,9 @@ public:
 	// starts an animation sequence script
 	bool StartAnimationSequence(const char *sequenceName);
 	bool StartAnimationSequence(Panel *pWithinParent, const char *sequenceName);
+
+	bool StopAnimationSequence( Panel *pWithinParent, const char *sequenceName );
+	void CancelAnimationsForPanel( Panel *pWithinParent );
 
 	// gets the length of an animation sequence, in seconds
 	float GetAnimationSequenceLength(const char *sequenceName);
@@ -65,6 +70,7 @@ public:
 		INTERPOLATOR_PULSE,
 		INTERPOLATOR_FLICKER,
 		INTERPOLATOR_SIMPLESPLINE, // ease in / out
+		INTERPOLATOR_BOUNCE,	   // gravitational bounce
 	};
 
 	// runs the specific animation command (doesn't use script file at all)
@@ -93,6 +99,9 @@ private:
 		CMD_SETFONT,
 		CMD_SETTEXTURE,
 		CMD_SETSTRING,
+		CMD_RUNEVENTCHILD,
+		CMD_FIRECOMMAND,
+		CMD_SETVISIBLE,
 	};
 
 	enum RelativeAlignment
@@ -220,6 +229,7 @@ private:
 	// variable names
 	UtlSymId_t m_sPosition, m_sSize, m_sFgColor, m_sBgColor;
 	UtlSymId_t m_sXPos, m_sYPos, m_sWide, m_sTall;
+	UtlSymId_t m_sModelPos;
 
 	// file name
 	CUtlVector<UtlSymId_t>	m_ScriptFileNames;

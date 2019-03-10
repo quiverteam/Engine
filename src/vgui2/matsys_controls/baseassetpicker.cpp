@@ -157,7 +157,7 @@ DirHandle_t CAssetTreeView::AddSubDirectory( DirHandle_t hParent, const char *pD
 {
 	DirHandle_t hSubdir = m_DirectoryStructure.Alloc();
 	m_DirectoryStructure[hSubdir] = pDirName;
-	Q_strlower( m_DirectoryStructure[hSubdir].Get() );
+	Q_strlower( m_DirectoryStructure[hSubdir].GetForModify() );
 
 	DirHandle_t hChild = m_DirectoryStructure.FirstChild( hParent );
 	m_DirectoryStructure.LinkChildBefore( hParent, hChild, hSubdir );

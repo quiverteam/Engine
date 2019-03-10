@@ -1,4 +1,4 @@
-//===== Copyright © 1996-2005, Valve Corporation, All rights reserved. ======//
+//========= Copyright Valve Corporation, All rights reserved. ============//
 //
 // Purpose: 
 //
@@ -750,11 +750,14 @@ public:
 //-----------------------------------------------------------------------------
 // Purpose: Constructor
 //-----------------------------------------------------------------------------
-Frame::Frame(Panel *parent, const char *panelName, bool showTaskbarIcon) : EditablePanel(parent, panelName)
+Frame::Frame(Panel *parent, const char *panelName, bool showTaskbarIcon /*=true*/, bool bPopup /*=true*/ ) : EditablePanel(parent, panelName)
 {
 	// frames start invisible, to avoid having window flicker in on taskbar
 	SetVisible(false);
-	MakePopup(showTaskbarIcon);
+	if ( bPopup )
+	{
+		MakePopup(showTaskbarIcon);
+	}
 
 	m_hPreviousModal = 0;
 
@@ -766,16 +769,19 @@ Frame::Frame(Panel *parent, const char *panelName, bool showTaskbarIcon) : Edita
 	_drawTitleBar = true; 
 	m_bPreviouslyVisible = false;
 	m_bFadingOut = false;
+	m_bDisableFadeEffect = false;
 	m_flTransitionEffectTime = 0.0f;
 	m_flFocusTransitionEffectTime = 0.0f;
 	m_bDeleteSelfOnClose = false;
 	m_iClientInsetX = 5; 
 	m_iClientInsetY = 5;
+	m_iClientInsetXOverridden = false;
 	m_iTitleTextInsetX = 28;
 	m_bClipToParent = false;
 	m_bSmallCaption = false;
 	m_bChainKeysToParent = false;
 	m_bPrimed = false;
+	m_hCustomTitleFont = INVALID_FONT;
 
 	SetTitle("#Frame_Untitled", parent ? false : true);
 	
@@ -784,10 +790,11 @@ Frame::Frame(Panel *parent, const char *panelName, bool showTaskbarIcon) : Edita
 	
 	SetMinimumSize(128,66);
 	
-	_sysMenu = NULL;
-
 	GetFocusNavGroup().SetFocusTopLevel(true);
 	
+#if !defined( _X360 )
+	_sysMenu = NULL;
+
 	// add dragging grips
 	_topGrip = new GripPanel(this, "frame_topGrip", 0, -1);
 	_bottomGrip = new GripPanel(this, "frame_bottomGrip", 0, 1);
@@ -832,8 +839,16 @@ Frame::Frame(Panel *parent, const char *panelName, bool showTaskbarIcon) : Edita
 
 	_menuButton = new FrameSystemButton(this, "frame_menu");
 	_menuButton->SetMenu(GetSysMenu());
+#endif
 	
 	SetupResizeCursors();
+
+	REGISTER_COLOR_AS_OVERRIDABLE( m_InFocusBgColor, "infocus_bgcolor_override" );
+	REGISTER_COLOR_AS_OVERRIDABLE( m_OutOfFocusBgColor, "outoffocus_bgcolor_override" );
+	REGISTER_COLOR_AS_OVERRIDABLE( _titleBarBgColor, "titlebarbgcolor_override" );
+	REGISTER_COLOR_AS_OVERRIDABLE( _titleBarDisabledBgColor, "titlebardisabledbgcolor_override" );
+	REGISTER_COLOR_AS_OVERRIDABLE( _titleBarFgColor, "titlebarfgcolor_override" );
+	REGISTER_COLOR_AS_OVERRIDABLE( _titleBarDisabledFgColor, "titlebardisabledfgcolor_override" );
 }
 
 //-----------------------------------------------------------------------------
@@ -851,6 +866,7 @@ Frame::~Frame()
 		}
 	}
 
+#if !defined( _X360 )
 	delete _topGrip;
 	delete _bottomGrip;
 	delete _leftGrip;
@@ -864,7 +880,8 @@ Frame::~Frame()
 	delete _maximizeButton;
 	delete _closeButton;
 	delete _menuButton;
-	
+	delete _minimizeToSysTrayButton;
+#endif
 	delete _title;
 }
 
@@ -873,6 +890,7 @@ Frame::~Frame()
 //-----------------------------------------------------------------------------
 void Frame::SetupResizeCursors()
 {
+#if !defined( _X360 )
 	if (IsSizeable())
 	{
 		_topGrip->SetCursor(dc_sizens);
@@ -902,6 +920,7 @@ void Frame::SetupResizeCursors()
 		_bottomRightGrip->SetPaintEnabled(false);
 		_bottomRightGrip->SetPaintBackgroundEnabled(false);
 	}
+#endif
 }
 
 //-----------------------------------------------------------------------------
@@ -910,7 +929,10 @@ void Frame::SetupResizeCursors()
 void Frame::Activate()
 {
 	MoveToFront();
-	RequestFocus();
+	if ( IsKeyBoardInputEnabled() )
+	{
+		RequestFocus();
+	}
 	SetVisible(true);
 	SetEnabled(true);
 	if (m_bFadingOut)
@@ -959,7 +981,7 @@ void Frame::CloseModal()
 //-----------------------------------------------------------------------------
 void Frame::ActivateMinimized()
 {
-	if ( IsVisible() && !IsMinimized() || !surface()->SupportsFeature( ISurface::FRAME_MINIMIZE_MAXIMIZE ) )
+	if ( ( IsVisible() && !IsMinimized() ) || !surface()->SupportsFeature( ISurface::FRAME_MINIMIZE_MAXIMIZE ) )
 	{
 		Activate();
 	}
@@ -1026,12 +1048,12 @@ void Frame::OnThink()
 	BaseClass::OnThink();
 
 	// check for transition effects
-	if (IsVisible() && m_flTransitionEffectTime > 0)
+	if (IsVisible() && m_flTransitionEffectTime > 0 && ( !m_bDisableFadeEffect ))
 	{
 		if (m_bFadingOut)
 		{
 			// we're fading out, see if we're done so we can fully hide the window
-			if (GetAlpha() < 1)
+			if (GetAlpha() < ( IsX360() ? 64 : 1 ))
 			{
 				FinishClose();
 			}
@@ -1042,22 +1064,33 @@ void Frame::OnThink()
 			m_bPreviouslyVisible = true;
 			
 			// fade in
-			SetAlpha(0);
+			if (IsX360())
+			{
+				SetAlpha(64);
+			}
+			else
+			{
+				SetAlpha(0);
+			}
 			GetAnimationController()->RunAnimationCommand(this, "alpha", 255.0f, 0.0f, m_flTransitionEffectTime, AnimationController::INTERPOLATOR_LINEAR);
 		}
 	}
 
 	// check for focus changes
 	bool hasFocus = false;
-	VPANEL focus = input()->GetFocus();
-	if (focus && ipanel()->HasParent(focus, GetVPanel()))
-	{
-		if ( input()->GetAppModalSurface() == 0 || 
-			input()->GetAppModalSurface() == GetVPanel() )
-		{
-			hasFocus = true;
-		}
-	}
+
+    if (input())
+    {
+	    VPANEL focus = input()->GetFocus();
+	    if (focus && ipanel()->HasParent(focus, GetVPanel()))
+	    {
+		    if ( input()->GetAppModalSurface() == 0 || 
+			    input()->GetAppModalSurface() == GetVPanel() )
+		    {
+			    hasFocus = true;
+		    }
+	    }
+    }
 	if (hasFocus != m_bHasFocus)
 	{
 		// Because vgui focus is message based, and focus gets reset to NULL when a focused panel is deleted, we defer the flashing/transition
@@ -1083,6 +1116,7 @@ void Frame::OnThink()
 //-----------------------------------------------------------------------------
 void Frame::OnFrameFocusChanged(bool bHasFocus)
 {
+#if !defined( _X360 )
 	// enable/disable the frame buttons
 	_minimizeButton->SetDisabledLook(!bHasFocus);
 	_maximizeButton->SetDisabledLook(!bHasFocus);
@@ -1094,6 +1128,7 @@ void Frame::OnFrameFocusChanged(bool bHasFocus)
 	_minimizeToSysTrayButton->InvalidateLayout();
 	_closeButton->InvalidateLayout();
 	_menuButton->InvalidateLayout();
+#endif
 
 	if (bHasFocus)
 	{
@@ -1107,9 +1142,9 @@ void Frame::OnFrameFocusChanged(bool bHasFocus)
 	// set our background color
 	if (bHasFocus)
 	{
-		if (m_flFocusTransitionEffectTime)
+		if (m_flFocusTransitionEffectTime && ( !m_bDisableFadeEffect ))
 		{
-			GetAnimationController()->RunAnimationCommand(this, "BgColor", m_InFocusBgColor, 0.0f, m_flTransitionEffectTime, AnimationController::INTERPOLATOR_LINEAR);
+			GetAnimationController()->RunAnimationCommand(this, "BgColor", m_InFocusBgColor, 0.0f, m_bDisableFadeEffect ? 0.0f : m_flTransitionEffectTime, AnimationController::INTERPOLATOR_LINEAR);
 		}
 		else
 		{
@@ -1118,9 +1153,9 @@ void Frame::OnFrameFocusChanged(bool bHasFocus)
 	}
 	else
 	{
-		if (m_flFocusTransitionEffectTime)
+		if (m_flFocusTransitionEffectTime && ( !m_bDisableFadeEffect ))
 		{
-			GetAnimationController()->RunAnimationCommand(this, "BgColor", m_OutOfFocusBgColor, 0.0f, m_flTransitionEffectTime, AnimationController::INTERPOLATOR_LINEAR);
+			GetAnimationController()->RunAnimationCommand(this, "BgColor", m_OutOfFocusBgColor, 0.0f, m_bDisableFadeEffect ? 0.0f : m_flTransitionEffectTime, AnimationController::INTERPOLATOR_LINEAR);
 		}
 		else
 		{
@@ -1189,12 +1224,13 @@ void Frame::PerformLayout()
 	// move everything into place
 	int wide, tall;
 	GetSize(wide, tall);
-	
+		
+#if !defined( _X360 )
 	int DRAGGER_SIZE = GetDraggerSize();
 	int CORNER_SIZE = GetCornerSize();
 	int CORNER_SIZE2 = CORNER_SIZE * 2;
 	int BOTTOMRIGHTSIZE = GetBottomRightSize();
-	
+
 	_topGrip->SetBounds(CORNER_SIZE, 0, wide - CORNER_SIZE2, DRAGGER_SIZE);
 	_leftGrip->SetBounds(0, CORNER_SIZE, DRAGGER_SIZE, tall - CORNER_SIZE2);
 	_topLeftGrip->SetBounds(0, 0, CORNER_SIZE, CORNER_SIZE);
@@ -1222,12 +1258,11 @@ void Frame::PerformLayout()
 	_menuButton->MoveToFront();
 	_minimizeButton->MoveToFront();
 	_minimizeToSysTrayButton->MoveToFront();
-	
 	_menuButton->SetBounds(5+2, 5+3, GetCaptionHeight()-5, GetCaptionHeight()-5);
+#endif
 
 	float scale = 1;
-
-	if(IsProportional())
+	if (IsProportional())
 	{
 		int screenW, screenH;
 		surface()->GetScreenSize( screenW, screenH );
@@ -1238,8 +1273,9 @@ void Frame::PerformLayout()
 		scale =	( (float)( screenH ) / (float)( proH ) );
 	}
 	
+#if !defined( _X360 )
 	int offset_start = (int)( 20 * scale );
-	int offset= offset_start;
+	int offset = offset_start;
 
 	int top_border_offset = (int) ( ( 5+3 ) * scale );
 	if ( m_bSmallCaption )
@@ -1248,8 +1284,7 @@ void Frame::PerformLayout()
 	}
 
 	int side_border_offset = (int) ( 5 * scale );
-
-	// 	 push the buttons against the east side
+	// push the buttons against the east side
 	if (_closeButton->IsVisible())
 	{
 		_closeButton->SetPos((wide-side_border_offset)-offset,top_border_offset);
@@ -1275,8 +1310,7 @@ void Frame::PerformLayout()
 		offset += offset_start;
 		LayoutProportional( _minimizeButton );
 	}
-
-
+#endif
 }
 
 //-----------------------------------------------------------------------------
@@ -1302,7 +1336,7 @@ void Frame::SetTitle(const char *title, bool surfaceTitle)
 	{
 		// try lookup in localization tables
 		StringIndex_t unlocalizedTextSymbol = g_pVGuiLocalize->FindIndex(newTitle + 1);
-		if (unlocalizedTextSymbol != INVALID_STRING_INDEX)
+		if (unlocalizedTextSymbol != INVALID_LOCALIZE_STRING_INDEX)
 		{
 			// we have a new text value
 			wcsncpy( unicodeText, g_pVGuiLocalize->GetValueByIndex(unlocalizedTextSymbol), sizeof( unicodeText) / sizeof(wchar_t) );
@@ -1406,6 +1440,8 @@ void Frame::GetClientArea(int &x, int &y, int &wide, int &tall)
 
 		int border = m_bSmallCaption ? CAPTION_TITLE_BORDER_SMALL : CAPTION_TITLE_BORDER;
 		int yinset = m_bSmallCaption ? 0 : m_iClientInsetY;
+
+		yinset += m_iTitleTextInsetYOverride;
 
 		y = yinset + captionTall + border + 1;
 		tall = (tall - yinset) - y;
@@ -1578,8 +1614,9 @@ void Frame::PaintBackground()
 		
 		if (_title)
 		{
-			int nTitleX = m_iTitleTextInsetX;
+			int nTitleX = m_iTitleTextInsetXOverride ? m_iTitleTextInsetXOverride : m_iTitleTextInsetX;
 			int nTitleWidth = wide - 72;
+#if !defined( _X360 )
 			if ( _menuButton && _menuButton->IsVisible() )
 			{
 				int mw, mh;
@@ -1587,7 +1624,17 @@ void Frame::PaintBackground()
 				nTitleX += mw;
 				nTitleWidth -= mw;
 			}
-			_title->SetPos( nTitleX, m_bSmallCaption ? 2 : 9 );		
+#endif
+			int nTitleY;
+			if ( m_iTitleTextInsetYOverride )
+			{
+				nTitleY = m_iTitleTextInsetYOverride;
+			}
+			else
+			{
+				nTitleY = m_bSmallCaption ? 2 : 9;
+			}
+			_title->SetPos( nTitleX, nTitleY );		
 			_title->SetSize( nTitleWidth, tall);
 			_title->Paint();
 		}
@@ -1602,10 +1649,10 @@ void Frame::ApplySchemeSettings(IScheme *pScheme)
 	// always chain back
 	BaseClass::ApplySchemeSettings(pScheme);
 	
-	_titleBarFgColor = GetSchemeColor("FrameTitleBar.TextColor", pScheme);
-	_titleBarBgColor = GetSchemeColor("FrameTitleBar.BgColor", pScheme);
-	_titleBarDisabledFgColor = GetSchemeColor("FrameTitleBar.DisabledTextColor", pScheme);
-	_titleBarDisabledBgColor = GetSchemeColor("FrameTitleBar.DisabledBgColor", pScheme);
+	SetOverridableColor( &_titleBarFgColor, GetSchemeColor("FrameTitleBar.TextColor", pScheme) );
+	SetOverridableColor( &_titleBarBgColor, GetSchemeColor("FrameTitleBar.BgColor", pScheme) );
+	SetOverridableColor( &_titleBarDisabledFgColor, GetSchemeColor("FrameTitleBar.DisabledTextColor", pScheme) );
+	SetOverridableColor( &_titleBarDisabledBgColor, GetSchemeColor("FrameTitleBar.DisabledBgColor", pScheme) );
 
 	const char *font = NULL;
 	if ( m_bSmallCaption )
@@ -1616,9 +1663,21 @@ void Frame::ApplySchemeSettings(IScheme *pScheme)
 	{
 		font = pScheme->GetResourceString("FrameTitleBar.Font");
 	}
-	_title->SetFont( pScheme->GetFont((font && *font) ? font : "Default", IsProportional()) );
+
+	HFont titlefont;
+	if ( m_hCustomTitleFont )
+	{
+		titlefont = m_hCustomTitleFont;
+	}
+	else
+	{
+		titlefont = pScheme->GetFont((font && *font) ? font : "Default", IsProportional());
+	}
+
+	_title->SetFont( titlefont );
 	_title->ResizeImageToContent();
 
+#if !defined( _X360 )
 	HFont marfont = (HFont)0;
 	if ( m_bSmallCaption )
 	{
@@ -1633,12 +1692,13 @@ void Frame::ApplySchemeSettings(IScheme *pScheme)
 	_maximizeButton->SetFont(marfont);
 	_minimizeToSysTrayButton->SetFont(marfont);
 	_closeButton->SetFont(marfont);
+#endif
 
 	m_flTransitionEffectTime = atof(pScheme->GetResourceString("Frame.TransitionEffectTime"));
 	m_flFocusTransitionEffectTime = atof(pScheme->GetResourceString("Frame.FocusTransitionEffectTime"));
 
-	m_InFocusBgColor = pScheme->GetColor("Frame.BgColor", GetBgColor());
-	m_OutOfFocusBgColor = pScheme->GetColor("Frame.OutOfFocusBgColor", m_InFocusBgColor);
+	SetOverridableColor( &m_InFocusBgColor, pScheme->GetColor("Frame.BgColor", GetBgColor()) );
+	SetOverridableColor( &m_OutOfFocusBgColor, pScheme->GetColor("Frame.OutOfFocusBgColor", m_InFocusBgColor) );
 
 	const char *resourceString = pScheme->GetResourceString("Frame.ClientInsetX");
 	if ( resourceString )
@@ -1669,6 +1729,11 @@ void Frame::DisableFadeEffect( void )
 	m_flTransitionEffectTime = 0.f;
 }
 
+void Frame::SetFadeEffectDisableOverride( bool disabled )
+{
+	m_bDisableFadeEffect = disabled;
+}
+
 //-----------------------------------------------------------------------------
 // Purpose: Apply settings loaded from a resource file
 //-----------------------------------------------------------------------------
@@ -1677,6 +1742,9 @@ void Frame::ApplySettings(KeyValues *inResourceData)
 	// Don't change the frame's visibility, remove that setting from the config data
 	inResourceData->SetInt("visible", -1);
 	BaseClass::ApplySettings(inResourceData);
+
+	SetCloseButtonVisible( inResourceData->GetBool( "setclosebuttonvisible", true ) );
+
 	if( !inResourceData->GetInt("settitlebarvisible", 1 ) ) // if "title" is "0" then don't draw the title bar
 	{
 		SetTitleBarVisible( false );
@@ -1687,6 +1755,23 @@ void Frame::ApplySettings(KeyValues *inResourceData)
 	if (title && *title)
 	{
 		SetTitle(title, true);
+	}
+
+	const char *titlefont = inResourceData->GetString("title_font", "");
+	if ( titlefont && titlefont[0] )
+	{
+		IScheme *pScheme = scheme()->GetIScheme( GetScheme() );
+		if ( pScheme )
+		{
+			m_hCustomTitleFont = pScheme->GetFont( titlefont );
+		}
+	}
+
+	KeyValues *pKV = inResourceData->FindKey( "clientinsetx_override", false );
+	if ( pKV )
+	{
+		m_iClientInsetX = pKV->GetInt();
+		m_iClientInsetXOverridden = true;
 	}
 }
 
@@ -1706,6 +1791,11 @@ void Frame::GetSettings(KeyValues *outResourceData)
 		{
 			outResourceData->SetString("title", buf);
 		}
+	}
+
+	if ( m_iClientInsetXOverridden )
+	{
+		outResourceData->SetInt( "clientinsetx_override", m_iClientInsetX );
 	}
 }
 
@@ -1737,7 +1827,7 @@ void Frame::OnClose()
 	
 	BaseClass::OnClose();
 
-	if (m_flTransitionEffectTime)
+	if (m_flTransitionEffectTime && !m_bDisableFadeEffect)
 	{
 		// begin the hide transition effect
 		GetAnimationController()->RunAnimationCommand(this, "alpha", 0.0f, 0.0f, m_flTransitionEffectTime, AnimationController::INTERPOLATOR_LINEAR);
@@ -1793,6 +1883,7 @@ void Frame::OnCommand(const char *command)
 //-----------------------------------------------------------------------------
 Menu *Frame::GetSysMenu()
 {
+#if !defined( _X360 )
 	if (!_sysMenu)
 	{
 		_sysMenu = new Menu(this, NULL);
@@ -1823,6 +1914,9 @@ Menu *Frame::GetSysMenu()
 	}
 	
 	return _sysMenu;
+#else
+	return NULL;
+#endif
 }
 
 //-----------------------------------------------------------------------------
@@ -1830,6 +1924,7 @@ Menu *Frame::GetSysMenu()
 //-----------------------------------------------------------------------------
 void Frame::SetSysMenu(Menu *menu)
 {
+#if !defined( _X360 )
 	if (menu == _sysMenu)
 		return;
 	
@@ -1837,6 +1932,7 @@ void Frame::SetSysMenu(Menu *menu)
 	_sysMenu = menu;
 
 	_menuButton->SetMenu(_sysMenu);
+#endif
 }
 
 
@@ -1845,7 +1941,9 @@ void Frame::SetSysMenu(Menu *menu)
 //-----------------------------------------------------------------------------
 void Frame::SetImages( const char *pEnabledImage, const char *pDisabledImage )
 {
+#if !defined( _X360 )
 	_menuButton->SetImages( pEnabledImage, pDisabledImage );
+#endif
 }
 
 
@@ -1865,12 +1963,14 @@ void Frame::FinishClose()
 	SetVisible(false);
 	m_bPreviouslyVisible = false;
 	m_bFadingOut = false;
-	if (m_bDeleteSelfOnClose)
-	{
-		MarkForDeletion();
-	}
 
 	OnFinishedClose();
+	
+	if (m_bDeleteSelfOnClose)
+	{
+		// Must be last because if vgui is not running then this will call delete this!!!
+		MarkForDeletion();
+	}
 }
 
 //-----------------------------------------------------------------------------
@@ -1918,7 +2018,9 @@ void Frame::OnMousePressed(MouseCode code)
 //-----------------------------------------------------------------------------
 void Frame::SetMenuButtonVisible(bool state)
 {
+#if !defined( _X360 )
 	_menuButton->SetVisible(state);
+#endif
 }
 
 //-----------------------------------------------------------------------------
@@ -1928,7 +2030,9 @@ void Frame::SetMenuButtonVisible(bool state)
 //-----------------------------------------------------------------------------
 void Frame::SetMenuButtonResponsive(bool state)
 {
+#if !defined( _X360 )
 	_menuButton->SetResponsive(state);
+#endif
 }
 
 //-----------------------------------------------------------------------------
@@ -1936,7 +2040,9 @@ void Frame::SetMenuButtonResponsive(bool state)
 //-----------------------------------------------------------------------------
 void Frame::SetMinimizeButtonVisible(bool state)
 {
+#if !defined( _X360 )
 	_minimizeButton->SetVisible(state);
+#endif
 }
 
 //-----------------------------------------------------------------------------
@@ -1944,7 +2050,9 @@ void Frame::SetMinimizeButtonVisible(bool state)
 //-----------------------------------------------------------------------------
 void Frame::SetMaximizeButtonVisible(bool state)
 {
+#if !defined( _X360 )
 	_maximizeButton->SetVisible(state);
+#endif
 }
 
 //-----------------------------------------------------------------------------
@@ -1952,7 +2060,9 @@ void Frame::SetMaximizeButtonVisible(bool state)
 //-----------------------------------------------------------------------------
 void Frame::SetMinimizeToSysTrayButtonVisible(bool state)
 {
+#if !defined( _X360 )
 	_minimizeToSysTrayButton->SetVisible(state);
+#endif
 }
 
 //-----------------------------------------------------------------------------
@@ -1960,7 +2070,9 @@ void Frame::SetMinimizeToSysTrayButtonVisible(bool state)
 //-----------------------------------------------------------------------------
 void Frame::SetCloseButtonVisible(bool state)
 {
+#if !defined( _X360 )
 	_closeButton->SetVisible(state);
+#endif
 }
 
 //-----------------------------------------------------------------------------
@@ -2025,10 +2137,10 @@ void Frame::FlashWindowStop()
 //-----------------------------------------------------------------------------
 // Purpose: load the control settings - should be done after all the children are added to the dialog
 //-----------------------------------------------------------------------------
-void Frame::LoadControlSettings( const char *dialogResourceName, const char *pathID, KeyValues *pPreloadedKeyValues )
+void Frame::LoadControlSettings( const char *dialogResourceName, const char *pathID, KeyValues *pPreloadedKeyValues, KeyValues *pConditions )
 {
-	BaseClass::LoadControlSettings( dialogResourceName, pathID, pPreloadedKeyValues );
-	
+	BaseClass::LoadControlSettings( dialogResourceName, pathID, pPreloadedKeyValues, pConditions );
+
 	// set the focus on the default control
 	Panel *defaultFocus = GetFocusNavGroup().GetDefaultPanel();
 	if (defaultFocus)
@@ -2174,7 +2286,7 @@ void Frame::SetDeleteSelfOnClose( bool state )
 void Frame::OnDialogVariablesChanged( KeyValues *dialogVariables )
 {
 	StringIndex_t index = _title->GetUnlocalizedTextSymbol();
-	if (index != INVALID_STRING_INDEX)
+	if (index != INVALID_LOCALIZE_STRING_INDEX)
 	{
 		// reconstruct the string from the variables
 		wchar_t buf[1024];

@@ -1,4 +1,4 @@
-//====== Copyright © 1996-2005, Valve Corporation, All rights reserved. =======
+//========= Copyright Valve Corporation, All rights reserved. ============//
 //
 // This is a helper class designed to help with the chains of modal dialogs
 // encountered when trying to open or save a particular file
@@ -12,7 +12,7 @@
 #pragma once
 #endif
 
-#include "vgui_controls/panel.h"
+#include "vgui_controls/Panel.h"
 #include "tier1/utlstring.h"
 
 //-----------------------------------------------------------------------------
@@ -45,6 +45,7 @@ public:
 //-----------------------------------------------------------------------------
 enum FileOpenStateMachineFlags_t
 {
+	FOSM_SHOW_PERFORCE_DIALOGS	= 0x1,
 	FOSM_SHOW_SAVE_QUERY		= 0x2,
 };
 
@@ -79,7 +80,7 @@ public:
 
 	// Used to save a specified file, and deal with all the lovely dialogs
 	// Pass in NULL to get a dialog to choose a filename to save
-	void SaveFile( KeyValues *pContextKeyValues, const char *pFileName, const char *pFileType, int nFlags );
+	void SaveFile( KeyValues *pContextKeyValues, const char *pFileName, const char *pFileType, int nFlags = FOSM_SHOW_PERFORCE_DIALOGS );
 
 	// Returns the state machine completion state
 	CompletionState_t GetCompletionState();
@@ -110,6 +111,7 @@ private:
 
 	MESSAGE_FUNC_PARAMS( OnFileSelected, "FileSelected", pKeyValues );
 	MESSAGE_FUNC( OnFileSelectionCancelled, "FileSelectionCancelled" );
+	MESSAGE_FUNC_PARAMS( OnPerforceQueryCompleted, "PerforceQueryCompleted", pKeyValues );
 	MESSAGE_FUNC( OnMakeFileWriteable, "MakeFileWriteable" );
 	MESSAGE_FUNC( OnCancelMakeFileWriteable, "CancelMakeFileWriteable" );
 

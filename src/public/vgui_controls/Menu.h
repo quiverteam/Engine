@@ -1,4 +1,4 @@
-//===== Copyright © 1996-2005, Valve Corporation, All rights reserved. ======//
+//========= Copyright Valve Corporation, All rights reserved. ============//
 //
 // Purpose: 
 //
@@ -182,11 +182,24 @@ public:
 	// Set the max number of items visible (scrollbar appears with more)
 	virtual void SetNumberOfVisibleItems( int numItems );
 
+	// Add the menu to the menu manager (see Menu::SetVisible())?
+	void EnableUseMenuManager( bool bUseMenuManager );
+
 	// Set up the menu items layout
 	virtual void PerformLayout( void );
 
 	virtual void SetBorder(class IBorder *border);
 	virtual void ApplySchemeSettings(IScheme *pScheme);
+
+	// Set type ahead behaviour
+	enum MenuTypeAheadMode
+	{
+		COMPAT_MODE = 0,
+		HOT_KEY_MODE,
+		TYPE_AHEAD_MODE,
+	};
+	virtual void SetTypeAheadMode(MenuTypeAheadMode mode);
+	virtual int GetTypeAheadMode();
 
 	// Hotkey handling
 	virtual void OnKeyTyped(wchar_t unichar);
@@ -198,11 +211,12 @@ public:
 
 	// Activates item in the menu list, as if that menu item had been selected by the user
 	virtual void ActivateItem(int itemID);
+	virtual void SilentActivateItem(int itemID); // activate item, but don't fire the action signal
 	virtual void ActivateItemByRow(int row);
 	virtual int GetActiveItem();		// returns the itemID (not the row) of the active item
 
 	// Return the number of items currently in the menu list
-	virtual int GetItemCount();
+	virtual int GetItemCount() const;
 
 	// return the menuID of the n'th item in the menu list, valid from [0, GetItemCount)
 	virtual int GetMenuID(int index);
@@ -261,7 +275,10 @@ protected:
 	virtual void LayoutMenuBorder();
 	virtual void MakeItemsVisibleInScrollRange( int maxVisibleItems, int nNumPixelsAvailable );
 	virtual void OnMouseWheeled(int delta);
-	
+	// Alternate OnKeyTyped behaviors
+	virtual void OnHotKey(wchar_t unichar);
+	virtual void OnTypeAhead(wchar_t unichar);
+
 	int	CountVisibleItems();
 	void ComputeWorkspaceSize( int& workWide, int& workTall );
 	int ComputeFullMenuHeightWithInsets();
@@ -313,6 +330,7 @@ private:
 	bool 			_sizedForScrollBar: 1 ;  // whether menu has been sized for a scrollbar
 	bool			m_bUseFallbackFont : 1;
 	bool 			_recalculateWidth : 1;
+	bool			m_bUseMenuManager : 1;
 
 	int 			_menuWide;
 	int 			m_iCurrentlySelectedItemID;
@@ -324,6 +342,36 @@ private:
 	int 			m_iActivatedItem;
 	HFont			m_hItemFont;
 	HFont			m_hFallbackItemFont;
+
+	// for managing type ahead
+	#define			TYPEAHEAD_BUFSIZE 256
+	MenuTypeAheadMode m_eTypeAheadMode;
+	wchar_t			m_szTypeAheadBuf[TYPEAHEAD_BUFSIZE];
+	int				m_iNumTypeAheadChars;
+	double			m_fLastTypeAheadTime;
+};
+
+
+//-----------------------------------------------------------------------------
+// Helper class to create menu
+//-----------------------------------------------------------------------------
+class MenuBuilder
+{
+public:
+
+	MenuBuilder( Menu *pMenu, Panel *pActionTarget );
+
+	MenuItem* AddMenuItem( const char *pszButtonText, const char *pszCommand, const char *pszCategoryName );
+
+	MenuItem* AddCascadingMenuItem( const char *pszButtonText, Menu *pSubMenu, const char *pszCategoryName );
+
+private:
+
+	void AddSepratorIfNeeded( const char *pszCategoryName );
+
+	Menu *m_pMenu;
+	Panel *m_pActionTarget;
+	const char *m_pszLastCategory;
 };
 
 } // namespace vgui

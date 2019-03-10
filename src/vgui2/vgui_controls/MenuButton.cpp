@@ -1,4 +1,4 @@
-//========= Copyright © 1996-2005, Valve Corporation, All rights reserved. ============//
+//========= Copyright Valve Corporation, All rights reserved. ============//
 //
 // Purpose: 
 //
@@ -34,6 +34,8 @@ MenuButton::MenuButton(Panel *parent, const char *panelName, const char *text) :
 	m_iDirection = Menu::DOWN;
 	m_pDropMenuImage = NULL;
 	m_nImageIndex = -1;
+	_openOffsetY = 0;
+	m_bDropMenuButtonStyle = true;  // set to true so SetDropMenuButtonStyle() forces real init.
 
 	SetDropMenuButtonStyle( false );
 	SetUseCaptureMouse( false );

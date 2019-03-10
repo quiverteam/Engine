@@ -118,7 +118,7 @@ const char *CKeyBindings::ButtonNameForBinding( const char *pBinding )
 
 		if ( m_KeyInfo[i][0] == '+' )
 		{
-			if ( !Q_stricmp( &m_KeyInfo[i][1], pBind ) )
+			if ( !Q_stricmp( &m_KeyInfo[i].Get()[1], pBind ) )
 				return g_pInputSystem->ButtonCodeToString( (ButtonCode_t)i );
 		}
 		else

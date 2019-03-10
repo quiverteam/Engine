@@ -13,6 +13,7 @@
 #include "tier1/utlvector.h"
 #include "tier1/utlstring.h"
 #include "tier1/uniqueid.h"
+#include "tier1/utlbinaryblock.h"
 #include "Color.h"
 #include "mathlib/vector2d.h"
 #include "mathlib/vector.h"
