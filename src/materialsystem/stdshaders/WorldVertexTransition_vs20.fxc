@@ -20,9 +20,7 @@ struct VS_INPUT
 struct VS_OUTPUT
 {
     float4 projPos					: POSITION;	
-#if !defined( _X360 )
 	float  fog						: FOG;
-#endif
 	float2 baseCoord				: TEXCOORD0;
 	float2 baseCoord2				: TEXCOORD1;
 	float2 lightmapCoord			: TEXCOORD2;
@@ -41,9 +39,7 @@ VS_OUTPUT main( const VS_INPUT v )
 	float4 projPos = mul( float4( worldPos, 1 ), cViewProj );
 	o.projPos = projPos;
 	o.fogFactorW = CalcFog( worldPos, projPos, g_FogType );
-#if !defined( _X360 )
 	o.fog = o.fogFactorW;
-#endif
 	o.color = v.vColor;
 
 	o.baseCoord.x = dot( v.vTexCoord0, cBaseTexCoordTransform[0] );

@@ -73,6 +73,11 @@ const float4 cLightScale : register( c30 );
 #define NVIDIA_PCF_POISSON	0
 #define ATI_NOPCF			1
 #define ATI_NO_PCF_FETCH4	2
+#define NVIDIA_GAUSSIAN		3
+#define NVIDIA_BOX_3X		4
+#define NVIDIA_RAWZ			5
+#define NVIDIA_RAWZ_ONETAP	6
+#define TEST				7
 
 struct LPREVIEW_PS_OUT
 {
@@ -209,8 +214,17 @@ HALF4 EnvReflect( sampler envmapSampler,
 }
 */
 
+// Vectorized smoothstep for doing three smoothsteps at once.  Used by uberlight
+/*float3 smoothstep3( float3 edge0, float3 edge1, float3 OneOverWidth, float3 x )
+{
+	x = saturate((x - edge0) * OneOverWidth);	// Scale, bias and saturate x to the range of zero to one
+	return x*x*(3-2*x);							// Evaluate polynomial
+}*/
+
 float CalcWaterFogAlpha( const float flWaterZ, const float flEyePosZ, const float flWorldPosZ, const float flProjPosZ, const float flFogOORange )
 {
+#if 0
+	// This version is what you use if you want a line-integral through the water for water fog.
 //	float flDepthFromWater = flWaterZ - flWorldPosZ + 2.0f; // hackity hack . .this is for the DF_FUDGE_UP in view_scene.cpp
 	float flDepthFromWater = flWaterZ - flWorldPosZ;
 
@@ -222,16 +236,25 @@ float CalcWaterFogAlpha( const float flWaterZ, const float flEyePosZ, const floa
 	// Calculate the ratio of water fog to regular fog (ie. how much of the distance from the viewer
 	// to the vert is actually underwater.
 	float flDepthFromEye = flEyePosZ - flWorldPosZ;
-	float f = (flDepthFromWater / flDepthFromEye) * flProjPosZ;
+	//float f = (flDepthFromWater / flDepthFromEye) * flProjPosZ;
+	float f = saturate(flDepthFromWater * (1.0/flDepthFromEye));
 
 	// $tmp.w is now the distance that we see through water.
-	return saturate( f * flFogOORange );
+	//return saturate( f * flFogOORange );
+	return saturate(f * flProjPosZ * flFogOORange);
+#else
+	// This version is simply using the depth of the water to determine fog factor,
+	// which is cheaper than doing the line integral and also fixes some problems with having 
+	// a hard line on the shore when the water surface is viewed tangentially.
+	// hackity hack . .the 2.0 is for the DF_FUDGE_UP in view_scene.cpp
+	return saturate( ( flWaterZ - flWorldPosZ - 2.0f ) * flFogOORange );
+#endif
 }
 
-float CalcRangeFog( const float flProjPosZ, const float flFogEndOverRange, const float flFogMaxDensity, const float flFogOORange )
+float CalcRangeFog( const float flProjPosZ, const float flFogStartOverRange, const float flFogMaxDensity, const float flFogOORange )
 {
 #if !(defined(SHADER_MODEL_PS_1_1) || defined(SHADER_MODEL_PS_1_4) || defined(SHADER_MODEL_PS_2_0)) //Minimum requirement of ps2b
-	return min( flFogMaxDensity, ( saturate( 1.0 - (flFogEndOverRange - (flProjPosZ * flFogOORange)) ) ) );
+	return saturate( min( flFogMaxDensity, (flProjPosZ * flFogOORange) - flFogStartOverRange ) );
 #else
 	return 0.0f; //ps20 shaders will never have range fog enabled because too many ran out of slots.
 #endif
@@ -283,8 +306,12 @@ float3 BlendPixelFog( const float3 vShaderColor, float pixelFogFactor, const flo
 	}
 }
 
-
-#if ((defined(SHADER_MODEL_PS_2_B) || defined(SHADER_MODEL_PS_3_0)) && ( CONVERT_TO_SRGB != 0 ) )
+// i have NO CLUE why shader model 2.0b doesn't like result.g here
+// because this is the EXACT SAME in other branches (ASW and Source 2013)
+// and it works PERFECTLY FINE in those, so kill me now please
+// actually it might also be the damn dx_proxy
+//#if ((defined(SHADER_MODEL_PS_2_B) || defined(SHADER_MODEL_PS_3_0)) && ( CONVERT_TO_SRGB != 0 ) )
+#if ( defined(SHADER_MODEL_PS_3_0) && ( CONVERT_TO_SRGB != 0 ) )
 sampler1D GammaTableSampler : register( s15 );
 
 float3 SRGBOutput( const float3 vShaderColor )
@@ -298,10 +325,10 @@ float3 SRGBOutput( const float3 vShaderColor )
 }
 
 #else
-
+	
 float3 SRGBOutput( const float3 vShaderColor )
 {
-	return vShaderColor; //ps 1.1, 1.4, and 2.0 never do srgb conversion in the pixel shader
+	return vShaderColor; //ps 1.1, 1.4, and 2.0 never do srgb conversion in the pixel shader // maybe 2.0b as well?
 }
 
 #endif
@@ -733,10 +760,15 @@ float3 TextureCombinePostLighting( float3 lit_baseColor, float4 detailColor, int
 	{
  		// fade in an unusual way - instead of fading out color, remap an increasing band of it from
  		// 0..1
-		if ( fBlendFactor > 0.5)
-			lit_baseColor += min(1, (1.0/fBlendFactor)*max(0, detailColor.rgb-(1-fBlendFactor) ) );
-		else
-			lit_baseColor += 2*fBlendFactor*2*max(0, detailColor.rgb-.5);
+		//if (fBlendFactor > 0.5)
+		//	lit_baseColor += min(1, (1.0/fBlendFactor)*max(0, detailColor.rgb-(1-fBlendFactor) ) );
+		//else
+		//	lit_baseColor += 2*fBlendFactor*2*max(0, detailColor.rgb-.5);
+
+		float f = fBlendFactor - 0.5;
+		float fMult = (f >= 0) ? 1.0/fBlendFactor : 4*fBlendFactor;
+		float fAdd = (f >= 0) ? 1.0-fMult : -0.5*fMult;
+		lit_baseColor += saturate(fMult * detailColor.rgb + fAdd);
 	}
 	return lit_baseColor;
 }

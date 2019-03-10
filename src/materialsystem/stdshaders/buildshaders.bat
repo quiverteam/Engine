@@ -15,7 +15,7 @@ set tt_chkpt=%tt_start%
 
 
 REM ****************
-REM usage: buildshaders <shaderProjectName> <source>
+REM usage: buildshaders <shaderProjectName>
 REM ****************
 
 setlocal
@@ -28,6 +28,10 @@ set ChangeToDir=../../../game/bin
 set shaderDir=shaders
 set SDKArgs=
 set SHADERINCPATH=vshtmp9/... fxctmp9/...
+@REM set threadcount=10
+@REM your total thread count - 2
+set /A threadcount=%NUMBER_OF_PROCESSORS% - 2
+@REM this increases performance greatly
 
 @REM should be removed, idk
 set ENGINEBINDIR=../../../game/bin
@@ -126,7 +130,7 @@ REM files will be built in these targets and copied to their final destination
 if not exist %shaderDir% mkdir %shaderDir%
 if not exist %shaderDir%\fxc mkdir %shaderDir%\fxc
 if not exist %shaderDir%\vsh mkdir %shaderDir%\vsh
-if not exist %shaderDir%\psh mkdir %shaderDir%\psh
+@REM if not exist %shaderDir%\psh mkdir %shaderDir%\psh
 REM Nuke some files that we will add to later.
 if exist filelist.txt del /f /q filelist.txt
 if exist filestocopy.txt del /f /q filestocopy.txt
@@ -195,22 +199,12 @@ if exist "filelist.txt" if exist "uniquefilestocopy.txt" if not "%dynamic_shader
 	cd /D %ChangeToDir%
 	@REM %shadercompilecommand% -mpi_MaxWorkers %shadercompileworkers% -shaderpath "%shader_path_cd:/=\%" -allowdebug
 	@REM -verbose -subprocess X
-	%shadercompilecommand% -nompi -shaderpath "%shader_path_cd:/=\%" -allowdebug
+	@REM -nointercept		Uses old slow technique - runs 'fxc.exe' / Uses new faster Vitaliy's implementation
+	%shadercompilecommand% -nompi -threads %threadcount% -shaderpath "%shader_path_cd:/=\%" -allowdebug
 	cd /D %shader_path_cd%
-	pause
 )
 
-REM ****************
-REM PC Shader copy
-REM Publish the generated files to the output dir using XCOPY
-REM This batch file may have been invoked standalone or slaved (master does final smart mirror copy)
-REM ****************
-:DoXCopy
-if not "%dynamic_shaders%" == "1" (
-	if not exist "%targetdir%" md "%targetdir%"
-	if not "%targetdir%"=="%shaderDir%" xcopy %shaderDir%\*.* "%targetdir%" /e /y
-)
-goto end
+
 
 REM ****************
 REM END

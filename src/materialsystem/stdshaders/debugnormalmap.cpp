@@ -13,15 +13,12 @@
 
 
 #ifdef USE_NEW_SHADER
-
 #include "unlitgeneric_vs20.inc"
 #include "unlitgeneric_ps20.inc"
 #include "unlitgeneric_ps20b.inc"
-
-#endif
-
+#else
 #include "unlitgeneric_vs11.inc"
-
+#endif
 
 
 // memdbgon must be the last include file in a .cpp file!!!
@@ -83,8 +80,8 @@ BEGIN_VS_SHADER_FLAGS( DebugNormalMap, "Help for DebugNormalMap", SHADER_NOT_EDI
 					SET_STATIC_PIXEL_SHADER( unlitgeneric_ps20 );
 				}
 			}
-			else
-#endif
+			//else
+#else
 			{
 				unlitgeneric_vs11_Static_Index vshIndex;
 				vshIndex.SetDETAIL( false );
@@ -97,6 +94,7 @@ BEGIN_VS_SHADER_FLAGS( DebugNormalMap, "Help for DebugNormalMap", SHADER_NOT_EDI
 
 				pShaderShadow->SetPixelShader( "unlitgeneric" );
 			}
+#endif
 		}
 		DYNAMIC_STATE
 		{
@@ -132,14 +130,15 @@ BEGIN_VS_SHADER_FLAGS( DebugNormalMap, "Help for DebugNormalMap", SHADER_NOT_EDI
 					SET_DYNAMIC_PIXEL_SHADER( unlitgeneric_ps20 );
 				}
 			}
-			else
-#endif
+			//else
+#else
 			{
 				unlitgeneric_vs11_Dynamic_Index vshIndex;
 				vshIndex.SetDOWATERFOG( pShaderAPI->GetSceneFogMode() == MATERIAL_FOG_LINEAR_BELOW_FOG_Z );
 				vshIndex.SetSKINNING( pShaderAPI->GetCurrentNumBones() > 0 );
 				pShaderAPI->SetVertexShaderIndex( vshIndex.GetIndex() );
 			}
+#endif
 		}
 		Draw();
 	}

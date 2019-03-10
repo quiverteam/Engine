@@ -1,5 +1,4 @@
-//	STATIC: "ONLY_PROJECT_POSITION"	"0..1" [XBOX]
-//	STATIC: "ONLY_PROJECT_POSITION"	"0..0" [PC]
+//	STATIC: "ONLY_PROJECT_POSITION"	"0..0"
 
 //	DYNAMIC: "COMPRESSED_VERTS"		"0..1"
 //	DYNAMIC: "SKINNING"				"0..1"
@@ -15,7 +14,7 @@ static const bool g_bSkinning = SKINNING ? true : false;
 const float3 cMorphTargetTextureDim			: register( SHADER_SPECIFIC_CONST_6 );
 const float4 cMorphSubrect					: register( SHADER_SPECIFIC_CONST_7 );
 
-sampler2D morphSampler : register( D3DVERTEXTEXTURESAMPLER0, s0 );
+sampler2D morphSampler : register( s0 );
 #endif
 
 

@@ -1,8 +1,8 @@
 @echo off
 
-set cmdLine=-sw -game mod_hl2
+set cmdLine=-console -sw -game mod_hl2
 
-quiver.exe %cmdLine%
+start "" quiver.exe %cmdLine%
 echo quiver.exe %cmdLine%
 
 timeout 5

@@ -132,7 +132,8 @@ $Project "stdshader_dx8"
 	$File	"$SRCDIR\devtools\bin\vsh_prep.pl"
 	$File	"$SRCDIR\devtools\bin\psh_prep.pl"
 
-	$Shaders	"stdshader_dx9_20b.txt"
-	$Shaders	"stdshader_dx9_30.txt"
-	$Shaders	"stdshader_dx10.txt"
+	$Shaders	"stdshader_dx8_1x.txt"
+	//$Shaders	"stdshader_dx9_20b.txt"
+	//$Shaders	"stdshader_dx9_30.txt"
+	//$Shaders	"stdshader_dx10.txt"
 }

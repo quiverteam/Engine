@@ -91,11 +91,6 @@ $Project "FileSystem_Stdio"
 	
 	$Folder "Link Libraries" [$WIN32]
 	{
-		$File	"$SRCDIR\lib\public\tier2.lib"
-	}
-	
-	$Folder "Link Libraries" [$X360]
-	{
-		$File	"$SRCDIR\lib\public\tier2_360.lib"
+		$DynamicFile	"$SRCDIR\lib\public\tier2.lib"
 	}
 }

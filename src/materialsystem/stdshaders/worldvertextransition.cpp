@@ -123,9 +123,6 @@ BEGIN_VS_SHADER( WorldVertexTransition_DX9, "Help for WorldVertexTransition" )
 
 	SHADER_FALLBACK
 	{
-		if( g_pHardwareConfig->GetDXSupportLevel() < 90 )
-			return "WorldVertexTransition_DX8";
-
 		return 0;
 	}
 
@@ -143,13 +140,13 @@ BEGIN_VS_SHADER( WorldVertexTransition_DX9, "Help for WorldVertexTransition" )
 
 	SHADER_DRAW
 	{
-		if ( UsingEditor( params ) )
+		/*if ( UsingEditor( params ) )
 		{
 			WorldVertexTransitionEditor_DX8_Vars_t info;
 			SetupVars( info );
 			DrawWorldVertexTransitionEditor_DX8( this, params, pShaderAPI, pShaderShadow, info );
 			return;
-		}
+		}*/
 
 		DrawLightmappedGeneric_DX9( this, params, pShaderAPI, pShaderShadow, s_info, pContextDataPtr );
 	}

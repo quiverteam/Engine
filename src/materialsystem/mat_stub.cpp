@@ -493,7 +493,6 @@ public:
 	virtual int GetMaxVertexTextureDimension() const { return 0; }
 	virtual int MaxViewports() const { return 1; }
 	virtual void OverrideStreamOffsetSupport( bool bOverrideEnabled, bool bEnableSupport ) {}
-	virtual int GetShadowFilterMode() const { return 0; }
 	virtual int NeedsShaderSRGBConversion() const { return 0; }
 	bool UsesSRGBCorrectBlending() const { return false; }
 	virtual bool HasFastVertexTextures() const { return false; }
@@ -504,6 +503,10 @@ public:
 	virtual void SetHDREnabled( bool bEnable ) {}
 	virtual bool SupportsBorderColor( void ) const { return true; }
 	virtual bool SupportsFetch4( void ) const { return false; }
+
+	virtual int GetShadowFilterMode() const { return 0; }
+	virtual float GetShadowDepthBias() const { return 0; }
+	virtual float GetShadowSlopeScaleDepthBias() const { return 0; }
 };
 CDummyHardwareConfig g_DummyHardwareConfig;
 

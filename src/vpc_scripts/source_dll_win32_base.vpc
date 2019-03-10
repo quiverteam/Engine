@@ -88,9 +88,11 @@ $Project
 
 	$Folder	"Link Libraries"
 	{
-		$file	"$SRCDIR\lib\public\tier0.lib"
-		$file	"$SRCDIR\lib\public\tier1.lib"
-		$file	"$SRCDIR\lib\public\vstdlib.lib"
+		// DynamicFile allows us to build the solution without these needing to exist
+		// but if we use that, then the libs won't build or something for some reason?
+		$DynamicFile	"$SRCDIR\lib\public\tier0.lib"
+		$DynamicFile	"$SRCDIR\lib\public\tier1.lib"
+		$DynamicFile	"$SRCDIR\lib\public\vstdlib.lib"
 	}
 
 	$Folder "Resources"

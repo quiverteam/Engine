@@ -1,8 +1,12 @@
 @echo off
 
-set cmdLine=-windowed -game hl2r
+set cmdLine=-console +volume 0.25 +bind F5 screenshot +bind F12 screenshot -sw -game hl2r
 
-quiver.exe %cmdLine%
+start "" quiver.exe %cmdLine%
 echo quiver.exe %cmdLine%
 
-timeout 5
+timeout 3
+
+@REM -shadersondemand needs #define DYNAMIC_SHADER_COMPILE i think, and it also enables mat_flushshaders
+
+@REM start "" "quiver.exe" -hijack +map test_projtex_2

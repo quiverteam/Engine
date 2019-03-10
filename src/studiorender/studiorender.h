@@ -219,8 +219,8 @@ public:
 	InitReturnVal_t Init();
 	void Shutdown( void );
 
-	void EnableScissor( FlashlightState_t *state );
-	void DisableScissor();
+	//void EnableScissor( FlashlightState_t *state );
+	//void DisableScissor();
 
 	void DrawModel( const DrawModelInfo_t& info, const StudioRenderContext_t& rc, matrix3x4_t *pBoneToWorld, const FlexWeights_t& flex, int flags = STUDIORENDER_DRAW_ENTIRE_MODEL );
 

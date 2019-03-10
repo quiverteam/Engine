@@ -257,7 +257,7 @@ public:
 
 
 ConVar r_worldlights	("r_worldlights", "4", 0, "number of world lights to use per vertex" );
-ConVar r_radiosity		("r_radiosity", "4", FCVAR_CHEAT, "0: no radiosity\n1: radiosity with ambient cube (6 samples)\n2: radiosity with 162 samples\n3: 162 samples for static props, 6 samples for everything else" );
+ConVar r_radiosity		("r_radiosity", "2", FCVAR_CHEAT, "0: no radiosity\n1: radiosity with ambient cube (6 samples)\n2: radiosity with 162 samples\n3: 162 samples for static props, 6 samples for everything else" );
 ConVar r_worldlightmin	("r_worldlightmin", "0.0002" );
 ConVar r_avglight		("r_avglight", "1", FCVAR_CHEAT);
 static ConVar r_drawlightcache		("r_drawlightcache", "0", FCVAR_CHEAT, "0: off\n1: draw light cache entries\n2: draw rays\n");

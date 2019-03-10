@@ -4,8 +4,7 @@
 //
 //=============================================================================
 
-// STATIC: "CONVERT_TO_SRGB"		"0..1"	[ps20b][= g_pHardwareConfig->NeedsShaderSRGBConversion()] [PC]
-// STATIC: "CONVERT_TO_SRGB"		"0..0"	[= 0] [XBOX]
+// STATIC: "CONVERT_TO_SRGB"		"0..1"	[ps20b][= g_pHardwareConfig->NeedsShaderSRGBConversion()]
 // STATIC: "CUBEMAP"				"0..1"
 // STATIC: "FLOWMAP"				"0..1"
 // STATIC: "CORECOLORTEXTURE"		"0..1"

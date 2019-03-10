@@ -1,0 +1,180 @@
+"UserConfigData"
+{
+	"resource"
+	{
+		"mdlpicker.res"
+		{
+			"FileBrowserSplitter"
+			{
+				"child0"
+				{
+					"AssetSplitter"
+					{
+						"child1"
+						{
+							"AssetBrowser"
+							{
+								"lastBarWidth"		"622"
+								"0_hidden"		"0"
+								"0_width"		"52"
+								"1_hidden"		"0"
+								"1_width"		"571"
+							}
+						}
+						"0_splitter_pos"		"419.500000"
+						"1_splitter_pos"		"839.000000"
+					}
+				}
+				"child1"
+				{
+					"PreviewSplitter"
+					{
+						"child1"
+						{
+							"ViewsSheet"
+							{
+								"SequencesPage"
+								{
+									"SequencesList"
+									{
+										"lastBarWidth"		"605"
+										"0_hidden"		"0"
+										"0_width"		"606"
+									}
+								}
+								"ActivitiesPage"
+								{
+									"ActivitiesList"
+									{
+										"lastBarWidth"		"605"
+										"0_hidden"		"0"
+										"0_width"		"606"
+									}
+								}
+								"SkinsPage"
+								{
+									"SkinsList"
+									{
+										"lastBarWidth"		"605"
+										"0_hidden"		"0"
+										"0_width"		"606"
+									}
+								}
+								"InfoPage"
+								{
+									"PropData"
+									{
+										"lastBarWidth"		"605"
+										"0_hidden"		"0"
+										"0_width"		"250"
+										"1_hidden"		"0"
+										"1_width"		"356"
+									}
+								}
+							}
+						}
+						"0_splitter_pos"		"419.500000"
+						"1_splitter_pos"		"839.000000"
+					}
+				}
+				"0_splitter_pos"		"652.500000"
+				"1_splitter_pos"		"1305.000000"
+			}
+			"FolderFilter"		"props_wasteland\"
+		}
+		"
+			"assetpicker.res"		"
+		{
+			"
+			"AssetSplitter"		"
+			{
+				"
+			"child1"		"
+				{
+					"
+			"AssetBrowser"		"
+					{
+						"
+			"lastBarWidth"		"		"
+			"438"		"
+						"
+			"0_hidden"		"		"
+			"0"		"
+						"
+			"0_width"		"		"
+			"52"		"
+						"
+			"1_hidden"		"		"
+			"0"		"
+						"
+			"1_width"		"		"
+			"387"		"
+					}
+				}
+				"
+			"0_splitter_pos"		"		"
+			"216.500031"		"
+				"
+			"1_splitter_pos"		"		"
+			"433.000000"		"
+			}
+		}
+		"
+			"assetpickerframe.res"		"
+		{
+			"
+			"AssetPicker"		"
+			{
+				"
+			"AssetSplitter"		"
+				{
+					"
+			"child1"		"
+					{
+						"
+			"AssetBrowser"		"
+						{
+							"
+			"lastBarWidth"		"		"
+			"438"		"
+							"
+			"0_hidden"		"		"
+			"0"		"
+							"
+			"0_width"		"		"
+			"52"		"
+							"
+			"1_hidden"		"		"
+			"0"		"
+							"
+			"1_width"		"		"
+			"387"		"
+						}
+					}
+					"
+			"0_splitter_pos"		"		"
+			"216.500031"		"
+					"
+			"1_splitter_pos"		"		"
+			"433.000000"		"
+				}
+			}
+			"
+			"xpos"		"		"
+			"518"		"
+			"
+			"ypos"		"		"
+			"245"		"
+			"
+			"wide"		"		"
+			"469"		"
+			"
+			"tall"		"		"
+			"493"		"
+		}
+	}
+}
+"
+		}
+	}
+}

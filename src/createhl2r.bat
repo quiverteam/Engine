@@ -1,3 +1,3 @@
 @echo off
-devtools\bin\vpc.exe /hl2r +gamedlls /mksln game_hl2r.sln
+devtools\bin\vpc.exe /hl2r +gamedlls +shaders_all /mksln game_hl2r.sln
 pause

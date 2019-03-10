@@ -716,6 +716,8 @@ public:
 	virtual int  MaxViewports() const;
 	virtual void OverrideStreamOffsetSupport( bool bOverrideEnabled, bool bEnableSupport ) {}
 	virtual int  GetShadowFilterMode() const;
+	virtual float  GetShadowDepthBias() const;
+	virtual float  GetShadowSlopeScaleDepthBias() const;
 	int  StencilBufferBits() const;
 	int	 GetFrameBufferColorDepth() const;
 	int  GetSamplerCount() const;
@@ -1847,6 +1849,9 @@ int CShaderAPIEmpty::GetShadowFilterMode() const
 {
 	return 0;
 }
+
+float CShaderAPIEmpty::GetShadowDepthBias() const { return 0; }
+float CShaderAPIEmpty::GetShadowSlopeScaleDepthBias() const { return 0; }
 
 int CShaderAPIEmpty::StencilBufferBits() const
 {

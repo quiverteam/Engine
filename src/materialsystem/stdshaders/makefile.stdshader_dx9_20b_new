@@ -1,8 +1,0 @@
-default:  fxctmp9_tmp\Water_ps20.inc fxctmp9_tmp\Water_ps20b.inc
-
-fxctmp9_tmp\Water_ps20.inc :  Water_ps2x.fxc common_fxc.h common_hlsl_cpp_consts.h water_ps2x_helper.h common_ps_fxc.h common_pragmas.h
-	perl ..\..\devtools\bin\fxc_prep.pl -novcs   -source "..\.." Water_ps2x.fxc-----Water_ps20
-
-fxctmp9_tmp\Water_ps20b.inc :  Water_ps2x.fxc common_fxc.h common_hlsl_cpp_consts.h water_ps2x_helper.h common_ps_fxc.h common_pragmas.h
-	perl ..\..\devtools\bin\fxc_prep.pl -novcs   -source "..\.." Water_ps2x.fxc-----Water_ps20b
-

@@ -26,7 +26,7 @@ const float4 const4	:  register( SHADER_SPECIFIC_CONST_4 );
 const float3 cMorphTargetTextureDim		: register( SHADER_SPECIFIC_CONST_6 );
 const float4 cMorphSubrect				: register( SHADER_SPECIFIC_CONST_7 );
 
-sampler2D morphSampler					: register( D3DVERTEXTEXTURESAMPLER0, s0 );
+sampler2D morphSampler					: register( s0 );
 #endif
 
 
@@ -66,9 +66,7 @@ struct VS_INPUT
 struct VS_OUTPUT
 {
     float4 projPos					: POSITION;	
-#if !defined( _X360 )
 	float  fog						: FOG;
-#endif
 
 	HALF4 baseTexCoord2_tangentSpaceVertToEyeVectorXY			: TEXCOORD0;
 	// bump mapping and a separate envmap mask texture are mutually exclusive.
@@ -121,9 +119,8 @@ VS_OUTPUT main( const VS_INPUT v )
 	float4 projPos = mul( float4( worldPos, 1 ), cViewProj );
 	o.projPos = projPos;
 	o.fogFactorW = CalcFog( worldPos, projPos, g_FogType );
-#if !defined( _X360 )
 	o.fog = o.fogFactorW;
-#endif
+	
  	// Needed for water fog alpha and diffuse lighting 
 	// FIXME: we shouldn't have to compute this all the time.
 	o.worldPos_projPosZ = float4( worldPos, projPos.z );

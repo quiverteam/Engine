@@ -583,13 +583,20 @@ bool CHardwareConfig::SupportsShaderModel_3_0() const
 #define NVIDIA_PCF_POISSON	0
 #define ATI_NOPCF			1
 #define ATI_NO_PCF_FETCH4	2
+#define NVIDIA_GAUSSIAN		3
+#define NVIDIA_BOX_3X		4
+#define NVIDIA_RAWZ			5
+#define NVIDIA_RAWZ_ONETAP	6 // broken
+#define TEST				7
+
+//static ConVar r_flashlight_filter( "r_flashlight_filter", "0", FCVAR_ARCHIVE, "Set the Flashlight Filter Mode. Goes through 0 - 7. need to add all modes here." );		// -1=use caps 0=off 1=on
 
 int CHardwareConfig::GetShadowFilterMode() const
 {
-	if ( !m_Caps.m_bSupportsShadowDepthTextures || !ShaderUtil()->GetConfig().ShadowDepthTexture() )
-		return 0;
+	//if ( !m_Caps.m_bSupportsShadowDepthTextures || !ShaderUtil()->GetConfig().ShadowDepthTexture() )
+	//	return 0;
 
-	switch ( m_Caps.m_ShadowDepthTextureFormat )
+	/*switch ( m_Caps.m_ShadowDepthTextureFormat )
 	{
 		case IMAGE_FORMAT_NV_DST16:
 		case IMAGE_FORMAT_NV_DST24:
@@ -604,19 +611,36 @@ int CHardwareConfig::GetShadowFilterMode() const
 
 			return ATI_NOPCF;									// ATI vanilla depth texture sampling
 
-#if defined( _X360 )
-		case IMAGE_FORMAT_X360_DST16:
-		case IMAGE_FORMAT_X360_DST24:
-		case IMAGE_FORMAT_X360_DST24F:
-			return 0;
-#endif
-
 		default:
 			return 0;
-	}
+	}*/
+
+	/*switch ( r_flashlight_filter.GetInt() )
+	{	
+		case 0:
+			return NVIDIA_PCF_POISSON;
+		case 1:
+			return ATI_NOPCF;
+		case 2:
+			return ATI_NO_PCF_FETCH4;
+		case 3:
+			return NVIDIA_GAUSSIAN;
+		case 4:
+			return NVIDIA_BOX_3X;
+		case 5:
+			return NVIDIA_RAWZ;
+		case 6:
+			return TEST;
+	}*/
+
+	//return r_flashlight_filter.GetInt();
+	//return NVIDIA_PCF_POISSON;
 
 	return 0;
 }
+
+float CHardwareConfig::GetShadowDepthBias() const { return FlashlightState_t().m_flShadowDepthBias; }
+float CHardwareConfig::GetShadowSlopeScaleDepthBias() const { return FlashlightState_t().m_flShadowSlopeScaleDepthBias; }
 
 static ConVar r_shader_srgb( "r_shader_srgb", "0", 0, "-1 = use hardware caps. 0 = use hardware srgb. 1 = use shader srgb(software lookup)" );		// -1=use caps 0=off 1=on
 

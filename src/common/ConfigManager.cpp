@@ -33,28 +33,28 @@
 
 #define SDK_LAUNCHER_VERSION 3
 
+// Half-Life 2 - Revamped
+defaultConfigInfo_t HL2RInfo =
+{
+	"Half-Life 2 - Revamped",
+	"hl2r",
+	"fgd\\hl2r.fgd",
+	"half-life 2 - revamped",
+	"info_player_start",
+	"quiver.exe",
+	GetAppSteamAppId( k_App_HL2 )
+};
+
 // Half-Life 2
 defaultConfigInfo_t HL2Info =
 {
 	"Half-Life 2",
 	"hl2",
-	"halflife2.fgd",
+	"fgd\\halflife2.fgd",
 	"half-life 2",
 	"info_player_start",
-	"hl2.exe",
+	"quiver.exe",
 	GetAppSteamAppId( k_App_HL2 )
-};
-
-// Counter-Strike: Source
-defaultConfigInfo_t CStrikeInfo =
-{
-	"Counter-Strike: Source",
-	"cstrike",
-	"cstrike.fgd",
-	"counter-strike source",
-	"info_player_terrorist",
-	"hl2.exe",
-	GetAppSteamAppId( k_App_CSS )
 };
 
 //Half-Life 2: Deathmatch
@@ -62,23 +62,11 @@ defaultConfigInfo_t HL2DMInfo =
 {
 	"Half-Life 2: Deathmatch",
 	"hl2mp",
-	"hl2mp.fgd",
+	"fgd\\hl2mp.fgd",
 	"half-life 2 deathmatch",
 	"info_player_deathmatch",
-	"hl2.exe",
+	"quiver.exe",
 	GetAppSteamAppId( k_App_HL2MP )
-};
-
-// Day of Defeat: Source
-defaultConfigInfo_t DODInfo = 
-{
-	"Day of Defeat: Source",
-	"dod",
-	"dod.fgd",
-	"day of defeat source",
-	"info_player_allies",
-	"hl2.exe",
-	GetAppSteamAppId( k_App_DODS )
 };
 
 // Half-Life 2 Episode 1
@@ -86,10 +74,10 @@ defaultConfigInfo_t Episode1Info =
 {
 	"Half-Life 2: Episode One",
 	"episodic",
-	"halflife2.fgd",
+	"fgd\\halflife2.fgd",
 	"half-life 2 episode one",
 	"info_player_start",
-	"hl2.exe",
+	"quiver.exe",
 	GetAppSteamAppId( k_App_HL2_EP1 ) 
 };
 
@@ -98,35 +86,11 @@ defaultConfigInfo_t Episode2Info =
 {
 	"Half-Life 2: Episode Two",
 	"ep2",
-	"halflife2.fgd",
+	"fgd\\halflife2.fgd",
 	"half-life 2 episode two",
 	"info_player_start",
-	"hl2.exe",
+	"quiver.exe",
 	GetAppSteamAppId( k_App_HL2_EP2 ) 
-};
-
-// Team Fortress 2
-defaultConfigInfo_t TF2Info =
-{
-	"Team Fortress 2",
-	"tf",
-	"tf.fgd",
-	"team fortress 2",
-	"info_player_teamspawn",
-	"hl2.exe",
-	GetAppSteamAppId( k_App_TF2 )
-};
-
-// Portal
-defaultConfigInfo_t PortalInfo =
-{
-	"Portal",
-	"portal",
-	"portal.fgd",
-	"portal",
-	"info_player_start",
-	"hl2.exe",
-	GetAppSteamAppId( k_App_PORTAL )
 };
 
 //-----------------------------------------------------------------------------
@@ -910,21 +874,18 @@ bool CGameConfigManager::GetDefaultGameBlock( KeyValues *pIn )
 	if ( m_eSDKEpoch == HL2 || m_eSDKEpoch == EP1 )
 	{
 		defaultConfigs.AddToTail( HL2Info );
-		defaultConfigs.AddToTail( CStrikeInfo );
 		defaultConfigs.AddToTail( HL2DMInfo );
-		defaultConfigs.AddToTail( DODInfo );
 	}
 	// Add EP1 game to list
 	if ( m_eSDKEpoch == EP1 )
 	{
 		defaultConfigs.AddToTail( Episode1Info );
 	}
-	// Add EP1 game to list
+	// Add EP2 game to list
 	if ( m_eSDKEpoch == EP2 )
 	{
 		defaultConfigs.AddToTail( Episode2Info );
-		defaultConfigs.AddToTail( TF2Info );
-		defaultConfigs.AddToTail( PortalInfo );
+		defaultConfigs.AddToTail( HL2RInfo );
 	}
 
 	if ( pIn == NULL )

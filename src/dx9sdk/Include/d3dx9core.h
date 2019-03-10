@@ -25,7 +25,7 @@
 
 #define D3DX_VERSION 0x0902
 
-#define D3DX_SDK_VERSION 42
+#define D3DX_SDK_VERSION 38
 
 #ifdef __cplusplus
 extern "C" {

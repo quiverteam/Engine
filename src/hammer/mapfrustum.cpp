@@ -333,7 +333,7 @@ void CMapFrustum::Render3D(CRender3D *pRender)
 		pRenderContext->Rotate(m_flPitchScale * Angles[PITCH], 0, -1, 0);
 		pRenderContext->Rotate(Angles[ROLL], 1, 0, 0);
 
-		if (
+		/*if (
 			(pRender->GetCurrentRenderMode() != RENDER_MODE_LIGHT_PREVIEW2) &&
 			(pRender->GetCurrentRenderMode() != RENDER_MODE_LIGHT_PREVIEW_RAYTRACED) &&
 			(GetSelectionState() != SELECT_MODIFY )
@@ -349,7 +349,7 @@ void CMapFrustum::Render3D(CRender3D *pRender)
 			}
 
 			pRender->PopRenderMode();
-		}
+		}*/
 
 		//
 		// Render the cone faces in yellow wireframe (on top)

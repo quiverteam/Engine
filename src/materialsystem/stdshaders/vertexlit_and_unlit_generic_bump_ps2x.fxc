@@ -10,9 +10,8 @@
 // STATIC: "FLASHLIGHT"					"0..1"
 // STATIC: "DETAILTEXTURE"				"0..1"
 // STATIC: "DETAIL_BLEND_MODE"      	"0..6"
-// STATIC: "FLASHLIGHTDEPTHFILTERMODE"	"0..2"						[ps20b] [PC]
-// STATIC: "FLASHLIGHTDEPTHFILTERMODE"	"0..2"						[ps30] [PC]
-// STATIC: "FLASHLIGHTDEPTHFILTERMODE"	"0..0"						[ps20b] [XBOX]
+// STATIC: "FLASHLIGHTDEPTHFILTERMODE"	"0..2"						[ps20b]
+// STATIC: "FLASHLIGHTDEPTHFILTERMODE"	"0..2"						[ps30]
 
 // DYNAMIC: "PIXELFOGTYPE"				"0..1"						[ps20]
 // DYNAMIC: "WRITEWATERFOGTODESTALPHA"	"0..1"						[ps20]
@@ -21,10 +20,10 @@
 // DYNAMIC: "NUM_LIGHTS"				"0..4"						[ps30]
 // DYNAMIC: "AMBIENT_LIGHT"				"0..1"
 // DYNAMIC: "FLASHLIGHTSHADOWS"			"0..1"						[ps20b]
-// DYNAMIC: "FLASHLIGHTSHADOWS"			"0..1"						[ps30] [PC]
+// DYNAMIC: "FLASHLIGHTSHADOWS"			"0..1"						[ps30]
 
 // We don't use light combos when doing the flashlight
-// SKIP: ( $FLASHLIGHT != 0 ) && ( $NUM_LIGHTS > 0 )				[PC]
+// SKIP: ( $FLASHLIGHT != 0 ) && ( $NUM_LIGHTS > 0 )
 
 // We don't care about flashlight depth unless the flashlight is on
 // SKIP: ( $FLASHLIGHT == 0 ) && ( $FLASHLIGHTSHADOWS == 1 )		[ps20b]
@@ -33,7 +32,7 @@
 // SKIP: (! $DETAILTEXTURE) && ( $DETAIL_BLEND_MODE != 0 )
 
 // Don't do diffuse warp on flashlight
-// SKIP: ( $FLASHLIGHT == 1 ) && ( $LIGHTWARPTEXTURE == 1 )			[PC]
+// SKIP: ( $FLASHLIGHT == 1 ) && ( $LIGHTWARPTEXTURE == 1 )
 
 // Only warp diffuse if we have it at all
 // SKIP: ( $DIFFUSELIGHTING == 0 ) && ( $LIGHTWARPTEXTURE == 1 )
@@ -43,8 +42,8 @@
 
 // Only need self illum fresnel when self illum enabled
 // SKIP: ( $SELFILLUM == 0 ) && ( $SELFILLUMFRESNEL == 1 )
-// SKIP: ( $FLASHLIGHT == 1 ) && ( $SELFILLUMFRESNEL == 1 )			[PC]
-// SKIP: ( $FLASHLIGHT == 1 ) && ( $SELFILLUM == 1 )				[PC]
+// SKIP: ( $FLASHLIGHT == 1 ) && ( $SELFILLUMFRESNEL == 1 )
+// SKIP: ( $FLASHLIGHT == 1 ) && ( $SELFILLUM == 1 )
 // SKIP: ( $SELFILLUMFRESNEL == 1 ) && ( $DETAILTEXTURE == 1 )
 // SKIP: ( $SELFILLUMFRESNEL == 1 ) && ( $NORMALMAPALPHAENVMAPMASK == 1 )
 
@@ -110,12 +109,6 @@ struct PS_INPUT
 	float4 worldPos_projPosZ									: TEXCOORD6;
 	float3 detailTexCoord_atten3								: TEXCOORD7;
 	float4 fogFactorW											: COLOR1;
-
-#if defined( _X360 )
-#if FLASHLIGHT
-	float4 flashlightSpacePos									: TEXCOORD8;
-#endif
-#endif
 };
 
 // Calculate both types of Fog and lerp to get result
@@ -229,22 +222,14 @@ float4 main( PS_INPUT i ) : COLOR
 #endif
 		float3 worldSpaceNormal = Vec3TangentToWorldNormalized( tangentSpaceNormal.xyz, i.vWorldNormal, i.vWorldTangent, vWorldBinormal );
 
-#if defined ( _X360 )
-		float4 flashlightSpacePosition = i.flashlightSpacePos;
-#else
 		float4 flashlightSpacePosition = mul( float4( i.worldPos_projPosZ.xyz, 1.0f ), g_FlashlightWorldToTexture );
-#endif
 
 		float3 flashlightColor = DoFlashlight( g_FlashlightPos, i.worldPos_projPosZ.xyz, flashlightSpacePosition,
 			worldSpaceNormal, g_FlashlightAttenuationFactors.xyz, 
 			g_FlashlightAttenuationFactors.w, FlashlightSampler, ShadowDepthSampler,
 			RandRotSampler, nShadowSampleLevel, bDoShadows, false, vProjPos, false, g_EnvmapContrast_ShadowTweaks );
-
-#if defined ( _X360 )
-		diffuseLighting += flashlightColor;
-#else
+			
 		diffuseLighting = flashlightColor;
-#endif
 
 	}
 #endif
@@ -255,7 +240,7 @@ float4 main( PS_INPUT i ) : COLOR
 	float3 diffuseComponent = albedo * diffuseLighting;
 
 
-#if !FLASHLIGHT || defined ( _X360 )
+#if !FLASHLIGHT
 	if ( bSelfIllum )
 	{
 		#if ( SELFILLUMFRESNEL == 1 ) // To free up the constant register...see top of file
@@ -281,7 +266,7 @@ float4 main( PS_INPUT i ) : COLOR
 #endif
 
 	float3 specularLighting = float3( 0.0f, 0.0f, 0.0f );
-#if !FLASHLIGHT || defined ( _X360 )
+#if !FLASHLIGHT
 	if( bCubemap )
 	{
 		float3 worldSpaceNormal = Vec3TangentToWorld( tangentSpaceNormal.xyz, i.vWorldNormal, i.vWorldTangent, vWorldBinormal );

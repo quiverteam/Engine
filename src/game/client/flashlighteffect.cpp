@@ -19,11 +19,7 @@
 #include "c_basehlplayer.h"
 #endif // HL2_CLIENT_DLL
 
-#if defined( _X360 )
 extern ConVar r_flashlightdepthres;
-#else
-extern ConVar r_flashlightdepthres;
-#endif
 
 // memdbgon must be the last include file in a .cpp file!!!
 #include "tier0/memdbgon.h"
@@ -35,21 +31,36 @@ void r_newflashlightCallback_f( IConVar *pConVar, const char *pOldString, float 
 static ConVar r_newflashlight( "r_newflashlight", "1", FCVAR_CHEAT, "", r_newflashlightCallback_f );
 static ConVar r_swingflashlight( "r_swingflashlight", "1", FCVAR_CHEAT );
 static ConVar r_flashlightlockposition( "r_flashlightlockposition", "0", FCVAR_CHEAT );
-static ConVar r_flashlightfov( "r_flashlightfov", "45.0", FCVAR_CHEAT );
-static ConVar r_flashlightoffsetx( "r_flashlightoffsetx", "10.0", FCVAR_CHEAT );
-static ConVar r_flashlightoffsety( "r_flashlightoffsety", "-20.0", FCVAR_CHEAT );
-static ConVar r_flashlightoffsetz( "r_flashlightoffsetz", "24.0", FCVAR_CHEAT );
 static ConVar r_flashlightnear( "r_flashlightnear", "4.0", FCVAR_CHEAT );
 static ConVar r_flashlightfar( "r_flashlightfar", "750.0", FCVAR_CHEAT );
-static ConVar r_flashlightconstant( "r_flashlightconstant", "0.0", FCVAR_CHEAT );
-static ConVar r_flashlightlinear( "r_flashlightlinear", "100.0", FCVAR_CHEAT );
-static ConVar r_flashlightquadratic( "r_flashlightquadratic", "0.0", FCVAR_CHEAT );
 static ConVar r_flashlightvisualizetrace( "r_flashlightvisualizetrace", "0", FCVAR_CHEAT );
 static ConVar r_flashlightambient( "r_flashlightambient", "0.0", FCVAR_CHEAT );
 static ConVar r_flashlightshadowatten( "r_flashlightshadowatten", "0.35", FCVAR_CHEAT );
 static ConVar r_flashlightladderdist( "r_flashlightladderdist", "40.0", FCVAR_CHEAT );
-static ConVar mat_slopescaledepthbias_shadowmap( "mat_slopescaledepthbias_shadowmap", "16", FCVAR_CHEAT );
-static ConVar mat_depthbias_shadowmap(	"mat_depthbias_shadowmap", "0.0005", FCVAR_CHEAT  );
+static ConVar r_flashlightnearoffsetscale( "r_flashlightnearoffsetscale", "1.0", FCVAR_CHEAT );
+static ConVar r_flashlightbacktraceoffset( "r_flashlightbacktraceoffset", "0.4", FCVAR_CHEAT );
+
+static ConVar r_flashlight_filtersize( "r_flashlight_filtersize", "0.5", FCVAR_CHEAT );
+static ConVar r_flashlightconstant( "r_flashlightconstant", "0.0", FCVAR_CHEAT );
+
+// this is disgusting
+#ifdef HL2R_CLIENT
+static ConVar r_flashlightfov( "r_flashlightfov", "90.0", FCVAR_CHEAT );
+static ConVar r_flashlighttracedistcutoff( "r_flashlighttracedistcutoff", "0", FCVAR_CHEAT, "The distance until flashlight gets closer to wall" );
+static ConVar r_flashlightoffsetx( "r_flashlightoffsetx", "10.0", FCVAR_CHEAT );
+static ConVar r_flashlightoffsety( "r_flashlightoffsety", "-10.0", FCVAR_CHEAT ); // raised to stop it from snapping up when right against a wall and looking up
+static ConVar r_flashlightoffsetz( "r_flashlightoffsetz", "24.0", FCVAR_CHEAT );
+static ConVar r_flashlightlinear( "r_flashlightlinear", "0.0", FCVAR_CHEAT );
+static ConVar r_flashlightquadratic( "r_flashlightquadratic", "20000.0", FCVAR_CHEAT );
+#else
+static ConVar r_flashlightfov( "r_flashlightfov", "45.0", FCVAR_CHEAT );
+static ConVar r_flashlighttracedistcutoff( "r_flashlighttracedistcutoff", "128", FCVAR_CHEAT, "The distance until flashlight gets closer to wall" );
+static ConVar r_flashlightoffsetx( "r_flashlightoffsetx", "10.0", FCVAR_CHEAT );
+static ConVar r_flashlightoffsety( "r_flashlightoffsety", "-20.0", FCVAR_CHEAT );
+static ConVar r_flashlightoffsetz( "r_flashlightoffsetz", "24.0", FCVAR_CHEAT );
+static ConVar r_flashlightlinear( "r_flashlightlinear", "100.0", FCVAR_CHEAT );
+static ConVar r_flashlightquadratic( "r_flashlightquadratic", "0.0", FCVAR_CHEAT );
+#endif
 
 
 void r_newflashlightCallback_f( IConVar *pConVar, const char *pOldString, float flOldValue )
@@ -104,7 +115,7 @@ CFlashlightEffect::~CFlashlightEffect()
 void CFlashlightEffect::TurnOn()
 {
 	m_bIsOn = true;
-	m_flDistMod = 1.0f;
+	m_flCurrentPullBackDist = 1.0f;
 }
 
 
@@ -159,8 +170,9 @@ void CFlashlightEffect::UpdateLightNew(const Vector &vecPos, const Vector &vecFo
 	bool bPlayerOnLadder = ( C_BasePlayer::GetLocalPlayer()->GetMoveType() == MOVETYPE_LADDER );
 
 	const float flEpsilon = 0.1f;			// Offset flashlight position along vecUp
-	const float flDistCutoff = 128.0f;
-	const float flDistDrag = 0.2;
+	const float flDistCutoff = r_flashlighttracedistcutoff.GetFloat();
+	//const float flDistDrag = 0.2;
+	const float flDistDrag = 0;
 
 	CTraceFilterSkipPlayerAndViewModel traceFilter;
 	float flOffsetY = r_flashlightoffsety.GetFloat();
@@ -236,7 +248,7 @@ void CFlashlightEffect::UpdateLightNew(const Vector &vecPos, const Vector &vecFo
 		// We have an intersection with our cutoff range
 		// Determine how far to pull back, then trace to see if we are clear
 		float flPullBackDist = bPlayerOnLadder ? r_flashlightladderdist.GetFloat() : flDistCutoff - flDist;	// Fixed pull-back distance if on ladder
-		m_flDistMod = Lerp( flDistDrag, m_flDistMod, flPullBackDist );
+		m_flCurrentPullBackDist = Lerp( flDistDrag, m_flCurrentPullBackDist, flPullBackDist );
 		
 		if ( !bPlayerOnLadder )
 		{
@@ -244,24 +256,22 @@ void CFlashlightEffect::UpdateLightNew(const Vector &vecPos, const Vector &vecFo
 			UTIL_TraceHull( vOrigin, vOrigin - vDir*(flPullBackDist-flEpsilon), Vector( -4, -4, -4 ), Vector( 4, 4, 4 ), iMask, &traceFilter, &pmBackTrace );
 			if( pmBackTrace.DidHit() )
 			{
-				// We have an intersection behind us as well, so limit our m_flDistMod
+				// We have an intersection behind us as well, so limit our m_flCurrentPullBackDist
 				float flMaxDist = (pmBackTrace.endpos - vOrigin).Length() - flEpsilon;
-				if( m_flDistMod > flMaxDist )
-					m_flDistMod = flMaxDist;
+				if( m_flCurrentPullBackDist > flMaxDist )
+					m_flCurrentPullBackDist = flMaxDist;
 			}
 		}
 	}
 	else
 	{
-		m_flDistMod = Lerp( flDistDrag, m_flDistMod, 0.0f );
+		m_flCurrentPullBackDist = Lerp( flDistDrag, m_flCurrentPullBackDist, 0.0f );
 	}
-	vOrigin = vOrigin - vDir * m_flDistMod;
+	vOrigin = vOrigin - vDir * m_flCurrentPullBackDist;
 
 	state.m_vecLightOrigin = vOrigin;
 
 	BasisToQuaternion( vDir, vRight, vUp, state.m_quatOrientation );
-
-	state.m_fQuadraticAtten = r_flashlightquadratic.GetFloat();
 
 	bool bFlicker = false;
 
@@ -320,22 +330,27 @@ void CFlashlightEffect::UpdateLightNew(const Vector &vecPos, const Vector &vecFo
 		state.m_fVerticalFOVDegrees = r_flashlightfov.GetFloat();
 	}
 
+	state.m_fQuadraticAtten = r_flashlightquadratic.GetFloat();
 	state.m_fConstantAtten = r_flashlightconstant.GetFloat();
 	state.m_Color[0] = 1.0f;
 	state.m_Color[1] = 1.0f;
 	state.m_Color[2] = 1.0f;
 	state.m_Color[3] = r_flashlightambient.GetFloat();
-	state.m_NearZ = r_flashlightnear.GetFloat() + m_flDistMod;	// Push near plane out so that we don't clip the world when the flashlight pulls back 
+	//state.m_NearZ = r_flashlightnear.GetFloat() + m_flCurrentPullBackDist;	// Push near plane out so that we don't clip the world when the flashlight pulls back 
+	state.m_NearZ = r_flashlightnear.GetFloat() + r_flashlightnearoffsetscale.GetFloat() * m_flCurrentPullBackDist;	// Optionally Push near plane out so that we don't clip the world when the flashlight pulls back 
 	state.m_FarZ = r_flashlightfar.GetFloat();
-	state.m_bEnableShadows = r_flashlightdepthtexture.GetBool();
+	//state.m_bEnableShadows = r_flashlightdepthtexture.GetBool();
+	state.m_bEnableShadows = true;
 	state.m_flShadowMapResolution = r_flashlightdepthres.GetInt();
 
+	state.m_flShadowFilterSize = r_flashlight_filtersize.GetFloat();
+
 	state.m_pSpotlightTexture = m_FlashlightTexture;
-	state.m_nSpotlightTextureFrame = 0;
+	state.m_nSpotlightTextureFrame = 0; 
 
 	state.m_flShadowAtten = r_flashlightshadowatten.GetFloat();
-	state.m_flShadowSlopeScaleDepthBias = mat_slopescaledepthbias_shadowmap.GetFloat();
-	state.m_flShadowDepthBias = mat_depthbias_shadowmap.GetFloat();
+	state.m_flShadowSlopeScaleDepthBias = g_pMaterialSystemHardwareConfig->GetShadowSlopeScaleDepthBias();
+	state.m_flShadowDepthBias = g_pMaterialSystemHardwareConfig->GetShadowDepthBias();
 
 	if( m_FlashlightHandle == CLIENTSHADOW_INVALID_HANDLE )
 	{

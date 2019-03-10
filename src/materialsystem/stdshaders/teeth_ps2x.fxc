@@ -4,13 +4,11 @@
 //
 //=============================================================================
 
-// STATIC: "CONVERT_TO_SRGB"				"0..1"	[ps20b][= g_pHardwareConfig->NeedsShaderSRGBConversion()] [PC]
-// STATIC: "CONVERT_TO_SRGB"				"0..1"	[ps30][= g_pHardwareConfig->NeedsShaderSRGBConversion()] [PC]
-// STATIC: "CONVERT_TO_SRGB"				"0..0"	[= 0] [XBOX]
+// STATIC: "CONVERT_TO_SRGB"				"0..1"	[ps20b][= g_pHardwareConfig->NeedsShaderSRGBConversion()]
+// STATIC: "CONVERT_TO_SRGB"				"0..1"	[ps30][= g_pHardwareConfig->NeedsShaderSRGBConversion()]
 
 // DYNAMIC: "PIXELFOGTYPE"					"0..1"
-// DYNAMIC: "WRITE_DEPTH_TO_DESTALPHA"		"0..1"	[ps20b] [PC]
-// DYNAMIC: "WRITE_DEPTH_TO_DESTALPHA"		"0..0"	[ps20b] [XBOX]
+// DYNAMIC: "WRITE_DEPTH_TO_DESTALPHA"		"0..1"	[ps20b]
 // DYNAMIC: "WRITE_DEPTH_TO_DESTALPHA"		"0..1"	[ps30]
 
 

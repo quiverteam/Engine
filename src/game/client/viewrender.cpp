@@ -66,7 +66,7 @@
 #endif // USE_MONITORS
 
 // Projective textures
-#include "c_env_projected_texture.h"
+#include "c_env_projectedtexture.h"
 
 // memdbgon must be the last include file in a .cpp file!!!
 #include "tier0/memdbgon.h"
@@ -1224,6 +1224,8 @@ void CViewRender::ViewDrawScene( bool bDrew3dSkybox, SkyboxVisibility_t nSkyboxV
 	if ( r_flashlightdepthtexture.GetBool() && (viewID == VIEW_MAIN) )
 	{
 		g_pClientShadowMgr->ComputeShadowDepthTextures( view );
+
+		//CMatRenderContextPtr pRenderContext( materials );
 	}
 
 	m_BaseDrawFlags = baseDrawFlags;
@@ -4627,6 +4629,10 @@ void CShadowDepthView::Draw()
 		render->Push3DView( (*this), VIEW_CLEAR_DEPTH, m_pRenderTarget, GetFrustum() );
 	}
 
+	pRenderContext.GetFrom( materials );
+	pRenderContext->PushRenderTargetAndViewport( m_pRenderTarget, m_pDepthTexture, x, y, width, height );
+	pRenderContext.SafeRelease();
+
 	SetupCurrentView( origin, angles, VIEW_SHADOW_DEPTH_TEXTURE );
 
 	MDLCACHE_CRITICAL_SECTION();
@@ -4670,6 +4676,8 @@ void CShadowDepthView::Draw()
 		//Resolve() the depth texture here. Before the pop so the copy will recognize that the resolutions are the same
 		pRenderContext->CopyRenderTargetToTextureEx( m_pDepthTexture, -1, NULL, NULL );
 	}
+
+	pRenderContext->PopRenderTargetAndViewport();
 
 	render->PopView( GetFrustum() );
 
@@ -4803,7 +4811,7 @@ void CBaseWorldView::PushView( float waterHeight )
 	if( m_DrawFlags & DF_RENDER_REFRACTION )
 	{
 		pRenderContext->SetFogZ( waterHeight );
-		pRenderContext->SetHeightClipZ( waterHeight );
+		pRenderContext->SetHeightClipZ( waterHeight + 5.0f );
 		pRenderContext->SetHeightClipMode( clipMode );
 
 		// Have to re-set up the view since we reset the size
@@ -4824,7 +4832,7 @@ void CBaseWorldView::PushView( float waterHeight )
 			waterHeight = origin[2] + r_eyewaterepsilon.GetFloat();
 		}
 
-		pRenderContext->SetHeightClipZ( waterHeight );
+		pRenderContext->SetHeightClipZ( waterHeight + 1.0f );
 		pRenderContext->SetHeightClipMode( clipMode );
 
 		render->Push3DView( *this, m_ClearFlags, pTexture, GetFrustum() );

@@ -6,8 +6,10 @@
 
 #include "cpp_shader_constant_register_map.h"
 
+#if SUPPORT_DX8
 #include "eyes_flashlight_vs11.inc"
 #include "eyes_flashlight_ps11.inc"
+#endif
 
 #include "eye_refract_vs20.inc"
 #include "eye_refract_ps20.inc"
@@ -421,7 +423,8 @@ void Draw_Eyes_Refract_Internal( CBaseVSShader *pShader, IMaterialVar** params, 
 			pShaderAPI->SetPixelShaderConstant( 9, tweaks, 1 );
 
 			// Dimensions of screen, used for screen-space noise map sampling
-			float vScreenScale[4] = {1280.0f / 32.0f, 720.0f / 32.0f, 0, 0};
+			//float vScreenScale[4] = {1280.0f / 32.0f, 720.0f / 32.0f, 0, 0};
+			float vScreenScale[4] = {1920.0f / 32.0f, 1080.0f / 32.0f, 0, 0};
 			int nWidth, nHeight;
 			pShaderAPI->GetBackBufferDimensions( nWidth, nHeight );
 			vScreenScale[0] = (float) nWidth  / 32.0f;

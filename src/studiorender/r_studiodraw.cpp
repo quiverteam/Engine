@@ -367,7 +367,7 @@ void CStudioRender::GenerateMorphAccumulator( mstudiomodel_t *pSubModel )
 		return;
 
 	// HACK - Just turn off scissor for this model if it is doing morph accumulation
-	DisableScissor();
+	//DisableScissor();
 
 	// Next, accumulate morphs for appropriate meshes
 	CMatRenderContextPtr pRenderContext( g_pMaterialSystem );
@@ -442,9 +442,9 @@ int CStudioRender::R_StudioRenderFinal( IMatRenderContext *pRenderContext,
 	return numTrianglesRendered;
 }
 
-static ConVar r_flashlightscissor( "r_flashlightscissor", "1", FCVAR_CHEAT );
+//static ConVar r_flashlightscissor( "r_flashlightscissor", "1", FCVAR_CHEAT );
 
-void CStudioRender::EnableScissor( FlashlightState_t *state )
+/*void CStudioRender::EnableScissor( FlashlightState_t *state )
 {
 	CMatRenderContextPtr pRenderContext( g_pMaterialSystem );
 
@@ -463,7 +463,7 @@ void CStudioRender::DisableScissor()
 	{
 		pRenderContext->SetScissorRect( -1, -1, -1, -1, false );
 	}
-}
+}*/
 
 
 //-----------------------------------------------------------------------------
@@ -492,13 +492,13 @@ void CStudioRender::DrawShadows( const DrawModelInfo_t& info, int flags, int bon
 			Assert( m_ShadowState[i].m_pFlashlightState && m_ShadowState[i].m_pWorldToTexture );
 			pRenderContext->SetFlashlightStateEx( *m_ShadowState[i].m_pFlashlightState, *m_ShadowState[i].m_pWorldToTexture, m_ShadowState[i].m_pFlashlightDepthTexture );
 
-			EnableScissor( m_ShadowState[i].m_pFlashlightState );
+			//EnableScissor( m_ShadowState[i].m_pFlashlightState );
 
 			R_StudioRenderModel( pRenderContext, info.m_Skin, info.m_Body, info.m_HitboxSet, info.m_pClientEntity,
 				info.m_pHardwareData->m_pLODs[info.m_Lod].ppMaterials, 
 				info.m_pHardwareData->m_pLODs[info.m_Lod].pMaterialFlags, flags, boneMask, info.m_Lod, info.m_pColorMeshes );
 
-			DisableScissor();
+			//DisableScissor();
 		}
 	}
 	pRenderContext->SetFlashlightMode( false );
@@ -551,11 +551,11 @@ void CStudioRender::DrawFlashlightDecals( const DrawModelInfo_t& info, int lod )
 			Assert( m_ShadowState[i].m_pFlashlightState && m_ShadowState[i].m_pWorldToTexture );
 			pRenderContext->SetFlashlightStateEx( *m_ShadowState[i].m_pFlashlightState, *m_ShadowState[i].m_pWorldToTexture, m_ShadowState[i].m_pFlashlightDepthTexture );
 
-			EnableScissor( m_ShadowState[i].m_pFlashlightState );
+			//EnableScissor( m_ShadowState[i].m_pFlashlightState );
 
 			DrawDecal( info, lod, info.m_Body );
 
-			DisableScissor();
+			//DisableScissor();
 		}
 	}
 	pRenderContext->SetFlashlightMode( false );
