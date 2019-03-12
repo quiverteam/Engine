@@ -38,5 +38,5 @@ vertexlitgeneric_flashlight_vs20.fxc
 
 //worldtwotextureblend_ps2x.fxc // not ported to sm3 atm, need it to be for the right shadow filter on them
 
-worldvertextransition_ps2x.fxc
-worldvertextransition_vs20.fxc
+//worldvertextransition_ps2x.fxc
+//worldvertextransition_vs20.fxc

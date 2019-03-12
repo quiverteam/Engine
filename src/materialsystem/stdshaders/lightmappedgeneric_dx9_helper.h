@@ -96,6 +96,33 @@ struct LightmappedGeneric_DX9_Vars_t
 	int m_nPhongExponent;
 };
 
+enum PhongMaskVariant_t
+{
+	PHONGMASK_NONE,
+	PHONGMASK_BASEALPHA,
+	PHONGMASK_NORMALALPHA,
+	PHONGMASK_STANDALONE,
+};
+
+struct LightmappedAdvFlashlight_DX9_Vars_t : public CBaseVSShader::DrawFlashlight_dx90_Vars_t
+{
+	LightmappedAdvFlashlight_DX9_Vars_t()
+		: m_nPhong( -1 )
+		, m_nPhongBoost( -1 )
+		, m_nPhongFresnelRanges( -1 )
+		, m_nPhongExponent( -1 )
+		, m_nPhongMask( -1 )
+		, m_nPhongMaskFrame( -1 )
+	{
+	}
+	int m_nPhong;
+	int m_nPhongBoost;
+	int m_nPhongFresnelRanges;
+	int m_nPhongExponent;
+	int m_nPhongMask;
+	int m_nPhongMaskFrame;
+};
+
 void InitParamsLightmappedGeneric_DX9( CBaseVSShader *pShader, IMaterialVar** params, const char *pMaterialName, LightmappedGeneric_DX9_Vars_t &info );
 void InitLightmappedGeneric_DX9( CBaseVSShader *pShader, IMaterialVar** params, LightmappedGeneric_DX9_Vars_t &info );
 void DrawLightmappedGeneric_DX9( CBaseVSShader *pShader, IMaterialVar** params, 

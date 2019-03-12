@@ -21,7 +21,7 @@
 #include "lightmappedgeneric_ps30.inc"
 #include "lightmappedgeneric_vs30.inc"
 
-// TODO: remove these 5 adv shaders and use the normal flashlight instead
+// ok maybe rename these? idk
 #include "lightmappedadv_flashlight_ps20.inc"
 #include "lightmappedadv_flashlight_ps20b.inc"
 #include "lightmappedadv_flashlight_vs20.inc"
@@ -29,12 +29,24 @@
 #include "lightmappedadv_flashlight_ps30.inc"
 #include "lightmappedadv_flashlight_vs30.inc"
 
+// uh
+/*#include "lightmappedgeneric_flashlight_vs20.inc"
+#include "lightmappedgeneric_flashlight_vs30.inc"
+#include "lightmappedgeneric_flashlight_ps20.inc"
+#include "lightmappedgeneric_flashlight_ps20b.inc"
+#include "lightmappedgeneric_flashlight_ps30.inc"*/
+
 #include "tier0/memdbgon.h"
 
 ConVar mat_disable_lightwarp( "mat_disable_lightwarp", "0" );
 ConVar mat_disable_fancy_blending( "mat_disable_fancy_blending", "0" );
 ConVar mat_fullbright( "mat_fullbright","0", FCVAR_CHEAT );
 static ConVar r_csm_blend_tweak( "r_csm_blend_tweak", "16" );
+
+ConVar mat_enable_lightmapped_phong( "mat_enable_lightmapped_phong", "1", FCVAR_ARCHIVE, "If 1, allow phong on world brushes. If 0, disallow. mat_force_lightmapped_phong does not work if this value is 0." );
+ConVar mat_force_lightmapped_phong( "mat_force_lightmapped_phong", "1", FCVAR_CHEAT, "Forces the use of phong on all LightmappedAdv textures, regardless of setting in VMT." );
+ConVar mat_force_lightmapped_phong_boost( "mat_force_lightmapped_phong_boost", "5.0", FCVAR_CHEAT );
+ConVar mat_force_lightmapped_phong_exp( "mat_force_lightmapped_phong_exp", "50.0", FCVAR_CHEAT );
 
 class CLightmappedGeneric_DX9_Context : public CBasePerMaterialContextData
 {
@@ -69,33 +81,6 @@ public:
 
 };
 
-/*enum PhongMaskVariant_t
-{
-	PHONGMASK_NONE,
-	PHONGMASK_BASEALPHA,
-	PHONGMASK_NORMALALPHA,
-	PHONGMASK_STANDALONE,
-};*/
-
-struct LightmappedAdvFlashlight_DX9_Vars_t : public CBaseVSShader::DrawFlashlight_dx90_Vars_t
-{
-	LightmappedAdvFlashlight_DX9_Vars_t()
-		/*: m_nPhong( -1 )
-		, m_nPhongBoost( -1 )
-		, m_nPhongFresnelRanges( -1 )
-		, m_nPhongExponent( -1 )
-		, m_nPhongMask( -1 )
-		, m_nPhongMaskFrame( -1 )*/
-	{
-	}
-	/*int m_nPhong;
-	int m_nPhongBoost;
-	int m_nPhongFresnelRanges;
-	int m_nPhongExponent;
-	int m_nPhongMask;
-	int m_nPhongMaskFrame;*/
-};
-
 void DrawLightmappedAdvFlashlight_DX9_Internal( CBaseVSShader *pShader, IMaterialVar** params, IShaderDynamicAPI *pShaderAPI,
 												IShaderShadow* pShaderShadow, const LightmappedAdvFlashlight_DX9_Vars_t &vars )
 {
@@ -104,7 +89,7 @@ void DrawLightmappedAdvFlashlight_DX9_Internal( CBaseVSShader *pShader, IMateria
 	bool bBump2 = vars.m_bWorldVertexTransition && vars.m_bBump && vars.m_nBumpmap2Var != -1 && params[vars.m_nBumpmap2Var]->IsTexture();
 	bool bSeamless = vars.m_fSeamlessScale != 0.0;
 	bool bDetail = ( vars.m_nDetailVar != -1 ) && params[vars.m_nDetailVar]->IsDefined() && ( vars.m_nDetailScale != -1 );
-//	bool bPhong = params[vars.m_nPhong]->GetIntValue() != 0;
+	bool bPhong = params[vars.m_nPhong]->GetIntValue() != 0;
 
 	int nDetailBlendMode = 0;
 	if ( bDetail )
@@ -113,7 +98,7 @@ void DrawLightmappedAdvFlashlight_DX9_Internal( CBaseVSShader *pShader, IMateria
 //		nDetailBlendMode = nDetailBlendMode > 1 ? 1 : nDetailBlendMode;
 	}
 
-	/*PhongMaskVariant_t nPhongMaskVariant = PHONGMASK_NONE;
+	PhongMaskVariant_t nPhongMaskVariant = PHONGMASK_NONE;
 	if ( bPhong )
 	{
 		if ( IS_FLAG_SET( MATERIAL_VAR_BASEALPHAENVMAPMASK ) )
@@ -128,7 +113,7 @@ void DrawLightmappedAdvFlashlight_DX9_Internal( CBaseVSShader *pShader, IMateria
 		{
 			nPhongMaskVariant = PHONGMASK_STANDALONE;
 		}
-	}*/
+	}
 
 	if ( pShaderShadow )
 	{
@@ -184,11 +169,11 @@ void DrawLightmappedAdvFlashlight_DX9_Internal( CBaseVSShader *pShader, IMateria
 			if ( nDetailBlendMode != 0 ) //Not Mod2X
 				pShaderShadow->EnableSRGBRead( SHADER_SAMPLER8, true );
 		}
-		/*if ( nPhongMaskVariant == PHONGMASK_STANDALONE )
+		if ( nPhongMaskVariant == PHONGMASK_STANDALONE )
 		{
 			// phong mask sampler
 			pShaderShadow->EnableTexture( SHADER_SAMPLER9, true );
-		}*/
+		}
 
 		pShaderShadow->EnableSRGBWrite( true );
 
@@ -199,7 +184,7 @@ void DrawLightmappedAdvFlashlight_DX9_Internal( CBaseVSShader *pShader, IMateria
 			SET_STATIC_VERTEX_SHADER_COMBO( NORMALMAP, vars.m_bBump );
 			SET_STATIC_VERTEX_SHADER_COMBO( SEAMLESS, bSeamless );
 			SET_STATIC_VERTEX_SHADER_COMBO( DETAIL, bDetail );
-		//	SET_STATIC_VERTEX_SHADER_COMBO( PHONG, bPhong );
+			SET_STATIC_VERTEX_SHADER_COMBO( PHONG, bPhong );
 			SET_STATIC_VERTEX_SHADER( lightmappedadv_flashlight_vs30 );
 		}
 		else
@@ -242,8 +227,8 @@ void DrawLightmappedAdvFlashlight_DX9_Internal( CBaseVSShader *pShader, IMateria
 			SET_STATIC_PIXEL_SHADER_COMBO( DETAILTEXTURE, bDetail );
 			SET_STATIC_PIXEL_SHADER_COMBO( DETAIL_BLEND_MODE, nDetailBlendMode );
 			SET_STATIC_PIXEL_SHADER_COMBO( FLASHLIGHTDEPTHFILTERMODE, 0 );
-		//	SET_STATIC_PIXEL_SHADER_COMBO( PHONG, bPhong );
-		//	SET_STATIC_PIXEL_SHADER_COMBO( PHONGMASK, nPhongMaskVariant );
+			SET_STATIC_PIXEL_SHADER_COMBO( PHONG, bPhong );
+			SET_STATIC_PIXEL_SHADER_COMBO( PHONGMASK, nPhongMaskVariant );
 			SET_STATIC_PIXEL_SHADER( lightmappedadv_flashlight_ps30 );
 		}
 		else if ( g_pHardwareConfig->SupportsPixelShaders_2_b() )
@@ -348,10 +333,10 @@ void DrawLightmappedAdvFlashlight_DX9_Internal( CBaseVSShader *pShader, IMateria
 			pShader->BindTexture( SHADER_SAMPLER6, vars.m_nBumpmap2Var, vars.m_nBumpmap2Frame );
 		}
 
-		/*if ( nPhongMaskVariant == PHONGMASK_STANDALONE )
+		if ( nPhongMaskVariant == PHONGMASK_STANDALONE )
 		{
 			pShader->BindTexture( SHADER_SAMPLER9, vars.m_nPhongMask, vars.m_nPhongMaskFrame );
-		}*/
+		}
 
 		if ( g_pHardwareConfig->SupportsShaderModel_3_0() )
 		{
@@ -389,19 +374,19 @@ void DrawLightmappedAdvFlashlight_DX9_Internal( CBaseVSShader *pShader, IMateria
 			pShaderAPI->SetPixelShaderConstant( 0, vDetailConstants, 1 );
 		}
 
-		/*if ( bPhong )
+		if ( bPhong )
 		{
 			float vEyePos[4];
 			pShaderAPI->GetWorldSpaceCameraPosition( vEyePos );
 			vEyePos[3] = 0.0f;
 			pShaderAPI->SetVertexShaderConstant( VERTEX_SHADER_SHADER_SPECIFIC_CONST_10, vEyePos );
-		}*/
+		}
 
 		pShaderAPI->SetPixelShaderFogParams( PSREG_FOG_PARAMS );
 
 		float vEyePos_SpecExponent[4];
 		pShaderAPI->GetWorldSpaceCameraPosition( vEyePos_SpecExponent );
-		//vEyePos_SpecExponent[3] = params[vars.m_nPhongExponent]->GetFloatValue();
+		vEyePos_SpecExponent[3] = params[vars.m_nPhongExponent]->GetFloatValue();
 		pShaderAPI->SetPixelShaderConstant( PSREG_EYEPOS_SPEC_EXPONENT, vEyePos_SpecExponent, 1 );
 
 		if ( g_pHardwareConfig->SupportsShaderModel_3_0() )
@@ -451,8 +436,8 @@ void DrawLightmappedAdvFlashlight_DX9_Internal( CBaseVSShader *pShader, IMateria
 		pShaderAPI->SetPixelShaderConstant( 1, lightPos, 1 );
 
 		float specParams[4];
-	//	params[vars.m_nPhongFresnelRanges]->GetVecValue( specParams, 3 );
-	//	specParams[3] = params[vars.m_nPhongBoost]->GetFloatValue();
+		params[vars.m_nPhongFresnelRanges]->GetVecValue( specParams, 3 );
+		specParams[3] = params[vars.m_nPhongBoost]->GetFloatValue();
 		pShaderAPI->SetPixelShaderConstant( PSREG_FRESNEL_SPEC_PARAMS, specParams, 1 );
 
 		pShader->SetFlashlightVertexShaderConstants( vars.m_bBump, vars.m_nBumpTransform, bDetail, vars.m_nDetailScale, bSeamless ? false : true );
@@ -589,6 +574,44 @@ void InitParamsLightmappedGeneric_DX9( CBaseVSShader *pShader, IMaterialVar** pa
 	InitFloatParam( info.m_nEdgeSoftnessStart, params, 0.5 );
 	InitFloatParam( info.m_nEdgeSoftnessEnd, params, 0.5 );
 	InitFloatParam( info.m_nOutlineAlpha, params, 1.0 );
+
+	if ( !params[info.m_nPhong]->IsDefined() || !mat_enable_lightmapped_phong.GetBool() )
+	{
+		params[info.m_nPhong]->SetIntValue( 0 );
+	}
+	if ( !params[info.m_nPhongBoost]->IsDefined() )
+	{
+		params[info.m_nPhongBoost]->SetFloatValue( 1.0 );
+	}
+	if ( !params[info.m_nPhongFresnelRanges]->IsDefined() )
+	{
+		params[info.m_nPhongFresnelRanges]->SetVecValue( 0.0, 0.5, 1.0 );
+	}
+	if ( !params[info.m_nPhongExponent]->IsDefined() )
+	{
+		params[info.m_nPhongExponent]->SetFloatValue( 5.0 );
+	}
+
+	if ( params[info.m_nPhong]->GetIntValue() && mat_enable_lightmapped_phong.GetBool() )
+	{
+		if ( pShader->CanUseEditorMaterials() )
+		{
+			params[info.m_nPhong]->SetIntValue( 0 );
+		}
+		else if ( !params[info.m_nEnvmapMaskTransform]->MatrixIsIdentity() )
+		{
+			Warning( "Warning! material %s: $envmapmasktransform and $phong are mutial exclusive. Disabling phong..\n", pMaterialName );
+			params[info.m_nPhong]->SetIntValue( 0 );
+		}
+	}
+	else if ( mat_force_lightmapped_phong.GetBool() && mat_enable_lightmapped_phong.GetBool() && 
+		params[info.m_nEnvmapMaskTransform]->MatrixIsIdentity() )
+	{
+		params[info.m_nPhong]->SetIntValue( 1 );
+		params[info.m_nPhongBoost]->SetFloatValue( mat_force_lightmapped_phong_boost.GetFloat() );
+		params[info.m_nPhongFresnelRanges]->SetVecValue( 0.0, 0.5, 1.0 );
+		params[info.m_nPhongExponent]->SetFloatValue( mat_force_lightmapped_phong_exp.GetFloat() );
+	}
 }
 
 void InitLightmappedGeneric_DX9( CBaseVSShader *pShader, IMaterialVar** params, LightmappedGeneric_DX9_Vars_t &info )
@@ -749,12 +772,12 @@ void DrawLightmappedGeneric_DX9_Internal(CBaseVSShader *pShader, IMaterialVar** 
 			else
 				vars.m_fSeamlessScale = 0.0;
 
-			/*vars.m_nPhong = info.m_nPhong;
+			vars.m_nPhong = info.m_nPhong;
 			vars.m_nPhongBoost = info.m_nPhongBoost;
 			vars.m_nPhongFresnelRanges = info.m_nPhongFresnelRanges;
 			vars.m_nPhongExponent = info.m_nPhongExponent;
 			vars.m_nPhongMask = info.m_nEnvmapMask;
-			vars.m_nPhongMaskFrame = info.m_nEnvmapMaskFrame;*/
+			vars.m_nPhongMaskFrame = info.m_nEnvmapMaskFrame;
 
 			DrawLightmappedAdvFlashlight_DX9_Internal( pShader, params, pShaderAPI, pShaderShadow, vars );
 			return;
