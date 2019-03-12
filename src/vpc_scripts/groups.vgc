@@ -57,6 +57,13 @@ $Group "shaders_all"
 	"stdshader_dx9"
 }
 
+// this is used post building shaders, do NOT remove this
+$Group "stdshaders"
+{
+	"stdshader_dbg"
+	"stdshader_dx9"
+}
+
 $Group "physics"
 {
 	"vphysics"

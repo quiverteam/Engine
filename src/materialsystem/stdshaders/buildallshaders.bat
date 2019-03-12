@@ -67,19 +67,14 @@ set dynamic_shaders=0
 rem ==== LAUNCH CONFIGURATIONS END ====
 rem ===================================
 
-@REM maybe set something up like this? idk
+@REM maybe set something up like this for logging? idk
 @REM For /f "tokens=2-4 delims=/ " %%a in ('date /t') do (set mydate=%%c-%%a-%%b)
 @REM For /f "tokens=1-2 delims=/:" %%a in ('time /t') do (set mytime=%%a%%b)
-
-
 
 REM ****************
 REM BUILD SHADERS
 REM ****************
 @REM shove the full log into another file 
-echo Exporting Log to buildallshaders_stdshader_dx8_1x_needed.txt
-%BUILD_SHADER% stdshader_dx8_1x_needed			-game %GAMEDIR% -source %SOURCEDIR% %dynamic_shaders% >buildallshaders_stdshader_dx8_1x_needed.txt
-echo --------------------------------------------------------------------------------------------
 echo Exporting Log to buildallshaders_stdshader_dx9_20b_nointercept.txt
 call buildshaders_nointercept.bat stdshader_dx9_20b_nointercept		-game %GAMEDIR% -source %SOURCEDIR% %dynamic_shaders% >buildallshaders_stdshader_dx9_20b_nointercept.txt
 echo --------------------------------------------------------------------------------------------
@@ -112,3 +107,5 @@ echo.
 
 echo Press any key to exit . . .
 pause >nul
+
+..\..\devtools\bin\vpc.exe /f +stdshaders

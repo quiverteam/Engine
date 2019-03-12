@@ -1,4 +1,4 @@
-//========= Copyright © 1996-2002, Valve LLC, All rights reserved. ============
+//========= Copyright Valve Corporation, All rights reserved. ============//
 //
 // Purpose: 
 //
@@ -33,6 +33,8 @@ struct LightmappedGeneric_DX9_Vars_t
 	int m_nBaseTextureTransform;
 	int m_nAlbedo;
 	int m_nSelfIllumTint;
+
+	int m_nAlpha2; // Hack for DoD srgb blend issues on overlays
 
 	int m_nDetail;
 	int m_nDetailFrame;
@@ -85,6 +87,13 @@ struct LightmappedGeneric_DX9_Vars_t
 	int m_nOutlineEnd0;
 	int m_nOutlineEnd1;
 
+	int m_nEnvmapParallax;
+	int m_nEnvmapOrigin;
+
+	int m_nPhong;
+	int m_nPhongBoost;
+	int m_nPhongFresnelRanges;
+	int m_nPhongExponent;
 };
 
 void InitParamsLightmappedGeneric_DX9( CBaseVSShader *pShader, IMaterialVar** params, const char *pMaterialName, LightmappedGeneric_DX9_Vars_t &info );

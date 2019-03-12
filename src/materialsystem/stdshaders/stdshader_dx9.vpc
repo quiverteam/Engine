@@ -170,7 +170,7 @@ $Project "stdshader_dx9"
 		$File	"particlelitgeneric_dx9_helper.h"
 		$File	"vertexlitgeneric_dx95_helper.h"
 		$File	"vortwarp_vs20_helper.h"
-		$File	"worldvertextransition_dx8_helper.h"
+		//$File	"worldvertextransition_dx8_helper.h"
 		$File	"water_ps2x_helper.h"
 	}
 
@@ -191,7 +191,6 @@ $Project "stdshader_dx9"
 	$File	"buildallshaders.bat"
 	$File	"buildshaders.bat"
 
-	$Shaders	"stdshader_dx9_20b_nointercept.txt"
 	$Shaders	"stdshader_dx9_20b.txt"
 	$Shaders	"stdshader_dx9_30.txt"
 	//$Shaders	"stdshader_dx10.txt" // none yet

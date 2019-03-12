@@ -1118,7 +1118,11 @@ void CBaseVSShader::DrawFlashlight_dx90( IMaterialVar** params, IShaderDynamicAP
 		pShaderAPI->SetPixelShaderFogParams( PSREG_FOG_PARAMS );
 
 		float vEyePos_SpecExponent[4];
-		pShaderAPI->GetWorldSpaceCameraPosition( vEyePos_SpecExponent );
+		//pShaderAPI->GetWorldSpaceCameraPosition( vEyePos_SpecExponent );
+		//i don't remember what this is from
+		vEyePos_SpecExponent[0] = flashlightState.m_vecLightOrigin[0];
+		vEyePos_SpecExponent[1] = flashlightState.m_vecLightOrigin[1];
+		vEyePos_SpecExponent[2] = flashlightState.m_vecLightOrigin[2];
 		vEyePos_SpecExponent[3] = 0.0f;
 		pShaderAPI->SetPixelShaderConstant( PSREG_EYEPOS_SPEC_EXPONENT, vEyePos_SpecExponent, 1 );
 

@@ -1,24 +1,47 @@
 //======= Copyright © 1996-2007, Valve Corporation, All rights reserved. ======
 
-//  STATIC: "VERTEXCOLOR"			"0..1"
-//	STATIC: "CUBEMAP"				"0..1"
-//  STATIC: "HALFLAMBERT"			"0..1"
-//  STATIC: "FLASHLIGHT"			"0..1"
-//  STATIC: "SEAMLESS_BASE"         "0..1"
-//  STATIC: "SEAMLESS_DETAIL"       "0..1"
-//  STATIC: "SEPARATE_DETAIL_UVS"   "0..1"
-//  STATIC: "DECAL"					"0..1" [vs30]
+//  STATIC: "VERTEXCOLOR"				"0..1"
+//	STATIC: "CUBEMAP"					"0..1"
+//  STATIC: "HALFLAMBERT"				"0..1"
+//  STATIC: "FLASHLIGHT"				"0..1"
+//  STATIC: "SEAMLESS_BASE"         	"0..1"
+//  STATIC: "SEAMLESS_DETAIL"       	"0..1"
+//  STATIC: "SEPARATE_DETAIL_UVS"   	"0..1"
+//  STATIC: "DECAL"						"0..1" [vs30]
+//  _STATIC: "USE_STATIC_CONTROL_FLOW"	"0..1" [vs20]
+//  _STATIC: "DONT_GAMMA_CONVERT_VERTEX_COLOR" "0..1"
+//  STATIC: "TWO_SIDED_LIGHTING"		"0..1" [vs30]
+//	_STATIC: "TREESWAY"              	"0..2"
+#define TREESWAY 0
 
-//  DYNAMIC: "COMPRESSED_VERTS"		"0..1"
-//	DYNAMIC: "DYNAMIC_LIGHT"		"0..1"
-//	DYNAMIC: "STATIC_LIGHT"			"0..1"
-//	DYNAMIC: "DOWATERFOG"			"0..1"
-//	DYNAMIC: "SKINNING"				"0..1"
-//  DYNAMIC: "LIGHTING_PREVIEW"		"0..1"
-//  DYNAMIC: "MORPHING"				"0..1" [vs30]
+//  DYNAMIC: "COMPRESSED_VERTS"			"0..1"
+//	DYNAMIC: "DYNAMIC_LIGHT"			"0..1"
+//	DYNAMIC: "STATIC_LIGHT"				"0..1"
+//	_DYNAMIC: "STATIC_LIGHT_VERTEX"		"0..1"
+//	_DYNAMIC: "STATIC_LIGHT_LIGHTMAP"	"0..1"
+//	DYNAMIC: "DOWATERFOG"				"0..1"
+//	DYNAMIC: "SKINNING"					"0..1"
+//  DYNAMIC: "LIGHTING_PREVIEW"			"0..1"
+//  DYNAMIC: "MORPHING"					"0..1"  [vs30]
+//  DYNAMIC: "NUM_LIGHTS"				"0..2"	[vs20]
+//  DYNAMIC: "CASCADED_SHADOW"			"0..1"  [vs30]
 
+// SKIP: ($CASCADED_SHADOW) && ($FLASHLIGHT)
+// SKIP: ($CASCADED_SHADOW) && ($SEAMLESS_BASE)
+// SKIP: ($CASCADED_SHADOW) && ($SEAMLESS_DETAIL)
+// SKIP: $CASCADED_SHADOW && $VERTEXCOLOR
+
+#if CASCADED_SHADOW
+#define USE_SEPARATE_DIRECTIONAL_LIGHT
+#endif
+
+// If using static control flow on Direct3D, we should use the NUM_LIGHTS=0 combo
+// _SKIP: $USE_STATIC_CONTROL_FLOW && ( $NUM_LIGHTS > 0 ) [vs20]
 // SKIP: ($SEPARATE_DETAIL_UVS) && ($SEAMLESS_DETAIL)
+// SKIP: ($DONT_GAMMA_CONVERT_VERTEX_COLOR && ( ! $VERTEXCOLOR ) )
 
+//	SKIP: ($TREESWAY) && ($MORPHING)
+//	SKIP: ( $TREESWAY ) && ( $SEAMLESS_DETAIL || $SEAMLESS_BASE )
 
 #include "common_vs_fxc.h"
  
@@ -42,12 +65,45 @@ const float cSeamlessScale					: register( SHADER_SPECIFIC_CONST_2);
 
 const float4 cDetailTexCoordTransform[2]	:  register( SHADER_SPECIFIC_CONST_4 );
 
-#ifdef SHADER_MODEL_VS_3_0
+#if CASCADED_SHADOW
+const float4x4 g_FlashlightWorldToTexture :  register( SHADER_SPECIFIC_CONST_6 ); // 6, 7, 8, 9
+#endif
+
+#if ( TREESWAY )
+const float4 g_vMiscParams1					: register( SHADER_SPECIFIC_CONST_3 );
+const float4 g_vMiscParams2					: register( SHADER_SPECIFIC_CONST_12 );
+const float4 g_vMiscParams3					: register( SHADER_SPECIFIC_CONST_10 );
+const float4 g_vMiscParams4					: register( SHADER_SPECIFIC_CONST_11 );
+#define g_flTime g_vMiscParams2.y
+#define g_vWindDir g_vMiscParams2.zw
+
+#define g_flFastSwaySpeedScale g_vMiscParams1.x
+#define g_flScrumbleFalloffCurve g_vMiscParams1.y
+#define g_flSwayFalloffCurve g_vMiscParams1.z
+#define g_flScrumbleSpeed g_vMiscParams1.w
+
+#define g_flHeight g_vMiscParams3.x
+#define g_flStartHeight g_vMiscParams3.y
+#define g_flRadius g_vMiscParams3.z
+#define g_flStartRadius g_vMiscParams3.w
+
+#define g_flSwaySpeed g_vMiscParams4.x
+#define g_flSwayIntensity g_vMiscParams4.y
+#define g_flScrumbleWaveCount g_vMiscParams4.z
+#define g_flScrumbleIntensity g_vMiscParams4.w
+
+#define g_flWindSpeedLerpStart cDetailTexCoordTransform[0].x
+#define g_flWindSpeedLerpEnd cDetailTexCoordTransform[0].y
+
+#include "tree_sway.h"
+#endif
+
+#if defined(SHADER_MODEL_VS_3_0) && MORPHING
 // NOTE: cMorphTargetTextureDim.xy = target dimensions,
 //		 cMorphTargetTextureDim.z = 4tuples/morph
 const float3 cMorphTargetTextureDim			: register( SHADER_SPECIFIC_CONST_10 );
 const float4 cMorphSubrect					: register( SHADER_SPECIFIC_CONST_11 );
-sampler2D morphSampler						: register( D3DVERTEXTEXTURESAMPLER0, s0 );
+sampler2D morphSampler						: register( s0 );
 #endif
 
 struct VS_INPUT
@@ -68,7 +124,7 @@ struct VS_INPUT
 	// Position and normal/tangent deltas
 	float3 vPosFlex			: POSITION1;
 	float3 vNormalFlex		: NORMAL1;
-#ifdef SHADER_MODEL_VS_3_0
+#if defined(SHADER_MODEL_VS_3_0) && MORPHING
 	float vVertexID			: POSITION2;
 #endif
 };
@@ -77,7 +133,9 @@ struct VS_INPUT
 struct VS_OUTPUT
 {
     float4 projPos					: POSITION;			// Projection-space position	
+#if !defined( _X360 )
 	float  fog						: FOG;
+#endif
 
 #if SEAMLESS_BASE
 	HALF3 SeamlessTexCoord			: TEXCOORD0;		// Base texture x/y/z (indexed by swizzle)
@@ -85,17 +143,25 @@ struct VS_OUTPUT
 	HALF2 baseTexCoord				: TEXCOORD0;		// Base texture coordinate
 #endif
 #if SEAMLESS_DETAIL
-	HALF3 SeamlessDetailTexCoord			: TEXCOORD1;		// Detail texture coordinate
+	HALF3 SeamlessDetailTexCoord	: TEXCOORD1;		// Detail texture coordinate
+#elif CASCADED_SHADOW
+	float4 detailTexCoord			: TEXCOORD1;
 #else
 	HALF2 detailTexCoord			: TEXCOORD1;		// Detail texture coordinate
 #endif
 	float4 color					: TEXCOORD2;		// Vertex color (from lighting or unlit)
 
-#if CUBEMAP
+#if CASCADED_SHADOW
+	float4 worldVertToEyeVector		: TEXCOORD3;
+#elif CUBEMAP || _X360
 	float3 worldVertToEyeVector		: TEXCOORD3;		// Necessary for cubemaps
 #endif
 
 	float3 worldSpaceNormal			: TEXCOORD4;		// Necessary for cubemaps and flashlight
+
+#if defined ( _X360 ) && FLASHLIGHT || CASCADED_SHADOW
+	float4 flashlightSpacePos		: TEXCOORD5;
+#endif
 
 	float4 vProjPos					: TEXCOORD6;
 	float4 worldPos_ProjPosZ		: TEXCOORD7;
@@ -116,7 +182,7 @@ VS_OUTPUT main( const VS_INPUT v )
 
 	float4 vPosition = v.vPos;
 	float3 vNormal = 0;
-	if ( bDoLighting || FLASHLIGHT || SEAMLESS_BASE || SEAMLESS_DETAIL || LIGHTING_PREVIEW || g_bDecalOffset )
+	if ( bDoLighting || FLASHLIGHT || SEAMLESS_BASE || SEAMLESS_DETAIL || LIGHTING_PREVIEW || g_bDecalOffset || CUBEMAP )
 	{
 		// The vertex only contains valid normals if they are actually needed (fetching them when absent makes D3D complain)
 		DecompressVertex_Normal( v.vNormal, vNormal );
@@ -134,6 +200,12 @@ VS_OUTPUT main( const VS_INPUT v )
 	ApplyMorph( morphSampler, cMorphTargetTextureDim, cMorphSubrect, 
 		v.vVertexID, v.vTexCoord2, vPosition.xyz, vNormal );
 #endif
+
+	#if ( TREESWAY )
+	{
+		vPosition.xyz = ComputeTreeSway( vPosition.xyz, g_flTime );
+	}
+	#endif
 	  
 	// Perform skinning
 	float3 worldNormal, worldPos;
@@ -156,44 +228,59 @@ VS_OUTPUT main( const VS_INPUT v )
 	o.worldSpaceNormal = worldNormal;
 
 	// Transform into projection space
-	float4 projPos = mul( float4( worldPos, 1 ), cViewProj );
-	o.projPos = projPos;
-	o.vProjPos = projPos;
-	o.fogFactorW.w = CalcFog( worldPos, projPos, g_FogType );
+	float4 vProjPos = mul( float4( worldPos, 1 ), cViewProj );
+	o.projPos = vProjPos;
+	//vProjPos.z = dot( float4( worldPos, 1 ), cViewProjZ );
+
+	o.vProjPos = vProjPos;
+	o.fogFactorW.w = CalcFog( worldPos, vProjPos, g_FogType );
+	
 	o.fog = o.fogFactorW.w;
+	
 	o.worldPos_ProjPosZ.xyz = worldPos.xyz;
-	o.worldPos_ProjPosZ.w = projPos.z;
+	o.worldPos_ProjPosZ.w = vProjPos.z;
 
 	// Needed for cubemaps 
 #if CUBEMAP
 	o.worldVertToEyeVector.xyz = VSHADER_VECT_SCALE * (cEyePos - worldPos);
+#elif CASCADED_SHADOW
+	o.worldVertToEyeVector.xyz = float3(0,0,0);
 #endif
 
-#if FLASHLIGHT
-o.color = float4( 0.0f, 0.0f, 0.0f, 0.0f );
+#if CASCADED_SHADOW
+	//float3 directionalLight;
+	o.color.xyz = DoLighting( worldPos, worldNormal, v.vSpecular, bStaticLight, bDynamicLight, g_bHalfLambert/*, directionalLight*/ );
+
+#if TWO_SIDED_LIGHTING
+	//float3 directionalLight2;
+	o.color.xyz += DoLighting( worldPos, -worldNormal, v.vSpecular, bStaticLight, bDynamicLight, g_bHalfLambert/*, directionalLight2*/ );
+	//directionalLight += directionalLight2;
+#endif
+
+	//o.detailTexCoord.zw = directionalLight.xy;
+	//o.worldVertToEyeVector.w = directionalLight.z;
 #else
 	if ( g_bVertexColor )
 	{
 		// Assume that this is unlitgeneric if you are using vertex color.
-		o.color.rgb = GammaToLinear( v.vColor.rgb );
+		o.color.rgb = /*( DONT_GAMMA_CONVERT_VERTEX_COLOR ) ? v.vColor.rgb : */GammaToLinear( v.vColor.rgb );
 		o.color.a = v.vColor.a;
 	}
 	else
 	{
-		// Compute vertex lighting
-		//o.color.xyz = DoLighting( worldPos, worldNormal, v.vSpecular, bStaticLight, bDynamicLight, g_bHalfLambert );
-		
-		/*#if SHADER_MODEL_VS_3_0
-		{*/
+		#if ( /*( USE_STATIC_CONTROL_FLOW ) || */ defined ( SHADER_MODEL_VS_3_0 ) )
+		{
 			o.color.xyz = DoLighting( worldPos, worldNormal, v.vSpecular, bStaticLight, bDynamicLight, g_bHalfLambert );
-		/*}
+		}
 		#else
 		{
 			o.color.xyz = DoLightingUnrolled( worldPos, worldNormal, v.vSpecular, bStaticLight, bDynamicLight, g_bHalfLambert, NUM_LIGHTS );
 		}
-		#endif*/
+		#endif
 	}
 #endif
+	
+
 #if SEAMLESS_BASE
 	o.SeamlessTexCoord.xyz = SEAMLESS_SCALE * v.vPos.xyz;
 #else
@@ -220,6 +307,10 @@ o.color = float4( 0.0f, 0.0f, 0.0f, 0.0f );
 #if LIGHTING_PREVIEW
 	float dot=0.5+0.5*worldNormal*float3(0.7071,0.7071,0);
 	o.color.xyz=float3(dot,dot,dot);
+#endif
+
+#if CASCADED_SHADOW
+	o.flashlightSpacePos = mul( float4( worldPos, 1.0f ), g_FlashlightWorldToTexture );
 #endif
 
 	return o;

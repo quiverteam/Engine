@@ -13,8 +13,7 @@
 // STATIC: "WORLDVERTEXTRANSITION"		"0..1"
 // STATIC: "SEAMLESS"               	"0..1"
 // STATIC: "DETAILTEXTURE"             	"0..1"
-// STATIC: "DETAIL_BLEND_MODE"			"0..1"	[ps20]
-// STATIC: "DETAIL_BLEND_MODE"			"0..1" [ps20b] [ps30]
+// STATIC: "DETAIL_BLEND_MODE"			"0..1"
 // STATIC: "FLASHLIGHTDEPTHFILTERMODE"	"0..2"	[ps20b] [ps30]
 
 // DYNAMIC: "FLASHLIGHTSHADOWS"			"0..1"	[ps20b] [ps30]
@@ -67,7 +66,7 @@ sampler DetailSampler						: register( s8 );
 #endif
 
 #if FLASHLIGHTSHADOWS && ( defined( SHADER_MODEL_PS_2_B ) || defined( SHADER_MODEL_PS_3_0 ) )
-sampler RandomRotationSampler				: register( s5 );	//  Random rotation sampler
+//sampler RandomRotationSampler				: register( s5 );	//  Random rotation sampler
 sampler FlashlightDepthSampler				: register( s7 );
 #endif
 
@@ -127,7 +126,7 @@ float4 main( PS_INPUT i ) : COLOR
 	float3 spotColor = float3(0,0,0);
 	float3 vProjCoords = i.spotTexCoord.xyz / i.spotTexCoord.w;
 	
-	spotColor = tex2D( SpotSampler, vProjCoords );
+	//spotColor = tex2D( SpotSampler, vProjCoords );
 
 #if ( defined(SHADER_MODEL_PS_2_B) || defined(SHADER_MODEL_PS_3_0) )
 	spotColor = tex2D( SpotSampler, vProjCoords );
@@ -186,7 +185,7 @@ float4 main( PS_INPUT i ) : COLOR
 	vNormal.xyz = lerp( normal2, vNormal.xyz, lerpAlpha );
 #	endif
 #if ( DETAILTEXTURE && ( DETAIL_BLEND_MODE == TCOMBINE_SSBUMP_BUMP ) )
-	vNormal.xyz *= 2.0 * detailColor;
+	//vNormal.xyz *= 2.0 * detailColor;
 #endif
 
 #else
@@ -205,7 +204,7 @@ float4 main( PS_INPUT i ) : COLOR
 	float flAtten = saturate(endFalloffFactor * dot( g_FlashlightAttenuation.xyz, float3( 1.0f, 1.0f/dist, 1.0f/distSquared ) ) );
 
 #if FLASHLIGHTSHADOWS && ( defined( SHADER_MODEL_PS_2_B ) || defined( SHADER_MODEL_PS_3_0 ) )
-	float flShadow = DoFlashlightShadow( FlashlightDepthSampler, RandomRotationSampler, vProjCoords, i.projPos_fogFactorW.xy / i.projPos_fogFactorW.z, FLASHLIGHTDEPTHFILTERMODE, g_vShadowTweaks, false );
+	float flShadow = DoFlashlightShadow( FlashlightDepthSampler, /*RandomRotationSampler,*/ vProjCoords, i.projPos_fogFactorW.xy / i.projPos_fogFactorW.z, FLASHLIGHTDEPTHFILTERMODE, g_vShadowTweaks, false );
 	float flAttenuated = lerp( flShadow, 1.0f, g_vShadowTweaks.y );	// Blend between fully attenuated and not attenuated
 	flShadow = saturate(lerp( flAttenuated, flShadow, flAtten ));	// Blend between shadow and above, according to light attenuation
 	spotColor *= flShadow;

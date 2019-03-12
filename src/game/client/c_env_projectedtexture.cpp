@@ -21,7 +21,7 @@
 // memdbgon must be the last include file in a .cpp file!!!
 #include "tier0/memdbgon.h"
 
-extern ConVar r_flashlightdepthres;
+extern ConVar r_shadowmapresolution;
 
 static ConVar r_projtex_filtersize( "r_projtex_filtersize", "0.5", 0 );
 
@@ -211,27 +211,27 @@ void C_EnvProjectedTexture::UpdateLight( void )
 	// also this is all setup for DoShadowNvidiaPCF5x5Gaussian lol
 	/*if ( r_projtex_quality.GetInt() == 0 )
 	{
-		r_flashlightdepthres.SetValue( 512.0f );
+		r_shadowmapresolution.SetValue( 512.0f );
 		r_projtex_filtersize.SetValue( 2.0f );
 	}
 	else if ( r_projtex_quality.GetInt() == 1 )
 	{
-		r_flashlightdepthres.SetValue( 1024.0f );
+		r_shadowmapresolution.SetValue( 1024.0f );
 		r_projtex_filtersize.SetValue( 1.0f );
 	}
 	else if ( r_projtex_quality.GetInt() == 2 )
 	{
-		r_flashlightdepthres.SetValue( 2048.0f );
+		r_shadowmapresolution.SetValue( 2048.0f );
 		r_projtex_filtersize.SetValue( 0.5f );
 	}
 	else if ( r_projtex_quality.GetInt() == 3 )
 	{
-		r_flashlightdepthres.SetValue( 4096.0f );
+		r_shadowmapresolution.SetValue( 4096.0f );
 		r_projtex_filtersize.SetValue( 0.25f );
 	}
 	else if ( r_projtex_quality.GetInt() == 4 )
 	{
-		r_flashlightdepthres.SetValue( 8192.0f );
+		r_shadowmapresolution.SetValue( 8192.0f );
 		r_projtex_filtersize.SetValue( 0.125f );
 	}*/
 	

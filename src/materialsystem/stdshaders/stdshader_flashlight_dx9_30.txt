@@ -16,12 +16,19 @@ flashlight_ps2x.fxc
 
 lightmappedgeneric_flashlight_vs20.fxc
 
+lightmappedgeneric_ps2x.fxc
+lightmappedgeneric_vs20.fxc
+
+lightmappedadv_flashlight_ps2x.fxc
+lightmappedadv_flashlight_vs20.fxc
+
 //skin_ps20b.fxc
 
-teeth_flashlight_ps2x.fxc
-teeth_flashlight_vs20.fxc
+//teeth_flashlight_ps2x.fxc
+//teeth_flashlight_vs20.fxc
 
 vertexlit_and_unlit_generic_bump_ps2x.fxc
+vertexlit_and_unlit_generic_bump_vs20.fxc
 vertexlit_and_unlit_generic_ps2x.fxc
 vertexlit_and_unlit_generic_vs20.fxc
 
@@ -30,3 +37,6 @@ vertexlitgeneric_flashlight_vs20.fxc
 //vortwarp_ps2x.fxc
 
 //worldtwotextureblend_ps2x.fxc // not ported to sm3 atm, need it to be for the right shadow filter on them
+
+worldvertextransition_ps2x.fxc
+worldvertextransition_vs20.fxc

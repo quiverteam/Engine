@@ -80,7 +80,7 @@ REM PC SHADERS
 REM ****************
 @REM %BUILD_SHADER% stdshader_flashlight_dx9_20b		-game %GAMEDIR% -source %SOURCEDIR% %dynamic_shaders%
 echo --------------------------------------------------------------------------------------------
-@REM %BUILD_SHADER% stdshader_flashlight_dx9_30		-game %GAMEDIR% -source %SOURCEDIR% %dynamic_shaders% -dx9_30 -force30
+%BUILD_SHADER% stdshader_flashlight_dx9_30		-game %GAMEDIR% -source %SOURCEDIR% %dynamic_shaders% -dx9_30 -force30
 
 echo --------------------------------------------------------------------------------------------
 @REM %BUILD_SHADER% stdshader_flashlight_dx10			-game %GAMEDIR% -source %SOURCEDIR% %dynamic_shaders% -dx10
@@ -115,4 +115,4 @@ if not "%dynamic_shaders%" == "1" (
 echo.
 pause
 
-..\..\devtools\bin\vpc.exe /f +shaders_all
+..\..\devtools\bin\vpc.exe /f +stdshaders

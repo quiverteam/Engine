@@ -1830,7 +1830,6 @@ void Worker_ProcessCommandRange_Singleton::Startup( void )
 		if ( m_MT.pThreadPool )
 		{
 			m_MT.tpsp.bIOThreads = false;
-			//m_MT.tpsp.nThreads = 0; // so we are just forcing it to 0 instead of checking the cpu thread count? cool.
 			m_MT.tpsp.nThreads = cpu.m_nLogicalProcessors - 1;
 
 			if ( m_MT.pThreadPool->Start( m_MT.tpsp ) )

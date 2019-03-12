@@ -81,6 +81,8 @@
 #include "toolframework_client.h"
 #include "bonetoworldarray.h"
 #include "cmodel.h"
+#include "renderparm.h"
+#include "c_lights.h"
 
 
 // memdbgon must be the last include file in a .cpp file!!!
@@ -89,13 +91,12 @@
 static ConVar r_flashlightdrawfrustum( "r_flashlightdrawfrustum", "0" );
 static ConVar r_flashlightmodels( "r_flashlightmodels", "1" );
 static ConVar r_shadowrendertotexture( "r_shadowrendertotexture", "0" );
-static ConVar r_flashlight_version2( "r_flashlight_version2", "0" );
+static ConVar r_flashlight_version2( "r_flashlight_version2", "0", FCVAR_CHEAT | FCVAR_DEVELOPMENTONLY );
 
 ConVar r_flashlightdepthtexture( "r_flashlightdepthtexture", "1" );
 
-ConVar r_flashlightdepthres( "r_flashlightdepthres", "2048" );
+ConVar r_shadowmapresolution( "r_shadowmapresolution", "8192" );
 
-// this command does essentially NOTHING as the threading boolean is used practically nowhere.
 ConVar r_threaded_client_shadow_manager( "r_threaded_client_shadow_manager", "0" );
 
 #ifdef _WIN32
@@ -851,8 +852,29 @@ private:
 	// Remove a shadow from the dirty list
 	void RemoveShadowFromDirtyList( ClientShadowHandle_t handle );
 
+public:
 	// NOTE: this will ONLY return SHADOWS_NONE, SHADOWS_SIMPLE, or SHADOW_RENDER_TO_TEXTURE.
 	ShadowType_t GetActualShadowCastType( ClientShadowHandle_t handle ) const;
+	//ShadowHandle_t GetShadowHandle( ClientShadowHandle_t clienthandle ) { return m_Shadows[clienthandle].m_ShadowHandle; };
+	//int GetNumShadowDepthtextures()	{ return m_DepthTextureCache.Count(); }
+	//CTextureReference GetShadowDepthTex( int num ) { return m_DepthTextureCache[num]; }
+
+	virtual ShadowHandle_t GetShadowDepthHandle( int num )
+	{
+		if ( num < 0 || num >= ARRAYSIZE( m_ActiveDepthTextureShadows ) )
+			return SHADOW_HANDLE_INVALID;
+
+		ClientShadowHandle_t handle = m_ActiveDepthTextureShadows[ num ];
+
+		if ( handle == CLIENTSHADOW_INVALID_HANDLE )
+			return SHADOW_HANDLE_INVALID;
+
+		return m_Shadows[ handle ].m_ShadowHandle;
+	}
+
+	//virtual ShadowHandle_t GetActiveDepthTextureHandle() { return m_ActiveDepthTextureHandle; }
+
+private:
 	ShadowType_t GetActualShadowCastType( IClientRenderable *pRenderable ) const;
 
 	// Builds a simple blobby shadow
@@ -944,6 +966,8 @@ private:
 	void	SetViewFlashlightState( int nActiveFlashlightCount, ClientShadowHandle_t* pActiveFlashlights );
 
 private:
+	ClientShadowHandle_t m_ActiveDepthTextureShadows[ 64 ];
+	ShadowHandle_t m_ActiveDepthTextureHandle;
 	Vector	m_SimpleShadowDir;
 	color32	m_AmbientLightColor;
 	CMaterialReference m_SimpleShadow;
@@ -952,6 +976,10 @@ private:
 	CTextureReference m_DummyColorTexture;
 	CUtlLinkedList< ClientShadow_t, ClientShadowHandle_t >	m_Shadows;
 	CTextureAllocator m_ShadowAllocator;
+	
+	// CSM
+	CTextureReference m_CascadedDepthTexture;
+	CTextureReference m_CascadedColorTexture;
 
 	bool m_RenderToTextureActive;
 	bool m_bRenderTargetNeedsClear;
@@ -1169,8 +1197,11 @@ CClientShadowMgr::CClientShadowMgr() :
 	m_RenderToTextureActive( false ),
 	m_bDepthTextureActive( false )
 {
-	m_nDepthTextureResolution = r_flashlightdepthres.GetInt();
-	m_bThreaded = false;
+	m_nDepthTextureResolution = r_shadowmapresolution.GetInt();
+	m_bThreaded = r_threaded_client_shadow_manager.GetBool();
+	//m_bShadowFromWorldLights = r_worldlight_castshadows.GetBool();
+
+	m_ActiveDepthTextureHandle = SHADOW_HANDLE_INVALID;
 }
 
 
@@ -1334,7 +1365,7 @@ void CClientShadowMgr::InitDepthTextureShadows()
 {
 	VPROF_BUDGET( "CClientShadowMgr::InitDepthTextureShadows", VPROF_BUDGETGROUP_SHADOW_DEPTH_TEXTURING );
 
-	m_nDepthTextureResolution = r_flashlightdepthres.GetInt();
+	m_nDepthTextureResolution = r_shadowmapresolution.GetInt();
 
 	if( !m_bDepthTextureActive )
 	{
@@ -1346,9 +1377,9 @@ void CClientShadowMgr::InitDepthTextureShadows()
 
 		// if I use RT_SIZE_NO_CHANGE, the shadow blurring fucks up, so thats great
 		// it actually reduces the blur somehow, but you can double it in the shader, though it won't be as good
-		//m_DummyColorTexture.InitRenderTarget( r_flashlightdepthres.GetInt(), r_flashlightdepthres.GetInt(), RT_SIZE_OFFSCREEN, nullFormat, MATERIAL_RT_DEPTH_NONE, false, "_rt_ShadowDummy" );
-		//m_DummyColorTexture.InitRenderTarget( r_flashlightdepthres.GetInt(), r_flashlightdepthres.GetInt(), RT_SIZE_NO_CHANGE, nullFormat, MATERIAL_RT_DEPTH_NONE, false, "_rt_ShadowDummy" );
-		m_DummyColorTexture.InitRenderTarget( r_flashlightdepthres.GetInt(), r_flashlightdepthres.GetInt(), RT_SIZE_OFFSCREEN, nullFormat, MATERIAL_RT_DEPTH_NONE, false, "_rt_ShadowDummy" );
+		//m_DummyColorTexture.InitRenderTarget( r_shadowmapresolution.GetInt(), r_shadowmapresolution.GetInt(), RT_SIZE_OFFSCREEN, nullFormat, MATERIAL_RT_DEPTH_NONE, false, "_rt_ShadowDummy" );
+		//m_DummyColorTexture.InitRenderTarget( r_shadowmapresolution.GetInt(), r_shadowmapresolution.GetInt(), RT_SIZE_NO_CHANGE, nullFormat, MATERIAL_RT_DEPTH_NONE, false, "_rt_ShadowDummy" );
+		m_DummyColorTexture.InitRenderTarget( r_shadowmapresolution.GetInt(), r_shadowmapresolution.GetInt(), RT_SIZE_OFFSCREEN, nullFormat, MATERIAL_RT_DEPTH_NONE, false, "_rt_ShadowDummy" );
 
 		// Create some number of depth-stencil textures
 		m_DepthTextureCache.Purge();
@@ -1369,7 +1400,7 @@ void CClientShadowMgr::InitDepthTextureShadows()
 			{
 				// Shadow may be resized during allocation (due to resolution constraints etc)
 				m_nDepthTextureResolution = depthTex->GetActualWidth();
-				r_flashlightdepthres.SetValue( m_nDepthTextureResolution );
+				r_shadowmapresolution.SetValue( m_nDepthTextureResolution );
 			}
 
 			Assert(depthTex->GetActualWidth() == m_nDepthTextureResolution);
@@ -1377,6 +1408,13 @@ void CClientShadowMgr::InitDepthTextureShadows()
 			m_DepthTextureCache.AddToTail( depthTex );
 			m_DepthTextureCacheLocks.AddToTail( bFalse );
 		}
+
+		const int iCadcadedShadowWidth = 8192;
+		const int iCadcadedShadowHeight = 8192;
+		m_CascadedColorTexture.InitRenderTarget( iCadcadedShadowWidth, iCadcadedShadowHeight, RT_SIZE_NO_CHANGE,
+												 nullFormat, MATERIAL_RT_DEPTH_NONE, false, "_rt_CascadedShadowColor" );
+		m_CascadedDepthTexture.InitRenderTarget( iCadcadedShadowWidth, iCadcadedShadowHeight, RT_SIZE_NO_CHANGE,
+												 dstFormat, MATERIAL_RT_DEPTH_NONE, false, "_rt_CascadedShadowDepth" );
 
 		materials->EndRenderTargetAllocation();
 	}
@@ -1396,6 +1434,9 @@ void CClientShadowMgr::ShutdownDepthTextureShadows()
 			m_DepthTextureCacheLocks.Remove( m_DepthTextureCache.Count()-1 );
 			m_DepthTextureCache.Remove( m_DepthTextureCache.Count()-1 );
 		}
+
+		m_CascadedDepthTexture.Shutdown();
+		m_CascadedColorTexture.Shutdown();
 
 		m_bDepthTextureActive = false;
 	}
@@ -1894,29 +1935,29 @@ void CClientShadowMgr::UpdateFlashlightState( ClientShadowHandle_t shadowHandle,
 {
 	VPROF_BUDGET( "CClientShadowMgr::UpdateFlashlightState", VPROF_BUDGETGROUP_SHADOW_DEPTH_TEXTURING );
 
-	/*if( flashlightState.m_bEnableShadows && r_flashlightdepthtexture.GetBool() )
-	{
-		m_Shadows[shadowHandle].m_Flags |= SHADOW_FLAGS_USE_DEPTH_TEXTURE;
-	}
-	else
-	{
-		m_Shadows[shadowHandle].m_Flags &= ~SHADOW_FLAGS_USE_DEPTH_TEXTURE;
-	}*/
+	ClientShadow_t &shadow = m_Shadows[shadowHandle];
 
-	/*if ( flashlightState.m_bOrtho )
-	{
-		BuildOrthoWorldToFlashlightMatrix( m_Shadows[shadowHandle].m_WorldToShadow, flashlightState );
+	BuildPerspectiveWorldToFlashlightMatrix( shadow.m_WorldToShadow, flashlightState );
+
+	shadowmgr->UpdateFlashlightState( shadow.m_ShadowHandle, flashlightState );
+	//shadowmgr->UpdateFlashlightState( m_Shadows[shadowHandle].m_ShadowHandle, flashlightState );
 	}
-	else
-	{*/
-		BuildPerspectiveWorldToFlashlightMatrix( m_Shadows[shadowHandle].m_WorldToShadow, flashlightState );
-	//}
+
+/*void CClientShadowMgr::UpdateUberlightState( FlashlightState_t& flashlightState, const UberlightState_t& uberlightState )
+	{
+	VPROF_BUDGET( "CClientShadowMgr::UpdateUberlightState", VPROF_BUDGETGROUP_SHADOW_DEPTH_TEXTURING );
+
+	if ( !g_pShaderExtension )
+		return;
 											
-	shadowmgr->UpdateFlashlightState( m_Shadows[shadowHandle].m_ShadowHandle, flashlightState );
-}
+	g_pShaderExtension->SetUberlightParamsForFlashlightState( flashlightState, uberlightState );
+}*/
 
 void CClientShadowMgr::DestroyFlashlight( ClientShadowHandle_t shadowHandle )
 {
+	//if ( g_pShaderExtension )
+	//	g_pShaderExtension->OnFlashlightStateDestroyed( shadowmgr->GetFlashlightState( m_Shadows[shadowHandle].m_ShadowHandle ) );
+
 	DestroyShadow( shadowHandle );
 }
 
@@ -2920,7 +2961,7 @@ void CClientShadowMgr::PreRender()
 		}
 
 		bool bDepthTextureActive     = r_flashlightdepthtexture.GetBool();
-		int  nDepthTextureResolution = r_flashlightdepthres.GetInt();
+		int  nDepthTextureResolution = r_shadowmapresolution.GetInt();
 
 		// If shadow depth texture size or enable/disable changed, do appropriate deallocation/(re)allocation
 		if ( ( bDepthTextureActive != m_bDepthTextureActive ) || ( nDepthTextureResolution != m_nDepthTextureResolution ) )
@@ -2950,7 +2991,10 @@ void CClientShadowMgr::PreRender()
 	// -- Render to Texture Shadows -----------------------
 	//
 
-	bool bRenderToTextureActive = r_shadowrendertotexture.GetBool();
+	bool bRenderToTextureActive = r_shadowrendertotexture.GetBool() &&
+		( g_pCSMEnvLight == NULL || !g_pCSMEnvLight->IsCascadedShadowMappingEnabled() );
+
+	//bool bRenderToTextureActive = r_shadowrendertotexture.GetBool();
 	if ( bRenderToTextureActive != m_RenderToTextureActive )
 	{
 		if ( m_RenderToTextureActive )
@@ -3480,8 +3524,20 @@ void CClientShadowMgr::AddShadowToReceiver( ClientShadowHandle_t handle,
 	if (pSourceRenderable == pRenderable)
 		return;
 
+	int flags = SHADOW_FLAGS_PROJECTED_TEXTURE_TYPE_MASK;
+	/*extern ClientShadowHandle_t g_hFlashlightHandle[MAX_PLAYERS + 1];
+	for ( ClientShadowHandle_t flashlight_handle : g_hFlashlightHandle )
+	{
+		if ( flashlight_handle == handle )
+		{
+			//flags |= SHADOW_FLAGS_PLAYER_FLASHLIGHT;
+			break;
+		}
+	}*/
+
 	// Don't bother if this renderable doesn't receive shadows or light from flashlights
-	if( !pRenderable->ShouldReceiveProjectedTextures( SHADOW_FLAGS_PROJECTED_TEXTURE_TYPE_MASK ) )
+	//if( !pRenderable->ShouldReceiveProjectedTextures( SHADOW_FLAGS_PROJECTED_TEXTURE_TYPE_MASK ) )
+	if( !pRenderable->ShouldReceiveProjectedTextures( flags ) )
 		return;
 
 	// Cull if the origin is on the wrong side of a shadow clip plane....
@@ -3960,6 +4016,11 @@ void CClientShadowMgr::ComputeShadowDepthTextures( const CViewSetup &viewSetup )
 	ClientShadowHandle_t pActiveDepthShadows[1024];
 	int nActiveDepthShadowCount = BuildActiveShadowDepthList( viewSetup, ARRAYSIZE( pActiveDepthShadows ), pActiveDepthShadows );
 
+	for ( int i = 0; i < m_nMaxDepthTextureShadows; i++ )
+		m_ActiveDepthTextureShadows[ i ] = SHADOW_HANDLE_INVALID;
+
+	Assert( m_nMaxDepthTextureShadows < ARRAYSIZE( m_ActiveDepthTextureShadows ) );
+
 	// Iterate over all existing textures and allocate shadow textures
 	bool bDebugFrustum = r_flashlightdrawfrustum.GetBool();
 	for ( int j = 0; j < nActiveDepthShadowCount; ++j )
@@ -3980,8 +4041,15 @@ void CClientShadowMgr::ComputeShadowDepthTextures( const CViewSetup &viewSetup )
 
 			Assert(0);
 			shadowmgr->SetFlashlightDepthTexture( shadow.m_ShadowHandle, NULL, 0 );
+			if ( j <= ( INT_FLASHLIGHT_DEPTHTEXTURE_FALLBACK_LAST - INT_FLASHLIGHT_DEPTHTEXTURE_FALLBACK_FIRST ) )
+			{
+				pRenderContext->SetIntRenderingParameter( INT_FLASHLIGHT_DEPTHTEXTURE_FALLBACK_FIRST + j, 0 );
+			}
 			continue;
 		}
+
+		m_ActiveDepthTextureHandle = shadow.m_ShadowHandle;
+		m_ActiveDepthTextureShadows[ j ] = shadow.m_ShadowHandle;
 
 		CViewSetup shadowView;
 		shadowView.m_flAspectRatio = 1.0f;
@@ -4012,6 +4080,19 @@ void CClientShadowMgr::ComputeShadowDepthTextures( const CViewSetup &viewSetup )
 
 		// Render to the shadow depth texture with appropriate view
 		view->UpdateShadowDepthTexture( m_DummyColorTexture, shadowDepthTexture, shadowView );
+
+		if ( j <= ( INT_FLASHLIGHT_DEPTHTEXTURE_FALLBACK_LAST - INT_FLASHLIGHT_DEPTHTEXTURE_FALLBACK_FIRST ) )
+		{
+			pRenderContext->SetIntRenderingParameter( INT_FLASHLIGHT_DEPTHTEXTURE_FALLBACK_FIRST + j, reinterpret_cast<int>( &(*shadowDepthTexture) )  );
+
+			FlashlightState_t state = shadowmgr->GetFlashlightState( shadow.m_ShadowHandle );
+
+			state.m_nShadowQuality = state.m_nShadowQuality | ( ( j + 1 ) << 16 );
+
+			shadowmgr->UpdateFlashlightState( shadow.m_ShadowHandle, state );
+		}
+
+		m_ActiveDepthTextureHandle = SHADOW_HANDLE_INVALID;
 
 		// Associate the shadow depth texture and stencil bit with the flashlight for use during scene rendering
 		shadowmgr->SetFlashlightDepthTexture( shadow.m_ShadowHandle, shadowDepthTexture, 0 );

@@ -444,6 +444,7 @@ private:
 	void			SetupMain3DView( const CViewSetup &view, int &nClearFlags );
 	void			CleanupMain3DView( const CViewSetup &view );
 
+	void			UpdateCascadedShadow( const CViewSetup &view );
 
 	// This stores the current view
  	CViewSetup		m_CurrentView;

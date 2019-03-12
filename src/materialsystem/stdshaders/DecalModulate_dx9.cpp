@@ -107,6 +107,9 @@ BEGIN_VS_SHADER( DecalModulate_dx9,
 #ifndef _X360
 			else
 			{
+			//	const bool bTwoSidedLighting = info.m_nTwoSidedLighting >= 0 && params[info.m_nTwoSidedLighting]->GetIntValue() > 0;
+				const bool bTwoSidedLighting = false;
+
 				DECLARE_STATIC_VERTEX_SHADER( vertexlit_and_unlit_generic_vs30 );
 				SET_STATIC_VERTEX_SHADER_COMBO( VERTEXCOLOR,  false );
 				SET_STATIC_VERTEX_SHADER_COMBO( CUBEMAP,  false );
@@ -116,6 +119,7 @@ BEGIN_VS_SHADER( DecalModulate_dx9,
 				SET_STATIC_VERTEX_SHADER_COMBO( SEAMLESS_DETAIL,  false );
 				SET_STATIC_VERTEX_SHADER_COMBO( SEPARATE_DETAIL_UVS, false );
 				SET_STATIC_VERTEX_SHADER_COMBO( DECAL, true );
+				SET_STATIC_VERTEX_SHADER_COMBO( TWO_SIDED_LIGHTING, bTwoSidedLighting );
 				SET_STATIC_VERTEX_SHADER( vertexlit_and_unlit_generic_vs30 );
 
 				DECLARE_STATIC_PIXEL_SHADER( decalmodulate_ps30 );
@@ -159,6 +163,7 @@ BEGIN_VS_SHADER( DecalModulate_dx9,
 			transformation[1].Init( 0.0f, 1.0f, 0.0f, 0.0f );
 		 	pShaderAPI->SetVertexShaderConstant( VERTEX_SHADER_SHADER_SPECIFIC_CONST_0, transformation[0].Base(), 2 ); 
 
+			ITexture *pCascadedDepthTexture = NULL;
 			MaterialFogMode_t fogType = s_pShaderAPI->GetSceneFogMode();
 			int fogIndex = ( fogType == MATERIAL_FOG_LINEAR_BELOW_FOG_Z ) ? 1 : 0;
 
@@ -198,6 +203,7 @@ BEGIN_VS_SHADER( DecalModulate_dx9,
 #ifndef _X360
 			else
 			{
+				const int iCascadedShadowCombo = ( pCascadedDepthTexture != NULL ) ? 1 : 0;
 				SetHWMorphVertexShaderState( VERTEX_SHADER_SHADER_SPECIFIC_CONST_6, VERTEX_SHADER_SHADER_SPECIFIC_CONST_7, SHADER_VERTEXTEXTURE_SAMPLER0 );
 
 				DECLARE_DYNAMIC_VERTEX_SHADER( vertexlit_and_unlit_generic_vs30 );
@@ -208,6 +214,7 @@ BEGIN_VS_SHADER( DecalModulate_dx9,
 				SET_DYNAMIC_VERTEX_SHADER_COMBO( LIGHTING_PREVIEW, 0 );
 				SET_DYNAMIC_VERTEX_SHADER_COMBO( MORPHING, pShaderAPI->IsHWMorphingEnabled() );
 				SET_DYNAMIC_VERTEX_SHADER_COMBO( COMPRESSED_VERTS, (int)vertexCompression );
+				SET_DYNAMIC_VERTEX_SHADER_COMBO( CASCADED_SHADOW, iCascadedShadowCombo );
 				SET_DYNAMIC_VERTEX_SHADER( vertexlit_and_unlit_generic_vs30 );
 
 				DECLARE_DYNAMIC_PIXEL_SHADER( decalmodulate_ps30 );

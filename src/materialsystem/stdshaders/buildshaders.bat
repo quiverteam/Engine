@@ -22,13 +22,12 @@ setlocal
 set arg_filename=%1
 set shadercompilecommand=shadercompile.exe
 set shadercompileworkers=1
-set targetdir=..\..\..\game\hl2\shaders
+set targetdir=..\..\..\game\platform\shaders
 set SrcDirBase=..\..
 set ChangeToDir=../../../game/bin
 set shaderDir=shaders
 set SDKArgs=
 set SHADERINCPATH=vshtmp9/... fxctmp9/...
-@REM set threadcount=10
 @REM your total thread count - 2
 set /A threadcount=%NUMBER_OF_PROCESSORS% - 2
 @REM this increases performance greatly
@@ -200,7 +199,10 @@ if exist "filelist.txt" if exist "uniquefilestocopy.txt" if not "%dynamic_shader
 	@REM %shadercompilecommand% -mpi_MaxWorkers %shadercompileworkers% -shaderpath "%shader_path_cd:/=\%" -allowdebug
 	@REM -verbose -subprocess X
 	@REM -nointercept		Uses old slow technique - runs 'fxc.exe' / Uses new faster Vitaliy's implementation
+	echo.
 	%shadercompilecommand% -nompi -threads %threadcount% -shaderpath "%shader_path_cd:/=\%" -allowdebug
+	
+	echo.
 	cd /D %shader_path_cd%
 )
 
