@@ -106,7 +106,7 @@ void CSteamID::SetFromString( const char *pchSteamID, EUniverse eDefaultUniverse
 }
 
 
-#if defined( INCLUDED_STEAM_COMMON_STEAMCOMMON_H ) 
+#if defined( INCLUDED_STEAM2_USERID_STRUCTS  ) 
 //-----------------------------------------------------------------------------
 // Purpose: Initializes a steam ID from a Steam2 ID string
 // Input:	pchSteam2ID -	Steam2 ID (as a string #:#:#) to convert
@@ -150,7 +150,7 @@ bool CSteamID::SetFromSteam2String( const char *pchSteam2ID, EUniverse eUniverse
 //			code, this code returns a pointer to a static buffer and is NOT thread-safe.
 // Output:  buffer with rendered Steam ID
 //-----------------------------------------------------------------------------
-char * CSteamID::Render() const
+const char * CSteamID::Render() const
 {
 	const int k_cBufLen = 255;
 	const int k_cBufs = 4;	// # of static bufs to use (so people can compose output with multiple calls to Render() )
@@ -160,29 +160,29 @@ char * CSteamID::Render() const
 	nBuf ++;	// use next buffer for next call to this method
 	nBuf %= k_cBufs;
 
-	if ( k_EAccountTypeAnonGameServer == m_EAccountType )
+	if ( k_EAccountTypeAnonGameServer == GetEAccountType() )
 	{
-		Q_snprintf( pchBuf, k_cBufLen, "[A-%u:%u(%u)]", m_EUniverse, m_unAccountID, m_unAccountInstance );
+		Q_snprintf( pchBuf, k_cBufLen, "[A-%u:%u(%u)]", GetEUniverse(), GetAccountID(), GetUnAccountInstance() );
 	}
-	else if ( k_EAccountTypeGameServer == m_EAccountType )
+	else if ( k_EAccountTypeGameServer == GetEAccountType() )
 	{
-		Q_snprintf( pchBuf, k_cBufLen, "[G-%u:%u]", m_EUniverse, m_unAccountID );
+		Q_snprintf( pchBuf, k_cBufLen, "[G-%u:%u]", GetEUniverse(), GetAccountID() );
 	}
-	else if ( k_EAccountTypeMultiseat == m_EAccountType )
+	else if ( k_EAccountTypeMultiseat == GetEAccountType() )
 	{
-		Q_snprintf( pchBuf, k_cBufLen, "[%u:%u(%u%)]", m_EUniverse, m_unAccountID, m_unAccountInstance );
+		Q_snprintf( pchBuf, k_cBufLen, "[%u:%u(%u%)]", GetEUniverse(), GetAccountID(), GetUnAccountInstance() );
 	} 
-	else if ( k_EAccountTypePending == m_EAccountType )
+	else if ( k_EAccountTypePending == GetEAccountType() )
 	{
-		Q_snprintf( pchBuf, k_cBufLen, "[%u:%u(pending)]", m_EUniverse, m_unAccountID );
+		Q_snprintf( pchBuf, k_cBufLen, "[%u:%u(pending)]", GetEUniverse(), GetAccountID() );
 	} 
-	else if ( k_EAccountTypeContentServer == m_EAccountType )
+	else if ( k_EAccountTypeContentServer == GetEAccountType() )
 	{
-		Q_snprintf( pchBuf, k_cBufLen, "[C-%u:%u]", m_EUniverse, m_unAccountID );
+		Q_snprintf( pchBuf, k_cBufLen, "[C-%u:%u]", GetEUniverse(), GetAccountID() );
 	}
 	else
 	{
-		Q_snprintf( pchBuf, k_cBufLen, "[%u:%u]", m_EUniverse, m_unAccountID );
+		Q_snprintf( pchBuf, k_cBufLen, "[%u:%u]", GetEUniverse(), GetAccountID() );
 	}
 	return pchBuf;
 }
@@ -194,7 +194,7 @@ char * CSteamID::Render() const
 // Input:	64-bit representation of Steam ID to render
 // Output:  buffer with rendered Steam ID
 //-----------------------------------------------------------------------------
-char * CSteamID::Render( uint64 ulSteamID )
+const char * CSteamID::Render( uint64 ulSteamID )
 {
 	CSteamID steamID( ulSteamID );
 	return steamID.Render();
@@ -207,11 +207,11 @@ char * CSteamID::Render( uint64 ulSteamID )
 //-----------------------------------------------------------------------------
 bool CSteamID::BValidExternalSteamID() const
 {
-	if ( m_EAccountType == k_EAccountTypePending )
+	if ( GetEAccountType() == k_EAccountTypePending )
 		return false;
-	if ( m_EAccountType != k_EAccountTypeAnonGameServer && m_EAccountType != k_EAccountTypeContentServer )
+	if ( GetEAccountType() != k_EAccountTypeAnonGameServer && GetEAccountType() != k_EAccountTypeContentServer )
 	{
-		if ( m_unAccountID == 0 && m_unAccountInstance == 0 )
+		if ( GetAccountID() == 0 && GetUnAccountInstance() == 0 )
 			return false;
 	}
 	return true;

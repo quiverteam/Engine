@@ -28,8 +28,6 @@ class CLZSS
 public:
 	unsigned char*	Compress( const unsigned char *pInput, int inputlen, unsigned int *pOutputSize );
 	unsigned char*	CompressNoAlloc( const unsigned char *pInput, int inputlen, unsigned char *pOutput, unsigned int *pOutputSize );
-	unsigned int	Uncompress( const unsigned char *pInput, unsigned char *pOutput );
-	//unsigned int	Uncompress( unsigned char *pInput, CUtlBuffer &buf );
 	unsigned int	SafeUncompress( const unsigned char *pInput, unsigned char *pOutput, unsigned int unBufSize );
 
 	static bool			IsCompressed( const unsigned char *pInput );

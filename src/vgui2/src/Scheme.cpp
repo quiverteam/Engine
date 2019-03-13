@@ -50,6 +50,20 @@ public:
 	// m_pkvColors
 	virtual Color GetColor( const char *colorName, Color defaultColor);
 
+	// Get the number of borders
+	virtual int GetBorderCount() const;
+
+	// Get the border at the given index
+	virtual IBorder *GetBorderAtIndex( int iIndex );
+
+	// Get the number of fonts
+	virtual int GetFontCount() const;
+
+	// Get the font at the given index
+	virtual HFont GetFontAtIndex( int iIndex );	
+
+	// Get color data
+	virtual const KeyValues *GetColorData() const;
 
 	void Shutdown( bool full );
 	void LoadFromFile( VPANEL sizingPanel, const char *filename, const char *tag, KeyValues *inKeys );
@@ -150,7 +164,7 @@ public:
 	virtual int GetProportionalScaledValueEx( HScheme scheme, int normalizedValue );
 	virtual int GetProportionalNormalizedValueEx( HScheme scheme, int scaledValue );
 
-	virtual void DeleteImage( const char *pImageName );
+	virtual bool DeleteImage( const char *pImageName );
 
 	// gets the proportional coordinates for doing screen-size independant panel layouts
 	// use these for font, image and panel size scaling (they all use the pixel height of the display for scaling)
@@ -603,7 +617,7 @@ void CScheme::LoadFonts()
 		const char *fontFile = kv->GetString();
 		if (fontFile && *fontFile)
 		{
-			g_pSurface->AddCustomFontFile( fontFile );
+			g_pSurface->AddCustomFontFile( kv->GetName(), fontFile );
 		}
 	}
 
@@ -844,6 +858,11 @@ void CSchemeManager::ReloadSchemes()
 	}
 }
 
+const KeyValues * CScheme::GetColorData() const
+{
+	return nullptr;
+}
+
 //-----------------------------------------------------------------------------
 // Purpose: kills all the schemes
 //-----------------------------------------------------------------------------
@@ -1048,10 +1067,10 @@ HTexture CSchemeManager::GetImageID(const char *imageName, bool hardwareFiltered
 //-----------------------------------------------------------------------------
 // Delete a managed image
 //-----------------------------------------------------------------------------
-void CSchemeManager::DeleteImage( const char *pImageName )
+bool CSchemeManager::DeleteImage( const char *pImageName )
 {
 	if ( !pImageName )
-		return;
+		return false;
 
 	// set up to search for the bitmap
 	CachedBitmapHandle_t searchBitmap;
@@ -1063,7 +1082,9 @@ void CSchemeManager::DeleteImage( const char *pImageName )
 	{
 		delete m_Bitmaps[i].bitmap;	
 		m_Bitmaps.RemoveAt( i );
+		return true;
 	}
+	return false;
 }
 
 //-----------------------------------------------------------------------------
@@ -1157,6 +1178,26 @@ Color CScheme::GetColor(const char *colorName, Color defaultColor)
 		return Color(r, g, b, a);
 
 	return defaultColor;
+}
+
+int CScheme::GetBorderCount() const
+{
+	return 0;
+}
+
+IBorder * CScheme::GetBorderAtIndex( int iIndex )
+{
+	return nullptr;
+}
+
+int CScheme::GetFontCount() const
+{
+	return 0;
+}
+
+HFont CScheme::GetFontAtIndex( int iIndex )
+{
+	return HFont();
 }
 
 //-----------------------------------------------------------------------------

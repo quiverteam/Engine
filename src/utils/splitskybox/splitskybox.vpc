@@ -36,7 +36,7 @@ $Project "Splitskybox"
 
 	$Folder	"Header Files"
 	{
-		$File	"..\..\public\vstdlib\strtools.h"
+		$File	"..\..\public\tier1\strtools.h"
 	}
 
 	$Folder	"Link Libraries"

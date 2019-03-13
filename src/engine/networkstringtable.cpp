@@ -1041,7 +1041,7 @@ bool CNetworkStringTable::ReadStringTable( CUtlBuffer& buf )
 	{
 		char stringname[4096];
 		
-		buf.GetString( stringname, sizeof( stringname ) );
+		buf.GetStringManualCharCount( stringname, sizeof( stringname ) );
 
 		if ( buf.GetChar() == 1 )
 		{
@@ -1341,7 +1341,7 @@ bool CNetworkStringTableContainer::ReadStringTables( CUtlBuffer& buf )
 	for ( int i = 0 ; i < numTables; i++ )
 	{
 		char tablename[ 256 ];
-		buf.GetString( tablename, sizeof( tablename ) );
+		buf.GetStringManualCharCount( tablename, sizeof( tablename ) );
 
 		// Find this table by name
 		CNetworkStringTable *table = (CNetworkStringTable*)FindTable( tablename );

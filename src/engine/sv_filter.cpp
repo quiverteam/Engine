@@ -478,9 +478,7 @@ USERID_t *Filter_StringToUserID( const char *str )
 		args.Tokenize( szTemp );
 		if ( args.ArgC() >= 5 )
 		{
-			id.uid.steamid.m_SteamInstanceID = ( SteamInstanceID_t )atoi( args[ 0 ] );
-			id.uid.steamid.m_SteamLocalUserID.Split.High32bits = (int)atoi( args[ 2 ] );
-			id.uid.steamid.m_SteamLocalUserID.Split.Low32bits = (int)atoi( args[ 4 ] );
+			id.steamid.SetAccountInstance(atoi( args[ 0 ] ));
 		}
 	}
 	return &id;

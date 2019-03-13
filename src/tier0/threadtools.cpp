@@ -323,7 +323,8 @@ PLATFORM_INTERFACE ThreadedLoadLibraryFunc_t GetThreadedLoadLibraryFunc()
 
 CThreadSyncObject::CThreadSyncObject()
 #ifdef _WIN32
-  : m_hSyncObject( NULL )
+  : m_hSyncObject( NULL ),
+	m_bCreatedHandle( false )
 #elif _LINUX
   : m_bInitalized( false )
 #endif
@@ -335,9 +336,9 @@ CThreadSyncObject::CThreadSyncObject()
 CThreadSyncObject::~CThreadSyncObject()
 {
 #ifdef _WIN32
-   if (m_hSyncObject )
+   if ( m_hSyncObject && m_bCreatedHandle )
    {
-      if ( !CloseHandle(m_hSyncObject) )
+      if ( !CloseHandle( m_hSyncObject ) )
 	  {
 		  Assert( 0 );
 	  }
@@ -427,6 +428,7 @@ CThreadEvent::CThreadEvent( bool bManualReset )
 {
 #ifdef _WIN32
     m_hSyncObject = CreateEvent( NULL, bManualReset, FALSE, NULL );
+	m_bCreatedHandle = true;
     AssertMsg1(m_hSyncObject, "Failed to create event (error 0x%x)", GetLastError() );
 #elif _LINUX
     pthread_mutexattr_t Attr;
@@ -441,6 +443,13 @@ CThreadEvent::CThreadEvent( bool bManualReset )
 #error "Implement me"
 #endif
 }
+
+CThreadEvent::CThreadEvent( HANDLE hHandle )
+{
+	m_hSyncObject = hHandle;
+	m_bCreatedHandle = false;
+}
+
 //-----------------------------------------------------------------------------
 //
 //-----------------------------------------------------------------------------
@@ -1784,7 +1793,7 @@ int CWorkerThread::BoostPriority()
 
 static uint32 __stdcall DefaultWaitFunc( int nEvents, CThreadEvent * const *pEvents, int bWaitAll, uint32 timeout )
 {
-	return VCRHook_WaitForMultipleObjects( nEvents, (const void **)pEvents, bWaitAll, timeout );
+	return ThreadWaitForEvents( nEvents, pEvents, bWaitAll, timeout );
 }
 
 
@@ -1834,10 +1843,12 @@ int CWorkerThread::WaitForReply( unsigned timeout, WaitFunc_t pfnWait )
 		pfnWait = DefaultWaitFunc;
 	}
 
-	HANDLE waits[] =
+	CThreadEvent thandle( GetThreadHandle() );
+
+	CThreadEvent *waits[] =
 	{
-		GetThreadHandle(),
-		m_EventComplete
+		&thandle,
+		&m_EventComplete
 	};
 	
 	unsigned result;
@@ -1852,7 +1863,7 @@ int CWorkerThread::WaitForReply( unsigned timeout, WaitFunc_t pfnWait )
 			break;
 		}
 
-		result = (*pfnWait)((sizeof(waits) / sizeof(waits[0])), (CThreadEvent* const* )&m_EventComplete, false,
+		result = (*pfnWait)((sizeof(waits) / sizeof(waits[0])), waits, false,
 			(timeout != TT_INFINITE) ? timeout : 30000);
 
 		AssertMsg(timeout != TT_INFINITE || result != WAIT_TIMEOUT, "Possible hung thread, call to thread timed out");

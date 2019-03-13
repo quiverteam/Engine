@@ -307,7 +307,7 @@ void CL_InitHL2DemoFlag()
 			char szSubscribedValue[10];
 
 			if ( VCRGetMode() != VCR_Playback )
-				nRet = SteamApps()->GetAppData( 220, "subscribed", szSubscribedValue, sizeof(szSubscribedValue) );
+				nRet = SteamApps()->BIsSubscribedApp( 220 );
 #if !defined( NO_VCR )
 			VCRGenericValue( "e", &nRet, sizeof( nRet ) );
 #endif
@@ -349,7 +349,7 @@ void CL_InitPortalDemoFlag()
 			char szSubscribedValue[10];
 
 			if ( VCRGetMode() != VCR_Playback )
-				nRet = SteamApps()->GetAppData( 400, "subscribed", szSubscribedValue, sizeof(szSubscribedValue) );
+				nRet = SteamApps()->BIsSubscribedApp( 220 );
 #if !defined( NO_VCR )
 			VCRGenericValue( "e", &nRet, sizeof( nRet ) );
 #endif
@@ -1001,11 +1001,11 @@ void CL_FullyConnected( void )
  	g_ClientDLL->LevelInitPostEntity();
 
 	// communicate to tracker that we're in a game
-	int ip = cl.m_NetChannel->GetRemoteAddress().GetIP();
+	int ip = cl.m_NetChannel->GetRemoteAddress().GetIPNetworkByteOrder();
 	short port = cl.m_NetChannel->GetRemoteAddress().GetPort();
 	if (!port)
 	{
-		ip = net_local_adr.GetIP();
+		ip = net_local_adr.GetIPNetworkByteOrder();
 		port = net_local_adr.GetPort();
 	}
 

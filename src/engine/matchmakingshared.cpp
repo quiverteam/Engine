@@ -376,9 +376,9 @@ void CMatchmaking::PacketEnd()
 CClientInfo *CMatchmaking::FindClient( netadr_t *adr )
 {
 	CClientInfo *pClient = NULL;
-	unsigned int ip = adr->GetIP();
+	unsigned int ip = adr->GetIPNetworkByteOrder();
 
-	if ( ip == m_Host.m_adr.GetIP() )
+	if ( ip == m_Host.m_adr.GetIPNetworkByteOrder() )
 	{
 		pClient = &m_Host;
 	}
@@ -386,7 +386,7 @@ CClientInfo *CMatchmaking::FindClient( netadr_t *adr )
 	{
 		for ( int i = 0; i < m_Remote.Count(); ++i )
 		{
-			if ( ip == m_Remote[i]->m_adr.GetIP() )
+			if ( ip == m_Remote[i]->m_adr.GetIPNetworkByteOrder() )
 			{
 				pClient = m_Remote[i];
 				break;
@@ -443,7 +443,7 @@ INetChannel *CMatchmaking::FindChannel( const unsigned int ip )
 //-----------------------------------------------------------------------------
 INetChannel *CMatchmaking::CreateNetChannel( netadr_t *adr )
 {
-	INetChannel *pNewChannel = FindChannel( adr->GetIP() );
+	INetChannel *pNewChannel = FindChannel( adr->GetIPNetworkByteOrder() );
 	if ( !pNewChannel )
 	{
 		pNewChannel = NET_CreateNetChannel( NS_MATCHMAKING, adr, "MATCHMAKING", this );
@@ -467,7 +467,7 @@ INetChannel *CMatchmaking::AddRemoteChannel( netadr_t *adr )
 	if ( pNetChannel )
 	{
 		// Save this new channel
-		m_Channels.Insert( adr->GetIP(), pNetChannel );
+		m_Channels.Insert( adr->GetIPNetworkByteOrder(), pNetChannel );
 	}
 	return pNetChannel;
 }
@@ -477,10 +477,10 @@ INetChannel *CMatchmaking::AddRemoteChannel( netadr_t *adr )
 //-----------------------------------------------------------------------------
 void CMatchmaking::RemoveRemoteChannel( netadr_t *adr, const char *pReason )
 {
-	INetChannel *pNetChannel = FindChannel( adr->GetIP() );
+	INetChannel *pNetChannel = FindChannel( adr->GetIPNetworkByteOrder() );
 	if ( pNetChannel )
 	{
-		m_Channels.Remove( adr->GetIP() );
+		m_Channels.Remove( adr->GetIPNetworkByteOrder() );
 	}
 }
 
@@ -489,7 +489,7 @@ void CMatchmaking::RemoveRemoteChannel( netadr_t *adr, const char *pReason )
 //-----------------------------------------------------------------------------
 void CMatchmaking::MarkChannelForRemoval( netadr_t *adr )
 {
-	m_ChannelsToRemove.AddToTail( adr->GetIP() );
+	m_ChannelsToRemove.AddToTail( adr->GetIPNetworkByteOrder() );
 }
 
 //-----------------------------------------------------------------------------
@@ -497,10 +497,10 @@ void CMatchmaking::MarkChannelForRemoval( netadr_t *adr )
 //-----------------------------------------------------------------------------
 void CMatchmaking::SetChannelTimeout( netadr_t *adr, int timeout )
 {
-	INetChannel *pChannel = FindChannel( adr->GetIP() );
+	INetChannel *pChannel = FindChannel( adr->GetIPNetworkByteOrder() );
 	if ( pChannel )
 	{
-		Msg( "Setting new timeout for ip %d: %d\n", adr->GetIP(), timeout );
+		Msg( "Setting new timeout for ip %d: %d\n", adr->GetIPNetworkByteOrder(), timeout );
 		pChannel->SetTimeout( timeout );
 	}
 }
@@ -511,7 +511,7 @@ void CMatchmaking::SetChannelTimeout( netadr_t *adr, int timeout )
 void CMatchmaking::SendMessage( INetMessage *msg, netadr_t *adr, bool bVoice )
 {
 	// Find the matching net channel
-	INetChannel *pChannel = FindChannel( adr->GetIP() );
+	INetChannel *pChannel = FindChannel( adr->GetIPNetworkByteOrder() );
 	if ( pChannel )
 	{
 		pChannel->SendNetMsg( *msg, false, bVoice );
@@ -528,7 +528,7 @@ void CMatchmaking::SendMessage( INetMessage *msg, netadr_t *adr, bool bVoice )
 void CMatchmaking::SendMessage( INetMessage *msg, CClientInfo *pClient, bool bVoice )
 {
 	// Find the matching net channel
-	INetChannel *pChannel = FindChannel( pClient->m_adr.GetIP() );
+	INetChannel *pChannel = FindChannel( pClient->m_adr.GetIPNetworkByteOrder() );
 	if ( pChannel )
 	{
 		pChannel->SendNetMsg( *msg, false, bVoice );
@@ -560,11 +560,11 @@ void CMatchmaking::SendToRemoteClients( INetMessage *msg, bool bVoice, XUID excl
 //-----------------------------------------------------------------------------
 bool CMatchmaking::SendHeartbeat( CClientInfo *pClient )
 {
-	if ( pClient->m_adr.GetIP() == 0 )
+	if ( pClient->m_adr.GetIPNetworkByteOrder() == 0 )
 		return false;
 
 	// Check for timeout
-	INetChannel *pChannel = FindChannel( pClient->m_adr.GetIP() );
+	INetChannel *pChannel = FindChannel( pClient->m_adr.GetIPNetworkByteOrder() );
 	if ( pChannel )
 	{
 //		Msg( "Sending HB\n" );

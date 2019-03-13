@@ -34,7 +34,7 @@ public:
 	// for each character in an array (not assumed to be a NULL-terminated string), returns a
 	// texture ID and a pointer to an array of 4 texture coords for the given character & font
 	// generates+uploads more texture if necessary
-	bool GetTextureForChars( vgui::HFont font, vgui::FontDrawType_t type, wchar_t *wch, int *textureID, float **texCoords, int numChars = 1 );
+	bool GetTextureForChars( vgui::HFont font, vgui::FontDrawType_t type, const wchar_t *wch, int *textureID, float **texCoords, int numChars = 1 );
 
 	// clears the cache
 	void Clear();

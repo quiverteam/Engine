@@ -869,7 +869,7 @@ void CShaderSystem::PrintBufferedSpew( void )
 		if ( nLen )
 		{
 			char *pBuf = (char*)_alloca( nLen );
-			m_StoredSpew.GetString( pBuf, nLen );
+			m_StoredSpew.GetStringManualCharCount( pBuf, nLen );
 			ColorSpewMessage( spewType, &c, pBuf );
 		}
 		else

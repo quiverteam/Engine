@@ -47,6 +47,13 @@ public:
 		return _valid;
 	}
 
+	virtual bool Evict() { return false; }
+
+	virtual int GetNumFrames() { return 0; }
+	virtual void SetFrame( int nFrame ) {}
+
+	virtual void SetRotation( int iRotation ) {}
+
 private:
 	HTexture    _id;
 	bool        _uploaded;

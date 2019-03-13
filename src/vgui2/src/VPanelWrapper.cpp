@@ -128,6 +128,11 @@ public:
 		return ((VPanel *)vguiPanel)->SetTopmostPopup( state );
 	}
 
+	virtual void SetSiblingPin( VPANEL vguiPanel, VPANEL newSibling, byte iMyCornerToPin = 0, byte iSiblingCornerToPinTo = 0 )
+	{
+
+	}
+
 	virtual void SetParent(VPANEL vguiPanel, VPANEL newParent)
 	{
 		((VPanel *)vguiPanel)->SetParent((VPanel *)newParent);
@@ -141,6 +146,16 @@ public:
 	virtual VPANEL GetChild(VPANEL vguiPanel, int index)
 	{
 		return (VPANEL)((VPanel *)vguiPanel)->GetChild(index);
+	}
+
+	virtual CUtlVector< VPANEL > &GetChildren( VPANEL vguiPanel )
+	{
+		CUtlVector< VPANEL > childs;
+		for (int i = 0; i <= (VPANEL)((VPanel *)vguiPanel)->GetChildCount(); i++)
+		{
+			childs.AddToTail( (VPANEL)((VPanel *)vguiPanel)->GetChild( i ) );
+		}
+		return childs;
 	}
 
 	virtual VPANEL GetParent(VPANEL vguiPanel)

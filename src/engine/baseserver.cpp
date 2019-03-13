@@ -74,7 +74,7 @@ static void SvTagsChangeCallback( IConVar *pConVar, const char *pOldValue, float
 #ifndef NO_STEAM
 	if ( SteamGameServer() )
 	{
-		SteamGameServer()->GSSetGameType( var.GetString() );
+		SteamGameServer()->SetGameTags( var.GetString() );
 	}
 #endif
 }
@@ -115,7 +115,7 @@ bool AllowDebugDedicatedServerOutsideSteam()
 }
 
 
-static void SetMasterServerKeyValue( ISteamMasterServerUpdater *pUpdater, IConVar *pConVar )
+static void SetMasterServerKeyValue( ISteamGameServer *pUpdater, IConVar *pConVar )
 {
 	ConVarRef var( pConVar );
 #ifndef NO_STEAM
@@ -151,7 +151,7 @@ static void ServerNotifyVarChangeCallback( IConVar *pConVar, const char *pOldVal
 	if ( !pConVar->IsFlagSet( FCVAR_NOTIFY ) )
 		return;
 #ifndef NO_STEAM
-	ISteamMasterServerUpdater *pUpdater = SteamMasterServerUpdater();
+	ISteamGameServer *pUpdater = SteamGameServer();
 	if ( !pUpdater )
 	{
 		// This will force it to send all the rules whenever the master server updater is there.
@@ -623,22 +623,14 @@ bool CBaseServer::ProcessConnectionlessPacket(netpacket_t * packet)
 							
 		default:
 		{
-			if ( IsUsingMasterLegacyMode() )
-			{
-				CGameServer *pThis = NULL;
-				if ( !IsHLTV() )
-					pThis = (CGameServer*)this;
-					
-				master->HandleUnknown( packet, this, pThis );
-			}
 #ifndef NO_STEAM
 			// We don't understand it, let the master server updater at it.
-			else if ( SteamMasterServerUpdater() && Steam3Server().IsMasterServerUpdaterSharingGameSocket() )
+			if ( SteamGameServer() && Steam3Server().IsMasterServerUpdaterSharingGameSocket() )
 			{
-				SteamMasterServerUpdater()->HandleIncomingPacket( 
+				SteamGameServer()->HandleIncomingPacket( 
 					packet->message.GetBasePointer(), 
 					packet->message.TotalBytesAvailable(),
-					BigLong( packet->from.GetIP() ),
+					BigLong( packet->from.GetIPNetworkByteOrder() ),
 					packet->from.GetPort()
 					);
 			
@@ -850,50 +842,6 @@ void CBaseServer::ReplyChallenge(netadr_t &adr)
 #if !defined( NO_STEAM ) //#ifndef _XBOX
 	if ( authprotocol == PROTOCOL_STEAM )
 	{
-		unsigned int encryptionsize = 0;
-		char szEncryptionKey[ STEAM_KEYSIZE ];
-		if ( !SteamGameServer() )
-		{
-			Warning( "SteamGetEncryptionKeyToSendToNewClient:  Library not loaded!\n" );
-			RejectConnection( adr, "Failed to get server encryption key\n" );
-			return;
-		}
-
-		if ( !SteamGameServer()->GSGetSteam2GetEncryptionKeyToSendToNewClient( szEncryptionKey, &encryptionsize, sizeof(szEncryptionKey) ) 
-			|| encryptionsize == 0 )
-		{
-			Warning( "SteamGetEncryptionKeyToSendToNewClient:  Returned NULL!\n" );
-			RejectConnection( adr, "Failed to get server encryption key\n" );
-			return;
-		}
-#if !defined( NO_VCR )
-		// Support VCR mode.
-		if ( VCRGetMode() == VCR_Record )
-		{
-			VCRGenericRecord( "a", &encryptionsize, sizeof( encryptionsize ) );
-			if ( encryptionsize )
-			{
-				VCRGenericRecord( "b", szEncryptionKey, encryptionsize );
-			}
-		}
-		else if ( VCRGetMode() == VCR_Playback )
-		{
-			VCRGenericPlayback( "a", &encryptionsize, sizeof( encryptionsize ), true );
-			if ( encryptionsize )
-			{
-				VCRGenericPlayback( "b", szEncryptionKey, encryptionsize, true );
-			}			
-		}
-#endif
-		if ( encryptionsize > STEAM_KEYSIZE )
-		{
-			Warning( "SteamGetEncryptionKeyToSendToNewClient:  Key size too big (%i/%i)\n",
-				encryptionsize, STEAM_KEYSIZE );
-			RejectConnection( adr, "Failed to get server encryption key\n" );
-			return;
-		}
-		msg.WriteShort( encryptionsize );
-		msg.WriteBytes( szEncryptionKey, encryptionsize );
 		CSteamID steamID = Steam3Server().GetGSSteamID();
 		uint64 unSteamID = steamID.ConvertToUint64();
 		msg.WriteBytes( &unSteamID, sizeof(unSteamID) );
@@ -1426,7 +1374,7 @@ bool CBaseServer::CheckChallengeType( CBaseClient * client, int nNewUserID, neta
 // 		}
 
 		client->m_NetworkID.idtype = IDTYPE_STEAM;
-		Q_memset( &client->m_NetworkID.uid.steamid, 0x0, sizeof(client->m_NetworkID.uid.steamid) );
+		Q_memset( &client->m_NetworkID.steamid, 0x0, sizeof(client->m_NetworkID.steamid) );
 		// Convert raw certificate back into data
 #ifndef NO_STEAM
 		if ( cbCookie <= 0 || cbCookie >= STEAM_KEYSIZE )
@@ -1438,7 +1386,7 @@ bool CBaseServer::CheckChallengeType( CBaseClient * client, int nNewUserID, neta
 		netadr_t checkAdr = adr;
 		if ( adr.GetType() == NA_LOOPBACK || adr.IsLocalhost() )
 		{
-			checkAdr.SetIP( net_local_adr.addr_htonl() );
+			checkAdr.SetIP( net_local_adr.GetIPNetworkByteOrder() );
 		}
 #ifndef NO_STEAM
 		if ( !Steam3Server().NotifyClientConnect( client, nNewUserID, checkAdr, pchLogonCookie, cbCookie ) 
@@ -1710,7 +1658,7 @@ bool CBaseServer::ShouldUpdateMasterServer()
 void CBaseServer::CheckMasterServerRequestRestart()
 {
 #ifndef NO_STEAM
-	if ( !SteamMasterServerUpdater() || !SteamMasterServerUpdater()->WasRestartRequested() )
+	if ( !SteamGameServer() || !SteamGameServer()->WasRestartRequested() )
 		return;
 #else
 	return;
@@ -1750,14 +1698,8 @@ void CBaseServer::UpdateMasterServer()
 #ifndef NO_STEAM
 	if ( !ShouldUpdateMasterServer() )
 		return;
-
-	if ( IsUsingMasterLegacyMode() )
-	{
-		master->CheckHeartbeat( this );
-		return;
-	}
 	
-	if ( !SteamMasterServerUpdater() )
+	if ( !SteamGameServer() )
 		return;
 	
 	// Only update every so often.
@@ -1789,15 +1731,12 @@ void CBaseServer::UpdateMasterServer()
 	bool bActive = IsActive() && IsMultiplayer() && g_bEnableMasterServerUpdater;
 	if ( serverGameDLL && serverGameDLL->ShouldHideServer() )
 		bActive = false;
-	
-	SteamMasterServerUpdater()->SetActive( bActive );
 
 	if ( !bActive )
 		return;
 
 	UpdateMasterServerRules();
 	UpdateMasterServerPlayers();
-	UpdateMasterServerBasicData();
 #endif
 }
 
@@ -1809,7 +1748,7 @@ void CBaseServer::UpdateMasterServerRules()
 	if ( !m_bMasterServerRulesDirty )
 		return;
 
-	ISteamMasterServerUpdater *pUpdater = SteamMasterServerUpdater();
+	ISteamGameServer *pUpdater = SteamGameServer();
 	if ( !pUpdater )
 		return;
 		
@@ -1841,33 +1780,10 @@ void CBaseServer::UpdateMasterServerRules()
 }
 
 
-void CBaseServer::UpdateMasterServerBasicData()
-{
-#ifndef NO_STEAM
-	ISteamMasterServerUpdater *pUpdater = SteamMasterServerUpdater();
-
-	Assert( SteamMasterServerUpdater() != NULL );
-
-	unsigned short nMaxReportedClients = GetMaxClients();
-	if ( sv_visiblemaxplayers.GetInt() > 0 && sv_visiblemaxplayers.GetInt() < GetMaxClients() )
-		nMaxReportedClients = sv_visiblemaxplayers.GetInt();
-
-	pUpdater->SetBasicServerData(
-		PROTOCOL_VERSION,
-		IsDedicated(),
-		sv_region.GetString(),
-		gpszProductString,
-		nMaxReportedClients,
-		(GetPassword() != NULL),
-		serverGameDLL->GetGameDescription() );
-#endif
-}
-
-
 void CBaseServer::ForwardPacketsFromMasterServerUpdater()
 {
 #ifndef NO_STEAM
-	ISteamMasterServerUpdater *p = SteamMasterServerUpdater();
+	ISteamGameServer *p = SteamGameServer();
 	if ( !p )
 		return;
 	
@@ -2084,16 +2000,6 @@ void CBaseServer::Shutdown( void )
 
 	// clear everthing
 	Clear();
-
-#ifndef _XBOX
-#ifndef NO_STEAM
-	//  Tell master we are shutting down
-	if ( SteamMasterServerUpdater() )
-		SteamMasterServerUpdater()->NotifyShutdown();
-
-	master->ShutdownConnection( this );
-#endif
-#endif
 }
 
 //-----------------------------------------------------------------------------

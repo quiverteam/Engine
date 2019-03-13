@@ -34,8 +34,6 @@
 // memdbgon must be the last include file in a .cpp file!!!
 #include "tier0/memdbgon.h"
 
-using namespace vgui;
-
 #define MAX_LOCALIZED_CHARS	4096
 
 //-----------------------------------------------------------------------------
@@ -47,7 +45,7 @@ using namespace vgui;
 //-----------------------------------------------------------------------------
 // Purpose: Maps token names to localized unicode strings
 //-----------------------------------------------------------------------------
-class CLocalizedStringTable : public vgui::ILocalize
+class CLocalizedStringTable : public ILocalize
 {
 public:
 	CLocalizedStringTable();
@@ -64,6 +62,8 @@ public:
 
 	// Finds the localized text for pName
 	wchar_t *Find(const char *pName);
+
+	virtual const char *FindAsUTF8( const char *pchTokenName );
 
 	// finds the index of a token by token name
 	StringIndex_t FindIndex(const char *pName);
@@ -85,7 +85,7 @@ public:
 	// iteration functions
 	StringIndex_t GetFirstStringIndex();
 
-	// returns the next index, or INVALID_STRING_INDEX if no more strings available
+	// returns the next index, or INVALID_LOCALIZE_STRING_INDEX if no more strings available
 	StringIndex_t GetNextStringIndex(StringIndex_t index);
 
 	// gets the values from the index
@@ -124,12 +124,12 @@ private:
 	struct localizedstring_t
 	{
 		StringIndex_t nameIndex;
-		// nameIndex == INVALID_STRING_INDEX is used only for searches and implies
+		// nameIndex == INVALID_LOCALIZE_STRING_INDEX is used only for searches and implies
 		// that pszValueString will be used from union fields.
 		union
 		{
-			StringIndex_t valueIndex;		// Used when nameIndex != INVALID_STRING_INDEX
-			char const * pszValueString;	// Used only if nameIndex == INVALID_STRING_INDEX
+			StringIndex_t valueIndex;		// Used when nameIndex != INVALID_LOCALIZE_STRING_INDEX
+			char const * pszValueString;	// Used only if nameIndex == INVALID_LOCALIZE_STRING_INDEX
 		};
 		CUtlSymbol filename;
 	};
@@ -603,7 +603,7 @@ bool CLocalizedStringTable::SaveToFile( const char *szFileName )
 	wchar_t unicodeTab = L'\t';
 
 	// write out all the key/value pairs
-	for (StringIndex_t idx = GetFirstStringIndex(); idx != INVALID_STRING_INDEX; idx = GetNextStringIndex(idx))
+	for (StringIndex_t idx = GetFirstStringIndex(); idx != INVALID_LOCALIZE_STRING_INDEX; idx = GetNextStringIndex(idx))
 	{
 		// only write strings that belong in this file
 		if (fileName != m_Lookup[idx].filename)
@@ -664,9 +664,9 @@ void CLocalizedStringTable::ReloadLocalizationFiles( )
 //-----------------------------------------------------------------------------
 bool CLocalizedStringTable::SymLess(localizedstring_t const &i1, localizedstring_t const &i2)
 {
-	const char *str1 = (i1.nameIndex == INVALID_STRING_INDEX) ? i1.pszValueString :
+	const char *str1 = (i1.nameIndex == INVALID_LOCALIZE_STRING_INDEX) ? i1.pszValueString :
 											&g_StringTable.m_Names[i1.nameIndex];
-	const char *str2 = (i2.nameIndex == INVALID_STRING_INDEX) ? i2.pszValueString :
+	const char *str2 = (i2.nameIndex == INVALID_LOCALIZE_STRING_INDEX) ? i2.pszValueString :
 											&g_StringTable.m_Names[i2.nameIndex];
 	
 	return stricmp(str1, str2) < 0;
@@ -679,10 +679,15 @@ bool CLocalizedStringTable::SymLess(localizedstring_t const &i1, localizedstring
 wchar_t *CLocalizedStringTable::Find(const char *pName)
 {	
 	StringIndex_t idx = FindIndex(pName);
-	if (idx == INVALID_STRING_INDEX)
+	if (idx == INVALID_LOCALIZE_STRING_INDEX)
 		return NULL;
 
 	return &m_Values[m_Lookup[idx].valueIndex];
+}
+
+const char * CLocalizedStringTable::FindAsUTF8( const char * pchTokenName )
+{
+	return NULL;
 }
 
 //-----------------------------------------------------------------------------
@@ -702,7 +707,7 @@ StringIndex_t CLocalizedStringTable::FindIndex(const char *pName)
 	// Passing this special invalid symbol makes the comparison function
 	// use the string passed in the context
 	localizedstring_t invalidItem;
-	invalidItem.nameIndex = INVALID_STRING_INDEX;
+	invalidItem.nameIndex = INVALID_LOCALIZE_STRING_INDEX;
 	invalidItem.pszValueString = pName;
 	return m_Lookup.Find( invalidItem );
 }
@@ -719,7 +724,7 @@ void CLocalizedStringTable::AddString(const char *pString, wchar_t *pValue, cons
 
 	// see if the value is already in our string table
 	int valueIndex = FindExistingValueIndex( pValue );
-	if ( valueIndex == INVALID_STRING_INDEX )
+	if ( valueIndex == INVALID_LOCALIZE_STRING_INDEX )
 	{
 		int len = wcslen( pValue ) + 1;
 		valueIndex = m_Values.AddMultipleToTail( len );
@@ -731,7 +736,7 @@ void CLocalizedStringTable::AddString(const char *pString, wchar_t *pValue, cons
 	localizedstring_t item;
 	item.nameIndex = stridx;
 
-	if ( stridx == INVALID_STRING_INDEX )
+	if ( stridx == INVALID_LOCALIZE_STRING_INDEX )
 	{
 		// didn't find, insert the string into the vector.
 		int len = strlen(pString) + 1;
@@ -792,13 +797,13 @@ StringIndex_t CLocalizedStringTable::GetFirstStringIndex()
 }
 
 //-----------------------------------------------------------------------------
-// Purpose: returns the next index, or INVALID_STRING_INDEX if no more strings available
+// Purpose: returns the next index, or INVALID_LOCALIZE_STRING_INDEX if no more strings available
 //-----------------------------------------------------------------------------
 StringIndex_t CLocalizedStringTable::GetNextStringIndex(StringIndex_t index)
 {
 	StringIndex_t idx = m_Lookup.NextInorder(index);
 	if (idx == m_Lookup.InvalidIndex())
-		return INVALID_STRING_INDEX;
+		return INVALID_LOCALIZE_STRING_INDEX;
 	return idx;
 }
 
@@ -816,7 +821,7 @@ const char *CLocalizedStringTable::GetNameByIndex(StringIndex_t index)
 //-----------------------------------------------------------------------------
 wchar_t *CLocalizedStringTable::GetValueByIndex(StringIndex_t index)
 {
-	if (index == INVALID_STRING_INDEX)
+	if (index == INVALID_LOCALIZE_STRING_INDEX)
 		return NULL;
 
 	localizedstring_t &lstr = m_Lookup[index];
@@ -865,7 +870,7 @@ void CLocalizedStringTable::DiscardFastValueLookup()
 int CLocalizedStringTable::FindExistingValueIndex( const wchar_t *value )
 {
 	if ( !s_pTable )
-		return INVALID_STRING_INDEX;
+		return INVALID_LOCALIZE_STRING_INDEX;
 
 	fastvalue_t val;
 	val.valueindex = -1;
@@ -876,7 +881,7 @@ int CLocalizedStringTable::FindExistingValueIndex( const wchar_t *value )
 	{
 		return m_FastValueLookup[ idx ].valueindex;
 	}
-	return INVALID_STRING_INDEX;
+	return INVALID_LOCALIZE_STRING_INDEX;
 }
 
 //-----------------------------------------------------------------------------
@@ -1088,7 +1093,7 @@ void CLocalizedStringTable::ConstructString(wchar_t *unicodeOutput, int unicodeB
 {
 	StringIndex_t index = FindIndex(tokenName);
 
-	if (index != INVALID_STRING_INDEX)
+	if (index != INVALID_LOCALIZE_STRING_INDEX)
 	{
 		ConstructString(unicodeOutput, unicodeBufferSizeInBytes, index, localizationVariables);
 	}

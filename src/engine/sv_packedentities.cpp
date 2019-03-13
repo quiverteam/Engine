@@ -399,7 +399,7 @@ void PackEntities_Normal(
 	// Process work
 	if ( sv_parallel_packentities.GetBool() )
 	{
-		ParallelProcess( workItems.Base(), workItems.Count(), &PackWork_t::Process );
+		ParallelProcess( "", workItems.Base(), workItems.Count(), &PackWork_t::Process );
 	}
 	else
 	{

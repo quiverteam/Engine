@@ -99,6 +99,7 @@ public:
 
 	virtual void DrawFilledRect(int x0, int y0, int x1, int y1);
 	virtual void DrawFilledRectArray( IntRect *pRects, int numRects );
+	virtual void DrawFilledRectFastFade( int x0, int y0, int x1, int y1, int fadeStartPt, int fadeEndPt, unsigned int alpha0, unsigned int alpha1, bool bHorizontal );
 	virtual void DrawFilledRectFade( int x0, int y0, int x1, int y1, unsigned int alpha0, unsigned int alpha1, bool bHorizontal );
 	virtual void DrawOutlinedRect(int x0, int y0, int x1, int y1);
 	virtual void DrawOutlinedCircle(int x, int y, int radius, int segments);
@@ -106,6 +107,7 @@ public:
 	// textured rendering functions
 	virtual int  CreateNewTextureID( bool procedural = false );
 	virtual bool IsTextureIDValid(int id);
+	virtual bool DeleteTextureByID(int id);
 
 	virtual bool DrawGetTextureFile(int id, char *filename, int maxlen );
 	virtual int	 DrawGetTextureId( char const *filename );
@@ -120,7 +122,7 @@ public:
 	virtual void DrawTexturedRect(int x0, int y0, int x1, int y1);
 	virtual void DrawTexturedSubRect( int x0, int y0, int x1, int y1, float texs0, float text0, float texs1, float text1 );
 
-	virtual void DrawTexturedPolygon(int n, vgui::Vertex_t *pVertices);
+	virtual void DrawTexturedPolygon(int n, vgui::Vertex_t *pVertices, bool bClipVertices = true );
 
 	virtual void DrawPrintText(const wchar_t *text, int textLen, FontDrawType_t drawType = FONT_DRAW_DEFAULT);
 	virtual void DrawUnicodeChar(wchar_t wch, FontDrawType_t drawType = FONT_DRAW_DEFAULT );
@@ -157,6 +159,7 @@ public:
 	virtual void Invalidate(vgui::VPANEL panel);
 
 	virtual void SetCursor(vgui::HCursor cursor);
+	virtual void SetCursorAlwaysVisible( bool visible );
 	virtual bool IsCursorVisible();
 
 	virtual void ApplyChanges();
@@ -173,16 +176,21 @@ public:
 	virtual bool SetFontGlyphSet(vgui::HFont font, const char *windowsFontName, int tall, int weight, int blur, int scanlines, int flags);
 	virtual bool SetBitmapFontGlyphSet(vgui::HFont font, const char *windowsFontName, float scalex, float scaley, int flags);
 	virtual int GetFontTall(HFont font);
+	virtual int GetFontTallRequested(HFont font);
 	virtual int GetFontAscent(HFont font, wchar_t wch);
+	virtual const char *GetFontName( HFont font );
+	virtual const char *GetFontFamilyName( HFont font );
+	virtual void GetKernedCharWidth( HFont font, wchar_t ch, wchar_t chBefore, wchar_t chAfter, float &wide, float &abcA );
 	virtual bool IsFontAdditive(HFont font);
 	virtual void GetCharABCwide(HFont font, int ch, int &a, int &b, int &c);
 	virtual void GetTextSize(HFont font, const wchar_t *text, int &wide, int &tall);
 	virtual int GetCharacterWidth(vgui::HFont font, int ch);
-	virtual bool AddCustomFontFile(const char *fontFileName);
+	virtual bool SetFontGlyphSet( HFont font, const char *windowsFontName, int tall, int weight, int blur, int scanlines, int flags, int nRangeMin = 0, int nRangeMax = 0 );
+	virtual bool AddCustomFontFile( const char *fontName, const char *fontFileName );
 	virtual bool AddBitmapFontFile(const char *fontFileName);
 	virtual void SetBitmapFontName( const char *pName, const char *pFontFilename );
 	virtual const char *GetBitmapFontName( const char *pName );
-	virtual void PrecacheFontCharacters(HFont font, wchar_t *pCharacters);
+	virtual void PrecacheFontCharacters( HFont font, const wchar_t *pCharacters );
 	virtual void ClearTemporaryFontCache( void );
 
 	// GameUI-only accessed functions
@@ -302,11 +310,43 @@ public:
 	virtual vgui::IImage *GetIconImageForFullPath( char const *pFullPath );
 
 #ifdef _X360
-	virtual void DestroyTextureID( int id );
 	virtual void UncacheUnusedMaterials();
 #endif
 
 	virtual const char *GetResolutionKey( void ) const;
+
+	virtual bool ForceScreenSizeOverride( bool bState, int wide, int tall );
+	// LocalToScreen, ParentLocalToScreen fixups for explicit PaintTraverse calls on Panels not at 0, 0 position
+	virtual bool ForceScreenPosOffset( bool bState, int x, int y );
+	virtual void OffsetAbsPos( int &x, int &y );
+
+
+	// Causes fonts to get reloaded, etc.
+	virtual void ResetFontCaches();
+
+	virtual int GetTextureNumFrames( int id );
+	virtual void DrawSetTextureFrame( int id, int nFrame, unsigned int *pFrameCache );
+	virtual bool IsScreenSizeOverrideActive( void );
+	virtual bool IsScreenPosOverrideActive( void );
+
+	virtual void DestroyTextureID( int id );
+
+	virtual void DrawUpdateRegionTextureRGBA( int nTextureID, int x, int y, const unsigned char *pchData, int wide, int tall, ImageFormat imageFormat );
+	virtual bool BHTMLWindowNeedsPaint( IHTML *htmlwin );
+
+	virtual const char *GetWebkitHTMLUserAgentString();
+
+	virtual void *Deprecated_AccessChromeHTMLController();
+
+	// the origin of the viewport on the framebuffer (Which might not be 0,0 for stereo)
+	virtual void SetFullscreenViewport( int x, int y, int w, int h ); // this uses NULL for the render target.
+	virtual void GetFullscreenViewport( int & x, int & y, int & w, int & h );
+	virtual void PushFullscreenViewport();
+	virtual void PopFullscreenViewport();
+
+	// handles support for software cursors
+	virtual void SetSoftwareCursor( bool bUseSoftwareCursor );
+	virtual void PaintSoftwareCursor();
 
 private:
 	void DrawRenderCharInternal( const CharRenderInfo& info );

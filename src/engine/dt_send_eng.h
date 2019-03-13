@@ -16,7 +16,7 @@
 #include "bitbuf.h"
 #include "utlmemory.h"
 
-typedef unsigned long CRC32_t;
+typedef unsigned int CRC32_t;
 
 class CStandardSendProxies;
 

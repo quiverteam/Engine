@@ -84,7 +84,7 @@ public:
 	virtual void OffLink();
 
 
-	char *GetOpenedPage() { return m_currentUrl; }
+	const char *GetOpenedPage() { return m_currentUrl; }
 	RECT SetBounds();
 
 	int textureID; // used by the engine code

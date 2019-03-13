@@ -18,7 +18,6 @@
 #include "netmessages.h"
 #include "net.h"
 #include "event_system.h"
-#include "steam/isteammasterserverupdater.h"
 
 class CNetworkStringTableContainer;
 class PackedEntity;
@@ -186,7 +185,6 @@ protected:
 	void			UpdateMasterServer();
 	void			UpdateMasterServerRules();
 	virtual void	UpdateMasterServerPlayers() {}
-	void			UpdateMasterServerBasicData();
 	void			ForwardPacketsFromMasterServerUpdater();
 
 	void SetRestartOnLevelChange(bool state)  { m_bRestartOnLevelChange = state; }

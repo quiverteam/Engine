@@ -27,7 +27,7 @@ CFrameSnapshotManager *framesnapshotmanager = &g_FrameSnapshotManager;
 //-----------------------------------------------------------------------------
 // Purpose: 
 //-----------------------------------------------------------------------------
-CFrameSnapshotManager::CFrameSnapshotManager( void ) : m_PackedEntitiesPool( MAX_EDICTS / 16, CMemoryPool::GROW_SLOW )
+CFrameSnapshotManager::CFrameSnapshotManager( void ) : m_PackedEntitiesPool( MAX_EDICTS / 16, CUtlMemoryPool::GROW_SLOW )
 {
 	COMPILE_TIME_ASSERT( INVALID_PACKED_ENTITY_HANDLE == 0 );
 	Assert( INVALID_PACKED_ENTITY_HANDLE == m_PackedEntities.InvalidIndex() );

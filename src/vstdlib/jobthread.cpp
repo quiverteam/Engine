@@ -132,7 +132,7 @@ public:
 		return false;
 	}
 
-	HANDLE GetEventHandle()
+	CThreadManualEvent &GetEventHandle()
 	{
 		return m_JobAvailableEvent;
 	}
@@ -359,9 +359,9 @@ private:
 		bool	 bExit = false;
 		HANDLE	 waitHandles[NUM_EVENTS];
 
-		waitHandles[CALL_FROM_MASTER]	= GetCallHandle();
-		waitHandles[SHARED_QUEUE]		= m_SharedQueue.GetEventHandle();
-		waitHandles[DIRECT_QUEUE] 		= m_DirectQueue.GetEventHandle();
+		waitHandles[CALL_FROM_MASTER]	= GetCallHandle().GetHandle();
+		waitHandles[SHARED_QUEUE]		= m_SharedQueue.GetEventHandle().GetHandle();
+		waitHandles[DIRECT_QUEUE] 		= m_DirectQueue.GetEventHandle().GetHandle();
 
 		m_pOwner->m_nIdleThreads++;
 		m_IdleEvent.Set();

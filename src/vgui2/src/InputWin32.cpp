@@ -67,6 +67,7 @@ public:
 	virtual void SetMouseCapture(VPANEL panel);
 
 	virtual VPANEL GetFocus();
+	virtual VPANEL GetCalculatedFocus();// to handle cases where the focus changes inside a frame.
 	virtual VPANEL GetMouseOver();
 
 	virtual bool WasMousePressed(MouseCode code);
@@ -1148,6 +1149,11 @@ bool CInputWin32::IsChildOfModalPanel(VPANEL panel, bool checkModalSubTree /*= t
 VPANEL CInputWin32::GetFocus()
 {
 	return (VPANEL)( GetInputContext( m_hContext )->_keyFocus );
+}
+
+VPANEL CInputWin32::GetCalculatedFocus()
+{
+	return NULL;
 }
 
 //-----------------------------------------------------------------------------
