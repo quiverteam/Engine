@@ -150,12 +150,7 @@ public:
 
 	virtual CUtlVector< VPANEL > &GetChildren( VPANEL vguiPanel )
 	{
-		CUtlVector< VPANEL > childs;
-		for (int i = 0; i <= (VPANEL)((VPanel *)vguiPanel)->GetChildCount(); i++)
-		{
-			childs.AddToTail( (VPANEL)((VPanel *)vguiPanel)->GetChild( i ) );
-		}
-		return childs;
+		return (CUtlVector< VPANEL >&)((VPanel *)vguiPanel)->GetChildren();
 	}
 
 	virtual VPANEL GetParent(VPANEL vguiPanel)
