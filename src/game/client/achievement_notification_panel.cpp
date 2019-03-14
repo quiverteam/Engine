@@ -111,8 +111,7 @@ void CAchievementNotificationPanel::FireGameEvent( IGameEvent * event )
 			}
 
 			// use Steam to show achievement progress UI
-			CGameID gameID( engine->GetAppID() );
-			SteamUserStats()->IndicateAchievementProgress( gameID, pchName, iCur, iMax );
+			SteamUserStats()->IndicateAchievementProgress( pchName, iCur, iMax );
 #endif
 		}
 		else 

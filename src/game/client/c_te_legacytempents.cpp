@@ -753,7 +753,7 @@ void C_LocalTempEntity::OnRemoveTempEntity()
 // Purpose: 
 //-----------------------------------------------------------------------------
 CTempEnts::CTempEnts( void ) :
-	m_TempEntsPool( ( MAX_TEMP_ENTITIES / 20 ), CMemoryPool::GROW_SLOW )
+	m_TempEntsPool( ( MAX_TEMP_ENTITIES / 20 ), CUtlMemoryPool::GROW_SLOW )
 {
 }
 

@@ -66,6 +66,12 @@ public:
 
 	bool	IsValid( void ) { return m_bValid; }
 
+	virtual bool Evict();
+	virtual int GetNumFrames();
+	virtual void SetFrame( int nFrame );
+	virtual vgui::HTexture GetID();
+	virtual void SetRotation( int iRotation ) { return; }
+
 protected:
 	void InitFromRGBA( const byte *rgba, int width, int height );
 

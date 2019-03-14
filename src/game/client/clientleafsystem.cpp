@@ -36,7 +36,7 @@ static ConVar r_portalsopenall( "r_portalsopenall", "0", FCVAR_CHEAT, "Open all 
 static ConVar cl_threaded_client_leaf_system("cl_threaded_client_leaf_system", "0"  );
 
 
-DEFINE_FIXEDSIZE_ALLOCATOR( CClientRenderablesList, 1, CMemoryPool::GROW_SLOW );
+DEFINE_FIXEDSIZE_ALLOCATOR( CClientRenderablesList, 1, CUtlMemoryPool::GROW_SLOW );
 
 //-----------------------------------------------------------------------------
 // Threading helpers
@@ -564,7 +564,7 @@ void CClientLeafSystem::PreRender()
 			// InsertIntoTree can result in new renderables being added, so copy:
 			ClientRenderHandle_t *pDirtyRenderables = (ClientRenderHandle_t *)alloca( sizeof(ClientRenderHandle_t) * nDirty );
 			memcpy( pDirtyRenderables, m_DirtyRenderables.Base(), sizeof(ClientRenderHandle_t) * nDirty );
-			ParallelProcess( pDirtyRenderables, nDirty, this, &CClientLeafSystem::InsertIntoTree, &CClientLeafSystem::FrameLock, &CClientLeafSystem::FrameUnlock );
+			ParallelProcess( "CClientLeafSystem::PreRender", pDirtyRenderables, nDirty, this, &CClientLeafSystem::InsertIntoTree, &CClientLeafSystem::FrameLock, &CClientLeafSystem::FrameUnlock );
 		}
 
 		if ( m_DeferredInserts.Count() )
@@ -1368,7 +1368,7 @@ void CClientLeafSystem::ComputeTranslucentRenderLeaf( int count, const LeafIndex
 
 	if ( bThreaded )
 	{
-		ParallelProcess( renderablesToUpdate.Base(), renderablesToUpdate.Count(), &CallComputeFXBlend, &::FrameLock, &::FrameUnlock );
+		ParallelProcess( "CClientLeafSystem::ComputeTranslucentRenderLeaf", renderablesToUpdate.Base(), renderablesToUpdate.Count(), &CallComputeFXBlend, &::FrameLock, &::FrameUnlock );
 		renderablesToUpdate.RemoveAll();
 	}
 

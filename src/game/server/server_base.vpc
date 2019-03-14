@@ -989,5 +989,6 @@ $Project
 		$File	"$SRCDIR\lib\public\particles.lib"
 		$File	"$SRCDIR\lib\public\tier2.lib"
 		$File	"$SRCDIR\lib\public\tier3.lib"
+		$File	"$SRCDIR\lib\public\steam_api.lib"
 	}
 }
