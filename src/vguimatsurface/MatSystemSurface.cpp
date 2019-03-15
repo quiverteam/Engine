@@ -1567,7 +1567,7 @@ HFont CMatSystemSurface::CreateFont()
 //-----------------------------------------------------------------------------
 // Purpose: adds glyphs to a font created by CreateFont()
 //-----------------------------------------------------------------------------
-bool CMatSystemSurface::SetFontGlyphSet(HFont font, const char *windowsFontName, int tall, int weight, int blur, int scanlines, int flags)
+bool CMatSystemSurface::SetFontGlyphSet( HFont font, const char *windowsFontName, int tall, int weight, int blur, int scanlines, int flags, int nRangeMin, int nRangeMax )
 {
 	return FontManager().SetFontGlyphSet(font, windowsFontName, tall, weight, blur, scanlines, flags);
 }
@@ -1639,11 +1639,6 @@ void CMatSystemSurface::GetCharABCwide(HFont font, int ch, int &a, int &b, int &
 int CMatSystemSurface::GetCharacterWidth(HFont font, int ch)
 {
 	return FontManager().GetCharacterWidth(font, ch);
-}
-
-bool CMatSystemSurface::SetFontGlyphSet( HFont font, const char * windowsFontName, int tall, int weight, int blur, int scanlines, int flags, int nRangeMin, int nRangeMax )
-{
-	return false;
 }
 
 //-----------------------------------------------------------------------------

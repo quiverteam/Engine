@@ -591,6 +591,7 @@ bool CSteam3::NotifyClientConnect( CBaseClient *client, uint32 unUserID, netadr_
 
 bool CSteam3::NotifyLocalClientConnect( CBaseClient *client )
 {
+	return true;
 #ifndef NO_STEAM
 	CSteamID steamID;
 

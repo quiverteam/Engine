@@ -173,7 +173,7 @@ public:
 
 	// fonts
 	virtual vgui::HFont CreateFont();
-	virtual bool SetFontGlyphSet(vgui::HFont font, const char *windowsFontName, int tall, int weight, int blur, int scanlines, int flags);
+	virtual bool SetFontGlyphSet( HFont font, const char *windowsFontName, int tall, int weight, int blur, int scanlines, int flags, int nRangeMin = 0, int nRangeMax = 0 );
 	virtual bool SetBitmapFontGlyphSet(vgui::HFont font, const char *windowsFontName, float scalex, float scaley, int flags);
 	virtual int GetFontTall(HFont font);
 	virtual int GetFontTallRequested(HFont font);
@@ -185,7 +185,6 @@ public:
 	virtual void GetCharABCwide(HFont font, int ch, int &a, int &b, int &c);
 	virtual void GetTextSize(HFont font, const wchar_t *text, int &wide, int &tall);
 	virtual int GetCharacterWidth(vgui::HFont font, int ch);
-	virtual bool SetFontGlyphSet( HFont font, const char *windowsFontName, int tall, int weight, int blur, int scanlines, int flags, int nRangeMin = 0, int nRangeMax = 0 );
 	virtual bool AddCustomFontFile( const char *fontName, const char *fontFileName );
 	virtual bool AddBitmapFontFile(const char *fontFileName);
 	virtual void SetBitmapFontName( const char *pName, const char *pFontFilename );

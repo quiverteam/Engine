@@ -490,7 +490,7 @@ void CVGui::RunFrame()
 				t->nexttick = time + t->interval;
 			}
 
-			PostMessage(tickTarget, new KeyValues("Tick"), NULL);
+			((VPanel *)t->panel)->Client()->OnTick();
 		}
 	}
 
