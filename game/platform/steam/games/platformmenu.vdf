@@ -3,13 +3,5 @@
 {
 	"Menu"
 	{
-		"Servers" [$WIN32]
-		{
-			"dll"		"serverbrowser.dll"
-			"dll_osx"	"serverbrowser.dylib"
-			"dll_linux"	"serverbrowser.so"
-			"interface"	"VGuiModuleServerBrowser001"
-			"MenuName"	"#App_Servers"
-		}
 	}
 }
