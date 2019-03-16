@@ -409,6 +409,5 @@ $Project "hlfaceposer"
 		$File	"$SRCDIR\lib\public\matsys_controls.lib"
 		$File	"$SRCDIR\lib\public\movieobjects.lib"
 		$File	"$SRCDIR\lib\public\vgui_controls.lib"
-		$File	"$SRCDIR\lib\common\vc8\lzma.lib"
 	}
 }
