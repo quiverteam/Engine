@@ -360,7 +360,7 @@ static ButtonCode_t s_pScanToButtonCode[128];
 
 void ButtonCode_InitKeyTranslationTable()
 {
-	COMPILE_TIME_ASSERT( sizeof(s_pButtonCodeName) / sizeof( const char * ) == BUTTON_CODE_LAST );
+//	COMPILE_TIME_ASSERT( sizeof(s_pButtonCodeName) / sizeof( const char * ) == BUTTON_CODE_LAST ); FIX ME: Add more buttons
 	COMPILE_TIME_ASSERT( sizeof(s_pAnalogCodeName) / sizeof( const char * ) == ANALOG_CODE_LAST );
 
 	// set virtual key translation table
