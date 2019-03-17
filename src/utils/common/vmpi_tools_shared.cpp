@@ -5,6 +5,7 @@
 //=============================================================================//
 
 #include <windows.h>
+#include <DbgHelp.h>
 #include "vmpi.h"
 #include "cmdlib.h"
 #include "vmpi_tools_shared.h"
