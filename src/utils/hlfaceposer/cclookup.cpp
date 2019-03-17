@@ -53,7 +53,7 @@ static void PopulateCloseCaptionTokenList( HWND wnd, CCloseCaptionLookupParams *
 	StringIndex_t i = g_pLocalize->GetFirstStringIndex();
 	int saveSelected = -1;
 
-	while ( INVALID_STRING_INDEX != i )
+	while ( INVALID_LOCALIZE_STRING_INDEX != i )
 	{
 		char const *name = g_pLocalize->GetNameByIndex( i );
 

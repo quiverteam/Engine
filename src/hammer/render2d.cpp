@@ -73,10 +73,10 @@ void CRender2D::DrawRectangle( const Vector &vMins, const Vector &vMaxs, bool bF
 	TransformPoint( ptMax, vMaxs );
 
 	if ( ptMin.x > ptMax.x )
-		swap( ptMin.x, ptMax.x );
+		V_swap( ptMin.x, ptMax.x );
 
 	if ( ptMin.y > ptMax.y )
-		swap( ptMin.y, ptMax.y );
+		V_swap( ptMin.y, ptMax.y );
 
 	if ( extent != 0 )
 	{

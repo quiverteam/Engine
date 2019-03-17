@@ -10819,7 +10819,7 @@ void CChoreoView::OnCombineSpeakEvents()
 
 	// See if the token exists?
 	StringIndex_t stringIndex = g_pLocalize->FindIndex( params.m_szCCToken );
-	if ( INVALID_STRING_INDEX == stringIndex )
+	if ( INVALID_LOCALIZE_STRING_INDEX == stringIndex )
 	{
 		// Add token to closecaption_english file.
 		// Guess at string and ask user to confirm.
