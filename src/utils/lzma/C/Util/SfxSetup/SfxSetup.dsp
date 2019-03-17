@@ -167,11 +167,31 @@ SOURCE=..\..\Bra86.c
 # End Source File
 # Begin Source File
 
+SOURCE=..\..\BraIA64.c
+# End Source File
+# Begin Source File
+
 SOURCE=..\..\CpuArch.c
 # End Source File
 # Begin Source File
 
 SOURCE=..\..\CpuArch.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\Delta.c
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\Delta.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\DllSecur.c
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\DllSecur.h
 # End Source File
 # Begin Source File
 

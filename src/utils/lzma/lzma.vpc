@@ -1,0 +1,50 @@
+//-----------------------------------------------------------------------------
+//	LZMA.VPC
+//
+//	Project Script
+//-----------------------------------------------------------------------------
+
+$Macro SRCDIR		"..\.."
+$Macro OUTLIBDIR	"$SRCDIR\lib\common\vc8"
+
+$Include "$SRCDIR\vpc_scripts\source_lib_base.vpc"	[$WIN32]
+
+$Configuration
+{
+	$Compiler
+	{
+		$AdditionalIncludeDirectories		"C"
+		$PreprocessorDefinitions			"$BASE;_NO_EXCEPTIONS;_LZMA_PROB32"
+	}
+}
+
+$Project "lzma"
+{
+	$Folder	"Source Files"
+	{
+		$File	"Lzma.cpp"
+	
+		$Folder	"SDK"
+		{
+			$File	"C\Alloc.c"
+			$File	"C\Alloc.h"
+			$File	"C\Threads.c"
+			$File	"C\Threads.h"
+			$File	"C\LzFind.c"
+			$File	"C\LzFind.h"
+			$File	"C\LzFindMt.c"
+			$File	"C\LzFindMt.h"
+			$File	"C\LzmaEnc.c"
+			$File	"C\LzmaEnc.h"
+			$File	"CPP\7zip\Compress\LZMADecoder.cpp"
+			$File	"CPP\7zip\Compress\LZMADecoder.h"
+			$File	"CPP\7zip\Compress\LZMAEncoder.cpp"
+			$File	"CPP\7zip\Compress\LZMAEncoder.h"
+			$File	"CPP\7zip\Common\CWrappers.cpp"
+			$File	"CPP\7zip\Common\CWrappers.h"
+			$File	"CPP\7zip\Common\StreamUtils.cpp"
+			$File	"CPP\7zip\Common\StreamUtils.h"
+		}
+	}
+}
+
