@@ -1,21 +1,23 @@
 # Quiver
-Custom Source Engine branch based on Source Engine 2007
+Custom Source Engine branch based on Source Engine 2007, currently available on Windows in x86.
 
 ## Building
 
 ### Windows
 
-1. Run createlibprojects.bat and compile lib files in Release
+1. Install [Perl](https://www.perl.org).
 
-2. Install [Perl](https://www.perl.org).
+2. Install [Python](https://www.python.org/) (Optional).
 
-3. Run src/materialsystem/stdshadersbuildallshaders.bat
+2. Run createlibprojects.bat and build the solution in Release.
+
+3. Run src/materialsystem/stdshadersbuildallshaders.bat.
 
 4. Run src/createallprojects.bat or src/createbinprojects.bat and build the solution in Release.
 
-5. Run (and edit) game/Make Junctions.bat
+5. Run (and edit) game/Make Junctions.bat.
 
-You can run the engine with run_mod_hl2.bat or run_mod_episodic.bat
+You can run the engine with run_mod_hl2.bat or run_mod_episodic.bat.
 
 ### Linux
 
