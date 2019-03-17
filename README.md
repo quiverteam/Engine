@@ -15,7 +15,7 @@ Custom Source Engine branch based on Source Engine 2007, currently available on 
 
 4. Run createcoreprojects.bat and build the solution in Release.
 
-5. Run src/materialsystem/buildallshaders.bat.
+5. Run src/materialsystem/stdshaders/buildallshaders.bat.
 
 6. Run src/createallprojects.bat or src/createbinprojects.bat and build the solution in Release.
 
