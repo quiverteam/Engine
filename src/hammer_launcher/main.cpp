@@ -91,7 +91,7 @@ bool CHammerApp::Create( )
 	if ( FileSystem_GetFileSystemDLLName( pFileSystemDLL, MAX_PATH, bSteam ) != FS_OK )
 		return false;
 
-	FileSystem_SetupSteamInstallPath();
+//	FileSystem_SetupSteamInstallPath();
 
 	AppModule_t fileSystemModule = LoadModule( pFileSystemDLL );
 	g_pFileSystem = (IFileSystem*)AddSystem( fileSystemModule, FILESYSTEM_INTERFACE_VERSION );
