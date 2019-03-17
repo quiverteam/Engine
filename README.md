@@ -30,3 +30,7 @@ macOS support is unavailable at the moment, you can help. See Supporting Non-Win
 
 ### Supporting Non-Windows Platforms
 The Source Engine was built heavily Windows-oriented, as it uses DirectX as it's graphics API which is only available on Windows, Xbox, Xbox 360 and the Xbox One. This is the major obstacle in supporting other platforms. To bring support to other platforms; we need an experienced graphics programmer who can work with OpenGL or Vulkan as these graphics APIs are universal, other than that some platform-specific code may be required.
+
+### Other
+
+Our [Trello](https://trello.com/b/WaxlL3kb/quiver-engine)
