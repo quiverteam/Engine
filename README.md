@@ -1,23 +1,27 @@
 # Quiver
 Custom Source Engine branch based on Source Engine 2007, currently available on Windows in x86.
 
+**Pull this repository with recursive submodules (`git clone --recursive`) to clone hl2r**
+
 ## Building
 
 ### Windows
 
-1. Install [Perl](https://www.perl.org).
+1. Install [Perl](http://strawberryperl.com/).
 
-2. Install [Python](https://www.python.org/) (Optional).
+2. Open Perl Command Line and enter `cpan String::CRC32`
 
-2. Run createlibprojects.bat and build the solution in Release.
+3. Install [Python](https://www.python.org/) (Optional).
 
-3. Run src/materialsystem/stdshadersbuildallshaders.bat.
+4. Run createcoreprojects.bat and build the solution in Release.
 
-4. Run src/createallprojects.bat or src/createbinprojects.bat and build the solution in Release.
+5. Run src/materialsystem/buildallshaders.bat.
 
-5. Run (and edit) game/Make Junctions.bat.
+6. Run src/createallprojects.bat or src/createbinprojects.bat and build the solution in Release.
 
-You can run the engine with run_mod_hl2.bat or run_mod_episodic.bat.
+7. Edit game/make_dir_junction.bat with your HL2 install directory if needed and Run
+
+You can run the engine with run_mod_hl2.bat, run_mod_episodic.bat, or run_hl2r.bat.
 
 ### Linux
 
