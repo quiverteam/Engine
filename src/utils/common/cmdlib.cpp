@@ -11,6 +11,7 @@
 #include "tier0/platform.h"
 #ifdef IS_WINDOWS_PC
 #include <windows.h>
+#include <new.h>
 #endif
 #include "cmdlib.h"
 #include <sys/types.h>
@@ -234,7 +235,7 @@ SpewRetval_t CmdLib_SpewOutputFunc( SpewType_t type, char const *pMsg )
 	{
 		if (( type == SPEW_MESSAGE ) || (type == SPEW_LOG ))
 		{
-			Color c = GetSpewOutputColor();
+			Color c = *GetSpewOutputColor();
 			if ( c.r() != 255 || c.g() != 255 || c.b() != 255 )
 			{
 				// custom color

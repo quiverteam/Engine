@@ -1,5 +1,5 @@
 /* SfxSetup.c - 7z SFX Setup
-2014-12-07 : Igor Pavlov : Public domain */
+2019-02-02 : Igor Pavlov : Public domain */
 
 #include "Precomp.h"
 
@@ -20,10 +20,13 @@
 #include "../../7zCrc.h"
 #include "../../7zFile.h"
 #include "../../CpuArch.h"
+#include "../../DllSecur.h"
 
 #define k_EXE_ExtIndex 2
 
-static const char *kExts[] =
+#define kInputBufSize ((size_t)1 << 18)
+
+static const char * const kExts[] =
 {
     "bat"
   , "cmd"
@@ -37,7 +40,7 @@ static const char *kExts[] =
   , "htm"
 };
 
-static const char *kNames[] =
+static const char * const kNames[] =
 {
     "setup"
   , "install"
@@ -63,7 +66,7 @@ static unsigned FindExt(const wchar_t *s, unsigned *extLen)
 
 #define MAKE_CHAR_UPPER(c) ((((c) >= 'a' && (c) <= 'z') ? (c) -= 0x20 : (c)))
 
-static unsigned FindItem(const char **items, unsigned num, const wchar_t *s, unsigned len)
+static unsigned FindItem(const char * const *items, unsigned num, const wchar_t *s, unsigned len)
 {
   unsigned i;
   for (i = 0; i < num; i++)
@@ -75,7 +78,7 @@ static unsigned FindItem(const char **items, unsigned num, const wchar_t *s, uns
       continue;
     for (j = 0; j < len; j++)
     {
-      unsigned c = item[j];
+      unsigned c = (Byte)item[j];
       if (c != s[j] && MAKE_CHAR_UPPER(c) != s[j])
         break;
     }
@@ -88,7 +91,7 @@ static unsigned FindItem(const char **items, unsigned num, const wchar_t *s, uns
 #ifdef _CONSOLE
 static BOOL WINAPI HandlerRoutine(DWORD ctrlType)
 {
-  ctrlType = ctrlType;
+  UNUSED_VAR(ctrlType);
   return TRUE;
 }
 #endif
@@ -124,7 +127,7 @@ static WRes MyCreateDir(const WCHAR *name)
 
 #define kSignatureSearchLimit (1 << 22)
 
-static Bool FindSignature(CSzFile *stream, UInt64 *resPos)
+static BoolInt FindSignature(CSzFile *stream, UInt64 *resPos)
 {
   Byte buf[kBufferSize];
   size_t numPrevBytes = 0;
@@ -144,7 +147,7 @@ static Bool FindSignature(CSzFile *stream, UInt64 *resPos)
     processed -= k7zStartHeaderSize;
     for (pos = 0; pos <= processed; pos++)
     {
-      for (; buf[pos] != '7' && pos <= processed; pos++);
+      for (; pos <= processed && buf[pos] != '7'; pos++);
       if (pos > processed)
         break;
       if (memcmp(buf + pos, k7zSignature, k7zSignatureSize) == 0)
@@ -160,7 +163,7 @@ static Bool FindSignature(CSzFile *stream, UInt64 *resPos)
   }
 }
 
-static Bool DoesFileOrDirExist(const WCHAR *path)
+static BoolInt DoesFileOrDirExist(const WCHAR *path)
 {
   WIN32_FIND_DATAW fd;
   HANDLE handle;
@@ -182,6 +185,7 @@ static WRes RemoveDirWithSubItems(WCHAR *path)
   path[len] = L'\0';
   if (handle == INVALID_HANDLE_VALUE)
     return GetLastError();
+  
   for (;;)
   {
     if (wcscmp(fd.cFileName, L".") != 0 &&
@@ -199,9 +203,11 @@ static WRes RemoveDirWithSubItems(WCHAR *path)
         if (DeleteFileW(path) == 0)
           res = GetLastError();
       }
+    
       if (res != 0)
         break;
     }
+  
     if (!FindNextFileW(handle, &fd))
     {
       res = GetLastError();
@@ -210,6 +216,7 @@ static WRes RemoveDirWithSubItems(WCHAR *path)
       break;
     }
   }
+  
   path[len] = L'\0';
   FindClose(handle);
   if (res == 0)
@@ -233,7 +240,7 @@ int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
 #endif
 {
   CFileInStream archiveStream;
-  CLookToRead lookStream;
+  CLookToRead2 lookStream;
   CSzArEx db;
   SRes res = SZ_OK;
   ISzAlloc allocImp;
@@ -247,15 +254,18 @@ int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
   DWORD winRes;
   const wchar_t *cmdLineParams;
   const char *errorMessage = NULL;
-  Bool useShellExecute = True;
+  BoolInt useShellExecute = True;
+  DWORD exitCode = 0;
+
+  LoadSecurityDlls();
 
   #ifdef _CONSOLE
   SetConsoleCtrlHandler(HandlerRoutine, TRUE);
   #else
-  hInstance = hInstance;
-  hPrevInstance = hPrevInstance;
-  lpCmdLine = lpCmdLine;
-  nCmdShow = nCmdShow;
+  UNUSED_VAR(hInstance);
+  UNUSED_VAR(hPrevInstance);
+  UNUSED_VAR(lpCmdLine);
+  UNUSED_VAR(nCmdShow);
   #endif
 
   CrcGenerateTable();
@@ -267,7 +277,8 @@ int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
   allocTempImp.Free = SzFreeTemp;
 
   FileInStream_CreateVTable(&archiveStream);
-  LookToRead_CreateVTable(&lookStream, False);
+  LookToRead2_CreateVTable(&lookStream, False);
+  lookStream.buf = NULL;
  
   winRes = GetModuleFileNameW(NULL, sfxPath, MAX_PATH);
   if (winRes == 0 || winRes > MAX_PATH)
@@ -276,7 +287,7 @@ int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
     cmdLineParams = GetCommandLineW();
     #ifndef UNDER_CE
     {
-      Bool quoteMode = False;
+      BoolInt quoteMode = False;
       for (;; cmdLineParams++)
       {
         wchar_t c = *cmdLineParams;
@@ -315,7 +326,7 @@ int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
         {
           unsigned t = value & 0xF;
           value >>= 4;
-          s[7 - k] = (char)((t < 10) ? ('0' + t) : ('A' + (t - 10)));
+          s[7 - k] = (wchar_t)((t < 10) ? ('0' + t) : ('A' + (t - 10)));
         }
         s[k] = '\0';
       }
@@ -368,14 +379,22 @@ int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
 
   if (res == SZ_OK)
   {
-    lookStream.realStream = &archiveStream.s;
-    LookToRead_Init(&lookStream);
+    lookStream.buf = (Byte *)ISzAlloc_Alloc(&allocImp, kInputBufSize);
+    if (!lookStream.buf)
+      res = SZ_ERROR_MEM;
+    else
+    {
+      lookStream.bufSize = kInputBufSize;
+      lookStream.realStream = &archiveStream.vt;
+      LookToRead2_Init(&lookStream);
+    }
   }
 
   SzArEx_Init(&db);
+  
   if (res == SZ_OK)
   {
-    res = SzArEx_Open(&db, &lookStream.s, &allocImp, &allocTempImp);
+    res = SzArEx_Open(&db, &lookStream.vt, &allocImp, &allocTempImp);
   }
   
   if (res == SZ_OK)
@@ -391,11 +410,9 @@ int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
     {
       size_t offset = 0;
       size_t outSizeProcessed = 0;
-      size_t len;
       WCHAR *temp;
-      len = SzArEx_GetFileNameUtf16(&db, i, NULL);
-      
-      if (len >= MAX_PATH)
+
+      if (SzArEx_GetFileNameUtf16(&db, i, NULL) >= MAX_PATH)
       {
         res = SZ_ERROR_FAIL;
         break;
@@ -403,9 +420,9 @@ int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
       
       temp = path + pathLen;
       
-      SzArEx_GetFileNameUtf16(&db, i, temp);
+      SzArEx_GetFileNameUtf16(&db, i, (UInt16 *)temp);
       {
-        res = SzArEx_Extract(&db, &lookStream.s, i,
+        res = SzArEx_Extract(&db, &lookStream.vt, i,
           &blockIndex, &outBuffer, &outBufferSize,
           &offset, &outSizeProcessed,
           &allocImp, &allocTempImp);
@@ -510,15 +527,18 @@ int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
       {
         WCHAR *temp = path + pathLen;
         UInt32 j;
-        SzArEx_GetFileNameUtf16(&db, executeFileIndex, temp);
+        SzArEx_GetFileNameUtf16(&db, executeFileIndex, (UInt16 *)temp);
         for (j = 0; temp[j] != 0; j++)
           if (temp[j] == '/')
             temp[j] = CHAR_PATH_SEPARATOR;
       }
     }
-    IAlloc_Free(&allocImp, outBuffer);
+    ISzAlloc_Free(&allocImp, outBuffer);
   }
+
   SzArEx_Free(&db, &allocImp);
+
+  ISzAlloc_Free(&allocImp, lookStream.buf);
 
   File_Close(&archiveStream.file);
 
@@ -584,6 +604,8 @@ int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
     if (hProcess != 0)
     {
       WaitForSingleObject(hProcess, INFINITE);
+      if (!GetExitCodeProcess(hProcess, &exitCode))
+        exitCode = 1;
       CloseHandle(hProcess);
     }
     
@@ -596,7 +618,7 @@ int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
   RemoveDirWithSubItems(path);
 
   if (res == SZ_OK)
-    return 0;
+    return (int)exitCode;
   
   {
     if (res == SZ_ERROR_UNSUPPORTED)
@@ -610,6 +632,7 @@ int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
       if (!errorMessage)
         errorMessage = "ERROR";
     }
+ 
     if (errorMessage)
       PrintErrorMessage(errorMessage);
   }
