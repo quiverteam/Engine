@@ -14,6 +14,9 @@ cloak_blended_pass_ps2x.fxc
 debugmorphaccumulator_vs30.fxc
 debugmorphaccumulator_ps30.fxc
 decalmodulate_ps2x.fxc
+
+Engine_Post_ps2x.fxc
+
 emissive_scroll_blended_pass_vs20.fxc
 emissive_scroll_blended_pass_ps2x.fxc
 eye_refract_vs20.fxc
@@ -27,7 +30,7 @@ morphaccumulate_ps30.fxc
 morphweight_vs30.fxc
 morphweight_ps30.fxc
 skin_vs20.fxc
-skin_ps20b.fxc
+//skin_ps20b.fxc
 teeth_vs20.fxc
 teeth_ps2x.fxc
 teeth_bump_vs20.fxc
@@ -38,16 +41,35 @@ vertexlit_and_unlit_generic_vs20.fxc
 vertexlit_and_unlit_generic_ps2x.fxc
 vertexlit_and_unlit_generic_bump_vs20.fxc
 vertexlit_and_unlit_generic_bump_ps2x.fxc
+vertexlitgeneric_flashlight_vs20.fxc
 vortwarp_vs20.fxc
 vortwarp_ps2x.fxc
 depthwrite_ps2x.fxc
 depthwrite_vs20.fxc
+
+flashlight_ps2x.fxc
+
+lightmappedgeneric_flashlight_vs20.fxc
+
+lightmappedgeneric_ps2x.fxc
+lightmappedgeneric_vs20.fxc
+
+lightmappedadv_flashlight_ps2x.fxc
+lightmappedadv_flashlight_vs20.fxc
+
+worldtwotextureblend_ps2x.fxc
+
 
 //volume_clouds_ps2x.fxc
 //Water_ps2x.fxc
 
 // -----------------------------------------------------------------------------------------
 //
-// Only using as Shader Model 3 since for some reason it doesn't work as shader model 2
+// Porting to Shader Model 3.0
 //
 // -----------------------------------------------------------------------------------------
+aftershock_ps2x.fxc
+aftershock_vs20.fxc
+
+core_ps2x.fxc
+core_vs20.fxc

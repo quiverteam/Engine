@@ -7,12 +7,10 @@
 //  STATIC: "RELIEF_MAPPING"            "0..0"
 //  STATIC: "SEAMLESS"                  "0..1"
 //  STATIC: "BUMPMASK"                  "0..1"
-//	STATIC: "FLASHLIGHT"				"0..1"	[XBOX]
 
 //  DYNAMIC: "FASTPATH"					"0..1"
 //	DYNAMIC: "DOWATERFOG"				"0..1"
 //  DYNAMIC: "LIGHTING_PREVIEW"			"0..1"	[PC]
-//  DYNAMIC: "LIGHTING_PREVIEW"			"0..0"	[XBOX]
 //	DYNAMIC: "CASCADED_SHADOW"			"0..1"	[vs30]
 
 // This should not be a combo since I'm a moron with the tangent space and the flashlight.
@@ -109,7 +107,7 @@ VS_OUTPUT main( const VS_INPUT v )
 
 	float4 vProjPos = mul( float4( v.vPos, 1 ), cModelViewProj );
 	o.projPos = vProjPos;
-	vProjPos.z = dot( float4( v.vPos, 1 ), cModelViewProjZ );
+//	vProjPos.z = dot( float4( v.vPos, 1 ), cModelViewProjZ );
 	
 	o.worldPos_projPosZ = float4( worldPos, vProjPos.z );
 	

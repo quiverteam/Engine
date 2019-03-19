@@ -16,7 +16,7 @@
 #include "water_vs20.inc"
 #include "water_ps20.inc"
 #include "water_ps20b.inc"
-#include "water_ps30.inc"
+//#include "water_ps30.inc"
 
 #ifndef _X360
 static ConVar r_waterforceexpensive( "r_waterforceexpensive", "0" );
@@ -244,7 +244,7 @@ BEGIN_VS_SHADER( Water_DX90,
 
 			// "REFLECT" "0..1"
 			// "REFRACT" "0..1"
-			if ( g_pHardwareConfig->SupportsShaderModel_3_0() )
+			/*if ( g_pHardwareConfig->SupportsShaderModel_3_0() )
 			{
 				DECLARE_STATIC_PIXEL_SHADER( water_ps30 );
 				SET_STATIC_PIXEL_SHADER_COMBO( REFLECT,  bReflection );
@@ -256,7 +256,7 @@ BEGIN_VS_SHADER( Water_DX90,
 				SET_STATIC_PIXEL_SHADER_COMBO( NORMAL_DECODE_MODE, (int) nNormalDecodeMode );
 				SET_STATIC_PIXEL_SHADER( water_ps30 );
 			}
-			else if ( g_pHardwareConfig->SupportsPixelShaders_2_b() )
+			else */if ( g_pHardwareConfig->SupportsPixelShaders_2_b() )
 			{
 				DECLARE_STATIC_PIXEL_SHADER( water_ps20b );
 				SET_STATIC_PIXEL_SHADER_COMBO( REFLECT,  bReflection );
@@ -611,7 +611,7 @@ END_SHADER
 //-----------------------------------------------------------------------------
 // This allows us to use a block labelled 'Water_DX9_HDR' in the water materials
 //-----------------------------------------------------------------------------
-BEGIN_INHERITED_SHADER( Water_DX9_HDR, Water_DX90,
+/*BEGIN_INHERITED_SHADER( Water_DX9_HDR, Water_DX90,
 			  "Help for Water_DX9_HDR" )
 
 	SHADER_FALLBACK
@@ -622,5 +622,5 @@ BEGIN_INHERITED_SHADER( Water_DX9_HDR, Water_DX90,
 		}
 		return 0;
 	}
-END_INHERITED_SHADER
+END_INHERITED_SHADER*/
 

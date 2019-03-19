@@ -80,8 +80,13 @@ $Project "stdshader_dbg"
 	$File	"$SRCDIR\devtools\bin\fxc_prep.pl"
 	$File	"$SRCDIR\devtools\bin\updateshaders.pl"
 
-	$Shaders	"stdshader_dx9_20b_nointercept.txt"
-	$Shaders	"stdshader_dx9_20b.txt"
-	$Shaders	"stdshader_dx9_30.txt"
-	//$Shaders	"stdshader_dx10.txt" // none yet
+	$File	"_buildallshaders.bat"
+	$File	"_buildshaders.bat"
+
+	$Shaders	"_shaderlist_dx9_20b.txt"
+	$Shaders	"_shaderlist_dx9_30.txt"
+	//$Shaders	"_shaderlist_dx10.txt" // none yet
+	
+	//$Shaders	"stdshader_flashlight_dx9_20b.txt"
+	$Shaders	"_shaderlist_flashlight_dx9_30.txt"
 }

@@ -166,7 +166,7 @@ float4 main( PS_INPUT i ) : COLOR
 
 		diffuseLighting = DoFlashlight( g_FlashlightPos, i.worldPos_projPosZ.xyz, flashlightSpacePosition,
 			worldSpaceNormal, g_FlashlightAttenuationFactors.xyz, 
-			g_FlashlightAttenuationFactors.w, FlashlightSampler, FlashlightSampler, NormalizeSampler,
+			g_FlashlightAttenuationFactors.w, FlashlightSampler, /*FlashlightSampler,*/ NormalizeSampler,
 			nShadowSampleLevel,	bDoShadows, false, float2(0, 0), false );
 	}
 	else

@@ -59,7 +59,7 @@ set SOURCEDIR=..\..
 
 set "targetdir=..\..\..\game\hl2\shaders"
 
-set BUILD_SHADER=call buildshaders.bat
+set BUILD_SHADER=call _buildshaders.bat
 
 rem Use dynamic shaders to build .inc files only
 set dynamic_shaders=1
@@ -73,19 +73,12 @@ set ARG_EXTRA=
 REM ****************
 REM BUILD SHADERS
 REM ****************
-@REM shove the full log into another file 
-%BUILD_SHADER% stdshader_dx8_1x			-game %GAMEDIR% -source %SOURCEDIR% %dynamic_shaders%
 echo --------------------------------------------------------------------------------------------
-%BUILD_SHADER% stdshader_dx9_20b_nointercept		-game %GAMEDIR% -source %SOURCEDIR% %dynamic_shaders%
+%BUILD_SHADER% _shaderlist_dx9_20b				-game %GAMEDIR% -source %SOURCEDIR% %dynamic_shaders%
 echo --------------------------------------------------------------------------------------------
-%BUILD_SHADER% stdshader_dx9_20b		-game %GAMEDIR% -source %SOURCEDIR% %dynamic_shaders%
-@REM %BUILD_SHADER% stdshader_dx9_20b_testing	-game %GAMEDIR% -source %SOURCEDIR% %dynamic_shaders% >buildallshaders_stdshader_dx9_20b.txt
-echo --------------------------------------------------------------------------------------------
-@REM %BUILD_SHADER% stdshader_dx9_30_test			-game %GAMEDIR% -source %SOURCEDIR% %dynamic_shaders% -dx9_30 -force30 >buildallshaders_stdshader_dx9_30.txt
-%BUILD_SHADER% stdshader_dx9_30			-game %GAMEDIR% -source %SOURCEDIR% %dynamic_shaders% -dx9_30 -force30
+%BUILD_SHADER% _shaderlist_dx9_30				-game %GAMEDIR% -source %SOURCEDIR% %dynamic_shaders% -dx9_30 -force30
 echo --------------------------------------------------------------------------------------------
 @REM %BUILD_SHADER% stdshader_dx10			-game %GAMEDIR% -source %SOURCEDIR% %dynamic_shaders% -dx10
-@REM dx10 is empty right now
 echo.
 
 

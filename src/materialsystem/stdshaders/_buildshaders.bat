@@ -29,7 +29,7 @@ set shaderDir=shaders
 set SDKArgs=
 set SHADERINCPATH=vshtmp9/... fxctmp9/...
 @REM your total thread count - 2
-set /A threadcount=%NUMBER_OF_PROCESSORS% - 2
+set /A threadcount=%NUMBER_OF_PROCESSORS%
 @REM this increases performance greatly
 
 @REM should be removed, idk
@@ -194,6 +194,9 @@ REM Execute distributed process on work/build list
 REM ****************
 set shader_path_cd=%cd%
 if exist "filelist.txt" if exist "uniquefilestocopy.txt" if not "%dynamic_shaders%" == "1" (
+	@REM checking if shader compile is running
+	call _kill_shadercompiler.bat
+	
 	echo Running distributed shader compilation...
 	cd /D %ChangeToDir%
 	@REM %shadercompilecommand% -mpi_MaxWorkers %shadercompileworkers% -shaderpath "%shader_path_cd:/=\%" -allowdebug

@@ -16,7 +16,7 @@
 // STATIC: "SEAMLESS"					"0..1"
 // STATIC: "BUMPMASK"                   "0..1"
 // has 11 blend modes, lowered to reduce compile time for now
-// STATIC: "DETAIL_BLEND_MODE"			"0..11"
+// STATIC: "DETAIL_BLEND_MODE"			"0..1"
 // STATIC: "PARALLAXCORRECT"			"0..0"	[ps20b] [ps30]
 
 #define NORMALMASK_DECODE_MODE 0

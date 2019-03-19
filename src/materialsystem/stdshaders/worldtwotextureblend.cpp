@@ -14,7 +14,9 @@
 #include "lightmappedgeneric_vs30.inc"
 #include "worldtwotextureblend_ps20.inc"
 #include "worldtwotextureblend_ps20b.inc"
-#include "worldtwotextureblend_ps30.inc"
+
+// not ready yet
+//#include "worldtwotextureblend_ps30.inc"
 
 // memdbgon must be the last include file in a .cpp file!!!
 #include "tier0/memdbgon.h"
@@ -272,7 +274,7 @@ END_SHADER_PARAMS
 				SET_STATIC_VERTEX_SHADER( lightmappedgeneric_vs20 );
 			}
 			
-			if ( g_pHardwareConfig->SupportsShaderModel_3_0() )
+			/*if ( g_pHardwareConfig->SupportsShaderModel_3_0() )
 			{
 				DECLARE_STATIC_PIXEL_SHADER( worldtwotextureblend_ps30 );
 				SET_STATIC_PIXEL_SHADER_COMBO( DETAILTEXTURE,  hasDetailTexture );
@@ -286,7 +288,7 @@ END_SHADER_PARAMS
 				SET_STATIC_PIXEL_SHADER_COMBO( FLASHLIGHTDEPTHFILTERMODE, nShadowFilterMode );
 				SET_STATIC_PIXEL_SHADER( worldtwotextureblend_ps30 );
 			}
-			else if ( g_pHardwareConfig->SupportsPixelShaders_2_b() )
+			else */if ( g_pHardwareConfig->SupportsPixelShaders_2_b() )
 			{
 				DECLARE_STATIC_PIXEL_SHADER( worldtwotextureblend_ps20b );
 				SET_STATIC_PIXEL_SHADER_COMBO( DETAILTEXTURE,  hasDetailTexture );
@@ -450,7 +452,7 @@ END_SHADER_PARAMS
 				bWriteWaterFogToAlpha = false;
 			}
 
-			if ( g_pHardwareConfig->SupportsShaderModel_3_0() )
+			/*if ( g_pHardwareConfig->SupportsShaderModel_3_0() )
 			{
 				DECLARE_DYNAMIC_PIXEL_SHADER( worldtwotextureblend_ps30 );
 
@@ -461,7 +463,7 @@ END_SHADER_PARAMS
 				SET_DYNAMIC_PIXEL_SHADER_COMBO( FLASHLIGHTSHADOWS, bFlashlightShadows );
 				SET_DYNAMIC_PIXEL_SHADER( worldtwotextureblend_ps30 );
 			}
-			else if ( g_pHardwareConfig->SupportsPixelShaders_2_b() )
+			else */if ( g_pHardwareConfig->SupportsPixelShaders_2_b() )
 			{
 				DECLARE_DYNAMIC_PIXEL_SHADER( worldtwotextureblend_ps20b );
 
