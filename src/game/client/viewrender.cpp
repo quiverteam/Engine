@@ -78,14 +78,14 @@
 static ConVar gstring_csm_color_light( "r_csm_color_light", "0" );
 static ConVar gstring_csm_color_ambient( "r_csm_color_ambient", "0" );
 
-static ConVar r_csm_aspect_ratio( "r_csm_aspect_ratio", "1.0" );
+//static ConVar r_csm_aspect_ratio( "r_csm_aspect_ratio", "1.0" );
 static ConVar r_csm_bloom( "r_csm_bloom", "0" );
 static ConVar r_csm_far( "r_csm_farz", "8192.0" );
 static ConVar r_csm_near( "r_csm_nearz", "-4096.0", 0, "Set this to the negative half the farz" );
 static ConVar r_csm_fov( "r_csm_fov", "90.0", 0, "this does nothing since ortho is on");
 
-static ConVar r_csm_width( "r_csm_width_scale", "0.5" );
-static ConVar r_csm_height( "r_csm_height_scale", "1.0" );
+//static ConVar r_csm_width( "r_csm_width_scale", "0.5" );
+//static ConVar r_csm_height( "r_csm_height_scale", "1.0" );
 
 static ConVar r_csm_depthbias( "r_csm_depthbias", "0.00001" );
 static ConVar r_csm_slopescale( "r_csm_slopescale", "4.0" );
@@ -1840,20 +1840,16 @@ void CViewRender::UpdateCascadedShadow( const CViewSetup &view )
 	cascadedShadowView.angles = angCascadedAngles;
 	cascadedShadowView.m_bOrtho = true;
 
-	//cascadedShadowView.width = s_CascadedShadowDepthTexture->GetMappingWidth() / 2;
-	/*cascadedShadowView.width = s_CascadedShadowDepthTexture->GetMappingWidth();
+	cascadedShadowView.width = s_CascadedShadowDepthTexture->GetMappingWidth() / 2;
 	cascadedShadowView.height = s_CascadedShadowDepthTexture->GetMappingHeight();
 
 	cascadedShadowView.m_flAspectRatio = 1.0f;
-	cascadedShadowView.m_bDoBloomAndToneMapping = false;
+	/*cascadedShadowView.m_bDoBloomAndToneMapping = false;
 	cascadedShadowView.zFar = cascadedShadowView.zFarViewmodel = 2000.0f;
 	cascadedShadowView.zNear = cascadedShadowView.zNearViewmodel = 7.0f;
 	cascadedShadowView.fov = cascadedShadowView.fovViewmodel = 90.0f;*/
 
-	cascadedShadowView.width = s_CascadedShadowDepthTexture->GetMappingWidth() * r_csm_width.GetFloat();
-	cascadedShadowView.height = s_CascadedShadowDepthTexture->GetMappingHeight()* r_csm_height.GetFloat();
-
-	cascadedShadowView.m_flAspectRatio = r_csm_aspect_ratio.GetFloat();
+	//cascadedShadowView.m_flAspectRatio = r_csm_aspect_ratio.GetFloat();
 	cascadedShadowView.m_bDoBloomAndToneMapping = r_csm_bloom.GetBool();
 	cascadedShadowView.zFar = cascadedShadowView.zFarViewmodel = r_csm_far.GetFloat();
 	cascadedShadowView.zNear = cascadedShadowView.zNearViewmodel = r_csm_near.GetFloat();

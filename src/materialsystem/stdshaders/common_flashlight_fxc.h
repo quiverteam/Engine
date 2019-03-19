@@ -217,9 +217,9 @@ float DoShadowNvidiaPCF3x3Box( sampler DepthSampler, const float3 shadowMapPos, 
 //
 float DoShadowNvidiaPCF5x5Gaussian( sampler DepthSampler, const float3 shadowMapPos, const float4 vShadowTweaks )
 {
-	float fEpsilonX    = vShadowTweaks.x;
+	float fEpsilonX    = vShadowTweaks;
 	float fTwoEpsilonX = 2.0f * fEpsilonX;
-	float fEpsilonY    = vShadowTweaks.x;
+	float fEpsilonY    = vShadowTweaks;
 	float fTwoEpsilonY = 2.0f * fEpsilonY;
 
 	float3 shadowMapCenter_objDepth = shadowMapPos;					// Do both projections at once
@@ -558,15 +558,15 @@ float DoCascadedShadow( sampler depthSampler, /*sampler randomSampler,*/ float3 
 	//float blendCascades = step(closePosition.x, 0.49) * step(0.01, closePosition.x) *
 	//	step(closePosition.y, 0.99) * step(0.01, closePosition.y);
 		
-	float blendCascades = step(closePosition.x, 0.45) * step(0.05, closePosition.x) *
-		step(closePosition.y, 0.95) * step(0.05, closePosition.y);
+	float blendCascades = step(closePosition.x, 0.49) * step(0.01, closePosition.x) *
+		step(closePosition.y, 0.99) * step(0.01, closePosition.y);
 
 	// Select the cascade.
 	closePosition.xy = lerp(closePosition.xy * cascadedStepData.x + cascadedStepData.yz, closePosition.xy, blendCascades);
 
 	float shadow;
 	//if ( nShadowLevel == NVIDIA_PCF_POISSON )	
-		shadow = DoShadowNvidiaPCF5x5Gaussian( depthSampler, closePosition, float( 1.0 / 8192.0 ) );
+		shadow = DoShadowNvidiaPCF5x5Gaussian( depthSampler, closePosition, float( 1.0 / 4096.0 ) );
 	//else if( nShadowLevel == ATI_NOPCF )
 	//	shadow = DoShadowPoisson16Sample( depthSampler, randomSampler, closePosition, vScreenPos, vShadowTweaks, false, false );
 	//else //if( nShadowLevel == ATI_NO_PCF_FETCH4 )

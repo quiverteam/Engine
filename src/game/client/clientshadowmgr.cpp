@@ -95,7 +95,7 @@ static ConVar r_flashlight_version2( "r_flashlight_version2", "0", FCVAR_CHEAT |
 
 ConVar r_flashlightdepthtexture( "r_flashlightdepthtexture", "1" );
 
-ConVar r_shadowmapresolution( "r_shadowmapresolution", "8192" );
+ConVar r_shadowmapresolution( "r_shadowmapresolution", "2048" );
 
 ConVar r_threaded_client_shadow_manager( "r_threaded_client_shadow_manager", "0" );
 
@@ -1375,10 +1375,8 @@ void CClientShadowMgr::InitDepthTextureShadows()
 		ImageFormat nullFormat = materials->GetNullTextureFormat();			// Vendor-dependent null texture format (takes as little memory as possible)
 		materials->BeginRenderTargetAllocation();
 
-		// if I use RT_SIZE_NO_CHANGE, the shadow blurring fucks up, so thats great
+		// if I use RT_SIZE_NO_CHANGE, the shadow blurring messes up, so thats great
 		// it actually reduces the blur somehow, but you can double it in the shader, though it won't be as good
-		//m_DummyColorTexture.InitRenderTarget( r_shadowmapresolution.GetInt(), r_shadowmapresolution.GetInt(), RT_SIZE_OFFSCREEN, nullFormat, MATERIAL_RT_DEPTH_NONE, false, "_rt_ShadowDummy" );
-		//m_DummyColorTexture.InitRenderTarget( r_shadowmapresolution.GetInt(), r_shadowmapresolution.GetInt(), RT_SIZE_NO_CHANGE, nullFormat, MATERIAL_RT_DEPTH_NONE, false, "_rt_ShadowDummy" );
 		m_DummyColorTexture.InitRenderTarget( r_shadowmapresolution.GetInt(), r_shadowmapresolution.GetInt(), RT_SIZE_OFFSCREEN, nullFormat, MATERIAL_RT_DEPTH_NONE, false, "_rt_ShadowDummy" );
 
 		// Create some number of depth-stencil textures
@@ -1392,8 +1390,6 @@ void CClientShadowMgr::InitDepthTextureShadows()
 			char strRTName[64];
 			sprintf( strRTName, "_rt_ShadowDepthTexture_%d", i );
 
-			// use RT_SIZE_PICMIP for level of detail and slightly increased fps?
-			//depthTex.InitRenderTarget( m_nDepthTextureResolution, m_nDepthTextureResolution, RT_SIZE_OFFSCREEN, dstFormat, MATERIAL_RT_DEPTH_NONE, false, strRTName );
 			depthTex.InitRenderTarget( m_nDepthTextureResolution, m_nDepthTextureResolution, RT_SIZE_NO_CHANGE, dstFormat, MATERIAL_RT_DEPTH_NONE, false, strRTName );
 
 			if ( i == 0 )
@@ -1409,8 +1405,8 @@ void CClientShadowMgr::InitDepthTextureShadows()
 			m_DepthTextureCacheLocks.AddToTail( bFalse );
 		}
 
-		const int iCadcadedShadowWidth = 8192;
-		const int iCadcadedShadowHeight = 8192;
+		const int iCadcadedShadowWidth = r_shadowmapresolution.GetInt();
+		const int iCadcadedShadowHeight = r_shadowmapresolution.GetInt();
 		m_CascadedColorTexture.InitRenderTarget( iCadcadedShadowWidth, iCadcadedShadowHeight, RT_SIZE_NO_CHANGE,
 												 nullFormat, MATERIAL_RT_DEPTH_NONE, false, "_rt_CascadedShadowColor" );
 		m_CascadedDepthTexture.InitRenderTarget( iCadcadedShadowWidth, iCadcadedShadowHeight, RT_SIZE_NO_CHANGE,
