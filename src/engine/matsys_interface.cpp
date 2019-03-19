@@ -588,7 +588,7 @@ void GetMaterialSystemConfigForBenchmarkUpload(KeyValues *dataToUpload)
 	dataToUpload->SetInt( "deviceID", driverInfo.m_DeviceID );
 	dataToUpload->SetInt( "ram", GetRam() );
 
-	const CPUInformation& pi = GetCPUInformation();
+	const CPUInformation& pi = *GetCPUInformation();
 	double fFrequency = pi.m_Speed / 1000000.0;
 	dataToUpload->SetInt( "cpu_speed", (int)fFrequency );
 	dataToUpload->SetString( "cpu", pi.m_szProcessorID );

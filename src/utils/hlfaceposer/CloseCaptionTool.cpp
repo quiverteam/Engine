@@ -14,7 +14,7 @@
 
 using namespace vgui;
 
-extern ILocalize *g_pLocalize;
+extern vgui::ILocalize *g_pLocalize;
 
 CloseCaptionTool *g_pCloseCaptionTool = 0;
 

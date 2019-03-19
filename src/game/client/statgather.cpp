@@ -130,7 +130,7 @@ char const *CStatsRecorder::GetPerfStatsString( int iType )
 		float flMinFrameRate = MinStat( &StatsBufferRecord_t::m_flFrameRate );
 		float flMaxFrameRate = MaxStat( &StatsBufferRecord_t::m_flFrameRate );
 
-		const CPUInformation &cpu = GetCPUInformation();
+		const CPUInformation *cpu = GetCPUInformation();
 		MaterialAdapterInfo_t gpu;
 		materials->GetDisplayAdapterInfo( materials->GetCurrentAdapter(), gpu );
 
@@ -150,9 +150,9 @@ char const *CStatsRecorder::GetPerfStatsString( int iType )
 			flAverageFrameRate,
 			flMinFrameRate,
 			flMaxFrameRate,
-			cpu.m_szProcessorID,
-			cpu.m_Speed * ( 1.0 / 1.0e9 ),
-			cpu.m_nPhysicalProcessors,
+			cpu->m_szProcessorID,
+			cpu->m_Speed * ( 1.0 / 1.0e9 ),
+			cpu->m_nPhysicalProcessors,
 			SafeString( gpu.m_pDriverName ),
 			gpu.m_VendorID,
 			gpu.m_DeviceID,

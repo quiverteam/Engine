@@ -763,7 +763,7 @@ void SV_InitGameDLL( void )
 			{
 				// we've found the mod, make sure we own the app
 				char szSub[10];
-				if ( SteamApps()->GetAppData( g_ModDirPermissions[i].m_iAppID, "subscribed", szSub, sizeof(szSub) ) > 0
+				if ( SteamApps()->BIsSubscribedApp( g_ModDirPermissions[i].m_iAppID )
 					 && Q_atoi( szSub ) > 0 )
 				{
 					bVerifiedMod = true;
@@ -781,8 +781,7 @@ void SV_InitGameDLL( void )
 		if ( !bVerifiedMod )
 		{
 			// make sure they can run the Source engine
-			char szSub[10];
-			if ( SteamApps()->GetAppData( 215, "subscribed", szSub, sizeof(szSub) ) == 0 || Q_atoi( szSub ) == 0 )
+			if ( !SteamApps()->BIsSubscribedApp( 215 ) )
 			{
 				Error( "A Source engine game is required to run mods\n" );
 				return;
@@ -1494,7 +1493,7 @@ void CGameServer::SendClientMessages ( bool bSendSnapshots )
 
 		if ( receivingClientCount > 1 && sv_parallel_sendsnapshot.GetBool() )
 		{
-			ParallelProcess( pReceivingClients, receivingClientCount, &SV_ParallelSendSnapshot );
+			ParallelProcess( "", pReceivingClients, receivingClientCount, &SV_ParallelSendSnapshot );
 		}
 		else
 		{
@@ -1830,11 +1829,9 @@ bool SV_ActivateServer()
 
 	// Heartbeat the master server in case we turned SrcTV on or off.
 	Steam3Server().SendUpdatedServerDetails();
-	if ( IsUsingMasterLegacyMode() )
-		master->Heartbeat_Legacy_f();
 #ifndef NO_STEAM
-	else
-		SteamMasterServerUpdater()->ForceHeartbeat();
+	if ( SteamGameServer() )
+		SteamGameServer()->ForceHeartbeat();
 #endif
 
 	COM_TimestampedLog( "SV_ActivateServer(finished)" );
@@ -2284,7 +2281,7 @@ void CGameServer::UpdateMasterServerPlayers()
 		if ( !client->m_SteamID || !client->m_SteamID->IsValid() )
 			continue;
 #ifndef NO_STEAM
-		SteamGameServer()->GSSetUserData( *client->m_SteamID, client->GetClientName(), pl->frags );
+		SteamGameServer()->BUpdateUserData( *client->m_SteamID, client->GetClientName(), pl->frags );
 #endif
 	}
 }

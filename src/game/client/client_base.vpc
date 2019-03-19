@@ -35,7 +35,6 @@ $Configuration
 	{
 		$AdditionalIncludeDirectories	".\;$BASE;$SRCDIR\vgui2\include;$SRCDIR\vgui2\controls;$SRCDIR\game\shared;.\game_controls"
 		$PreprocessorDefinitions		"$BASE;NO_STRING_T;CLIENT_DLL;VECTOR;PROTECTED_THINGS_ENABLE;fopen=dont_use_fopen;strncpy=use_Q_strncpy_instead;_snprintf=use_Q_snprintf_instead" 
-		$PreprocessorDefinitions		"$BASE;ENABLE_HTMLWINDOW" [$WIN32]
 		$Create/UsePrecompiledHeader	"Use Precompiled Header (/Yu)"
 		$Create/UsePCHThroughFile		"cbase.h"
 		$PrecompiledHeaderFile			"$(IntDir)/client.pch"
@@ -1084,5 +1083,6 @@ $Project
 		$File	"$SRCDIR\lib\public\tier2.lib"
 		$File	"$SRCDIR\lib\public\tier3.lib"
 		$File	"$SRCDIR\lib\public\vgui_controls.lib"
+		$File	"$SRCDIR\lib\public\steam_api.lib"
 	}
 }

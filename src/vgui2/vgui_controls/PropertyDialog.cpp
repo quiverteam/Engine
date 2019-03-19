@@ -1,4 +1,4 @@
-//========= Copyright © 1996-2005, Valve Corporation, All rights reserved. ============//
+//========= Copyright Valve Corporation, All rights reserved. ============//
 //
 // Purpose: 
 //
@@ -105,9 +105,15 @@ void PropertyDialog::PerformLayout()
 {
 	BaseClass::PerformLayout();
 
+	int iBottom = m_iSheetInsetBottom;
+	if ( IsProportional() )
+	{
+		iBottom = scheme()->GetProportionalScaledValueEx( GetScheme(), iBottom );
+	}
+
 	int x, y, wide, tall;
 	GetClientArea(x, y, wide, tall);
-	_propertySheet->SetBounds(x, y, wide, tall - 32);
+	_propertySheet->SetBounds(x, y, wide, tall - iBottom);
 
 
 	// move the buttons to the bottom-right corner

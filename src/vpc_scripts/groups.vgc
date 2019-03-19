@@ -11,7 +11,7 @@
 $Group "gamedlls"
 {
 	"client"
-	"gameui_client"
+//	"gameui_client"
 	"server"
 }
 
@@ -34,9 +34,6 @@ $Group "shaders"
 	"shaderapiempty"
 	"shaderlib"
 	"stdshader_dbg"
-	//"stdshader_dx6"
-	//"stdshader_dx7"
-	//"stdshader_dx8"
 	"stdshader_dx9"
 }
 
@@ -46,14 +43,11 @@ $Group "shaders_all"
 	//"shadercompile_launcher"
 	"materialsystem"
 	"shaderapidx9"
-	"shaderapidx10"
-	"shaderapitest" // we don't need this right?
-	"shaderapiempty"
+	//"shaderapidx10"
+	//"shaderapitest" // we don't need this right?
+	//"shaderapiempty"
 	"shaderlib"
 	"stdshader_dbg"
-	//"stdshader_dx6"
-	//"stdshader_dx7"
-	//"stdshader_dx8"
 	"stdshader_dx9"
 }
 
@@ -69,14 +63,42 @@ $Group "physics"
 	"vphysics"
 }
 
+$Group "engine_tools"
+{
+	"actbusy"
+	"commedit"
+	"foundry"
+	"pet"
+//	"sampletool"
+	"vcdblock"
+	"vmt"
+}
+
 $Group "tools"
 {
-	"tier0"
-	"tier1"
-	"tier2"
+	"bsppack"
+	"bzip2"
+	"ep2_deathmap"
+	
+//	"tier0"
+//	"tier1"
+//	"tier2"
 	"toolutils"
+	
 	"shadercompile_dll"
 	"shadercompile_launcher"
+	
+	"glview"
+	
+	"hammer_dll"
+	"hammer_launcher"
+	
+	"normal2ssbump"
+	"height2normal"
+	"height2ssbump"
+	
+	"vtex_dll"
+	"vtex_launcher"
 }
 
 $Group "game"
@@ -92,7 +114,7 @@ $Group "game"
 	"engine"
 	"filesystem_stdio"
 	"gameui"
-	"gameui_client"
+//	"gameui_client"
 	"height2normal"
 	"height2ssbump"
 	"inputsystem"
@@ -168,7 +190,7 @@ $Group "everything"
 	"finddbgdll"
 	"foundry"
 	"gameui"
-	"gameui_client"
+//	"gameui_client"
 	"getbugs"
 	"glview"
 	"hammer_dll"
@@ -365,7 +387,7 @@ $Group "binaries"
 	"finddbgdll"
 	"foundry"
 	"gameui"
-	"gameui_client"
+//	"gameui_client"
 	"getbugs"
 	"glview"
 	"hammer_dll"
@@ -483,7 +505,7 @@ $Group "binaries"
 	"testprocess"
 }
 
-$Group "libraries"
+$Group "libraries" "core"
 {
 	// Static Libraries
 	"tier0"
@@ -516,4 +538,15 @@ $Group "libraries"
 	"lzma"
 	"bzip2"
 	"mxtoolkitwin32"
+}
+
+// is including: libraries
+$Group "core"
+{
+	// Other projects needed
+	"shadercompile_dll"
+	"shadercompile_launcher"
+	"filesystem_stdio"
+	"filesystem_steam"
+	"mysql_wrapper" // vmpi shit
 }

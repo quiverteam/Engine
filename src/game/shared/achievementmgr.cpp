@@ -427,7 +427,7 @@ void CAchievementMgr::DownloadUserData()
 		if ( SteamUserStats() )
 		{
 			// request stat download; will get called back at OnUserStatsReceived when complete
-			SteamUserStats()->RequestCurrentStats( CGameID( engine->GetAppID() ) );
+			SteamUserStats()->RequestCurrentStats();
 		}
 #endif
 	}
@@ -515,8 +515,7 @@ void CAchievementMgr::UploadUserData()
 		{
 			// Upload current Steam client achievements & stats state to Steam.  Will get called back at OnUserStatsStored when complete.
 			// Only values previously set via SteamUserStats() get uploaded
-			CGameID gameID( engine->GetAppID() );
-			SteamUserStats()->StoreStats( gameID );
+			SteamUserStats()->StoreStats();
 		}
 #endif
 	}
@@ -696,7 +695,7 @@ void CAchievementMgr::AwardAchievement( int iAchievementID )
 			VPROF_BUDGET( "AwardAchievement", VPROF_BUDGETGROUP_STEAM );
 			// set this achieved in the Steam client
 			CGameID gameID( engine->GetAppID() );
-			bool bRet = SteamUserStats()->SetAchievement( gameID, pAchievement->GetName() );
+			bool bRet = SteamUserStats()->SetAchievement( pAchievement->GetName() );
 			//		Assert( bRet );
 			if ( bRet )
 			{
@@ -1012,7 +1011,7 @@ void CAchievementMgr::ResetAchievements()
 #ifndef _DEBUG
 	if ( SteamUserStats() )
 	{
-		SteamUserStats()->StoreStats( gameID );
+		SteamUserStats()->StoreStats();
 	}
 #endif
 	SaveGlobalState();
@@ -1032,7 +1031,6 @@ void CAchievementMgr::ResetAchievement( int iAchievementID )
 		return;
 	}
 
-	CGameID gameID( engine->GetAppID() );
 	CBaseAchievement *pAchievement = GetAchievementByID( iAchievementID );
 	Assert( pAchievement );
 	if ( pAchievement )
@@ -1041,7 +1039,7 @@ void CAchievementMgr::ResetAchievement( int iAchievementID )
 #ifndef _DEBUG
 		if ( SteamUserStats() )
 		{
-			SteamUserStats()->StoreStats( gameID );
+			SteamUserStats()->StoreStats();
 		}
 #endif
 		SaveGlobalState();
@@ -1351,7 +1349,7 @@ void CAchievementMgr::Steam_OnUserStatsReceived( UserStatsReceived_t *pUserStats
 	{
 		CBaseAchievement *pAchievement = m_mapAchievement[i];
 		bool bAchieved = false;
-		bool bRet = SteamUserStats()->GetAchievement( gameID, pAchievement->GetName(), &bAchieved );
+		bool bRet = SteamUserStats()->GetAchievement( pAchievement->GetName(), &bAchieved );
 		if ( bRet )
 		{
 			// set local achievement state
@@ -1419,7 +1417,7 @@ void CAchievementMgr::ResetAchievement_Internal( CBaseAchievement *pAchievement 
 #ifndef NO_STEAM
 	if ( SteamUserStats() )
 	{
-		SteamUserStats()->ClearAchievement( gameID, pAchievement->GetName() );		
+		SteamUserStats()->ClearAchievement( pAchievement->GetName() );		
 	}
 #endif
 	pAchievement->SetAchieved( false );

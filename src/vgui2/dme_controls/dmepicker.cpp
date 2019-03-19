@@ -161,7 +161,7 @@ void CDmePicker::OnTextChanged( )
 	m_Filter.SetLength( nLength );
 	if ( nLength > 0 )
 	{
-		m_pFilterList->GetText( m_Filter.Get(), nLength+1 );
+		m_pFilterList->GetText( m_Filter.GetForModify(), nLength+1 );
 	}
 	RefreshDmeList();
 }

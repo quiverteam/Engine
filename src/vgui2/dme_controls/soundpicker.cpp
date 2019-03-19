@@ -289,7 +289,7 @@ void CSoundPicker::OnGameSoundFilterTextChanged( )
 	m_GameSoundFilter.SetLength( nLength );
 	if ( nLength > 0 )
 	{
-		m_pGameSoundFilter->GetText( m_GameSoundFilter.Get(), nLength+1 );
+		m_pGameSoundFilter->GetText( m_GameSoundFilter.GetForModify(), nLength+1 );
 	}
 	RefreshGameSoundList();
 }

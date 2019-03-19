@@ -1,4 +1,4 @@
-//===== Copyright © 1996-2005, Valve Corporation, All rights reserved. ======//
+//========= Copyright Valve Corporation, All rights reserved. ============//
 //
 // Purpose: 
 //
@@ -87,9 +87,9 @@ public:
 	// Install a console printer
 	virtual void			InstallConsoleDisplayFunc( IConsoleDisplayFunc* pDisplayFunc ) = 0;
 	virtual void			RemoveConsoleDisplayFunc( IConsoleDisplayFunc* pDisplayFunc ) = 0;
-	virtual void			ConsoleColorPrintf( const Color& clr, const char *pFormat, ... ) const = 0;
-	virtual void			ConsolePrintf( const char *pFormat, ... ) const = 0;
-	virtual void			ConsoleDPrintf( const char *pFormat, ... ) const = 0;
+	virtual void			ConsoleColorPrintf( const Color& clr, PRINTF_FORMAT_STRING const char *pFormat, ... ) const = 0;
+	virtual void			ConsolePrintf( PRINTF_FORMAT_STRING const char *pFormat, ... ) const = 0;
+	virtual void			ConsoleDPrintf( PRINTF_FORMAT_STRING const char *pFormat, ... ) const = 0;
 
 	// Reverts cvars which contain a specific flag
 	virtual void			RevertFlaggedConVars( int nFlag ) = 0;
@@ -102,6 +102,13 @@ public:
 #if defined( _X360 )
 	virtual void			PublishToVXConsole( ) = 0;
 #endif
+	virtual bool			IsMaterialThreadSetAllowed( ) const = 0;
+	virtual void			QueueMaterialThreadSetValue( ConVar *pConVar, const char *pValue ) = 0;
+	virtual void			QueueMaterialThreadSetValue( ConVar *pConVar, int nValue ) = 0;
+	virtual void			QueueMaterialThreadSetValue( ConVar *pConVar, float flValue ) = 0;
+	virtual bool			HasQueuedMaterialThreadConVarSets() const = 0;
+	virtual int				ProcessQueuedMaterialThreadConVarSets() = 0;
+
 };
 
 #define CVAR_INTERFACE_VERSION "VEngineCvar004"
@@ -111,7 +118,9 @@ public:
 // These global names are defined by tier1.h, duplicated here so you
 // don't have to include tier1.h
 //-----------------------------------------------------------------------------
-extern ICvar *cvar;
+
+// These are marked DLL_EXPORT for Linux.
+DLL_EXPORT ICvar *cvar;
 extern ICvar *g_pCVar;
 
 

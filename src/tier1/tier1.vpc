@@ -5,14 +5,8 @@
 //-----------------------------------------------------------------------------
 
 $macro SRCDIR		".."
-$macro OUTLIBDIR	"$SRCDIR\lib\public"
-
+ 
 $include "$SRCDIR\vpc_scripts\source_lib_base.vpc"
-
-$Linux
-{
-	$BuildForLinux 1
-}
 
 $Configuration
 {
@@ -21,16 +15,9 @@ $Configuration
 		$PreprocessorDefinitions		"$BASE;TIER1_STATIC_LIB"
 	}
 
-	$Librarian [$WIN32]
+	$Librarian [$WINDOWS]
 	{
-		$AdditionalDependencies			"Rpcrt4.lib"
-	}
-}
-
-$Configuration	"Release"
-{
-	$Compiler
-	{
+		$AdditionalDependencies			"$BASE Rpcrt4.lib"
 	}
 }
 
@@ -44,51 +31,79 @@ $Project "tier1"
 		$File	"characterset.cpp"
 		$File	"checksum_crc.cpp"
 		$File	"checksum_md5.cpp"
+		$File	"checksum_sha1.cpp"
 		$File	"commandbuffer.cpp"
 		$File	"convar.cpp"
 		$File	"datamanager.cpp"
 		$File	"diff.cpp"
 		$File	"generichash.cpp"
+		$File	"ilocalize.cpp"
 		$File	"interface.cpp"
 		$File	"KeyValues.cpp"
+		$File	"kvpacker.cpp"
 		$File	"lzmaDecoder.cpp"
-		$File	"lzss.cpp"
+		$File	"lzss.cpp" [!$SOURCESDK]
 		$File	"mempool.cpp"
 		$File	"memstack.cpp"
 		$File	"NetAdr.cpp"
-		$File	"processor_detect.cpp"
+		$File	"splitstring.cpp"
+		$File	"processor_detect.cpp" [$WINDOWS||$X360]
 		{
 			$Configuration
 			{
 				$Compiler
 				{
-					$EnableC++Exceptions	"Yes (/EHsc)" 
+					$EnableC++Exceptions	"Yes (/EHsc)" [!$X360]
 				}
 			}
 		}
 		
 		$File	"processor_detect_linux.cpp"	[$POSIX]
+		$File	"qsort_s.cpp"	[$LINUXALL||$PS3]
 		$File	"rangecheckedvar.cpp"
+		$File	"reliabletimer.cpp"
 		$File	"stringpool.cpp"
 		$File	"strtools.cpp"
+		$File	"strtools_unicode.cpp"
 		$File	"tier1.cpp"
 		$File	"tokenreader.cpp"
+		$File	"sparsematrix.cpp"
 		$File	"uniqueid.cpp"
 		$File	"utlbuffer.cpp"
 		$File	"utlbufferutil.cpp"
 		$File	"utlstring.cpp"
 		$File	"utlsymbol.cpp"
+		$File	"utlbinaryblock.cpp"
+		$File	"pathmatch.cpp" [$LINUXALL]
+		$File	"snappy.cpp"
+		$File	"snappy-sinksource.cpp"
+		$File	"snappy-stubs-internal.cpp"
+	}
+
+	// Select bits from the LZMA SDK to support lzmaDecoder.h
+	// Encoding support requires the full lzma project
+	$Folder "LZMA Decompression Support"
+	{
+		$File	"$SRCDIR\utils\lzma\C\LzmaDec.h"
+		$File	"$SRCDIR\utils\lzma\C\LzmaDec.c"
+		$File	"$SRCDIR\utils\lzma\CPP\Common\MyTypes.h"
 	}
 
 	$Folder	"Header Files"
 	{
+		$Folder	"Internal Header Files"
+		{
+			$File	"snappy-internal.h"
+			$File	"snappy-stubs-internal.h"
+		}
 		$File	"$SRCDIR\public\tier1\bitbuf.h"
 		$File	"$SRCDIR\public\tier1\byteswap.h"
 		$File	"$SRCDIR\public\tier1\callqueue.h"
 		$File	"$SRCDIR\public\tier1\characterset.h"
 		$File	"$SRCDIR\public\tier1\checksum_crc.h"
 		$File	"$SRCDIR\public\tier1\checksum_md5.h"
-		$File	"$SRCDIR\public\tier1\commandbuffer.h"
+		$File	"$SRCDIR\public\tier1\checksum_sha1.h"
+		$File	"$SRCDIR\public\tier1\CommandBuffer.h"
 		$File	"$SRCDIR\public\tier1\convar.h"
 		$File	"$SRCDIR\public\tier1\datamanager.h"
 		$File	"$SRCDIR\public\datamap.h"
@@ -98,8 +113,10 @@ $Project "tier1"
 		$File	"$SRCDIR\public\tier1\functors.h"
 		$File	"$SRCDIR\public\tier1\generichash.h"
 		$File	"$SRCDIR\public\tier1\iconvar.h"
+		$File	"$SRCDIR\public\tier1\ilocalize.h"
 		$File	"$SRCDIR\public\tier1\interface.h"
 		$File	"$SRCDIR\public\tier1\KeyValues.h"
+		$File	"$SRCDIR\public\tier1\kvpacker.h"
 		$File	"$SRCDIR\public\tier1\lzmaDecoder.h"
 		$File	"$SRCDIR\public\tier1\lzss.h"
 		$File	"$SRCDIR\public\tier1\mempool.h"
@@ -109,20 +126,24 @@ $Project "tier1"
 		$File	"$SRCDIR\public\tier1\rangecheckedvar.h"
 		$File	"$SRCDIR\public\tier1\refcount.h"
 		$File	"$SRCDIR\public\tier1\smartptr.h"
+		$File	"$SRCDIR\public\tier1\snappy.h"
+		$File	"$SRCDIR\public\tier1\snappy-sinksource.h"
 		$File	"$SRCDIR\public\tier1\stringpool.h"
 		$File	"$SRCDIR\public\tier1\strtools.h"
 		$File	"$SRCDIR\public\tier1\tier1.h"
 		$File	"$SRCDIR\public\tier1\tokenreader.h"
-		$File	"$SRCDIR\public\tier1\uniqueid.h"				[$WIN32]
+		$File	"$SRCDIR\public\tier1\uniqueid.h"				[$WINDOWS]
 		$File	"$SRCDIR\public\tier1\utlbidirectionalset.h"
 		$File	"$SRCDIR\public\tier1\utlblockmemory.h"
 		$File	"$SRCDIR\public\tier1\utlbuffer.h"
 		$File	"$SRCDIR\public\tier1\utlbufferutil.h"
+		$File	"$SRCDIR\public\tier1\utlcommon.h"
 		$File	"$SRCDIR\public\tier1\utldict.h"
 		$File	"$SRCDIR\public\tier1\utlenvelope.h"
 		$File	"$SRCDIR\public\tier1\utlfixedmemory.h"
 		$File	"$SRCDIR\public\tier1\utlhandletable.h"
 		$File	"$SRCDIR\public\tier1\utlhash.h"
+		$File	"$SRCDIR\public\tier1\utlhashtable.h"
 		$File	"$SRCDIR\public\tier1\utllinkedlist.h"
 		$File	"$SRCDIR\public\tier1\utlmap.h"
 		$File	"$SRCDIR\public\tier1\utlmemory.h"
@@ -135,7 +156,9 @@ $Project "tier1"
 		$File	"$SRCDIR\public\tier1\utlstring.h"
 		$File	"$SRCDIR\public\tier1\UtlStringMap.h"
 		$File	"$SRCDIR\public\tier1\utlsymbol.h"
+		$File	"$SRCDIR\public\tier1\utlsymbollarge.h"
 		$File	"$SRCDIR\public\tier1\utlvector.h"
-		//$File	"$SRCDIR\common\xbox\xboxstubs.h"				[$WIN32||$LINUX]
+		$File	"$SRCDIR\public\tier1\utlbinaryblock.h"
+		$File	"$SRCDIR\common\xbox\xboxstubs.h"				[$WINDOWS]
 	}
 }

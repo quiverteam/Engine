@@ -22,16 +22,13 @@ public:
 	CSteam3();
 	~CSteam3();
 #if !defined(NO_STEAM)
-	STEAM_GAMESERVER_CALLBACK( CSteam3, OnLogonSuccess, LogonSuccess_t, m_CallbackLogonSuccess );
-	STEAM_GAMESERVER_CALLBACK( CSteam3, OnLogonFailure, LogonFailure_t, m_CallbackLogonFailure );
-	STEAM_GAMESERVER_CALLBACK( CSteam3, OnLoggedOff, LoggedOff_t, m_CallbackLoggedOff );
-	STEAM_GAMESERVER_CALLBACK( CSteam3, OnBeginLogonRetry, BeginLogonRetry_t, m_CallbackBeginLogonRetry );
+	STEAM_GAMESERVER_CALLBACK( CSteam3, OnLogonSuccess, SteamServersConnected_t, m_CallbackLogonSuccess );
+	STEAM_GAMESERVER_CALLBACK( CSteam3, OnLogonFailure, SteamServerConnectFailure_t, m_CallbackLogonFailure );
+	STEAM_GAMESERVER_CALLBACK( CSteam3, OnLoggedOff, SteamServersDisconnected_t, m_CallbackLoggedOff );
 	// game server callbacks
 	STEAM_GAMESERVER_CALLBACK( CSteam3, OnGSClientApprove, GSClientApprove_t, m_CallbackGSClientApprove );
 	STEAM_GAMESERVER_CALLBACK( CSteam3, OnGSClientDeny, GSClientDeny_t, m_CallbackGSClientDeny );
 	STEAM_GAMESERVER_CALLBACK( CSteam3, OnGSClientKick, GSClientKick_t, m_CallbackGSClientKick );
-	STEAM_GAMESERVER_CALLBACK( CSteam3, OnGSClientSteam2Deny, GSClientSteam2Deny_t, m_CallbackGSClientSteam2Deny );
-	STEAM_GAMESERVER_CALLBACK( CSteam3, OnGSClientSteam2Accept, GSClientSteam2Accept_t, m_CallbackGSClientSteam2Accept );
 	STEAM_GAMESERVER_CALLBACK( CSteam3, OnGSPolicyResponse, GSPolicyResponse_t, m_CallbackGSPolicyResponse );
 #endif
 

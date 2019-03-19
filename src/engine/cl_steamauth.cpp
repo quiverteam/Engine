@@ -107,7 +107,7 @@ int CSteam3Client::InitiateConnection( void *pData, int cbMaxData, uint32 unIP, 
 	if ( !SteamUser() )
 		return 0;
 
-	return SteamUser()->InitiateGameConnection( pData, cbMaxData, unGSSteamID, CGameID( g_iSteamAppID ), ntohl( unIP ), usPort, bSecure, pvSteam2GetEncryptionKey, cbSteam2GetEncryptionKey ); // port is already in host order
+	return SteamUser()->InitiateGameConnection( pData, cbMaxData, unGSSteamID, ntohl( unIP ), usPort, bSecure ); // port is already in host order
 #else
 	return 0;
 #endif

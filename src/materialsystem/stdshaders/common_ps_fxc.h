@@ -236,10 +236,12 @@ float CalcWaterFogAlpha( const float flWaterZ, const float flEyePosZ, const floa
 	// Calculate the ratio of water fog to regular fog (ie. how much of the distance from the viewer
 	// to the vert is actually underwater.
 	float flDepthFromEye = flEyePosZ - flWorldPosZ;
-	float f = (flDepthFromWater / flDepthFromEye) * flProjPosZ;
+	//float f = (flDepthFromWater / flDepthFromEye) * flProjPosZ;
+	float f = saturate(flDepthFromWater * (1.0/flDepthFromEye));
 
 	// $tmp.w is now the distance that we see through water.
-	return saturate( f * flFogOORange );
+	//return saturate( f * flFogOORange );
+	return saturate(f * flProjPosZ * flFogOORange);
 #else
 	// This version is simply using the depth of the water to determine fog factor,
 	// which is cheaper than doing the line integral and also fixes some problems with having 

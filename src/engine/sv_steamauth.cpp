@@ -30,7 +30,6 @@
 #include "filesystem_init.h"
 #include "tier0/icommandline.h"
 #include "steam/steam_gameserver.h"
-#include "sv_master_legacy.h"
 #include "hltvserver.h"
 
 extern ConVar sv_lan;
@@ -71,12 +70,9 @@ CSteam3::CSteam3()
 	m_CallbackLogonSuccess( this, &CSteam3::OnLogonSuccess ),
 	m_CallbackLogonFailure( this, &CSteam3::OnLogonFailure ),
 	m_CallbackLoggedOff( this, &CSteam3::OnLoggedOff ),
-	m_CallbackBeginLogonRetry( this, &CSteam3::OnBeginLogonRetry ),
 	m_CallbackGSClientApprove( this, &CSteam3::OnGSClientApprove ),
 	m_CallbackGSClientDeny( this, &CSteam3::OnGSClientDeny ),
 	m_CallbackGSClientKick( this, &CSteam3::OnGSClientKick ),
-	m_CallbackGSClientSteam2Deny( this, &CSteam3::OnGSClientSteam2Deny ),
-	m_CallbackGSClientSteam2Accept( this, &CSteam3::OnGSClientSteam2Accept ),
 	m_CallbackGSPolicyResponse( this, &CSteam3::OnGSPolicyResponse )
 #endif
 {
@@ -151,7 +147,7 @@ void CSteam3::Activate()
 		NET_StringToAdr( ipname.GetString(), &ipaddr );
 		if ( !ipaddr.IsLoopback() && !ipaddr.IsLocalhost() )
 		{
-			m_unIP = htonl( ipaddr.GetIP() );
+			m_unIP = ipaddr.GetIPNetworkByteOrder();
 		}
 	}
 
@@ -172,7 +168,7 @@ void CSteam3::Activate()
 		usSpectatorPort = 0;
 	
 	uint16 usMasterServerUpdaterPort;
-	if ( IsUsingMasterLegacyMode() || sv_master_share_game_socket.GetBool() )
+	if ( sv_master_share_game_socket.GetBool() )
 	{
 		m_bMasterServerUpdaterSharingGameSocket = true;
 		usMasterServerUpdaterPort = MASTERSERVERUPDATERPORT_USEGAMESOCKETSHARE;
@@ -192,11 +188,8 @@ void CSteam3::Activate()
 			m_unIP, 
 			m_usPort+1,	// Steam lives on -steamport + 1, master server updater lives on -steamport.
 			usGamePort, 
-			usSpectatorPort,
-			usMasterServerUpdaterPort, 
+			usSpectatorPort, 
 			m_eServerMode, 
-			g_iSteamAppID, 
-			gamedir, 
 			gpszVersionString ) )
 	{
 		Warning( "*********************************************************\n" );
@@ -242,8 +235,8 @@ bool CSteam3::CompareUserID( const USERID_t & id1, const USERID_t & id2 )
 	case IDTYPE_STEAM:
 	case IDTYPE_VALVE:
 		{
-			return ( id1.uid.steamid.m_SteamInstanceID==id2.uid.steamid.m_SteamInstanceID && 
-					 id1.uid.steamid.m_SteamLocalUserID.As64bits == id2.uid.steamid.m_SteamLocalUserID.As64bits);
+			return ( id1.steamid.GetUnAccountInstance()==id2.steamid.GetUnAccountInstance() && 
+					 id1.steamid == id2.steamid );
 		}
 	default:
 		break;
@@ -314,7 +307,7 @@ void CSteam3::UpdateSpectatorPort( unsigned short unSpectatorPort )
 {
 	ISteamGameServer *pGameServer = SteamGameServer();
 	if ( pGameServer )
-		pGameServer->GSUpdateSpectatorPort( unSpectatorPort );
+		pGameServer->SetSpectatorPort( unSpectatorPort );
 }
 
 
@@ -340,7 +333,7 @@ void CSteam3::OnGSPolicyResponse( GSPolicyResponse_t *pPolicyResponse )
 //-----------------------------------------------------------------------------
 // Purpose: 
 //-----------------------------------------------------------------------------
-void CSteam3::OnLogonSuccess( LogonSuccess_t *pLogonSuccess )
+void CSteam3::OnLogonSuccess( SteamServersConnected_t *pLogonSuccess )
 {
 	if ( !BIsActive() )
 		return;
@@ -373,7 +366,7 @@ void CSteam3::OnLogonSuccess( LogonSuccess_t *pLogonSuccess )
 // Purpose: callback on unable to connect to the steam3 backend
 // Input  : eResult - 
 //-----------------------------------------------------------------------------
-void CSteam3::OnLogonFailure( LogonFailure_t *pLogonFailure )
+void CSteam3::OnLogonFailure( SteamServerConnectFailure_t *pLogonFailure )
 {
 	if ( !BIsActive() )
 		return;
@@ -407,98 +400,8 @@ void CSteam3::OnLogonFailure( LogonFailure_t *pLogonFailure )
 // Purpose: 
 // Input  : eResult - 
 //-----------------------------------------------------------------------------
-void CSteam3::OnLoggedOff( LoggedOff_t *pLoggedOff )
+void CSteam3::OnLoggedOff( SteamServersDisconnected_t *pLoggedOff )
 {
-}
-
-
-//-----------------------------------------------------------------------------
-// Purpose: 
-//-----------------------------------------------------------------------------
-void CSteam3::OnBeginLogonRetry( BeginLogonRetry_t *pBeginLogonRetry )
-{
-}
-
-
-//-----------------------------------------------------------------------------
-// Purpose: Called when Steam2 denies a user connect
-//-----------------------------------------------------------------------------
-void CSteam3::OnGSClientSteam2Deny( GSClientSteam2Deny_t *pGSClientSteam2Deny )
-{
-	if ( !BIsActive() )
-		return;
-
-	CBaseClient *client = NULL;
-	// Compare connecting client's ID to other IDs on the server
-	for ( int i=0 ; i< sv.GetClientCount() ; i++ )
-	{
-		const IClient *cl = sv.GetClient( i );		
-		if ( (uint32)cl->GetUserID() == pGSClientSteam2Deny->m_UserID )
-		{
-			client = (CBaseClient *)cl;
-			break;
-		}
-	}
-
-	if ( !client )
-		return;
-	
-	OnGSClientDenyHelper( client, (EDenyReason)pGSClientSteam2Deny->m_eSteamError, NULL );
-}
-
-
-//-----------------------------------------------------------------------------
-// Purpose: Called when Steam2 has processed a user login an accepts it (Steam3 login is still pending however)
-//-----------------------------------------------------------------------------
-void CSteam3::OnGSClientSteam2Accept( GSClientSteam2Accept_t *pGSClientSteam2Accept )
-{
-	if ( !BIsActive() )
-		return;
-
-	CBaseClient *client = NULL;
-	// Compare connecting client's ID to other IDs on the server
-	for ( int i=0 ; i< sv.GetClientCount() ; i++ )
-	{
-		const IClient *cl = sv.GetClient( i );	
-		if ( (uint32)cl->GetUserID() == pGSClientSteam2Accept->m_UserID )
-		{
-			client = (CBaseClient *)cl;
-			break;
-		}
-	}
-
-	if ( !client )
-		return;
-
-	client->m_NetworkID.idtype		= IDTYPE_STEAM; 
-	client->m_NetworkID.uid.steamid.m_SteamInstanceID = 1;
-	client->SetSteamID( pGSClientSteam2Accept->m_SteamID );
-
-	if ( Filter_IsUserBanned( client->GetNetworkID() ) )
-	{
-		sv.RejectConnection( client->GetNetChannel()->GetRemoteAddress(), "You have been banned from this server\n" );
-		client->Disconnect( va( "STEAM UserID %s is banned", client->GetNetworkIDString() ) );
-	}
-	else if ( CheckForDuplicateSteamID( client ) )
-	{
-		client->Disconnect(  "STEAM UserID %s is already\nin use on this server", client->GetNetworkIDString() );					
-	}
-	else
-	{
-		char msg[ 512 ];
-		sprintf( msg, "\"%s<%i><%s><>\" STEAM USERID validated\n", client->GetClientName(), client->GetUserID(), client->GetNetworkIDString() );
-
-		DevMsg( "%s", msg );
-		g_Log.Printf( "%s", msg );
-
-		g_pServerPluginHandler->NetworkIDValidated( client->GetClientName(), client->GetNetworkIDString() );
-	
-		// Tell IServerGameClients if its version is high enough.
-		if ( g_iServerGameClientsVersion >= 4 )
-		{
-			serverGameClients->NetworkIDValidated( client->GetClientName(), client->GetNetworkIDString() );
-		}
-	}
 }
 
 
@@ -535,7 +438,7 @@ void CSteam3::OnGSClientDeny( GSClientDeny_t *pGSClientDeny )
 	if ( !cl )
 		return;
 
-	OnGSClientDenyHelper( cl, pGSClientDeny->m_eDenyReason, pGSClientDeny->m_pchOptionalText );
+	OnGSClientDenyHelper( cl, pGSClientDeny->m_eDenyReason, pGSClientDeny->m_rgchOptionalText );
 }
 
 
@@ -619,8 +522,8 @@ void CSteam3::OnGSClientDenyHelper( CBaseClient *cl, EDenyReason eDenyReason, co
 		case k_EDenySteamValidationStalled:
 			if ( BLanOnly() ) 
 			{
-				cl->m_NetworkID.uid.steamid.m_SteamInstanceID = 1;
-				cl->m_NetworkID.uid.steamid.m_SteamLocalUserID.As64bits = 0 ;
+				cl->m_NetworkID.steamid.SetAccountInstance(1);
+				cl->m_NetworkID.steamid.SetFromUint64(0) ;
 				break; // allow lan only users in
 			}
 			else
@@ -656,9 +559,7 @@ CBaseClient *CSteam3::ClientFindFromSteamID( CSteamID & steamIDFind )
 			continue;
 
 		USERID_t id = cl->GetNetworkID();
-		CSteamID steamIDClient;
-		steamIDClient.SetFromSteam2( &id.uid.steamid, steamIDFind.GetEUniverse() );
-		if (steamIDClient == steamIDFind )
+		if ( id.steamid == steamIDFind )
 		{
 			return cl;
 		}
@@ -679,7 +580,8 @@ bool CSteam3::NotifyClientConnect( CBaseClient *client, uint32 unUserID, netadr_
 		return false;
 #ifndef NO_STEAM
 	// Msg("S3: Sending client logon request for %x\n", steamIDClient.ConvertToUint64( ) );
-	bool bRet = SteamGameServer()->GSSendUserConnect( unUserID, htonl( adr.GetIP() ), htons( adr.GetPort() ), pvCookie, ucbCookie );
+//	bool bRet = SteamGameServer()->GSSendUserConnect( unUserID, htonl( adr.GetIP() ), htons( adr.GetPort() ), pvCookie, ucbCookie );
+	bool bRet = true;
 #else
 	bool bRet = false;
 #endif
@@ -689,12 +591,15 @@ bool CSteam3::NotifyClientConnect( CBaseClient *client, uint32 unUserID, netadr_
 
 bool CSteam3::NotifyLocalClientConnect( CBaseClient *client )
 {
+	return true;
 #ifndef NO_STEAM
 	CSteamID steamID;
 
-	if ( SteamGameServer() && !SteamGameServer()->GSCreateUnauthenticatedUser( &steamID ) )
+	if ( SteamGameServer() )
 		return false;
 	
+	steamID = SteamGameServer()->CreateUnauthenticatedUserConnection();
+
 	client->SetSteamID( steamID );
 #endif
 	SendUpdatedServerDetails();
@@ -716,7 +621,7 @@ void CSteam3::NotifyClientDisconnect( CBaseClient *client )
 	{
 #ifndef NO_STEAM
 		if ( client->m_SteamID )
-			SteamGameServer()->GSSendUserDisconnect( *client->m_SteamID, client->GetUserID() );
+			SteamGameServer()->SendUserDisconnect( *client->m_SteamID );
 #endif
 	}
 	else
@@ -725,10 +630,8 @@ void CSteam3::NotifyClientDisconnect( CBaseClient *client )
 		if ( id.idtype != IDTYPE_STEAM )
 			return;
 #ifndef NO_STEAM
-		CSteamID steamIDClient;
-		steamIDClient.SetFromSteam2( &id.uid.steamid, SteamGameServerUtils()->GetConnectedUniverse() );
 		// Msg("S3: Sending client disconnect for %x\n", steamIDClient.ConvertToUint64( ) );
-		SteamGameServer()->GSSendUserDisconnect( steamIDClient, client->GetUserID() );
+		SteamGameServer()->SendUserDisconnect( id.steamid );
 #endif
 	}
 }
@@ -791,14 +694,11 @@ void CSteam3::SendUpdatedServerDetails()
 	if ( !BIsActive() )
 		return;
 #ifndef NO_STEAM
-	SteamGameServer()->GSUpdateStatus(
-								sv.GetNumClients(), 
-								sv.GetMaxClients(), 
-								sv.GetNumFakeClients(), 
-								sv.GetName(),
-								hltv ? hltv->GetName() : sv.GetName(),
-								(hltv && hltv->IsTVRelay()) ? hltv->GetMapName() : sv.GetMapName() 
-								);
+	SteamGameServer()->SetMaxPlayerCount( sv.GetMaxClients() );
+	SteamGameServer()->SetBotPlayerCount( sv.GetNumFakeClients() );
+	SteamGameServer()->SetServerName(sv.GetName());
+	SteamGameServer()->SetSpectatorServerName( hltv ? hltv->GetName() : sv.GetName() );
+	SteamGameServer()->SetMapName( ( hltv && hltv->IsTVRelay() ) ? hltv->GetMapName() : sv.GetMapName() );		
 #endif
 }
 

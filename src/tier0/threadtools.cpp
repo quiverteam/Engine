@@ -306,12 +306,12 @@ int ThreadWaitForObjects( int nEvents, const HANDLE *pHandles, bool bWaitAll, un
 // Used to thread LoadLibrary on the 360
 //-----------------------------------------------------------------------------
 static ThreadedLoadLibraryFunc_t s_ThreadedLoadLibraryFunc = 0;
-TT_INTERFACE void SetThreadedLoadLibraryFunc( ThreadedLoadLibraryFunc_t func )
+PLATFORM_INTERFACE void SetThreadedLoadLibraryFunc( ThreadedLoadLibraryFunc_t func )
 {
 	s_ThreadedLoadLibraryFunc = func;
 }
 
-TT_INTERFACE ThreadedLoadLibraryFunc_t GetThreadedLoadLibraryFunc()
+PLATFORM_INTERFACE ThreadedLoadLibraryFunc_t GetThreadedLoadLibraryFunc()
 {
 	return s_ThreadedLoadLibraryFunc;
 }
@@ -323,7 +323,8 @@ TT_INTERFACE ThreadedLoadLibraryFunc_t GetThreadedLoadLibraryFunc()
 
 CThreadSyncObject::CThreadSyncObject()
 #ifdef _WIN32
-  : m_hSyncObject( NULL )
+  : m_hSyncObject( NULL ),
+	m_bCreatedHandle( false )
 #elif _LINUX
   : m_bInitalized( false )
 #endif
@@ -335,9 +336,9 @@ CThreadSyncObject::CThreadSyncObject()
 CThreadSyncObject::~CThreadSyncObject()
 {
 #ifdef _WIN32
-   if (m_hSyncObject )
+   if ( m_hSyncObject && m_bCreatedHandle )
    {
-      if ( !CloseHandle(m_hSyncObject) )
+      if ( !CloseHandle( m_hSyncObject ) )
 	  {
 		  Assert( 0 );
 	  }
@@ -427,6 +428,7 @@ CThreadEvent::CThreadEvent( bool bManualReset )
 {
 #ifdef _WIN32
     m_hSyncObject = CreateEvent( NULL, bManualReset, FALSE, NULL );
+	m_bCreatedHandle = true;
     AssertMsg1(m_hSyncObject, "Failed to create event (error 0x%x)", GetLastError() );
 #elif _LINUX
     pthread_mutexattr_t Attr;
@@ -441,6 +443,13 @@ CThreadEvent::CThreadEvent( bool bManualReset )
 #error "Implement me"
 #endif
 }
+
+CThreadEvent::CThreadEvent( HANDLE hHandle )
+{
+	m_hSyncObject = hHandle;
+	m_bCreatedHandle = false;
+}
+
 //-----------------------------------------------------------------------------
 //
 //-----------------------------------------------------------------------------
@@ -957,13 +966,6 @@ CThreadMutex::~CThreadMutex()
 }
 #endif // !linux
 
-#if defined( _WIN32 ) && !defined( _X360 )
-typedef BOOL (WINAPI*TryEnterCriticalSectionFunc_t)(LPCRITICAL_SECTION);
-static CDynamicFunction<TryEnterCriticalSectionFunc_t> DynTryEnterCriticalSection( "Kernel32.dll", "TryEnterCriticalSection" );
-#elif defined( _X360 )
-#define DynTryEnterCriticalSection TryEnterCriticalSection
-#endif
-
 bool CThreadMutex::TryLock()
 {
 
@@ -973,24 +975,6 @@ bool CThreadMutex::TryLock()
 	if ( m_bTrace && m_currentOwnerID && ( m_currentOwnerID != thisThreadID ) )
 		Msg( "Thread %u about to try-wait for lock %x owned by %u\n", ThreadGetCurrentId(), (CRITICAL_SECTION *)&m_CriticalSection, m_currentOwnerID );
 #endif
-	if ( DynTryEnterCriticalSection != NULL )
-	{
-		if ( (*DynTryEnterCriticalSection )( (CRITICAL_SECTION *)&m_CriticalSection ) != FALSE )
-		{
-#ifdef THREAD_MUTEX_TRACING_ENABLED
-			if (m_lockCount == 0)
-			{
-				// we now own it for the first time.  Set owner information
-				m_currentOwnerID = thisThreadID;
-				if ( m_bTrace )
-					Msg( "Thread %u now owns lock 0x%x\n", m_currentOwnerID, (CRITICAL_SECTION *)&m_CriticalSection );
-			}
-			m_lockCount++;
-#endif
-			return true;
-		}
-		return false;
-	}
 	Lock();
 	return true;
 #elif defined( _LINUX )
@@ -1676,6 +1660,11 @@ CThread::ThreadProc_t CThread::GetThreadProc()
 	return ThreadProc;
 }
 
+bool CThread::IsThreadRunning()
+{
+	return m_hThread;
+}
+
 //---------------------------------------------------------
 
 unsigned __stdcall CThread::ThreadProc(LPVOID pv)
@@ -1763,9 +1752,9 @@ CWorkerThread::CWorkerThread()
 
 //---------------------------------------------------------
 
-int CWorkerThread::CallWorker(unsigned dw, unsigned timeout, bool fBoostWorkerPriorityToMaster)
+int CWorkerThread::CallWorker(unsigned dw, unsigned timeout, bool fBoostWorkerPriorityToMaster, CFunctor *pParamFunctor)
 {
-	return Call(dw, timeout, fBoostWorkerPriorityToMaster);
+	return Call(dw, timeout, fBoostWorkerPriorityToMaster, NULL, pParamFunctor);
 }
 
 //---------------------------------------------------------
@@ -1777,14 +1766,14 @@ int CWorkerThread::CallMaster(unsigned dw, unsigned timeout)
 
 //---------------------------------------------------------
 
-HANDLE CWorkerThread::GetCallHandle()
+CThreadEvent& CWorkerThread::GetCallHandle()
 {
 	return m_EventSend;
 }
 
 //---------------------------------------------------------
 
-unsigned CWorkerThread::GetCallParam() const
+unsigned CWorkerThread::GetCallParam( CFunctor **ppParamFunctor ) const
 {
 	return m_Param;
 }
@@ -1802,13 +1791,13 @@ int CWorkerThread::BoostPriority()
 
 //---------------------------------------------------------
 
-static uint32 __stdcall DefaultWaitFunc( uint32 nHandles, const HANDLE*pHandles, int bWaitAll, uint32 timeout )
+static uint32 __stdcall DefaultWaitFunc( int nEvents, CThreadEvent * const *pEvents, int bWaitAll, uint32 timeout )
 {
-	return VCRHook_WaitForMultipleObjects( nHandles, (const void **)pHandles, bWaitAll, timeout );
+	return ThreadWaitForEvents( nEvents, pEvents, bWaitAll, timeout );
 }
 
 
-int CWorkerThread::Call(unsigned dwParam, unsigned timeout, bool fBoostPriority, WaitFunc_t pfnWait)
+int CWorkerThread::Call(unsigned dwParam, unsigned timeout, bool fBoostPriority, WaitFunc_t pfnWait, CFunctor *pParamFunctor)
 {
 	AssertMsg(!m_EventSend.Check(), "Cannot perform call if there's an existing call pending" );
 
@@ -1825,7 +1814,7 @@ int CWorkerThread::Call(unsigned dwParam, unsigned timeout, bool fBoostPriority,
 
 	// set the parameter, signal the worker thread, wait for the completion to be signaled
 	m_Param = dwParam;
-
+	m_pParamFunctor = pParamFunctor;
 	m_EventComplete.Reset();
 	m_EventSend.Set();
 
@@ -1854,12 +1843,14 @@ int CWorkerThread::WaitForReply( unsigned timeout, WaitFunc_t pfnWait )
 		pfnWait = DefaultWaitFunc;
 	}
 
-	HANDLE waits[] =
-	{
-		GetThreadHandle(),
-		m_EventComplete
-	};
+	CThreadEvent thandle( GetThreadHandle() );
 
+	CThreadEvent *waits[] =
+	{
+		&thandle,
+		&m_EventComplete
+	};
+	
 	unsigned result;
 	bool bInDebugger = Plat_IsInDebugSession();
 
@@ -1926,7 +1917,7 @@ bool CWorkerThread::WaitForCall(unsigned dwTimeout, unsigned * pResult)
 // is there a request?
 //
 
-bool CWorkerThread::PeekCall(unsigned * pParam)
+bool CWorkerThread::PeekCall( unsigned * pParam, CFunctor **ppParamFunctor )
 {
 	if (!m_EventSend.Check())
 	{
@@ -1937,6 +1928,10 @@ bool CWorkerThread::PeekCall(unsigned * pParam)
 		if (pParam)
 		{
 			*pParam = m_Param;
+		}
+		if ( ppParamFunctor )
+		{
+			*ppParamFunctor = m_pParamFunctor;
 		}
 		return true;
 	}

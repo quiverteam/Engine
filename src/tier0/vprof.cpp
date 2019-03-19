@@ -65,6 +65,10 @@ CVProfile g_VProfCurrentProfile;
 int CVProfNode::s_iCurrentUniqueNodeID = 0;
 
 
+CVProfNode::~CVProfNode()
+{
+	//Not sure what should be done here
+}
 
 CVProfNode *CVProfNode::GetSubNode( const tchar *pszName, int detailLevel, const tchar *pBudgetGroupName, int budgetFlags )
 {

@@ -1,4 +1,4 @@
-//========= Copyright © 1996-2005, Valve Corporation, All rights reserved. ============//
+//========= Copyright Valve Corporation, All rights reserved. ============//
 //
 // Purpose: 
 //
@@ -53,6 +53,9 @@ public:
 	// Removes (but doesn't delete) all pages
 	virtual void	RemoveAllPages();
 
+	// Removes all the pages and marks all the pages for deletion.
+	virtual void	DeleteAllPages();
+
 	// reloads the data in all the property page
 	virtual void ResetAllData();
 
@@ -76,10 +79,13 @@ public:
 	virtual Panel *GetActiveTab();
 
 	// returns the title text of the tab
-	virtual void GetActiveTabTitle(char *textOut, int bufferLen);
+	virtual void GetActiveTabTitle( char *textOut, int bufferLen );
 
 	// returns the title of tab "i"
-	virtual bool GetTabTitle(int i,char *textOut, int bufferLen);
+	virtual bool GetTabTitle( int i, char *textOut, int bufferLen );
+
+	// sets the title of tab "i"
+	virtual bool SetTabTitle( int i, char *pchTitle );
 
 	// returns the index of the active page
 	virtual int GetActivePageNum();
@@ -125,9 +131,10 @@ protected:
 	virtual void PerformLayout();
 	virtual Panel *HasHotkey(wchar_t key);
 	virtual void ChangeActiveTab(int index);
-	virtual void OnKeyCodeTyped(KeyCode code);
+	virtual void OnKeyCodePressed(KeyCode code);
 	virtual void OnCommand(const char *command);
 	virtual void ApplySchemeSettings(IScheme *pScheme);
+	virtual void ApplySettings(KeyValues *inResourceData);
 
 	// internal message handlers
 	MESSAGE_FUNC_PTR( OnTabPressed, "TabPressed", panel );
@@ -135,9 +142,9 @@ protected:
 	MESSAGE_FUNC_PARAMS( OnOpenContextMenu, "OpenContextMenu", params );
 	MESSAGE_FUNC( OnApplyButtonEnable, "ApplyButtonEnable" );
 	// called when default button has been set
-	MESSAGE_FUNC_PTR( OnDefaultButtonSet, "DefaultButtonSet", button );
+	MESSAGE_FUNC_HANDLE( OnDefaultButtonSet, "DefaultButtonSet", button );
 	// called when the current default button has been set
-	MESSAGE_FUNC_PTR( OnCurrentDefaultButtonSet, "CurrentDefaultButtonSet", button);
+	MESSAGE_FUNC_HANDLE( OnCurrentDefaultButtonSet, "CurrentDefaultButtonSet", button);
     MESSAGE_FUNC( OnFindDefaultButton, "FindDefaultButton" );
 
 private:
@@ -174,6 +181,27 @@ private:
 	bool	m_bDraggableTabs;
 	bool	m_bContextButton;
 	bool	m_bKBNavigationEnabled;
+
+	CPanelAnimationVarAliasType( int, m_iTabXIndent, "tabxindent", "0", "proportional_int" );
+	CPanelAnimationVarAliasType( int, m_iTabXDelta, "tabxdelta", "0", "proportional_int" );
+	CPanelAnimationVarAliasType( bool, m_bTabFitText, "tabxfittotext", "1", "bool" );
+
+	//=============================================================================
+	// HPE_BEGIN:
+	// [tj] These variables have been split into the initially specified size
+	//		and the currently set size. This is so we can always recalculate the
+	//		new value for resolution changes.
+	//=============================================================================
+	CPanelAnimationVarAliasType( int, m_iSpecifiedTabHeight, "tabheight", "28", "int" );
+	CPanelAnimationVarAliasType( int, m_iSpecifiedTabHeightSmall, "tabheight_small", "14", "int" );
+
+	int m_iTabHeight;
+	int m_iTabHeightSmall;
+	//=============================================================================
+	// HPE_END
+	//=============================================================================
+
+	KeyValues	*m_pTabKV;
 };
 
 }; // namespace vgui

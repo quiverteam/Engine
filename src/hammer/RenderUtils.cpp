@@ -38,12 +38,12 @@ void DrawBoundsText(CRender2D *pRender, const Vector &Mins, const Vector &Maxs, 
 
     if( projMins.x > projMaxs.x )
     {
-		swap( projMins.x, projMaxs.x );
+		V_swap( projMins.x, projMaxs.x );
     }
 
     if( projMins.y > projMaxs.y )
     {
-        swap( projMins.y, projMaxs.y );
+        V_swap( projMins.y, projMaxs.y );
     }
 
 	//

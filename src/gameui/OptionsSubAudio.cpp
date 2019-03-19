@@ -150,9 +150,8 @@ void COptionsSubAudio::OnResetData()
    // When Steam isn't running we can't get the language info... 
    if ( SteamApps() )
    {
-      const int nAppID = engine->GetAppID();
-      SteamApps()->GetAppData( nAppID, "language", szCurrentLanguage, sizeof(szCurrentLanguage) );
-      SteamApps()->GetAppData( nAppID, "languages", szAvailableLanguages, sizeof( szAvailableLanguages ) );
+	  V_strcpy( szCurrentLanguage, SteamApps()->GetCurrentGameLanguage() );
+	  V_strcpy( szAvailableLanguages, SteamApps()->GetAvailableGameLanguages() );
    }
 #endif
 

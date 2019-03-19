@@ -188,7 +188,7 @@ void CRConVProfExport::OnRemoteGroupData( const void *data, int len )
 		green = buf.GetUnsignedChar( );
 		blue = buf.GetUnsignedChar( );
 		alpha = buf.GetUnsignedChar( );
-		buf.GetString( temp, sizeof(temp) );
+		buf.GetStringManualCharCount( temp, sizeof(temp) );
 		int nLen = Q_strlen( temp );
 
 		pInfo->m_Color.SetColor( red, green, blue, alpha );
@@ -429,8 +429,8 @@ void CRConClient::ParseReceivedData()
 					m_bAuthenticated = true;
 				}
 				char dummy[2];
-				m_RecvBuffer.GetString( dummy, sizeof(dummy) );
-				m_RecvBuffer.GetString( dummy, sizeof(dummy) );
+				m_RecvBuffer.GetStringManualCharCount( dummy, sizeof(dummy) );
+				m_RecvBuffer.GetStringManualCharCount( dummy, sizeof(dummy) );
 			}
 			break;
 
@@ -469,7 +469,7 @@ void CRConClient::ParseReceivedData()
 		case SERVERDATA_RESPONSE_STRING:
 			{
 				char pBuf[2048];
-				m_RecvBuffer.GetString( pBuf, sizeof(pBuf) );
+				m_RecvBuffer.GetStringManualCharCount( pBuf, sizeof(pBuf) );
 				Msg( "%s", pBuf );
 			}
 			break;
@@ -480,11 +480,11 @@ void CRConClient::ParseReceivedData()
 				int strLen = m_RecvBuffer.TellPut() - m_RecvBuffer.TellGet();
 				CUtlMemory<char> msg;
 				msg.EnsureCapacity( strLen + 1 );
-				m_RecvBuffer.GetString( msg.Base(), msg.Count() );
+				m_RecvBuffer.GetStringManualCharCount( msg.Base(), msg.Count() );
 
 				msg[ msg.Count() - 1 ] = '\0';
 				Msg( "%s", (const char *)msg.Base() );
-				m_RecvBuffer.GetString( msg.Base(), msg.Count() ); // ignore the second string
+				m_RecvBuffer.GetStringManualCharCount( msg.Base(), msg.Count() ); // ignore the second string
 			}
 			break;
 		}

@@ -1,4 +1,4 @@
-//========= Copyright © 1996-2005, Valve Corporation, All rights reserved. ============//
+//========= Copyright Valve Corporation, All rights reserved. ============//
 //
 // Purpose: Implementation of vgui::TextImage control
 //
@@ -39,15 +39,18 @@ TextImage::TextImage(const char *text) : Image()
 	_textBufferLen = 0;
 	_font = INVALID_FONT; 
 	_fallbackFont = INVALID_FONT;
-	_unlocalizedTextSymbol = INVALID_STRING_INDEX;
+	_unlocalizedTextSymbol = INVALID_LOCALIZE_STRING_INDEX;
 	_drawWidth = 0;
 	_textBufferLen = 0;
 	_textLen = 0;
 	m_bWrap = false;
+	m_bWrapCenter = false;
 	m_LineBreaks.RemoveAll();
+	m_LineXIndent.RemoveAll();
 	m_pwszEllipsesPosition = NULL;
 	m_bUseFallbackFont = false;
 	m_bRenderUsingFallbackFont = false;
+	m_bAllCaps = false;
 	
 	SetText(text); // set the text.
 }
@@ -61,14 +64,17 @@ TextImage::TextImage(const wchar_t *wszText) : Image()
 	_textBufferLen = 0;
 	_font = INVALID_FONT;
 	_fallbackFont = INVALID_FONT;
-	_unlocalizedTextSymbol = INVALID_STRING_INDEX;
+	_unlocalizedTextSymbol = INVALID_LOCALIZE_STRING_INDEX;
 	_drawWidth = 0;
 	_textBufferLen = 0;
 	_textLen = 0;
 	m_bWrap = false;
+	m_bWrapCenter = false;
 	m_LineBreaks.RemoveAll();
+	m_LineXIndent.RemoveAll();
 	m_bUseFallbackFont = false;
 	m_bRenderUsingFallbackFont = false;
+	m_bAllCaps = false;
 
 	SetText(wszText); // set the text.
 }
@@ -97,7 +103,7 @@ void TextImage::SetText(const char *text)
 		// try lookup in localization tables
 		_unlocalizedTextSymbol = g_pVGuiLocalize->FindIndex(text + 1);
 		
-		if (_unlocalizedTextSymbol != INVALID_STRING_INDEX)
+		if (_unlocalizedTextSymbol != INVALID_LOCALIZE_STRING_INDEX)
 		{
 			wchar_t *unicode = g_pVGuiLocalize->GetValueByIndex(_unlocalizedTextSymbol);
 			SetText(unicode);
@@ -191,7 +197,7 @@ void TextImage::SetText(const wchar_t *unicode, bool bClearUnlocalizedSymbol)
 	{
 		// Clear out unlocalized text symbol so that changing dialog variables
 		// doesn't stomp over the custom unicode string we're being set to.
-		_unlocalizedTextSymbol = INVALID_STRING_INDEX;
+		_unlocalizedTextSymbol = INVALID_LOCALIZE_STRING_INDEX;
 	}
 
 	if (!unicode)
@@ -209,9 +215,11 @@ void TextImage::SetText(const wchar_t *unicode, bool bClearUnlocalizedSymbol)
 	}
 
 	m_LineBreaks.RemoveAll();
+	m_LineXIndent.RemoveAll();
 
 	// store the text as unicode
 	wcscpy(_utext, unicode);
+
 	m_bRecalculateTruncation = true;
 }
 
@@ -221,6 +229,15 @@ void TextImage::SetText(const wchar_t *unicode, bool bClearUnlocalizedSymbol)
 void TextImage::GetText(char *buffer, int bufferSize)
 {
 	g_pVGuiLocalize->ConvertUnicodeToANSI(_utext, buffer, bufferSize);
+
+	if ( m_bAllCaps )
+	{
+		// Uppercase all the letters
+		for ( int i = Q_strlen( buffer ); i >= 0; --i )
+		{
+			buffer[ i ] = toupper( buffer[ i ] );
+		}
+	}
 }
 
 //-----------------------------------------------------------------------------
@@ -229,6 +246,15 @@ void TextImage::GetText(char *buffer, int bufferSize)
 void TextImage::GetText(wchar_t *buffer, int bufLenInBytes)
 {
 	wcsncpy(buffer, _utext, bufLenInBytes / sizeof(wchar_t));
+
+	if ( m_bAllCaps )
+	{
+		// Uppercase all the letters
+		for ( int i = Q_wcslen( buffer ) - 1; i >= 0; --i )
+		{
+			buffer[ i ] = towupper( buffer[ i ] );
+		}
+	}
 }
 
 //-----------------------------------------------------------------------------
@@ -236,7 +262,7 @@ void TextImage::GetText(wchar_t *buffer, int bufLenInBytes)
 //-----------------------------------------------------------------------------
 void TextImage::GetUnlocalizedText(char *buffer, int bufferSize)
 {
-	if (_unlocalizedTextSymbol != INVALID_STRING_INDEX)
+	if (_unlocalizedTextSymbol != INVALID_LOCALIZE_STRING_INDEX)
 	{
 		const char *text = g_pVGuiLocalize->GetNameByIndex(_unlocalizedTextSymbol);
 		buffer[0] = '#';
@@ -302,6 +328,11 @@ void TextImage::Paint()
 
 	if (m_bRecalculateTruncation)
 	{
+		if ( m_bWrap || m_bWrapCenter )
+		{
+			RecalculateNewLinePositions();
+		}
+
 		RecalculateEllipsesPosition();
 	}
 
@@ -310,19 +341,41 @@ void TextImage::Paint()
 	DrawSetTextFont(font);
 
 	int lineHeight = surface()->GetFontTall(font);
-	int x = 0, y = 0;
+	float x = 0.0f;
+	int y = 0;
+	int iIndent = 0;
+	int iNextColorChange = 0;
 
 	int px, py;
 	GetPos(px, py);
 
 	int currentLineBreak = 0;
 
+	if ( m_bWrapCenter && m_LineXIndent.Count() )
+	{
+		x = m_LineXIndent[0];
+	}
+
 	for (wchar_t *wsz = _utext; *wsz != 0; wsz++)
 	{
 		wchar_t ch = wsz[0];
 
+		if ( m_bAllCaps )
+		{
+			ch = towupper( ch );
+		}
+
+		if ( m_ColorChangeStream.Count() > iNextColorChange )
+		{
+			if ( m_ColorChangeStream[iNextColorChange].textStreamIndex == (wsz - _utext) )
+			{
+				DrawSetTextColor( m_ColorChangeStream[iNextColorChange].color );
+				iNextColorChange++;
+			}
+		}
+
 		// check for special characters
-		if (ch == '\r')
+		if ( ch == '\r' || ch <= 8 )
 		{
 			// ignore, just use \n for newlines
 			continue;
@@ -330,7 +383,15 @@ void TextImage::Paint()
 		else if (ch == '\n')
 		{
 			// newline
-			x = 0;
+			iIndent++;
+			if ( m_bWrapCenter && iIndent < m_LineXIndent.Count() )
+			{
+				x = m_LineXIndent[iIndent];
+			}
+			else
+			{
+				x = 0;
+			}
 			y += lineHeight;
 			continue;
 		}
@@ -346,7 +407,8 @@ void TextImage::Paint()
 			{
 				// draw the underline, then continue to the next character without moving forward
 #ifdef VGUI_DRAW_HOTKEYS_ENABLED
-				DrawPrintChar(x + px, y + py, '_');
+				surface()->DrawSetTextPos(x + px, y + py);
+				surface()->DrawUnicodeChar('_');
 #endif
 				continue;
 			}
@@ -369,17 +431,49 @@ void TextImage::Paint()
 		{
 			if (wsz == m_LineBreaks[currentLineBreak])
 			{
-				x = 0;
+				// newline
+				iIndent++;
+				if ( m_bWrapCenter && iIndent < m_LineXIndent.Count() )
+				{
+					x = m_LineXIndent[iIndent];
+				}
+				else
+				{
+					x = 0;
+				}
+
 				y += lineHeight;
 				currentLineBreak++;
 			}
 		}
 
 		// Underlined text wants to draw the spaces anyway
-		surface()->DrawSetTextPos(x + px, y + py);
+#if USE_GETKERNEDCHARWIDTH
+		wchar_t chBefore = 0;
+		wchar_t chAfter = 0;
+		if ( wsz > _utext )
+			chBefore = wsz[-1];
+		chAfter = wsz[1];
+		float flWide = 0.0f, flabcA = 0.0f;
+		surface()->GetKernedCharWidth( font, ch, chBefore, chAfter, flWide, flabcA );
+		if ( ch == L' ' )
+			x = ceil( x );
+
+		surface()->DrawSetTextPos( x + px, y + py);
+		surface()->DrawUnicodeChar(ch);
+		x += floor(flWide + 0.6);
+#else
+		surface()->DrawSetTextPos( x + px, y + py);
 		surface()->DrawUnicodeChar(ch);
 		x += surface()->GetCharacterWidth(font, ch);
+#endif
 	}
+
+	// Useful debugging
+	/*
+	DrawSetColor(GetColor());
+	DrawOutlinedRect( 0,0, _drawWidth, tall );
+	*/
 }
 
 //-----------------------------------------------------------------------------
@@ -396,8 +490,10 @@ void TextImage::GetTextSize(int &wide, int &tall)
 	if ( font == INVALID_FONT )
 		return;
 
-	if ( m_bWrap )
+	if ( m_bWrap || m_bWrapCenter )
+	{
 		RecalculateNewLinePositions();
+	}
 
 	// For height, use the remapped font
 	int fontHeight = surface()->GetFontTall(GetFont());
@@ -406,17 +502,38 @@ void TextImage::GetTextSize(int &wide, int &tall)
 	int textLen = wcslen(text);
 	for (int i = 0; i < textLen; i++)
 	{
+		wchar_t ch = text[i];
+
 		// handle stupid special characters, these should be removed
-		if (text[i] == '&' && text[i + 1] != 0)
+		if ( ch == '&' )
 		{
-			i++;
+			continue;
 		}
 
-		int a, b, c;
-		surface()->GetCharABCwide(font, text[i], a, b, c);
-		wide += (a + b + c);
+		if ( m_bAllCaps )
+		{
+			ch = towupper( ch );
+		}
 
-		if (text[i] == '\n')
+#if USE_GETKERNEDCHARWIDTH
+		wchar_t chBefore = 0;
+		wchar_t chAfter = 0;
+		if ( i > 0 )
+			chBefore = text[i-1];
+		chAfter = text[i+1];
+		float flWide = 0.0f, flabcA;
+		surface()->GetKernedCharWidth( font, text[i], chBefore, chAfter, flWide, flabcA );
+		if ( text[i] == L' ' )
+			flWide = ceil( flWide );
+		wide += floor( flWide + 0.6);
+#else
+		int a, b, c;
+		surface()->GetCharABCwide(font, ch, a, b, c);
+		wide += (a + b + c);
+#endif
+		
+
+		if (ch == '\n')
 		{
 			tall += fontHeight;
 			if(wide>maxWide) 
@@ -426,7 +543,7 @@ void TextImage::GetTextSize(int &wide, int &tall)
 			wide=0; // new line, wide is reset...
 		}
 
-		if ( m_bWrap )
+		if ( m_bWrap || m_bWrapCenter )
 		{
 			for(int j=0; j<m_LineBreaks.Count(); j++)
 			{
@@ -443,6 +560,11 @@ void TextImage::GetTextSize(int &wide, int &tall)
 		}
 		
 	}
+#ifdef OSX
+	wide += 2;
+	if ( textLen < 3 )
+		wide += 3;
+#endif
 	if (wide < maxWide)
 	{ 
 		// maxWide only gets set if a newline is in the label
@@ -489,6 +611,7 @@ void TextImage::RecalculateNewLinePositions()
 	
 	// clear the line breaks list
 	m_LineBreaks.RemoveAll();
+	m_LineXIndent.RemoveAll();
 	
 	// handle the case where this char is a new line, in that case
 	// we have already taken its break index into account above so skip it.
@@ -500,7 +623,19 @@ void TextImage::RecalculateNewLinePositions()
 	// loop through all the characters	
 	for (wchar_t *wsz = &_utext[startChar]; *wsz != 0; wsz++)
 	{
+		// handle stupid special characters, these should be removed
+		// 0x01, 0x02 and 0x03 are color escape characters and should be ignored
+		if ( ( wsz[0] == '&' || wsz[0] == 0x01 || wsz[0] == 0x02 || wsz[0] == 0x03 ) && wsz[1] != 0 )
+		{
+			wsz++;
+		}
+
 		wchar_t ch = wsz[0];
+
+		if ( m_bAllCaps )
+		{
+			ch = towupper( ch );
+		}
 		
 		// line break only on whitespace characters
 		if (!iswspace(ch))
@@ -523,7 +658,18 @@ void TextImage::RecalculateNewLinePositions()
 		}
 		
 		// get the width
+#if USE_GETKERNEDCHARWIDTH
+		wchar_t chBefore = 0;
+		wchar_t chAfter = 0;
+		if ( wsz > _utext )
+			chBefore = wsz[-1];
+		chAfter = wsz[1];
+		float flWide = 0.0f, flabcA = 0.0f;
+		surface()->GetKernedCharWidth( font, ch, chBefore, chAfter, flWide, flabcA );
+		charWidth = floor( flWide + 0.6 );
+#else
 		charWidth = surface()->GetCharacterWidth(font, ch);
+#endif
 		if (!iswcntrl(ch))
 		{
 			justStartedNewLine = false;
@@ -566,6 +712,8 @@ void TextImage::RecalculateNewLinePositions()
 		x += charWidth;
 		wordLength += charWidth;
 	}
+
+	RecalculateCenterWrapIndents();
 }
 
 //-----------------------------------------------------------------------------
@@ -577,7 +725,7 @@ void TextImage::RecalculateEllipsesPosition()
 	m_pwszEllipsesPosition = NULL;
 
 	//don't insert ellipses on wrapped strings
-	if ( m_bWrap )
+	if ( m_bWrap || m_bWrapCenter )
 		return;
 
 	// don't truncate strings with newlines
@@ -607,6 +755,11 @@ void TextImage::RecalculateEllipsesPosition()
 		{
 			wchar_t ch = wsz[0];
 
+			if ( m_bAllCaps )
+			{
+				ch = towupper( ch );
+			}
+
 			// check for special characters
 			if (ch == '\r')
 			{
@@ -627,18 +780,45 @@ void TextImage::RecalculateEllipsesPosition()
 				}
 			}
 
+#if USE_GETKERNEDCHARWIDTH
+			wchar_t chBefore = 0;
+			wchar_t chAfter = 0;
+			if ( wsz > _utext )
+				chBefore = wsz[-1];
+			chAfter = wsz[1];
+			float flWide = 0.0f, flabcA = 0.0f;
+			surface()->GetKernedCharWidth( font, ch, chBefore, chAfter, flWide, flabcA );
+			int len = floor( flWide + 0.6 );
+#else
+			int len = surface()->GetCharacterWidth(font, ch);
+#endif
+
 			// don't truncate the first character
 			if (wsz == _utext)
+			{
+				x += len;
 				continue;
+			}
 
-			int len = surface()->GetCharacterWidth(font, ch);
 			if (x + len + ellipsesWidth > _drawWidth)
 			{
 				// potential have an ellipses, see if the remaining characters will fit
 				int remainingLength = len;
 				for (const wchar_t *rwsz = wsz + 1; *rwsz != 0; rwsz++)
 				{
+#if USE_GETKERNEDCHARWIDTH
+					wchar_t chBefore = 0;
+					wchar_t chAfter = 0;
+					if ( rwsz > _utext )
+						chBefore = rwsz[-1];
+					chAfter = rwsz[1];
+					float flWide = 0.0f, flabcA = 0.0f;
+					surface()->GetKernedCharWidth( font, *rwsz, chBefore, chAfter, flWide, flabcA );
+					int len = floor( flWide + 0.6 );
+					remainingLength += floor( flWide + 0.6 );
+#else
 					remainingLength += surface()->GetCharacterWidth(font, *rwsz);
+#endif
 				}
 
 				if (x + remainingLength > _drawWidth)
@@ -663,11 +843,21 @@ void TextImage::SetWrap( bool bWrap )
 	m_bWrap = bWrap;
 }
 
+void TextImage::SetCenterWrap( bool bWrap )
+{
+	m_bWrapCenter = bWrap;
+}
+
 
 void TextImage::SetUseFallbackFont( bool bState, HFont hFallback )
 {
 	m_bUseFallbackFont = bState;
 	_fallbackFont = hFallback;
+}
+
+void TextImage::SetAllCaps( bool bAllCaps )
+{
+	m_bAllCaps = bAllCaps;
 }
 
 void TextImage::ResizeImageToContentMaxWidth( int nMaxWidth )
@@ -677,8 +867,119 @@ void TextImage::ResizeImageToContentMaxWidth( int nMaxWidth )
 	// NOTE:  I think there may be a race condition lurking here, but this seems to work.
 	if ( m_bRecalculateTruncation )
 	{
+		if ( m_bWrap || m_bWrapCenter )
+		{
+			RecalculateNewLinePositions();
+		}
+
 		RecalculateEllipsesPosition();
 	}
 
 	ResizeImageToContent();
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: For center wrapping of multi-line text images, determines the indent each line needs to be centered
+//-----------------------------------------------------------------------------
+void TextImage::RecalculateCenterWrapIndents()
+{
+	m_LineXIndent.RemoveAll();
+
+	if ( !m_bWrapCenter )
+		return;
+
+	if (!_utext || GetFont() == INVALID_FONT )
+		return;
+
+	HFont font = GetFont();
+	int px, py;
+	GetPos(px, py);
+
+	int currentLineBreak = 0;
+	int iCurLineW = 0;
+
+	for (wchar_t *wsz = _utext; *wsz != 0; wsz++)
+	{
+		wchar_t ch = wsz[0];
+
+		if ( m_bAllCaps )
+		{
+			ch = towupper( ch );
+		}
+
+		// check for special characters
+		if (ch == '\r')
+		{
+			// ignore, just use \n for newlines
+			continue;
+		}
+		else if (ch == '\n')
+		{
+			int iIdx = m_LineXIndent.AddToTail();
+			m_LineXIndent[iIdx] = (_drawWidth - iCurLineW) * 0.5;
+
+			iCurLineW = 0;
+			continue;
+		}
+		else if (ch == '&')
+		{
+			// "&&" means draw a single ampersand, single one is a shortcut character
+			if (wsz[1] == '&')
+			{
+				// just move on and draw the second ampersand
+				wsz++;
+			}
+			else
+			{
+				// draw the underline, then continue to the next character without moving forward
+				continue;
+			}
+		}
+
+		// Don't need to check ellipses, they're not used when wrapping
+
+		if (currentLineBreak != m_LineBreaks.Count())
+		{
+			if (wsz == m_LineBreaks[currentLineBreak])
+			{
+				int iIdx = m_LineXIndent.AddToTail();
+				m_LineXIndent[iIdx] = (_drawWidth - iCurLineW) * 0.5;
+
+				iCurLineW = 0;
+				currentLineBreak++;
+			}
+		}
+
+#if USE_GETKERNEDCHARWIDTH
+		wchar_t chBefore = 0;
+		wchar_t chAfter = 0;
+		if ( wsz > _utext )
+			chBefore = wsz[-1];
+		chAfter = wsz[1];
+		float flWide = 0.0f, flabcA = 0.0f;
+		surface()->GetKernedCharWidth( font, ch, chBefore, chAfter, flWide, flabcA );
+		iCurLineW += floor( flWide + 0.6 );
+#else
+		iCurLineW += surface()->GetCharacterWidth(font, ch);
+#endif
+	}	
+
+	// Add the final line
+	int iIdx = m_LineXIndent.AddToTail();
+	m_LineXIndent[iIdx] = (_drawWidth - iCurLineW) * 0.5;
+}
+
+void TextImage::AddColorChange( Color col, int iTextStreamIndex )
+{
+	label_colorchange_t tmpChange;
+	tmpChange.color = col;
+	tmpChange.textStreamIndex = iTextStreamIndex;
+	m_ColorChangeStream.Insert( tmpChange );
+}
+
+void TextImage::SetColorChangeStream( CUtlSortVector<label_colorchange_t,CColorChangeListLess> *pUtlVecStream )
+{
+	ClearColorChangeStream();
+
+	m_ColorChangeStream = *pUtlVecStream;
 }

@@ -2438,7 +2438,7 @@ void C_BaseAnimating::ThreadedBoneSetup()
 		{
 			g_bInThreadedBoneSetup = true;
 
-			ParallelProcess( g_PreviousBoneSetups.Base(), nCount, &SetupBonesOnBaseAnimating, &PreThreadedBoneSetup, &PostThreadedBoneSetup );
+			ParallelProcess( "C_BaseAnimating::ThreadedBoneSetup", g_PreviousBoneSetups.Base(), nCount, &SetupBonesOnBaseAnimating, &PreThreadedBoneSetup, &PostThreadedBoneSetup );
 
 			g_bInThreadedBoneSetup = false;
 		}

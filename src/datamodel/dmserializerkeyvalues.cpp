@@ -301,7 +301,7 @@ void CDmSerializerKeyValues::UnserializeAttribute( CDmElement *pElement, KeyValu
 
 	// Convert to lower case
 	CUtlString pLowerName = pAttributeName;
-	Q_strlower( pLowerName.Get() );
+	Q_strlower( pLowerName.GetForModify() );
 
 	// Rename "type", "name", or "id" fields, since they are special fields
 	for ( int i = 0; s_pAttributeRemap[i].m_pKeyValuesName; ++i )

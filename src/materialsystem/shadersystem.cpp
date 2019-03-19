@@ -869,7 +869,7 @@ void CShaderSystem::PrintBufferedSpew( void )
 		if ( nLen )
 		{
 			char *pBuf = (char*)_alloca( nLen );
-			m_StoredSpew.GetString( pBuf, nLen );
+			m_StoredSpew.GetStringManualCharCount( pBuf, nLen );
 			ColorSpewMessage( spewType, &c, pBuf );
 		}
 		else
@@ -884,7 +884,7 @@ void CShaderSystem::PrintBufferedSpew( void )
 static SpewRetval_t MySpewOutputFunc( SpewType_t spewType, char const *pMsg )
 {
 	AUTO_LOCK( g_StgoredSpewMutex );
-	Color c = GetSpewOutputColor();
+	Color c = *GetSpewOutputColor();
 	s_ShaderSystem.BufferSpew( spewType, c, pMsg );
 
 	switch( spewType )

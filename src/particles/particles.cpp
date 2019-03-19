@@ -3457,7 +3457,7 @@ void CParticleCollection::UpdateHitBoxInfo( int nControlPointNumber )
 	// save current into prev
 	hb.m_nNumPrevHitBoxes = hb.m_nNumHitBoxes;
 	hb.m_flPrevLastUpdateTime = hb.m_flLastUpdateTime;
-	swap( hb.m_pHitBoxes, hb.m_pPrevBoxes );
+	V_swap( hb.m_pHitBoxes, hb.m_pPrevBoxes );
 
 	// issue hitbox query
 	hb.m_nNumHitBoxes = g_pParticleSystemMgr->Query()->GetControllingObjectHitBoxInfo(

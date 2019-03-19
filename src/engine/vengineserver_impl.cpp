@@ -1519,7 +1519,7 @@ IVEngineServer *g_pVEngineServer = &g_VEngineServer;
 //-----------------------------------------------------------------------------
 // Used to allocate pvs infos
 //-----------------------------------------------------------------------------
-static CMemoryPool s_PVSInfoAllocator( 128, 128 * 64, CMemoryPool::GROW_SLOW, "pvsinfopool", 128 );
+static CUtlMemoryPool s_PVSInfoAllocator( 128, 128 * 64, CUtlMemoryPool::GROW_SLOW, "pvsinfopool", 128 );
 
 
 //-----------------------------------------------------------------------------

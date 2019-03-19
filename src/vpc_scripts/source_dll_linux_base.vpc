@@ -17,7 +17,7 @@ $Configuration
 
 	$Compiler
 	{
-		$PreprocessorDefinitions	"$BASE;RAD_TELEMETRY_DISABLED" [$SOURCESDK ]
+		$PreprocessorDefinitions	"$BASE;RAD_TELEMETRY_DISABLED"
 	}
 }
 

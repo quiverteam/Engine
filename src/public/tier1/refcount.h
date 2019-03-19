@@ -1,4 +1,4 @@
-//========== Copyright © 2005, Valve Corporation, All rights reserved. ========
+//========= Copyright Valve Corporation, All rights reserved. ============//
 //
 // Purpose: Tools for correctly implementing & handling reference counted
 //			objects
@@ -13,6 +13,40 @@
 #if defined( _WIN32 )
 #pragma once
 #endif
+
+template <typename T>
+inline void SafeAssign(T** ppInoutDst, T* pInoutSrc )
+{
+	Assert( ppInoutDst );
+
+	// Do addref before release
+	if ( pInoutSrc )
+		( pInoutSrc )->AddRef();
+
+	// Do addref before release
+	if ( *ppInoutDst )
+		( *ppInoutDst )->Release();
+
+	// Do the assignment
+	( *ppInoutDst ) = pInoutSrc;
+}
+
+template <typename T>
+inline void SafeAddRef( T* pObj )
+{
+	if ( pObj )
+		pObj->AddRef();
+}
+
+template <typename T>
+inline void SafeRelease( T** ppInoutPtr )
+{
+	Assert( ppInoutPtr  );
+	if ( *ppInoutPtr )
+		( *ppInoutPtr )->Release();
+
+	( *ppInoutPtr ) = NULL;
+}
 
 //-----------------------------------------------------------------------------
 // Purpose:	Implement a standard reference counted interface. Use of this
@@ -348,33 +382,33 @@ public:
 //			referencing problems
 //-----------------------------------------------------------------------------
 
-template <class BASE_REFCOUNTED, int FINAL_REFS = 0, const char *pszName = NULL>
+template <class BASE_REFCOUNTED, int FINAL_REFS, const char *pszName>
 class CRefDebug : public BASE_REFCOUNTED
 {
 public:
 #ifdef _DEBUG
 	CRefDebug()
 	{
-		AssertMsg( GetRefCount() == 1, "Expected initial ref count of 1" );
+		AssertMsg( this->GetRefCount() == 1, "Expected initial ref count of 1" );
 		DevMsg( "%s:create 0x%x\n", ( pszName ) ? pszName : "", this );
 	}
 
 	virtual ~CRefDebug()
 	{
-		AssertDevMsg( GetRefCount() == FINAL_REFS, "Object still referenced on destroy?" );
+		AssertDevMsg( this->GetRefCount() == FINAL_REFS, "Object still referenced on destroy?" );
 		DevMsg( "%s:destroy 0x%x\n", ( pszName ) ? pszName : "", this );
 	}
 
 	int AddRef()
 	{
-		DevMsg( "%s:(0x%x)->AddRef() --> %d\n", ( pszName ) ? pszName : "", this, GetRefCount() + 1 );
+		DevMsg( "%s:(0x%x)->AddRef() --> %d\n", ( pszName ) ? pszName : "", this, this->GetRefCount() + 1 );
 		return BASE_REFCOUNTED::AddRef();
 	}
 
 	int Release()
 	{
-		DevMsg( "%s:(0x%x)->Release() --> %d\n", ( pszName ) ? pszName : "", this, GetRefCount() - 1 );
-		Assert( GetRefCount() > 0 );
+		DevMsg( "%s:(0x%x)->Release() --> %d\n", ( pszName ) ? pszName : "", this, this->GetRefCount() - 1 );
+		Assert( this->GetRefCount() > 0 );
 		return BASE_REFCOUNTED::Release();
 	}
 #endif

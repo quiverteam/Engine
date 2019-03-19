@@ -59,7 +59,7 @@ class C_OP_InstantaneousEmitter : public CParticleOperatorInstance
 		{
 			if ( m_nMinParticlesToEmit > m_nParticlesToEmit )
 			{
-				swap( m_nParticlesToEmit, m_nMinParticlesToEmit );
+				V_swap( m_nParticlesToEmit, m_nMinParticlesToEmit );
 			}
 		}
 

@@ -976,7 +976,7 @@ bool CGameUI::SetShowProgressText( bool show )
 void CGameUI::RefreshSteamLogin() 
 {
 #ifndef NO_STEAM
-	SteamUser()->RefreshSteam2Login();
+//	SteamUser()->RefreshSteam2Login();
 #endif
 }
 

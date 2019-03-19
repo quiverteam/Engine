@@ -4407,7 +4407,7 @@ void CDmeTypedLog< T >::_StampKeyAtHeadFilteredByTimeSelection( DmeTime_t tHeadP
 	// Test for backward performance!
 	if ( nCurrRegion < nPrevRegion )
 	{
-		swap( nCurrRegion, nPrevRegion );
+		V_swap( nCurrRegion, nPrevRegion );
 	}
 
 	// Insert samples at each transition point we skipped over

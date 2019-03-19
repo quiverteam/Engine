@@ -135,3 +135,12 @@ inclist.txt
 quick.tga
 modeswitchsave.tga
 *.vcs
+log_stdshader_dx9_20b.txt
+log_stdshader_dx9_20b_nointercept.txt
+log_stdshader_dx9_30 - Copy.txt
+log_stdshader_dx9_30.txt
+/src/materialsystem/stdshaders/makefile.stdshader_dx9_20b
+/src/materialsystem/stdshaders/makefile.stdshader_dx9_30
+src/lib/public/tier0.lib
+src/lib/public/tier1.lib
+src/lib/public/vstdlib.lib

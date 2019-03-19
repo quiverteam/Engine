@@ -39,7 +39,7 @@ extern CBaseEntity				*g_pLastSpawn;
 void InitBodyQue(void);
 extern void W_Precache(void);
 extern void ActivityList_Free( void );
-extern CMemoryPool g_EntityListPool;
+extern CUtlMemoryPool g_EntityListPool;
 
 #define SF_DECAL_NOTINDEATHMATCH		2048
 

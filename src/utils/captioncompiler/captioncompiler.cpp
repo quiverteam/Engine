@@ -299,7 +299,7 @@ void CCompileCaptionsApp::CompileCaptionFile( char const *infile, char const *ou
 
 	CUtlRBTree< unsigned int >	hashcollision( 0, 0, DefLessFunc( unsigned int ) );
 
-	for ( StringIndex_t i = g_pVGuiLocalize->GetFirstStringIndex(); i != INVALID_STRING_INDEX; i = g_pVGuiLocalize->GetNextStringIndex( i ), ++c )
+	for ( StringIndex_t i = g_pVGuiLocalize->GetFirstStringIndex(); i != INVALID_LOCALIZE_STRING_INDEX; i = g_pVGuiLocalize->GetNextStringIndex( i ), ++c )
 	{
 		char const *entryName = g_pVGuiLocalize->GetNameByIndex( i );
 		CaptionLookup_t entry;
@@ -376,7 +376,7 @@ void CCompileCaptionsApp::CompileCaptionFile( char const *infile, char const *ou
 
 	vprint( 0, "Found %i strings in '%s'\n", c, infile );
 
-	if ( maxindex != INVALID_STRING_INDEX )
+	if ( maxindex != INVALID_LOCALIZE_STRING_INDEX )
 	{
 		vprint( 0, "Longest string '%s' = (%i) bytes average(%.3f)\n%",
 			g_pVGuiLocalize->GetNameByIndex( maxindex ), maxunicodesize, (float)totalsize/(float)c );
@@ -458,7 +458,7 @@ void CCompileCaptionsApp::DescribeCaptions( char const *file )
 	}
 
 	CUtlMap< unsigned int, StringIndex_t > inverseMap( 0, 0, DefLessFunc( unsigned int ) );
-	for ( StringIndex_t idx = g_pVGuiLocalize->GetFirstStringIndex(); idx != INVALID_STRING_INDEX; idx = g_pVGuiLocalize->GetNextStringIndex( idx ) )
+	for ( StringIndex_t idx = g_pVGuiLocalize->GetFirstStringIndex(); idx != INVALID_LOCALIZE_STRING_INDEX; idx = g_pVGuiLocalize->GetNextStringIndex( idx ) )
 	{
 		const char *name = g_pVGuiLocalize->GetNameByIndex( idx );
 		CaptionLookup_t dummy;

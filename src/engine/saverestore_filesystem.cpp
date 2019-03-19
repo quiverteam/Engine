@@ -279,7 +279,7 @@ void CSaveRestoreFileSystem::Uncompress( SaveFile_t *pFile )
 	if ( nUncompressedSize != 0 )
 	{
 		unsigned char *pUncompressBuffer = (unsigned char *) malloc( nUncompressedSize );
-		nUncompressedSize = compressor.Uncompress( (unsigned char *) pFile->pCompressedBuffer->Base(), pUncompressBuffer );
+		nUncompressedSize = compressor.SafeUncompress( (unsigned char *) pFile->pCompressedBuffer->Base(), pUncompressBuffer, nUncompressedSize );
 		pFile->pBuffer->AssumeMemory( pUncompressBuffer, nUncompressedSize, nUncompressedSize ); // ?
 	}
 	else

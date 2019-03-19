@@ -84,7 +84,7 @@ using namespace vgui;
 IPhysicsSurfaceProps *physprop;
 IPhysicsCollision *physcollision;
 IStudioDataCache *g_pStudioDataCache;
-ILocalize *g_pLocalize = NULL;
+vgui::ILocalize *g_pLocalize = NULL;
 ISoundEmitterSystemBase *soundemitter = NULL;
 CreateInterfaceFn g_Factory;
 IFileSystem *g_pFileSystem = NULL;
@@ -2543,7 +2543,7 @@ bool CHLFacePoserApp::PreInit( )
 	g_pStudioDataCache = (IStudioDataCache*)FindSystem( STUDIO_DATA_CACHE_INTERFACE_VERSION ); 
 	physcollision = (IPhysicsCollision *)FindSystem( VPHYSICS_COLLISION_INTERFACE_VERSION );
 	physprop = (IPhysicsSurfaceProps *)FindSystem( VPHYSICS_SURFACEPROPS_INTERFACE_VERSION );
-	g_pLocalize = (ILocalize *)FindSystem(VGUI_LOCALIZE_INTERFACE_VERSION );
+	g_pLocalize = (vgui::ILocalize *)FindSystem( VGUI_LOCALIZE_INTERFACE_VERSION );
 	soundemitter = (ISoundEmitterSystemBase*)FindSystem(SOUNDEMITTERSYSTEM_INTERFACE_VERSION);
 
 	if ( !soundemitter || !g_pLocalize || !filesystem || !physprop || !physcollision || 

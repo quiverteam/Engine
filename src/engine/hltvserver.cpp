@@ -36,7 +36,6 @@
 #include "dt_common_eng.h"
 #include "baseautocompletefilelist.h"
 #include "sv_steamauth.h"
-#include "sv_master_legacy.h"
 #include "tier0/icommandline.h"
 
 // memdbgon must be the last include file in a .cpp file!!!
@@ -1001,16 +1000,8 @@ void CHLTVServer::FireGameEvent(IGameEvent *event)
 
 bool CHLTVServer::ShouldUpdateMasterServer()
 {
-	if ( IsUsingMasterLegacyMode() )
-	{
-		// In the legacy master server updater, we have to call the updater with our CBaseServer* for it to work right.
-		return true;
-	}
-	else
-	{
-		// If the main game server is active, then we let it update Steam with the server info.
-		return !sv.IsActive();
-	}
+	// If the main game server is active, then we let it update Steam with the server info.
+	return !sv.IsActive();
 }
 
 CBaseClient *CHLTVServer::CreateNewClient(int slot )

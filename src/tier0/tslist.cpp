@@ -62,7 +62,7 @@ class CQueueOps : public CTestOps
 	}
 	bool Validate()
 	{
-		return g_TestQueue.Validate();
+		return g_TestQueue.ValidateQueue();
 	}
 	bool IsEmpty()
 	{
@@ -443,8 +443,8 @@ void RunSharedTests( int nTests )
 {
 	using namespace TSListTests;
 
-	const CPUInformation &pi = GetCPUInformation();
-	NUM_PROCESSORS = pi.m_nLogicalProcessors;
+	const CPUInformation *pi = GetCPUInformation();
+	NUM_PROCESSORS = pi->m_nLogicalProcessors;
 	MAX_THREADS = NUM_PROCESSORS * 2;
 	g_pTestBuckets = new int[NUM_TEST];
 	while ( nTests-- )

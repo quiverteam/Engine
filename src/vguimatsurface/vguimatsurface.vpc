@@ -15,7 +15,6 @@ $Configuration
 	{
 		$AdditionalIncludeDirectories	"$BASE;$SRCDIR\vgui2\controls;$SRCDIR\vgui2\include"
 		$PreprocessorDefinitions		"$BASE;fopen=dont_use_fopen;BENCHMARK;VGUIMATSURFACE_DLL_EXPORT;GAMEUI_EXPORTS;DONT_PROTECT_FILEIO_FUNCTIONS;PROTECTED_THINGS_ENABLE"
-		$PreprocessorDefinitions		"$BASE;ENABLE_HTMLWINDOW" [$WIN32]
 //		$TreatWchar_tAsBuiltinType		"No"
 	}
 
@@ -38,7 +37,6 @@ $Project "vguimatsurface"
 		$File	"MatSystemSurface.cpp"
 		$File	"memorybitmap.cpp"						[$WIN32]
 		$File	"TextureDictionary.cpp"
-		$File	"$SRCDIR\vgui2\src\htmlwindow.cpp"		[$WIN32]
 		$File	"$SRCDIR\vgui2\src\vgui_key_translation.cpp"
 		$File	"$SRCDIR\public\vgui_controls\vgui_controls.cpp"
 	}
@@ -77,7 +75,7 @@ $Project "vguimatsurface"
 		$File	"$SRCDIR\public\tier1\interface.h"
 		$File	"$SRCDIR\public\materialsystem\itexture.h"
 		$File	"$SRCDIR\public\pixelwriter.h"
-		$File	"$SRCDIR\public\vstdlib\strtools.h"
+		$File	"$SRCDIR\public\tier1\strtools.h"
 		$File	"$SRCDIR\public\tier1\utllinkedlist.h"
 		$File	"$SRCDIR\public\tier1\utlmemory.h"
 		$File	"$SRCDIR\public\tier1\utlrbtree.h"

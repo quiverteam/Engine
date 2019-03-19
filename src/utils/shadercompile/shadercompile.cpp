@@ -21,6 +21,7 @@
 #include "Utlhash.h"
 #include "UtlBuffer.h"
 #include "utlstring.h"
+#include "tier1/utlbinaryblock.h"
 #include "tier2/utlstreambuffer.h"
 #include "UtlLinkedList.h"
 #include "UtlStringMap.h"
@@ -246,7 +247,6 @@ struct CStaticCombo									// all the data for one static combo
 
 typedef CUtlNodeHash<CStaticCombo, 7097, uint64> StaticComboNodeHash_t;
 
-template <> 
 inline void Construct( StaticComboNodeHash_t ** pMemory )
 {
 	::new( pMemory ) StaticComboNodeHash_t *( NULL ); // Explicitly new with NULL
@@ -1821,7 +1821,7 @@ protected:
 void Worker_ProcessCommandRange_Singleton::Startup( void )
 {
 	bool bInitializedThreadPool = false;
-	CPUInformation const &cpu = GetCPUInformation();
+	CPUInformation const &cpu = *GetCPUInformation();
 
 	if ( cpu.m_nLogicalProcessors > 1 )
 	{

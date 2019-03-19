@@ -1387,9 +1387,9 @@ void CRender3D::EndRenderFrame(void)
 						nTargetWidth - 1, nTargetHeight -1,
 						dest_rt->GetActualWidth(),
 						dest_rt->GetActualHeight());
-					swap(dest_rt_current,dest_rt_other);
-					swap(sample_last,sample_other);
-					swap(add_0_to_1,add_1_to_0);
+					V_swap(dest_rt_current,dest_rt_other);
+					V_swap(sample_last,sample_other);
+					V_swap(add_0_to_1,add_1_to_0);
 				}
 				pRenderContext->SetRenderTarget(NULL);
 				pRenderContext->DrawScreenSpaceRectangle(

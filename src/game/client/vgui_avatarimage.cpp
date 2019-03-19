@@ -32,7 +32,7 @@ bool CAvatarImage::SetAvatarSteamID( CSteamID steamIDUser )
 #ifndef NO_STEAM
 	if ( SteamFriends() && SteamUtils() )
 	{
-		int iAvatar = SteamFriends()->GetFriendAvatar( steamIDUser );
+		int iAvatar = SteamFriends()->GetSmallFriendAvatar( steamIDUser );
 
 		/*
 		// See if it's in our list already
@@ -83,6 +83,25 @@ void CAvatarImage::Paint( void )
 		vgui::surface()->DrawSetTexture( m_iTextureID );
 		vgui::surface()->DrawTexturedRect( m_nX, m_nY, m_nX + m_nWide, m_nY + m_nTall );
 	}
+}
+
+bool CAvatarImage::Evict()
+{
+	return false;
+}
+
+int CAvatarImage::GetNumFrames()
+{
+	return 0;
+}
+
+void CAvatarImage::SetFrame( int nFrame )
+{
+}
+
+vgui::HTexture CAvatarImage::GetID()
+{
+	return 0;
 }
 
 //-----------------------------------------------------------------------------

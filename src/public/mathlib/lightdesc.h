@@ -1,4 +1,4 @@
-//===== Copyright © 1996-2005, Valve Corporation, All rights reserved. ======//
+//========= Copyright Valve Corporation, All rights reserved. ============//
 //
 // Purpose: 
 //
@@ -28,6 +28,7 @@ enum LightType_OptimizationFlags_t
 	LIGHTTYPE_OPTIMIZATIONFLAGS_HAS_ATTENUATION0 = 1,
 	LIGHTTYPE_OPTIMIZATIONFLAGS_HAS_ATTENUATION1 = 2,
 	LIGHTTYPE_OPTIMIZATIONFLAGS_HAS_ATTENUATION2 = 4,
+	LIGHTTYPE_OPTIMIZATIONFLAGS_DERIVED_VALUES_CALCED = 8,
 };
 
 struct LightDesc_t 
@@ -63,41 +64,24 @@ public:
 
 	// constructors for various useful subtypes
 
-	/// a point light with infinite range
-	LightDesc_t(Vector const &pos,Vector const &color)
+	// a point light with infinite range
+	LightDesc_t( const Vector &pos, const Vector &color )
 	{
-		m_Type=MATERIAL_LIGHT_POINT;
-		m_Color=color;
-		m_Position=pos;
-		m_Range=0.0;									// infinite
-		m_Attenuation0=1.0;
-		m_Attenuation1=0;
-		m_Attenuation2=0;
-		RecalculateDerivedValues();
+		InitPoint( pos, color );
 	}
 	
 	/// a simple light. cone boundaries in radians. you pass a look_at point and the
 	/// direciton is derived from that.
-	LightDesc_t(Vector const &pos, Vector const &color, Vector const &point_at,
-				float inner_cone_boundary, float outer_cone_boundary)
+	LightDesc_t( const Vector &pos, const Vector &color, const Vector &point_at,
+				float inner_cone_boundary, float outer_cone_boundary )
 	{
-		m_Type=MATERIAL_LIGHT_SPOT;
-		m_Color=color;
-		m_Position=pos;
-		m_Direction=point_at;
-		m_Direction-=pos;
-		VectorNormalizeFast(m_Direction);
-		m_Falloff=5.0;										// linear angle falloff
-		m_Theta=inner_cone_boundary;
-		m_Phi=outer_cone_boundary;
-
-		m_Range=0.0;										// infinite
-
-		m_Attenuation0=1.0;
-		m_Attenuation1=0;
-		m_Attenuation2=0;
-		RecalculateDerivedValues();
+		InitSpot( pos, color, point_at, inner_cone_boundary, outer_cone_boundary );
 	}
+
+	void InitPoint( const Vector &pos, const Vector &color );
+	void InitDirectional( const Vector &dir, const Vector &color );
+	void InitSpot(const Vector &pos, const Vector &color, const Vector &point_at,
+		float inner_cone_boundary, float outer_cone_boundary );
 
 	/// Given 4 points and 4 normals, ADD lighting from this light into "color".
 	void ComputeLightAtPoints( const FourVectors &pos, const FourVectors &normal,
@@ -115,11 +99,75 @@ public:
 
 /// given a direction relative to the light source position, is this ray within the
 	/// light cone (for spotlights..non spots consider all rays to be within their cone)
-	bool IsDirectionWithinLightCone(Vector const &rdir) const
+	bool IsDirectionWithinLightCone(const Vector &rdir) const
 	{
 		return ((m_Type!=MATERIAL_LIGHT_SPOT) || (rdir.Dot(m_Direction)>=m_PhiDot));
 	}
+
+	float OneOverThetaDotMinusPhiDot() const
+	{
+		return OneOver_ThetaDot_Minus_PhiDot;
+	}
 };
+
+
+//-----------------------------------------------------------------------------
+// a point light with infinite range
+//-----------------------------------------------------------------------------
+inline void LightDesc_t::InitPoint( const Vector &pos, const Vector &color )
+{
+	m_Type=MATERIAL_LIGHT_POINT;
+	m_Color=color;
+	m_Position=pos;
+	m_Range=0.0;									// infinite
+	m_Attenuation0=1.0;
+	m_Attenuation1=0;
+	m_Attenuation2=0;
+	RecalculateDerivedValues();
+}
+
+
+//-----------------------------------------------------------------------------
+// a directional light with infinite range
+//-----------------------------------------------------------------------------
+inline void LightDesc_t::InitDirectional( const Vector &dir, const Vector &color )
+{
+	m_Type=MATERIAL_LIGHT_DIRECTIONAL;
+	m_Color=color;
+	m_Direction=dir;
+	m_Range=0.0;									// infinite
+	m_Attenuation0=1.0;
+	m_Attenuation1=0;
+	m_Attenuation2=0;
+	RecalculateDerivedValues();
+}
+
+
+//-----------------------------------------------------------------------------
+// a simple light. cone boundaries in radians. you pass a look_at point and the
+// direciton is derived from that.
+//-----------------------------------------------------------------------------
+inline void LightDesc_t::InitSpot(const Vector &pos, const Vector &color, const Vector &point_at,
+	float inner_cone_boundary, float outer_cone_boundary)
+{
+	m_Type=MATERIAL_LIGHT_SPOT;
+	m_Color=color;
+	m_Position=pos;
+	m_Direction=point_at;
+	m_Direction-=pos;
+	VectorNormalizeFast(m_Direction);
+	m_Falloff=5.0;										// linear angle falloff
+	m_Theta=inner_cone_boundary;
+	m_Phi=outer_cone_boundary;
+
+	m_Range=0.0;										// infinite
+
+	m_Attenuation0=1.0;
+	m_Attenuation1=0;
+	m_Attenuation2=0;
+	RecalculateDerivedValues();
+}
+
 
 #endif
 

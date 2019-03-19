@@ -714,7 +714,7 @@ bool CShaderDeviceMgrBase::GetRecommendedConfigurationInfo( int nAdapter, int nD
 	}
 
 	// Next, override with cpu-speed based overrides
-	const CPUInformation& pi = GetCPUInformation();
+	const CPUInformation& pi = *GetCPUInformation();
 	int nCPUSpeedMhz = (int)(pi.m_Speed / 1000000.0f);
 	bool bAMD = Q_stristr( pi.m_szProcessorID, "amd" ) != NULL;
 	DevMsg( "cpu speed %d MHz %s\n", nCPUSpeedMhz, pi.m_szProcessorID );

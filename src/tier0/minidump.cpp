@@ -8,14 +8,13 @@
 
 #include "tier0/minidump.h"
 #include "tier0/platform.h"
-
 #if defined( _WIN32 ) && !defined( _X360 )
 
 #if _MSC_VER >= 1300
 #include "tier0/valve_off.h"
 #define WIN_32_LEAN_AND_MEAN
 #include <windows.h>
-
+#include <dbghelp.h>
 #include <time.h>
 
 // MiniDumpWriteDump() function declaration (so we can just get the function directly from windows)
@@ -24,7 +23,7 @@ typedef BOOL (WINAPI *MINIDUMPWRITEDUMP)
 	HANDLE hProcess, 
 	DWORD dwPid, 
 	HANDLE hFile, 
-	MINIDUMP_TYPE DumpType,
+	int DumpType,
 	CONST PMINIDUMP_EXCEPTION_INFORMATION ExceptionParam,
 	CONST PMINIDUMP_USER_STREAM_INFORMATION UserStreamParam,
 	CONST PMINIDUMP_CALLBACK_INFORMATION CallbackParam
@@ -48,7 +47,8 @@ static int g_nMinidumpsWritten = 0;
 bool WriteMiniDumpUsingExceptionInfo( 
 	unsigned int uStructuredExceptionCode, 
 	_EXCEPTION_POINTERS * pExceptionInfo, 
-	MINIDUMP_TYPE minidumpType,
+	int minidumpType,
+	const char *pszFilenameSuffix,
 	tchar *ptchMinidumpFileNameBuffer /* = NULL */
 	)
 {
@@ -165,15 +165,15 @@ bool WriteMiniDumpUsingExceptionInfo(
 }
 
 
-void InternalWriteMiniDumpUsingExceptionInfo( unsigned int uStructuredExceptionCode, _EXCEPTION_POINTERS * pExceptionInfo )
+void InternalWriteMiniDumpUsingExceptionInfo( unsigned int uStructuredExceptionCode, _EXCEPTION_POINTERS * pExceptionInfo, const char *pszFilenameSuffix )
 {
 	// First try to write it with all the indirectly referenced memory (ie: a large file).
 	// If that doesn't work, then write a smaller one.
 	int iType = MiniDumpWithDataSegs | MiniDumpWithIndirectlyReferencedMemory;
-	if ( !WriteMiniDumpUsingExceptionInfo( uStructuredExceptionCode, pExceptionInfo, (MINIDUMP_TYPE)iType ) )
+	if ( !WriteMiniDumpUsingExceptionInfo( uStructuredExceptionCode, pExceptionInfo, iType, pszFilenameSuffix ) )
 	{
 		iType = MiniDumpWithDataSegs;
-		WriteMiniDumpUsingExceptionInfo( uStructuredExceptionCode, pExceptionInfo, (MINIDUMP_TYPE)iType );
+		WriteMiniDumpUsingExceptionInfo( uStructuredExceptionCode, pExceptionInfo, iType, pszFilenameSuffix );
 	}
 }
 
@@ -196,7 +196,7 @@ FnMiniDump SetMiniDumpFunction( FnMiniDump pfn )
 //-----------------------------------------------------------------------------
 // Purpose: writes out a minidump from the current process
 //-----------------------------------------------------------------------------
-void WriteMiniDump()
+void WriteMiniDump( const char *pszFilenameSuffix )
 {
 	// throw an exception so we can catch it and get the stack info
 	g_bWritingNonfatalMinidump = true;
@@ -214,7 +214,7 @@ void WriteMiniDump()
 	}
 	// Write the minidump from inside the filter (GetExceptionInformation() is only 
 	// valid in the filter)
-	__except ( g_pfnWriteMiniDump( 0, GetExceptionInformation() ), EXCEPTION_EXECUTE_HANDLER )
+	__except ( g_pfnWriteMiniDump( 0, GetExceptionInformation(), pszFilenameSuffix ), EXCEPTION_EXECUTE_HANDLER )
 	{
 	}
 	g_bWritingNonfatalMinidump = false;
@@ -236,7 +236,7 @@ void CatchAndWriteMiniDump( FnWMain pfn, int argc, tchar *argv[] )
 	{
 		try
 		{
-			_set_se_translator( g_pfnWriteMiniDump );
+			_set_se_translator( (_se_translator_function)g_pfnWriteMiniDump );
 			pfn( argc, argv );
 		}
 		catch (...)

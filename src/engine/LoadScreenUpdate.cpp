@@ -61,7 +61,11 @@ public:
 	DELEGATE_TO_OBJECT_2V(			SetStatsExtraInfo, const char *, const char *, m_pMemAlloc );
 #endif
 	DELEGATE_TO_OBJECT_0(size_t,	MemoryAllocFailed, m_pMemAlloc );
-
+	DELEGATE_TO_OBJECT_0(uint32,	GetDebugInfoSize, m_pMemAlloc );
+	DELEGATE_TO_OBJECT_1V(			SaveDebugInfo, void*, m_pMemAlloc );
+	DELEGATE_TO_OBJECT_1V(			RestoreDebugInfo, const void*, m_pMemAlloc );
+	DELEGATE_TO_OBJECT_3V(			InitDebugInfo, void*, const char*, int, m_pMemAlloc );
+	DELEGATE_TO_OBJECT_2V(			GlobalMemoryStatus, size_t*, size_t*, m_pMemAlloc );
 	// Other public methods
 public:
 	CLoaderMemAlloc();

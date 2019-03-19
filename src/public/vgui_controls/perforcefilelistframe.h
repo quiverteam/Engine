@@ -1,4 +1,4 @@
-//====== Copyright © 1996-2005, Valve Corporation, All rights reserved. =======
+//========= Copyright Valve Corporation, All rights reserved. ============//
 //
 // List of perforce files and operations
 //
@@ -11,16 +11,24 @@
 #pragma once
 #endif
 
-#include "vgui_controls/frame.h"
+#include "vgui_controls/Frame.h"
 #include "tier1/utlvector.h"
 #include "tier1/utlstring.h"
+
+
+//-----------------------------------------------------------------------------
+// Forward declarations
+//-----------------------------------------------------------------------------
+
 
 //-----------------------------------------------------------------------------
 // Enumeration of operation dialog ids
 //-----------------------------------------------------------------------------
 enum
 {
-	OPERATION_DIALOG_STANDARD_ID_COUNT = 1,
+	OPERATION_DIALOG_ID_PERFORCE = 0,
+
+	OPERATION_DIALOG_STANDARD_ID_COUNT,
 	OPERATION_DIALOG_STANDARD_ID_MAX = OPERATION_DIALOG_STANDARD_ID_COUNT - 1,
 };
 
@@ -78,4 +86,63 @@ private:
 	char *m_pText;
 };
 
+
+//-----------------------------------------------------------------------------
+// Purpose: Modal dialog for picker
+//-----------------------------------------------------------------------------
+enum PerforceAction_t
+{
+	PERFORCE_ACTION_NONE = -1,
+	PERFORCE_ACTION_FILE_ADD = 0,
+	PERFORCE_ACTION_FILE_EDIT,
+	PERFORCE_ACTION_FILE_DELETE,
+	PERFORCE_ACTION_FILE_REVERT,
+	PERFORCE_ACTION_FILE_SUBMIT,
+};
+
+	
+//-----------------------------------------------------------------------------
+// Purpose: Modal dialog for picker
+//-----------------------------------------------------------------------------
+class CPerforceFileListFrame : public COperationFileListFrame
+{
+	DECLARE_CLASS_SIMPLE( CPerforceFileListFrame, COperationFileListFrame );
+
+public:
+	CPerforceFileListFrame( vgui::Panel *pParent, const char *pTitle, const char *pColumnHeader, PerforceAction_t action );
+	virtual ~CPerforceFileListFrame();
+
+	// Adds files to the frame
+	void ClearAllFiles();
+	void AddFile( const char *pFullPath );
+	void AddFile( const char *pRelativePath, const char *pPathId );
+
+	void DoModal( KeyValues *pContextKeys = NULL, const char *pMessage = NULL );
+
+private:
+	virtual bool PerformOperation();
+
+	// Adds files for open, submit
+	void AddFileForOpen( const char *pFullPath );
+
+	// Does the perforce operation
+	void PerformPerforceAction( );
+
+	PerforceAction_t m_Action;
+	CUtlString m_LastOpenedFilePathId;
+};
+
+
+//-----------------------------------------------------------------------------
+// Show the perforce query dialog
+// The specified keyvalues message will be sent either
+//		1) If you open the file for add/edit
+//		2) If you indicate to not add a file for add but don't hit cancel
+// If a specific perforce action is specified, then the dialog will only
+// be displayed if that action is appropriate
+//-----------------------------------------------------------------------------
+void ShowPerforceQuery( vgui::Panel *pParent, const char *pFileName, vgui::Panel *pActionSignalTarget, KeyValues *pKeyValues, PerforceAction_t actionFilter = PERFORCE_ACTION_NONE );
+
+
 #endif // PERFORCEFILELISTFRAME_H
+

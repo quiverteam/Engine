@@ -91,7 +91,7 @@ SpewRetval_t ModelBrowserSpewFunc( SpewType_t spewType, const tchar *pMsg )
 
 	case SPEW_MESSAGE:
 		{
-			Color c = GetSpewOutputColor();
+			Color c = *GetSpewOutputColor();
 			if ( !Q_stricmp( GetSpewOutputGroup(), "developer" ) )
 				g_pCVar->ConsoleDPrintf( pMsg );
 			else

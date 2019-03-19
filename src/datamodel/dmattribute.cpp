@@ -159,8 +159,8 @@ public:
 // Memory pool useds for CDmAttribute data
 // Over 8 bytes, use the small-block allocator (it aligns to 16 bytes)
 //-----------------------------------------------------------------------------
-CMemoryPool g_DataAlloc4( sizeof( CDmAttribute ), 4, CMemoryPool::GROW_SLOW, "4-byte data pool" );
-CMemoryPool g_DataAlloc8( sizeof( CDmAttribute ), 8, CMemoryPool::GROW_SLOW, "8-byte data pool" );
+CUtlMemoryPool g_DataAlloc4( sizeof( CDmAttribute ), 4, CUtlMemoryPool::GROW_SLOW, "4-byte data pool" );
+CUtlMemoryPool g_DataAlloc8( sizeof( CDmAttribute ), 8, CUtlMemoryPool::GROW_SLOW, "8-byte data pool" );
 
 template< class T > void* NewData()
 {
@@ -1767,7 +1767,7 @@ void CDmArrayAttributeOp<T>::OnUnserializationFinished( CDmAttribute *pAttribute
 //-----------------------------------------------------------------------------
 // Memory pool used for CDmAttribute
 //-----------------------------------------------------------------------------
-CMemoryPool g_AttrAlloc( sizeof( CDmAttribute ), 32, CMemoryPool::GROW_SLOW, "CDmAttribute pool" );
+CUtlMemoryPool g_AttrAlloc( sizeof( CDmAttribute ), 32, CUtlMemoryPool::GROW_SLOW, "CDmAttribute pool" );
 
 
 //-----------------------------------------------------------------------------

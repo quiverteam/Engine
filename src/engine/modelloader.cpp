@@ -124,7 +124,7 @@ class CModelLoader : public IModelLoader
 {
 // Implement IModelLoader interface
 public:
-	CModelLoader() : m_ModelPool( sizeof( model_t ), MAX_KNOWN_MODELS, CMemoryPool::GROW_FAST, "CModelLoader::m_ModelPool" ),
+	CModelLoader() : m_ModelPool( sizeof( model_t ), MAX_KNOWN_MODELS, CUtlMemoryPool::GROW_FAST, "CModelLoader::m_ModelPool" ),
 					m_Models( 0, 0, Model_LessFunc )
 	{
 	}
@@ -250,7 +250,7 @@ private:
 
 	CUtlMap< FileNameHandle_t, ModelEntry_t >	m_Models;
 
-	CMemoryPool			m_ModelPool;
+	CUtlMemoryPool			m_ModelPool;
 
 	CUtlVector<model_t>	m_InlineModels;
 

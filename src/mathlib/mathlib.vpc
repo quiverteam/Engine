@@ -5,20 +5,14 @@
 //-----------------------------------------------------------------------------
 
 $macro SRCDIR		".."
-$Macro OUTLIBDIR	"$SRCDIR\lib\public"
-
 $include "$SRCDIR\vpc_scripts\source_lib_base.vpc"
-
-$Linux
-{
-	$BuildForLinux 1
-}
 
 $Configuration
 {
 	$Compiler
 	{
 		$AdditionalIncludeDirectories	"$BASE;..\public\mathlib"
+		$PreprocessorDefinitions		"$BASE;MATHLIB_LIB"
 	}
 }
 
@@ -33,9 +27,9 @@ $Project "mathlib"
 		$File	"powsse.cpp"
 		$File	"sparse_convolution_noise.cpp"
 		$File	"sseconst.cpp"
-		$File	"sse.cpp"					[$WIN32||$LINUX]
+		$File	"sse.cpp"					[$WINDOWS||$POSIX]
 		$File	"ssenoise.cpp"				
-		$File	"3dnow.cpp"					[$WIN32||$LINUX]
+		$File	"3dnow.cpp"					[$WINDOWS||$LINUX]
 		$File	"anorms.cpp"
 		$File	"bumpvects.cpp"
 		$File	"IceKey.cpp"
@@ -43,21 +37,25 @@ $Project "mathlib"
 		$File	"polyhedron.cpp"
 		$File	"quantize.cpp"
 		$File	"randsse.cpp"
+		$File	"spherical.cpp"
 		$File	"simdvectormatrix.cpp"
 		$File	"vector.cpp"
 		$File	"vmatrix.cpp"
+		$File	"almostequal.cpp"
 	}
+
+
 
 	$Folder	"Public Header Files"
 	{
-		$File	"$SRCDIR\public\mathlib\amd3dx.h"			[$WIN32||$LINUX]		
+		$File	"$SRCDIR\public\mathlib\amd3dx.h"			[$WINDOWS||$LINUX]		
 		$File	"$SRCDIR\public\mathlib\anorms.h"
 		$File	"$SRCDIR\public\mathlib\bumpvects.h"		
 		$File	"$SRCDIR\public\mathlib\compressed_3d_unitvec.h"
 		$File	"$SRCDIR\public\mathlib\compressed_light_cube.h"
 		$File	"$SRCDIR\public\mathlib\compressed_vector.h"
 		$File	"$SRCDIR\public\mathlib\halton.h"
-		$File	"$SRCDIR\public\mathlib\IceKey.h"
+		$File	"$SRCDIR\public\mathlib\IceKey.H"
 		$File	"$SRCDIR\public\mathlib\lightdesc.h"
 		$File	"$SRCDIR\public\mathlib\math_pfns.h"
 		$File	"$SRCDIR\public\mathlib\mathlib.h"
@@ -65,6 +63,7 @@ $Project "mathlib"
 		$File	"$SRCDIR\public\mathlib\polyhedron.h"
 		$File	"$SRCDIR\public\mathlib\quantize.h"
 		$File	"$SRCDIR\public\mathlib\simdvectormatrix.h"
+		$File	"$SRCDIR\public\mathlib\spherical_geometry.h"		
 		$File	"$SRCDIR\public\mathlib\ssemath.h"		
 		$File	"$SRCDIR\public\mathlib\ssequaternion.h"		
 		$File	"$SRCDIR\public\mathlib\vector.h"
@@ -77,7 +76,7 @@ $Project "mathlib"
 	$Folder	"Header Files"
 	{
 		$File	"noisedata.h"
-		$File	"sse.h"					[$WIN32||$LINUX]
-		$File	"3dnow.h"				[$WIN32||$LINUX]
+		$File	"sse.h"					[$WINDOWS||$POSIX]
+		$File	"3dnow.h"				[$WINDOWS||$LINUX]
 	}
 }

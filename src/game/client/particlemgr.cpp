@@ -1766,7 +1766,7 @@ void CParticleMgr::UpdateNewEffects( float flTimeDelta )
 			int nAltCore = IsX360() && particle_sim_alt_cores.GetInt();
 			if ( !m_pThreadPool[1] || nAltCore == 0 )
 			{
-				ParallelProcess( particlesToSimulate.Base(), nCount, ProcessPSystem );
+				ParallelProcess( "CParticleMgr::UpdateNewEffects", particlesToSimulate.Base(), nCount, ProcessPSystem );
 			}
 			else
 			{
@@ -1774,7 +1774,7 @@ void CParticleMgr::UpdateNewEffects( float flTimeDelta )
 				{
 					nAltCore = 2;
 				}
-				CParallelProcessor<CNewParticleEffect*, CFuncJobItemProcessor<CNewParticleEffect*> > processor;
+				CParallelProcessor<CNewParticleEffect*, CFuncJobItemProcessor<CNewParticleEffect*> > processor( "CParticleMgr::UpdateNewEffects" );
 				processor.m_ItemProcessor.Init( ProcessPSystem, NULL, NULL );
 				processor.Run( particlesToSimulate.Base(), nCount, INT_MAX, m_pThreadPool[nAltCore-1] );
 			}

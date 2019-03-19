@@ -233,6 +233,7 @@ $Project "GameUI"
 		$File	"$SRCDIR\lib\public\tier3.lib"
 		$File	"$SRCDIR\lib\public\vgui_controls.lib"
 		$File	"$SRCDIR\lib\public\vtf.lib"
+		$File	"$SRCDIR\lib\public\steam_api.lib"
 	}
 
 	$Folder	"Link Libraries" [$X360]

@@ -103,7 +103,7 @@ bool CFontTextureCache::GetTextureForChar( vgui::HFont font, vgui::FontDrawType_
 //-----------------------------------------------------------------------------
 // Purpose: returns the texture info for the given chars & font
 //-----------------------------------------------------------------------------
-bool CFontTextureCache::GetTextureForChars( vgui::HFont font, vgui::FontDrawType_t type, wchar_t *wch, int *textureID, float **texCoords, int numChars )
+bool CFontTextureCache::GetTextureForChars( vgui::HFont font, vgui::FontDrawType_t type, const wchar_t *wch, int *textureID, float **texCoords, int numChars )
 {
 	Assert( wch && textureID && texCoords );
 	Assert( numChars >= 1 );

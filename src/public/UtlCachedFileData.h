@@ -459,7 +459,7 @@ void CUtlCachedFileData<T>::InitSmallBuffer( FileHandle_t& fh, int fileSize, boo
 
 					// Read the element name
 					char elementFileName[ 512 ];
-					buf.GetString( elementFileName, sizeof( elementFileName ) );
+					buf.GetStringManualCharCount( elementFileName, sizeof( elementFileName ) );
 
 					// Now read the element
 					int slot = GetIndex( elementFileName );
@@ -552,7 +552,7 @@ void CUtlCachedFileData<T>::InitLargeBuffer( FileHandle_t& fh, bool& deleteFile 
 
 					// Read the element name
 					char elementFileName[ 512 ];
-					buf.GetString( elementFileName, sizeof( elementFileName ) );
+					buf.GetStringManualCharCount( elementFileName, sizeof( elementFileName ) );
 
 					// Now read the element
 					int slot = GetIndex( elementFileName );

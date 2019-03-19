@@ -76,7 +76,7 @@ CLocalizationDialog::CLocalizationDialog(const char *fileName) : Frame(NULL, "Lo
 
 	// populate the dialog with the strings
 	StringIndex_t idx = g_pVGuiLocalize->GetFirstStringIndex();
-	while ( idx != vgui::INVALID_STRING_INDEX )
+	while ( idx != INVALID_LOCALIZE_STRING_INDEX )
 	{
 		// adds the strings into the table, along with the indexes
 		m_pTokenList->AddItem(new KeyValues("LString", "Token", g_pVGuiLocalize->GetNameByIndex(idx)), idx, false, false);

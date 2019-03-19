@@ -132,7 +132,7 @@ public:
 		return false;
 	}
 
-	HANDLE GetEventHandle()
+	CThreadManualEvent &GetEventHandle()
 	{
 		return m_JobAvailableEvent;
 	}
@@ -202,7 +202,7 @@ public:
 	//-----------------------------------------------------
 	// Offer the current thread to the pool
 	//-----------------------------------------------------
-	virtual int YieldWait( CThreadEvent *pEvents, int nEvents, bool bWaitAll = true, unsigned timeout = TT_INFINITE );
+	virtual int YieldWait( CThreadEvent **pEvents, int nEvents, bool bWaitAll = true, unsigned timeout = TT_INFINITE );
 	virtual int YieldWait( CJob **, int nJobs, bool bWaitAll = true, unsigned timeout = TT_INFINITE );
 	void Yield( unsigned timeout );
 
@@ -211,6 +211,13 @@ public:
 	//-----------------------------------------------------
 	void AddJob( CJob * );
 	void InsertJobInQueue( CJob * );
+
+	//-----------------------------------------------------
+	// All threads execute pFunctor asap. Thread will either wake up
+	//  and execute or execute pFunctor right after completing current job and
+	//  before looking for another job.
+	//-----------------------------------------------------
+	virtual void ExecuteHighPriorityFunctor( CFunctor *pFunctor ) {};
 
 	//-----------------------------------------------------
 	// Add an function object to the queue (master thread)
@@ -352,9 +359,9 @@ private:
 		bool	 bExit = false;
 		HANDLE	 waitHandles[NUM_EVENTS];
 
-		waitHandles[CALL_FROM_MASTER]	= GetCallHandle();
-		waitHandles[SHARED_QUEUE]		= m_SharedQueue.GetEventHandle();
-		waitHandles[DIRECT_QUEUE] 		= m_DirectQueue.GetEventHandle();
+		waitHandles[CALL_FROM_MASTER]	= GetCallHandle().GetHandle();
+		waitHandles[SHARED_QUEUE]		= m_SharedQueue.GetEventHandle().GetHandle();
+		waitHandles[DIRECT_QUEUE] 		= m_DirectQueue.GetEventHandle().GetHandle();
 
 		m_pOwner->m_nIdleThreads++;
 		m_IdleEvent.Set();
@@ -539,7 +546,7 @@ void CThreadPool::WaitForIdle( bool bAll )
 
 //---------------------------------------------------------
 
-int CThreadPool::YieldWait( CThreadEvent *pEvents, int nEvents, bool bWaitAll, unsigned timeout )
+int CThreadPool::YieldWait( CThreadEvent **pEvents, int nEvents, bool bWaitAll, unsigned timeout )
 {
 	Assert( timeout == TT_INFINITE ); // unimplemented
 	int result;
@@ -575,7 +582,7 @@ int CThreadPool::YieldWait( CJob **ppJobs, int nJobs, bool bWaitAll, unsigned ti
 		handles.AddToTail( *(ppJobs[i]->AccessEvent()) );
 	}
 
-	return YieldWait( (CThreadEvent *)handles.Base(), handles.Count(), bWaitAll, timeout);
+	return YieldWait( (CThreadEvent **)handles.Base(), handles.Count(), bWaitAll, timeout);
 }
 
 //---------------------------------------------------------
@@ -837,14 +844,13 @@ bool CThreadPool::Start( const ThreadPoolStartParams_t &startParams, const char 
 
 	if ( nThreads < 0 )
 	{
-		const CPUInformation &ci = GetCPUInformation();
 		if ( startParams.bIOThreads )
 		{
-			nThreads = ci.m_nLogicalProcessors;
+			nThreads = GetCPUInformation()->m_nLogicalProcessors;
 		}
 		else
 		{
-			nThreads = ( ci.m_nLogicalProcessors / (( ci.m_bHT ) ? 2 : 1) ) - 1; // One per
+			nThreads = ( GetCPUInformation()->m_nLogicalProcessors / (( GetCPUInformation()->m_bHT ) ? 2 : 1) ) - 1; // One per
 			if ( IsPC() )
 			{
 				if ( nThreads > 3 )
@@ -931,9 +937,8 @@ void CThreadPool::Distribute( bool bDistribute, int *pAffinityTable )
 {
 	if ( bDistribute )
 	{
-		const CPUInformation &ci = GetCPUInformation();
-		int nHwThreadsPer = (( ci.m_bHT ) ? 2 : 1);
-		if ( ci.m_nLogicalProcessors > 1 )
+		int nHwThreadsPer = (( GetCPUInformation()->m_bHT ) ? 2 : 1);
+		if ( GetCPUInformation()->m_nLogicalProcessors > 1 )
 		{
 			if ( !pAffinityTable )
 			{
@@ -942,9 +947,9 @@ void CThreadPool::Distribute( bool bDistribute, int *pAffinityTable )
 				for ( int i = 0; i < m_Threads.Count(); i++ )
 				{
 					iProc += nHwThreadsPer;
-					if ( iProc >= ci.m_nLogicalProcessors )
+					if ( iProc >= GetCPUInformation()->m_nLogicalProcessors )
 					{
-						iProc %= ci.m_nLogicalProcessors;
+						iProc %= GetCPUInformation()->m_nLogicalProcessors;
 						if ( nHwThreadsPer > 1 )
 						{
 							iProc = ( iProc + 1 ) % nHwThreadsPer;

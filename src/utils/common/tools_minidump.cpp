@@ -6,6 +6,7 @@
 //=============================================================================//
 
 #include <windows.h>
+#include <DbgHelp.h>
 #include "tier0/minidump.h"
 #include "tools_minidump.h"
 

@@ -3020,24 +3020,7 @@ bool IsLowViolence_Secure()
 #ifndef NO_STEAM
 	if ( !IsX360() && SteamApps() )
 	{
-		//
-		// Check country of purchase.
-		//
-		char szCountry[80];
-		szCountry[0] = '\0';
-
-		// Determine violence settings based on the country of purchase.		
-		int nSuccess = SteamApps()->GetAppData( g_iSteamAppID, "country", szCountry, sizeof(szCountry) );
-		if ( nSuccess <= 0 )
-		{
-			return false;
-		}	
-
-		// Germany gets low violence.
-		if ( !Q_stricmp( szCountry, "de" ) )
-		{
-			return true;
-		}
+		return SteamApps()->BIsLowViolence();
 	}
 	else if ( IsX360() )
 	{
@@ -3158,7 +3141,7 @@ void Host_CheckGore( void )
 //-----------------------------------------------------------------------------
 void Host_InitProcessor( void )
 {
-	const CPUInformation& pi = GetCPUInformation();
+	const CPUInformation& pi = *GetCPUInformation();
 
 	// Compute Frequency in Mhz: 
 	char* szFrequencyDenomination = "Mhz";
@@ -3413,9 +3396,6 @@ void Host_Init( bool bDedicated )
 	{
 		SV_InitGameDLL();
 	}
-
-	// Allow master server interface to register its commands
-	TRACEINIT( master->Init(), master->Shutdown() );
 
 	TRACEINIT( g_Log.Init(), g_Log.Shutdown() );
 
@@ -3757,13 +3737,6 @@ void Host_Changelevel( bool loadfromsavedgame, const char *mapname, const char *
 #if !defined(SWDS)
 	saverestore->FinishAsyncSave();
 #endif
-
-	if ( IsUsingMasterLegacyMode() && master && master->RestartOnLevelChange() )
-	{
-		Cbuf_Clear();
-		Cbuf_AddText( "quit\n" );
-		return;
-	}
 
 	if ( sv.RestartOnLevelChange() )
 	{
@@ -4121,8 +4094,6 @@ void Host_Shutdown(void)
 	TRACESHUTDOWN( g_Log.Shutdown() );
 
 	TRACESHUTDOWN( g_GameEventManager.Shutdown() );
-
-	TRACESHUTDOWN( master->Shutdown() );
 
 	TRACESHUTDOWN( sv.Shutdown() );
 

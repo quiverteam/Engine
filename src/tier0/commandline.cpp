@@ -55,6 +55,10 @@ public:
 	virtual int			ParmValue( const char *psz, int nDefaultVal ) const;
 	virtual float		ParmValue( const char *psz, float flDefaultVal ) const;
 
+	virtual void SetParm( int nIndex, char const *pNewParm );
+
+	virtual const char *ParmValueByIndex( int nIndex, const char *pDefaultVal = 0 ) const;
+
 private:
 	enum
 	{
@@ -635,4 +639,21 @@ float CCommandLine::ParmValue( const char *psz, float flDefaultVal ) const
 		return flDefaultVal;
 
 	return atof( m_ppParms[nIndex + 1] );
+}
+
+
+void CCommandLine::SetParm( int nIndex, char const *pNewParm )
+{
+	if ( nIndex >= MAX_PARAMETERS )
+		Error( "CCommandLine::SetParm: invalid parameter index %d", nIndex );
+
+	int nLen = strlen( pNewParm );
+	m_ppParms[nIndex] = new char[nLen];
+	memcpy( m_ppParms[nIndex], pNewParm, nLen - 1 );
+	m_ppParms[nIndex][nLen - 1] = 0;
+}
+
+const char * CCommandLine::ParmValueByIndex( int nIndex, const char *pDefaultVal ) const
+{
+	return m_ppParms[nIndex] != NULL ? m_ppParms[nIndex] : pDefaultVal;
 }

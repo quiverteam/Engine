@@ -1,4 +1,4 @@
-//========= Copyright © 1996-2005, Valve Corporation, All rights reserved. ============//
+//========= Copyright Valve Corporation, All rights reserved. ============//
 //
 // Purpose: 
 //
@@ -11,13 +11,13 @@
 #include <vgui/IVGui.h>
 #include <KeyValues.h>
 #include <vgui_controls/AnimationController.h>
-#include "FileSystem.h"
-#include "FileSystem_Helpers.h"
+#include "filesystem.h"
+#include "filesystem_helpers.h"
 
 #include <stdio.h>
 #include <math.h>
 #include "mempool.h"
-#include "UtlDict.h"
+#include "utldict.h"
 #include "mathlib/mathlib.h"
 #include "characterset.h"
 
@@ -67,6 +67,8 @@ AnimationController::AnimationController(Panel *parent) : BaseClass(parent, NULL
 	m_sYPos = g_ScriptSymbols.AddString("ypos");
 	m_sWide = g_ScriptSymbols.AddString("wide");
 	m_sTall = g_ScriptSymbols.AddString("tall");
+
+	m_sModelPos = g_ScriptSymbols.AddString( "model_pos" );
 
 	m_flCurrentTime = 0.0f;
 }
@@ -343,7 +345,7 @@ bool AnimationController::ParseScriptFile(char *pMem, int length)
 		}
 
 		// walk the commands
-		while (token && token[0])
+		while (token[0])
 		{
 			// get the command type
 			pMem = ParseFile(pMem, token, NULL);
@@ -398,8 +400,34 @@ bool AnimationController::ParseScriptFile(char *pMem, int length)
 					// parse the floating point values right out
 					if (0 == sscanf(token, "%f %f %f %f", &cmdAnimate.target.a, &cmdAnimate.target.b, &cmdAnimate.target.c, &cmdAnimate.target.d))
 					{
+						//=============================================================================
+						// HPE_BEGIN:
+						// [pfreese] Improved handling colors not defined in scheme 
+						//=============================================================================
+						
 						// could be referencing a value in the scheme file, lookup
-						Color col = scheme->GetColor(token, Color(0, 0, 0, 0));
+						Color default_invisible_black(0, 0, 0, 0);
+						Color col = scheme->GetColor(token, default_invisible_black);
+
+						// we don't have a way of seeing if the color is not declared in the scheme, so we use this
+						// silly method of trying again with a different default to see if we get the fallback again
+						if (col == default_invisible_black)
+						{
+							Color error_pink(255, 0, 255, 255);	// make it extremely obvious if a scheme lookup fails
+							col = scheme->GetColor(token, error_pink);
+
+							// commented out for Soldier/Demo release...(getting spammed in console)
+							// we'll try to figure this out after the update is out
+// 							if (col == error_pink)
+// 							{
+// 								Warning("Missing color in scheme: %s\n", token);
+// 							}
+						}
+						
+						//=============================================================================
+						// HPE_END
+						//=============================================================================
+
 						cmdAnimate.target.a = col[0];
 						cmdAnimate.target.b = col[1];
 						cmdAnimate.target.c = col[2];
@@ -454,6 +482,10 @@ bool AnimationController::ParseScriptFile(char *pMem, int length)
 					pMem = ParseFile(pMem, token, NULL);
 					cmdAnimate.interpolationParameter = (float)atof(token);
 				}
+				else if (!stricmp(token, "Bounce"))
+				{
+					cmdAnimate.interpolationFunction = INTERPOLATOR_BOUNCE;
+				}
 				else
 				{
 					cmdAnimate.interpolationFunction = INTERPOLATOR_LINEAR;
@@ -475,6 +507,34 @@ bool AnimationController::ParseScriptFile(char *pMem, int length)
 				animCmd.commandType = CMD_RUNEVENT;
 				pMem = ParseFile(pMem, token, NULL);
 				animCmd.cmdData.runEvent.event = g_ScriptSymbols.AddString(token);
+				pMem = ParseFile(pMem, token, NULL);
+				animCmd.cmdData.runEvent.timeDelay = (float)atof(token);
+			}
+			else if (!stricmp(token, "runeventchild"))
+			{
+				animCmd.commandType = CMD_RUNEVENTCHILD;
+				pMem = ParseFile(pMem, token, NULL);
+				animCmd.cmdData.runEvent.variable = g_ScriptSymbols.AddString(token);
+				pMem = ParseFile(pMem, token, NULL);
+				animCmd.cmdData.runEvent.event = g_ScriptSymbols.AddString(token);
+				pMem = ParseFile(pMem, token, NULL);
+				animCmd.cmdData.runEvent.timeDelay = (float)atof(token);
+			}
+			else if (!stricmp(token, "firecommand"))
+			{
+				animCmd.commandType = CMD_FIRECOMMAND;
+				pMem = ParseFile(pMem, token, NULL);
+				animCmd.cmdData.runEvent.timeDelay = (float)atof(token);
+				pMem = ParseFile(pMem, token, NULL);
+				animCmd.cmdData.runEvent.variable = g_ScriptSymbols.AddString(token);
+			}
+			else if (!stricmp(token, "setvisible"))
+			{
+				animCmd.commandType = CMD_SETVISIBLE;
+				pMem = ParseFile(pMem, token, NULL);
+				animCmd.cmdData.runEvent.variable = g_ScriptSymbols.AddString(token);
+				pMem = ParseFile(pMem, token, NULL);
+				animCmd.cmdData.runEvent.variable2 = atoi(token);
 				pMem = ParseFile(pMem, token, NULL);
 				animCmd.cmdData.runEvent.timeDelay = (float)atof(token);
 			}
@@ -629,9 +689,11 @@ void AnimationController::UpdatePostedMessages(bool bRunToCompletion)
 		case CMD_RUNEVENT:
 			{
 				RanEvent_t curEvent;
+				curEvent.pParent = NULL;
 				curEvent.event = msg.event;
-				curEvent.pParent = msg.parent.Get();
 
+				curEvent.pParent = msg.parent.Get();
+				
 				// run the event, but only if we haven't already run it this frame, for this parent
 				if (!eventsRanThisFrame.HasElement(curEvent))
 				{
@@ -639,6 +701,37 @@ void AnimationController::UpdatePostedMessages(bool bRunToCompletion)
 					RunCmd_RunEvent(msg);
 				}
 			}	
+			break;
+		case CMD_RUNEVENTCHILD:
+			{
+				RanEvent_t curEvent;
+				curEvent.pParent = NULL;
+				curEvent.event =  msg.event;
+
+				curEvent.pParent = msg.parent.Get()->FindChildByName( g_ScriptSymbols.String(msg.variable) );
+				msg.parent = curEvent.pParent;
+		
+				// run the event, but only if we haven't already run it this frame, for this parent
+				if (!eventsRanThisFrame.HasElement(curEvent))
+				{
+					eventsRanThisFrame.AddToTail(curEvent);
+					RunCmd_RunEvent(msg);
+				}
+			}
+			break;
+		case CMD_FIRECOMMAND:
+			{
+				msg.parent->OnCommand( g_ScriptSymbols.String(msg.variable) );
+			}
+			break;
+		case CMD_SETVISIBLE:
+			{
+				Panel* pPanel = msg.parent.Get()->FindChildByName( g_ScriptSymbols.String(msg.variable) );
+				if ( pPanel )
+				{
+					pPanel->SetVisible( msg.variable2 == 1 );
+				}
+			}
 			break;
 		case CMD_STOPEVENT:
 			RunCmd_StopEvent(msg);
@@ -819,6 +912,27 @@ AnimationController::Value_t AnimationController::GetInterpolatedValue(int inter
 			pos = 0.0f;
 		}
 		break;
+	case INTERPOLATOR_BOUNCE:
+	{
+		// fall from startValue to endValue, bouncing a few times and settling out at endValue
+		const float hit1 = 0.33f;
+		const float hit2 = 0.67f;
+		const float hit3 = 1.0f;
+
+		if ( pos < hit1 )
+		{
+			pos = 1.0f - sin( M_PI * pos / hit1 );
+		}
+		else if ( pos < hit2 )
+		{
+			pos = 0.5f + 0.5f * ( 1.0f - sin( M_PI * ( pos - hit1 ) / ( hit2 - hit1 ) ) );
+		}
+		else
+		{
+			pos = 0.8f + 0.2f * ( 1.0f - sin( M_PI * ( pos - hit2 ) / ( hit3 - hit2 ) ) );
+		}
+		break;
+	}
 	case INTERPOLATOR_LINEAR:
 	default:
 		break;
@@ -893,6 +1007,63 @@ bool AnimationController::StartAnimationSequence(Panel *pWithinParent, const cha
 	}
 
 	return true;	
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: stops an animation sequence script
+//-----------------------------------------------------------------------------
+bool AnimationController::StopAnimationSequence( Panel *pWithinParent, const char *sequenceName )
+{
+	Assert( pWithinParent );
+
+	// lookup the symbol for the name
+	UtlSymId_t seqName = g_ScriptSymbols.Find( sequenceName );
+	if (seqName == UTL_INVAL_SYMBOL)
+		return false;
+
+	// remove the existing command from the queue
+	RemoveQueuedAnimationCommands( seqName, pWithinParent );
+
+	return true;
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: Runs a custom command from code, not from a script file
+//-----------------------------------------------------------------------------
+void AnimationController::CancelAnimationsForPanel( Panel *pWithinParent )
+{
+	// Msg("Removing queued anims for sequence %s\n", g_ScriptSymbols.String(seqName));
+
+	// remove messages posted by this sequence
+	// if pWithinParent is specified, remove only messages under that parent
+	{
+		for (int i = 0; i < m_PostedMessages.Count(); i++)
+		{
+			if ( m_PostedMessages[i].parent == pWithinParent )
+			{
+				m_PostedMessages.Remove(i);
+				--i;
+			}
+		}
+	}
+
+	// remove all animations
+	// if pWithinParent is specified, remove only animations under that parent
+	for (int i = 0; i < m_ActiveAnimations.Count(); i++)
+	{
+		Panel *animPanel = m_ActiveAnimations[i].panel;
+
+		if ( !animPanel )
+			continue;
+
+		Panel *foundPanel = pWithinParent->FindChildByName(animPanel->GetName(),true);
+
+		if ( foundPanel != animPanel )
+			continue;
+
+		m_ActiveAnimations.Remove(i);
+		--i;
+	}
 }
 
 //-----------------------------------------------------------------------------
@@ -1060,6 +1231,8 @@ void AnimationController::ExecAnimationCommand(UtlSymId_t seqName, AnimCommand_t
 void AnimationController::StartCmd_Animate(UtlSymId_t seqName, AnimCmdAnimate_t &cmd, Panel *pWithinParent)
 {
 	Assert( pWithinParent );
+	if ( !pWithinParent )
+		return;
 
 	// make sure the child exists
 	Panel *panel = pWithinParent->FindChildByName(g_ScriptSymbols.String(cmd.panel),true);

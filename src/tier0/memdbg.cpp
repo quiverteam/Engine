@@ -474,6 +474,14 @@ public:
 #endif
 
 	virtual size_t MemoryAllocFailed();
+	virtual uint32 GetDebugInfoSize() { return 0; }
+	virtual void SaveDebugInfo( void *pvDebugInfo ) {}
+	virtual void RestoreDebugInfo( const void *pvDebugInfo ) {}
+	virtual void InitDebugInfo( void *pvDebugInfo, const char *pchRootFileName, int nLine ) {}
+
+	// Replacement for ::GlobalMemoryStatus which accounts for unused memory in our system
+	virtual void GlobalMemoryStatus( size_t *pUsedMemory, size_t *pFreeMemory ) {}
+
 	void		SetCRTAllocFailed( size_t nMemSize );
 
 	enum
@@ -1298,7 +1306,7 @@ void CDbgMemAlloc::DumpStatsFileBase( char const *pchFileBase )
 	{
 		// add a line that has free memory
 		MEMORYSTATUS stat;
-		GlobalMemoryStatus( &stat );
+//		GlobalMemoryStatus( &stat );
 		MemInfo_t info;
 		// OS takes 32 MB, report our internal allocations only
 		info.m_nCurrentSize = ( stat.dwTotalPhys - stat.dwAvailPhys ) - 32*1024*1024;

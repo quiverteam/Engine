@@ -1,10 +1,10 @@
-//===== Copyright © 1996-2005, Valve Corporation, All rights reserved. ======//
+//========= Copyright Valve Corporation, All rights reserved. ============//
 //
 // Purpose: 
 //
 //===========================================================================//
 
-#if !defined( _X360 )
+#if defined( WIN32 ) && !defined( _X360 )
 #include <wtypes.h>
 #include <winuser.h>
 #include "xbox/xboxstubs.h"
@@ -13,6 +13,9 @@
 #include "vgui_key_translation.h"
 #if defined( _X360 )
 #include "xbox/xbox_win32stubs.h"
+#endif
+#ifdef POSIX
+#define VK_RETURN -1
 #endif
 
 #include "tier2/tier2.h"

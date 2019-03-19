@@ -18,7 +18,7 @@
 //-----------------------------------------------------------------------------
 // Returns true if buffer is compressed.
 //-----------------------------------------------------------------------------
-bool CLZSS::IsCompressed( unsigned char *pInput )
+bool CLZSS::IsCompressed( const unsigned char *pInput )
 {
 	lzss_header_t *pHeader = (lzss_header_t *)pInput;
 	if ( pHeader && pHeader->id == LZSS_ID )
@@ -34,7 +34,7 @@ bool CLZSS::IsCompressed( unsigned char *pInput )
 // Returns uncompressed size of compressed input buffer. Used for allocating output
 // buffer for decompression. Returns 0 if input buffer is not compressed.
 //-----------------------------------------------------------------------------
-unsigned int CLZSS::GetActualSize( unsigned char *pInput )
+unsigned int CLZSS::GetActualSize( const unsigned char *pInput )
 {
 	lzss_header_t *pHeader = (lzss_header_t *)pInput;
 	if ( pHeader && pHeader->id == LZSS_ID )
@@ -46,7 +46,7 @@ unsigned int CLZSS::GetActualSize( unsigned char *pInput )
 	return 0;
 }
 
-void CLZSS::BuildHash( unsigned char *pData )
+void CLZSS::BuildHash( const unsigned char *pData )
 {
 	lzss_list_t *pList;
 	lzss_node_t *pTarget;
@@ -83,7 +83,7 @@ void CLZSS::BuildHash( unsigned char *pData )
 	pList->pStart = pTarget;
 }
 
-unsigned char *CLZSS::CompressNoAlloc( unsigned char *pInput, int inputLength, unsigned char *pOutputBuf, unsigned int *pOutputSize )
+unsigned char *CLZSS::CompressNoAlloc( const unsigned char *pInput, int inputLength, unsigned char *pOutputBuf, unsigned int *pOutputSize )
 {
 	if ( inputLength <= sizeof( lzss_header_t ) + 8 )
 	{
@@ -107,9 +107,9 @@ unsigned char *CLZSS::CompressNoAlloc( unsigned char *pInput, int inputLength, u
 	pHeader->actualSize = LittleLong( inputLength );
 
 	unsigned char *pOutput = pStart + sizeof (lzss_header_t);
-	unsigned char *pLookAhead = pInput; 
-	unsigned char *pWindow = pInput;
-	unsigned char *pEncodedPosition = NULL;
+	const unsigned char *pLookAhead = pInput; 
+	const unsigned char *pWindow = pInput;
+	const unsigned char *pEncodedPosition = NULL;
 	unsigned char *pCmdByte = NULL;
 	int putCmdByte = 0;
 
@@ -211,7 +211,7 @@ unsigned char *CLZSS::CompressNoAlloc( unsigned char *pInput, int inputLength, u
 // Compress an input buffer. Caller must free output compressed buffer.
 // Returns NULL if compression failed (i.e. compression yielded worse results)
 //-----------------------------------------------------------------------------
-unsigned char* CLZSS::Compress( unsigned char *pInput, int inputLength, unsigned int *pOutputSize )
+unsigned char* CLZSS::Compress( const unsigned char *pInput, int inputLength, unsigned int *pOutputSize )
 {
 	unsigned char *pStart = (unsigned char *)malloc( inputLength );
 	unsigned char *pFinal = CompressNoAlloc( pInput, inputLength, pStart, pOutputSize );
@@ -228,13 +228,13 @@ unsigned char* CLZSS::Compress( unsigned char *pInput, int inputLength, unsigned
 // Uncompress a buffer, Returns the uncompressed size. Caller must provide an
 // adequate sized output buffer or memory corruption will occur.
 //-----------------------------------------------------------------------------
-unsigned int CLZSS::Uncompress( unsigned char *pInput, unsigned char *pOutput )
+unsigned int CLZSS::SafeUncompress( const unsigned char *pInput, unsigned char *pOutput, unsigned int unBufSize )
 {
 	unsigned int totalBytes = 0;
 	int cmdByte = 0;
 	int getCmdByte = 0;
 
-	unsigned int actualSize = GetActualSize( pInput );
+	unsigned int actualSize = unBufSize;
 	if ( !actualSize )
 	{
 		// unrecognized

@@ -53,7 +53,7 @@ static int g_iDontForceFlush;
 // DataCacheItem_t
 //-----------------------------------------------------------------------------
 
-DEFINE_FIXEDSIZE_ALLOCATOR_MT( DataCacheItem_t, 4096/sizeof(DataCacheItem_t), CMemoryPool::GROW_SLOW );
+DEFINE_FIXEDSIZE_ALLOCATOR_MT( DataCacheItem_t, 4096/sizeof(DataCacheItem_t), CUtlMemoryPool::GROW_SLOW );
 
 void DataCacheItem_t::DestroyResource()
 { 

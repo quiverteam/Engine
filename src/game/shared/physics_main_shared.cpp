@@ -27,8 +27,8 @@
 #include "tier0/memdbgon.h"
 
 // memory pool for storing links between entities
-static CMemoryPool g_EdictTouchLinks( sizeof(touchlink_t), MAX_EDICTS, CMemoryPool::GROW_NONE, "g_EdictTouchLinks");
-static CMemoryPool g_EntityGroundLinks( sizeof( groundlink_t ), MAX_EDICTS, CMemoryPool::GROW_NONE, "g_EntityGroundLinks");
+static CUtlMemoryPool g_EdictTouchLinks( sizeof(touchlink_t), MAX_EDICTS, CUtlMemoryPool::GROW_NONE, "g_EdictTouchLinks");
+static CUtlMemoryPool g_EntityGroundLinks( sizeof( groundlink_t ), MAX_EDICTS, CUtlMemoryPool::GROW_NONE, "g_EntityGroundLinks");
 
 struct watcher_t
 {

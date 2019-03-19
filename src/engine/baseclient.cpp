@@ -1299,20 +1299,17 @@ const char *GetUserIDString( const USERID_t& id )
 			TSteamGlobalUserID nullID;
 			Q_memset( &nullID, 0, sizeof( TSteamGlobalUserID ) );
 
-			if ( Steam3Server().BLanOnly() && !Q_memcmp( &id.uid.steamid, &nullID, sizeof( TSteamGlobalUserID ) ) ) 
+			if ( Steam3Server().BLanOnly() && !Q_memcmp( &id.steamid, &nullID, sizeof( TSteamGlobalUserID ) ) ) 
 			{
 				strcpy( idstr, "STEAM_ID_LAN" );
 			}
-			else if ( !Q_memcmp( &id.uid.steamid, &nullID, sizeof( TSteamGlobalUserID ) ))
+			else if ( !Q_memcmp( &id.steamid, &nullID, sizeof( TSteamGlobalUserID ) ))
 			{
 				strcpy( idstr, "STEAM_ID_PENDING" );
 			}
 			else
 			{			
-				Q_snprintf( idstr, sizeof( idstr ) - 1, "STEAM_%u:%u:%u", (SteamInstanceID_t)id.uid.steamid.m_SteamInstanceID, 
-													(unsigned int)((SteamLocalUserID_t)id.uid.steamid.m_SteamLocalUserID.Split.High32bits), 
-													(unsigned int)((SteamLocalUserID_t)id.uid.steamid.m_SteamLocalUserID.Split.Low32bits ));			
-				idstr[ sizeof( idstr ) - 1 ] = '\0';
+				Q_snprintf( idstr, sizeof( idstr ) - 1, id.steamid.Render() );
 			}
 		}
 		break;		
@@ -1353,10 +1350,6 @@ bool CBaseClient::IgnoreTempEntity( CEventInfo *event )
 
 void CBaseClient::SetSteamID( const CSteamID &inputSteamID )
 {
-	CSteamID steamID( inputSteamID );
-	steamID.ConvertToSteam2( &m_NetworkID.uid.steamid );
-	
-	delete m_SteamID;
 	m_SteamID = new CSteamID;
 	*m_SteamID = inputSteamID;
 }

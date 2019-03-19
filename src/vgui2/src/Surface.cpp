@@ -138,6 +138,7 @@ public:
 	virtual void DrawSetColor(int r, int g, int b, int a);
 	virtual void DrawSetColor(Color col);
 	virtual void DrawFilledRect(int x0, int y0, int x1, int y1);
+	virtual void DrawFilledRectFastFade( int x0, int y0, int x1, int y1, int fadeStartPt, int fadeEndPt, unsigned int alpha0, unsigned int alpha1, bool bHorizontal );
 	virtual void DrawFilledRectFade( int x0, int y0, int x1, int y1, unsigned int alpha0, unsigned int alpha1, bool bHorizontal );
 	virtual void DrawFilledRectArray( IntRect *pRects, int numRects );
 	virtual void DrawOutlinedRect(int x0, int y0, int x1, int y1);
@@ -163,7 +164,8 @@ public:
 	virtual IVguiMatInfo *DrawGetTextureMatInfoFactory( int id ) { return NULL; }
 	virtual void DrawTexturedRect(int x0, int y0, int x1, int y1);
 	virtual int CreateNewTextureID( bool procedural );
-	virtual bool IsTextureIDValid(int id);
+	virtual bool IsTextureIDValid( int id );
+	virtual bool DeleteTextureByID( int id );
 	virtual void DrawFlushText();
 	virtual IHTML *CreateHTMLWindow(vgui::IHTMLEvents *events, VPANEL context);
 	virtual void PaintHTMLWindow(IHTML *htmlwin);
@@ -200,6 +202,7 @@ public:
 	virtual void SwapBuffers(VPANEL panel);
 	virtual void Invalidate(VPANEL panel);
 	virtual void SetCursor(HCursor cursor);
+	virtual void SetCursorAlwaysVisible( bool visible );
 	virtual void ApplyChanges();
 	virtual bool IsWithin(int x, int y);
 	virtual bool HasFocus();
@@ -223,18 +226,23 @@ public:
 	// fonts
 	virtual HFont CreateFont();
 	virtual bool SetFontGlyphSet(HFont font, const char *windowsFontName, int tall, int weight, int blur, int scanlines, int flags);
+	virtual const char *GetFontName( HFont font );
+	virtual const char *GetFontFamilyName( HFont font );
+	virtual void GetKernedCharWidth( HFont font, wchar_t ch, wchar_t chBefore, wchar_t chAfter, float &wide, float &abcA );
 	virtual int GetFontTall(HFont font);
+	virtual int GetFontTallRequested( HFont font );
 	virtual int GetFontAscent(HFont font, wchar_t wch);
 	virtual void GetCharABCwide(HFont font, int ch, int &a, int &b, int &c);
 	virtual int GetCharacterWidth(HFont font, int ch);
 	virtual void GetTextSize(HFont font, const wchar_t *text, int &wide, int &tall);
-	virtual bool AddCustomFontFile(const char *fontFileName);
+	virtual bool SetFontGlyphSet( HFont font, const char *windowsFontName, int tall, int weight, int blur, int scanlines, int flags, int nRangeMin = 0, int nRangeMax = 0 );
+	virtual bool AddCustomFontFile( const char *fontName, const char *fontFileName );
 	virtual bool AddBitmapFontFile(const char *fontFileName);
 	virtual void SetBitmapFontName( const char *pName, const char *pFontFilename );
 	virtual const char *GetBitmapFontName( const char *pName );
 	virtual bool SetBitmapFontGlyphSet(HFont font, const char *windowsFontName, float scalex, float scaley, int flags);
 	virtual bool IsFontAdditive(HFont font);
-	virtual void PrecacheFontCharacters(HFont font, wchar_t *pCharacters);
+	virtual void PrecacheFontCharacters(HFont font, const wchar_t *pCharacters);
 	virtual void ClearTemporaryFontCache( void );
 
 	virtual bool IsCursorVisible() { return true; }
@@ -265,7 +273,7 @@ public:
 	virtual void DrawOutlinedCircle(int x, int y, int radius, int segments) ;
 	virtual void DrawTexturedPolyLine( const Vertex_t *p,int n ) ; // (Note: this connects the first and last points).
 	virtual void DrawTexturedSubRect( int x0, int y0, int x1, int y1, float texs0, float text0, float texs1, float text1 );
-	virtual void DrawTexturedPolygon(int n, Vertex_t *pVertices);
+	virtual void DrawTexturedPolygon( int n, Vertex_t *pVertices, bool bClipVertices = true );
 	virtual const wchar_t *GetTitle(VPANEL panel);
 	virtual void LockCursor( bool state );
 	virtual bool IsCursorLocked( void ) const;
@@ -277,6 +285,36 @@ public:
 	// alpha multipliers not yet implemented
 	virtual void DrawSetAlphaMultiplier( float alpha /* [0..1] */ ) {}
 	virtual float DrawGetAlphaMultiplier() { return 1.0f; }
+
+	virtual bool ForceScreenSizeOverride( bool bState, int wide, int tall );
+	virtual bool ForceScreenPosOffset( bool bState, int x, int y );
+	virtual void OffsetAbsPos( int &x, int &y );
+
+	virtual void ResetFontCaches();
+
+	virtual int GetTextureNumFrames( int id );
+	virtual void DrawSetTextureFrame( int id, int nFrame, unsigned int *pFrameCache );
+	virtual bool IsScreenSizeOverrideActive( void );
+	virtual bool IsScreenPosOverrideActive( void );
+
+	virtual void DestroyTextureID( int id );
+
+	virtual void DrawUpdateRegionTextureRGBA( int nTextureID, int x, int y, const unsigned char *pchData, int wide, int tall, ImageFormat imageFormat );
+	virtual bool BHTMLWindowNeedsPaint( IHTML *htmlwin );
+
+	virtual const char *GetWebkitHTMLUserAgentString();
+
+	virtual void *Deprecated_AccessChromeHTMLController();
+
+	// the origin of the viewport on the framebuffer (Which might not be 0,0 for stereo)
+	virtual void SetFullscreenViewport( int x, int y, int w, int h ); // this uses NULL for the render target.
+	virtual void GetFullscreenViewport( int & x, int & y, int & w, int & h );
+	virtual void PushFullscreenViewport();
+	virtual void PopFullscreenViewport();
+
+	// handles support for software cursors
+	virtual void SetSoftwareCursor( bool bUseSoftwareCursor );
+	virtual void PaintSoftwareCursor();
 
 	// Here's where the app systems get to learn about each other 
 	virtual bool Connect( CreateInterfaceFn factory );
@@ -793,17 +831,21 @@ VPANEL CWin32Surface::GetEmbeddedPanel()
  {
 
  }
+
  void CWin32Surface::DrawOutlinedCircle(int x, int y, int radius, int segments) 
  {
 
  }
+
  void CWin32Surface::DrawTexturedPolyLine( const Vertex_t *p,int n )
  {
  }
+
  void CWin32Surface::DrawTexturedSubRect( int x0, int y0, int x1, int y1, float texs0, float text0, float texs1, float text1 )
  {
  }
- void CWin32Surface::DrawTexturedPolygon(int n, Vertex_t *pVertices)
+
+ void CWin32Surface::DrawTexturedPolygon( int n, Vertex_t *pVertices, bool bClipVertices /*= true*/ )
  {
 	POINT *pt;
 	HDC hdc = PLAT(_currentContextPanel)->hdc;
@@ -924,6 +966,90 @@ bool CWin32Surface::DrawGetUnicodeCharRenderInfo( wchar_t ch, CharRenderInfo& in
 void CWin32Surface::DrawRenderCharFromInfo( const CharRenderInfo& info )
 {
 	Assert( 0 );
+}
+
+bool CWin32Surface::ForceScreenSizeOverride( bool bState, int wide, int tall )
+{
+	return false;
+}
+
+bool CWin32Surface::ForceScreenPosOffset( bool bState, int x, int y )
+{
+	return false;
+}
+
+void CWin32Surface::OffsetAbsPos( int & x, int & y )
+{
+}
+
+void CWin32Surface::ResetFontCaches()
+{
+}
+
+int CWin32Surface::GetTextureNumFrames( int id )
+{
+	return 0;
+}
+
+void CWin32Surface::DrawSetTextureFrame( int id, int nFrame, unsigned int * pFrameCache )
+{
+}
+
+bool CWin32Surface::IsScreenSizeOverrideActive( void )
+{
+	return false;
+}
+
+bool CWin32Surface::IsScreenPosOverrideActive( void )
+{
+	return false;
+}
+
+void CWin32Surface::DestroyTextureID( int id )
+{
+}
+
+void CWin32Surface::DrawUpdateRegionTextureRGBA( int nTextureID, int x, int y, const unsigned char * pchData, int wide, int tall, ImageFormat imageFormat )
+{
+}
+
+bool CWin32Surface::BHTMLWindowNeedsPaint( IHTML * htmlwin )
+{
+	return false;
+}
+
+const char * CWin32Surface::GetWebkitHTMLUserAgentString()
+{
+	return nullptr;
+}
+
+void * CWin32Surface::Deprecated_AccessChromeHTMLController()
+{
+	return nullptr;
+}
+
+void CWin32Surface::SetFullscreenViewport( int x, int y, int w, int h )
+{
+}
+
+void CWin32Surface::GetFullscreenViewport( int & x, int & y, int & w, int & h )
+{
+}
+
+void CWin32Surface::PushFullscreenViewport()
+{
+}
+
+void CWin32Surface::PopFullscreenViewport()
+{
+}
+
+void CWin32Surface::SetSoftwareCursor( bool bUseSoftwareCursor )
+{
+}
+
+void CWin32Surface::PaintSoftwareCursor()
+{
 }
 
 
@@ -1183,6 +1309,10 @@ void CWin32Surface::DrawFilledRect(int x0,int y0,int x1,int y1)
 	ExtTextOut(PLAT(_currentContextPanel)->hdc, 0, 0, ETO_OPAQUE, &rect, NULL, 0, NULL);
 }
 
+void CWin32Surface::DrawFilledRectFastFade( int x0, int y0, int x1, int y1, int fadeStartPt, int fadeEndPt, unsigned int alpha0, unsigned int alpha1, bool bHorizontal )
+{
+}
+
 void CWin32Surface::DrawFilledRectArray( IntRect *pRects, int numRects )
 {
 	int i;
@@ -1342,6 +1472,11 @@ bool CWin32Surface::IsTextureIDValid(int id)
 	return (GetTextureById(id) != NULL);
 }
 
+bool CWin32Surface::DeleteTextureByID( int id )
+{
+	return false;
+}
+
 //-----------------------------------------------------------------------------
 // Purpose: does nothing, since we don't need this optimization in win32
 //-----------------------------------------------------------------------------
@@ -1351,19 +1486,7 @@ void CWin32Surface::DrawFlushText()
 
 IHTML *CWin32Surface::CreateHTMLWindow(vgui::IHTMLEvents *events, VPANEL context)
 {
-
-	// setup the _currentContextPanel 
-	VPANEL parent = GetContextPanelForChildPanel(context);
-	if (!parent)
-		return NULL;
-
-	// now make the control
-	HtmlWindow *IE = new HtmlWindow(events, context, PLAT(parent)->hwnd, m_bAllowJavaScript, SupportsFeature( DIRECT_HWND_RENDER ));
-	IE->SetVisible( g_pIPanel->IsVisible(parent) );
-
-	// add it to our list of controls
-	m_HtmlWindows.AddToTail(IE);
-	return dynamic_cast<IHTML *>(IE);
+	return NULL;
 }
 
 
@@ -2809,6 +2932,10 @@ void CWin32Surface::SetCursor(HCursor cursor)
 	::SetCursor(_currentCursor);
 }
 
+void CWin32Surface::SetCursorAlwaysVisible( bool visible )
+{
+}
+
 //-----------------------------------------------------------------------------
 // Purpose: Forces the window to be redrawn
 //-----------------------------------------------------------------------------
@@ -3034,12 +3161,31 @@ bool CWin32Surface::SetFontGlyphSet(HFont font, const char *windowsFontName, int
 	return FontManager().SetFontGlyphSet(font, windowsFontName, tall, weight, blur, scanlines, flags);
 }
 
+const char * CWin32Surface::GetFontName( HFont font )
+{
+	return nullptr;
+}
+
+const char * CWin32Surface::GetFontFamilyName( HFont font )
+{
+	return nullptr;
+}
+
+void CWin32Surface::GetKernedCharWidth( HFont font, wchar_t ch, wchar_t chBefore, wchar_t chAfter, float & wide, float & abcA )
+{
+}
+
 //-----------------------------------------------------------------------------
 // Purpose: returns the max height of a font
 //-----------------------------------------------------------------------------
 int CWin32Surface::GetFontTall(HFont font)
 {
 	return FontManager().GetFontTall(font);
+}
+
+int CWin32Surface::GetFontTallRequested( HFont font )
+{
+	return 0;
 }
 
 //-----------------------------------------------------------------------------
@@ -3084,10 +3230,15 @@ void CWin32Surface::GetTextSize(HFont font, const wchar_t *text, int &wide, int 
 	FontManager().GetTextSize(font, text, wide, tall);
 }
 
+bool CWin32Surface::SetFontGlyphSet( HFont font, const char * windowsFontName, int tall, int weight, int blur, int scanlines, int flags, int nRangeMin, int nRangeMax )
+{
+	return false;
+}
+
 //-----------------------------------------------------------------------------
 // Purpose: adds a custom font file (only supports true type font files (.ttf) for now)
 //-----------------------------------------------------------------------------
-bool CWin32Surface::AddCustomFontFile(const char *fontFileName)
+bool CWin32Surface::AddCustomFontFile( const char *fontName, const char *fontFileName )
 {
 	char fullPath[ MAX_PATH ];
 	g_pFullFileSystem->GetLocalPath(fontFileName, fullPath, sizeof( fullPath ));
@@ -3118,7 +3269,7 @@ bool CWin32Surface::SetBitmapFontGlyphSet(HFont font, const char *windowsFontNam
 	return false;
 }
 
-void CWin32Surface::PrecacheFontCharacters(HFont font, wchar_t *pCharacters)
+void CWin32Surface::PrecacheFontCharacters(HFont font, const wchar_t *pCharacters)
 {
 	Assert( 0 );
 }
@@ -3287,6 +3438,29 @@ public:
 		// Nothing
 	}
 
+	virtual bool Evict()
+	{
+		return false; 
+	}
+
+	virtual int GetNumFrames()
+	{ 
+		return 0;
+	}
+
+	virtual void SetFrame( int nFrame )
+	{
+
+	}
+
+	virtual HTexture GetID() 
+	{
+		return 0;
+	}
+
+	virtual void SetRotation( int iRotation )
+	{
+	}
 
 private:
 

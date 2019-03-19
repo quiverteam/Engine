@@ -2666,9 +2666,9 @@ static int EmitCaptionCompletion( const char *partial, char commands[ COMMAND_CO
 		substringLen = strlen(substring);
 	}
 	
-	vgui::StringIndex_t i = g_pVGuiLocalize->GetFirstStringIndex();
+	StringIndex_t i = g_pVGuiLocalize->GetFirstStringIndex();
 
-	while ( i != vgui::INVALID_STRING_INDEX &&
+	while ( i != INVALID_LOCALIZE_STRING_INDEX  &&
 		 current < COMMAND_COMPLETION_MAXITEMS )
 	{
 		const char *ccname = g_pVGuiLocalize->GetNameByIndex( i );
@@ -2893,7 +2893,7 @@ void CHudCloseCaption::FindSound( char const *pchANSI )
 
 				if ( IsPC() )
 				{
-					for ( int r = g_pVGuiLocalize->GetFirstStringIndex(); r != vgui::INVALID_STRING_INDEX; r = g_pVGuiLocalize->GetNextStringIndex( r ) )
+					for ( int r = g_pVGuiLocalize->GetFirstStringIndex(); r != INVALID_LOCALIZE_STRING_INDEX; r = g_pVGuiLocalize->GetNextStringIndex( r ) )
 					{
 						const char *strName = g_pVGuiLocalize->GetNameByIndex( r );
 

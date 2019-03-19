@@ -83,6 +83,11 @@ public:
 	virtual int GetPollCount() const;
 	virtual void SetCursorPosition( int x, int y );
 
+	virtual void *GetHapticsInterfaceAddress() const { return NULL; }
+	virtual void SetNovintPure( bool bPure ) {}
+	virtual bool GetRawMouseAccumulators( int& accumX, int& accumY ) { return false; }
+	virtual void SetConsoleTextMode( bool bConsoleTextMode ) {}
+
 	// Windows proc
 	LRESULT WindowProc( HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam );
 

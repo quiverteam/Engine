@@ -1,4 +1,4 @@
-//========= Copyright © 1996-2005, Valve Corporation, All rights reserved. ============//
+//========= Copyright Valve Corporation, All rights reserved. ============//
 //
 // Purpose: 
 //
@@ -36,7 +36,7 @@ DECLARE_BUILD_FACTORY_DEFAULT_TEXT( Label, Label );
 //-----------------------------------------------------------------------------
 // Purpose: Constructor
 //-----------------------------------------------------------------------------
-Label::Label(Panel *parent, const char *panelName, const char *text) : Panel(parent, panelName)
+Label::Label(Panel *parent, const char *panelName, const char *text) : BaseClass(parent, panelName)
 {
 	Init();
 
@@ -44,12 +44,14 @@ Label::Label(Panel *parent, const char *panelName, const char *text) : Panel(par
 	_textImage->SetColor(Color(0, 0, 0, 0));
 	SetText(text);
 	_textImageIndex = AddImage(_textImage, 0);
+
+	REGISTER_COLOR_AS_OVERRIDABLE( _disabledFgColor2, "disabledfgcolor2_override" );
 }
 
 //-----------------------------------------------------------------------------
 // Purpose: Constructor
 //-----------------------------------------------------------------------------
-Label::Label(Panel *parent, const char *panelName, const wchar_t *wszText) : Panel(parent, panelName)
+Label::Label(Panel *parent, const char *panelName, const wchar_t *wszText) : BaseClass(parent, panelName)
 {
 	Init();
 
@@ -57,6 +59,8 @@ Label::Label(Panel *parent, const char *panelName, const wchar_t *wszText) : Pan
 	_textImage->SetColor(Color(0, 0, 0, 0));
 	SetText(wszText);
 	_textImageIndex = AddImage(_textImage, 0);
+
+	REGISTER_COLOR_AS_OVERRIDABLE( _disabledFgColor2, "disabledfgcolor2_override" );
 }
 
 //-----------------------------------------------------------------------------
@@ -83,6 +87,11 @@ void Label::Init()
 	_associateName = NULL;
 	_fontOverrideName = NULL;
 	m_bWrap = false;
+	m_bCenterWrap = false;
+	m_bAutoWideToContents = false;
+	m_bUseProportionalInsets = false;
+	m_bAutoWideDirty = false;
+
 //	SetPaintBackgroundEnabled(false);
 }
 
@@ -157,7 +166,7 @@ wchar_t Label::CalculateHotkey(const char *text)
 			{
 				break;
 			}
-			else if (isalnum(*ch))
+			else if (V_isalnum(*ch))
 			{
 				// found the hotkey
 				return (wchar_t)tolower(*ch);
@@ -224,6 +233,11 @@ void Label::SetHotkey(wchar_t ch)
 	_hotkey = ch;
 }
 
+wchar_t Label::GetHotKey()
+{
+	return _hotkey;
+}
+
 //-----------------------------------------------------------------------------
 // Purpose: Handle a hotkey by passing on focus to associate
 //-----------------------------------------------------------------------------
@@ -288,6 +302,9 @@ void Label::SetText(const char *text)
 	{	
 		SetHotkey(CalculateHotkey(text));
 	}
+
+	m_bAutoWideDirty = m_bAutoWideToContents;
+
 	InvalidateLayout();
 	Repaint();
 }
@@ -297,6 +314,11 @@ void Label::SetText(const char *text)
 //-----------------------------------------------------------------------------
 void Label::SetText(const wchar_t *unicodeString, bool bClearUnlocalizedSymbol)
 {
+	m_bAutoWideDirty = m_bAutoWideToContents;
+
+	if ( unicodeString && _textImage->GetUText() && !Q_wcscmp(unicodeString,_textImage->GetUText()) )
+		return;
+
 	_textImage->SetText(unicodeString, bClearUnlocalizedSymbol);
 
 //!! need to calculate hotkey from translated string
@@ -312,7 +334,7 @@ void Label::SetText(const wchar_t *unicodeString, bool bClearUnlocalizedSymbol)
 void Label::OnDialogVariablesChanged(KeyValues *dialogVariables )
 {
 	StringIndex_t index = _textImage->GetUnlocalizedTextSymbol();
-	if (index != INVALID_STRING_INDEX)
+	if (index != INVALID_LOCALIZE_STRING_INDEX)
 	{
 		// reconstruct the string from the variables
 		wchar_t buf[1024];
@@ -332,6 +354,21 @@ void Label::SetTextInset(int xInset, int yInset)
 	int wide, tall;
 	GetSize( wide, tall);
 	_textImage->SetDrawWidth(wide - _textInset[0]);
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: 
+//-----------------------------------------------------------------------------
+void Label::GetTextInset(int *xInset, int *yInset )
+{
+	if ( xInset )
+	{
+		*xInset = _textInset[0];
+	}
+	if ( yInset )
+	{
+		*yInset = _textInset[1];
+	}
 }
 
 //-----------------------------------------------------------------------------
@@ -960,7 +997,7 @@ void Label::ApplySchemeSettings(IScheme *pScheme)
 		SetFont( pScheme->GetFont( "Default", IsProportional() ) );
 	}	
 
-	if ( m_bWrap )
+	if ( m_bWrap || m_bCenterWrap )
 	{
 		//tell it how big it is
 		int wide, tall;
@@ -976,6 +1013,12 @@ void Label::ApplySchemeSettings(IScheme *pScheme)
 		int wide, tall;
 		_textImage->GetContentSize(wide, tall);
 		_textImage->SetSize(wide, tall);
+	}
+
+	if ( m_bAutoWideToContents )
+	{
+		m_bAutoWideDirty = true;
+		HandleAutoSizing();
 	}
 
 	// clear out any the images, since they will have been invalidated
@@ -1064,6 +1107,20 @@ void Label::GetSettings( KeyValues *outResourceData )
 	}
 	
 	outResourceData->SetInt("wrap", ( m_bWrap ? 1 : 0 ));
+	outResourceData->SetInt("centerwrap", ( m_bCenterWrap ? 1 : 0 ));
+
+	if ( m_bUseProportionalInsets )
+	{
+		outResourceData->SetInt("textinsetx", scheme()->GetProportionalNormalizedValueEx( GetScheme(), _textInset[0] ) );
+		outResourceData->SetInt("textinsety", _textInset[1]);
+	}
+	else
+	{
+		outResourceData->SetInt("textinsetx", _textInset[0]);
+		outResourceData->SetInt("textinsety", _textInset[1]);
+	}
+	outResourceData->SetInt("auto_wide_tocontents", ( m_bAutoWideToContents ? 1 : 0 ));
+	outResourceData->SetInt("use_proportional_insets", ( m_bUseProportionalInsets ? 1 : 0 ));
 }
 
 //-----------------------------------------------------------------------------
@@ -1071,7 +1128,7 @@ void Label::GetSettings( KeyValues *outResourceData )
 //-----------------------------------------------------------------------------
 void Label::ApplySettings( KeyValues *inResourceData )
 {
-	Panel::ApplySettings( inResourceData );
+	BaseClass::ApplySettings( inResourceData );
 
 	// label settings
 	const char *labelText =	inResourceData->GetString( "labelText", NULL );
@@ -1182,8 +1239,27 @@ void Label::ApplySettings( KeyValues *inResourceData )
 		SetFont(pScheme->GetFont("Default", IsProportional()));
 	}
 
-	bool bWrapText = inResourceData->GetInt("wrap", 0) > 0;
+	bool bWrapText = inResourceData->GetInt("centerwrap", 0) > 0;
+	SetCenterWrap( bWrapText );
+
+	m_bAutoWideToContents = inResourceData->GetInt("auto_wide_tocontents", 0) > 0;
+
+	bWrapText = inResourceData->GetInt("wrap", 0) > 0;
 	SetWrap( bWrapText );
+
+	int inset_x = inResourceData->GetInt("textinsetx", _textInset[0]);
+	int inset_y = inResourceData->GetInt("textinsety", _textInset[1]);
+	// Had to play it safe and add a new key for backwards compatibility
+	m_bUseProportionalInsets = inResourceData->GetInt("use_proportional_insets", 0) > 0;
+	if ( m_bUseProportionalInsets )
+	{
+		inset_x = scheme()->GetProportionalScaledValueEx( GetScheme(), inset_x );
+	}
+
+	SetTextInset( inset_x, inset_y );
+
+	bool bAllCaps = inResourceData->GetInt("allcaps", 0) > 0;
+	SetAllCaps( bAllCaps );
 
 	InvalidateLayout(true);
 }
@@ -1212,7 +1288,7 @@ void Label::PerformLayout()
 	// if we just have a textImage, this is trivial.
 	if (_imageDar.Count() == 1 && _textImageIndex == 0)
 	{	
-		if ( m_bWrap )
+		if ( m_bWrap || m_bCenterWrap )
 		{
 			int twide, ttall;
 			_textImage->GetContentSize(twide, ttall);
@@ -1229,6 +1305,11 @@ void Label::PerformLayout()
 			else
 				_textImage->SetSize(twide, ttall);
 		}
+
+		HandleAutoSizing();
+
+		HandleAutoSizing();
+
 		return;
 	}
 
@@ -1266,15 +1347,46 @@ void Label::PerformLayout()
 	_textImage->GetSize (twide, ttall);
 	// tell the textImage how much space we have to draw in
 	_textImage->SetSize(spaceAvail, ttall);	
+
+	HandleAutoSizing();
 }
 
 void Label::SetWrap( bool bWrap )
 {
 	m_bWrap = bWrap;
 	_textImage->SetWrap( m_bWrap );
+
+	InvalidateLayout();
 }
 
+void Label::SetCenterWrap( bool bWrap )
+{
+	m_bCenterWrap = bWrap;
+	_textImage->SetCenterWrap( m_bCenterWrap );
 
+	InvalidateLayout();
+}
+
+void Label::SetAllCaps( bool bAllCaps )
+{
+	m_bAllCaps = bAllCaps;
+	_textImage->SetAllCaps( m_bAllCaps );
+
+	InvalidateLayout();
+}
+
+void Label::HandleAutoSizing( void )
+{
+	if ( m_bAutoWideDirty )
+	{
+		m_bAutoWideDirty = false;
+
+		// Only change our width to match our content
+		int wide, tall;
+		GetContentSize(wide, tall);
+		SetSize(wide, GetTall());
+	}
+}
 
 
 

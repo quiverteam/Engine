@@ -109,7 +109,7 @@ struct studiodata_t
 	DECLARE_FIXEDSIZE_ALLOCATOR_MT( studiodata_t );
 };
 
-DEFINE_FIXEDSIZE_ALLOCATOR_MT( studiodata_t, 128, CMemoryPool::GROW_SLOW );
+DEFINE_FIXEDSIZE_ALLOCATOR_MT( studiodata_t, 128, CUtlMemoryPool::GROW_SLOW );
 
 // memdbgon must be the last include file in a .cpp file!!!
 #include "tier0/memdbgon.h"

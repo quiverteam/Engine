@@ -693,7 +693,7 @@ SpewRetval_t Sys_SpewFunc( SpewType_t spewType, const char *pMsg )
 #endif
 			default:
 				{
-					color = GetSpewOutputColor();
+					color = *GetSpewOutputColor();
 				}
 				break;
 			}

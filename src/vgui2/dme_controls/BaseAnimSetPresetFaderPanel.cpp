@@ -1029,7 +1029,7 @@ void CBaseAnimSetPresetFaderPanel::OnTextChanged( )
 	m_Filter.SetLength( nLength );
 	if ( nLength > 0 )
 	{
-		m_pFilter->GetText( m_Filter.Get(), nLength+1 );
+		m_pFilter->GetText( m_Filter.GetForModify(), nLength+1 );
 	}
 	PopulateList( true );
 }

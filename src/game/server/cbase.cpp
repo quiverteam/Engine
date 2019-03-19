@@ -186,7 +186,7 @@ CEventAction::CEventAction( const char *ActionData )
 
 // this memory pool stores blocks around the size of CEventAction/inputitem_t structs
 // can be used for other blocks; will error if to big a block is tried to be allocated
-CMemoryPool g_EntityListPool( max(sizeof(CEventAction),sizeof(CMultiInputVar::inputitem_t)), 512, CMemoryPool::GROW_FAST, "g_EntityListPool" );
+CUtlMemoryPool g_EntityListPool( max(sizeof(CEventAction),sizeof(CMultiInputVar::inputitem_t)), 512, CUtlMemoryPool::GROW_FAST, "g_EntityListPool" );
 
 #include "tier0/memdbgoff.h"
 
@@ -612,7 +612,7 @@ void CMultiInputVar::inputitem_t::operator delete( void *pMem )
 //
 // Purpose: holds and executes a global prioritized queue of entity actions
 //-----------------------------------------------------------------------------
-DEFINE_FIXEDSIZE_ALLOCATOR( EventQueuePrioritizedEvent_t, 128, CMemoryPool::GROW_SLOW );
+DEFINE_FIXEDSIZE_ALLOCATOR( EventQueuePrioritizedEvent_t, 128, CUtlMemoryPool::GROW_SLOW );
 
 CEventQueue g_EventQueue;
 
@@ -1696,7 +1696,7 @@ ISaveRestoreOps *variantFuncs = &g_VariantSaveDataOps;
 
 /////////////////////// entitylist /////////////////////
 
-CMemoryPool g_EntListMemPool( sizeof(entitem_t), 256, CMemoryPool::GROW_NONE, "g_EntListMemPool" );
+CUtlMemoryPool g_EntListMemPool( sizeof(entitem_t), 256, CUtlMemoryPool::GROW_NONE, "g_EntListMemPool" );
 
 #include "tier0/memdbgoff.h"
 

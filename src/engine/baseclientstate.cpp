@@ -491,13 +491,13 @@ bool CBaseClientState::PrepareSteamConnectResponse( int keySize, const char *enc
 	netadr_t checkAdr = adr;
 	if ( adr.GetType() == NA_LOOPBACK || adr.IsLocalhost() )
 	{
-		checkAdr.SetIP( net_local_adr.addr_ntohl() );
+		checkAdr.SetIP( net_local_adr.GetIPNetworkByteOrder() );
 	}
 
 #ifndef SWDS
 	// now append the steam3 cookie
 	char steam3Cookie[ STEAM_KEYSIZE ];
-	int steam3CookieLen = Steam3Client().InitiateConnection( steam3Cookie, sizeof(steam3Cookie), checkAdr.GetIP(), checkAdr.GetPort(), unGSSteamID, bGSSecure, (void *)encryptionKey, keySize );
+	int steam3CookieLen = Steam3Client().InitiateConnection( steam3Cookie, sizeof(steam3Cookie), checkAdr.GetIPNetworkByteOrder(), checkAdr.GetPort(), unGSSteamID, bGSSecure, (void *)encryptionKey, keySize );
 	msg.WriteShort( steam3CookieLen );
 	if ( steam3CookieLen > 0 )
 		msg.WriteBytes( steam3Cookie, steam3CookieLen );
@@ -616,10 +616,10 @@ void CBaseClientState::Disconnect( bool bShowMainMenu )
 	netadr_t checkAdr = adr;
 	if ( adr.GetType() == NA_LOOPBACK || adr.IsLocalhost() )
 	{
-		checkAdr.SetIP( net_local_adr.addr_ntohl() );
+		checkAdr.SetIP( net_local_adr.GetIPNetworkByteOrder() );
 	}
 
-	Steam3Client().TerminateConnection( checkAdr.GetIP(), adr.GetPort() );
+	Steam3Client().TerminateConnection( checkAdr.GetIPNetworkByteOrder(), adr.GetPort() );
 #endif
 
 	if ( m_NetChannel )

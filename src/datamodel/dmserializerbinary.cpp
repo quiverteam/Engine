@@ -288,7 +288,7 @@ DmElementHandle_t CDmSerializerBinary::UnserializeElementIndex( CUtlBuffer &buf,
 	if ( nElementIndex == ELEMENT_INDEX_EXTERNAL )
 	{
 		char idstr[ 40 ];
-		buf.GetString( idstr, sizeof( idstr ) );
+		buf.GetStringManualCharCount( idstr, sizeof( idstr ) );
 		DmObjectId_t id;
 		UniqueIdFromString( &id, idstr, sizeof( idstr ) );
 		return g_pDataModelImp->FindOrCreateElementHandle( id );
@@ -508,7 +508,7 @@ bool CDmSerializerBinary::UnserializeElements( CUtlBuffer &buf, DmFileId_t filei
 			pType = typeBuf;
 		}
 
-		buf.GetString( pName, 2048 );
+		buf.GetStringManualCharCount( pName, 2048 );
 		buf.Get( &id, sizeof(DmObjectId_t) );
 
 		if ( idConflictResolution == CR_FORCE_COPY )
