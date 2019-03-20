@@ -1,5 +1,35 @@
 @echo off
 
+rem == Setup path to nmake.exe ==
+if exist "%ProgramFiles(x86)%\Microsoft Visual Studio\Installer\vswhere.exe" (
+	for /f "usebackq tokens=1* delims=: " %%i in (`"%ProgramFiles(x86)%\Microsoft Visual Studio\Installer\vswhere.exe" -latest -requires Microsoft.VisualStudio.Workload.NativeDesktop`) do (
+		if /i "%%i"=="installationPath" (
+			set VSDIR=%%j
+			call "!VSDIR!\Common7\Tools\VsDevCmd.bat" >nul
+			echo Using Visual Studio 2017 nmake
+			goto :start
+		)
+	)	
+) else if exist "%VS140COMNTOOLS%vsvars32.bat" (
+	call "%VS140COMNTOOLS%vsvars32.bat"
+	echo Using Visual Studio 2015 nmake
+	
+) else if exist "%VS120COMNTOOLS%vsvars32.bat" (
+	call "%VS120COMNTOOLS%vsvars32.bat"
+	echo Using Visual Studio 2013 nmake
+	
+) else if exist "%VS100COMNTOOLS%vsvars32.bat" (
+	call "%VS100COMNTOOLS%vsvars32.bat"
+	echo Using Visual Studio 2010 nmake
+	
+) else (
+	echo.
+	echo Install Either Visual Studio Version 2010, 2013, 2015, or 2017
+	pause
+	exit
+)
+
+:start
 set TTEXE=..\..\devtools\bin\timeprecise.exe
 if not exist %TTEXE% goto no_ttexe
 goto no_ttexe_end
@@ -21,13 +51,10 @@ REM ****************
 setlocal
 set arg_filename=%1
 set shadercompilecommand=shadercompile.exe
-set shadercompileworkers=1
 set targetdir=..\..\..\game\platform\shaders
 set SrcDirBase=..\..
 set ChangeToDir=../../../game/bin
 set shaderDir=shaders
-set SDKArgs=
-set SHADERINCPATH=vshtmp9/... fxctmp9/...
 @REM your total thread count - 2
 set /A threadcount=%NUMBER_OF_PROCESSORS%
 @REM this increases performance greatly
@@ -89,8 +116,8 @@ if /i "%4" NEQ "-source" goto NoSourceDirSpecified
 set SrcDirBase=%~5
 
 REM ** use the -game parameter to tell us where to put the files
-set targetdir=%~3\shaders
-set SDKArgs=-nompi -nop4 -game "%~3"
+@REM set targetdir=%~3\shaders
+@REM set SDKArgs=-nompi -nop4 -game "%~3"
 
 if not exist "%~3\gameinfo.txt" goto InvalidGameDirectory
 goto build_shaders
@@ -128,14 +155,15 @@ REM make sure that target dirs exist
 REM files will be built in these targets and copied to their final destination
 if not exist %shaderDir% mkdir %shaderDir%
 if not exist %shaderDir%\fxc mkdir %shaderDir%\fxc
-if not exist %shaderDir%\vsh mkdir %shaderDir%\vsh
-@REM if not exist %shaderDir%\psh mkdir %shaderDir%\psh
+
 REM Nuke some files that we will add to later.
 if exist filelist.txt del /f /q filelist.txt
 if exist filestocopy.txt del /f /q filestocopy.txt
 if exist filelistgen.txt del /f /q filelistgen.txt
 if exist inclist.txt del /f /q inclist.txt
 if exist vcslist.txt del /f /q vcslist.txt
+if exist uniquefilestocopy.txt del /f /q uniquefilestocopy.txt
+if exist makefile.%inputbase% del /f /q makefile.%inputbase%
 
 REM ****************
 REM Generate a makefile for the shader project
@@ -148,14 +176,12 @@ REM Run the makefile, generating minimal work/build list for fxc files, go ahead
 REM ****************
 rem nmake /S /C -f makefile.%inputbase% clean > clean.txt 2>&1
 echo Building inc files, asm vcs files, and VMPI worklist for %inputbase%...
-echo.
 nmake /S /C -f makefile.%inputbase%
 
 REM ****************
 REM Copy the inc files to their target
 REM ****************
 if exist "inclist.txt" (
-	echo.
 	echo Publishing shader inc files to target...
 	perl %SrcDirBase%\devtools\bin\copyshaderincfiles.pl inclist.txt
 )
@@ -209,7 +235,26 @@ if exist "filelist.txt" if exist "uniquefilestocopy.txt" if not "%dynamic_shader
 	cd /D %shader_path_cd%
 )
 
+@REM delete the temporary files
+if exist filelist.txt del /f /q filelist.txt
+if exist filestocopy.txt del /f /q filestocopy.txt
+if exist filelistgen.txt del /f /q filelistgen.txt
+if exist inclist.txt del /f /q inclist.txt
+if exist vcslist.txt del /f /q vcslist.txt
+if exist uniquefilestocopy.txt del /f /q uniquefilestocopy.txt
+if exist makefile.%inputbase% del /f /q makefile.%inputbase%
 
+REM ****************
+REM PC Shader copy
+REM Publish the generated files to the output dir using XCOPY
+REM This batch file may have been invoked standalone or slaved (master does final smart mirror copy)
+REM ****************
+:DoXCopy
+if not "%dynamic_shaders%" == "1" (
+	if not exist "%ENGINEDIR%\platform\shaders" md "%ENGINEDIR%\platform\shaders"
+	xcopy "%cd%\shaders" "%cd%\%ENGINEDIR%\platform\shaders" /q /e /y	
+)
+goto end
 
 REM ****************
 REM END

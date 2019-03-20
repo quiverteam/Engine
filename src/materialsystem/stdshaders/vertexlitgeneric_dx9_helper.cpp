@@ -9,14 +9,6 @@
 #include "vertexlitgeneric_dx9_helper.h"
 #include "skin_dx9_helper.h"
 
-#include "vertexlit_and_unlit_generic_vs20.inc"
-#include "vertexlit_and_unlit_generic_bump_vs20.inc"
-
-#include "vertexlit_and_unlit_generic_ps20.inc"
-#include "vertexlit_and_unlit_generic_ps20b.inc"
-#include "vertexlit_and_unlit_generic_bump_ps20.inc"
-#include "vertexlit_and_unlit_generic_bump_ps20b.inc"
-
 #include "vertexlit_and_unlit_generic_vs30.inc"
 #include "vertexlit_and_unlit_generic_ps30.inc"
 #include "vertexlit_and_unlit_generic_bump_vs30.inc"

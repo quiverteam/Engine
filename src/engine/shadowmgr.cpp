@@ -557,9 +557,12 @@ void CShadowMgr::SetMaterial( Shadow_t& shadow, IMaterial* pMaterial, IMaterial*
 	shadow.m_pBindProxy = pBindProxy;
 
 	// We're holding onto this material
-	// flashlight material crashes this when debugging
-	pMaterial->IncrementReferenceCount();
-	pModelMaterial->IncrementReferenceCount();
+	// check to make sure it has a value first, otherwise it could be set to null and crash the engine
+	if ( pMaterial )
+		pMaterial->IncrementReferenceCount();
+
+	if ( pModelMaterial )
+		pModelMaterial->IncrementReferenceCount();
 
 	// Search the sort order handles for an enumeration id match
 	int materialEnum = (int)pMaterial;
@@ -601,8 +604,12 @@ void CShadowMgr::CleanupMaterial( Shadow_t& shadow )
 	}
 
 	// We're done with this material
-	shadow.m_pMaterial->DecrementReferenceCount();
-	shadow.m_pModelMaterial->DecrementReferenceCount();
+	// again, check to make sure it has a value first, otherwise it could be set to null and crash the engine
+	if ( shadow.m_pMaterial )
+		shadow.m_pMaterial->DecrementReferenceCount();
+
+	if ( shadow.m_pModelMaterial )
+		shadow.m_pModelMaterial->DecrementReferenceCount();
 }
 
 

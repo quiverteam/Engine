@@ -10,7 +10,6 @@
 
 #include "ConVar.h"
 
-#include "lightmappedgeneric_vs20.inc"
 #include "lightmappedgeneric_vs30.inc"
 #include "worldtwotextureblend_ps20.inc"
 #include "worldtwotextureblend_ps20b.inc"
@@ -243,36 +242,19 @@ END_SHADER_PARAMS
 			bool hasSelfIllum = IS_FLAG_SET( MATERIAL_VAR_SELFILLUM );
 
 			pShaderShadow->EnableSRGBWrite( true );
-			if ( g_pHardwareConfig->SupportsShaderModel_3_0() )
-			{
-				DECLARE_STATIC_VERTEX_SHADER( lightmappedgeneric_vs30 );
-				SET_STATIC_VERTEX_SHADER_COMBO( ENVMAP_MASK,  false );
-				SET_STATIC_VERTEX_SHADER_COMBO( BUMPMASK,  false );
-				SET_STATIC_VERTEX_SHADER_COMBO( TANGENTSPACE,  hasFlashlight );
-				SET_STATIC_VERTEX_SHADER_COMBO( BUMPMAP,  hasBump );
-				SET_STATIC_VERTEX_SHADER_COMBO( DIFFUSEBUMPMAP,  hasDiffuseBumpmap );
-				SET_STATIC_VERTEX_SHADER_COMBO( VERTEXCOLOR,  hasVertexColor );
-				SET_STATIC_VERTEX_SHADER_COMBO( VERTEXALPHATEXBLENDFACTOR, false );
-				SET_STATIC_VERTEX_SHADER_COMBO( RELIEF_MAPPING, 0 ); //( bumpmap_variant == 2 )?1:0);
-				SET_STATIC_VERTEX_SHADER_COMBO( SEAMLESS, bSeamlessMapping ); //( bumpmap_variant == 2 )?1:0);
-				//SET_STATIC_VERTEX_SHADER_COMBO( FLASHLIGHT, hasFlashlight );
-				SET_STATIC_VERTEX_SHADER( lightmappedgeneric_vs30 );
-			}
-			else
-			{
-				DECLARE_STATIC_VERTEX_SHADER( lightmappedgeneric_vs20 );
-				SET_STATIC_VERTEX_SHADER_COMBO( ENVMAP_MASK,  false );
-				SET_STATIC_VERTEX_SHADER_COMBO( BUMPMASK,  false );
-				SET_STATIC_VERTEX_SHADER_COMBO( TANGENTSPACE,  hasFlashlight );
-				SET_STATIC_VERTEX_SHADER_COMBO( BUMPMAP,  hasBump );
-				SET_STATIC_VERTEX_SHADER_COMBO( DIFFUSEBUMPMAP,  hasDiffuseBumpmap );
-				SET_STATIC_VERTEX_SHADER_COMBO( VERTEXCOLOR,  hasVertexColor );
-				SET_STATIC_VERTEX_SHADER_COMBO( VERTEXALPHATEXBLENDFACTOR, false );
-				SET_STATIC_VERTEX_SHADER_COMBO( RELIEF_MAPPING, 0 ); //( bumpmap_variant == 2 )?1:0);
-				SET_STATIC_VERTEX_SHADER_COMBO( SEAMLESS, bSeamlessMapping ); //( bumpmap_variant == 2 )?1:0);
-				//SET_STATIC_VERTEX_SHADER_COMBO( FLASHLIGHT, hasFlashlight );
-				SET_STATIC_VERTEX_SHADER( lightmappedgeneric_vs20 );
-			}
+
+			DECLARE_STATIC_VERTEX_SHADER( lightmappedgeneric_vs30 );
+			SET_STATIC_VERTEX_SHADER_COMBO( ENVMAP_MASK,  false );
+			SET_STATIC_VERTEX_SHADER_COMBO( BUMPMASK,  false );
+			SET_STATIC_VERTEX_SHADER_COMBO( TANGENTSPACE,  hasFlashlight );
+			SET_STATIC_VERTEX_SHADER_COMBO( BUMPMAP,  hasBump );
+			SET_STATIC_VERTEX_SHADER_COMBO( DIFFUSEBUMPMAP,  hasDiffuseBumpmap );
+			SET_STATIC_VERTEX_SHADER_COMBO( VERTEXCOLOR,  hasVertexColor );
+			SET_STATIC_VERTEX_SHADER_COMBO( VERTEXALPHATEXBLENDFACTOR, false );
+			SET_STATIC_VERTEX_SHADER_COMBO( RELIEF_MAPPING, 0 ); //( bumpmap_variant == 2 )?1:0);
+			SET_STATIC_VERTEX_SHADER_COMBO( SEAMLESS, bSeamlessMapping ); //( bumpmap_variant == 2 )?1:0);
+			//SET_STATIC_VERTEX_SHADER_COMBO( FLASHLIGHT, hasFlashlight );
+			SET_STATIC_VERTEX_SHADER( lightmappedgeneric_vs30 );
 			
 			/*if ( g_pHardwareConfig->SupportsShaderModel_3_0() )
 			{
@@ -417,25 +399,13 @@ END_SHADER_PARAMS
 			const int iCascadedShadowCombo = ( pCascadedDepthTexture != NULL ) ? 1 : 0;
 			MaterialFogMode_t fogType = pShaderAPI->GetSceneFogMode();
 			
-			if ( g_pHardwareConfig->SupportsShaderModel_3_0() )
-			{
-				DECLARE_DYNAMIC_VERTEX_SHADER( lightmappedgeneric_vs30 );
-				SET_DYNAMIC_VERTEX_SHADER_COMBO( DOWATERFOG,  fogType == MATERIAL_FOG_LINEAR_BELOW_FOG_Z );
-				SET_DYNAMIC_VERTEX_SHADER_COMBO( FASTPATH,  bVertexShaderFastPath );
-				SET_DYNAMIC_VERTEX_SHADER_COMBO(
-					LIGHTING_PREVIEW, pShaderAPI->GetIntRenderingParameter(INT_RENDERPARM_ENABLE_FIXED_LIGHTING)!=0);
-				SET_DYNAMIC_VERTEX_SHADER_COMBO( CASCADED_SHADOW, iCascadedShadowCombo );
-				SET_DYNAMIC_VERTEX_SHADER( lightmappedgeneric_vs30 );
-			}
-			else
-			{
-				DECLARE_DYNAMIC_VERTEX_SHADER( lightmappedgeneric_vs20 );
-				SET_DYNAMIC_VERTEX_SHADER_COMBO( DOWATERFOG,  fogType == MATERIAL_FOG_LINEAR_BELOW_FOG_Z );
-				SET_DYNAMIC_VERTEX_SHADER_COMBO( FASTPATH,  bVertexShaderFastPath );
-				SET_DYNAMIC_VERTEX_SHADER_COMBO(
-					LIGHTING_PREVIEW, pShaderAPI->GetIntRenderingParameter(INT_RENDERPARM_ENABLE_FIXED_LIGHTING)!=0);
-				SET_DYNAMIC_VERTEX_SHADER( lightmappedgeneric_vs20 );
-			}
+			DECLARE_DYNAMIC_VERTEX_SHADER( lightmappedgeneric_vs30 );
+			SET_DYNAMIC_VERTEX_SHADER_COMBO( DOWATERFOG,  fogType == MATERIAL_FOG_LINEAR_BELOW_FOG_Z );
+			SET_DYNAMIC_VERTEX_SHADER_COMBO( FASTPATH,  bVertexShaderFastPath );
+			SET_DYNAMIC_VERTEX_SHADER_COMBO(
+				LIGHTING_PREVIEW, pShaderAPI->GetIntRenderingParameter(INT_RENDERPARM_ENABLE_FIXED_LIGHTING)!=0);
+			SET_DYNAMIC_VERTEX_SHADER_COMBO( CASCADED_SHADOW, iCascadedShadowCombo );
+			SET_DYNAMIC_VERTEX_SHADER( lightmappedgeneric_vs30 );
 
 			bool bWriteDepthToAlpha;
 			bool bWriteWaterFogToAlpha;
