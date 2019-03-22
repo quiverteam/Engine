@@ -6,8 +6,18 @@
 // $NoKeywords: $
 //=============================================================================//
 
+#ifdef _LINUX64
+#define cpuid(in,a,b,c,d)	\
+			asm("movl %4, %%eax\n\t"		\
+				"cpuid\n\t"		\
+				"movl %%eax, %0\n\t"	\
+				"movl %%ebx, %1\n\t"	\
+				"movl %%ecx, %2\n\t"	\
+				"movl %%edx, %3\n\t" : "=m"(a), "=m"(b), "=m"(c), "=m"(d) : "r"(in))
+#else
 #define cpuid(in,a,b,c,d)												\
 	asm("pushl %%ebx\n\t" "cpuid\n\t" "movl %%ebx,%%esi\n\t" "pop %%ebx": "=a" (a), "=S" (b), "=c" (c), "=d" (d) : "a" (in));
+#endif
 
 bool CheckMMXTechnology(void)
 {
