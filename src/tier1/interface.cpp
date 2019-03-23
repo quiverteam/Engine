@@ -123,7 +123,7 @@ void *GetModuleHandle(const char *name)
 }
 #endif
 
-#if defined( _WIN32 ) && !defined( _X360 )
+#if defined( _WIN32 ) || defined(WIN64)
 #define WIN32_LEAN_AND_MEAN
 #include "windows.h"
 #endif

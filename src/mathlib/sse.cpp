@@ -13,11 +13,14 @@
 #include "mathlib/vector.h"
 #include "sse.h"
 
+#if defined(_WIN32) || defined(WIN64)
+#include <intrin.h>
+#elif defined(LINUX64) || defined(POSIX)
+#include <xmmintrin.h>
+#endif
+
 // memdbgon must be the last include file in a .cpp file!!!
 #include "tier0/memdbgon.h"
-
-#ifndef COMPILER_MSVC64
-// Implement for 64-bit Windows if needed.
 
 static const uint32 _sincos_masks[]	  = { (uint32)0x0,  (uint32)~0x0 };
 static const uint32 _sincos_inv_masks[] = { (uint32)~0x0, (uint32)0x0 };
@@ -85,17 +88,10 @@ void  __cdecl _SSE_VectorMA( const float *start, float scale, const float *direc
 //-----------------------------------------------------------------------------
 float _SSE_Sqrt(float x)
 {
-	Assert( s_bMathlibInitialized );
+	Assert(s_bMathlibInitialized);
 	float	root = 0.f;
-#ifdef _WIN32
-	_asm
-	{
-		sqrtss		xmm0, x
-		movss		root, xmm0
-	}
-#elif POSIX
-	_mm_store_ss( &root, _mm_sqrt_ss( _mm_load_ss( &x ) ) );
-#endif
+	__m128 _x = _mm_set_ps1(x);
+	_mm_store_ss(&root, _mm_rcp_ss(_mm_rsqrt_ss(_x)));
 	return root;
 }
 
@@ -118,38 +114,23 @@ float _SSE_RSqrtAccurate(float x)
 }
 #else
 
-#ifdef POSIX
-const __m128  f3  = _mm_set_ss(3.0f);  // 3 as SSE value
-const __m128  f05 = _mm_set_ss(0.5f);  // 0.5 as SSE value
-#endif
+const __m128	f1 = _mm_set_ss(1.0f);
+const __m128	f3  = _mm_set_ss(3.0f);  // 3 as SSE value
+const __m128	f05 = _mm_set_ss(0.5f);  // 0.5 as SSE value
+const __m128	f0 = _mm_set_ss(0.0f);
+const __m128	fac2 = _mm_set_ss(2.0f);
+const __m128	fac3 = _mm_set_ss(6.0f);
+const __m128	fac4 = _mm_set_ss(24.0f);
+const __m128	fac5 = _mm_set_ss(120.0f);
+const __m128	fac6 = _mm_set_ss(720.0f);
+const __m128	fac7 = _mm_set_ss(5040.0f);
+const __m128	fac8 = _mm_set_ss(40320.0f);
+const __m128	fac9 = _mm_set_ss(362880.0f);
 
 // Intel / Kipps SSE RSqrt.  Significantly faster than above.
 float _SSE_RSqrtAccurate(float a)
 {
 
-#ifdef _WIN32
-	float x;
-	float half = 0.5f;
-	float three = 3.f;
-
-	__asm
-	{
-		movss   xmm3, a;
-		movss   xmm1, half;
-		movss   xmm2, three;
-		rsqrtss xmm0, xmm3;
-
-		mulss   xmm3, xmm0;
-		mulss   xmm1, xmm0;
-		mulss   xmm3, xmm0;
-		subss   xmm2, xmm3;
-		mulss   xmm1, xmm2;
-
-		movss   x,    xmm1;
-	}
-
-	return x;
-#elif POSIX	
 	__m128  xx = _mm_load_ss( &a );
     __m128  xr = _mm_rsqrt_ss( xx );
     __m128  xt;
@@ -162,9 +143,6 @@ float _SSE_RSqrtAccurate(float a)
 	
     _mm_store_ss( &a, xr );
     return a;
-#else
-	#error "Not Implemented"
-#endif
 
 }
 #endif
@@ -176,17 +154,9 @@ float _SSE_RSqrtFast(float x)
 	Assert( s_bMathlibInitialized );
 
 	float rroot;
-#ifdef _WIN32
-	_asm
-	{
-		rsqrtss	xmm0, x
-		movss	rroot, xmm0
-	}
-#elif POSIX
-	__asm__ __volatile__( "rsqrtss %0, %1" : "=x" (rroot) : "x" (x) );
-#else
-#error
-#endif
+
+	__m128 _x = _mm_set1_ps(x);
+	_mm_store_ps(&rroot, _mm_rsqrt_ss(_x));
 
 	return rroot;
 }
@@ -197,79 +167,58 @@ float FASTCALL _SSE_VectorNormalize (Vector& vec)
 
 	// NOTE: This is necessary to prevent an memory overwrite...
 	// sice vec only has 3 floats, we can't "movaps" directly into it.
-#ifdef _WIN32
+#if defined(_WIN32) || defined(WIN64)
 	__declspec(align(16)) float result[4];
 #elif POSIX
 	 float result[4] __attribute__((aligned(16)));
 #endif
 
 	float *v = &vec[0];
-#ifdef _WIN32
 	float *r = &result[0];
-#endif
 
 	float	radius = 0.f;
 	// Blah, get rid of these comparisons ... in reality, if you have all 3 as zero, it shouldn't 
 	// be much of a performance win, considering you will very likely miss 3 branch predicts in a row.
 	if ( v[0] || v[1] || v[2] )
 	{
-#ifdef _WIN32
-	_asm
-		{
-			mov			eax, v
-			mov			edx, r
-#ifdef ALIGNED_VECTOR
-			movaps		xmm4, [eax]			// r4 = vx, vy, vz, X
-			movaps		xmm1, xmm4			// r1 = r4
-#else
-			movups		xmm4, [eax]			// r4 = vx, vy, vz, X
-			movaps		xmm1, xmm4			// r1 = r4
-#endif
-			mulps		xmm1, xmm4			// r1 = vx * vx, vy * vy, vz * vz, X
-			movhlps		xmm3, xmm1			// r3 = vz * vz, X, X, X
-			movaps		xmm2, xmm1			// r2 = r1
-			shufps		xmm2, xmm2, 1		// r2 = vy * vy, X, X, X
-			addss		xmm1, xmm2			// r1 = (vx * vx) + (vy * vy), X, X, X
-			addss		xmm1, xmm3			// r1 = (vx * vx) + (vy * vy) + (vz * vz), X, X, X
-			sqrtss		xmm1, xmm1			// r1 = sqrt((vx * vx) + (vy * vy) + (vz * vz)), X, X, X
-			movss		radius, xmm1		// radius = sqrt((vx * vx) + (vy * vy) + (vz * vz))
-			rcpss		xmm1, xmm1			// r1 = 1/radius, X, X, X
-			shufps		xmm1, xmm1, 0		// r1 = 1/radius, 1/radius, 1/radius, X
-			mulps		xmm4, xmm1			// r4 = vx * 1/radius, vy * 1/radius, vz * 1/radius, X
-			movaps		[edx], xmm4			// v = vx * 1/radius, vy * 1/radius, vz * 1/radius, X
-		}
-#elif POSIX
-		__asm__ __volatile__(
-#ifdef ALIGNED_VECTOR
-            "movaps          %2, %%xmm4 \n\t"
-            "movaps          %%xmm4, %%xmm1 \n\t"
-#else
-            "movups          %2, %%xmm4 \n\t"
-            "movaps          %%xmm4, %%xmm1 \n\t"
-#endif
-            "mulps           %%xmm4, %%xmm1 \n\t"
-            "movhlps         %%xmm1, %%xmm3 \n\t"
-            "movaps          %%xmm1, %%xmm2 \n\t"
-            "shufps          $1, %%xmm2, %%xmm2 \n\t"
-            "addss           %%xmm2, %%xmm1 \n\t"
-            "addss           %%xmm3, %%xmm1 \n\t"
-            "sqrtss          %%xmm1, %%xmm1 \n\t"
-            "movss           %%xmm1, %0 \n\t"
-            "rcpss           %%xmm1, %%xmm1 \n\t"
-            "shufps          $0, %%xmm1, %%xmm1 \n\t"
-            "mulps           %%xmm1, %%xmm4 \n\t"
-            "movaps          %%xmm4, %1 \n\t"
-            : "=m" (radius), "=m" (result)
-            : "m" (*v)
-            : "xmm1", "xmm2", "xmm3", "xmm4"
- 		);
-#else
-	#error "Not Implemented"
-#endif
-		vec.x = result[0];
-		vec.y = result[1];
-		vec.z = result[2];
+		/* Compiles to slightly less instructions than what was initially implemented. */
+		/* Works on both windows and posix */
 
+		// Load vector
+	#ifdef ALIGNED_VECTOR
+		__m128 _v = _mm_load_ps(v);
+	#else
+		__m128 _v = _mm_loadu_ps(v);
+	#endif
+
+		// Compute square
+		__m128 res = _mm_mul_ps(_v, _v);
+		
+		// Shuffle
+		__m128 v2 = _mm_shuffle_ps(res, res, 1);
+		__m128 v3 = _mm_shuffle_ps(res, res, 2);
+		
+		// Adda all together & store
+		res = _mm_add_ps(res, _mm_add_ps(v3, v2));
+
+		// Sqrt and store mag in res
+		res = _mm_sqrt_ps(res);
+
+		// Need to duplicate to all elems
+		res = _mm_shuffle_ps(res, res, 0);
+
+		// Compute components again
+		_v = _mm_div_ps(_v, res);
+
+		// Store in result & set vec
+		_mm_store_ps(r, _v);
+		vec.x = r[0];
+		vec.y = r[1];
+		vec.z = r[2];
+
+		float ret;
+		_mm_store_ss(&ret, res);
+		return ret;
 	}
 
 	return radius;
@@ -287,51 +236,29 @@ void FASTCALL _SSE_VectorNormalizeFast (Vector& vec)
 float _SSE_InvRSquared(const float* v)
 {
 	float	inv_r2 = 1.f;
-#ifdef _WIN32
-	_asm { // Intel SSE only routine
-		mov			eax, v
-		movss		xmm5, inv_r2		// x5 = 1.0, 0, 0, 0
+
+	/*
+
+	res = (vx+vx) + (vy+vy) + (vz*vz);
+	return 1 / max(1.0, res);
+	
+	*/
+
 #ifdef ALIGNED_VECTOR
-		movaps		xmm4, [eax]			// x4 = vx, vy, vz, X
+	__m128 _v = _mm_load_ps(v);
 #else
-		movups		xmm4, [eax]			// x4 = vx, vy, vz, X
+	__m128 _v = _mm_loadu_ps(v);
 #endif
-		movaps		xmm1, xmm4			// x1 = x4
-		mulps		xmm1, xmm4			// x1 = vx * vx, vy * vy, vz * vz, X
-		movhlps		xmm3, xmm1			// x3 = vz * vz, X, X, X
-		movaps		xmm2, xmm1			// x2 = x1
-		shufps		xmm2, xmm2, 1		// x2 = vy * vy, X, X, X
-		addss		xmm1, xmm2			// x1 = (vx * vx) + (vy * vy), X, X, X
-		addss		xmm1, xmm3			// x1 = (vx * vx) + (vy * vy) + (vz * vz), X, X, X
-		maxss		xmm1, xmm5			// x1 = max( 1.0, x1 )
-		rcpss		xmm0, xmm1			// x0 = 1 / max( 1.0, x1 )
-		movss		inv_r2, xmm0		// inv_r2 = x0
-	}
-#elif POSIX
-		__asm__ __volatile__(
-		"movss			 %0, %%xmm5 \n\t"
-#ifdef ALIGNED_VECTOR
-		"movaps          %1, %%xmm4 \n\t"
-#else
-		"movups          %1, %%xmm4 \n\t"
-#endif
-        "movaps          %%xmm4, %%xmm1 \n\t"
-        "mulps           %%xmm4, %%xmm1 \n\t"
-		"movhlps         %%xmm1, %%xmm3 \n\t"
-		"movaps          %%xmm1, %%xmm2 \n\t"
-        "shufps          $1, %%xmm2, %%xmm2 \n\t"
-        "addss           %%xmm2, %%xmm1 \n\t"
-        "addss           %%xmm3, %%xmm1 \n\t"
-		"maxss           %%xmm5, %%xmm1 \n\t"
-        "rcpss           %%xmm1, %%xmm0 \n\t"
-		"movss           %%xmm0, %0 \n\t" 
-        : "+m" (inv_r2)
-        : "m" (*v)
-        : "xmm0", "xmm1", "xmm2", "xmm3", "xmm4", "xmm5"
- 		);
-#else
-	#error "Not Implemented"
-#endif
+	__m128 res = _mm_mul_ps(_v, _v);
+	__m128 x = res;
+	__m128 y = _mm_shuffle_ps(res, res, 1);
+	__m128 z = _mm_shuffle_ps(res, res, 2);
+
+	res = _mm_add_ps(x, _mm_add_ps(y, z));
+
+	res = _mm_rcp_ps(_mm_max_ps(f0, res));
+
+	_mm_store_ss(&inv_r2, res);
 
 	return inv_r2;
 }
@@ -378,515 +305,132 @@ typedef __m64 v2si;   // vector of 2 int (mmx)
 
 #endif
 
+/* Avoid this, standard library is faster */
 void _SSE_SinCos(float x, float* s, float* c)
 {
-#ifdef _WIN32
-	float t4, t8, t12;
+	// Taylor series approximation of sin & cos
+	__m128 val = _mm_set1_ps(x);
 
-	__asm
-	{
-		movss	xmm0, x
-		movss	t12, xmm0
-		movss	xmm1, _ps_am_inv_sign_mask
-		mov		eax, t12
-		mulss	xmm0, _ps_am_2_o_pi
-		andps	xmm0, xmm1
-		and		eax, 0x80000000
+	__m128 _s = val;
+	const __m128 squared = _mm_mul_ss(_s, _s);
 
-		cvttss2si	edx, xmm0
-		mov		ecx, edx
-		mov		t12, esi
-		mov		esi, edx
-		add		edx, 0x1	
-		shl		ecx, (31 - 1)
-		shl		edx, (31 - 1)
+	__m128 phase1 = val;
+	phase1 = _mm_mul_ps(phase1, squared); // x = x^3
+	_s = _mm_sub_ss(_s, _mm_div_ss(phase1, fac3));
 
-		movss	xmm4, _ps_am_1
-		cvtsi2ss	xmm3, esi
-		mov		t8, eax
-		and		esi, 0x1
+	phase1 = _mm_mul_ps(phase1, squared); // x = x^5
+	_s = _mm_add_ss(_s, _mm_div_ss(phase1, fac5));
 
-		subss	xmm0, xmm3
-		movss	xmm3, _sincos_inv_masks[esi * 4]
-		minss	xmm0, xmm4
+	phase1 = _mm_mul_ps(phase1, squared); // x = x^7
+	_s = _mm_sub_ss(_s, _mm_div_ss(phase1, fac7));
 
-		subss	xmm4, xmm0
+	phase1 = _mm_mul_ps(phase1, squared); // x = x^9
+	_s = _mm_add_ss(_s, _mm_div_ss(phase1, fac9));
 
-		movss	xmm6, xmm4
-		andps	xmm4, xmm3
-		and		ecx, 0x80000000
-		movss	xmm2, xmm3
-		andnps	xmm3, xmm0
-		and		edx, 0x80000000
-		movss	xmm7, t8
-		andps	xmm0, xmm2
-		mov		t8, ecx
-		mov		t4, edx
-		orps	xmm4, xmm3
+	// Done with sine
+	_mm_store_ss(s, _s);
 
-		mov		eax, s     //mov eax, [esp + 4 + 16]
-		mov		edx, c //mov edx, [esp + 4 + 16 + 4]
+	//cos x = sqrt(1-sin^2 x)
+	_s = _mm_mul_ss(_s, _s); // square
+	_s = _mm_sub_ss(f1, _s);
+	_s = _mm_rsqrt_ss(_s);
+	_s = _mm_rcp_ss(_s);
 
-		andnps	xmm2, xmm6
-		orps	xmm0, xmm2
-
-		movss	xmm2, t8
-		movss	xmm1, xmm0
-		movss	xmm5, xmm4
-		xorps	xmm7, xmm2
-		movss	xmm3, _ps_sincos_p3
-		mulss	xmm0, xmm0
-		mulss	xmm4, xmm4
-		movss	xmm2, xmm0
-		movss	xmm6, xmm4
-		orps	xmm1, xmm7
-		movss	xmm7, _ps_sincos_p2
-		mulss	xmm0, xmm3
-		mulss	xmm4, xmm3
-		movss	xmm3, _ps_sincos_p1
-		addss	xmm0, xmm7
-		addss	xmm4, xmm7
-		movss	xmm7, _ps_sincos_p0
-		mulss	xmm0, xmm2
-		mulss	xmm4, xmm6
-		addss	xmm0, xmm3
-		addss	xmm4, xmm3
-		movss	xmm3, t4
-		mulss	xmm0, xmm2
-		mulss	xmm4, xmm6
-		orps	xmm5, xmm3
-		mov		esi, t12
-		addss	xmm0, xmm7
-		addss	xmm4, xmm7
-		mulss	xmm0, xmm1
-		mulss	xmm4, xmm5
-
-		// use full stores since caller might reload with full loads
-		movss	[eax], xmm0
-		movss	[edx], xmm4
-	}
-#elif POSIX
-	
-	Assert( "Needs testing, verify impl!\n" );
-	
-	v4sf  xx = _mm_load_ss( &x );
-	
-	v4sf xmm1, xmm2, xmm3 = _mm_setzero_ps(), sign_bit_sin, y;
-	v2si mm0, mm1, mm2, mm3, mm4, mm5;
-	sign_bit_sin = xx;
-	/* take the absolute value */
-	xx = _mm_and_ps(xx, *(v4sf*)_ps_inv_sign_mask);
-	/* extract the sign bit (upper one) */
-	sign_bit_sin = _mm_and_ps(sign_bit_sin, *(v4sf*)_ps_sign_mask);
-	
-	/* scale by 4/Pi */
-	y = _mm_mul_ps(xx, *(v4sf*)_ps_cephes_FOPI);
-	
-	/* store the integer part of y in mm2:mm3 */
-	xmm3 = _mm_movehl_ps(xmm3, y);
-	mm2 = _mm_cvttps_pi32(y);
-	mm3 = _mm_cvttps_pi32(xmm3);
-	
-	/* j=(j+1) & (~1) (see the cephes sources) */
-	mm2 = _mm_add_pi32(mm2, *(v2si*)_pi32_1);
-	mm3 = _mm_add_pi32(mm3, *(v2si*)_pi32_1);
-	mm2 = _mm_and_si64(mm2, *(v2si*)_pi32_inv1);
-	mm3 = _mm_and_si64(mm3, *(v2si*)_pi32_inv1);
-	
-	y = _mm_cvtpi32x2_ps(mm2, mm3);
-	
-	mm4 = mm2;
-	mm5 = mm3;
-	
-	/* get the swap sign flag for the sine */
-	mm0 = _mm_and_si64(mm2, *(v2si*)_pi32_4);
-	mm1 = _mm_and_si64(mm3, *(v2si*)_pi32_4);
-	mm0 = _mm_slli_pi32(mm0, 29);
-	mm1 = _mm_slli_pi32(mm1, 29);
-	v4sf swap_sign_bit_sin;
-	COPY_MM_TO_XMM(mm0, mm1, swap_sign_bit_sin);
-	
-	/* get the polynom selection mask for the sine */
-	
-	mm2 = _mm_and_si64(mm2, *(v2si*)_pi32_2);
-	mm3 = _mm_and_si64(mm3, *(v2si*)_pi32_2);
-	mm2 = _mm_cmpeq_pi32(mm2, _mm_setzero_si64());
-	mm3 = _mm_cmpeq_pi32(mm3, _mm_setzero_si64());
-	v4sf poly_mask;
-	COPY_MM_TO_XMM(mm2, mm3, poly_mask);
-	
-	/* The magic pass: "Extended precision modular arithmetic" 
-	 x = ((x - y * DP1) - y * DP2) - y * DP3; */
-	xmm1 = *(v4sf*)_ps_minus_cephes_DP1;
-	xmm2 = *(v4sf*)_ps_minus_cephes_DP2;
-	xmm3 = *(v4sf*)_ps_minus_cephes_DP3;
-	xmm1 = _mm_mul_ps(y, xmm1);
-	xmm2 = _mm_mul_ps(y, xmm2);
-	xmm3 = _mm_mul_ps(y, xmm3);
-	xx = _mm_add_ps(xx, xmm1);
-	xx = _mm_add_ps(xx, xmm2);
-	xx = _mm_add_ps(xx, xmm3);
-	
-	/* get the sign flag for the cosine */
-	mm4 = _mm_sub_pi32(mm4, *(v2si*)_pi32_2);
-	mm5 = _mm_sub_pi32(mm5, *(v2si*)_pi32_2);
-	mm4 = _mm_andnot_si64(mm4, *(v2si*)_pi32_4);
-	mm5 = _mm_andnot_si64(mm5, *(v2si*)_pi32_4);
-	mm4 = _mm_slli_pi32(mm4, 29);
-	mm5 = _mm_slli_pi32(mm5, 29);
-	v4sf sign_bit_cos;
-	COPY_MM_TO_XMM(mm4, mm5, sign_bit_cos);
-	_mm_empty(); /* good-bye mmx */
-	
-	sign_bit_sin = _mm_xor_ps(sign_bit_sin, swap_sign_bit_sin);
-	
-	
-	/* Evaluate the first polynom  (0 <= x <= Pi/4) */
-	v4sf z = _mm_mul_ps(xx,xx);
-	y = *(v4sf*)_ps_coscof_p0;
-	
-	y = _mm_mul_ps(y, z);
-	y = _mm_add_ps(y, *(v4sf*)_ps_coscof_p1);
-	y = _mm_mul_ps(y, z);
-	y = _mm_add_ps(y, *(v4sf*)_ps_coscof_p2);
-	y = _mm_mul_ps(y, z);
-	y = _mm_mul_ps(y, z);
-	v4sf tmp = _mm_mul_ps(z, *(v4sf*)_ps_0p5);
-	y = _mm_sub_ps(y, tmp);
-	y = _mm_add_ps(y, *(v4sf*)_ps_1);
-	
-	/* Evaluate the second polynom  (Pi/4 <= x <= 0) */
-	
-	v4sf y2 = *(v4sf*)_ps_sincof_p0;
-	y2 = _mm_mul_ps(y2, z);
-	y2 = _mm_add_ps(y2, *(v4sf*)_ps_sincof_p1);
-	y2 = _mm_mul_ps(y2, z);
-	y2 = _mm_add_ps(y2, *(v4sf*)_ps_sincof_p2);
-	y2 = _mm_mul_ps(y2, z);
-	y2 = _mm_mul_ps(y2, xx);
-	y2 = _mm_add_ps(y2, xx);
-	
-	/* select the correct result from the two polynoms */  
-	xmm3 = poly_mask;
-	v4sf ysin2 = _mm_and_ps(xmm3, y2);
-	v4sf ysin1 = _mm_andnot_ps(xmm3, y);
-	y2 = _mm_sub_ps(y2,ysin2);
-	y = _mm_sub_ps(y, ysin1);
-	
-	xmm1 = _mm_add_ps(ysin1,ysin2);
-	xmm2 = _mm_add_ps(y,y2);
-	
-	/* update the sign */
-	_mm_store_ss( s, _mm_xor_ps(xmm1, sign_bit_sin) );
-	_mm_store_ss( c, _mm_xor_ps(xmm2, sign_bit_cos) );
-
-#else
-	#error "Not Implemented"
-#endif
+	// Done with cosine
+	_mm_store_ss(c, _s);
 }
 
 float _SSE_cos( float x )
 {
-#ifdef _WIN32
-	float temp;
-	__asm
-	{
-		movss	xmm0, x
-		movss	xmm1, _ps_am_inv_sign_mask
-		andps	xmm0, xmm1
-		addss	xmm0, _ps_am_pi_o_2
-		mulss	xmm0, _ps_am_2_o_pi
+	// Taylor series implementation of approximation of cos
+	__m128 val = _mm_set1_ps(x);
 
-		cvttss2si	ecx, xmm0
-		movss	xmm5, _ps_am_1
-		mov		edx, ecx
-		shl		edx, (31 - 1)
-		cvtsi2ss	xmm1, ecx
-		and		edx, 0x80000000
-		and		ecx, 0x1
+	__m128 _s = _mm_set_ss(1.0f);
+	const __m128 squared = _mm_mul_ss(val, val);
 
-		subss	xmm0, xmm1
-		movss	xmm6, _sincos_masks[ecx * 4]
-		minss	xmm0, xmm5
+	__m128 r1 = val;
+	r1 = _mm_mul_ss(r1, r1);
+	_s = _mm_sub_ss(_s, _mm_div_ss(r1, fac2));
 
-		movss	xmm1, _ps_sincos_p3
-		subss	xmm5, xmm0
+	r1 = _mm_mul_ss(r1, squared);
+	_s = _mm_add_ss(_s, _mm_div_ss(r1, fac4));
 
-		andps	xmm5, xmm6
-		movss	xmm7, _ps_sincos_p2
-		andnps	xmm6, xmm0
-		mov		temp, edx
-		orps	xmm5, xmm6
-		movss	xmm0, xmm5
+	r1 = _mm_mul_ss(r1, squared);
+	_s = _mm_sub_ss(_s, _mm_div_ss(r1, fac6));
 
-		mulss	xmm5, xmm5
-		movss	xmm4, _ps_sincos_p1
-		movss	xmm2, xmm5
-		mulss	xmm5, xmm1
-		movss	xmm1, _ps_sincos_p0
-		addss	xmm5, xmm7
-		mulss	xmm5, xmm2
-		movss	xmm3, temp
-		addss	xmm5, xmm4
-		mulss	xmm5, xmm2
-		orps	xmm0, xmm3
-		addss	xmm5, xmm1
-		mulss	xmm0, xmm5
-		
-		movss   x,    xmm0
+	r1 = _mm_mul_ss(r1, squared);
+	_s = _mm_add_ss(_s, _mm_div_ss(r1, fac8));
 
-	}
-#elif POSIX
-
-	Assert( "Needs testing, verify impl!\n" );
-
-	v4sf xmm1, xmm2 = _mm_setzero_ps(), xmm3, y;
-	v2si mm0, mm1, mm2, mm3;
-	/* take the absolute value */
-	v4sf  xx = _mm_load_ss( &x );
-
-	xx = _mm_and_ps(xx, *(v4sf*)_ps_inv_sign_mask);
-		
-	/* scale by 4/Pi */
-	y = _mm_mul_ps(xx, *(v4sf*)_ps_cephes_FOPI);
-	
-	/* store the integer part of y in mm0:mm1 */
-	xmm2 = _mm_movehl_ps(xmm2, y);
-	mm2 = _mm_cvttps_pi32(y);
-	mm3 = _mm_cvttps_pi32(xmm2);
-	
-	/* j=(j+1) & (~1) (see the cephes sources) */
-	mm2 = _mm_add_pi32(mm2, *(v2si*)_pi32_1);
-	mm3 = _mm_add_pi32(mm3, *(v2si*)_pi32_1);
-	mm2 = _mm_and_si64(mm2, *(v2si*)_pi32_inv1);
-	mm3 = _mm_and_si64(mm3, *(v2si*)_pi32_inv1);
-	
-	y = _mm_cvtpi32x2_ps(mm2, mm3);
-	
-	
-	mm2 = _mm_sub_pi32(mm2, *(v2si*)_pi32_2);
-	mm3 = _mm_sub_pi32(mm3, *(v2si*)_pi32_2);
-	
-	/* get the swap sign flag in mm0:mm1 and the 
-	 polynom selection mask in mm2:mm3 */
-	
-	mm0 = _mm_andnot_si64(mm2, *(v2si*)_pi32_4);
-	mm1 = _mm_andnot_si64(mm3, *(v2si*)_pi32_4);
-	mm0 = _mm_slli_pi32(mm0, 29);
-	mm1 = _mm_slli_pi32(mm1, 29);
-	
-	mm2 = _mm_and_si64(mm2, *(v2si*)_pi32_2);
-	mm3 = _mm_and_si64(mm3, *(v2si*)_pi32_2);
-	
-	mm2 = _mm_cmpeq_pi32(mm2, _mm_setzero_si64());
-	mm3 = _mm_cmpeq_pi32(mm3, _mm_setzero_si64());
-	
-	v4sf sign_bit, poly_mask;
-	COPY_MM_TO_XMM(mm0, mm1, sign_bit);
-	COPY_MM_TO_XMM(mm2, mm3, poly_mask);
-	_mm_empty(); /* good-bye mmx */
-
-	/* The magic pass: "Extended precision modular arithmetic" 
-	 x = ((x - y * DP1) - y * DP2) - y * DP3; */
-	xmm1 = *(v4sf*)_ps_minus_cephes_DP1;
-	xmm2 = *(v4sf*)_ps_minus_cephes_DP2;
-	xmm3 = *(v4sf*)_ps_minus_cephes_DP3;
-	xmm1 = _mm_mul_ps(y, xmm1);
-	xmm2 = _mm_mul_ps(y, xmm2);
-	xmm3 = _mm_mul_ps(y, xmm3);
-	xx = _mm_add_ps(xx, xmm1);
-	xx = _mm_add_ps(xx, xmm2);
-	xx = _mm_add_ps(xx, xmm3);
-	
-	/* Evaluate the first polynom  (0 <= x <= Pi/4) */
-	y = *(v4sf*)_ps_coscof_p0;
-	v4sf z = _mm_mul_ps(xx,xx);
-	
-	y = _mm_mul_ps(y, z);
-	y = _mm_add_ps(y, *(v4sf*)_ps_coscof_p1);
-	y = _mm_mul_ps(y, z);
-	y = _mm_add_ps(y, *(v4sf*)_ps_coscof_p2);
-	y = _mm_mul_ps(y, z);
-	y = _mm_mul_ps(y, z);
-	v4sf tmp = _mm_mul_ps(z, *(v4sf*)_ps_0p5);
-	y = _mm_sub_ps(y, tmp);
-	y = _mm_add_ps(y, *(v4sf*)_ps_1);
-	
-	/* Evaluate the second polynom  (Pi/4 <= x <= 0) */
-	
-	v4sf y2 = *(v4sf*)_ps_sincof_p0;
-	y2 = _mm_mul_ps(y2, z);
-	y2 = _mm_add_ps(y2, *(v4sf*)_ps_sincof_p1);
-	y2 = _mm_mul_ps(y2, z);
-	y2 = _mm_add_ps(y2, *(v4sf*)_ps_sincof_p2);
-	y2 = _mm_mul_ps(y2, z);
-	y2 = _mm_mul_ps(y2, xx);
-	y2 = _mm_add_ps(y2, xx);
-	
-	/* select the correct result from the two polynoms */  
-	xmm3 = poly_mask;
-	y2 = _mm_and_ps(xmm3, y2); //, xmm3);
-	y = _mm_andnot_ps(xmm3, y);
-	y = _mm_add_ps(y,y2);
-	/* update the sign */
-
-	_mm_store_ss( &x, _mm_xor_ps(y, sign_bit) );
-
-#else
-	#error "Not Implemented"
-#endif
-
-	return x;
+	float ret = 0.0f;
+	_mm_store_ss(&ret, _s);
+	return ret;
 }
 
 //-----------------------------------------------------------------------------
 // SSE2 implementations of optimized routines:
 //-----------------------------------------------------------------------------
 #ifdef PLATFORM_WINDOWS_PC32
+// Identical to SSE SinCos, no benefit from using SSE2 instructions
 void _SSE2_SinCos(float x, float* s, float* c)  // any x
 {
-#ifdef _WIN32
-	__asm
-	{
-		movss	xmm0, x
-		movaps	xmm7, xmm0
-		movss	xmm1, _ps_am_inv_sign_mask
-		movss	xmm2, _ps_am_sign_mask
-		movss	xmm3, _ps_am_2_o_pi
-		andps	xmm0, xmm1
-		andps	xmm7, xmm2
-		mulss	xmm0, xmm3
+	// Taylor series approximation of sin & cos
+	__m128 val = _mm_set1_ps(x);
 
-		pxor	xmm3, xmm3
-		movd	xmm5, _epi32_1
-		movss	xmm4, _ps_am_1
+	__m128 _s = val;
+	const __m128 squared = _mm_mul_ss(_s, _s);
 
-		cvttps2dq	xmm2, xmm0
-		pand	xmm5, xmm2
-		movd	xmm1, _epi32_2
-		pcmpeqd	xmm5, xmm3
-		movd	xmm3, _epi32_1
-		cvtdq2ps	xmm6, xmm2
-		paddd	xmm3, xmm2
-		pand	xmm2, xmm1
-		pand	xmm3, xmm1
-		subss	xmm0, xmm6
-		pslld	xmm2, (31 - 1)
-		minss	xmm0, xmm4
+	__m128 phase1 = val;
+	phase1 = _mm_mul_ps(phase1, squared); // x = x^3
+	_s = _mm_sub_ss(_s, _mm_div_ss(phase1, fac3));
 
-		mov		eax, s     // mov eax, [esp + 4 + 16]
-		mov		edx, c	   // mov edx, [esp + 4 + 16 + 4]
+	phase1 = _mm_mul_ps(phase1, squared); // x = x^5
+	_s = _mm_add_ss(_s, _mm_div_ss(phase1, fac5));
 
-		subss	xmm4, xmm0
-		pslld	xmm3, (31 - 1)
+	phase1 = _mm_mul_ps(phase1, squared); // x = x^7
+	_s = _mm_sub_ss(_s, _mm_div_ss(phase1, fac7));
 
-		movaps	xmm6, xmm4
-		xorps	xmm2, xmm7
-		movaps	xmm7, xmm5
-		andps	xmm6, xmm7
-		andnps	xmm7, xmm0
-		andps	xmm0, xmm5
-		andnps	xmm5, xmm4
-		movss	xmm4, _ps_sincos_p3
-		orps	xmm6, xmm7
-		orps	xmm0, xmm5
-		movss	xmm5, _ps_sincos_p2
+	phase1 = _mm_mul_ps(phase1, squared); // x = x^9
+	_s = _mm_add_ss(_s, _mm_div_ss(phase1, fac9));
 
-		movaps	xmm1, xmm0
-		movaps	xmm7, xmm6
-		mulss	xmm0, xmm0
-		mulss	xmm6, xmm6
-		orps	xmm1, xmm2
-		orps	xmm7, xmm3
-		movaps	xmm2, xmm0
-		movaps	xmm3, xmm6
-		mulss	xmm0, xmm4
-		mulss	xmm6, xmm4
-		movss	xmm4, _ps_sincos_p1
-		addss	xmm0, xmm5
-		addss	xmm6, xmm5
-		movss	xmm5, _ps_sincos_p0
-		mulss	xmm0, xmm2
-		mulss	xmm6, xmm3
-		addss	xmm0, xmm4
-		addss	xmm6, xmm4
-		mulss	xmm0, xmm2
-		mulss	xmm6, xmm3
-		addss	xmm0, xmm5
-		addss	xmm6, xmm5
-		mulss	xmm0, xmm1
-		mulss	xmm6, xmm7
+	// Done with sine
+	_mm_store_ss(s, _s);
 
-		// use full stores since caller might reload with full loads
-		movss	[eax], xmm0
-		movss	[edx], xmm6
-	}
-#elif POSIX
-	#warning "_SSE2_SinCos NOT implemented!"
-	Assert( 0 );
-#else
-	#error "Not Implemented"
-#endif
+	//cos x = sqrt(1-sin^2 x)
+	_s = _mm_mul_ss(_s, _s); // square
+	_s = _mm_sub_ss(f1, _s);
+	_s = _mm_rsqrt_ss(_s);
+	_s = _mm_rcp_ss(_s);
+
+	// Done with cosine
+	_mm_store_ss(c, _s);
 }
 #endif // PLATFORM_WINDOWS_PC32
 
 #ifdef PLATFORM_WINDOWS_PC32
 float _SSE2_cos(float x)  
 {
-#ifdef _WIN32
-	__asm
-	{
-		movss	xmm0, x
-		movss	xmm1, _ps_am_inv_sign_mask
-		movss	xmm2, _ps_am_pi_o_2
-		movss	xmm3, _ps_am_2_o_pi
-		andps	xmm0, xmm1
-		addss	xmm0, xmm2
-		mulss	xmm0, xmm3
+	// Taylor series implementation of approximation of cos
+	__m128 val = _mm_set1_ps(x);
 
-		pxor	xmm3, xmm3
-		movd	xmm5, _epi32_1
-		movss	xmm4, _ps_am_1
-		cvttps2dq	xmm2, xmm0
-		pand	xmm5, xmm2
-		movd	xmm1, _epi32_2
-		pcmpeqd	xmm5, xmm3
-		cvtdq2ps	xmm6, xmm2
-		pand	xmm2, xmm1
-		pslld	xmm2, (31 - 1)
+	__m128 _s = _mm_set_ss(1.0f);
+	const __m128 squared = _mm_mul_ss(val, val);
 
-		subss	xmm0, xmm6
-		movss	xmm3, _ps_sincos_p3
-		minss	xmm0, xmm4
-		subss	xmm4, xmm0
-		andps	xmm0, xmm5
-		andnps	xmm5, xmm4
-		orps	xmm0, xmm5
+	__m128 r1 = val;
+	r1 = _mm_mul_ss(r1, r1);
+	_s = _mm_sub_ss(_s, _mm_div_ss(r1, fac2));
 
-		movaps	xmm1, xmm0
-		movss	xmm4, _ps_sincos_p2
-		mulss	xmm0, xmm0
-		movss	xmm5, _ps_sincos_p1
-		orps	xmm1, xmm2
-		movaps	xmm7, xmm0
-		mulss	xmm0, xmm3
-		movss	xmm6, _ps_sincos_p0
-		addss	xmm0, xmm4
-		mulss	xmm0, xmm7
-		addss	xmm0, xmm5
-		mulss	xmm0, xmm7
-		addss	xmm0, xmm6
-		mulss	xmm0, xmm1
-		movss   x,    xmm0
-	}
-#elif POSIX
-	#warning "_SSE2_cos NOT implemented!"
-	Assert( 0 );
-#else
-	#error "Not Implemented"
-#endif
+	r1 = _mm_mul_ss(r1, squared);
+	_s = _mm_add_ss(_s, _mm_div_ss(r1, fac4));
 
-	return x;
+	r1 = _mm_mul_ss(r1, squared);
+	_s = _mm_sub_ss(_s, _mm_div_ss(r1, fac6));
+
+	r1 = _mm_mul_ss(r1, squared);
+	_s = _mm_add_ss(_s, _mm_div_ss(r1, fac8));
+
+	float ret = 0.0f;
+	_mm_store_ss(&ret, _s);
+	return ret;
 }
 #endif // PLATFORM_WINDOWS_PC32
 
@@ -1009,6 +553,7 @@ void VectorRotateSSE( const float *in1, const matrix3x4_t& in2, float *out1 )
 #ifdef _WIN32
 void _declspec(naked) _SSE_VectorMA( const float *start, float scale, const float *direction, float *dest )
 {
+#if 0
 	// FIXME: This don't work!! It will overwrite memory in the write to dest
 	Assert(0);
 
@@ -1034,6 +579,7 @@ void _declspec(naked) _SSE_VectorMA( const float *start, float scale, const floa
 		movups	[edx], xmm3				; *dest = x3
 #endif
 	}
+#endif
 }
 #endif
 
@@ -1041,6 +587,7 @@ void _declspec(naked) _SSE_VectorMA( const float *start, float scale, const floa
 #ifdef PFN_VECTORMA
 void _declspec(naked) __cdecl _SSE_VectorMA( const Vector &start, float scale, const Vector &direction, Vector &dest )
 {
+#if 0
 	// FIXME: This don't work!! It will overwrite memory in the write to dest
 	Assert(0);
 
@@ -1068,6 +615,7 @@ void _declspec(naked) __cdecl _SSE_VectorMA( const Vector &start, float scale, c
 		movups	[edx], xmm3				; *dest = x3
 #endif
 	}
+#endif
 }
 float (__cdecl *pfVectorMA)(Vector& v) = _VectorMA;
 #endif
@@ -1103,5 +651,3 @@ vec_t DotProduct (const vec_t *a, const vec_t *c)
 	}
 }
 */
-
-#endif // COMPILER_MSVC64 
