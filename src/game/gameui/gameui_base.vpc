@@ -82,16 +82,15 @@ $Project
 		$File	"SaveGameDialog.h"
 		$File	"TGAImagePanel.cpp"
 		$File	"TGAImagePanel.h"
-	
-		// do we use vgui_video.cpp/h instead?
-		//$File	"$SRCDIR\game\client\vgui_video_player.h"
-		//$File	"$SRCDIR\game\client\vgui_video_player.cpp"
-
+		
+	//	$File	"vgui_video_player.h"
+	//	$File	"vgui_video_player.cpp"
+		
 		$File	"nb_button.h"
 		$File	"nb_button.cpp"
-		$File	"nb_header_footer.h"
-		$File	"nb_header_footer.cpp"
-
+	//	$File	"nb_header_footer.h"
+	//	$File	"nb_header_footer.cpp"
+		
 		$File	"cbase.h"
 
 		$File	"basemodframe.h"

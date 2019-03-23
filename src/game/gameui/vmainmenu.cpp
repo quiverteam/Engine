@@ -852,7 +852,7 @@ void MainMenu::ApplySchemeSettings( IScheme *pScheme )
 #endif
 
 			int32 availableBytes, totalBytes = 0;
-			if ( pRemoteStorage && pRemoteStorage->GetQuota( &totalBytes, &availableBytes ) )
+			/*if ( pRemoteStorage && pRemoteStorage->GetQuota( &totalBytes, &availableBytes ) )
 			{
 				if ( totalBytes > 0 )
 				{
@@ -860,7 +860,7 @@ void MainMenu::ApplySchemeSettings( IScheme *pScheme )
 				}
 			}
 
-			pFlyout->SetControlEnabled( "BtnCloud", bUsesCloud );
+			pFlyout->SetControlEnabled( "BtnCloud", bUsesCloud );*/
 		}
 	}
 

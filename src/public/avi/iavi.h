@@ -98,7 +98,7 @@ public:
 	// Create/destroy an AVI material (a materialsystem IMaterial)
 	virtual AVIMaterial_t CreateAVIMaterial( const char *pMaterialName, const char *pFileName, const char *pPathID ) = 0;
 	virtual void DestroyAVIMaterial( AVIMaterial_t hMaterial ) = 0;
-	
+
 	// Sets the time for an AVI material
 	virtual void SetTime( AVIMaterial_t hMaterial, float flTime ) = 0;
 

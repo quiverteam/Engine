@@ -16,7 +16,7 @@
 #include "vgui/ISurface.h"
 #include "modes.h"
 #include "VGenericConfirmation.h"
-#include "nb_header_footer.h"
+//#include "nb_header_footer.h"
 #include "materialsystem/materialsystem_config.h"
 #include "cdll_util.h"
 

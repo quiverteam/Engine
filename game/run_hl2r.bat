@@ -1,6 +1,6 @@
 @echo off
 
-set cmdLine=-console +volume 0.25 +bind F5 screenshot +bind F12 screenshot -sw -game hl2r
+set cmdLine=-gameui -console +volume 0.25 +bind F5 screenshot +bind F12 screenshot -sw -game hl2r
 
 start "" quiver.exe %cmdLine%
 echo quiver.exe %cmdLine%

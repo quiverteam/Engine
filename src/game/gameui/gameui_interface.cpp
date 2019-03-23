@@ -41,7 +41,7 @@
 #include "iachievementmgr.h"
 #include "IGameUIFuncs.h"
 #include "IEngineVGUI.h"
-#include "video/ivideoservices.h"
+//#include "video/ivideoservices.h"
 
 // vgui2 interface
 // note that GameUI project uses ..\vgui2\include, not ..\utils\vgui\include
@@ -65,7 +65,7 @@
 #include "basemodpanel.h"
 #include "basemodui.h"
 //#include "..\game\shared\hl2ce\hl2ce_missioninfo.h"
-#include "..\game\shared\core\missioninfo.h"
+#include "shared\missioninfo.h"
 typedef BaseModUI::CBaseModPanel UI_BASEMOD_PANEL_CLASS;
 inline UI_BASEMOD_PANEL_CLASS & GetUiBaseModPanelClass() { return UI_BASEMOD_PANEL_CLASS::GetSingleton(); }
 inline UI_BASEMOD_PANEL_CLASS & ConstructUiBaseModPanelClass() { return * new UI_BASEMOD_PANEL_CLASS(); }
@@ -88,7 +88,7 @@ CGlobalVarsBase *gpGlobals = NULL;
 IEngineSound *enginesound = NULL;
 ISoundEmitterSystemBase *soundemitterbase = NULL;
 IXboxSystem *xboxsystem = NULL;
-IVideoServices *g_pVideo = NULL;
+//AVIServices *g_pVideo = NULL;
 IMissionInfo *missioninformer = NULL;
 
 static CSteamAPIContext g_SteamAPIContext;
@@ -198,7 +198,7 @@ void CGameUI::Initialize( CreateInterfaceFn factory )
 	enginesound = (IEngineSound *)factory(IENGINESOUND_CLIENT_INTERFACE_VERSION, NULL);
 	engine = (IVEngineClient *)factory( VENGINE_CLIENT_INTERFACE_VERSION, NULL );
 
-	g_pVideo = (IVideoServices *)factory(VIDEO_SERVICES_INTERFACE_VERSION, NULL);
+//	g_pVideo = (IVideoServices *)factory(VIDEO_SERVICES_INTERFACE_VERSION, NULL);
 
 	CreateInterfaceFn serverfactory = g_Server.GetFactory();
 	if ( serverfactory )

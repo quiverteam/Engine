@@ -75,7 +75,7 @@
 #include "tier0/icommandline.h"
 #include "fmtstr.h"
 #include "smartptr.h"
-#include "nb_header_footer.h"
+//#include "nb_header_footer.h"
 #include "vgui_controls/ControllerMap.h"
 #include "ModInfo.h"
 #include "vgui_controls/AnimationController.h"
@@ -1979,11 +1979,11 @@ void CBaseModPanel::PaintBackground()
 		{
 			ActivateBackgroundEffects();
 
-			if ( ASWBackgroundMovie() )
-			{
-				ASWBackgroundMovie()->Update();
+			//if ( ASWBackgroundMovie() )
+			//{
+			//	ASWBackgroundMovie()->Update();
 
-				if (ASWBackgroundMovie()->GetVideoMaterial())
+				/*if (ASWBackgroundMovie()->GetVideoMaterial())
 				{
 					// Draw the polys to draw this out
 					CMatRenderContextPtr pRenderContext( materials );
@@ -2052,7 +2052,7 @@ void CBaseModPanel::PaintBackground()
 
 					pRenderContext->MatrixMode( MATERIAL_PROJECTION );
 					pRenderContext->PopMatrix();
-				}
+				}*/
 				/*if ( ASWBackgroundMovie()->SetTextureMaterial() != -1 )
 				{
 					surface()->DrawSetColor( 255, 255, 255, 255 );
@@ -2082,7 +2082,7 @@ void CBaseModPanel::PaintBackground()
 						DrawStartupGraphic( flFadeDelta );
 					}
 				}*/
-			}
+			//}
 		}
 	}
 

@@ -16,7 +16,7 @@
 #include "ivoicetweak.h"
 #include "materialsystem/materialsystem_config.h"
 #include "cdll_util.h"
-#include "nb_header_footer.h"
+//#include "nb_header_footer.h"
 #include "vgui_controls/ImagePanel.h"
 
 
@@ -42,12 +42,12 @@ BaseClass(parent, panelName)
 		GameUI().PreventEngineHideGameUI();
 	}
 
-	m_pHeaderFooter = new CNB_Header_Footer( this, "HeaderFooter" );
+	/*m_pHeaderFooter = new CNB_Header_Footer( this, "HeaderFooter" );
 	m_pHeaderFooter->SetTitle( "" );
 	m_pHeaderFooter->SetHeaderEnabled( false );
 	m_pHeaderFooter->SetFooterEnabled( true );
 	m_pHeaderFooter->SetGradientBarEnabled( true );
-	m_pHeaderFooter->SetGradientBarPos( 200, 140 );
+	m_pHeaderFooter->SetGradientBarPos( 200, 140 );*/
 
 	SetDeleteSelfOnClose(true);
 

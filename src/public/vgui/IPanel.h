@@ -128,7 +128,6 @@ public:
 
 	// sibling pins
 	virtual void SetSiblingPin(VPANEL vguiPanel, VPANEL newSibling, byte iMyCornerToPin = 0, byte iSiblingCornerToPinTo = 0 ) = 0;
-
 };
 
 #define VGUI_PANEL_INTERFACE_VERSION "VGUI_Panel009"

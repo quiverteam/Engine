@@ -11,8 +11,10 @@
 $Group "gamedlls"
 {
 	"client"
-	"gameui_client"
 	"server"
+	
+	"gameui_client"
+	"vgui_controls"
 }
 
 $Group "hammer"

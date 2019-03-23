@@ -567,7 +567,7 @@ void CEngineVGui::Init()
 	if ( CommandLine()->FindParm( "-gameui" ) )
 	{
 		COM_TimestampedLog( "Loading Mod gameui.dll" );
-		m_hStaticGameUIModule = g_pFileSystem->LoadModule( szDllName, "MOD", true ); // LoadModule() does a GetLocalCopy() call
+		m_hStaticGameUIModule = g_pFileSystem->LoadModule( szDllName, "GAMEBIN", true ); // LoadModule() does a GetLocalCopy() call
 	}
 	else
 	{
