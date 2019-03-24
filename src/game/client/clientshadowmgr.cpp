@@ -1,4 +1,4 @@
-//===== Copyright © 1996-2005, Valve Corporation, All rights reserved. ======//
+//===== Copyright ï¿½ 1996-2005, Valve Corporation, All rights reserved. ======//
 //
 // Purpose: 
 //
@@ -741,6 +741,8 @@ public:
 
 	// Kicks off rendering into shadow depth maps (if any)
 	void ComputeShadowDepthTextures( const CViewSetup &view );
+
+	void GetFrustumExtents( ClientShadowHandle_t handle, Vector &vecMin, Vector &vecMax );
 
 	// Frees shadow depth textures for use in subsequent view/frame
 	void FreeShadowDepthTextures();
@@ -4573,6 +4575,40 @@ void CClientShadowMgr::SetViewFlashlightState( int nActiveFlashlightCount, Clien
 	{
 		shadowmgr->SetFlashlightRenderState( SHADOW_HANDLE_INVALID );
 	}
+}
+
+
+
+void AddPointToExtentsHelper( const VMatrix &flashlightToWorld, const Vector &vecPos, Vector &vecMin, Vector &vecMax )
+{
+	Vector worldSpacePos;
+
+	Vector3DMultiplyPositionProjective( flashlightToWorld, vecPos, worldSpacePos );
+	VectorMin( vecMin, worldSpacePos, vecMin );
+	VectorMax( vecMax, worldSpacePos, vecMax );
+}
+
+
+void CClientShadowMgr::GetFrustumExtents( ClientShadowHandle_t handle, Vector &vecMin, Vector &vecMax )
+{
+	Assert( m_Shadows.IsValidIndex( handle ) );
+
+	CClientShadowMgr::ClientShadow_t &shadow = m_Shadows[ handle ];
+
+	VMatrix flashlightToWorld;
+	MatrixInverseGeneral( shadow.m_WorldToShadow, flashlightToWorld );
+
+	vecMin = Vector( FLT_MAX, FLT_MAX, FLT_MAX );
+	vecMax = Vector( -FLT_MAX, -FLT_MAX, -FLT_MAX );
+
+	AddPointToExtentsHelper( flashlightToWorld, Vector( 0.0f, 0.0f, 0.0f ), vecMin, vecMax );
+	AddPointToExtentsHelper( flashlightToWorld, Vector( 0.0f, 0.0f, 1.0f ), vecMin, vecMax );
+	AddPointToExtentsHelper( flashlightToWorld, Vector( 0.0f, 1.0f, 0.0f ), vecMin, vecMax );
+	AddPointToExtentsHelper( flashlightToWorld, Vector( 1.0f, 0.0f, 0.0f ), vecMin, vecMax );
+	AddPointToExtentsHelper( flashlightToWorld, Vector( 0.0f, 1.0f, 1.0f ), vecMin, vecMax );
+	AddPointToExtentsHelper( flashlightToWorld, Vector( 1.0f, 0.0f, 1.0f ), vecMin, vecMax );
+	AddPointToExtentsHelper( flashlightToWorld, Vector( 1.0f, 1.0f, 0.0f ), vecMin, vecMax );
+	AddPointToExtentsHelper( flashlightToWorld, Vector( 1.0f, 1.0f, 1.0f ), vecMin, vecMax );
 }
 
 //-----------------------------------------------------------------------------
