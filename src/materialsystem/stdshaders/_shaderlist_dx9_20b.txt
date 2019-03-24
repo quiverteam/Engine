@@ -72,17 +72,12 @@ emissive_scroll_blended_pass_vs20.fxc
 eyes_ps2x.fxc
 eyes_vs20.fxc
 
-eyes_flashlight_ps2x.fxc
-eyes_flashlight_vs20.fxc
-
 eyeglint_vs20.fxc
 eyeglint_ps2x.fxc
 
 fillrate_ps2x.fxc
 fillrate_vs20.fxc
 filmgrain_vs20.fxc
-
-flashlight_ps2x.fxc
 
 flesh_interior_blended_pass_vs20.fxc
 
@@ -188,7 +183,6 @@ teeth_ps2x.fxc
 teeth_vs20.fxc
 teeth_bump_ps2x.fxc
 teeth_bump_vs20.fxc
-teeth_flashlight_vs20.fxc
 
 treeleaf_ps2x.fxc
 treeleaf_vs20.fxc
@@ -234,18 +228,9 @@ writez_vs20.fxc
 flesh_interior_blended_pass_ps2x.fxc
 Engine_Post_ps2x.fxc
 ShatteredGlass_ps2x.fxc
-teeth_flashlight_ps2x.fxc
 volume_clouds_ps2x.fxc
 
 //vertexlitgeneric_flashlight_vs20.fxc
 
-
-// --------------------------------------------------------------------------
-//
-// Too Complex for Shader Model 2.0 / 2.0b
-// This might cause issues when using mat_dxlevel 90
-// These work perfectly fine with -nointercept though
-//
-// --------------------------------------------------------------------------
 portal_refract_ps2x.fxc
 Water_ps2x.fxc
