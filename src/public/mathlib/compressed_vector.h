@@ -27,9 +27,6 @@
 
 #include "mathlib/mathlib.h"
 
-#if defined( _X360 )
-#pragma bitfield_order( push, lsb_to_msb )
-#endif
 //=========================================================
 // fit a 3D vector into 32 bits
 //=========================================================

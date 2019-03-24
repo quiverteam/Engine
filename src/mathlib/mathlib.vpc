@@ -29,7 +29,7 @@ $Project "mathlib"
 		$File	"sseconst.cpp"
 		$File	"sse.cpp"					[$WINDOWS||$POSIX]
 		$File	"ssenoise.cpp"				
-		$File	"3dnow.cpp"					[$WINDOWS||$LINUX]
+		//$File	"3dnow.cpp"					[$WINDOWS||$LINUX]
 		$File	"anorms.cpp"
 		$File	"bumpvects.cpp"
 		$File	"IceKey.cpp"
@@ -48,7 +48,7 @@ $Project "mathlib"
 
 	$Folder	"Public Header Files"
 	{
-		$File	"$SRCDIR\public\mathlib\amd3dx.h"			[$WINDOWS||$LINUX]		
+		//$File	"$SRCDIR\public\mathlib\amd3dx.h"			[$WINDOWS||$LINUX]		
 		$File	"$SRCDIR\public\mathlib\anorms.h"
 		$File	"$SRCDIR\public\mathlib\bumpvects.h"		
 		$File	"$SRCDIR\public\mathlib\compressed_3d_unitvec.h"
@@ -77,6 +77,6 @@ $Project "mathlib"
 	{
 		$File	"noisedata.h"
 		$File	"sse.h"					[$WINDOWS||$POSIX]
-		$File	"3dnow.h"				[$WINDOWS||$LINUX]
+		//$File	"3dnow.h"				[$WINDOWS||$LINUX]
 	}
 }

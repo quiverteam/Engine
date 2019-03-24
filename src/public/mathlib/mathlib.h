@@ -439,30 +439,9 @@ int Q_log2(int val);
 // Math routines done in optimized assembly math package routines
 void inline SinCos( float radians, float *sine, float *cosine )
 {
-#if defined( _X360 )
-	XMScalarSinCos( sine, cosine, radians );
-#elif defined( PLATFORM_WINDOWS_PC32 )
-	_asm
-	{
-		fld		DWORD PTR [radians]
-		fsincos
-
-		mov edx, DWORD PTR [cosine]
-		mov eax, DWORD PTR [sine]
-
-		fstp DWORD PTR [edx]
-		fstp DWORD PTR [eax]
-	}
-#elif defined( PLATFORM_WINDOWS_PC64 )
-	*sine = sin( radians );
-	*cosine = cos( radians );
-#elif defined( POSIX )
-	double __cosr, __sinr;
-	__asm ("fsincos" : "=t" (__cosr), "=u" (__sinr) : "0" (radians));
-
-  	*sine = __sinr;
-  	*cosine = __cosr;
-#endif
+	// Stdlib sincosf is faster
+	*sine = sin(radians);
+	*cosine = cos(radians);
 }
 
 #define SIN_TABLE_SIZE	256
@@ -1310,7 +1289,7 @@ FORCEINLINE int Float2Int( float a )
 inline int Floor2Int( float a )
 {
 	int RetVal;
-#if defined( __i386__ )
+#if defined( __i386__ ) || defined(WIN64) || defined(POSIX)
 	// Convert to int and back, compare, subtract one if too big
 	__m128 a128 = _mm_set_ss(a);
 	RetVal = _mm_cvtss_si32(a128);
@@ -1367,7 +1346,7 @@ inline float ClampToMsec( float in )
 inline int Ceil2Int( float a )
 {
    int RetVal;
-#if defined( __i386__ )
+#if defined( __i386__ ) || defined(WIN64) || defined(POSIX)
    // Convert to int and back, compare, add one if too small
    __m128 a128 = _mm_load_ss(&a);
    RetVal = _mm_cvtss_si32(a128);
