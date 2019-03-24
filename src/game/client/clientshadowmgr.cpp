@@ -991,6 +991,8 @@ private:
 	CUtlRBTree< ClientShadowHandle_t, unsigned short >	m_DirtyShadows;
 	CUtlVector< ClientShadowHandle_t > m_TransparentShadows;
 
+	int m_nPrevFrameCount;
+
 	// These members maintain current state of depth texturing (size and global active state)
 	// If either changes in a frame, PreRender() will catch it and do the appropriate allocation, deallocation or reallocation
 	bool m_bDepthTextureActive;
@@ -1090,6 +1092,10 @@ void CVisibleShadowList::EnumShadow( unsigned short clientShadowHandle )
 
 	// Don't bother if we rendered it this frame, no matter which view it was rendered for
 	if ( shadow.m_nRenderFrame == gpGlobals->framecount )
+		return;
+
+	// Don't bother with flashlights
+	if ( ( shadow.m_Flags & SHADOW_FLAGS_FLASHLIGHT ) != 0 )
 		return;
 
 	// We don't need to bother with it if it's not render-to-texture
@@ -1195,6 +1201,7 @@ int CVisibleShadowList::FindShadows( const CViewSetup *pView, int nLeafCount, Le
 //-----------------------------------------------------------------------------
 CClientShadowMgr::CClientShadowMgr() :
 	m_DirtyShadows( 0, 0, ShadowHandleCompareFunc ),
+	m_nPrevFrameCount( -1 ),
 	m_RenderToTextureActive( false ),
 	m_bDepthTextureActive( false )
 {
@@ -3519,6 +3526,10 @@ bool CClientShadowMgr::ShouldUseParentShadow( IClientRenderable *pRenderable )
 //-----------------------------------------------------------------------------
 void CClientShadowMgr::PreRender()
 {
+	// only update shadows once per frame
+	Assert( gpGlobals->framecount != m_nPrevFrameCount );
+	m_nPrevFrameCount = gpGlobals->framecount;
+
 	VPROF_BUDGET( "CClientShadowMgr::PreRender", VPROF_BUDGETGROUP_SHADOW_RENDERING );
 	MDLCACHE_CRITICAL_SECTION();
 
