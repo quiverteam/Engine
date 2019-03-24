@@ -661,7 +661,7 @@ int _CrtSetDbgFlag( int nNewFlag )
 #define AFNAME(var) __p_ ## var
 #define AFRET(var)  &var
 
-#if !(_MSC_VER >= 1900)
+#if (_MSC_VER < 1900)
 int _crtDbgFlag = _CRTDBG_ALLOC_MEM_DF;
 int* AFNAME(_crtDbgFlag)(void)
 {
@@ -673,7 +673,7 @@ long* AFNAME(_crtBreakAlloc) (void)
 {
 	return AFRET(_crtBreakAlloc);
 }
-#endif // !_MSC_VER >= 1900
+#endif // _MSC_VER < 1900
 
 void __cdecl _CrtSetDbgBlockType( void *pMem, int nBlockUse )
 {
@@ -895,7 +895,7 @@ ErrorHandlerRegistrar::ErrorHandlerRegistrar()
 
 #if defined( _DEBUG )
  
-#if !( _MSC_VER >= 1900 )
+#if ( _MSC_VER < 1900 )
 // wrapper which passes no debug info; not available in debug
 #ifndef	SUPPRESS_INVALID_PARAMETER_NO_INFO
 void __cdecl _invalid_parameter_noinfo(void)
@@ -903,7 +903,7 @@ void __cdecl _invalid_parameter_noinfo(void)
     Assert(0);
 }
 #endif // !SUPPRESS_INVALID_PARAMETER_NO_INFO
-#endif // !( _MSC_VER >= 1900 )
+#endif // ( _MSC_VER < 1900 )
 
 #endif /* defined( _DEBUG ) */
 
@@ -1115,13 +1115,13 @@ void __cdecl _aligned_free_dbg( void * memblock)
 {
     _aligned_free(memblock);
 }
-#if !( _MSC_VER >= 1900 )
+#if ( _MSC_VER < 1900 )
 size_t __cdecl _CrtSetDebugFillThreshold( size_t _NewDebugFillThreshold)
 {
 	assert(0);
     return 0;
 }
-#endif // !_MSC_VER >= 1900
+#endif // _MSC_VER < 1900
 
 //===========================================
 // NEW!!! 64-bit
@@ -1426,14 +1426,14 @@ struct _tiddata {
     int         _tfpecode;      /* float point exception code */
 
 	// TODO: Check if CRT requires this
-#if !( _MSC_VER >= 1900 )
+#if ( _MSC_VER < 1900 )
     /* pointer to the copy of the multibyte character information used by
      * the thread */
     pthreadmbcinfo  ptmbcinfo;
 
     /* pointer to the copy of the locale informaton used by the thead */
     pthreadlocinfo  ptlocinfo;
-#endif // !_MSC_VER >= 1900
+#endif // _MSC_VER < 1900
     int         _ownlocale;     /* if 1, this thread owns its own locale */
 
     /* following field is needed by NLG routines */
@@ -1597,9 +1597,9 @@ typedef struct _tiddata * _ptiddata;
 
 class _LocaleUpdate
 {
-#if !( _MSC_VER >= 1900)
+#if ( _MSC_VER < 1900)
     _locale_tstruct localeinfo;
-#endif // !_MSC_VER >= 1900
+#endif // _MSC_VER < 1900
     _ptiddata ptd;
     bool updated;
     public:
@@ -1632,12 +1632,12 @@ class _LocaleUpdate
 //        if (updated)
 //	        ptd->_ownlocale = ptd->_ownlocale & ~_PER_THREAD_LOCALE_BIT;
     }
-#if !( _MSC_VER >= 1900 )
+#if ( _MSC_VER < 1900 )
     _locale_t GetLocaleT()
     {
         return &localeinfo;
     }
-#endif // !_MSC_VER >= 1900
+#endif // _MSC_VER < 1900
 };
 
 
