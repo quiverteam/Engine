@@ -8,6 +8,26 @@
 // Group definitions //
 ///////////////////////
 
+// testing stuff here
+$Group "hl2r"
+{
+	"client"
+	"server"
+	
+	//"shadercompile_dll"
+	//"shadercompile_launcher"
+	"materialsystem"
+	"shaderapidx9"
+	//"shaderapidx10"
+	//"shaderapitest" // we don't need this right?
+	//"shaderapiempty"
+	"shaderlib"
+	"stdshader_dbg"
+	"stdshader_dx9"
+	
+	"engine" // has shadowmgr.cpp
+}
+
 $Group "gamedlls"
 {
 	"client"

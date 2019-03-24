@@ -26,6 +26,8 @@ static ConVar mat_fullbright( "mat_fullbright","0", FCVAR_CHEAT );
 static ConVar r_lightwarpidentity( "r_lightwarpidentity","0", FCVAR_CHEAT );
 static ConVar mat_luxels( "mat_luxels", "0", FCVAR_CHEAT );
 
+// very bad csm hack
+static ConVar mat_force_csm_hack( "mat_force_csm_hack", "0", FCVAR_CHEAT );
 
 static inline bool WantsSkinShader( IMaterialVar** params, const VertexLitGeneric_DX9_Vars_t &info )
 {
@@ -123,6 +125,15 @@ void InitParamsVertexLitGeneric_DX9( CBaseVSShader *pShader, IMaterialVar** para
 		params[info.m_nBaseTexture]->IsDefined() )
 	{
 		params[info.m_nBaseTexture]->SetStringValue( params[info.m_nAlbedo]->GetStringValue() );
+	}
+
+	if ( mat_force_csm_hack.GetBool() )
+	{
+		if ( info.m_nPhong != -1 /*&& params[info.m_nPhong]->IsDefined()*/ )
+			params[info.m_nPhong]->SetIntValue( 0 );
+		
+		if ( info.m_nBumpmap != -1 && params[info.m_nBumpmap]->IsDefined() )
+			params[info.m_nBumpmap]->SetStringValue( "dev\\bump_normal" );
 	}
 
 	// This shader can be used with hw skinning
@@ -1014,6 +1025,15 @@ static void DrawVertexLitGeneric_DX9_Internal( CBaseVSShader *pShader, IMaterial
 				vScreenScale[0] = (float) nWidth  / 32.0f;
 				vScreenScale[1] = (float) nHeight / 32.0f;
 				pShaderAPI->SetPixelShaderConstant( 31, vScreenScale, 1 );
+
+				// this should be here, but this whole section is changed in ASW
+				/*if ( !IsX360() && ( g_pHardwareConfig->GetDXSupportLevel() > 92 ) )
+				{
+					pContextData->m_SemiStaticCmdsOut.SetPixelShaderUberLightState( 
+						PSREG_UBERLIGHT_SMOOTH_EDGE_0,		PSREG_UBERLIGHT_SMOOTH_EDGE_1,
+						PSREG_UBERLIGHT_SMOOTH_EDGE_OOW,	PSREG_UBERLIGHT_SHEAR_ROUND, 
+						PSREG_UBERLIGHT_AABB,				PSREG_UBERLIGHT_WORLD_TO_LIGHT );
+				}*/
 			}
 
 			if ( ( !bHasFlashlight || IsX360() ) && ( info.m_nEnvmapContrast != -1 ) )
@@ -1093,7 +1113,20 @@ static void DrawVertexLitGeneric_DX9_Internal( CBaseVSShader *pShader, IMaterial
 
 		ITexture *pCascadedDepthTexture = NULL;
 		bool bFlashlightShadows = false;
-		bool bUberlight = false;
+		//bool bUberlight = false;
+
+		/*if ( bHasFlashlight )
+		{
+			//pShaderAPI->GetFlashlightShaderInfo( &bFlashlightShadows, &bUberlight );
+			bFlashlightShadows = true;
+			bUberlight = true;
+
+			if ( g_pHardwareConfig->GetDXSupportLevel() <= 92 )
+			{
+				bUberlight = false;
+			}
+		}*/
+
 		if ( bHasFlashlight )
 		{
 			VMatrix worldToTexture;
@@ -1115,8 +1148,6 @@ static void DrawVertexLitGeneric_DX9_Internal( CBaseVSShader *pShader, IMaterial
 			auto func = []( int var, const float* pVec, int nConsts ) {
 				cmdsOut->SetPixelShaderConstant( var, pVec, nConsts );
 			};
-
-		//	bUberlight = g_pHardwareConfig->SupportsShaderModel_3_0() && SetupUberlightFromState( func, state );
 
 			Assert( info.m_nFlashlightTexture >= 0 && info.m_nFlashlightTextureFrame >= 0 );
 			pShader->BindTexture( SHADER_SAMPLER7, state.m_pSpotlightTexture, state.m_nSpotlightTextureFrame );
@@ -1171,6 +1202,10 @@ static void DrawVertexLitGeneric_DX9_Internal( CBaseVSShader *pShader, IMaterial
 			bWriteDepthToAlpha = false;
 			bWriteWaterFogToAlpha = false;
 		}
+		
+		VMatrix worldToTexture;
+		ITexture *pFlashlightDepthTexture;
+		FlashlightState_t flashlightState = pShaderAPI->GetFlashlightStateEx( worldToTexture, &pFlashlightDepthTexture );
 
 		if ( bHasBump || bHasDiffuseWarp )
 		{
@@ -1194,7 +1229,7 @@ static void DrawVertexLitGeneric_DX9_Internal( CBaseVSShader *pShader, IMaterial
 			SET_DYNAMIC_PIXEL_SHADER_COMBO( FLASHLIGHTSHADOWS, bFlashlightShadows );
 //				SET_DYNAMIC_PIXEL_SHADER_COMBO( PIXELFOGTYPE, pShaderAPI->GetPixelFogCombo() );
 			SET_DYNAMIC_PIXEL_SHADER_COMBO( CASCADED_SHADOW, iCascadedShadowCombo );
-			SET_DYNAMIC_PIXEL_SHADER_COMBO( UBERLIGHT, bUberlight );
+			SET_DYNAMIC_PIXEL_SHADER_COMBO( UBERLIGHT, false /*flashlightState.m_bUberlight*/ );
 			SET_DYNAMIC_PIXEL_SHADER_CMD( DynamicCmdsOut, vertexlit_and_unlit_generic_bump_ps30 );
 
 			if ( bHasFastVertexTextures )
@@ -1232,10 +1267,11 @@ static void DrawVertexLitGeneric_DX9_Internal( CBaseVSShader *pShader, IMaterial
 			SET_DYNAMIC_VERTEX_SHADER_CMD( DynamicCmdsOut, vertexlit_and_unlit_generic_vs30 );
 
 			DECLARE_DYNAMIC_PIXEL_SHADER(vertexlit_and_unlit_generic_ps30 );
-//				SET_DYNAMIC_PIXEL_SHADER_COMBO( PIXELFOGTYPE, pShaderAPI->GetPixelFogCombo() );
-			SET_DYNAMIC_PIXEL_SHADER_COMBO( FLASHLIGHTSHADOWS, bFlashlightShadows ? ( bUberlight ? 2 : 1 ) : 0 );
+//			SET_DYNAMIC_PIXEL_SHADER_COMBO( PIXELFOGTYPE, pShaderAPI->GetPixelFogCombo() );
+			SET_DYNAMIC_PIXEL_SHADER_COMBO( FLASHLIGHTSHADOWS, bFlashlightShadows );
+			SET_DYNAMIC_PIXEL_SHADER_COMBO( UBERLIGHT, false /*flashlightState.m_bUberlight*/ );
 		//	SET_DYNAMIC_PIXEL_SHADER_COMBO( STATIC_LIGHT_LIGHTMAP, lightState.m_bStaticLightTexel ? ( bHasMatLuxel ? 2 : 1 ) : 0 );
-			//SET_DYNAMIC_PIXEL_SHADER_COMBO( DEBUG_LUXELS, bHasMatLuxel ? 1 : 0 );
+		//	SET_DYNAMIC_PIXEL_SHADER_COMBO( DEBUG_LUXELS, bHasMatLuxel ? 1 : 0 );
 			SET_DYNAMIC_PIXEL_SHADER_COMBO(	LIGHTING_PREVIEW,
 				pShaderAPI->GetIntRenderingParameter(INT_RENDERPARM_ENABLE_FIXED_LIGHTING) );
 			SET_DYNAMIC_PIXEL_SHADER_COMBO( CASCADED_SHADOW, iCascadedShadowCombo );

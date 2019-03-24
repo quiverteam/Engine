@@ -11,24 +11,6 @@
 #include "common_ps_fxc.h"
 
 #if SHADER_MODEL_PS_3_0
-
-#define	PSREG_UBERLIGHT_SMOOTH_EDGE_0			c33
-#define	PSREG_UBERLIGHT_SMOOTH_EDGE_1			c34
-#define	PSREG_UBERLIGHT_SMOOTH_EDGE_OOW			c35
-#define	PSREG_UBERLIGHT_SHEAR_ROUND				c36
-#define	PSREG_UBERLIGHT_AABB					c37
-#define PSREG_UBERLIGHT_WORLD_TO_LIGHT			c38
-//		PSREG_UBERLIGHT_WORLD_TO_LIGHT			c39
-//		PSREG_UBERLIGHT_WORLD_TO_LIGHT			c40
-//		PSREG_UBERLIGHT_WORLD_TO_LIGHT			c41
-
-// Vectorized smoothstep for doing three smoothsteps at once.  Used by uberlight
-float3 smoothstep3( float3 edge0, float3 edge1, float3 OneOverWidth, float3 x )
-{
-	x = saturate((x - edge0) * OneOverWidth);	// Scale, bias and saturate x to the range of zero to one
-	return x*x*(3-2*x);							// Evaluate polynomial
-}
-
 // Superellipse soft clipping
 //
 // Input:

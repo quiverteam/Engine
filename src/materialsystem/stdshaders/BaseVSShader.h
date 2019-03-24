@@ -13,6 +13,7 @@
 #pragma once
 #endif
 
+#include "cpp_shader_constant_register_map.h"
 #include "shaderlib/cshader.h"
 #include "shaderlib/baseshader.h"
 #include "ConVar.h"
@@ -255,14 +256,6 @@ public:
 	// Helper for setting up flashlight constants
 	void SetFlashlightVertexShaderConstants( bool bBump, int bumpTransformVar, bool bDetail, int detailScaleVar, bool bSetTextureTransforms );
 
-#if SUPPORT_DX8
-	void DrawFlashlight_dx80( IMaterialVar** params, IShaderDynamicAPI *pShaderAPI, IShaderShadow* pShaderShadow, 
-		bool bBump, int bumpmapVar, int bumpmapFrame, int bumpTransform, int flashlightTextureVar, 
-		int flashlightTextureFrameVar, bool bLightmappedGeneric, bool bWorldVertexTransition, 
-		int nWorldVertexTransitionPassID, int baseTexture2Var, int baseTexture2FrameVar,
-		bool bTeeth=false, int nTeethForwardVar=0, int nTeethIllumFactorVar=0 );
-#endif
-
 	struct DrawFlashlight_dx90_Vars_t
 	{
 		DrawFlashlight_dx90_Vars_t() 
@@ -378,7 +371,7 @@ FORCEINLINE float ShadowFilterFromState( FlashlightState_t const &state )
 	return state.m_flShadowFilterSize / 1024.0f;
 }
 
-/*FORCEINLINE void SetupUberlightFromState( IShaderDynamicAPI *pShaderAPI, FlashlightState_t const &state )
+FORCEINLINE void SetupUberlightFromState( IShaderDynamicAPI *pShaderAPI, FlashlightState_t const &state )
 {
 	// Bail if we can't do ps30 or we don't even want an uberlight
 	if ( !g_pHardwareConfig->HasFastVertexTextures() || !state.m_bUberlight || !pShaderAPI )
@@ -407,7 +400,7 @@ FORCEINLINE float ShadowFilterFromState( FlashlightState_t const &state )
 	AngleMatrix( angles, state.m_vecLightOrigin, viewMatrixInverse );
 	MatrixInvert( viewMatrixInverse, viewMatrix );
 	pShaderAPI->SetPixelShaderConstant( PSREG_UBERLIGHT_WORLD_TO_LIGHT, viewMatrix.Base(), 4 );
-}*/
+}
 
 // convenient material variable access functions for helpers to use.
 FORCEINLINE bool IsTextureSet( int nVar, IMaterialVar **params )

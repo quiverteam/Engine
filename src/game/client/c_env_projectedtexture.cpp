@@ -25,6 +25,8 @@ extern ConVar r_shadowmapresolution;
 
 static ConVar r_projtex_filtersize( "r_projtex_filtersize", "0.5", 0 );
 
+//static ConVar r_projtex_uberlight_enable( "r_projtex_uberlight_enable", "0", 0 );
+
 /*static ConVar r_projtex_r( "r_projtex_r", "10", 0 );
 static ConVar r_projtex_g( "r_projtex_g", "10", 0 );
 static ConVar r_projtex_b( "r_projtex_b", "2", 0 );*/
@@ -32,6 +34,8 @@ static ConVar r_projtex_b( "r_projtex_b", "2", 0 );*/
 static ConVar r_projtex_quadratic( "r_projtex_quadratic", "0", 0 );
 static ConVar r_projtex_linear( "r_projtex_linear", "100", 0 );
 static ConVar r_projtex_constant( "r_projtex_constant", "0", 0 );
+
+static ConVar r_projtex_shadowatten( "r_projtex_shadowatten", "0.0", 0 );
 
 /*static ConVar r_projtex_slopescale( "r_projtex_slopescale", "3.0", 0 );
 static ConVar r_projtex_depthbias( "r_projtex_depthbias", "0.00001", 0 );*/
@@ -67,6 +71,39 @@ IMPLEMENT_CLIENTCLASS_DT( C_EnvProjectedTexture, DT_EnvProjectedTexture, CEnvPro
 	RecvPropInt(	 RECVINFO( m_nShadowQuality )	),
 END_RECV_TABLE()
 
+C_EnvProjectedTexture *C_EnvProjectedTexture::Create( )
+{
+	C_EnvProjectedTexture *pEnt = new C_EnvProjectedTexture();
+
+	pEnt->m_flNearZ = 4.0f;
+	pEnt->m_flFarZ = 2000.0f;
+//	strcpy( pEnt->m_SpotlightTextureName, "particle/rj" );
+	pEnt->m_bLightWorld = true;
+	pEnt->m_bLightOnlyTarget = false;
+//	pEnt->m_bSimpleProjection = false;
+	pEnt->m_nShadowQuality = 1;
+	pEnt->m_flLightFOV = 45.0f;
+
+	pEnt->m_LinearFloatLightColor.x = 255;
+	pEnt->m_LinearFloatLightColor.y = 255;
+	pEnt->m_LinearFloatLightColor.z = 255;
+//	pEnt->m_LightColor.r = 255;
+//	pEnt->m_LightColor.g = 255;
+//	pEnt->m_LightColor.b = 255;
+//	pEnt->m_LightColor.a = 255;
+
+	pEnt->m_bEnableShadows = false;
+//	pEnt->m_flColorTransitionTime = 1.0f;
+	pEnt->m_bCameraSpace = false;
+	pEnt->SetAbsAngles( QAngle( 90, 0, 0 ) );
+	pEnt->m_bAlwaysUpdate = true;
+	pEnt->m_bState = true;
+//	pEnt->m_flProjectionSize = 500.0f;
+//	pEnt->m_flRotation = 0.0f;
+
+	return pEnt;
+}
+
 C_EnvProjectedTexture::C_EnvProjectedTexture( void )
 {
 	m_LightHandle = CLIENTSHADOW_INVALID_HANDLE;
@@ -93,6 +130,17 @@ void C_EnvProjectedTexture::ShutDownLightHandle( void )
 //-----------------------------------------------------------------------------
 void C_EnvProjectedTexture::OnDataChanged( DataUpdateType_t updateType )
 {
+	if ( updateType == DATA_UPDATE_CREATED )
+	{
+		// TODO: allow this to work as a normal projected texture or an uberlight
+		m_SpotlightTexture.Init( 
+/*#ifdef UBERLIGHT
+		m_FlashlightState.m_bUberlight ? "white",	
+#endif*/
+		m_SpotlightTextureName, TEXTURE_GROUP_OTHER, true );
+
+	}
+
 	UpdateLight();
 	BaseClass::OnDataChanged( updateType );
 }
@@ -103,6 +151,10 @@ void C_EnvProjectedTexture::UpdateLight( void )
 	{
 		m_bForceUpdate = true;
 	}
+	/*else
+	{
+		return;
+	}*/
 
 	/*if ( !m_bForceUpdate )
 	{
@@ -200,16 +252,32 @@ void C_EnvProjectedTexture::UpdateLight( void )
 	//state.m_flShadowDepthBias = mat_depthbias_shadowmap.GetFloat();
 	state.m_flShadowDepthBias = g_pMaterialSystemHardwareConfig->GetShadowDepthBias();
 	state.m_bEnableShadows = m_bEnableShadows;
-	state.m_pSpotlightTexture = materials->FindTexture( m_SpotlightTextureName, TEXTURE_GROUP_OTHER, false );
+	//state.m_pSpotlightTexture = materials->FindTexture( m_SpotlightTextureName, TEXTURE_GROUP_OTHER, false );
+	state.m_pSpotlightTexture = m_SpotlightTexture;
 	state.m_nSpotlightTextureFrame = m_nSpotlightTextureFrame;
 
+	state.m_bUberlight = r_projtex_uberlight_enable.GetBool();
+	m_UberlightState.m_bEnabled = r_projtex_uberlight_enable.GetBool();
+	m_UberlightState.m_fNearEdge = m_fNearEdge;
+	m_UberlightState.m_fFarEdge = m_fFarEdge;
+	m_UberlightState.m_fCutOn = m_fCutOn;
+	m_UberlightState.m_fCutOff = m_fCutOff;
+	m_UberlightState.m_fShearx = m_fShearx;
+	m_UberlightState.m_fSheary = m_fSheary;
+	m_UberlightState.m_fWidth = m_fWidth;
+	m_UberlightState.m_fWedge = m_fWedge;
+	m_UberlightState.m_fHeight = m_fHeight;
+	m_UberlightState.m_fHedge = m_fHedge;
+	m_UberlightState.m_fRoundness = m_fRoundness;
+
+	state.m_flShadowAtten = r_projtex_shadowatten.GetFloat();
 	state.m_nShadowQuality = m_nShadowQuality; // Allow entity to affect shadow quality
 
 	// NOTE: need to reload map when changing filtersize for this entity apparently, not for the flashlight though
 	// also the filtersize change only takes effect on map reload aaaa
 	// need to check to see if one of the values are changed, then set this to -1
 	// also this is all setup for DoShadowNvidiaPCF5x5Gaussian lol
-	/*if ( r_projtex_quality.GetInt() == 0 )
+	if ( r_projtex_quality.GetInt() == 0 )
 	{
 		r_shadowmapresolution.SetValue( 512.0f );
 		r_projtex_filtersize.SetValue( 2.0f );
@@ -233,7 +301,7 @@ void C_EnvProjectedTexture::UpdateLight( void )
 	{
 		r_shadowmapresolution.SetValue( 8192.0f );
 		r_projtex_filtersize.SetValue( 0.125f );
-	}*/
+	}
 	
 	state.m_flShadowFilterSize = r_projtex_filtersize.GetFloat();
 
@@ -281,4 +349,3 @@ void C_EnvProjectedTexture::Simulate( void )
 	BaseClass::Simulate();
 	//return true;
 }
-

@@ -13,6 +13,22 @@ C_EnvLight *g_pCSMEnvLight = NULL;
 
 static ConVar r_csm_enabled( "r_csm_enabled", "0", FCVAR_ARCHIVE, "0 = off, 1 = on, 2 = force" );
 
+static ConVar r_csm_preset( "r_csm_preset", "0", FCVAR_ARCHIVE, "The Preset to use for CSM \n\n"
+	"Near Cascade \n" "Far Cascade\n"
+	"Othro Size, Forward Offset \n\n"
+	
+	"4 - softest shadows - very far distance \n"
+	"2048, 1024 \n" "4096 4096 \n\n"
+
+	"3 - soft shadows - far distance \n"
+	"1024, 512 \n" "2048 2048 \n\n"
+
+	"2 - sharp shadows - average distance \n"
+	"512, 256 \n" "1024 1024 \n\n"
+
+	"1 - sharpest shadows - lowest distance \n"
+	"256, 128 \n" "512 512 \n" );
+
 IMPLEMENT_CLIENTCLASS_DT_NOBASE( C_EnvLight, DT_CEnvLight, CEnvLight )
 	RecvPropQAngles( RECVINFO( m_angSunAngles ) ),
 	RecvPropVector( RECVINFO( m_vecLight ) ),
@@ -26,7 +42,53 @@ C_EnvLight::C_EnvLight()
 	, m_vecAmbient( vec3_origin )
 	, m_bCascadedShadowMappingEnabled( false )
 {
-	ShadowConfig_t def[] = {
+	// BIG OOF
+	if ( r_csm_preset.GetInt() == 4 )
+	{
+		ShadowConfig_t def[] = {
+			{ 2048.0f, 1024.0f, 0.25f, 0.0f },
+			{ 4096.0f, 4096.0f, 0.75f, 0.0f }
+		};
+
+		V_memcpy( shadowConfigs, def, sizeof( shadowConfigs ) );
+	}
+	else if ( r_csm_preset.GetInt() == 3 )
+	{
+		ShadowConfig_t def[] = {
+			{ 1024.0f, 512.0f, 0.25f, 0.0f },
+			{ 2048.0f, 2048.0f, 0.75f, 0.0f }
+		};
+
+		V_memcpy( shadowConfigs, def, sizeof( shadowConfigs ) );
+	}
+	else if ( r_csm_preset.GetInt() == 2 )
+	{
+		ShadowConfig_t def[] = {
+			{ 512.0f, 256.0f, 0.25f, 0.0f },
+			{ 1024.0f, 1024.0f, 0.0f, 0.0f }
+		};
+
+		V_memcpy( shadowConfigs, def, sizeof( shadowConfigs ) );
+	}
+	else if ( r_csm_preset.GetInt() == 1 )
+	{
+		ShadowConfig_t def[] = {
+			{ 256.0f, 128.0f, 0.25f, 0.0f },
+			{ 512.0f, 512.0f, 0.0f, 0.0f }
+		};
+
+		V_memcpy( shadowConfigs, def, sizeof( shadowConfigs ) );
+	}
+	else // Default
+	{
+		ShadowConfig_t def[] = {
+			{ 512.0f, 256.0f, 0.25f, 0.0f },
+			{ 1024.0f, 1024.0f, 0.0f, 0.0f }
+		};
+
+		V_memcpy( shadowConfigs, def, sizeof( shadowConfigs ) );
+	}
+
 	// TODO: make this into presets you can use with a convar
 
 	// softest shadows - very far distance
@@ -38,15 +100,15 @@ C_EnvLight::C_EnvLight()
 	//	{ 2048.0f, 2048.0f, 0.75f, 0.0f }
 
 	// sharp shadows - average distance
-		{ 512.0f, 256.0f, 0.25f, 0.0f },
-		{ 1024.0f, 1024.0f, 0.0f, 0.0f }
+	//	{ 512.0f, 256.0f, 0.25f, 0.0f },
+	//	{ 1024.0f, 1024.0f, 0.0f, 0.0f }
 
 	// sharpest shadows - lowest distance
 	//	{ 256.0f, 128.0f, 0.25f, 0.0f },
 	//	{ 512.0f, 512.0f, 0.0f, 0.0f }
-	};
+	//};
 
-	V_memcpy( shadowConfigs, def, sizeof( shadowConfigs ) );
+	//V_memcpy( shadowConfigs, def, sizeof( shadowConfigs ) );
 }
 
 C_EnvLight::~C_EnvLight()
@@ -72,7 +134,16 @@ void C_EnvLight::OnDataChanged( DataUpdateType_t type )
 bool C_EnvLight::IsCascadedShadowMappingEnabled() const
 {
 	const int &iCSMCvarEnabled = r_csm_enabled.GetInt();
-	return m_bCascadedShadowMappingEnabled && iCSMCvarEnabled == 1 || iCSMCvarEnabled == 2;
+
+	// bad workaround for when light_environment is not on a map, should change this to be more specific
+	if ( this != NULL )
+	{
+		return m_bCascadedShadowMappingEnabled && iCSMCvarEnabled == 1 || iCSMCvarEnabled == 2;
+	}
+	else
+	{
+		return false;
+	}
 }
 
 
@@ -227,8 +298,8 @@ private:
 	{
 		CPrecisionSlider* pOrthoSize;
 		CPrecisionSlider* pForwardOffset;
-		CPrecisionSlider* pUVOffsetX;
-		CPrecisionSlider* pViewDepthBiasHack;
+	//	CPrecisionSlider* pUVOffsetX;
+	//	CPrecisionSlider* pViewDepthBiasHack;
 	} near, far;
 };
 
@@ -240,22 +311,19 @@ CCSMTweakPanel::CCSMTweakPanel( vgui::VPANEL parent ): Frame( NULL, "CCSMTweakPa
 	near.pOrthoSize->SetRange( 0, 8192 );
 	near.pForwardOffset = new CPrecisionSlider( this, "nearForwardOffset" );
 	near.pForwardOffset->SetRange( 0, 8192 );
-	// MUST BE SET TO 0.25 AT THE MOMMENT
-	near.pUVOffsetX = new CPrecisionSlider( this, "nearForwardOffsetX" );
-	near.pUVOffsetX->SetRange( 0.25, 0.26 );
 	// below is useless
-	near.pViewDepthBiasHack = new CPrecisionSlider( this, "nearDepthBiasHack" );
-	near.pViewDepthBiasHack->SetRange( 0, 1024 );
+	//near.pViewDepthBiasHack = new CPrecisionSlider( this, "nearDepthBiasHack" );
+	//near.pViewDepthBiasHack->SetRange( 0, 1024 );
 
 	far.pOrthoSize = new CPrecisionSlider( this, "farOrthoSize" );
 	far.pOrthoSize->SetRange( 0, 8192 );
 	far.pForwardOffset = new CPrecisionSlider( this, "farForwardOffset" );
 	far.pForwardOffset->SetRange( 0, 8192 );
 	// below is useless
-	far.pUVOffsetX = new CPrecisionSlider( this, "farForwardOffsetX" );
-	far.pUVOffsetX->SetRange( 0, 1024 );
-	far.pViewDepthBiasHack = new CPrecisionSlider( this, "farDepthBiasHack" );
-	far.pViewDepthBiasHack->SetRange( 0, 1024 );
+	//far.pUVOffsetX = new CPrecisionSlider( this, "farForwardOffsetX" );
+	//far.pUVOffsetX->SetRange( 0, 1024 );
+	//far.pViewDepthBiasHack = new CPrecisionSlider( this, "farDepthBiasHack" );
+	//far.pViewDepthBiasHack->SetRange( 0, 1024 );
 
 	SetSize( 128, 256 );
 
@@ -293,14 +361,15 @@ void CCSMTweakPanel::OnMessage( const KeyValues *params, vgui::VPANEL fromPanel 
 		{
 			g_pCSMEnvLight->shadowConfigs[0].flForwardOffset = near.pForwardOffset->GetValue();
 		}
-		else if ( panel == near.pUVOffsetX )
+		/*else if ( panel == near.pUVOffsetX )
 		{
 			g_pCSMEnvLight->shadowConfigs[0].flUVOffsetX = near.pUVOffsetX->GetValue();
 		}
 		else if ( panel == near.pViewDepthBiasHack )
 		{
 			g_pCSMEnvLight->shadowConfigs[0].flViewDepthBiasHack = near.pViewDepthBiasHack->GetValue();
-		}
+		}*/
+
 		else if ( panel == far.pOrthoSize )
 		{
 			g_pCSMEnvLight->shadowConfigs[1].flOrthoSize = far.pOrthoSize->GetValue();
@@ -309,14 +378,14 @@ void CCSMTweakPanel::OnMessage( const KeyValues *params, vgui::VPANEL fromPanel 
 		{
 			g_pCSMEnvLight->shadowConfigs[1].flForwardOffset = far.pForwardOffset->GetValue();
 		}
-		else if ( panel == far.pUVOffsetX )
+		/*else if ( panel == far.pUVOffsetX )
 		{
 			g_pCSMEnvLight->shadowConfigs[1].flUVOffsetX = far.pUVOffsetX->GetValue();
 		}
 		else if ( panel == far.pViewDepthBiasHack )
 		{
 			g_pCSMEnvLight->shadowConfigs[1].flViewDepthBiasHack = far.pViewDepthBiasHack->GetValue();
-		}
+		}*/
 	}
 }
 
@@ -327,13 +396,13 @@ void CCSMTweakPanel::LoadSettings()
 		const auto& data = g_pCSMEnvLight->shadowConfigs;
 		near.pForwardOffset->SetValue(data[0].flForwardOffset, false);
 		near.pOrthoSize->SetValue(data[0].flOrthoSize, false);
-		near.pUVOffsetX->SetValue(data[0].flUVOffsetX, false);
-		near.pViewDepthBiasHack->SetValue(data[0].flViewDepthBiasHack, false);
+	//	near.pUVOffsetX->SetValue(data[0].flUVOffsetX, false);
+	//	near.pViewDepthBiasHack->SetValue(data[0].flViewDepthBiasHack, false);
 
 		far.pForwardOffset->SetValue(data[1].flForwardOffset, false);
 		far.pOrthoSize->SetValue(data[1].flOrthoSize, false);
-		far.pUVOffsetX->SetValue(data[1].flUVOffsetX, false);
-		far.pViewDepthBiasHack->SetValue(data[1].flViewDepthBiasHack, false);
+	//	far.pUVOffsetX->SetValue(data[1].flUVOffsetX, false);
+	//	far.pViewDepthBiasHack->SetValue(data[1].flViewDepthBiasHack, false);
 	}
 }
 

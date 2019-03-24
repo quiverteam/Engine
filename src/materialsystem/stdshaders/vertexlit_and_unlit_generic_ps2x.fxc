@@ -30,12 +30,12 @@
 // DYNAMIC: "LIGHTING_PREVIEW"          "0..2"	
 // DYNAMIC: "FLASHLIGHTSHADOWS"			"0..1"	[ps20b] [ps30]
 // DYNAMIC: "CASCADED_SHADOW"			"0..1"  [ps30]
+// DYNAMIC: "UBERLIGHT"					"0..0"  [ps30]
 
-// _DYNAMIC: "FLASHLIGHTSHADOWS"			"0..2"	[ps30]
 // _DYNAMIC: "STATIC_LIGHT_LIGHTMAP"	    "0..2"  [ps20b] [ps30]
 // _DYNAMIC: "STATIC_LIGHT_LIGHTMAP"	    "0..0"  [ps20]
 // _DYNAMIC: "DEBUG_LUXELS"				"0..1"	[ps20b] [ps30]
-// _DYNAMIC: "UBERLIGHT"					"0..1"  [ps30]
+
 
 /*#if STATIC_LIGHT_LIGHTMAP == 2
 #define DEBUG_LUXELS 1
@@ -59,9 +59,6 @@
 // SKIP: ($CASCADED_SHADOW) && ($VERTEXCOLOR)
 // SKIP: (!$CASCADED_SHADOW) && ($TWO_SIDED_LIGHTING)
 
-// _SKIP: ($UBERLIGHT) && (!$FLASHLIGHT)
-// _SKIP: ($UBERLIGHT) && (!$FLASHLIGHTSHADOWS)
-
 // detail blend mode 6 = ps20b only
 // SKIP: $DETAIL_BLEND_MODE == 6				[ps20]
 
@@ -80,6 +77,9 @@
 // We don't care about flashlight depth unless the flashlight is on
 // SKIP: ( $FLASHLIGHT == 0 ) && ( $FLASHLIGHTSHADOWS )	[ps20b]
 // SKIP: ( $FLASHLIGHT == 0 ) && ( $FLASHLIGHTSHADOWS )	[ps30]
+
+// We don't care about uberlight unless the flashlight is on
+// SKIP: ( $FLASHLIGHT == 0 ) && ( $UBERLIGHT == 1 )	[ps30]
 
 // Flashlight shadow filter mode is irrelevant if there is no flashlight
 // SKIP: ( $FLASHLIGHT == 0 ) && ( $FLASHLIGHTDEPTHFILTERMODE != 0 ) [ps20b]
@@ -103,6 +103,7 @@
 // Debugging luxels only makes sense if we have lightmaps on this geometry.
 // _SKIP: ($STATIC_LIGHT_LIGHTMAP == 0) && ($DEBUG_LUXELS == 1)
 
+#include "shader_constant_register_map.h"
 #include "common_flashlight_fxc.h"
 #include "common_vertexlitgeneric_dx9.h"
  
@@ -127,7 +128,7 @@ const float4 g_FlashlightAttenuationFactors	    : register( c22 );
 const float3 g_FlashlightPos					: register( c23 );
 const float4x4 g_FlashlightWorldToTexture		: register( c24 ); // through c27
 
-/*#if UBERLIGHT
+#if UBERLIGHT
 // ps_3_0 and up (over 32 registers)
 const float3 g_vSmoothEdge0						: register( PSREG_UBERLIGHT_SMOOTH_EDGE_0 );		
 const float3 g_vSmoothEdge1						: register( PSREG_UBERLIGHT_SMOOTH_EDGE_1 );
@@ -135,7 +136,7 @@ const float3 g_vSmoothOneOverWidth				: register( PSREG_UBERLIGHT_SMOOTH_EDGE_OO
 const float4 g_vShearRound						: register( PSREG_UBERLIGHT_SHEAR_ROUND );
 const float4 g_aAbB								: register( PSREG_UBERLIGHT_AABB );
 const float4x4 g_FlashlightWorldToLight			: register( PSREG_UBERLIGHT_WORLD_TO_LIGHT );
-#endif*/
+#endif
 
 #define g_SelfIllumTwoTextureBlend  g_EnvmapSaturation_SelfIllumMask.w
 #define g_CascadedForward				g_FlashlightPos
@@ -277,7 +278,6 @@ float4 main( PS_INPUT i ) : COLOR
 	bool bBaseAlphaEnvmapMask = BASEALPHAENVMAPMASK ? true : false;
 	bool bSelfIllum = SELFILLUM ? true : false;
 	bool bVertexColor = VERTEXCOLOR ? true : false;
-	bool bFlashlight = FLASHLIGHT ? true : false;
 	bool bBlendTintByBaseAlpha = BLENDTINTBYBASEALPHA ? true : false;
 
 	HALF4 baseColor = HALF4( 1.0f, 1.0f, 1.0f, 1.0f );
@@ -432,40 +432,40 @@ float4 main( PS_INPUT i ) : COLOR
 		alpha *= baseColor.a;
 	}
 	
-//#if FLASHLIGHT
-	if( bFlashlight )
+	#if FLASHLIGHT
 	{
 		int nShadowSampleLevel = 0;
 		bool bDoShadows = false;
-// On ps_2_b, we can do shadow mapping
-#if ( FLASHLIGHTSHADOWS && (defined(SHADER_MODEL_PS_2_B) || defined(SHADER_MODEL_PS_3_0) ) )
-		nShadowSampleLevel = FLASHLIGHTDEPTHFILTERMODE;
-		bDoShadows = true;
-#endif
+		// On ps_2_b, we can do shadow mapping
+		#if ( FLASHLIGHTSHADOWS && (defined(SHADER_MODEL_PS_2_B) || defined(SHADER_MODEL_PS_3_0) ) )
+				nShadowSampleLevel = FLASHLIGHTDEPTHFILTERMODE;
+				bDoShadows = true;
+		#endif
 
-	float4 flashlightSpacePosition = mul( float4( i.worldPos_projPosZ.xyz, 1.0f ), g_FlashlightWorldToTexture );
+		float4 flashlightSpacePosition = mul( float4( i.worldPos_projPosZ.xyz, 1.0f ), g_FlashlightWorldToTexture );
 
-	// We want the N.L to happen on the flashlight pass, but can't afford it on ps20
-	bool bUseWorldNormal = true;
-#if ( defined( SHADER_MODEL_PS_2_0 ) && ( DETAILTEXTURE ) )
-	bUseWorldNormal = false;
-#endif
+		// We want the N.L to happen on the flashlight pass, but can't afford it on ps20
+		bool bUseWorldNormal = true;
+		#if ( defined( SHADER_MODEL_PS_2_0 ) && ( DETAILTEXTURE ) )
+			bUseWorldNormal = false;
+		#endif
+		
 		float3 flashlightColor = DoFlashlight( g_FlashlightPos, i.worldPos_projPosZ.xyz, flashlightSpacePosition,
 			i.worldSpaceNormal, g_FlashlightAttenuationFactors.xyz, 
 			g_FlashlightAttenuationFactors.w, FlashlightSampler, ShadowDepthSampler,
 			nShadowSampleLevel, bDoShadows, false, i.projPos.xy / i.projPos.w, false, g_EnvmapContrast_ShadowTweaks, bUseWorldNormal );
-			
-		/*#if UBERLIGHT
+				
+		#if UBERLIGHT
 		{
 			float4 uberLightPosition = mul( float4( i.worldPos_projPosZ.xyz, 1.0f ), g_FlashlightWorldToLight ).yzxw;
 			flashlightColor *= uberlight( uberLightPosition, g_vSmoothEdge0, g_vSmoothEdge1,
 							   g_vSmoothOneOverWidth, g_vShearRound.xy, g_aAbB, g_vShearRound.zw );
 		}
-		#endif*/
+		#endif
 	
 		diffuseLighting = flashlightColor;
 	}
-//#endif
+	#endif
 
 	if( bVertexColor && bDiffuseLighting )
 	{

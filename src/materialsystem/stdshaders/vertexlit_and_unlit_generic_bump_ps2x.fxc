@@ -24,7 +24,7 @@
 // DYNAMIC: "FLASHLIGHTSHADOWS"			"0..1"						[ps20b]
 // DYNAMIC: "FLASHLIGHTSHADOWS"			"0..1"						[ps30]
 // DYNAMIC: "CASCADED_SHADOW"			"0..1"						[ps30]
-// DYNAMIC: "UBERLIGHT"					"0..1"						[ps30]
+// DYNAMIC: "UBERLIGHT"					"0..0"						[ps30]
 
 #ifndef SHADER_MODEL_PS_3_0
 #define CASCADED_SHADOW 0
@@ -32,7 +32,8 @@
 
 // SKIP: ($CASCADED_SHADOW) && ($FLASHLIGHT)
 
-// SKIP: ($UBERLIGHT) && (!$FLASHLIGHT)
+// We don't care about uberlight unless the flashlight is on
+// SKIP: ( $FLASHLIGHT == 0 ) && ( $UBERLIGHT == 1 )	[ps30]
 
 // We don't use light combos when doing the flashlight
 // SKIP: ( $FLASHLIGHT != 0 ) && ( $NUM_LIGHTS > 0 )				[PC]
@@ -74,6 +75,7 @@
 // Meaningless combinations
 // SKIP: $NORMALMAPALPHAENVMAPMASK && !$CUBEMAP
 
+#include "shader_constant_register_map.h"
 #include "common_flashlight_fxc.h"
 #include "common_vertexlitgeneric_dx9.h"
 

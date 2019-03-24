@@ -18,6 +18,7 @@
 
 // DYNAMIC: "PIXELFOGTYPE"				"0..1"
 // DYNAMIC: "FLASHLIGHTSHADOWS"			"0..1"	[ps20b] [ps30]
+// DYNAMIC: "UBERLIGHT"					"0..1"  [ps30]
 
 // SKIP: !$WORLDVERTEXTRANSITION && $NORMALMAP2
 // SKIP: !$NORMALMAP && $NORMALMAP2
@@ -36,14 +37,14 @@ const float4 g_DetailConstants				: register( c0 );
 const float4 g_FlashlightPos				: register( c1 );
 const float4 g_FresnelSpecParams			: register( PSREG_FRESNEL_SPEC_PARAMS );
 
-/*#if UBERLIGHT
+#if UBERLIGHT
 const float3 g_vSmoothEdge0					: register( PSREG_UBERLIGHT_SMOOTH_EDGE_0 );
 const float3 g_vSmoothEdge1					: register( PSREG_UBERLIGHT_SMOOTH_EDGE_1 );
 const float3 g_vSmoothOneOverWidth			: register( PSREG_UBERLIGHT_SMOOTH_EDGE_OOW );
 const float4 g_vShearRound					: register( PSREG_UBERLIGHT_SHEAR_ROUND );
 const float4 g_aAbB							: register( PSREG_UBERLIGHT_AABB );
 const float4x4 g_FlashlightWorldToLight		: register( PSREG_UBERLIGHT_WORLD_TO_LIGHT );
-#endif*/
+#endif
 
 #define g_SpecularExponent	g_EyePos.w
 #define g_FresnelRanges		g_FresnelSpecParams.xyz
@@ -223,12 +224,12 @@ float4 main( PS_INPUT i ) : COLOR
 	spotColor *= flShadow;
 #endif
 
-/*#if UBERLIGHT
+#if UBERLIGHT
 	// Transform from world space position to light space position
 	float3 flashlightSpacePosition = mul( float4( i.worldPos_worldTransition.xyz, 1.0f ), g_FlashlightWorldToLight ).yzx;
 	spotColor *= uberlight( flashlightSpacePosition, g_vSmoothEdge0, g_vSmoothEdge1,
 							g_vSmoothOneOverWidth, g_vShearRound.xy, g_aAbB, g_vShearRound.zw );
-#endif*/
+#endif
 
 #if WORLDVERTEXTRANSITION
 	baseColor = lerp( baseColor, baseColor2, lerpAlpha );

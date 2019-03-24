@@ -338,12 +338,10 @@ void DrawLightmappedAdvFlashlight_DX9_Internal( CBaseVSShader *pShader, IMateria
 			shaderAPI->SetPixelShaderConstant( var, pVec, nConsts );
 		};
 
-	//	bool bUberlight = SetupUberlightFromState( func, flashlightState );
-
 		DECLARE_DYNAMIC_PIXEL_SHADER( lightmappedadv_flashlight_ps30 );
 		SET_DYNAMIC_PIXEL_SHADER_COMBO( PIXELFOGTYPE, pShaderAPI->GetPixelFogCombo() );
 		SET_DYNAMIC_PIXEL_SHADER_COMBO( FLASHLIGHTSHADOWS, flashlightState.m_bEnableShadows );
-	//	SET_DYNAMIC_PIXEL_SHADER_COMBO( UBERLIGHT, bUberlight );
+		SET_DYNAMIC_PIXEL_SHADER_COMBO( UBERLIGHT, flashlightState.m_bUberlight );
 		SET_DYNAMIC_PIXEL_SHADER( lightmappedadv_flashlight_ps30 );
 
 		float atten[4];										// Set the flashlight attenuation factors
@@ -1324,6 +1322,26 @@ void DrawLightmappedGeneric_DX9_Internal(CBaseVSShader *pShader, IMaterialVar** 
 			bWriteDepthToAlpha = false;
 			bWriteWaterFogToAlpha = false;
 		}
+
+		/*bool bFlashlightShadows = false;
+		bool bUberlight = false;
+		if( !hasFlashlight )
+		{
+			// only do ambient light when not using flashlight
+			static ConVarRef mat_ambient_light_r_forced( "mat_ambient_light_r_forced" );
+			static ConVarRef mat_ambient_light_g_forced( "mat_ambient_light_g_forced" );
+			static ConVarRef mat_ambient_light_b_forced( "mat_ambient_light_b_forced" );
+
+			float vAmbientColor[4] = { mat_ambient_light_r_forced.GetFloat() != -1.0f ? mat_ambient_light_r_forced.GetFloat() : mat_ambient_light_r.GetFloat(), 
+									   mat_ambient_light_g_forced.GetFloat() != -1.0f ? mat_ambient_light_g_forced.GetFloat() : mat_ambient_light_g.GetFloat(), 
+									   mat_ambient_light_b_forced.GetFloat() != -1.0f ? mat_ambient_light_b_forced.GetFloat() : mat_ambient_light_b.GetFloat(), 
+									   0.0f };
+			if ( mat_fullbright.GetInt() == 1 )
+			{
+				vAmbientColor[0] = vAmbientColor[1] = vAmbientColor[2] = 0.0f;
+			}
+			DynamicCmdsOut.SetPixelShaderConstant( 31, vAmbientColor, 1 );
+		}*/
 
 		float envmapContrast = params[info.m_nEnvmapContrast]->GetFloatValue();
 		

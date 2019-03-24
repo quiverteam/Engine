@@ -611,7 +611,7 @@ END_SHADER
 //-----------------------------------------------------------------------------
 // This allows us to use a block labelled 'Water_DX9_HDR' in the water materials
 //-----------------------------------------------------------------------------
-/*BEGIN_INHERITED_SHADER( Water_DX9_HDR, Water_DX90,
+BEGIN_INHERITED_SHADER( Water_DX9_HDR, Water_DX90,
 			  "Help for Water_DX9_HDR" )
 
 	SHADER_FALLBACK
@@ -622,5 +622,5 @@ END_SHADER
 		}
 		return 0;
 	}
-END_INHERITED_SHADER*/
+END_INHERITED_SHADER
 
