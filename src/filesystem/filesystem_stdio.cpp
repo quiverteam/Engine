@@ -743,8 +743,10 @@ void CStdioFile::FS_setbufsize( unsigned nBytes )
 	else
 	{
 		setvbuf( m_pFile, NULL, _IONBF,  0 );
+#if (_MSC_VER < 1900)
 		// hack to make microsoft stdio not always read one stray byte on odd sized files
 		m_pFile->_bufsiz = 1;
+#endif // _MSC_VER < 1900
 	}
 #endif
 }
