@@ -108,6 +108,13 @@ inline void *ReallocUnattributed( void *pMem, size_t nSize )
 // this magic only works under win32
 // under linux this malloc() overrides the libc malloc() and so we
 // end up in a recursion (as g_pMemAlloc->Alloc() calls malloc)
+
+#if _MSC_VER >= 1900
+// __declspec(noalias) isn't a thing in VS2017
+#define _CRTNOALIAS 
+#endif // _MSC_VER >= 1900
+
+
 #if _MSC_VER >= 1400
 #define ALLOC_CALL _CRTNOALIAS _CRTRESTRICT 
 #define FREE_CALL _CRTNOALIAS 
@@ -156,19 +163,36 @@ void* __cdecl _malloc_base( size_t nSize )
 	return AllocUnattributed( nSize );
 }
 #else
+
+#if _MSC_VER >= 1900
+_CRTRESTRICT
+#endif // _MSC_VER >= 1900
 void *_malloc_base( size_t nSize )
 {
 	return AllocUnattributed( nSize );
 }
 #endif
 
+#if _MSC_VER >= 1900
+_CRTALLOCATOR _CRTRESTRICT
+void *_calloc_base( size_t nCount, size_t nSize )
+{
+	void *pMem = AllocUnattributed(nSize);
+	memset(pMem, 0, nSize);
+	return pMem;
+}
+#else
 void *_calloc_base( size_t nSize )
 {
 	void *pMem = AllocUnattributed( nSize );
 	memset(pMem, 0, nSize);
 	return pMem;
 }
+#endif // _MSC_VER >= 1900
 
+#if _MSC_VER >= 1900
+_CRTRESTRICT
+#endif // _MSC_VER >= 1900
 void *_realloc_base( void *pMem, size_t nSize )
 {
 	return ReallocUnattributed( pMem, nSize );
@@ -200,7 +224,11 @@ void * __cdecl _malloc_crt(size_t size)
 
 void * __cdecl _calloc_crt(size_t count, size_t size)
 {
+#if _MSC_VER >= 1900
+	return _calloc_base(count, size);
+#else
 	return _calloc_base( count * size );
+#endif // _MSC_VER >= 1900
 }
 
 void * __cdecl _realloc_crt(void *ptr, size_t size)
@@ -633,6 +661,7 @@ int _CrtSetDbgFlag( int nNewFlag )
 #define AFNAME(var) __p_ ## var
 #define AFRET(var)  &var
 
+#if !(_MSC_VER >= 1900)
 int _crtDbgFlag = _CRTDBG_ALLOC_MEM_DF;
 int* AFNAME(_crtDbgFlag)(void)
 {
@@ -644,6 +673,7 @@ long* AFNAME(_crtBreakAlloc) (void)
 {
 	return AFRET(_crtBreakAlloc);
 }
+#endif // !_MSC_VER >= 1900
 
 void __cdecl _CrtSetDbgBlockType( void *pMem, int nBlockUse )
 {
@@ -865,13 +895,15 @@ ErrorHandlerRegistrar::ErrorHandlerRegistrar()
 
 #if defined( _DEBUG )
  
+#if !( _MSC_VER >= 1900 )
 // wrapper which passes no debug info; not available in debug
 #ifndef	SUPPRESS_INVALID_PARAMETER_NO_INFO
 void __cdecl _invalid_parameter_noinfo(void)
 {
     Assert(0);
 }
-#endif
+#endif // !SUPPRESS_INVALID_PARAMETER_NO_INFO
+#endif // !( _MSC_VER >= 1900 )
 
 #endif /* defined( _DEBUG ) */
 
@@ -898,12 +930,22 @@ int __cdecl _CrtDbgReportW( int nRptType, const wchar_t *szFile, int nLine,
 	return 0;
 }
 
+// See crtdbg.h(623)
+#if _MSC_VER >= 1900
+int __cdecl _VCrtDbgReportA(int nRptType, void* retAddr, char const* szFile, int nLine,
+	char const* szModule, char const* szFormat, va_list arglist )
+{
+	Assert(0);
+	return 0;
+}
+#else
 int __cdecl _VCrtDbgReportA( int nRptType, const wchar_t * szFile, int nLine, 
 							 const wchar_t * szModule, const wchar_t * szFormat, va_list arglist )
 {
 	Assert(0);
 	return 0;
 }
+#endif // _MSC_VER >= 1900
 
 int __cdecl _CrtSetReportHook2( int mode, _CRT_REPORT_HOOK pfnNewHook )
 {
@@ -1073,12 +1115,13 @@ void __cdecl _aligned_free_dbg( void * memblock)
 {
     _aligned_free(memblock);
 }
-
+#if !( _MSC_VER >= 1900 )
 size_t __cdecl _CrtSetDebugFillThreshold( size_t _NewDebugFillThreshold)
 {
 	assert(0);
     return 0;
 }
+#endif // !_MSC_VER >= 1900
 
 //===========================================
 // NEW!!! 64-bit
@@ -1382,12 +1425,15 @@ struct _tiddata {
     void *      _tpxcptinfoptrs; /* ptr to exception info pointers */
     int         _tfpecode;      /* float point exception code */
 
+	// TODO: Check if CRT requires this
+#if !( _MSC_VER >= 1900 )
     /* pointer to the copy of the multibyte character information used by
      * the thread */
     pthreadmbcinfo  ptmbcinfo;
 
     /* pointer to the copy of the locale informaton used by the thead */
     pthreadlocinfo  ptlocinfo;
+#endif // !_MSC_VER >= 1900
     int         _ownlocale;     /* if 1, this thread owns its own locale */
 
     /* following field is needed by NLG routines */
@@ -1551,7 +1597,9 @@ typedef struct _tiddata * _ptiddata;
 
 class _LocaleUpdate
 {
+#if !( _MSC_VER >= 1900)
     _locale_tstruct localeinfo;
+#endif // !_MSC_VER >= 1900
     _ptiddata ptd;
     bool updated;
     public:
@@ -1584,10 +1632,12 @@ class _LocaleUpdate
 //        if (updated)
 //	        ptd->_ownlocale = ptd->_ownlocale & ~_PER_THREAD_LOCALE_BIT;
     }
+#if !( _MSC_VER >= 1900 )
     _locale_t GetLocaleT()
     {
         return &localeinfo;
     }
+#endif // !_MSC_VER >= 1900
 };
 
 
