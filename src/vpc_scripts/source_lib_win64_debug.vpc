@@ -15,8 +15,8 @@ $Configuration "Debug"
 	$General	
 	{
 		// General
-		$OutputDirectory					".\Debug"
-		$IntermediateDirectory				".\Debug"
+		$OutputDirectory					".\Debug\x64"
+		$IntermediateDirectory				".\Debug\x64"
 		$ExtensionsToDeleteOnClean
 		$BuildLogFile
 		$InheritedProjectPropertySheets
@@ -55,6 +55,9 @@ $Configuration "Debug"
 		$TreatWarningsAsErrors
 		$UseUNICODEResponseFiles			"No"
 
+		//TARGET
+		//$TargetMachine					"MachineX64 (/MACHINE:X64)"
+
 		// Optimization
 		$Optimization						"Disabled (/Od)"
 		$InlineFunctionExpansion
@@ -65,7 +68,7 @@ $Configuration "Debug"
 		$WholeProgramOptimization
 
 		// Preprocessor
-		$PreprocessorDefinitions			"WIN32;_WIN32;_DEBUG;DEBUG;_LIB;_CRT_SECURE_NO_DEPRECATE;_CRT_NONSTDC_NO_DEPRECATE"
+		$PreprocessorDefinitions			"_WIN64;WIN64;_DEBUG;DEBUG;_LIB;_CRT_SECURE_NO_DEPRECATE;_CRT_NONSTDC_NO_DEPRECATE;PLATFORM_WINDOWS_PC64"
 		$IgnoreStandardIncludePath
 		$GeneratePreprocessedFile
 		$KeepComments
@@ -141,11 +144,11 @@ $Configuration "Debug"
 		$ForceSymbolReferences
 		$UseUNICODEResponseFiles			"No"
 		$LinkLibraryDependencies
+        //$TargetMachine							"MachineX64 (/MACHINE:X64)"
 
 		// Command Line
 		$AdditionalOptions
 	}
-
 	$XMLDocumentGenerator
 	{
 		// General

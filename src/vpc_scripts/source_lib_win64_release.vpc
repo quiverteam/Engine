@@ -1,5 +1,5 @@
 //-----------------------------------------------------------------------------
-//	SOURCE_LIB_WIN32_DEBUG.VPC
+//	SOURCE_LIB_WIN32_RELEASE.VPC
 //
 //	Base Settings for all Source(TM) Projects
 //-----------------------------------------------------------------------------
@@ -10,13 +10,13 @@ $MacroRequired				"SRCDIR"
 $MacroRequired				"OUTLIBNAME"
 $MacroRequired				"OUTLIBDIR"
 
-$Configuration "Debug"
+$Configuration "Release"
 {
-	$General	
+	$General
 	{
 		// General
-		$OutputDirectory					".\Debug"
-		$IntermediateDirectory				".\Debug"
+		$OutputDirectory					".\Release\x64"
+		$IntermediateDirectory				".\Release\x64"
 		$ExtensionsToDeleteOnClean
 		$BuildLogFile
 		$InheritedProjectPropertySheets
@@ -45,41 +45,43 @@ $Configuration "Debug"
 
 	$Compiler
 	{
+        //$TargetMachine					"MachineX64 (/MACHINE:X64)"
+
 		// General
 		$AdditionalIncludeDirectories		"$SRCDIR\common;$SRCDIR\public;$SRCDIR\public\tier0;$SRCDIR\public\tier1"
 		$Resolve#UsingReferences
-		$DebugInformationFormat				"Program Database (/Zi)"
-		$SuppressStartupBanner		
+		$DebugInformationFormat				"C7 Compatible (/Z7)"
+		$SuppressStartupBanner
 		$WarningLevel						"Level 4 (/W4)"
 		$Detect64bitPortabilityIssues		"Yes (/Wp64)"
 		$TreatWarningsAsErrors
 		$UseUNICODEResponseFiles			"No"
 
 		// Optimization
-		$Optimization						"Disabled (/Od)"
-		$InlineFunctionExpansion
-		$EnableIntrinsicFunctions
-		$FavorSizeOrSpeed
+		$Optimization						"Maximize Speed (/O2)"
+		$InlineFunctionExpansion			"Any Suitable (/Ob2)"
+		$EnableIntrinsicFunctions			"Yes (/Oi)"
+		$FavorSizeOrSpeed					"Favor Fast Code (/Ot)"
 		$OmitFramePointers
 		$EnableFiberSafeOptimizations
 		$WholeProgramOptimization
 
 		// Preprocessor
-		$PreprocessorDefinitions			"WIN32;_WIN32;_DEBUG;DEBUG;_LIB;_CRT_SECURE_NO_DEPRECATE;_CRT_NONSTDC_NO_DEPRECATE"
+		$PreprocessorDefinitions			"WIN64;_WIN64;NDEBUG;_LIB;_CRT_SECURE_NO_DEPRECATE;_CRT_NONSTDC_NO_DEPRECATE"
 		$IgnoreStandardIncludePath
 		$GeneratePreprocessedFile
 		$KeepComments
 
 		// Code Generation
 		$EnableStringPooling				"Yes (/GF)"
-		$EnableMinimalRebuild				"Yes (/Gm)"
+		$EnableMinimalRebuild
 		$EnableC++Exceptions				"No"
 		$SmallerTypeCheck
-		$BasicRuntimeChecks					"Both (/RTC1, equiv. to /RTCsu)"
-		$RuntimeLibrary						"Multi-threaded Debug (/MTd)"
+		$BasicRuntimeChecks
+		$RuntimeLibrary						"Multi-threaded (/MT)"
 		$StructMemberAlignment
-		$BufferSecurityCheck				"No"
-		$EnableFunctionLevelLinking
+		$BufferSecurityCheck 				"No"
+		$EnableFunctionLevelLinking			"Yes (/Gy)"
 		$EnableEnhancedInstructionSet
 		$FloatingPointModel					"Fast (/fp:fast)"
 		$EnableFloatingPointExceptions
@@ -100,9 +102,9 @@ $Configuration "Debug"
 		// Output Files
 		$ExpandAttributedSource				"No"
 		$AssemblerOutput					"No Listing"
-		$ASMListLocation					"$(IntDir)/"
-		$ObjectFileName						"$(IntDir)/"
-		$ProgramDatabaseFileName			"$(IntDir)/"
+		$ASMListLocation					"$(IntDir)/x64/"
+		$ObjectFileName						"$(IntDir)/x64/"
+		$ProgramDatabaseFileName			"$(IntDir)/x64/"
 		$GenerateXMLDocumentationFiles		"No"
 		$XMLDocumentationFileName
 
@@ -122,7 +124,7 @@ $Configuration "Debug"
 		$UseFullPaths
 		$OmitDefaultLibraryNames
 		$ErrorReporting						"Prompt Immediately (/errorReport:prompt)"
-
+        //$TargetMachine							"MachineX64 (/MACHINE:X64)"
 		// Command Line
 		$AdditionalOptions
 	}
@@ -131,7 +133,7 @@ $Configuration "Debug"
 	{
 		// General
 		$OutputFile							"$OUTLIBDIR\$OUTLIBNAME.lib"
-		$AdditionalDependencies
+		$AdditionalDependencies				"user32.lib;shell32.lib"
 		$AdditionalLibraryDirectories
 		$SuppressStartupBanner				"Yes (/NOLOGO)"
 		$ModuleDefinitionFileName
@@ -173,7 +175,7 @@ $Configuration "Debug"
 
 	$PreLinkEvent
 	{
-		$CommandLine
+		$CommandLine						
 		$Description
 		$ExcludedFromBuild					"No"
 	}

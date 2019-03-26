@@ -10,9 +10,11 @@ $MacroRequired				"SRCDIR"
 $MacroRequired				"OUTLIBNAME"	"$PROJECTNAME"
 $MacroRequired				"OUTLIBDIR"
 
-$Include "$SRCDIR\vpc_scripts\source_lib_win32_debug.vpc"
-$Include "$SRCDIR\vpc_scripts\source_lib_win32_release.vpc"
+$Include "$SRCDIR\vpc_scripts\source_lib_win32_debug.vpc" 	[$WIN32]
+$Include "$SRCDIR\vpc_scripts\source_lib_win32_release.vpc" [$WIN32]
 $Include "$SRCDIR\vpc_scripts\source_win32_base.vpc"
+$Include "$SRCDIR\vpc_scripts\source_lib_win64_debug.vpc"	[$WIN64]
+$Include "$SRCDIR\vpc_scripts\source_lib_win64_release.vpc"	[$WIN64]
 
 $IgnoreRedundancyWarning	"ON"
 

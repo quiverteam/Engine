@@ -1,11 +1,10 @@
 $Include "$SRCDIR\vpc_scripts\platform_dirs.vpc"
-$include "$SRCDIR\vpc_scripts\source_base.vpc"
+$Include "$SRCDIR\vpc_scripts\source_base.vpc"
 
 $MacroRequired OUTLIBDIR	"$SRCDIR\lib\public$PLATSUBDIR"
 
 $Include "$SRCDIR\vpc_scripts\source_lib_posix_base.vpc"	[$POSIX]
-//$Include "$SRCDIR\vpc_scripts\source_lib_linux_base.vpc"	[$LINUX]
-$include "$SRCDIR\vpc_scripts\source_lib_win32_base.vpc"	[$WIN32 || $WIN64]
+$Include "$SRCDIR\vpc_scripts\source_lib_win32_base.vpc"	[$WINDOWS]
 
 $Configuration
 {

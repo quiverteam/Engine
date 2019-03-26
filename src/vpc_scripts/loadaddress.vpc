@@ -26,8 +26,8 @@
 //-----------------------------------------------------------------------------
 
 // Explicitly defined "empty" only for WIN32 only because they are not required for WIN32 projects
-$Macro LOADADDRESS_DEVELOPMENT		" "		[$WIN32]
-$Macro LOADADDRESS_RETAIL			" "		[$WIN32]
+$Macro LOADADDRESS_DEVELOPMENT		" "		[$WIN32 || $WIN64]
+$Macro LOADADDRESS_RETAIL			" "		[$WIN32 || $WIN64]
 
 $LoadAddressMacro LOADADDRESS_DEVELOPMENT
 {
