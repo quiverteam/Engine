@@ -30,6 +30,13 @@ $Configuration
 							")" "\n" \
 							"$CRCCHECK"
 	}
+
+	$Librarian
+	{
+		// Suppress this warning using the undocumented /ignore linker switch
+		// schemalib.lib(schemaclassinfo.obj) : warning LNK4221: This object file does not define any previously undefined public symbols, so it will not be used by any link operation that consumes this library
+		$AdditionalOptions					"$BASE /ignore:4221"
+	}
 }
 
 // Skeleton Project - All derived projects get this as a starting base
