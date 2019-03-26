@@ -10,7 +10,7 @@
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
 #endif
-#ifdef _WIN32 || WIN64
+#ifdef _WIN32
 #include <process.h>
 #include <intrin.h>
 #elif _LINUX

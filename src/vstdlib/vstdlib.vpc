@@ -12,7 +12,7 @@ $include "$SRCDIR\vpc_scripts\source_dll_base.vpc"
 $Linux
 {
 	$BuildForLinux 1
-	-$File	"processutils.cpp"			[$WIN32]
+	-$File	"processutils.cpp"			[$WINDOWS]
 	-$file  "$SRCDIR\linux\vstdlib_i686.so"
 }
 
@@ -45,6 +45,7 @@ $Project
 	$folder	"Link Libraries"
 	{
 		-$File	"$SRCDIR\lib\public\vstdlib.lib"		[$WIN32||$LINUX]
+		-$File	"$SRCDIR\lib\public\x64\vstdlib.lib"		[$WIN64]
 	}
 }
 
@@ -55,7 +56,7 @@ $Project "vstdlib"
 		$File	"cvar.cpp"
 		$File	"jobthread.cpp"
 		$File	"KeyValuesSystem.cpp"
-		$File	"processutils.cpp"			[$WIN32]
+		$File	"processutils.cpp"			[$WINDOWS]
 		$File	"random.cpp"
 		$File	"vcover.cpp"
 	}

@@ -104,7 +104,7 @@ $Project "tier0"
 		//}
 		$File	"platform.cpp"
 		$File	"pme.cpp"			[$WINDOWS||$POSIX]
-		$File	"PMELib.cpp"		[$WINDOWS||$POSIX]
+		$File	"PMELib.cpp"			[$WINDOWS||$POSIX]
 		{
 			$Configuration
 			{
@@ -117,7 +117,7 @@ $Project "tier0"
 		$File	"progressbar.cpp"	
 		$File	"security.cpp"
 		$File	"systeminformation.cpp"
-		$File	"thread.cpp"		[$WINDOWS||$LINUX]
+		$File	"thread.cpp"			[$WINDOWS||$LINUX]
 		$File	"threadtools.cpp"
 		//{
 		//	$Configuration
@@ -131,7 +131,7 @@ $Project "tier0"
 		$File	"tslist.cpp"
 		$File	"vcrmode.cpp"			[$WINDOWS||$POSIX]
 		$File	"vprof.cpp"
-		$File	"win32consoleio.cpp"	[$WINDOWS]
+		$File	"win32consoleio.cpp"		[$WINDOWS]
 	}
 
 	$Folder	"Header Files"
