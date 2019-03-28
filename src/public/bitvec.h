@@ -842,7 +842,7 @@ inline void CBitVecT<BASE_OPS>::ClearAll(void)
 
 //-----------------------------------------------------------------------------
 template <class BASE_OPS>
-inline void CBitVecT<BASE_OPS>::Copy( const CBitVecT<BASE_OPS> &other, int nBits=-1 )
+inline void CBitVecT<BASE_OPS>::Copy( const CBitVecT<BASE_OPS> &other, int nBits/*=-1*/ )
 {
 	if ( nBits == - 1 )
 	{
@@ -859,7 +859,7 @@ inline void CBitVecT<BASE_OPS>::Copy( const CBitVecT<BASE_OPS> &other, int nBits
 
 //-----------------------------------------------------------------------------
 template <class BASE_OPS>
-inline bool CBitVecT<BASE_OPS>::Compare( const CBitVecT<BASE_OPS> &other, int nBits=-1 ) const
+inline bool CBitVecT<BASE_OPS>::Compare( const CBitVecT<BASE_OPS> &other, int nBits/*=-1*/ ) const
 {
 	if ( nBits == - 1 )
 	{
