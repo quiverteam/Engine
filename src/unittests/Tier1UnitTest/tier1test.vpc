@@ -1,0 +1,41 @@
+
+$Macro SRCDIR		"..\.."
+$Macro OUTBINDIR	"$SRCDIR\..\game\bin\unittests"
+
+$Include "$SRCDIR\vpc_scripts\source_exe_base.vpc"
+
+$Configuration
+{
+	$Compiler
+	{
+		$AdditionalIncludeDirectories	"$BASE;$SRCDIR\public\mathlib"
+		$PreprocessorDefinitions		"$BASE;TIER1_TEST"
+	}
+	
+	$Linker
+	{
+		$AdditionalDependencies		"%(AdditionalDependencies)"
+	}
+}
+
+$Project "Tier1Test"
+{
+	$Folder	"Source Files"
+	{
+		$File		"Main.cpp"
+	}
+
+	$Folder	"Public Header Files"
+	{
+
+	}
+
+
+	$Folder	"Link Libraries"
+	{
+		//$File	"$SRCDIR\lib\public\appframework.lib"
+		$File	"$SRCDIR\lib\public\tier0.lib"		[$WIN32]
+		$File	"$SRCDIR\lib\public\x64\tier0.lib"	[$WIN64]
+	}
+
+}

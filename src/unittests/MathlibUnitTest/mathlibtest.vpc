@@ -1,0 +1,52 @@
+$Macro SRCDIR		"..\.."
+$Macro OUTBINDIR	"$SRCDIR\..\game\bin\unittests"
+
+$Include "$SRCDIR\vpc_scripts\source_exe_base.vpc"
+
+$Configuration
+{
+	$Compiler
+	{
+		$AdditionalIncludeDirectories	"$BASE;$SRCDIR\public\mathlib"
+		$PreprocessorDefinitions		"$BASE;MATHLIB_TEST"
+	}
+	
+	$Linker
+	{
+		$AdditionalDependencies		"%(AdditionalDependencies)"
+	}
+}
+
+$Project "MathlibTest"
+{
+	$Folder	"Source Files"
+	{
+		$File		"Main.cpp"
+		$File		"Matrix.cpp"
+		$File		"Vector.cpp"
+		$File		"Quat.cpp"
+		$File		"Tests.h"
+	}
+
+	$Folder	"Public Header Files"
+	{
+		$File	"$SRCDIR\public\mathlib\compressed_vector.h"
+		$File	"$SRCDIR\Public\mathlib\MATHLIB.H"
+		$File	"$SRCDIR\Public\mathlib\vector.h"
+		$File	"$SRCDIR\Public\mathlib\vector2d.h"
+		$File	"$SRCDIR\Public\mathlib\vector4d.h"
+		$File	"$SRCDIR\Public\mathlib\matrixmath.h"
+		$File	"$SRCDIR\Public\mathlib\vmatrix.h"
+		$File	"$SRCDIR\Public\mathlib\ssemath.h"
+		$File	"$SRCDIR\Public\mathlib\ssequaternion.h"
+
+	}
+
+
+	$Folder	"Link Libraries"
+	{
+		//$File	"$SRCDIR\lib\public\appframework.lib"
+		$File	"$SRCDIR\lib\public\mathlib.lib"
+	}
+
+}

@@ -516,6 +516,9 @@ $Group "libraries"
 
 $Group "core"
 {
+	"client"
+	"server"
+	"engine"
 	// Static Libraries
 	"tier0"
 	"tier1"
@@ -547,6 +550,9 @@ $Group "core"
 	"lzma"
 	"bzip2"
 	"mxtoolkitwin32"
+
+	"launcher"
+	"launcher_main"
 	
 	// Other projects needed
 	"shadercompile_dll"
@@ -597,4 +603,13 @@ $Group "core"
 	"filesystem_stdio"
 	"filesystem_steam"
 	"mysql_wrapper" // vmpi shit
+}
+
+$Group "unittests"
+{
+	"VStdlibUnitTest"
+	"Tier2UnitTest"
+	"Tier1UnitTest"
+	"Tier0UnitTest"
+	"MathlibUnitTest"
 }
