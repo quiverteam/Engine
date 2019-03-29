@@ -188,8 +188,8 @@ private:
 	virtual void BrowserResize();
 	void UpdateSizeAndScrollBars();
 	MESSAGE_FUNC( OnSliderMoved, "ScrollBarSliderMoved" );
-//	MESSAGE_FUNC_CHARPTR( OnFileSelected, "FileSelected", fullpath );
-//	MESSAGE_FUNC( OnFileSelectionCancelled, "FileSelectionCancelled" );
+	MESSAGE_FUNC_CHARPTR( OnFileSelected, "FileSelected", fullpath );
+	MESSAGE_FUNC( OnFileSelectionCancelled, "FileSelectionCancelled" );
 	MESSAGE_FUNC_PTR( OnTextChanged, "TextChanged", panel );
 	MESSAGE_FUNC_PTR( OnEditNewLine, "TextNewLine", panel );
 	MESSAGE_FUNC_INT( DismissJSDialog, "DismissJSDialog", result );
