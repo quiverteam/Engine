@@ -78,7 +78,7 @@ $Configuration "Release"
 		$EnableC++Exceptions				"No"
 		$SmallerTypeCheck
 		$BasicRuntimeChecks
-		$RuntimeLibrary						"Multi-threaded DLL (/MD)"
+		$RuntimeLibrary						"Multi-threaded (/MT)"
 		$StructMemberAlignment
 		$BufferSecurityCheck 				"No"
 		$EnableFunctionLevelLinking			"Yes (/Gy)"
