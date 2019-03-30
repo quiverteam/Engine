@@ -10,6 +10,7 @@
 #pragma once
 #endif
 
+static unsigned long gFlags;
 
 #include "interface.h"
 

@@ -7,6 +7,7 @@
 //=============================================================================//
 
 #include "shadercompile.h"
+#include "ishadercompiledll.h"
 
 #include "d3dxfxc.h"
 #include "cmdsink.h"
@@ -75,7 +76,7 @@ namespace InterceptFxc
 		// @param pMacros			null-terminated array of macro-defines
 		// @param pszModel			shader model for compilation
 		//
-		void FastShaderCompile( const char *pszFilename, const D3DXMACRO *pMacros, const char *pszModel, CmdSink::IResponse **ppResponse )
+		void FastShaderCompile( const char *pszFilename, const D3DXMACRO *pMacros, const char *pszModel, CmdSink::IResponse **ppResponse, DWORD flags = 0)
 		{
 			LPD3DXBUFFER pShader = NULL; // NOTE: Must release the COM interface later
 			LPD3DXBUFFER pErrorMessages = NULL; // NOTE: Must release COM interface later
@@ -99,7 +100,7 @@ namespace InterceptFxc
 			}
 			
 			HRESULT hr = s_dxModule.D3DXCompileShaderFromFile( pszFilename, pMacros, NULL /* LPD3DXINCLUDE */,
-				"main",	pszModel, 0, &pShader, &pErrorMessages,
+				"main",	pszModel, flags, &pShader, &pErrorMessages,
 				NULL /* LPD3DXCONSTANTTABLE *ppConstantTable */ );
 
 			if ( ppResponse )
@@ -129,7 +130,7 @@ namespace InterceptFxc
 	// @param pCommand       the command in form
 	//		"fxc.exe /DSHADERCOMBO=1 /DTOTALSHADERCOMBOS=4 /DCENTROIDMASK=0 /DNUMDYNAMICCOMBOS=4 /DFLAGS=0x0 /DNUM_BONES=1 /Dmain=main /Emain /Tvs_2_0 /DSHADER_MODEL_VS_2_0=1 /D_X360=1 /nologo /Foshader.o debugdrawenvmapmask_vs20.fxc>output.txt 2>&1"
 	//
-	void ExecuteCommand( const char *pCommand, CmdSink::IResponse **ppResponse )
+	void ExecuteCommand( const char *pCommand, CmdSink::IResponse **ppResponse, const char* pFlags = NULL )
 	{
 		// Expect that the command passed is exactly "fxc.exe"
 		Assert( !strncmp( pCommand, s_pszCommand, s_uCommandLen ) );
@@ -231,7 +232,7 @@ namespace InterceptFxc
 		}
 
 		// Compile the stuff
-		Private::FastShaderCompile( pszFilename, macros.Base(), chShaderModel, ppResponse );
+		Private::FastShaderCompile( pszFilename, macros.Base(), chShaderModel, ppResponse, gFlags );
 	}
 
 	bool TryExecuteCommand( const char *pCommand, CmdSink::IResponse **ppResponse )
