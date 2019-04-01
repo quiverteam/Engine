@@ -282,7 +282,7 @@ void NormalizeBox( Vector &mins, Vector &maxs )
 	{
 		if ( mins[i] > maxs[i])
 		{
-			swap( mins[i], maxs[i] );
+			V_swap( mins[i], maxs[i] );
 		}
 	}
 }
@@ -291,11 +291,11 @@ void NormalizeBox( Vector2D &mins, Vector2D &maxs )
 {
 	if ( mins.x > maxs.x )
 	{
-		swap( mins.x, maxs.x );
+		V_swap( mins.x, maxs.x );
 	}
 	if ( mins.y > maxs.y )
 	{
-		swap( mins.y, maxs.y );
+		V_swap( mins.y, maxs.y );
 	}
 }
 
