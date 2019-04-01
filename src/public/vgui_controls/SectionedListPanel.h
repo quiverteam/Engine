@@ -38,7 +38,7 @@ class SectionedListPanel : public Panel
 
 public:
 	SectionedListPanel(vgui::Panel *parent, const char *name);
-	~SectionedListPanel();
+	virtual ~SectionedListPanel();
 
 	// adds a new section; returns false if section already exists
 	virtual void AddSection(int sectionID, const char *name, SectionSortFunc_t sortFunc = NULL);

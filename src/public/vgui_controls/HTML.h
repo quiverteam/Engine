@@ -41,7 +41,7 @@ class HTML: public Panel
 public:
 
 	HTML(Panel *parent,const char *name, bool allowJavaScript = false, bool bPopupWindow = false);
-	~HTML();
+	virtual ~HTML();
 
 	// IHTML pass through functions
 	virtual void OpenURL( const char *URL, const char *pchPostData, bool bForce = false );
