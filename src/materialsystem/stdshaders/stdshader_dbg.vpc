@@ -5,7 +5,7 @@
 //-----------------------------------------------------------------------------
 
 $macro SRCDIR		"..\.."
-$Macro OUTBINDIR	"$SRCDIR\..\game\bin"
+$Macro OUTBINDIR	"$BINDEFAULT"
 
 $include "$SRCDIR\vpc_scripts\source_dll_base.vpc"
 
@@ -71,8 +71,8 @@ $Project "stdshader_dbg"
 	$Folder	"Link Libraries"
 	{
 		$File	"$SRCDIR\dx9sdk\lib\d3dx9.lib"			[$WIN32]
-		$File	"$SRCDIR\lib\public\mathlib.lib"		[$WIN32]
-		$File	"$SRCDIR\lib\public\shaderlib.lib"		[$WIN32]
+		$File	"$LIBPUBLIC\mathlib.lib"		[$WIN32]
+		$File	"$LIBPUBLIC\shaderlib.lib"		[$WIN32]
 	}
 
 	$File	"$SRCDIR\devtools\bin\vsh_prep.pl"

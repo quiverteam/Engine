@@ -25,9 +25,9 @@
 //	to determine the next base address.
 //-----------------------------------------------------------------------------
 
-// Explicitly defined "empty" only for WIN32 only because they are not required for WIN32 projects
-$Macro LOADADDRESS_DEVELOPMENT		" "		[$WIN32 || $WIN64]
-$Macro LOADADDRESS_RETAIL			" "		[$WIN32 || $WIN64]
+// Explicitly defined "empty" only for WINDOWS only because they are not required for WINDOWS projects
+$Macro LOADADDRESS_DEVELOPMENT		" "		[$WINDOWS]
+$Macro LOADADDRESS_RETAIL			" "		[$WINDOWS]
 
 $LoadAddressMacro LOADADDRESS_DEVELOPMENT
 {

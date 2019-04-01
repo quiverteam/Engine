@@ -5,7 +5,7 @@
 //-----------------------------------------------------------------------------
 
 $Macro SRCDIR		"..\.."
-$Macro OUTBINDIR	"$SRCDIR\..\game\bin\unittests"
+$Macro OUTBINDIR	"$BINDEFAULT\unittests"
 
 $Include "$SRCDIR\vpc_scripts\source_dll_base.vpc"
 
@@ -30,9 +30,9 @@ $Project "tier2test"
 	
 	$Folder "Link Libraries"
 	{
-		$File	"$SRCDIR\lib\public\bitmap.lib"
-		$File	"$SRCDIR\lib\public\mathlib.lib"
-		$File	"$SRCDIR\lib\public\tier2.lib"
-		$File	"$SRCDIR\lib\public\unitlib.lib"
+		$Lib	"$LIBPUBLIC\bitmap"
+		$Lib	"$LIBPUBLIC\mathlib"
+		$Lib	"$LIBPUBLIC\tier2"
+		$Lib	"$LIBPUBLIC\unitlib"
 	}
 }

@@ -5,7 +5,7 @@
 //-----------------------------------------------------------------------------
 
 $Macro OUTBINNAME	"server"
-$Macro OUTBINDIR	"$SRCDIR\..\game\$GAMENAME\bin"
+$Macro OUTBINDIR	"$SRCDIR\..\game\$GAMENAME\bin\$PLATSUBDIR"
 
 $MacroRequired "GAMENAME"
 
@@ -13,7 +13,7 @@ $Include "$SRCDIR\vpc_scripts\source_dll_base.vpc"
 
 $Linux
 {
-	-$File	"$SRCDIR\lib\public\steam_api.lib"
+	-$File	"$LIBPUBLIC\steam_api.lib"
 	$File	"$SRCDIR\linux\steam_api_i486.so"
 }
 
@@ -22,8 +22,8 @@ $Configuration	"Debug"
 {
 	$General
 	{
-		$OutputDirectory		".\Debug_$GAMENAME"			[$WIN32]
-		$IntermediateDirectory	".\Debug_$GAMENAME"			[$WIN32]
+		$OutputDirectory		".\Debug_$GAMENAME"			[$WINDOWS]
+		$IntermediateDirectory	".\Debug_$GAMENAME"			[$WINDOWS]
 	}
 }
 
@@ -31,8 +31,8 @@ $Configuration	"Release"
 {
 	$General
 	{
-		$OutputDirectory		".\Release_$GAMENAME"		[$WIN32]
-		$IntermediateDirectory	".\Release_$GAMENAME"		[$WIN32]
+		$OutputDirectory		".\Release_$GAMENAME"		[$WINDOWS]
+		$IntermediateDirectory	".\Release_$GAMENAME"		[$WINDOWS]
 	}
 }
 
@@ -48,7 +48,7 @@ $Configuration
 
 	$Linker
 	{
-		$AdditionalDependencies			"$BASE winmm.lib" [$WIN32]
+		$AdditionalDependencies			"$BASE winmm.lib" [$WINDOWS]
 	}
 }
 
@@ -981,14 +981,14 @@ $Project
 		$File	"toolframework_server.h"
 	}
 
-	$Folder	"Link Libraries" [$WIN32]
+	$Folder	"Link Libraries" [$WINDOWS]
 	{
-		$File	"$SRCDIR\lib\public\choreoobjects.lib"
-		$File	"$SRCDIR\lib\public\dmxloader.lib"
-		$File	"$SRCDIR\lib\public\mathlib.lib"
-		$File	"$SRCDIR\lib\public\particles.lib"
-		$File	"$SRCDIR\lib\public\tier2.lib"
-		$File	"$SRCDIR\lib\public\tier3.lib"
-		$File	"$SRCDIR\lib\public\steam_api.lib"
+		$Lib	"$LIBPUBLIC\choreoobjects"
+		$Lib	"$LIBPUBLIC\dmxloader"
+		$Lib	"$LIBPUBLIC\mathlib"
+		$Lib	"$LIBPUBLIC\particles"
+		$Lib	"$LIBPUBLIC\tier2"
+		$Lib	"$LIBPUBLIC\tier3"
+		$Lib	"$LIBPUBLIC\steam_api"
 	}
 }

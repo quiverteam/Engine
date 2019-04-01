@@ -5,7 +5,7 @@
 //-----------------------------------------------------------------------------
 
 $Macro SRCDIR		"..\.."
-$Macro OUTBINDIR	"$SRCDIR\..\game\bin\tools"
+$Macro OUTBINDIR	"$BINDEFAULT\tools"
 
 $Include "$SRCDIR\vpc_scripts\source_dll_base.vpc"
 
@@ -64,16 +64,16 @@ $Project "Sampletool"
 
 	$Folder	"Link Libraries"
 	{
-		$File	"$SRCDIR\lib\public\datamodel.lib"
-		$File	"$SRCDIR\lib\public\dme_controls.lib"
-		$File	"$SRCDIR\lib\public\dmserializers.lib"
-		$File	"$SRCDIR\lib\public\mathlib.lib"
-		$File	"$SRCDIR\lib\public\matsys_controls.lib"
-		$File	"$SRCDIR\lib\public\movieobjects.lib"
-		$File	"$SRCDIR\lib\public\sfmobjects.lib"
-		$File	"$SRCDIR\lib\public\tier2.lib"
-		$File	"$SRCDIR\lib\public\tier3.lib"
-		$File	"$SRCDIR\lib\public\toolutils.lib"
-		$File	"$SRCDIR\lib\public\vgui_controls.lib"
+		$File	"$LIBPUBLIC\datamodel.lib"
+		$File	"$LIBPUBLIC\dme_controls.lib"
+		$File	"$LIBPUBLIC\dmserializers.lib"
+		$File	"$LIBPUBLIC\mathlib.lib"
+		$File	"$LIBPUBLIC\matsys_controls.lib"
+		$File	"$LIBPUBLIC\movieobjects.lib"
+		$File	"$LIBPUBLIC\sfmobjects.lib"
+		$File	"$LIBPUBLIC\tier2.lib"
+		$File	"$LIBPUBLIC\tier3.lib"
+		$File	"$LIBPUBLIC\toolutils.lib"
+		$File	"$LIBPUBLIC\vgui_controls.lib"
 	}
 }

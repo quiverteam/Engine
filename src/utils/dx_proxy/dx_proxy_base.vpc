@@ -9,6 +9,7 @@ $MacroRequired "SRCDIR"
 $MacroRequired "OUTBINDIR"
 $MacroRequired "DX_SDK_VER"
 
+$Macro OUTBINDIR	"$OUTBINDIR\$PLATSUBDIR"
 $Macro OUTBINNAME	"dx_proxy"
 
 $Include "$SRCDIR\vpc_scripts\source_dll_base.vpc"

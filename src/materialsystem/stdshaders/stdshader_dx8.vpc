@@ -5,7 +5,7 @@
 //-----------------------------------------------------------------------------
 
 $Macro SRCDIR		"..\.."
-$Macro OUTBINDIR	"$SRCDIR\..\game\bin"
+$Macro OUTBINDIR	"$BINDEFAULT"
 
 $Include "$SRCDIR\vpc_scripts\source_dll_base.vpc"
 
@@ -124,8 +124,8 @@ $Project "stdshader_dx8"
 	$Folder	"Link Libraries"
 	{
 		$File	"$SRCDIR\dx9sdk\lib\d3dx9.lib"
-		$File	"$SRCDIR\lib\public\mathlib.lib"
-		$File	"$SRCDIR\lib\public\shaderlib.lib"
+		$File	"$LIBPUBLIC\mathlib.lib"
+		$File	"$LIBPUBLIC\shaderlib.lib"
 	}
 
 	$File	"$SRCDIR\devtools\bin\fxc_prep.pl"

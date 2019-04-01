@@ -5,7 +5,7 @@
 //-----------------------------------------------------------------------------
 
 $Macro SRCDIR		".."
-$Macro OUTLIBDIR	"$SRCDIR\lib\public"
+$Macro OUTLIBDIR	"$LIBPUBLIC"
 
 $include "$SRCDIR\vpc_scripts\source_lib_base.vpc"
 
@@ -19,7 +19,6 @@ $Configuration
 	$Compiler
 	{
 		$AdditionalIncludeDirectories	"$BASE;$SRCDIR\dx9sdk\include"			[$WIN32]
-		$AdditionalIncludeDirectories	"$BASE;$SRCDIR\x360xdk\include\win32\vs2005"
 	}
 }
 
@@ -54,7 +53,7 @@ $Project "bitmap"
 
 	$Folder "Link Libraries" [$WIN32]
 	{
-		$File	"$SRCDIR\lib\public\nvtc.lib"
-		$File	"$SRCDIR\lib\public\ATI_Compress_MT_VC8.lib"
+		$File	"$LIBPUBLIC\nvtc.lib"
+		$File	"$LIBPUBLIC\ATI_Compress_MT_VC8.lib"
 	}
 }

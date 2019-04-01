@@ -198,8 +198,6 @@ void FileOpenStateMachine::WriteFile()
 	m_bWroteFile = true;
 	if ( m_bShowPerforceDialogs )
 	{
-		m_CurrentState = STATE_SHOWING_PERFORCE_ADD_DIALOG;
-		ShowPerforceQuery( GetParent(), m_FileName, this, NULL, PERFORCE_ACTION_FILE_ADD );
 		return;
 	}
 
@@ -311,8 +309,6 @@ void FileOpenStateMachine::CheckOutDialog( )
 {
 	if ( m_bShowPerforceDialogs )
 	{
-		m_CurrentState = STATE_SHOWING_CHECK_OUT_DIALOG;
-		ShowPerforceQuery( GetParent(), m_FileName, this, NULL, PERFORCE_ACTION_FILE_EDIT );
 		return;
 	}
 

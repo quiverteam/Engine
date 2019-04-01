@@ -5,7 +5,9 @@
 //-----------------------------------------------------------------------------
 
 $macro SRCDIR		".."
-$include "$SRCDIR\vpc_scripts\source_lib_base.vpc"
+$Macro OUTLIBDIR	"$LIBPUBLIC"
+
+$Include "$SRCDIR\vpc_scripts\source_lib_base.vpc"
 
 $Configuration
 {

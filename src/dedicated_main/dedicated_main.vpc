@@ -41,8 +41,8 @@ $Project "Dedicated_main"
 	
 	$Folder "Link Libraries"
 	{
-		-$file	"$SRCDIR\lib\public\tier0.lib"
-		-$file	"$SRCDIR\lib\public\tier1.lib"
-		-$file	"$SRCDIR\lib\public\vstdlib.lib"
+		-$file	"$LIBPUBLIC\tier0.lib"
+		-$file	"$LIBPUBLIC\tier1.lib"
+		-$file	"$LIBPUBLIC\vstdlib.lib"
 	}
 }

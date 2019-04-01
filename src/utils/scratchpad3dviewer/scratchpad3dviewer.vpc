@@ -5,7 +5,7 @@
 //-----------------------------------------------------------------------------
 
 $Macro SRCDIR		"..\.."
-$Macro OUTBINDIR	"$SRCDIR\..\game\bin"
+$Macro OUTBINDIR	"$BINDEFAULT"
 
 $Include "$SRCDIR\vpc_scripts\source_exe_base.vpc"
 
@@ -50,6 +50,6 @@ $Project "ScratchPad3DViewer"
 
 	$Folder	"Link Libraries"
 	{
-		$File	"$SRCDIR\lib\public\mathlib.lib"
+		$File	"$LIBPUBLIC\mathlib.lib"
 	}
 }

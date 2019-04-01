@@ -6,7 +6,7 @@
 // ***** AUTO-GENERATED: PLEASE FIXUP MANUALLY BEFORE USING THIS SCRIPT! *****
 
 $Macro SRCDIR		"..\.."
-$Macro OUTBINDIR	"$SRCDIR\..\game\bin"
+$Macro OUTBINDIR	"$BINDEFAULT"
 
 $Include "$SRCDIR\vpc_scripts\source_exe_con_base.vpc"
 
@@ -28,9 +28,9 @@ $Project "Mksheet"
 	
 	$Folder	"Link Libraries"
 	{
-		$File	"$SRCDIR\lib\public\bitmap.lib"
-		$File	"$SRCDIR\lib\public\mathlib.lib"
-		$File	"$SRCDIR\lib\public\raytrace.lib"
-		$File	"$SRCDIR\lib\public\tier2.lib"
+		$File	"$LIBPUBLIC\bitmap.lib"
+		$File	"$LIBPUBLIC\mathlib.lib"
+		$File	"$LIBPUBLIC\raytrace.lib"
+		$File	"$LIBPUBLIC\tier2.lib"
 	}
 }
