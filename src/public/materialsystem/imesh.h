@@ -18,6 +18,15 @@
 #include "tier0/dbg.h"
 #include "tier2/meshutils.h"
 
+#if defined(_WIN32) || defined(POSIX)
+#include <xmmintrin.h>
+
+#ifdef _USE_AVX
+#include <immintrin.h>
+#endif
+
+#endif
+
 
 //-----------------------------------------------------------------------------
 // forward declarations
@@ -539,6 +548,9 @@ public:
 	void FastVertex( const ModelVertexDX7_t &vertex );
 	void FastVertexSSE( const ModelVertexDX7_t &vertex );
 
+	// AVX fast vertex
+	void FastVertexAVX(const ModelVertexDX7_t &vertex);
+
 	// store 4 dx7 vertices fast. for special sse dx7 pipeline
 	void Fast4VerticesSSE( 
 		ModelVertexDX7_t const *vtx_a,
@@ -548,6 +560,8 @@ public:
 
 	void FastVertex( const ModelVertexDX8_t &vertex );
 	void FastVertexSSE( const ModelVertexDX8_t &vertex );
+
+	void FastVertexAVX(const ModelVertexDX8_t &vertex);
 
 	// Add number of verts and current vert since FastVertex routines do not update.
 	void FastAdvanceNVertices( int n );	
@@ -1114,13 +1128,13 @@ inline void CVertexBuilder::FastVertex( const ModelVertexDX7_t &vertex )
 
 	// TODO: Make this less shitty
 	__m128* v1 = (__m128*)&m_pCurrPosition;
-	__m128* v2 = (__m128*)(&m_pCurrPosition + 16);
-	__m128* v3 = (__m128*)(&m_pCurrPosition + 32);
-	__m128* v4 = (__m128*)(&m_pCurrPosition + 48);
-	*v1 = *(__m128*)(&vertex);
-	*v2 = *(__m128*)(&vertex + 16);
-	*v3 = *(__m128*)(&vertex + 32);
-	*v4 = *(__m128*)(&vertex + 48);
+	__m128* v2 = ((__m128*)&m_pCurrPosition + 1);
+	__m128* v3 = ((__m128*)&m_pCurrPosition + 2);
+	__m128* v4 = ((__m128*)&m_pCurrPosition + 3);
+	*v1 = _mm_loadu_ps((float*)&vertex);
+	*v2 = _mm_loadu_ps((float*)&vertex + 4);
+	*v3 = _mm_loadu_ps((float*)&vertex + 8);
+	*v4 = _mm_loadu_ps((float*)&vertex + 12);
 
 	IncrementFloatPointer( m_pCurrPosition, m_VertexSize_Position );
 	//m_nVertexCount = ++m_nCurrentVertex;
@@ -1138,13 +1152,13 @@ inline void CVertexBuilder::FastVertexSSE( const ModelVertexDX7_t &vertex )
 
 	// TODO: Make this less shitty
 	__m128* v1 = (__m128*)&m_pCurrPosition;
-	__m128* v2 = (__m128*)(&m_pCurrPosition + 16);
-	__m128* v3 = (__m128*)(&m_pCurrPosition + 32);
-	__m128* v4 = (__m128*)(&m_pCurrPosition + 48);
-	*v1 = *(__m128*)(&vertex);
-	*v2 = *(__m128*)(&vertex + 16);
-	*v3 = *(__m128*)(&vertex + 32);
-	*v4 = *(__m128*)(&vertex + 48);
+	__m128* v2 = ((__m128*)&m_pCurrPosition + 1);
+	__m128* v3 = ((__m128*)&m_pCurrPosition + 2);
+	__m128* v4 = ((__m128*)&m_pCurrPosition + 3);
+	*v1 = _mm_loadu_ps((float*)&vertex);
+	*v2 = _mm_loadu_ps((float*)&vertex + 4);
+	*v3 = _mm_loadu_ps((float*)&vertex + 8);
+	*v4 = _mm_loadu_ps((float*)&vertex + 12);
 
 	IncrementFloatPointer( m_pCurrPosition, m_VertexSize_Position );
 	//m_nVertexCount = ++m_nCurrentVertex;
@@ -1154,6 +1168,35 @@ inline void CVertexBuilder::FastVertexSSE( const ModelVertexDX7_t &vertex )
 	m_bWrittenUserData = false;
 #endif
 }
+
+inline void CVertexBuilder::FastVertexAVX(const ModelVertexDX7_t &vertex)
+{
+	Assert(m_CompressionType == VERTEX_COMPRESSION_NONE); // FIXME: support compressed verts if needed
+	Assert(m_nCurrentVertex < m_nMaxVertexCount);
+
+#ifdef _USE_AVX
+	__m256* v1 = (__m256*)&m_pCurrPosition;
+	__m256* v2 = ((__m256*)&m_pCurrPosition + 1);
+	*v1 = _mm256_loadu_ps((float*)&vertex);
+	*v2 = _mm256_loadu_ps((float*)&vertex + 4);
+#else
+	__m128* v1 = (__m128*)&m_pCurrPosition;
+	__m128* v2 = ((__m128*)&m_pCurrPosition + 1);
+	__m128* v3 = ((__m128*)&m_pCurrPosition + 2);
+	__m128* v4 = ((__m128*)&m_pCurrPosition + 3);
+	*v1 = _mm_loadu_ps((float*)&vertex);
+	*v2 = _mm_loadu_ps((float*)&vertex + 4);
+	*v3 = _mm_loadu_ps((float*)&vertex + 8);
+	*v4 = _mm_loadu_ps((float*)&vertex + 12);
+#endif
+	IncrementFloatPointer(m_pCurrPosition, m_VertexSize_Position);
+
+#if ( defined( _DEBUG ) && ( COMPRESSED_NORMALS_TYPE == COMPRESSED_NORMALS_COMBINEDTANGENTS_UBYTE4 ) )
+	m_bWrittenNormal = false;
+	m_bWrittenUserData = false;
+#endif
+}
+
 
 inline void CVertexBuilder::Fast4VerticesSSE( 
 	ModelVertexDX7_t const *vtx_a,
@@ -1185,13 +1228,13 @@ inline void CVertexBuilder::FastVertex( const ModelVertexDX8_t &vertex )
 
 	// TODO: Make this less shitty
 	__m128* v1 = (__m128*)&m_pCurrPosition;
-	__m128* v2 = (__m128*)(&m_pCurrPosition + 16);
-	__m128* v3 = (__m128*)(&m_pCurrPosition + 32);
-	__m128* v4 = (__m128*)(&m_pCurrPosition + 48);
-	*v1 = *(__m128*)(&vertex);
-	*v2 = *(__m128*)(&vertex + 16);
-	*v3 = *(__m128*)(&vertex + 32);
-	*v4 = *(__m128*)(&vertex + 48);
+	__m128* v2 = ((__m128*)&m_pCurrPosition + 1);
+	__m128* v3 = ((__m128*)&m_pCurrPosition + 2);
+	__m128* v4 = ((__m128*)&m_pCurrPosition + 3);
+	*v1 = _mm_loadu_ps((float*)&vertex);
+	*v2 = _mm_loadu_ps((float*)&vertex + 4);
+	*v3 = _mm_loadu_ps((float*)&vertex + 8);
+	*v4 = _mm_loadu_ps((float*)&vertex + 12);
 
 	IncrementFloatPointer( m_pCurrPosition, m_VertexSize_Position );
 	//	m_nVertexCount = ++m_nCurrentVertex;
@@ -1209,19 +1252,37 @@ inline void CVertexBuilder::FastVertexSSE( const ModelVertexDX8_t &vertex )
 
 	// TODO: Make this less shitty
 	__m128* v1 = (__m128*)&m_pCurrPosition;
-	__m128* v2 = (__m128*)(&m_pCurrPosition + 16);
-	__m128* v3 = (__m128*)(&m_pCurrPosition + 32);
-	__m128* v4 = (__m128*)(&m_pCurrPosition + 48);
-	*v1 = *(__m128*)(&vertex);
-	*v2 = *(__m128*)(&vertex + 16);
-	*v3 = *(__m128*)(&vertex + 32);
-	*v4 = *(__m128*)(&vertex + 48);
+	__m128* v2 = ((__m128*)&m_pCurrPosition + 1);
+	__m128* v3 = ((__m128*)&m_pCurrPosition + 2);
+	__m128* v4 = ((__m128*)&m_pCurrPosition + 3);
+	*v1 = _mm_loadu_ps((float*)&vertex);
+	*v2 = _mm_loadu_ps((float*)&vertex + 4);
+	*v3 = _mm_loadu_ps((float*)&vertex + 8);
+	*v4 = _mm_loadu_ps((float*)&vertex + 12);
 
 	IncrementFloatPointer( m_pCurrPosition, m_VertexSize_Position );
 	//	m_nVertexCount = ++m_nCurrentVertex;
 
 #if ( defined( _DEBUG ) && ( COMPRESSED_NORMALS_TYPE == COMPRESSED_NORMALS_COMBINEDTANGENTS_UBYTE4 ) )
 	m_bWrittenNormal   = false;
+	m_bWrittenUserData = false;
+#endif
+}
+
+inline void CVertexBuilder::FastVertexAVX(const ModelVertexDX8_t &vertex)
+{
+	Assert(m_CompressionType == VERTEX_COMPRESSION_NONE); // FIXME: support compressed verts if needed
+	Assert(m_nCurrentVertex < m_nMaxVertexCount);
+
+	__m256* v1 = (__m256*)&m_pCurrPosition;
+	__m256* v2 = ((__m256*)&m_pCurrPosition + 1);
+	*v1 = _mm256_loadu_ps((float*)&vertex);
+	*v2 = _mm256_loadu_ps((float*)&vertex + 4);
+
+	IncrementFloatPointer(m_pCurrPosition, m_VertexSize_Position);
+
+#if ( defined( _DEBUG ) && ( COMPRESSED_NORMALS_TYPE == COMPRESSED_NORMALS_COMBINEDTANGENTS_UBYTE4 ) )
+	m_bWrittenNormal = false;
 	m_bWrittenUserData = false;
 #endif
 }
