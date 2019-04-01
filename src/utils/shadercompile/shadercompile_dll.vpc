@@ -14,12 +14,12 @@ $Configuration
 	$Compiler
 	{
 		$AdditionalIncludeDirectories		"$BASE,..\common;..\vmpi;$SRCDIR\dx9sdk\include"
-		$PreprocessorDefinitions			"$BASE;SHADERCOMPILE_EXPORTS;MPI;"
+		$PreprocessorDefinitions			"$BASE;SHADERCOMPILE_EXPORTS;MPI"
 	}
 
 	$Linker
 	{
-		$AdditionalDependencies				"ws2_32.lib odbc32.lib odbccp32.lib %(AdditionalDependencies)"
+		$AdditionalDependencies				"$BASE ws2_32.lib odbc32.lib odbccp32.lib %(AdditionalDependencies)"
 	}
 }
 
