@@ -91,4 +91,12 @@ $Project "Vvis_dll"
 		$File	"$SRCDIR\public\vstdlib\vstdlib.h"
 		$File	"$SRCDIR\public\wadtypes.h"
 	}
+
+    $Folder	"Link Libraries"
+	{
+		$Lib mathlib
+		$Lib tier2
+		$Lib vmpi
+		$Lib "$LIBCOMMON/lzma"
+	}
 }
