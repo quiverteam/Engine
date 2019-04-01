@@ -31,7 +31,7 @@ $Project "Unittest"
 
 	$Folder	"Link Libraries"
 	{
-		$File	"$LIBPUBLIC\appframework.lib"
-		$File	"$LIBPUBLIC\unitlib.lib"
+		$Lib	appframework
+		$Lib	unitlib
 	}
 }

@@ -67,6 +67,6 @@ $Project "vmpi_services_watch"
 
 	$Folder "Link Libraries"
 	{
-		$File	"$LIBPUBLIC\vmpi.lib"
+		$Lib	"vmpi"
 	}
 }

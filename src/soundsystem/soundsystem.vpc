@@ -57,8 +57,8 @@ $Project "Soundsystem"
 	{
 		$File	"$SRCDIR\dx9sdk\lib\dsound.lib"
 		$File	"$SRCDIR\dx9sdk\lib\dxguid.lib"
-		$File	"$LIBPUBLIC\mathlib.lib"
-		$File	"$LIBCOMMON\mss32.lib"
-		$File	"$LIBPUBLIC\tier2.lib"
+		$Lib	tier2
+		$Lib	mathlib
+		$ImpLib	$LIBCOMMON\mss32
 	}
 }

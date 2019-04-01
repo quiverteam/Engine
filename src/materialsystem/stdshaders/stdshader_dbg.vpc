@@ -71,8 +71,8 @@ $Project "stdshader_dbg"
 	$Folder	"Link Libraries"
 	{
 		$File	"$SRCDIR\dx9sdk\lib\d3dx9.lib"			[$WIN32]
-		$File	"$LIBPUBLIC\mathlib.lib"		[$WIN32]
-		$File	"$LIBPUBLIC\shaderlib.lib"		[$WIN32]
+		$Lib	mathlib		    [$WIN32]
+		$Lib	shaderlib		[$WIN32]
 	}
 
 	$File	"$SRCDIR\devtools\bin\vsh_prep.pl"

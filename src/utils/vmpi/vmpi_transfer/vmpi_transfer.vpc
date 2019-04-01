@@ -153,7 +153,7 @@ $Project "vmpi_transfer"
 
 	$Folder	"Link Libraries"
 	{
-		$File	"$LIBPUBLIC\tier2.lib"
-		$File	"$LIBPUBLIC\vmpi.lib"
+		$Lib	"tier2"
+		$Lib	"vmpi"
 	}
 }

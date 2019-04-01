@@ -37,11 +37,11 @@ $Project "Vtf2tga"
 		$File	"$SRCDIR\public\vtf\vtf.h"
 	}
 
-	$Folder	"Link Libraries"
+    $Folder	"Link Libraries"
 	{
-		$File "$LIBPUBLIC\bitmap.lib"
-		$File "$LIBPUBLIC\mathlib.lib"
-		$File "$LIBPUBLIC\tier2.lib"
-		$File "$LIBPUBLIC\vtf.lib"
+		$Lib bitmap
+		$Lib mathlib
+		$Lib tier2
+		$Lib vtf
 	}
 }

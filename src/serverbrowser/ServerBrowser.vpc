@@ -18,8 +18,7 @@ $Configuration
 
 	$Linker
 	{
-		$AdditionalDependencies				"$BASE Advapi32.lib wsock32.lib Ws2_32.lib User32.lib" [$WIN32]
-		$AdditionalDependencies				"$BASE Xonline.lib" [$X360]
+		$AdditionalDependencies				"$BASE Advapi32.lib wsock32.lib Ws2_32.lib User32.lib" [$WINDOWS]
 	}
 }
 
@@ -85,17 +84,10 @@ $Project "ServerBrowser"
 		$File	"$SRCDIR\common\serverbrowser\IServerBrowser.h"
 	}
 
-	$Folder "Link Libraries"	[$WIN32]
+	$Folder "Link Libraries"	[$WINDOWS]
 	{
-		$File	"$LIBPUBLIC\tier2.lib"
-		$File	"$LIBPUBLIC\tier3.lib"
-		$File	"$LIBPUBLIC\vgui_controls.lib"
-	}
-
-	$Folder "Link Libraries"	[$X360]
-	{
-		$File	"$LIBPUBLIC\tier2_360.lib"
-		$File	"$LIBPUBLIC\tier3_360.lib"
-		$File	"$LIBPUBLIC\vgui_controls_360.lib"
+		$Lib	tier2
+		$Lib	tier3
+		$Lib	vgui_controls
 	}
 }

@@ -91,11 +91,4 @@ $Project "Vvis_dll"
 		$File	"$SRCDIR\public\vstdlib\vstdlib.h"
 		$File	"$SRCDIR\public\wadtypes.h"
 	}
-
-	$Folder	"Link Libraries"
-	{
-		$File "$LIBPUBLIC\mathlib.lib"
-		$File "$LIBPUBLIC\tier2.lib"
-		$File "$LIBPUBLIC\vmpi.lib"
-	}
 }

@@ -107,14 +107,8 @@ $Project "vgui2"
 
 	$Folder "Link Libraries" [$WIN32]
 	{
-		$File	"$LIBPUBLIC\vgui_surfacelib.lib"
-		$File	"$LIBPUBLIC\tier2.lib"
-		$File	"$LIBPUBLIC\tier3.lib"
-	}
-
-	$Folder "Link Libraries" [$X360]
-	{
-		$File	"$LIBPUBLIC\tier2_360.lib"
-		$File	"$LIBPUBLIC\tier3_360.lib"
+		$Lib	"vgui_surfacelib"
+		$Lib	"tier2"
+		$Lib	"tier3"
 	}
 }

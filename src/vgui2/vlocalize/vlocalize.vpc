@@ -82,9 +82,9 @@ $Project "Vlocalize"
 
 	$Folder	"Link Libraries"
 	{
-		$File	"$LIBPUBLIC\appframework.lib"
-		$File	"$LIBPUBLIC\tier2.lib"
-		$File	"$LIBPUBLIC\tier3.lib"
-		$File	"$LIBPUBLIC\vgui_controls.lib"
+		$Lib    "appframework"
+		$Lib    "tier2"
+		$Lib    "tier3"
+		$Lib    "vgui_controls"
 	}
 }

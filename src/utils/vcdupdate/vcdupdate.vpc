@@ -46,10 +46,10 @@ $Project "vcdupdate"
 
 	$Folder	"Link Libraries"
 	{
-		$File	"$LIBPUBLIC\appframework.lib"
-		$File	"$LIBPUBLIC\choreoobjects.lib"
-		$File	"$LIBPUBLIC\mathlib.lib"
-		$File	"$LIBPUBLIC\tier2.lib"
-		$File	"$LIBPUBLIC\tier3.lib"
+		$Lib	appframework
+		$Lib	choreoobjects
+		$Lib	mathlib
+		$Lib	tier2
+		$Lib	tier3
 	}
 }

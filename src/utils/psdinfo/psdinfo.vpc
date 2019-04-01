@@ -30,7 +30,7 @@ $Project "psdinfo"
 	
 	$Folder	"Link Libraries"
 	{
-		$File	"$LIBPUBLIC\bitmap.lib"
-		$File	"$LIBPUBLIC\tier2.lib"
+		$Lib	bitmap
+		$Lib	tier2
 	}
 }

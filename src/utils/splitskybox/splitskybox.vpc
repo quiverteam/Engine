@@ -41,6 +41,6 @@ $Project "Splitskybox"
 
 	$Folder	"Link Libraries"
 	{
-		$File	"$LIBPUBLIC\tier2.lib"
+		$Lib	tier2
 	}
 }
