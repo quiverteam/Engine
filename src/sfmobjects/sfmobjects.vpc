@@ -19,6 +19,7 @@ $Configuration
 	$Compiler
 	{
 		$PreprocessorDefinitions		"$BASE;SFMOBJECTS_STATIC_LIB"
+		$AdditionalIncludeDirectories	"$BASE,..\public\sfmobjects"
 	}
 
 	$Librarian [$WIN32]
