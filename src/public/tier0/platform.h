@@ -1626,14 +1626,4 @@ PLATFORM_INTERFACE void Plat_SetWatchdogHandlerFunction( Plat_WatchDogHandlerFun
 
 #include "tier0/valve_on.h"
 
-#if defined(TIER0_DLL_EXPORT)
-#pragma message("FIX ME DAMNIT")
-//extern "C" int V_tier0_stricmp(const char *s1, const char *s2 );
-//#undef stricmp
-//#undef strcmpi
-//#define stricmp(s1,s2) V_tier0_stricmp( s1, s2 )
-//#define strcmpi(s1,s2) V_tier0_stricmp( s1, s2 )
-#endif
-
-
 #endif /* PLATFORM_H */
