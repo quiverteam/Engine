@@ -56,10 +56,10 @@ $Project "VConfig"
 
 	$Folder	"Link Libraries"
 	{
-		$Lib	"appframework"
-		$ImpLib	"Steam"
-		$Lib	"tier2"
-		$Lib	"tier3"
-		$Lib	"vgui_controls"
+		$Lib	appframework
+		$ImpLib	steam_api
+		$Lib	tier2
+		$Lib	tier3
+		$Lib	vgui_controls
 	}
 }
