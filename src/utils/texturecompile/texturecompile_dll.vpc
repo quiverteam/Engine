@@ -5,7 +5,7 @@
 //-----------------------------------------------------------------------------
 
 $Macro SRCDIR		"..\.."
-$Macro OUTBINDIR	"$SRCDIR\..\game\bin"
+$Macro OUTBINDIR	"$BINDEFAULT"
 
 $Include "$SRCDIR\vpc_scripts\source_dll_base.vpc"
 
@@ -43,7 +43,7 @@ $Project "Texturecompile_dll"
 
 	$Folder	"Link Libraries"
 	{
-		$File	"$SRCDIR\lib\public\tier2.lib"
-		$File	"$SRCDIR\lib\public\vmpi.lib"
+		$File	"$LIBPUBLIC\tier2.lib"
+		$File	"$LIBPUBLIC\vmpi.lib"
 	}
 }

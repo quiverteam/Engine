@@ -5,7 +5,7 @@
 //-----------------------------------------------------------------------------
 
 $macro SRCDIR		".."
-$Macro OUTBINDIR	"$SRCDIR\..\game\bin"
+$Macro OUTBINDIR	"$BINDEFAULT"
 
 $include "$SRCDIR\vpc_scripts\source_dll_base.vpc"
 
@@ -25,18 +25,10 @@ $Configuration
 
 $Configuration "Debug"
 {
-	$Linker [$X360]
-	{
-		$AdditionalDependencies			"$BASE Xonlined.lib"
-	}
 }
 
 $Configuration "Release"
 {
-	$Linker [$X360]
-	{
-		$AdditionalDependencies			"$BASE Xonline.lib"
-	}
 }
 
 $Project "GameUI"
@@ -224,25 +216,15 @@ $Project "GameUI"
 		$File	"OptionsSubVoice.h"
 	}
 	
-	$Folder	"Link Libraries" [$WIN32]
+	$Folder	"Link Libraries"
 	{
-		$File	"$SRCDIR\lib\public\bitmap.lib"
-		$File	"$SRCDIR\lib\common\jpeglib.lib"
-		$File	"$SRCDIR\lib\public\mathlib.lib"
-		$File	"$SRCDIR\lib\public\tier2.lib"
-		$File	"$SRCDIR\lib\public\tier3.lib"
-		$File	"$SRCDIR\lib\public\vgui_controls.lib"
-		$File	"$SRCDIR\lib\public\vtf.lib"
-		$File	"$SRCDIR\lib\public\steam_api.lib"
-	}
-
-	$Folder	"Link Libraries" [$X360]
-	{
-		$File	"$SRCDIR\lib\public\bitmap_360.lib"
-		$File	"$SRCDIR\lib\public\mathlib_360.lib"
-		$File	"$SRCDIR\lib\public\tier2_360.lib"
-		$File	"$SRCDIR\lib\public\tier3_360.lib"
-		$File	"$SRCDIR\lib\public\vgui_controls_360.lib"
-		$File	"$SRCDIR\lib\public\vtf_360.lib"
+		$Lib	"$LIBPUBLIC\bitmap"
+		$Lib	"$LIBCOMMON\jpeglib"
+		$Lib	"$LIBPUBLIC\mathlib"
+		$Lib	"$LIBPUBLIC\tier2"
+		$Lib	"$LIBPUBLIC\tier3"
+		$Lib	"$LIBPUBLIC\vgui_controls"
+		$Lib	"$LIBPUBLIC\vtf"
+		$Lib	"$LIBPUBLIC\steam_api"
 	}
 }

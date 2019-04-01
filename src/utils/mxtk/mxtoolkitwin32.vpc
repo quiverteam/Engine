@@ -6,7 +6,7 @@
 // ***** AUTO-GENERATED: PLEASE FIXUP MANUALLY BEFORE USING THIS SCRIPT! *****
 
 $Macro SRCDIR		"..\.."
-$Macro OUTLIBDIR	"$SRCDIR\lib\common"
+$Macro OUTLIBDIR	"$LIBCOMMON"
 
 $Include "$SRCDIR\vpc_scripts\source_lib_base.vpc"
 

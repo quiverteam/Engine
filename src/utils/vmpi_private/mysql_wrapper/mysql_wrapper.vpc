@@ -5,7 +5,7 @@
 //-----------------------------------------------------------------------------
 
 $Macro SRCDIR		"..\..\.."
-$Macro OUTBINDIR	"$SRCDIR\..\game\bin"
+$Macro OUTBINDIR	"$BINDEFAULT"
 
 $Include "$SRCDIR\vpc_scripts\source_dll_base.vpc"
 
@@ -34,7 +34,7 @@ $Project "Mysql_wrapper"
 
 	$Folder	"Link Libraries"
 	{
-		$File	"..\mysql\lib\opt\libmySQL.lib"
-		$File	"..\mysql\lib\opt\zlib.lib"
+		$Lib	"..\mysql\lib\opt\libmySQL"
+		$Lib	"..\mysql\lib\opt\zlib"
 	}
 }

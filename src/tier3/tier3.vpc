@@ -5,7 +5,7 @@
 //-----------------------------------------------------------------------------
 
 $macro SRCDIR		".."
-$Macro OUTLIBDIR	"$SRCDIR\lib\public"
+$Macro OUTLIBDIR	"$LIBPUBLIC"
 
 $Linux
 {

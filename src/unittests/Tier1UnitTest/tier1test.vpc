@@ -1,6 +1,6 @@
 
 $Macro SRCDIR		"..\.."
-$Macro OUTBINDIR	"$SRCDIR\..\game\bin\unittests"
+$Macro OUTBINDIR	"$BINDEFAULT\unittests"
 
 $Include "$SRCDIR\vpc_scripts\source_exe_base.vpc"
 
@@ -33,9 +33,8 @@ $Project "Tier1Test"
 
 	$Folder	"Link Libraries"
 	{
-		//$File	"$SRCDIR\lib\public\appframework.lib"
-		$File	"$SRCDIR\lib\public\tier0.lib"		[$WIN32]
-		$File	"$SRCDIR\lib\public\x64\tier0.lib"	[$WIN64]
+		//$Lib	"$LIBPUBLIC\appframework"
+		$Lib	"$LIBPUBLIC\tier0"
 	}
 
 }

@@ -5,7 +5,7 @@
 //-----------------------------------------------------------------------------
 
 $macro SRCDIR		".."
-$Macro OUTBINDIR	"$SRCDIR\..\game\bin"
+$Macro OUTBINDIR	"$BINDEFAULT"
 
 $include "$SRCDIR\vpc_scripts\source_dll_base.vpc"
 
@@ -38,13 +38,8 @@ $Project "inputsystem"
 		$File	"$SRCDIR\dx9sdk\include\xinput.h"
 	}
 
-	$Folder	"Link Libraries" [$WIN32||$LINUX]
+	$Folder	"Link Libraries"
 	{
-		$File	"$SRCDIR\lib\public\tier2.lib"
-	}
-
-	$Folder	"Link Libraries" [$X360]
-	{
-		$File	"$SRCDIR\lib\public\tier2_360.lib"
+		$Lib	"$LIBPUBLIC\tier2"
 	}
 }

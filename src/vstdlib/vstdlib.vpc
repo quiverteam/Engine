@@ -5,7 +5,7 @@
 //-----------------------------------------------------------------------------
 
 $Macro SRCDIR		".."
-$Macro OUTBINDIR	"$SRCDIR\..\game\bin"
+$Macro OUTBINDIR	"$BINDEFAULT"
 
 $include "$SRCDIR\vpc_scripts\source_dll_base.vpc"
 
@@ -28,7 +28,7 @@ $Configuration
 		$AdditionalDependencies		"$BASE odbc32.lib odbccp32.lib"			[$WIN32||$LINUX]
 
 		// pc publishes the import library directly
-		$ImportLibrary				"$SRCDIR\lib\public\$(TargetName).lib"	[$WIN32]
+		$ImportLibrary				"$LIBPUBLIC\$(TargetName).lib"
 	}
 }
 
@@ -44,8 +44,7 @@ $Project
 {
 	$folder	"Link Libraries"
 	{
-		-$File	"$SRCDIR\lib\public\vstdlib.lib"		[$WIN32||$LINUX]
-		-$File	"$SRCDIR\lib\public\x64\vstdlib.lib"		[$WIN64]
+		-$File	"$LIBPUBLIC\vstdlib.lib"
 	}
 }
 

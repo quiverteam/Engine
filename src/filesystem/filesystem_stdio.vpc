@@ -5,9 +5,9 @@
 //-----------------------------------------------------------------------------
 
 $macro SRCDIR		".."
-$Macro OUTBINDIR	"$SRCDIR\..\game\bin"
+$Macro OUTBINDIR	"$BINDEFAULT"
 
-$include "$SRCDIR\vpc_scripts\source_dll_base.vpc"
+$Include "$SRCDIR\vpc_scripts\source_dll_base.vpc"
 
 $Linux
 {
@@ -89,8 +89,8 @@ $Project "FileSystem_Stdio"
 		$File	"$SRCDIR\public\filesystem\IQueuedLoader.h"
 	}
 	
-	$Folder "Link Libraries" [$WIN32]
+	$Folder "Link Libraries" [$WINDOWS]
 	{
-		$DynamicFile	"$SRCDIR\lib\public\tier2.lib"
+		$DynamicFile	"$LIBPUBLIC\tier2.lib"
 	}
 }

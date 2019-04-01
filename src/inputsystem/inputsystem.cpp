@@ -77,31 +77,24 @@ InitReturnVal_t CInputSystem::Init()
 	ButtonCode_UpdateScanCodeLayout();
 
 	joy_xcontroller_found.SetValue( 0 );
-	if ( IsPC() )
-	{
-		m_pXInputDLL = Sys_LoadModule( "XInput1_3.dll" );
-		if ( m_pXInputDLL )
-		{
-			InitializeXDevices();
-		}
 
-		if ( !m_nJoystickCount )
-		{
-			// Didn't find any XControllers. See if we can find other joysticks.
-			InitializeJoysticks();
-		}
-		else
-		{
-			m_bXController = true;
-			joy_xcontroller_found.SetValue( 1 );
-		}
-	}
-	if ( IsX360() )
+	m_pXInputDLL = Sys_LoadModule( "XInput1_3.dll" );
+	if ( m_pXInputDLL )
 	{
-		SetPrimaryUserId( XBX_GetPrimaryUserId() );
 		InitializeXDevices();
-		m_bXController = true;
 	}
+
+	if ( !m_nJoystickCount )
+	{
+		// Didn't find any XControllers. See if we can find other joysticks.
+		InitializeJoysticks();
+	}
+	else
+	{
+		m_bXController = true;
+		joy_xcontroller_found.SetValue( 1 );
+	}
+
 	return INIT_OK; 
 }
 
