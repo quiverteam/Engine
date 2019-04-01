@@ -80,11 +80,9 @@ REM BUILD SHADERS
 REM ****************
 @REM shove the output into txt file 
 echo --------------------------------------------------------------------------------------------
-echo Outputting to log_stdshader_dx9_20b.txt
-%BUILD_SHADER% stdshader_dx9_20b				-game %GAMEDIR% -source %SOURCEDIR% %dynamic_shaders% >log_stdshader_dx9_20b.txt
+%BUILD_SHADER% stdshader_dx9_20b				-game %GAMEDIR% -source %SOURCEDIR% %dynamic_shaders%
 echo --------------------------------------------------------------------------------------------
-echo Outputting to log_stdshader_dx9_30.txt
-%BUILD_SHADER% stdshader_dx9_30					-game %GAMEDIR% -source %SOURCEDIR% %dynamic_shaders% -dx9_30 -force30 >log_stdshader_dx9_30.txt
+%BUILD_SHADER% stdshader_dx9_30					-game %GAMEDIR% -source %SOURCEDIR% %dynamic_shaders% -dx9_30 -force30
 echo --------------------------------------------------------------------------------------------
 @REM %BUILD_SHADER% stdshader_dx10			-game %GAMEDIR% -source %SOURCEDIR% %dynamic_shaders% -dx10
 echo.

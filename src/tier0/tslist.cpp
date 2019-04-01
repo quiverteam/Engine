@@ -6,9 +6,6 @@
 
 #include "pch_tier0.h"
 #include "tier0/tslist.h"
-#if defined( _X360 )
-#include "xbox/xbox_win32stubs.h"
-#endif
 
 namespace TSListTests
 {

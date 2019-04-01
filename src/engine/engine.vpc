@@ -5,7 +5,7 @@
 //-----------------------------------------------------------------------------
 
 $macro SRCDIR		".."
-$Macro OUTBINDIR	"$SRCDIR\..\game\bin"
+$Macro OUTBINDIR	"$BINDEFAULT"
 
 $include "$SRCDIR\vpc_scripts\source_dll_base.vpc"
 
@@ -14,14 +14,14 @@ $Linux
 	$BuildForLinux 1
 
 	// Libs we don't want.
-	-$File	"$SRCDIR\lib\public\bitmap.lib"
-	-$File	"$SRCDIR\lib\common\vc7\bzip2.lib"
-	-$File	"$SRCDIR\lib\common\jpeglib.lib"
-	-$File	"$SRCDIR\lib\public\matsys_controls.lib"
-	-$File  "$SRCDIR\lib\public\steam_api.lib"
-	-$File	"$SRCDIR\lib\public\vtf.lib"
-	-$File	"$SRCDIR\lib\public\vgui_controls.lib"
-	-$File	"$SRCDIR\lib\common\binkw32.lib"
+	-$Lib	"$LIBPUBLIC\bitmap"
+	-$Lib	"$LIBCOMMON\bzip2"
+	-$Lib	"$LIBCOMMON\jpeglib"
+	-$Lib	"$LIBPUBLIC\matsys_controls"
+	-$Lib   "$LIBPUBLIC\steam_api"
+	-$Lib	"$LIBPUBLIC\vtf"
+	-$Lib	"$LIBPUBLIC\vgui_controls"
+	-$Lib	"$LIBCOMMON\binkw32"
 
 	// Libs we do want.
 	$File	"$SRCDIR\lib\linux\FindSteamServers.a"
@@ -80,7 +80,7 @@ $Linux
 	-$File	"Overlay.cpp"
 	-$File	"r_areaportal.cpp"
 	-$File	"r_linefile.cpp"
-	-$File	"ShadowMgr.cpp"
+	-$File	"shadowmgr.cpp"
 	-$File	"LoadScreenUpdate.cpp"
 	-$File  "$SRCDIR\engine\cl_main.cpp"
 	-$File  "$SRCDIR\engine\cdll_engine_int.cpp"
@@ -139,7 +139,7 @@ $Configuration
 	$Compiler
 	{
 		$AdditionalIncludeDirectories	"$BASE;.\;audio;audio\private;audio\public;$SRCDIR\vgui2\include;$SRCDIR\vgui2\controls"
-		$AdditionalIncludeDirectories	"$BASE;$SRCDIR\dx9sdk\include" [$WIN32]
+		$AdditionalIncludeDirectories	"$BASE;$SRCDIR\dx9sdk\include" [$WINDOWS]
 		$PreprocessorDefinitions		"$BASE;USE_CONVARS;VOICE_OVER_IP;BUMPMAP;__USEA3D;_ADD_EAX_;ENGINE_DLL;PROTECTED_THINGS_ENABLE;fopen=dont_use_fopen"
 	}
 
@@ -150,25 +150,17 @@ $Configuration
 
 	$Linker
 	{
-		$AdditionalDependencies			"$BASE dinput8.lib winmm.lib wsock32.lib ws2_32.lib wininet.lib vfw32.lib Rpcrt4.lib" [$WIN32]
-		$AdditionalLibraryDirectories	"$BASE;$SRCDIR\lib\common\vc7;$SRCDIR\dx9sdk\lib" [$WIN32]
+		$AdditionalDependencies			"$BASE dinput8.lib winmm.lib wsock32.lib ws2_32.lib wininet.lib vfw32.lib Rpcrt4.lib" [$WINDOWS]
+		$AdditionalLibraryDirectories	"$BASE;$LIBCOMMON\vc7;$SRCDIR\dx9sdk\lib" [$WINDOWS]
 	}
 }
 
 $Configuration "Debug"
 {
-	$Linker [$X360]
-	{
-		$AdditionalDependencies		"$BASE xonlined.lib xaudiod.lib Xhv.lib xmp.lib"
-	}
 }
 
 $Configuration "Release"
 {
-	$Linker [$X360]
-	{
-		$AdditionalDependencies		"$BASE xonline.lib xaudio.lib Xhv.lib xmp.lib"
-	}
 }
 
 
@@ -201,7 +193,6 @@ $Project "engine"
 		$File	"tmessage.cpp"
 		$File	"r_efx.cpp"
 		$File	"View.cpp"
-		$File	"$SRCDIR\avi\bink.cpp"	[$X360]
 
 		$File	"baseclient.cpp"				\
 				"baseclientstate.cpp"			\
@@ -277,7 +268,7 @@ $Project "engine"
 				"r_areaportal.cpp"		\
 				"r_decal.cpp"			\
 				"r_linefile.cpp"		\
-				"ShadowMgr.cpp"			
+				"shadowmgr.cpp"			
 		{
 			$Configuration
 			{
@@ -806,7 +797,7 @@ $Project "engine"
 		$File	"$SRCDIR\public\iserver.h"
 		$File	"$SRCDIR\public\iserverentity.h"
 		$File	"$SRCDIR\public\engine\iserverplugin.h"
-		$File	"$SRCDIR\public\engine\IShadowMgr.h"
+		$File	"$SRCDIR\public\engine\ishadowmgr.h"
 		$File	"$SRCDIR\public\ISpatialPartition.h"
 		$File	"ISpatialPartitionInternal.h"
 		$File	"$SRCDIR\public\steam\isteamutils.h"
@@ -866,7 +857,7 @@ $Project "engine"
 		$File	"SCREEN.H"
 		$File	"SERVER.H"
 		$File	"session.h"
-		$File	"ShadowMgr.h"
+		$File	"shadowmgr.h"
 		$File	"audio\private\snd_mp3_source.h"
 		$File	"audio\private\snd_wave_data.h"
 		$File	"$SRCDIR\public\engine\SndInfo.h"
@@ -946,7 +937,7 @@ $Project "engine"
 		$File	"cl_txviewpanel.h"
 	}
 
-	$Folder	"Resource Files" [$WIN32]
+	$Folder	"Resource Files" [$WINDOWS]
 	{
 		$File	"halflife.rc"
 		$File	"valve.ico"
@@ -963,7 +954,7 @@ $Project "engine"
 		$File	"$SRCDIR\public\tier1\bitbuf.h"
 		$File	"$SRCDIR\public\bitvec.h"
 		$File	"$SRCDIR\public\blockingudpsocket.h"
-		$File	"$SRCDIR\public\BSPFILE.H"
+		$File	"$SRCDIR\public\bspfile.h"
 		$File	"$SRCDIR\public\bspflags.h"
 		$File	"$SRCDIR\common\bugreporter\bugreporter.h"
 		$File	"$SRCDIR\public\builddisp.h"
@@ -985,13 +976,13 @@ $Project "engine"
 		$File	"$SRCDIR\public\mathlib\compressed_vector.h"
 		$File	"$SRCDIR\public\con_nprint.h"
 		$File	"$SRCDIR\public\const.h"
-		$File	"$SRCDIR\public\vgui_controls\Controls.h"
+		$File	"$SRCDIR\public\vgui_controls\controls.h"
 		$File	"$SRCDIR\public\tier1\convar.h"
 		$File	"$SRCDIR\public\coordsize.h"
 		$File	"$SRCDIR\public\crtmemdebug.h"
 		$File	"$SRCDIR\common\cserserverprotocol_engine.h"
-		$File	"$SRCDIR\public\vgui\Cursor.h"
-		$File	"$SRCDIR\public\vgui\Dar.h"
+		$File	"$SRCDIR\public\vgui\cursor.h"
+		$File	"$SRCDIR\public\vgui\dar.h"
 		
 // 		Missing file
 //		$File	"$SRCDIR\public\tier1\datalru.h"
@@ -1003,8 +994,8 @@ $Project "engine"
 		$File	"$SRCDIR\public\dt_utlvector_recv.h"
 		$File	"$SRCDIR\public\dt_utlvector_send.h"
 		$File	"$SRCDIR\public\edict.h"
-		$File	"$SRCDIR\public\vgui_controls\EditablePanel.h"
-		$File	"$SRCDIR\public\Editor_SendCommand.h"
+		$File	"$SRCDIR\public\vgui_controls\editablePanel.h"
+		$File	"$SRCDIR\public\editor_sendcommand.h"
 		$File	"$SRCDIR\public\eiface.h"
 		$File	"$SRCDIR\public\event_flags.h"
 		$File	"event_system.h"
@@ -1193,37 +1184,27 @@ $Project "engine"
 		$File	"$SRCDIR\public\xwvfile.h"
 	}
 
-	$Folder	"Link Libraries" [$WIN32]
+	$Folder	"Link Libraries"
 	{
-		$File	"$SRCDIR\lib\public\appframework.lib"
-		$File	"$SRCDIR\lib\public\bitmap.lib"
-		$File	"$SRCDIR\lib\common\vc7\bzip2.lib"
-		$File	"$SRCDIR\lib\public\Dmxloader.lib"
-		$File	"$SRCDIR\lib\common\jpeglib.lib"
-		$File	"$SRCDIR\lib\public\mathlib.lib"
-		$File	"$SRCDIR\lib\public\matsys_controls.lib"
-		$File	"$SRCDIR\lib\public\tier2.lib"
-		$File	"$SRCDIR\lib\public\tier3.lib"
-		$File	"$SRCDIR\lib\public\vtf.lib"
-		$File	"$SRCDIR\DX9SDK\lib\dsound.lib"
-		$File	"$SRCDIR\DX9SDK\lib\dxguid.lib"
-		$File	"$SRCDIR\lib\public\vgui_controls.lib"
-		$File	"$SRCDIR\lib\public\steam_api.lib"
-		$File	"$SRCDIR\lib\common\binkw32.lib"
-	}
-
-	$Folder	"Link Libraries" [$X360]
-	{
-		$File	"$SRCDIR\lib\public\appframework_360.lib"
-		$File	"$SRCDIR\lib\public\bitmap_360.lib"
-		$File	"$SRCDIR\lib\common\vc7\bzip2_360.lib"
-		$File	"$SRCDIR\lib\public\Dmxloader_360.lib"
-		$File	"$SRCDIR\lib\public\mathlib_360.lib"
-		$File	"$SRCDIR\lib\public\matsys_controls_360.lib"
-		$File	"$SRCDIR\lib\public\tier2_360.lib"
-		$File	"$SRCDIR\lib\public\tier3_360.lib"
-		$File	"$SRCDIR\lib\public\vtf_360.lib"
-		$File	"$SRCDIR\lib\public\vgui_controls_360.lib"
-		$File	"$SRCDIR\lib\common\binkxenon.lib"
+		$Lib	"$LIBPUBLIC\appframework"
+		$Lib	"$LIBPUBLIC\bitmap"
+		$Lib	"$LIBPUBLIC\Dmxloader"
+		$Lib	"$LIBPUBLIC\mathlib"
+		$Lib	"$LIBPUBLIC\matsys_controls"
+		$Lib	"$LIBPUBLIC\tier2"
+		$Lib	"$LIBPUBLIC\tier3"
+		$Lib	"$LIBPUBLIC\vtf"
+		$Lib	"$LIBPUBLIC\vgui_controls"
+		$Lib	"$LIBPUBLIC\steam_api"
+		
+		$Lib	"$LIBCOMMON\bzip2"
+		$Lib	"$LIBCOMMON\binkw32"
+		$Lib	"$LIBCOMMON\jpeglib"
+		
+		// TODO: remove this
+		
+		
+		$File	"$SRCDIR\dx9sdk\lib\dsound.lib"	[$WINDOWS]
+		$File	"$SRCDIR\dx9sdk\lib\dxguid.lib"	[$WINDOWS]
 	}
 }

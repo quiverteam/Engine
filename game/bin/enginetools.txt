@@ -1,0 +1,10 @@
+"enginetools"
+{
+	"library"	"tools/sampletool.dll"
+	"library"	"tools/actbusy.dll"
+	"library"	"tools/commedit.dll"
+	"library"	"tools/foundry.dll"
+	"library"	"tools/pet.dll"
+	"library"	"tools/vcdblock.dll"
+	"library"	"tools/vmt.dll"
+}

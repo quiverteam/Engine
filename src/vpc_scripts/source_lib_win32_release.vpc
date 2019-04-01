@@ -6,17 +6,31 @@
 
 $IgnoreRedundancyWarning	"ON"
 
+// Disable frame pointer omission to allow fast stack walking, necessary for
+// good ETW profiling.
+$Macro  NOFPO  "1"
+
 $MacroRequired				"SRCDIR"
 $MacroRequired				"OUTLIBNAME"
 $MacroRequired				"OUTLIBDIR"
+$MacroRequired				"LIBPUBLIC"
+$MacroRequired				"LIBCOMMON"
+$MacroRequired				"PLATSUBDIR"
+$MacroRequiredAllowEmpty	"GAMENAME"
+$MacroRequiredAllowEmpty	"INTERMEDIATESUBDIR"
+$MacroRequiredAllowEmpty	"_UNITYSUBDIR"
+$MacroRequiredAllowEmpty	"_STATICSUBDIR"
+$Macro						"_SUBDIRSUFFIX"		"$INTERMEDIATESUBDIR$_STATICSUBDIR$GAMENAME$PLATSUBDIR$_UNITYSUBDIR"
 
 $Configuration "Release"
 {
 	$General
 	{
 		// General
-		$OutputDirectory					".\Release"
-		$IntermediateDirectory				".\Release"
+		$OutputDirectory					"$OUTLIBDIR"
+		$IntermediateDirectory				".\Release$_SUBDIRSUFFIX"		[!$RETAIL && !$PROFILE]
+		$IntermediateDirectory				".\Retail$_SUBDIRSUFFIX"		[$RETAIL]
+		$IntermediateDirectory				".\Profile$_SUBDIRSUFFIX"		[!$RETAIL && $PROFILE]
 		$ExtensionsToDeleteOnClean
 		$BuildLogFile
 		$InheritedProjectPropertySheets
@@ -28,7 +42,7 @@ $Configuration "Release"
 		$MinimizeCRTUseInATL
 		$CharacterSet						"Use Multi-Byte Character Set"
 		$CommonLanguageRuntimeSupport
-		$WholeProgramOptimization
+		$WholeProgramOptimization			"Use Link Time Code Generation" [$LTCG]
 	}
 
 	$Debugging
@@ -65,7 +79,8 @@ $Configuration "Release"
 		$WholeProgramOptimization
 
 		// Preprocessor
-		$PreprocessorDefinitions			"WIN32;_WIN32;NDEBUG;_LIB;_CRT_SECURE_NO_DEPRECATE;_CRT_NONSTDC_NO_DEPRECATE"
+		$PreprocessorDefinitions			"$BASE;WIN32;_WIN32;NDEBUG;_LIB;_CRT_SECURE_NO_DEPRECATE;_CRT_NONSTDC_NO_DEPRECATE;_ALLOW_RUNTIME_LIBRARY_MISMATCH;_ALLOW_ITERATOR_DEBUG_LEVEL_MISMATCH;_ALLOW_MSC_VER_MISMATCH;%(PreprocessorDefinitions)"
+		$PreprocessorDefinitions			"$BASE;RELEASEASSERTS" [$RELEASEASSERTS]
 		$IgnoreStandardIncludePath
 		$GeneratePreprocessedFile
 		$KeepComments
@@ -78,7 +93,8 @@ $Configuration "Release"
 		$BasicRuntimeChecks
 		$RuntimeLibrary						"Multi-threaded (/MT)"
 		$StructMemberAlignment
-		$BufferSecurityCheck 				"No"
+		$BufferSecurityCheck                "No"	[$RETAIL]
+		$BufferSecurityCheck 				"Yes"	[!$RETAIL]
 		$EnableFunctionLevelLinking			"Yes (/Gy)"
 		$EnableEnhancedInstructionSet
 		$FloatingPointModel					"Fast (/fp:fast)"
@@ -119,19 +135,20 @@ $Configuration "Release"
 		$ShowIncludes
 		$UndefinePreprocessorDefinitions
 		$UndefineAllPreprocessorDefinitions
-		$UseFullPaths
+		$UseFullPaths						"Yes (/FC)"
 		$OmitDefaultLibraryNames
 		$ErrorReporting						"Prompt Immediately (/errorReport:prompt)"
 
-		// Command Line
-		$AdditionalOptions
+		// Enable extra debugging information.
+		$AdditionalOptions					"/d2Zi+"
+		$AdditionalOptions					"$BASE /Oy-"	[$NOFPO]
 	}
 
 	$Librarian
 	{
 		// General
 		$OutputFile							"$OUTLIBDIR\$OUTLIBNAME.lib"
-		$AdditionalDependencies				"user32.lib;shell32.lib"
+		$AdditionalDependencies
 		$AdditionalLibraryDirectories
 		$SuppressStartupBanner				"Yes (/NOLOGO)"
 		$ModuleDefinitionFileName

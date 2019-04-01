@@ -6,17 +6,33 @@
 
 $IgnoreRedundancyWarning	"ON"
 
+// Disable frame pointer omission to allow fast stack walking, necessary for
+// good ETW profiling.
+$Macro  NOFPO  "1"
+
 $MacroRequired				"SRCDIR"
 $MacroRequired				"OUTBINNAME"
 $MacroRequired				"OUTBINDIR"
+$MacroRequired				"LIBPUBLIC"
+$MacroRequired				"LIBCOMMON"
+$MacroRequired				"PLATSUBDIR"
+$MacroRequiredAllowEmpty	"GAMENAME"
+$MacroRequiredAllowEmpty	"INTERMEDIATESUBDIR"
+$MacroRequiredAllowEmpty	"_UNITYSUBDIR"
+$MacroRequiredAllowEmpty	"_STATICSUBDIR"
+$Macro						"_SUBDIRSUFFIX"		"$INTERMEDIATESUBDIR$_STATICSUBDIR$GAMENAME$PLATSUBDIR$_UNITYSUBDIR"
 
 $Configuration "Release"
 {
 	$General
 	{
 		// General
-		$OutputDirectory						".\Release"
-		$IntermediateDirectory					".\Release"
+		$OutputDirectory					".\Release$_SUBDIRSUFFIX"	[!$RETAIL && !$PROFILE]
+		$IntermediateDirectory				".\Release$_SUBDIRSUFFIX"	[!$RETAIL && !$PROFILE]
+		$OutputDirectory					".\Retail$_SUBDIRSUFFIX"	[$RETAIL]
+		$IntermediateDirectory				".\Retail$_SUBDIRSUFFIX"	[$RETAIL]
+		$OutputDirectory					".\Profile$_SUBDIRSUFFIX"	[!$RETAIL && $PROFILE]
+		$IntermediateDirectory				".\Profile$_SUBDIRSUFFIX"	[!$RETAIL && $PROFILE]
 		$ExtensionsToDeleteOnClean
 		$BuildLogFile
 		$InheritedProjectPropertySheets
@@ -28,7 +44,7 @@ $Configuration "Release"
 		$MinimizeCRTUseInATL
 		$CharacterSet							"Use Multi-Byte Character Set"
 		$CommonLanguageRuntimeSupport
-		$WholeProgramOptimization
+		$WholeProgramOptimization				"Use Link Time Code Generation" [$LTCG]
 	}
 
 	$Debugging
@@ -52,7 +68,6 @@ $Configuration "Release"
 		$DebugInformationFormat					"Program Database (/Zi)"
 		$SuppressStartupBanner
 		$WarningLevel							"Level 4 (/W4)"
-		$Detect64bitPortabilityIssues			"Yes (/Wp64)"
 		$TreatWarningsAsErrors
 		$UseUnicodeResponseFiles
 
@@ -66,7 +81,8 @@ $Configuration "Release"
 		$WholeProgramOptimization
 
 		// Preprocessor
-		$PreprocessorDefinitions				"WIN32;_WIN32;NDEBUG;_WINDOWS;_CRT_SECURE_NO_DEPRECATE;_CRT_NONSTDC_NO_DEPRECATE"
+		$PreprocessorDefinitions				"$BASE;WIN32;_WIN32;NDEBUG;_WINDOWS;_CRT_SECURE_NO_DEPRECATE;_CRT_NONSTDC_NO_DEPRECATE;_ALLOW_RUNTIME_LIBRARY_MISMATCH;_ALLOW_ITERATOR_DEBUG_LEVEL_MISMATCH;_ALLOW_MSC_VER_MISMATCH;%(PreprocessorDefinitions)"
+		$PreprocessorDefinitions				"$BASE;RELEASE_ASSERTS" [$RELEASEASSERTS]
 		$IgnoreStandardIncludePath
 		$GeneratePreprocessedFile
 		$KeepComments
@@ -79,7 +95,8 @@ $Configuration "Release"
 		$BasicRuntimeChecks
 		$RuntimeLibrary							"Multi-threaded (/MT)"
 		$StructMemberAlignment
-		$BufferSecurityCheck					"No"
+		$BufferSecurityCheck					"No"	[$RETAIL]
+		$BufferSecurityCheck					"Yes"	[!$RETAIL]
 		$EnableFunctionLevelLinking				"Yes (/Gy)"
 		$EnableEnhancedInstructionSet
 		$FloatingPointModel						"Fast (/fp:fast)"
@@ -120,12 +137,14 @@ $Configuration "Release"
 		$ShowIncludes
 		$UndefinePreprocessorDefinitions
 		$UndefineAllPreprocessorDefinitions
-		$UseFullPaths
+		$UseFullPaths							"Yes (/FC)"
 		$OmitDefaultLibraryNames
 		$ErrorReporting							"Prompt Immediately (/errorReport:prompt)"
 
+		// Enable extra debugging information.
+		$AdditionalOptions						"$BASE /d2Zi+"
 		// Command Line
-		$AdditionalOptions
+		$AdditionalOptions						"$BASE /Oy-"	[$NOFPO]
 	}
 
 	$Linker
@@ -144,7 +163,7 @@ $Configuration "Release"
 		$UseUNICODEResponseFiles				"No"
 
 		// Input
-		$AdditionalDependencies					"legacy_stdio_definitions.lib" [!$VS2010 && !$VS2013]
+		$AdditionalDependencies
 		$IgnoreAllDefaultLibraries
 		$IgnoreSpecificLibrary					"libc;libcd;libcmtd"
 		$ModuleDefinitionFile
@@ -155,17 +174,16 @@ $Configuration "Release"
 		$AssemblyLinkResource
 
 		// Manifest File
-		$GenerateManifest						"No"
+		$GenerateManifest						"Yes"
 		$ManifestFile
 		$AdditionalManifestDependencies
 		$AllowIsolation
+		$UACExecutionLevel
 
 		// Debugging
 		$GenerateDebugInfo						"Yes (/DEBUG)"
 		$GenerateProgramDatabaseFile			"$(IntDir)/$(TargetName).pdb"
 		$StripPrivateSymbols
-		$GenerateMapFile						"Yes (/MAP)"
-		$MapFileName							"$(IntDir)/$(TargetName).map"
 		$MapExports
 		$DebuggableAssembly
 
@@ -181,9 +199,22 @@ $Configuration "Release"
 		$SwapRunFromNetwork
 		$Driver
 
+		// RandomizeBaseAddress (/DYNAMICBASE, /ASLR) is a hugely important security setting.
+		// However it can cause confusion during development and can make tracking down certain
+		// bugs tricky by making code/stack/heap addresses change between runs. Enable for retail,
+		// but disable for development builds.
+		$RandomizedBaseAddress				"true" [$RETAIL]
+		$RandomizedBaseAddress				"false" [!$RETAIL]
+
 		// Optimization
 		$References							"Eliminate Unreferenced Data (/OPT:REF)"
-		$EnableCOMDATFolding				"Remove Redundant COMDATs (/OPT:ICF)"
+		// COMDAT folding can be very confusing when debugging and profiling because it can
+		// cause execution to go through nonsensical functions (that happen to be binary
+		// equivalent to the logical function). The performance benefit is small enough that
+		// it is not worth enabling in the development builds. It should be enabled on retail
+		// builds.
+		$EnableCOMDATFolding				"Remove Redundant COMDATs (/OPT:ICF)" [$RETAIL]
+		$EnableCOMDATFolding				"No (/OPT:NOICF)" [!$RETAIL]
 		$OptimizeForWindows98
 		$FunctionOrder
 		$ProfileGuidedDatabase
@@ -201,13 +232,13 @@ $Configuration "Release"
 		$NoEntryPoint
 		$SetChecksum
 		$BaseAddress							"$LOADADDRESS_DEVELOPMENT"
-		$BaseAddress							"$LOADADDRESS_RETAIL" [$RETAIL]
+		//$BaseAddress							"$LOADADDRESS_RETAIL" [$RETAIL]
 		$FixedBaseAddress
 		$TurnOffAssemblyGeneration
 		$DelayLoadedDLL
 		$ImportLibrary
 		$MergeSections
-		$TargetMachine							"MachineX86 (/MACHINE:X86)"
+		$TargetMachine						
 		$Profile
 		$CLRThreadAttribute
 		$CLRImageType
@@ -233,7 +264,7 @@ $Configuration "Release"
 		$UseFAT32WorkAround
 
 		// Input And Output
-		$AdditionalManifestFiles
+		$AdditionalManifestFiles			"$SRCDIR\public\windows_default.manifest" [!$SOURCESDK]
 		$InputResourceManifests
 		$EmbedManifest
 		$OutputManifestFile
@@ -276,7 +307,7 @@ $Configuration "Release"
 	$Resources
 	{
 		// General
-		$PreprocessorDefinitions				"NDEBUG;_CRT_SECURE_NO_DEPRECATE;_CRT_NONSTDC_NO_DEPRECATE"
+		$PreprocessorDefinitions				"NDEBUG;_CRT_SECURE_NO_DEPRECATE;_CRT_NONSTDC_NO_DEPRECATE;%(PreprocessorDefinitions)"
 		$Culture								"English (United States) (0x409)"
 		$AdditionalIncludeDirectories
 		$IgnoreStandardIncludePath
@@ -303,19 +334,8 @@ $Configuration "Release"
 
 	$PostBuildEvent
 	{
-		$CommandLine		"copy $QUOTE$(TargetDir)$QUOTE$OUTBINNAME.exe $OUTBINDIR\$OUTBINNAME.exe" "\n" \
-							"if ERRORLEVEL 1 goto BuildEventFailed" "\n" \
-							"if exist $QUOTE$(TargetDir)$QUOTE$(TargetName).map copy $QUOTE$(TargetDir)$QUOTE$(TargetName).map $OUTBINDIR\$(TargetName).map" "\n" \
-							"copy $QUOTE$(TargetDir)$QUOTE$(TargetName).pdb $OUTBINDIR\$(TargetName).pdb" "\n" \
-							"if ERRORLEVEL 1 goto BuildEventFailed" "\n" \
-							"goto BuildEventOK" "\n" \
-							":BuildEventFailed" "\n" \
-							"echo *** ERROR! PostBuildStep FAILED for $(ProjectName)! EXE or DLL is probably running. ***" "\n" \
-							"del /q $QUOTE$(TargetDir)$QUOTE$OUTBINNAME.exe" "\n" \
-							"exit 1" "\n" \
-							":BuildEventOK" "\n" \
-							"call $SRCDIR\devtools\bin\vsign.bat -noforcewritable $OUTBINDIR\$(TargetFileName)" "\n"
-		$Description		"Publishing to $OUTBINDIR"
+		$CommandLine
+		$Description
 		$ExcludedFromBuild	"No"
 	}
 

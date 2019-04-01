@@ -5,7 +5,7 @@
 //-----------------------------------------------------------------------------
 
 $Macro SRCDIR           ".."
-$Macro OUTBINDIR	"$SRCDIR\..\game\bin"
+$Macro OUTBINDIR	"$BINDEFAULT"
 
 $Include "$SRCDIR\vpc_scripts\source_dll_base.vpc"
 
@@ -63,6 +63,6 @@ $Project "FileSystem_Steam"
 
 	$Folder	"Link Libraries"
 	{
-		$DynamicFile	"$SRCDIR\lib\public\tier2.lib"
+		$DynamicFile	"$LIBPUBLIC\tier2.lib"
 	}
 }

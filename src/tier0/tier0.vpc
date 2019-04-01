@@ -5,18 +5,9 @@
 //-----------------------------------------------------------------------------
 
 $Macro SRCDIR		".."
-$Macro OUTBINDIR	"$SRCDIR\..\game\bin"
+$Macro OUTBINDIR	"$BINDEFAULT"
 
 $Include "$SRCDIR\vpc_scripts\source_dll_base.vpc"
-
-$Linux
-{
-	$BuildForLinux 1
-	
-	-$file	"$SRCDIR\linux\tier0_i686.so"
-	-$file	"$SRCDIR\lib\public\tier1.lib"
-	-$file	"$SRCDIR\linux\vstdlib_i686.so"
-}
 
 $Configuration
 {
@@ -30,10 +21,10 @@ $Configuration
 
 	$Linker
 	{
-		$AdditionalDependencies			"$BASE ws2_32.lib %(AdditionalDependencies)"						[$WIN32||$POSIX]
+		$AdditionalDependencies			"$BASE ws2_32.lib"						[$WINDOWS||$POSIX]
 
 		// pc publishes the import library directly
-		$ImportLibrary					"$SRCDIR\lib\public\$(TargetName).lib"	[$WIN32]
+		$ImportLibrary					"$LIBPUBLIC\$(TargetName).lib"	[$WINDOWS]
 	}
 }
 
@@ -46,9 +37,13 @@ $Project
 
 	$Folder	"Link Libraries"
 	{
-		-$File	"$SRCDIR\lib\public\tier0.lib" 			[$WIN32||$POSIX]
-		-$File	"$SRCDIR\lib\public\tier1.lib"			[$WIN32||$POSIX]
-		-$File	"$SRCDIR\lib\public\vstdlib.lib"		[$WIN32||$POSIX]
+		-$Lib	"$LIBPUBLIC\tier0" 			[$WINDOWS||$POSIX]
+		-$Lib	"$LIBPUBLIC\tier1"			[$WINDOWS||$POSIX]
+		-$Lib	"$LIBPUBLIC\vstdlib"		[$WINDOWS||$POSIX]
+		
+		-$file	"$SRCDIR\linux\tier0_i686.so"				\
+		-$Lib	"$LIBPUBLIC\tier1"	\
+		-$file	"$SRCDIR\linux\vstdlib_i686.so"	[$POSIX]
 	}
 }
 
@@ -57,7 +52,7 @@ $Project "tier0"
 	$Folder	"Source Files"
 	{
 		$File	"assert_dialog.cpp"
-		$File	"assert_dialog.rc"		[$WIN32||$POSIX]
+		$File	"assert_dialog.rc"		[$WINDOWS||$POSIX]
 		$File	"commandline.cpp"
 		$File	"cpu.cpp"
 		{
@@ -98,8 +93,8 @@ $Project "tier0"
 			}
 		}
 		$File	"platform.cpp"
-		$File	"pme.cpp"			[$WIN32||$POSIX]
-		$File	"PMELib.cpp"		[$WIN32||$POSIX]
+		$File	"pme.cpp"			[$WINDOWS||$POSIX]
+		$File	"PMELib.cpp"		[$WINDOWS||$POSIX]
 		{
 			$Configuration
 			{
@@ -112,7 +107,7 @@ $Project "tier0"
 		$File	"progressbar.cpp"	
 		$File	"security.cpp"
 		$File	"systeminformation.cpp"
-		$File	"thread.cpp"		[$WIN32||$LINUX]
+		$File	"thread.cpp"		[$WINDOWS||$POSIX]
 		$File	"threadtools.cpp"
 		{
 			$Configuration
@@ -124,9 +119,9 @@ $Project "tier0"
 			}
 		}
 		$File	"tslist.cpp"
-		$File	"vcrmode.cpp"			[$WIN32||$POSIX]
+		$File	"vcrmode.cpp"			[$WINDOWS||$POSIX]
 		$File	"vprof.cpp"
-		$File	"win32consoleio.cpp"	[$WIN32]
+		$File	"win32consoleio.cpp"	[$WINDOWS]
 	}
 
 	$Folder	"Header Files"
@@ -170,7 +165,7 @@ $Project "tier0"
 		$File	"mem_helpers.h"
 	}
 
-	$Folder	"DESKey" [$WIN32]
+	$Folder	"DESKey" [$WINDOWS]
 	{
 		$File	"DESKey\ALGO.H"
 		$File	"DESKey\ALGO32.LIB"

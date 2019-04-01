@@ -13,6 +13,8 @@
 #include "mathlib/vector.h"
 #include "sse.h"
 
+#include "platform_defs.h"
+
 #if defined(_WIN32) || defined(WIN64)
 #include <intrin.h>
 #elif defined(LINUX64) || defined(POSIX)
@@ -369,7 +371,7 @@ float _SSE_cos( float x )
 //-----------------------------------------------------------------------------
 // SSE2 implementations of optimized routines:
 //-----------------------------------------------------------------------------
-#ifdef PLATFORM_WINDOWS_PC32
+#if defined(_WIN32) || defined(WIN64)
 // Identical to SSE SinCos, no benefit from using SSE2 instructions
 void _SSE2_SinCos(float x, float* s, float* c)  // any x
 {
@@ -404,9 +406,7 @@ void _SSE2_SinCos(float x, float* s, float* c)  // any x
 	// Done with cosine
 	_mm_store_ss(c, _s);
 }
-#endif // PLATFORM_WINDOWS_PC32
 
-#ifdef PLATFORM_WINDOWS_PC32
 float _SSE2_cos(float x)  
 {
 	// Taylor series implementation of approximation of cos
@@ -432,7 +432,7 @@ float _SSE2_cos(float x)
 	_mm_store_ss(&ret, _s);
 	return ret;
 }
-#endif // PLATFORM_WINDOWS_PC32
+#endif
 
 #if 0
 // SSE Version of VectorTransform
@@ -551,7 +551,7 @@ void VectorRotateSSE( const float *in1, const matrix3x4_t& in2, float *out1 )
 #endif
 
 #ifdef _WIN32
-void _declspec(naked) _SSE_VectorMA( const float *start, float scale, const float *direction, float *dest )
+void VNAKED _SSE_VectorMA( const float *start, float scale, const float *direction, float *dest )
 {
 #if 0
 	// FIXME: This don't work!! It will overwrite memory in the write to dest
@@ -585,7 +585,7 @@ void _declspec(naked) _SSE_VectorMA( const float *start, float scale, const floa
 
 #ifdef _WIN32
 #ifdef PFN_VECTORMA
-void _declspec(naked) __cdecl _SSE_VectorMA( const Vector &start, float scale, const Vector &direction, Vector &dest )
+void VNAKED __cdecl _SSE_VectorMA( const Vector &start, float scale, const Vector &direction, Vector &dest )
 {
 #if 0
 	// FIXME: This don't work!! It will overwrite memory in the write to dest

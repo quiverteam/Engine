@@ -5,7 +5,7 @@
 //-----------------------------------------------------------------------------
 
 $Macro SRCDIR		".."
-$Macro OUTBINDIR	"$SRCDIR\..\game\bin"
+$Macro OUTBINDIR	"$BINDEFAULT"
 
 $Include "$SRCDIR\vpc_scripts\source_dll_base.vpc"
 
@@ -38,8 +38,11 @@ $Project "Valve_avi"
 		$File	"$SRCDIR\public\avi\iavi.h"
 		$File	"$SRCDIR\public\avi\ibik.h"
 	}
-
-	$File	"$SRCDIR\lib\common\binkw32.lib"
-	$File	"$SRCDIR\lib\public\tier2.lib"
-	$File	"$SRCDIR\lib\public\tier3.lib"
+	
+	$Folder	"Link Libraries"
+	{
+		$Lib	"$LIBCOMMON\binkw32"
+		$Lib	"$LIBPUBLIC\tier2"
+		$Lib	"$LIBPUBLIC\tier3"
+	}
 }

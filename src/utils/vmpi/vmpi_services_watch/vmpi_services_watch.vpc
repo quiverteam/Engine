@@ -5,7 +5,7 @@
 //-----------------------------------------------------------------------------
 
 $Macro SRCDIR		"..\..\.."
-$Macro OUTBINDIR	"$SRCDIR\..\game\bin"
+$Macro OUTBINDIR	"$BINDEFAULT"
 $Macro OUTBINNAME	"vmpi_services_watch"
 
 $Include "$SRCDIR\vpc_scripts\source_exe_base.vpc"
@@ -67,6 +67,6 @@ $Project "vmpi_services_watch"
 
 	$Folder "Link Libraries"
 	{
-		$File	"$SRCDIR\lib\public\vmpi.lib"
+		$File	"$LIBPUBLIC\vmpi.lib"
 	}
 }

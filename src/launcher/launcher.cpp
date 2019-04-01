@@ -205,19 +205,13 @@ void UTIL_ComputeBaseDir()
 {
 	g_szBasedir[0] = 0;
 
-	if ( IsX360() )
-	{
-		char const *pBaseDir = CommandLine()->ParmValue( "-basedir" );
-		if ( pBaseDir )
-		{
-			strcpy( g_szBasedir, pBaseDir );
-		}
-	}
-
 	if ( !g_szBasedir[0] && GetExecutableName( g_szBasedir, sizeof( g_szBasedir ) ) )
 	{
-		char *pBuffer = strrchr( g_szBasedir, '\\' );
-		if ( *pBuffer )
+		//char *pBuffer = strrchr( g_szBasedir, '\\' );
+		V_strncpy(g_szBasedir, g_szBasedir, strlen(g_szBasedir) - V_strlen("\\bin\\" PLATFORM_SUBDIR "quiver" EXE_EXT_STRING));
+
+
+		/*if ( *pBuffer )
 		{
 			*(pBuffer+1) = '\0';
 		}
@@ -230,16 +224,13 @@ void UTIL_ComputeBaseDir()
 			{
 				g_szBasedir[j-1] = 0;
 			}
-		}
+		}*/
 	}
 
-	if ( IsPC() )
+	char const *pOverrideDir = CommandLine()->CheckParm( "-basedir" );
+	if ( pOverrideDir )
 	{
-		char const *pOverrideDir = CommandLine()->CheckParm( "-basedir" );
-		if ( pOverrideDir )
-		{
-			strcpy( g_szBasedir, pOverrideDir );
-		}
+		strcpy( g_szBasedir, pOverrideDir );
 	}
 
 	Q_strlower( g_szBasedir );
@@ -248,15 +239,12 @@ void UTIL_ComputeBaseDir()
 
 BOOL WINAPI MyHandlerRoutine( DWORD dwCtrlType )
 {
-#if !defined( _X360 )
 	TerminateProcess( GetCurrentProcess(), 2 );
-#endif
 	return TRUE;
 }
 
 void InitTextMode()
 {
-#if !defined( _X360 )
 	AllocConsole();
 
 	SetConsoleCtrlHandler( MyHandlerRoutine, TRUE );
@@ -264,9 +252,6 @@ void InitTextMode()
 	freopen( "CONIN$", "rb", stdin );		// reopen stdin handle as console window input
 	freopen( "CONOUT$", "wb", stdout );		// reopen stout handle as console window output
 	freopen( "CONOUT$", "wb", stderr );		// reopen stderr handle as console window output
-#else
-	XBX_Error( "%s %s: Not Supported", __FILE__, __LINE__ );
-#endif
 }
 
 void SortResList( char const *pchFileName, char const *pchSearchPath );
@@ -313,11 +298,6 @@ CLogAllFiles::CLogAllFiles() :
 
 void CLogAllFiles::Init()
 {
-	if ( IsX360() )
-	{
-		return;
-	}
-
 	// Can't do this in edit mode
 	if ( CommandLine()->CheckParm( "-edit" ) )
 	{
@@ -347,7 +327,7 @@ void CLogAllFiles::Init()
 
 	// game directory has not been established yet, must derive ourselves
 	char path[MAX_PATH];
-	Q_snprintf( path, sizeof(path), "%s/%s", GetBaseDirectory(), CommandLine()->ParmValue( "-game", "hl2" ) );
+	Q_snprintf( path, sizeof(path), "%s/%s", GetBaseDirectory(), CommandLine()->ParmValue( "-game", "mod_hl2" ) );
 	Q_FixSlashes( path );
 	Q_strlower( path );
 	m_sFullGamePath = path;
@@ -453,7 +433,6 @@ static bool IsWin98OrOlder()
 {
 	bool retval = false;
 
-#if !defined( _X360 )
 	OSVERSIONINFOEX osvi;
 	ZeroMemory(&osvi, sizeof(OSVERSIONINFOEX));
 	osvi.dwOSVersionInfoSize = sizeof(OSVERSIONINFOEX);
@@ -485,7 +464,6 @@ static bool IsWin98OrOlder()
 	default:
 		break;
 	}
-#endif
 
 	return retval;
 }
@@ -496,7 +474,6 @@ static bool IsWin98OrOlder()
 //-----------------------------------------------------------------------------
 void TryToLoadSteamOverlayDLL()
 {
-#if !defined( _X360 )
 	// First, check if the module is already loaded, perhaps because we were run from Steam directly
 	HMODULE hMod = GetModuleHandle( "GameOverlayRenderer.dll" );
 	if ( hMod )
@@ -553,7 +530,6 @@ void TryToLoadSteamOverlayDLL()
 		// This could fail, but we can't fix it if it does so just ignore failures
 		LoadLibrary( rgchSteamPath );
 	}
-#endif
 }
 
 //-----------------------------------------------------------------------------
@@ -582,17 +558,6 @@ private:
 //-----------------------------------------------------------------------------
 void ReportDirtyDiskNoMaterialSystem()
 {
-#ifdef _X360
-	for ( int i = 0; i < 4; ++i )
-	{
-		if ( XUserGetSigninState( i ) != eXUserSigninState_NotSignedIn )
-		{
-			XShowDirtyDiscErrorUI( i );
-			return;
-		}
-	}
-	XShowDirtyDiscErrorUI( 0 );
-#endif
 }
 
 
@@ -711,24 +676,13 @@ bool CSourceAppSystemGroup::PreInit()
 	if ( FileSystem_MountContent( fsInfo ) != FS_OK )
 		return false;
 
-	if ( IsPC() || !IsX360() )
-	{
-		fsInfo.m_pFileSystem->AddSearchPath( "platform", "PLATFORM" );
-	}
-	else
-	{
-		// 360 needs absolute paths
-		FileSystem_AddSearchPath_Platform( g_pFullFileSystem, steamInfo.m_GameInfoPath );
-	}
+	fsInfo.m_pFileSystem->AddSearchPath( "platform", "PLATFORM" );
 
-	if ( IsPC() )
-	{
-		// This will get called multiple times due to being here, but only the first one will do anything
-		reslistgenerator->Init( GetBaseDirectory(), CommandLine()->ParmValue( "-game", "hl2" ) );
+	// This will get called multiple times due to being here, but only the first one will do anything
+	reslistgenerator->Init( GetBaseDirectory(), CommandLine()->ParmValue( "-game", "mod_hl2" ) );
 
-		// This will also get called each time, but will actually fix up the command line as needed
-		reslistgenerator->SetupCommandLine();
-	}
+	// This will also get called each time, but will actually fix up the command line as needed
+	reslistgenerator->SetupCommandLine();
 
 	// FIXME: Logfiles is mod-specific, needs to move into the engine.
 	g_LogFiles.Init();
@@ -1016,59 +970,10 @@ extern "C" __declspec(dllexport) int LauncherMain( HINSTANCE hInstance, HINSTANC
 	}
 
 	const char *filename;
-	CommandLine()->CreateCmdLine( IsPC() ? VCRHook_GetCommandLine() : lpCmdLine );
+	CommandLine()->CreateCmdLine( VCRHook_GetCommandLine() );
 
 	// Figure out the directory the executable is running from
 	UTIL_ComputeBaseDir();
-
-#if defined( _X360 )
-	bool bSpewDllInfo = CommandLine()->CheckParm( "-dllinfo" );
-	bool bWaitForConsole = CommandLine()->CheckParm( "-vxconsole" );
-	XboxConsoleInit();
-	XBX_InitConsoleMonitor( bWaitForConsole || bSpewDllInfo );
-#endif
-
-
-#if defined( _X360 )
-	if ( bWaitForConsole )
-		COM_TimestampedLog( "LauncherMain: Application Start - %s", CommandLine()->GetCmdLine() );
-	if ( bSpewDllInfo )
-	{	
-		XBX_DumpDllInfo( GetBaseDirectory() );
-		Error( "Stopped!\n" );
-	}
-
-	int storageID = XboxLaunch()->GetStorageID();
-	if ( storageID != XBX_INVALID_STORAGE_ID && storageID != XBX_STORAGE_DECLINED )
-	{
-		// Validate the storage device
-		XDEVICE_DATA deviceData;
-		DWORD ret = XContentGetDeviceData( storageID, &deviceData );
-		if ( ret != ERROR_SUCCESS )
-		{
-			// Device was removed
-			storageID = XBX_INVALID_STORAGE_ID;
-			XBX_QueueEvent( XEV_LISTENER_NOTIFICATION, WM_SYS_STORAGEDEVICESCHANGED, 0, 0 );
-		}
-	}
-	XBX_SetStorageDeviceId( storageID );
-
-	int userID = XboxLaunch()->GetUserID();
-	if ( !IsRetail() && userID == XBX_INVALID_USER_ID )
-	{
-		// didn't come from appchooser, try find a valid user id for dev purposes
-		XUSER_SIGNIN_INFO info;
-		for ( int i = 0; i < 4; ++i )
-		{
-			if ( ERROR_NO_SUCH_USER != XUserGetSigninInfo( i, 0, &info ) )
-			{
-				userID = i;
-				break;
-			}
-		}
-	}
-	XBX_SetPrimaryUserId( userID );
-#endif
 
 	// This call is to emulate steam's injection of the GameOverlay DLL into our process if we
 	// are running from the command line directly, this allows the same experience the user gets
@@ -1231,20 +1136,17 @@ extern "C" __declspec(dllexport) int LauncherMain( HINSTANCE hInstance, HINSTANC
 		}
 	}
 
-	if ( IsPC() )
+	// shutdown winsock
+	int nError = ::WSACleanup();
+	if ( nError )
 	{
-		// shutdown winsock
-		int nError = ::WSACleanup();
-		if ( nError )
-		{
-			Msg( "Warning! Failed to complete WSACleanup = 0x%x.\n", nError );
-		}
+		Msg( "Warning! Failed to complete WSACleanup = 0x%x.\n", nError );
 	}
 
 	// Allow other source apps to run
 	ReleaseSourceMutex();
 
-#ifndef _X360
+#ifdef _WIN32
 	// Now that the mutex has been released, check HKEY_CURRENT_USER\Software\Valve\Source\Relaunch URL. If there is a URL here, exec it.
 	// This supports the capability of immediately re-launching the the game via Steam in a different audio language 
 	HKEY hKey; 
@@ -1261,7 +1163,6 @@ extern "C" __declspec(dllexport) int LauncherMain( HINSTANCE hInstance, HINSTANC
 
 		RegCloseKey(hKey);
 	}
-
 #endif
 
 	return 0;

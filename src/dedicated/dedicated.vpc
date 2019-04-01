@@ -5,7 +5,7 @@
 //-----------------------------------------------------------------------------
 
 $Macro SRCDIR		".."
-$Macro OUTBINDIR	"$SRCDIR\..\game\bin"
+$Macro OUTBINDIR	"$BINDEFAULT"
 
 $Include "$SRCDIR\vpc_scripts\source_dll_base.vpc"
 
@@ -14,9 +14,9 @@ $Linux
 		$BuildForLinux 1
 
 		# Libs we don't want.
-		-$File	"$SRCDIR\lib\public\vgui_controls.lib"
-		-$File	"$SRCDIR\lib\public\tier3.lib"
-		-$File	"$SRCDIR\lib\public\steam_api.lib"
+		-$File	"$LIBPUBLIC\vgui_controls.lib"
+		-$File	"$LIBPUBLIC\tier3.lib"
+		-$File	"$LIBPUBLIC\steam_api.lib"
 
 		-$File	"sys_windows.cpp"
 		-$File	"vgui\CreateMultiplayerGameServerPage.cpp" \
@@ -147,10 +147,10 @@ $Project "Dedicated"
 
 	$Folder	"Link Libraries"
 	{
-		$File	"$SRCDIR\lib\public\appframework.lib"
-		$File	"$SRCDIR\lib\public\mathlib.lib"
-		$File	"$SRCDIR\lib\public\tier2.lib"
-		$File	"$SRCDIR\lib\public\tier3.lib"
-		$File	"$SRCDIR\lib\public\vgui_controls.lib"
+		$File	"$LIBPUBLIC\appframework.lib"
+		$File	"$LIBPUBLIC\mathlib.lib"
+		$File	"$LIBPUBLIC\tier2.lib"
+		$File	"$LIBPUBLIC\tier3.lib"
+		$File	"$LIBPUBLIC\vgui_controls.lib"
 	}
 }

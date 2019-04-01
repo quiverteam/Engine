@@ -16,6 +16,7 @@
 #define WIN_32_LEAN_AND_MEAN
 #include <windows.h>
 #include <winsock.h>
+#include <intrin.h>
 #endif
 
 #include <time.h>
@@ -253,10 +254,8 @@ static void VCR_Error( const char *pFormat, ... )
 				iCurThread = i;
 		}
 
-		__asm
-		{
-				int 3
-		}
+		__debugbreak(); //same as int 3
+
 	#endif
 
 	char str[256];
@@ -506,8 +505,8 @@ static void VCR_End()
 	{
 		// It's going to get screwy now, especially if we have threads, so just exit.
 		#ifdef _DEBUG
-			if ( IsDebuggerPresent() )
-				__asm int 3;
+		if (IsDebuggerPresent())
+			__debugbreak();
 		#endif
 
 		TerminateProcess( GetCurrentProcess(), 1 );

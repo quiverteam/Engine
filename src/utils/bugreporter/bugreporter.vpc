@@ -5,7 +5,7 @@
 //-----------------------------------------------------------------------------
 
 $Macro SRCDIR		"..\.."
-$Macro OUTBINDIR	"$SRCDIR\..\game\bin"
+$Macro OUTBINDIR	"$BINDEFAULT"
 
 $Include "$SRCDIR\vpc_scripts\source_dll_base.vpc"
 
@@ -51,7 +51,7 @@ $Project "Bugreporter"
 
 	$Folder	"Link Libraries"
 	{
-		$File	"$SRCDIR\lib\common\expdlln.lib"
-		$File	"$SRCDIR\lib\common\trktooln.lib"
+		$File	"$LIBCOMMON\expdlln.lib"
+		$File	"$LIBCOMMON\trktooln.lib"
 	}
 }

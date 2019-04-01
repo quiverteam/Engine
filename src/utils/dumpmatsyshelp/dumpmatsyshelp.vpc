@@ -5,7 +5,7 @@
 //-----------------------------------------------------------------------------
 
 $Macro SRCDIR		"..\.."
-$Macro OUTBINDIR	"$SRCDIR\..\game\bin"
+$Macro OUTBINDIR	"$BINDEFAULT"
 
 $Include "$SRCDIR\vpc_scripts\source_exe_con_base.vpc"
 
@@ -33,6 +33,6 @@ $Project "Dumpmatsyshelp"
 
 	$Folder	"Link Libraries"
 	{
-		$File	"$SRCDIR\lib\public\tier2.lib"
+		$File	"$LIBPUBLIC\tier2.lib"
 	}
 }
