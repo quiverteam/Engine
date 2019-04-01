@@ -6,10 +6,7 @@
 
 $Macro SRCDIR		".."
 $Macro OUTBINDIR	"$BINDEFAULT"
-
-// Must be built explicitly as "default" in order to build a compliant submittable Disc.
-// Renames will not work.
-$Macro OUTBINNAME	"launcher_main"
+$Macro OUTBINNAME	"quiver"
 
 $Include "$SRCDIR\vpc_scripts\source_exe_base.vpc"
 
@@ -33,21 +30,6 @@ $Configuration
 							"set valveTmpIsReadOnlyLetter=%valveTmpIsReadOnly:~6,1%" "\n" \
 							"if $QUOTE%valveTmpIsReadOnlyLetter%$QUOTE==$QUOTER$QUOTE del /q $QUOTE$(TargetDir)$QUOTE$(TargetFileName)" "\n" \
 							"$CRCCHECK" "\n"
-	}
-
-	$PostBuildEvent	[$WINDOWS]
-	{
-		// override with specific behavior
-		$CommandLine				"copy $QUOTE$(TargetDir)launcher_main.exe$QUOTE $OUTBINDIR\quiver.exe" "\n"					\
-									"if ERRORLEVEL 1 goto BuildEventFailed" "\n" \
-									"if exist $(TargetDir)$(TargetName).map copy $(TargetDir)$(TargetName).map $OUTBINDIR\quiver.map" "\n" \
-								//	"$OUTBINDIR\bin\newdat $OUTBINDIR\quiver.exe" "\n"					\
-									"goto BuildEventOK" "\n" \
-									":BuildEventFailed" "\n" \
-									"echo *** ERROR! PostBuildStep FAILED for $(ProjectName)! EXE or DLL is probably running. ***" "\n" \
-									"del /q $(TargetPath)" "\n" \
-									"exit 1" "\n" \
-									":BuildEventOK" "\n"
 	}
 }
 

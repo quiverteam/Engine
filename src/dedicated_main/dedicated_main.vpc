@@ -5,8 +5,8 @@
 //-----------------------------------------------------------------------------
 
 $Macro SRCDIR		".."
-$Macro OUTBINDIR	"$SRCDIR\..\game"
-$Macro OUTBINNAME	"srcds"
+$Macro OUTBINDIR	"$BINDEFAULT"
+$Macro OUTBINNAME	"quiver_ds"
 
 $Include "$SRCDIR\vpc_scripts\source_exe_base.vpc"
 
