@@ -21,9 +21,9 @@
 
 #include "tier0/IOCTLCodes.h"
 
-#ifdef WIN64 || _WIN32
+#if defined( WIN64 ) || defined( _WIN32 )
 #include <intrin.h>
-#endif
+#endif // WIN64 || _WIN32
 
 PME* PME::_singleton = 0;
 
