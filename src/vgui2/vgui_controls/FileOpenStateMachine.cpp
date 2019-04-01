@@ -195,13 +195,6 @@ void FileOpenStateMachine::WriteFile()
 	}
 
 	m_bWroteFile = true;
-<<<<<<< HEAD
-=======
-	if ( m_bShowPerforceDialogs )
-	{
-		return;
-	}
->>>>>>> 9cd978db11592c62826b1d3499f990df2f6721b6
 
 	if ( !m_bIsOpeningFile )
 	{

@@ -202,6 +202,7 @@ private:
 		DECLARE_CLASS_SIMPLE( CHTMLFindBar, EditablePanel );
 	public:
 		CHTMLFindBar( HTML *parent );
+		virtual ~CHTMLFindBar() {}
 		void SetText( const char *pchText ) { m_pFindBar->SetText( pchText ); }
 		void GetText( char *pText, int ccText ) { m_pFindBar->GetText( pText, ccText ); }
 		void OnCommand( const char *pchCmd );

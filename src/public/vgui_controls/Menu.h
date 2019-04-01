@@ -97,7 +97,7 @@ public:
 	};
 
 	Menu(Panel *parent, const char *panelName);
-	~Menu();
+	virtual ~Menu();
 
 	static void PlaceContextMenu( Panel *parent, Menu *menu );
 	static void OnInternalMousePressed( Panel *other, MouseCode code );
