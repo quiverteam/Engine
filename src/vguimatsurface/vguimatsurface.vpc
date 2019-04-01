@@ -5,7 +5,7 @@
 //-----------------------------------------------------------------------------
 
 $macro SRCDIR		".."
-$Macro OUTBINDIR	"$SRCDIR\..\game\bin"
+$Macro OUTBINDIR	"$BINDEFAULT"
 
 $include "$SRCDIR\vpc_scripts\source_dll_base.vpc"
 
@@ -90,21 +90,21 @@ $Project "vguimatsurface"
 
 	$Folder	"Link Libraries" [$WIN32]
 	{
-		$File	"$SRCDIR\lib\public\bitmap.lib"
-		$File	"$SRCDIR\lib\public\mathlib.lib"
-		$File	"$SRCDIR\lib\public\tier2.lib"
-		$File	"$SRCDIR\lib\public\tier3.lib"
-		$File	"$SRCDIR\lib\public\vgui_controls.lib"
-		$File	"$SRCDIR\lib\public\vgui_surfacelib.lib"
+		$File	"$LIBPUBLIC\bitmap.lib"
+		$File	"$LIBPUBLIC\mathlib.lib"
+		$File	"$LIBPUBLIC\tier2.lib"
+		$File	"$LIBPUBLIC\tier3.lib"
+		$File	"$LIBPUBLIC\vgui_controls.lib"
+		$File	"$LIBPUBLIC\vgui_surfacelib.lib"
 	}
 
 	$Folder	"Link Libraries" [$X360]
 	{
-		$File	"$SRCDIR\lib\public\bitmap_360.lib"
-		$File	"$SRCDIR\lib\public\mathlib_360.lib"
-		$File	"$SRCDIR\lib\public\tier2_360.lib"
-		$File	"$SRCDIR\lib\public\tier3_360.lib"
-		$File	"$SRCDIR\lib\public\vgui_controls_360.lib"
-		$File	"$SRCDIR\lib\public\vgui_surfacelib_360.lib"
+		$File	"$LIBPUBLIC\bitmap_360.lib"
+		$File	"$LIBPUBLIC\mathlib_360.lib"
+		$File	"$LIBPUBLIC\tier2_360.lib"
+		$File	"$LIBPUBLIC\tier3_360.lib"
+		$File	"$LIBPUBLIC\vgui_controls_360.lib"
+		$File	"$LIBPUBLIC\vgui_surfacelib_360.lib"
 	}
 }

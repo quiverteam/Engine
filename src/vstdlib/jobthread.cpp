@@ -970,7 +970,11 @@ void CThreadPool::Distribute( bool bDistribute, int *pAffinityTable )
 	}
 	else
 	{
-		DWORD dwProcessAffinity, dwSystemAffinity;
+	#ifndef WIN64
+		unsigned long dwProcessAffinity, dwSystemAffinity;
+	#else
+		unsigned long long dwProcessAffinity, dwSystemAffinity;
+	#endif
 		if ( GetProcessAffinityMask( GetCurrentProcess(), &dwProcessAffinity, &dwSystemAffinity ) )
 		{
 			for ( int i = 0; i < m_Threads.Count(); i++ )
@@ -1278,9 +1282,9 @@ void RunThreadPoolTests()
 	RunTSQueueTests(10000);
 	RunTSListTests(10000);
 
-	int32 mask1=-1, mask2 = -1;
+	DWORD_PTR mask1 = 0, mask2 = 0;
 #ifdef _WIN32
-	GetProcessAffinityMask( GetCurrentProcess(), (DWORD *) &mask1, (DWORD *) &mask2 );
+	GetProcessAffinityMask( GetCurrentProcess(), &mask1, &mask2 );
 #endif
 	Msg( "ThreadPoolTest: Job distribution speed\n" );
 	for ( int i = 0; i < 2; i++ )
@@ -1342,7 +1346,7 @@ void RunThreadPoolTests()
 		ThreadSetAffinity( 0, mask1 );
 	}
 #ifdef _WIN32
-	GetProcessAffinityMask( GetCurrentProcess(), (DWORD *) &mask1, (DWORD *) &mask2 );
+	GetProcessAffinityMask( GetCurrentProcess(), &mask1, &mask2 );
 #endif
 
 	ThreadPoolTest::TestForcedExecute();

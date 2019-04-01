@@ -23,6 +23,7 @@ class CHudSuitPower : public CHudElement, public vgui::Panel
 
 public:
 	CHudSuitPower( const char *pElementName );
+	virtual ~CHudSuitPower() {}
 	virtual void	Init( void );
 	virtual void	Reset( void );
 	virtual void	OnThink( void );

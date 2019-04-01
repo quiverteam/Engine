@@ -10,7 +10,7 @@
 #undef fopen
 #endif
 
-#if defined( _WIN32 ) && !defined( _X360 )
+#if defined( _WIN32 )
 #include <windows.h>
 #include <direct.h>
 #include <io.h>
@@ -29,23 +29,11 @@
 #include "KeyValues.h"
 #include "appframework/IAppSystemGroup.h"
 #include "tier1/smartptr.h"
-#if defined( _X360 )
-#include "xbox\xbox_win32stubs.h"
-#endif
 
 // memdbgon must be the last include file in a .cpp file!!!
 #include <tier0/memdbgon.h>
 
-#if !defined( _X360 )
 #define GAMEINFO_FILENAME			"gameinfo.txt"
-#else
-// The .xtx file is a TCR requirement, as .txt files cannot live on the DVD.
-// The .xtx file only exists outside the zips (same as .txt and is made during the image build) and is read to setup the search paths.
-// So all other code should be able to safely expect gameinfo.txt after the zip is mounted as the .txt file exists inside the zips.
-// The .xtx concept is private and should only have to occurr here. As a safety measure, if the .xtx file is not found
-// a retry is made with the original .txt name
-#define GAMEINFO_FILENAME			"gameinfo.xtx"
-#endif
 #define GAMEINFO_FILENAME_ALTERNATE	"gameinfo.txt"
 
 static char g_FileSystemError[256];
@@ -309,7 +297,7 @@ bool FileSystem_GetExecutableDir( char *exedir, int exeDirLen )
 {
 	exedir[0] = 0;
 
-	if ( s_bUseVProjectBinDir )
+/*	if ( s_bUseVProjectBinDir )
 	{
 		const char *pProject = GetVProjectCmdLineValue();
 		if ( !pProject )
@@ -323,34 +311,20 @@ bool FileSystem_GetExecutableDir( char *exedir, int exeDirLen )
 			return true;
 		}
 		return false;
-	}
+	}*/
 
 	if ( !Sys_GetExecutableName( exedir, exeDirLen ) )
 		return false;
 	Q_StripFilename( exedir );
 
-	if ( IsX360() )
-	{
-		// The 360 can have its exe and dlls reside on different volumes
-		// use the optional basedir as the exe dir
-		if ( CommandLine()->FindParm( "-basedir" ) )
-		{
-			strcpy( exedir, CommandLine()->ParmValue( "-basedir", "" ) );
-		}
-	}
-
 	Q_FixSlashes( exedir );
 
+	// Now the bin directory IS the executable dir
 	// Return the bin directory as the executable dir if it's not in there
 	// because that's really where we're running from...
 	char ext[MAX_PATH];
-	Q_StrRight( exedir, 4, ext, sizeof( ext ) );
-	if ( ext[0] != CORRECT_PATH_SEPARATOR || Q_stricmp( ext+1, "bin" ) != 0 )
-	{
-		Q_strncat( exedir, CORRECT_PATH_SEPARATOR_S, exeDirLen, COPY_ALL_CHARACTERS );
-		Q_strncat( exedir, "bin", exeDirLen, COPY_ALL_CHARACTERS );
-		Q_FixSlashes( exedir );
-	}
+	Q_StrRight( exedir, 4, ext, sizeof(ext) );
+	Q_FixSlashes( exedir );
 	
 	return true;
 }
@@ -359,7 +333,7 @@ static bool FileSystem_GetBaseDir( char *baseDir, int baseDirLen )
 {
 	if ( FileSystem_GetExecutableDir( baseDir, baseDirLen ) )
 	{
-		Q_StripFilename( baseDir );
+		V_strncpy(baseDir, baseDir, strlen(baseDir) - strlen("bin\\" PLATFORM_SUBDIR));
 		return true;
 	}
 	
@@ -1095,23 +1069,20 @@ FSReturnCode_t FileSystem_GetFileSystemDLLName( char *pFileSystemDLL, int nMaxLe
 	// Assume we'll use local files
 	Q_snprintf( pFileSystemDLL, nMaxLen, "%s%cfilesystem_stdio" DLL_EXT_STRING, executablePath, CORRECT_PATH_SEPARATOR );
 
-	#if !defined( _X360 )
-
-		// Use filsystem_steam if it exists?
-		#if defined( OSX ) || defined( LINUX )
-			struct stat statBuf;
-		#endif
-		if (
-			#if defined( OSX ) || defined( LINUX )
-				stat( pFileSystemDLL, &statBuf ) != 0
-			#else
-				_access( pFileSystemDLL, 0 ) != 0
-			#endif
-		) {
-			Q_snprintf( pFileSystemDLL, nMaxLen, "%s%cfilesystem_steam" DLL_EXT_STRING, executablePath, CORRECT_PATH_SEPARATOR );
-			bSteam = true;
-		}
+	// Use filsystem_steam if it exists?
+	#if defined( OSX ) || defined( LINUX )
+		struct stat statBuf;
 	#endif
+	if (
+		#if defined( OSX ) || defined( LINUX )
+			stat( pFileSystemDLL, &statBuf ) != 0
+		#else
+			_access( pFileSystemDLL, 0 ) != 0
+		#endif
+	) {
+		Q_snprintf( pFileSystemDLL, nMaxLen, "%s%cfilesystem_steam" DLL_EXT_STRING, executablePath, CORRECT_PATH_SEPARATOR );
+		bSteam = true;
+	}
 
 	return FS_OK;
 }

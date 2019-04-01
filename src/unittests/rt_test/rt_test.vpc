@@ -31,9 +31,9 @@ $Project "rt_test"
 
 	$Folder	"Link Libraries"
 	{
-		$File	"$SRCDIR\lib\public\bitmap.lib"
-		$File	"$SRCDIR\lib\public\mathlib.lib"
-		$File	"$SRCDIR\lib\public\raytrace.lib"
-		$File	"$SRCDIR\lib\public\tier2.lib"
+		$Lib	"$LIBPUBLIC\bitmap"
+		$Lib	"$LIBPUBLIC\mathlib"
+		$Lib	"$LIBPUBLIC\raytrace"
+		$Lib	"$LIBPUBLIC\tier2"
 	}
 }

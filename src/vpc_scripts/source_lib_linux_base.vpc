@@ -20,3 +20,12 @@ $Configuration
 		$OutputFile						"$OUTLIBDIR/$OUTLIBNAME$_STATICLIB_EXT"
 	}
 }
+
+$Project
+{
+	$Folder "Source Files"
+	{
+		$File	"$SRCDIR\common\debug_lib_check.cpp" [!$SOURCESDK]
+	}
+}
+

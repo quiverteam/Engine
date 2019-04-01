@@ -5,7 +5,7 @@
 //-----------------------------------------------------------------------------
 
 $Macro SRCDIR		".."
-$Macro OUTBINDIR	"$SRCDIR\..\game\bin"
+$Macro OUTBINDIR	"$BINDEFAULT"
 
 $Include "$SRCDIR\vpc_scripts\source_dll_base.vpc"
 
@@ -87,15 +87,15 @@ $Project "ServerBrowser"
 
 	$Folder "Link Libraries"	[$WIN32]
 	{
-		$File	"$SRCDIR\lib\public\tier2.lib"
-		$File	"$SRCDIR\lib\public\tier3.lib"
-		$File	"$SRCDIR\lib\public\vgui_controls.lib"
+		$File	"$LIBPUBLIC\tier2.lib"
+		$File	"$LIBPUBLIC\tier3.lib"
+		$File	"$LIBPUBLIC\vgui_controls.lib"
 	}
 
 	$Folder "Link Libraries"	[$X360]
 	{
-		$File	"$SRCDIR\lib\public\tier2_360.lib"
-		$File	"$SRCDIR\lib\public\tier3_360.lib"
-		$File	"$SRCDIR\lib\public\vgui_controls_360.lib"
+		$File	"$LIBPUBLIC\tier2_360.lib"
+		$File	"$LIBPUBLIC\tier3_360.lib"
+		$File	"$LIBPUBLIC\vgui_controls_360.lib"
 	}
 }

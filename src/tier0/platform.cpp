@@ -58,14 +58,7 @@ double Plat_FloatTime()
 
 	double fRawSeconds = (double)( CurrentTime.QuadPart - g_ClockStart.QuadPart ) / (double)(g_PerformanceFrequency.QuadPart);
 
-#if !defined(STEAM) && !defined(_X360)
-	if (g_VCRMode == VCR_Disabled)
-		return fRawSeconds;
-	
-	return VCRHook_Sys_FloatTime( fRawSeconds );
-#else
 	return fRawSeconds;
-#endif
 }
 
 unsigned int Plat_MSTime()

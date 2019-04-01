@@ -65,7 +65,11 @@ const unsigned TT_INFINITE = 0xffffffff;
 
 #endif // NO_THREAD_LOCAL
 
+#ifndef WIN64
 typedef unsigned long ThreadId_t;
+#else
+typedef unsigned int ThreadId_t;
+#endif
 
 //-----------------------------------------------------------------------------
 //
@@ -1306,7 +1310,7 @@ private:
 		bool *        pfInitSuccess;
 	};
 
-	static unsigned __stdcall ThreadProc( void * pv );
+	static unsigned int __stdcall ThreadProc( void * pv );
 
 	// make copy constructor and assignment operator inaccessible
 	CThread( const CThread & );
