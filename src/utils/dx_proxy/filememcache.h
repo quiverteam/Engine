@@ -13,7 +13,8 @@
 #endif
 
 #include "tier0/platform.h"
-#include <hash_map>
+
+#include <unordered_map>
 
 #pragma warning ( disable : 4200 )
 
@@ -58,7 +59,8 @@ public:
 
 protected:
 	struct icmp { bool operator()( char const *x, char const *y ) const { return _stricmp( x, y ) < 0; } };
-	typedef stdext::hash_map< char const *, CachedFileData *, stdext::hash_compare< char const *, icmp > > Mapping;
+
+	typedef std::unordered_map< char const *, CachedFileData *, stdext::hash_compare< char const *, icmp > > Mapping;
 	Mapping m_map;
 };
 

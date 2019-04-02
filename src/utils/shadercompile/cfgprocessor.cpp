@@ -76,7 +76,7 @@ void OutputF( FILE *f, char const *szFmt, ... )
 //
 //////////////////////////////////////////////////////////////////////////
 
-#include <hash_map>
+#include <unordered_map>
 #include <map>
 #include <set>
 #include <vector>
@@ -142,7 +142,7 @@ V const & QuickMap< K, V >::GetLessOrEq( K &k, V const &v ) const
 	return it->second;
 }
 
-class QuickStrIdx : private stdext::hash_map < std::string, int >
+class QuickStrIdx : private std::unordered_map < std::string, int >
 {
 public:
 	void Append( char const *szName, int idx ) { insert( value_type( szName, idx ) ); };
@@ -915,7 +915,7 @@ have_combo_iteration:
 			sprintf( pchBuffer, "%s ", m_pEntry->m_sPrefix.data() );
 			pchBuffer += strlen( pchBuffer );
 
-			sprintf( pchBuffer, "/DSHADERCOMBO=%d ", m_iComboNumber );
+			sprintf( pchBuffer, "/DSHADERCOMBO=%lld ", m_iComboNumber );
 			pchBuffer += strlen( pchBuffer );
 
 			for ( pSetValues = pnValues, pSetDef = pDefVars;
