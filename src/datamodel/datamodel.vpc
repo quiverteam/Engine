@@ -92,7 +92,7 @@ $Project "Datamodel"
 
 	$Folder	"Link Libraries"
 	{
-		$File	"$LIBCOMMON\parsifal.lib"
+		$DynamicFile	"$LIBCOMMON\parsifal.lib"
 	}
 
 	$Folder	"Interface"

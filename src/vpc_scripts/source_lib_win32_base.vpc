@@ -14,7 +14,7 @@ $Macro LIBPUBLIC	"$SRCDIR\lib\public\$PLATSUBDIR"
 $Macro LIBCOMMON	"$SRCDIR\lib\common\$PLATSUBDIR"
 
 $Include "$SRCDIR\vpc_scripts\source_lib_win32_debug.vpc" 	[$WIN32]
-$Include "$SRCDIR\vpc_scripts\source_lib_win32_release.vpc" [$WIN32]
+$Include "$SRCDIR\vpc_scripts\source_lib_win32_release.vpc" 	[$WIN32]
 $Include "$SRCDIR\vpc_scripts\source_lib_win64_debug.vpc"	[$WIN64]
 $Include "$SRCDIR\vpc_scripts\source_lib_win64_release.vpc"	[$WIN64]
 $Include "$SRCDIR\vpc_scripts\source_win32_base.vpc"

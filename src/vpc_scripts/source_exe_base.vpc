@@ -2,7 +2,8 @@ $Include "$SRCDIR\vpc_scripts\platform_dirs.vpc"
 $include "$SRCDIR\vpc_scripts\source_base.vpc"
 
 $Include "$SRCDIR\vpc_scripts\source_exe_posix_base.vpc"		[$POSIX]
-$Include "$SRCDIR\vpc_scripts\source_exe_win_win32_base.vpc" 	[$WIN32 || $WIN64]
+$Include "$SRCDIR\vpc_scripts\source_exe_win_win32_base.vpc" 		[$WINDOWS]
+$Include "$SRCDIR\vpc_scripts\source_x64_base.vpc"			[$WIN64]
 
 $Configuration
 {
