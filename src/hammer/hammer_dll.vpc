@@ -52,7 +52,7 @@ $Project "hammer_dll"
 			{
 				$Compiler
 				{
-					$PreprocessorDefinitions			"NO_MEMOVERRIDE_NEW_DELETE"
+					$PreprocessorDefinitions			"$BASE; NO_MEMOVERRIDE_NEW_DELETE"
 					$Create/UsePrecompiledHeader		"Not Using Precompiled Headers"
 				}
 			}
