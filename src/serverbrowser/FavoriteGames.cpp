@@ -75,7 +75,7 @@ bool CFavoriteGames::SupportsItem(InterfaceItem_e item)
 //-----------------------------------------------------------------------------
 // Purpose: called when the current refresh list is complete
 //-----------------------------------------------------------------------------
-void CFavoriteGames::RefreshComplete( EMatchMakingServerResponse response )
+void CFavoriteGames::RefreshComplete( HServerListRequest request, EMatchMakingServerResponse response )
 {
 #ifndef NO_STEAM
 	SetRefreshing(false);
@@ -133,11 +133,11 @@ void CFavoriteGames::OnRemoveFromFavorites()
 		int itemID = m_pGameList->GetSelectedItem( iGame );
 		int serverID = m_pGameList->GetItemData(itemID)->userData;
 		
-		gameserveritem_t *pServer = SteamMatchmakingServers()->GetServerDetails( eFavoritesServer, serverID );
+		gameserveritem_t *pServer = SteamMatchmakingServers()->GetServerDetails( m_hRequest, serverID );
 		
 		if ( pServer )
 		{
-			SteamMatchmaking()->RemoveFavoriteGame2( pServer->m_nAppID, pServer->m_NetAdr.GetIP(), pServer->m_NetAdr.GetConnectionPort(), pServer->m_NetAdr.GetQueryPort(), k_unFavoriteFlagFavorite );
+			SteamMatchmaking()->RemoveFavoriteGame( pServer->m_nAppID, pServer->m_NetAdr.GetIP(), pServer->m_NetAdr.GetConnectionPort(), pServer->m_NetAdr.GetQueryPort(), k_unFavoriteFlagFavorite );
 		}
 	}
 #endif
@@ -166,7 +166,7 @@ void CFavoriteGames::OnAddCurrentServer()
 #ifndef NO_STEAM
 	if ( pConnected && SteamMatchmaking() )
 	{
-		SteamMatchmaking()->AddFavoriteGame2( pConnected->m_nAppID, pConnected->m_NetAdr.GetIP(), pConnected->m_NetAdr.GetConnectionPort(), pConnected->m_NetAdr.GetQueryPort(), k_unFavoriteFlagFavorite, time( NULL ) );
+		SteamMatchmaking()->AddFavoriteGame( pConnected->m_nAppID, pConnected->m_NetAdr.GetIP(), pConnected->m_NetAdr.GetConnectionPort(), pConnected->m_NetAdr.GetQueryPort(), k_unFavoriteFlagFavorite, time( NULL ) );
 		m_bRefreshOnListReload = true;
 	}
 #endif

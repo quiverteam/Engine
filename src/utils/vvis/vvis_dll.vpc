@@ -94,8 +94,8 @@ $Project "Vvis_dll"
 
 	$Folder	"Link Libraries"
 	{
-		$File "$LIBPUBLIC\mathlib.lib"
-		$File "$LIBPUBLIC\tier2.lib"
-		$File "$LIBPUBLIC\vmpi.lib"
+		$Lib mathlib
+		$Lib tier2
+		$Lib vmpi
 	}
 }

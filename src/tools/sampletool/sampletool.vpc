@@ -21,7 +21,7 @@ $Configuration
 
 	$Linker
 	{
-		$AdditionalDependencies				"Psapi.lib"
+		$AdditionalDependencies				"$BASE Psapi.lib"
 	}
 }
 
@@ -64,16 +64,16 @@ $Project "Sampletool"
 
 	$Folder	"Link Libraries"
 	{
-		$File	"$LIBPUBLIC\datamodel.lib"
-		$File	"$LIBPUBLIC\dme_controls.lib"
-		$File	"$LIBPUBLIC\dmserializers.lib"
-		$File	"$LIBPUBLIC\mathlib.lib"
-		$File	"$LIBPUBLIC\matsys_controls.lib"
-		$File	"$LIBPUBLIC\movieobjects.lib"
-		$File	"$LIBPUBLIC\sfmobjects.lib"
-		$File	"$LIBPUBLIC\tier2.lib"
-		$File	"$LIBPUBLIC\tier3.lib"
-		$File	"$LIBPUBLIC\toolutils.lib"
-		$File	"$LIBPUBLIC\vgui_controls.lib"
+		$Lib	datamodel
+		$Lib	dme_controls
+		$Lib	dmserializers
+		$Lib	mathlib
+		$Lib	matsys_controls
+		$Lib	movieobjects
+		$Lib	sfmobjects
+		$Lib	tier2
+		$Lib	tier3
+		$Lib	toolutils
+		$Lib	vgui_controls
 	}
 }

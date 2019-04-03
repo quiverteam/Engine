@@ -35,7 +35,7 @@ public:
 class CExpression;
 class CExpClass;
 
-typedef unsigned long CRC32_t;
+typedef unsigned int CRC32_t;
 
 //-----------------------------------------------------------------------------
 // Purpose: 

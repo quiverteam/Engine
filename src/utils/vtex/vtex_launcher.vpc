@@ -39,6 +39,6 @@ $Project "Vtex_launcher"
 
 	$Folder	"Link Libraries"
 	{
-		$File	"$LIBPUBLIC\tier2.lib"
+		$Lib	tier2
 	}
 }

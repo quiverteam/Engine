@@ -27,7 +27,7 @@ $Configuration	"Debug"
 		$Optimization						"Disabled (/Od)"
 		$AdditionalIncludeDirectories		"../../include/libparsifal"
 		$PreprocessorDefinitions			"_DEBUG;WIN32;_WINDOWS;XMLAPI=__declspec(dllexport);PARSIFAL_EXPORTS;DTD_SUPPORT"
-		$EnableMinimalRebuild				"Yes (/Gm)"
+		$EnableMinimalRebuild				"Yes (/Gm)" [!$VS2017]
 		$BasicRuntimeChecks					"Both (/RTC1, equiv. to /RTCsu)"
 		$RuntimeLibrary						"Multi-threaded Debug (/MTd)"
 		$PrecompiledHeaderFile				"Debug/parsifal.pch"

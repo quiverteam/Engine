@@ -88,23 +88,13 @@ $Project "vguimatsurface"
 		$File	"$SRCDIR\common\vgui_surfacelib\Win32Font.h"
 	}
 
-	$Folder	"Link Libraries" [$WIN32]
+	$Folder	"Link Libraries"
 	{
-		$File	"$LIBPUBLIC\bitmap.lib"
-		$File	"$LIBPUBLIC\mathlib.lib"
-		$File	"$LIBPUBLIC\tier2.lib"
-		$File	"$LIBPUBLIC\tier3.lib"
-		$File	"$LIBPUBLIC\vgui_controls.lib"
-		$File	"$LIBPUBLIC\vgui_surfacelib.lib"
-	}
-
-	$Folder	"Link Libraries" [$X360]
-	{
-		$File	"$LIBPUBLIC\bitmap_360.lib"
-		$File	"$LIBPUBLIC\mathlib_360.lib"
-		$File	"$LIBPUBLIC\tier2_360.lib"
-		$File	"$LIBPUBLIC\tier3_360.lib"
-		$File	"$LIBPUBLIC\vgui_controls_360.lib"
-		$File	"$LIBPUBLIC\vgui_surfacelib_360.lib"
+		$Lib	bitmap
+		$Lib	mathlib
+		$Lib	tier2
+		$Lib	tier3
+		$Lib	vgui_controls
+		$Lib	vgui_surfacelib
 	}
 }

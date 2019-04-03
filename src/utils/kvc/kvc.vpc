@@ -45,7 +45,7 @@ $Project "kvc"
 	
 	$Folder	"Link Libraries" [$WIN32]
 	{
-		$File	"$LIBPUBLIC\appframework.lib"
-		$File	"$LIBPUBLIC\tier2.lib"
+		$Lib	appframework
+		$Lib	tier2
 	}
 }

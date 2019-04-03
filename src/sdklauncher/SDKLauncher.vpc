@@ -68,10 +68,10 @@ $Project "SDKLauncher"
 
 	$Folder "Link Libraries"
 	{
-		$File	"$LIBPUBLIC\appframework.lib"
-		$File	"$LIBCOMMON\Steam.lib"
-		$File	"$LIBPUBLIC\tier2.lib"
-		$File	"$LIBPUBLIC\tier3.lib"
-		$File	"$LIBPUBLIC\vgui_controls.lib"
+		$Lib	"$LIBCOMMON\steam"
+		$Lib	appframework
+		$Lib	tier2
+		$Lib	tier3
+		$Lib	vgui_controls
 	}
 }

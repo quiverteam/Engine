@@ -27,7 +27,7 @@ public:
 	virtual bool SupportsItem(InterfaceItem_e item);
 
 	// called when the current refresh list is complete
-	virtual void RefreshComplete( EMatchMakingServerResponse response );
+	virtual void RefreshComplete( HServerListRequest request, EMatchMakingServerResponse response );
 
 private:
 	// context menu message handlers

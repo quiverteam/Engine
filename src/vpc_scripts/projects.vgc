@@ -644,12 +644,6 @@ $Project "sceneviewer"
 {
 	"utils\sceneviewer\sceneviewer.vpc" [($WIN32||$WIN64)]
 }
-
-$Project "scratchpad3dviewer"
-{
-	"utils\scratchpad3dviewer\scratchpad3dviewer.vpc" [($WIN32||$WIN64)]
-}
-
 $Project "SDKLauncher"
 {
 	"sdklauncher\SDKLauncher.vpc" [($WIN32||$WIN64)]

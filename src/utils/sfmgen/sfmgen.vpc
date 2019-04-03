@@ -29,25 +29,23 @@ $Project "sfmgen"
 		$File	"$SRCDIR\public\movieobjects\movieobjects.cpp"
 		$File	"$SRCDIR\public\interpolatortypes.cpp"
 		$File	"$SRCDIR\public\sentence.cpp"
-		$File	"$SRCDIR\tier2\p4helpers.cpp"
 	}
 	
 	$Folder	"External Header Files"
 	{
 		$File	"$SRCDIR\public\sentence.h"
 		$File	"$SRCDIR\public\interpolatortypes.h"
-		$File	"$SRCDIR\public\tier2\p4helpers.h"
 	}
 
 	$Folder	"Link Libraries"
 	{
-		$File	"$LIBPUBLIC\appframework.lib"
-		$File	"$LIBPUBLIC\datamodel.lib"
-		$File	"$LIBPUBLIC\dmserializers.lib"
-		$File	"$LIBPUBLIC\mathlib.lib"
-		$File	"$LIBPUBLIC\tier2.lib"
-		$File	"$LIBPUBLIC\tier3.lib"
-		$File	"$LIBPUBLIC\movieobjects.lib"
-		$File	"$LIBPUBLIC\sfmobjects.lib"
+		$Lib	appframework
+		$Lib	datamodel
+		$Lib	dmserializers
+		$Lib	mathlib
+		$Lib	tier2
+		$Lib	tier3
+		$Lib	movieobjects
+		$Lib	sfmobjects
 	}
 }

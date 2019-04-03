@@ -154,6 +154,7 @@ class CHudChatHistory : public vgui::RichText
 public:
 
 	CHudChatHistory( vgui::Panel *pParent, const char *panelName );
+	virtual ~CHudChatHistory() {}
 
 	virtual void	ApplySchemeSettings(vgui::IScheme *pScheme);
 };
@@ -352,6 +353,7 @@ class CBaseHudChatInputLine : public vgui::Panel
 	
 public:
 	CBaseHudChatInputLine( CBaseHudChat *parent, char const *panelName );
+	virtual ~CBaseHudChatInputLine() {}
 
 	void			SetPrompt( const wchar_t *prompt );
 	void			ClearEntry( void );

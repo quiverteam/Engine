@@ -35,9 +35,9 @@ public:
 	MESSAGE_FUNC( GetNewServerList, "GetNewServerList" );
 
 	// serverlist refresh responses
-	virtual void ServerResponded( int iServer );
-	virtual void ServerFailedToRespond( int iServer );
-	virtual void RefreshComplete( EMatchMakingServerResponse response );
+	virtual void ServerResponded( HServerListRequest request, int iServer );
+	virtual void ServerFailedToRespond( HServerListRequest request, int iServer );
+	virtual void RefreshComplete( HServerListRequest request, EMatchMakingServerResponse response );
 	MESSAGE_FUNC_INT( OnRefreshServer, "RefreshServer", serverID );
 
 	virtual int GetRegionCodeToFilter();

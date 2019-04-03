@@ -760,7 +760,7 @@ template< class T > inline CDmaVar<T>::CDmaVar( )
 	CDmAttributeInfo<T>::SetDefaultValue( m_Storage );
 }
 
-template< class T > inline void CDmaVar<T>::Init( CDmElement *pOwner, const char *pAttributeName, int flags = 0 )
+template< class T > inline void CDmaVar<T>::Init( CDmElement *pOwner, const char *pAttributeName, int flags /* = 0*/ )
 {
 	Assert( pOwner );
 	m_pAttribute = pOwner->AddExternalAttribute( pAttributeName, CDmAttributeInfo<T>::AttributeType(), &m_Storage );
@@ -771,7 +771,7 @@ template< class T > inline void CDmaVar<T>::Init( CDmElement *pOwner, const char
 	}
 }
 
-template< class T > inline void CDmaVar<T>::InitAndSet( CDmElement *pOwner, const char *pAttributeName, const T &value, int flags = 0 )
+template< class T > inline void CDmaVar<T>::InitAndSet( CDmElement *pOwner, const char *pAttributeName, const T &value, int flags/* = 0 */)
 {
 	Init( pOwner, pAttributeName );
 	Set( value );
@@ -1139,7 +1139,7 @@ inline void CDmaElement<T>::InitAndCreate( CDmElement *pOwner, const char *pAttr
 }
 
 template <class T>
-inline void CDmaElement<T>::Init( CDmElement *pOwner, const char *pAttributeName, int flags = 0 )
+inline void CDmaElement<T>::Init( CDmElement *pOwner, const char *pAttributeName, int flags/* = 0*/ )
 {
 	BaseClass::Init( pOwner, pAttributeName );
 

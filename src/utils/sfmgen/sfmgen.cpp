@@ -207,7 +207,7 @@ void CSFMGenApp::PrintHelp( )
 {
 	Msg( "Usage: sfmgen -i <in .csv file> -m <.mdl relative path> -o <output dir>\n" );
 	Msg( "				[-f <fac output dir>] [-p] [-w] [-r <sample rate in hz>] [-s <sample filter size>]\n" );
-	Msg( "				[-nop4] [-vproject <path to gameinfo.txt>]\n" );
+	Msg( "				[-vproject <path to gameinfo.txt>]\n" );
 	Msg( "\t-i\t: Source .CSV file indicating game sound names, text for phoneme extraction, output sfm file names.\n" );
 	Msg( "\t-m\t: Indicates the path of the .mdl file under game/mod/models/ to use in the sfm files.\n" );
 	Msg( "\t-o\t: Indicates output directory to place generated files in.\n" );
@@ -216,7 +216,6 @@ void CSFMGenApp::PrintHelp( )
 	Msg( "\t-w\t: [Optional] Indicates the phonemes should be read from the wav file. Cannot also have -p specified.\n" );
 	Msg( "\t-r\t: [Optional] Specifies the phoneme extraction sample rate (default = 20)\n" );
 	Msg( "\t-s\t: [Optional] Specifies the phoneme extraction sample filter size (default = 0.08)\n" );
-	Msg( "\t-nop4\t: Disables auto perforce checkout/add.\n" );
 	Msg( "\t-vproject\t: Specifies path to a gameinfo.txt file (which mod to build for).\n" );
 }
 

@@ -15,7 +15,7 @@ class StudioModel;
 
 #include "mxbitmaptools.h"
 
-typedef unsigned long CRC32_t;
+typedef unsigned int CRC32_t;
 
 class IFaceposerModels
 {

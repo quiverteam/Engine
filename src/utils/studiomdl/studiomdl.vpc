@@ -136,13 +136,13 @@ $Project "Studiomdl"
 	
 	$Folder	"Link Libraries"
 	{
-		$File	"$LIBPUBLIC\appframework.lib"
-		$File	"$LIBPUBLIC\datamodel.lib"
-		$File	"$LIBPUBLIC\dmserializers.lib"
-		$File	"$LIBPUBLIC\mathlib.lib"
-		$File	"$LIBPUBLIC\movieobjects.lib"
-		$File	"$LIBPUBLIC\nvtristrip.lib"
-		$File	"$LIBPUBLIC\tier2.lib"
-		$File	"$LIBPUBLIC\tier3.lib"
+		$Lib	appframework
+		$Lib	datamodel
+		$Lib	dmserializers
+		$Lib	mathlib
+		$Lib	movieobjects
+		$Lib	nvtristrip
+		$Lib	tier2
+		$Lib	tier3
 	}
 }

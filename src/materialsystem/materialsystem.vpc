@@ -22,22 +22,6 @@ $Configuration
 	}
 }
 
-$Configuration "Debug"
-{
-	$Linker [$X360]
-	{
-		$AdditionalDependencies		"$BASE d3dx9d.lib"
-	}
-}
-
-$Configuration "Release"
-{
-	$Linker [$X360]
-	{
-		$AdditionalDependencies		"$BASE d3dx9.lib"
-	}
-}
-
 $Project "MaterialSystem"
 {
 	$Folder	"Source Files"
@@ -166,19 +150,10 @@ $Project "MaterialSystem"
 
 	$Folder	"Link Libraries" [$WIN32]
 	{
-		$File	"$LIBPUBLIC\bitmap.lib"
-		$File	"$LIBPUBLIC\mathlib.lib"
-		$File	"$LIBPUBLIC\shaderlib.lib"
-		$File	"$LIBPUBLIC\tier2.lib"
-		$File	"$LIBPUBLIC\vtf.lib"
-	}
-
-	$Folder	"Link Libraries" [$X360]
-	{
-		$File	"$LIBPUBLIC\bitmap_360.lib"
-		$File	"$LIBPUBLIC\mathlib_360.lib"
-		$File	"$LIBPUBLIC\shaderlib_360.lib"
-		$File	"$LIBPUBLIC\tier2_360.lib"
-		$File	"$LIBPUBLIC\vtf_360.lib"
+		$Lib	bitmap
+		$Lib	mathlib
+		$Lib	shaderlib
+		$Lib	tier2
+		$Lib	vtf
 	}
 }

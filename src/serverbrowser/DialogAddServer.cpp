@@ -164,7 +164,7 @@ void CDialogAddServer::OnOK()
 
 		// We assume here that the query and connection ports are the same. This is why it's much
 		// better if they click "Servers" and choose a server in there.
-		server.m_NetAdr.Init( netaddr.addr_ntohl(), netaddr.GetPort(), netaddr.GetPort() );
+		server.m_NetAdr.Init( netaddr.GetIPHostByteOrder(), netaddr.GetPort(), netaddr.GetPort() );
 
 		server.m_nAppID = 0;
 		ServerBrowserDialog().AddServerToFavorites( server );
@@ -240,7 +240,7 @@ void CDialogAddServer::TestServers()
 	
 	FOR_EACH_VEC( vecAdress, iAddress )
 	{
-		m_Queries.AddToTail( SteamMatchmakingServers()->PingServer( vecAdress[ iAddress ].addr_htonl(), vecAdress[ iAddress ].GetPort(), this ) );
+		m_Queries.AddToTail( SteamMatchmakingServers()->PingServer( vecAdress[ iAddress ].GetIPHostByteOrder(), vecAdress[ iAddress ].GetPort(), this ) );
 	}
 #endif
 }

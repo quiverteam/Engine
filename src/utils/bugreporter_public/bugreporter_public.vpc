@@ -59,6 +59,6 @@ $Project "Bugreporter_public"
 
 	$Folder	"Link Libraries"
 	{
-		$File	"$LIBPUBLIC\mathlib.lib"
+		$Lib	mathlib
 	}
 }

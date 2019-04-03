@@ -62,8 +62,8 @@ $Project "Getbugs"
 
 	$Folder	"Link Libraries"
 	{
-		$File	"$LIBCOMMON\expdlln.lib"
-		$File	"$LIBPUBLIC\tier2.lib"
-		$File	"$LIBCOMMON\trktooln.lib"
+		$Lib	"$LIBCOMMON\expdlln"
+		$Lib	"$LIBCOMMON\trktooln"
+		$Lib	tier2
 	}
 }

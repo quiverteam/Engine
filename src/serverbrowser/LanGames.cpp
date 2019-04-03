@@ -127,7 +127,7 @@ void CLanGames::ServerFailedToRespond( int iServer )
 //-----------------------------------------------------------------------------
 // Purpose: called when the current refresh list is complete
 //-----------------------------------------------------------------------------
-void CLanGames::RefreshComplete( EMatchMakingServerResponse response )
+void CLanGames::RefreshComplete( HServerListRequest request, EMatchMakingServerResponse response )
 {
 	SetRefreshing( false );
 	m_pGameList->SortList();

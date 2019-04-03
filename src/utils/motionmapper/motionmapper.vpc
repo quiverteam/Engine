@@ -81,8 +81,8 @@ $Project "Motionmapper"
 
 	$Folder	"Link Libraries"
 	{
-		$File "$LIBPUBLIC\mathlib.lib"
-		$File "$LIBPUBLIC\nvtristrip.lib"
-		$File "$LIBPUBLIC\tier2.lib"
+		$Lib mathlib
+		$Lib nvtristrip
+		$Lib tier2
 	}
 }

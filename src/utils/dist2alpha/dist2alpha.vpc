@@ -59,8 +59,8 @@ $Project "Dist2alpha"
 
 	$Folder "Link Libraries"
 	{
-		$File	"$LIBPUBLIC\bitmap.lib"
-		$File	"$LIBPUBLIC\mathlib.lib"
-		$File	"$LIBPUBLIC\tier2.lib"
+		$Lib	bitmap
+		$Lib	mathlib
+		$Lib	tier2
 	}
 }

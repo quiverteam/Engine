@@ -81,11 +81,7 @@ $Configuration "Debug"
 
 		// Code Generation
 		$EnableStringPooling				"Yes (/GF)"
-		// EnableMinimalRebuild is incompatible with /MP (multi-processor builds)
-		// and it also makes it hard to iterate on warnings because the compiler
-		// detects that there is no reason to recompile when you request it.
-		// It should always be off? It should definitely be off for /analyze builds.
-		//$EnableMinimalRebuild				"Yes (/Gm)" [!$ANALYZE]
+		$EnableMinimalRebuild				"Yes (/Gm)" [!$VS2017]
 		$EnableC++Exceptions				"No"
 		$SmallerTypeCheck
 		$BasicRuntimeChecks					"Default"

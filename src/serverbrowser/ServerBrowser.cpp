@@ -256,17 +256,13 @@ bool CServerBrowser::OpenGameInfoDialog( uint64 ulSteamIDFriend )
 
 #ifndef NO_STEAM
 		// none yet, create a new dialog
-		uint64 nGameID;
-		uint32 unGameIP;
-		uint16 usGamePort;
-		uint16 usQueryPort;
-
-		if ( SteamFriends()->GetFriendGamePlayed( ulSteamIDFriend, &nGameID, &unGameIP, &usGamePort, &usQueryPort ) )
+		FriendGameInfo_t friendGameInfo;
+		if ( SteamFriends()->GetFriendGamePlayed( ulSteamIDFriend, &friendGameInfo ) )
 		{
-			uint16 usConnPort = usGamePort;
-			if ( usQueryPort < QUERY_PORT_ERROR )
-				usConnPort = usGamePort;
-			CDialogGameInfo *pDialogGameInfo = m_hInternetDlg->OpenGameInfoDialog( unGameIP, usGamePort, usConnPort );
+			uint16 usConnPort = friendGameInfo.m_usGamePort;
+			if ( friendGameInfo.m_usQueryPort < QUERY_PORT_ERROR )
+				usConnPort = friendGameInfo.m_usGamePort;
+			CDialogGameInfo *pDialogGameInfo = m_hInternetDlg->OpenGameInfoDialog( friendGameInfo.m_unGameIP, friendGameInfo.m_usGamePort, usConnPort );
 			pDialogGameInfo->SetFriend( ulSteamIDFriend );
 			return true;
 		}

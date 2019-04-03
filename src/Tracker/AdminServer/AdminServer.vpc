@@ -19,7 +19,7 @@ $Configuration
 
 	$Linker
 	{
-		$AdditionalDependencies				"wsock32.lib"
+		$AdditionalDependencies				"$BASE wsock32.lib"
 	}
 }
 
@@ -109,8 +109,8 @@ $Project "AdminServer"
 
 	$Folder	"Link Libraries"
 	{
-		$File	"$LIBPUBLIC\tier2.lib"
-		$File	"$LIBPUBLIC\tier3.lib"
-		$File	"$LIBPUBLIC\vgui_controls.lib"
+		$Lib	tier2
+		$Lib	tier3
+		$Lib	vgui_controls
 	}
 }
