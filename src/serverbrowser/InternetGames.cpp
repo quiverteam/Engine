@@ -117,10 +117,10 @@ void CInternetGames::OnTick()
 // Purpose: Handles incoming server refresh data
 //			updates the server browser with the refreshed information from the server itself
 //-----------------------------------------------------------------------------
-void CInternetGames::ServerResponded( int iServer )
+void CInternetGames::ServerResponded( HServerListRequest request, int iServer )
 {
 	m_bDirty = true;
-	BaseClass::ServerResponded( iServer );
+	BaseClass::ServerResponded( request, iServer );
 	m_bAnyServersRespondedToQuery = true;
 	m_bAnyServersRetrievedFromMaster = true;
 }
@@ -129,17 +129,17 @@ void CInternetGames::ServerResponded( int iServer )
 //-----------------------------------------------------------------------------
 // Purpose: 
 //-----------------------------------------------------------------------------
-void CInternetGames::ServerFailedToRespond( int iServer )
+void CInternetGames::ServerFailedToRespond( HServerListRequest request, int iServer )
 {
 #ifndef NO_STEAM
 	m_bDirty = true;
-	gameserveritem_t *pServer = SteamMatchmakingServers()->GetServerDetails( m_eMatchMakingType, iServer );
+	gameserveritem_t *pServer = SteamMatchmakingServers()->GetServerDetails( request, iServer );
 	Assert( pServer );
 
 	if ( pServer->m_bHadSuccessfulResponse )
 	{
 		// if it's had a successful response in the past, leave it on
-		ServerResponded( iServer );
+		ServerResponded( request, iServer );
 	}
 	else
 	{
@@ -156,7 +156,7 @@ void CInternetGames::ServerFailedToRespond( int iServer )
 //-----------------------------------------------------------------------------
 // Purpose: Called when server refresh has been completed
 //-----------------------------------------------------------------------------
-void CInternetGames::RefreshComplete( EMatchMakingServerResponse response )
+void CInternetGames::RefreshComplete( HServerListRequest request, EMatchMakingServerResponse response )
 {
 	SetRefreshing(false);
 	UpdateFilterSettings();

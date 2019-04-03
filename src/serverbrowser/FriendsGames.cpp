@@ -56,7 +56,7 @@ bool CFriendsGames::SupportsItem(InterfaceItem_e item)
 //-----------------------------------------------------------------------------
 // Purpose: called when the current refresh list is complete
 //-----------------------------------------------------------------------------
-void CFriendsGames::RefreshComplete( EMatchMakingServerResponse response )
+void CFriendsGames::RefreshComplete( HServerListRequest request,  EMatchMakingServerResponse response )
 {
 	SetRefreshing(false);
 	m_pGameList->SortList();

@@ -77,7 +77,7 @@ bool CHistoryGames::SupportsItem(InterfaceItem_e item)
 //-----------------------------------------------------------------------------
 // Purpose: called when the current refresh list is complete
 //-----------------------------------------------------------------------------
-void CHistoryGames::RefreshComplete( EMatchMakingServerResponse response )
+void CHistoryGames::RefreshComplete( HServerListRequest request, EMatchMakingServerResponse response )
 {
 	SetRefreshing(false);
 	m_pGameList->SetEmptyListText("#ServerBrowser_NoServersPlayed");
@@ -122,9 +122,9 @@ void CHistoryGames::OnRemoveFromHistory()
 		int itemID = m_pGameList->GetSelectedItem( i );
 		int serverID = m_pGameList->GetItemData(itemID)->userData;
 		
-		gameserveritem_t *pServer = SteamMatchmakingServers()->GetServerDetails( eHistoryServer, serverID );
+		gameserveritem_t *pServer = SteamMatchmakingServers()->GetServerDetails( m_hRequest, serverID );
 		if ( pServer )
-			SteamMatchmaking()->RemoveFavoriteGame2( pServer->m_nAppID, pServer->m_NetAdr.GetIP(), pServer->m_NetAdr.GetConnectionPort(), pServer->m_NetAdr.GetQueryPort(), k_unFavoriteFlagHistory );
+			SteamMatchmaking()->RemoveFavoriteGame( pServer->m_nAppID, pServer->m_NetAdr.GetIP(), pServer->m_NetAdr.GetConnectionPort(), pServer->m_NetAdr.GetQueryPort(), k_unFavoriteFlagHistory );
 	}
 #endif
 	UpdateStatus();	
