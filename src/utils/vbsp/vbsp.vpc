@@ -173,11 +173,11 @@ $Project "Vbsp"
 
 	$Folder	"Link Libraries"
 	{
-		$File	"$LIBPUBLIC\bitmap.lib"
-		$File	"$LIBPUBLIC\fgdlib.lib"
-		$File	"$LIBPUBLIC\mathlib.lib"
-		$File	"$LIBPUBLIC\tier2.lib"
-		$File	"$LIBPUBLIC\vtf.lib"
+		$Lib	bitmap
+		$Lib	fgdlib
+		$Lib	mathlib
+		$Lib	tier2
+		$Lib	vtf
 	}
 
 	$File	"notes.txt"

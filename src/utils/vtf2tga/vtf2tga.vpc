@@ -39,9 +39,9 @@ $Project "Vtf2tga"
 
 	$Folder	"Link Libraries"
 	{
-		$File "$LIBPUBLIC\bitmap.lib"
-		$File "$LIBPUBLIC\mathlib.lib"
-		$File "$LIBPUBLIC\tier2.lib"
-		$File "$LIBPUBLIC\vtf.lib"
+		$Lib bitmap
+		$Lib mathlib
+		$Lib tier2
+		$Lib vtf
 	}
 }

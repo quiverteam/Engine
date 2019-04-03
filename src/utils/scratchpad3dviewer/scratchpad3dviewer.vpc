@@ -50,6 +50,6 @@ $Project "ScratchPad3DViewer"
 
 	$Folder	"Link Libraries"
 	{
-		$File	"$LIBPUBLIC\mathlib.lib"
+		$Lib	mathlib
 	}
 }

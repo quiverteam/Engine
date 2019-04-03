@@ -48,7 +48,7 @@ $Project "Bspzip"
 
 	$Folder	"Link Libraries"
 	{
-		$File	"$LIBPUBLIC\mathlib.lib"
-		$File	"$LIBPUBLIC\tier2.lib"
+		$Lib	mathlib
+		$Lib	tier2
 	}
 }

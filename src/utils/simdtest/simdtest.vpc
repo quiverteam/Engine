@@ -20,14 +20,6 @@ $Configuration	"Debug"
 	{
 		$DebuggableAssembly					"Runtime tracking and disable optimizations (/ASSEMBLYDEBUG)"
 	}
-
-	$PostBuildEvent	[$X360]
-	{
-		// copy the XEX and all required DLLs into a simdtest folder
-		$CommandLine						"call $SRCDIR\vpc_scripts\valve_xbcp_wrapper.cmd 	$OUTBINDIR\tier0_360.dll			xE:\simdtest\tier0_360.dll"		"\n"	\
-											"call $SRCDIR\vpc_scripts\valve_xbcp_wrapper.cmd 	$OUTBINDIR\vstdlib_360.dll			xE:\simdtest\vstdlib_360.dll"	"\n"	\
-											"call $SRCDIR\vpc_scripts\valve_xbcp_wrapper.cmd 	$(TargetDir)simdtest.xex			xE:\simdtest\simdtest.xex"
-	}
 }
 
 $Configuration	"Release"
@@ -35,14 +27,6 @@ $Configuration	"Release"
 	$Compiler
 	{
 		$AdditionalIncludeDirectories		"$BASE,..\common"
-	}
-
-	$PostBuildEvent	[$X360]
-	{
-		// copy the XEX and all required DLLs into a simdtest folder
-		$CommandLine						"call $SRCDIR\vpc_scripts\valve_xbcp_wrapper.cmd 	$OUTBINDIR\tier0_360.dll			xE:\simdtest\tier0_360.dll"		"\n"	\
-											"call $SRCDIR\vpc_scripts\valve_xbcp_wrapper.cmd 	$OUTBINDIR\vstdlib_360.dll			xE:\simdtest\vstdlib_360.dll"	"\n"	\
-											"call $SRCDIR\vpc_scripts\valve_xbcp_wrapper.cmd 	$(TargetDir)simdtest.xex			xE:\simdtest\simdtest.xex"
 	}
 }
 
@@ -55,9 +39,7 @@ $Project "Simdtest"
 	
 	$Folder	"Link Libraries"
 	{
-		$File	"$LIBPUBLIC\mathlib.lib"		[$WIN32||$LINUX]
-		$File	"$LIBPUBLIC\tier2.lib"			[$WIN32||$LINUX]
-
-		$File	"$LIBPUBLIC\mathlib_360.lib"	[$X360]
+		$Lib	mathlib		[$WIN32||$LINUX]
+		$Lib	tier2		[$WIN32||$LINUX]
 	}
 }

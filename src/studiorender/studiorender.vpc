@@ -102,19 +102,11 @@ $Project "StudioRender"
 		$File	"$SRCDIR\public\tier1\utlstringmap.h"
 	}
 
-	$folder "Link Libraries"	[$WIN32]
+	$folder "Link Libraries"
 	{
-		$file	"$LIBPUBLIC\bitmap.lib"
-		$file	"$LIBPUBLIC\mathlib.lib"
-		$file	"$LIBPUBLIC\tier2.lib"
-		$file	"$LIBPUBLIC\tier3.lib"
-	}
-
-	$folder "Link Libraries"	[$X360]
-	{
-		$file	"$LIBPUBLIC\bitmap_360.lib"
-		$file	"$LIBPUBLIC\mathlib_360.lib"
-		$file	"$LIBPUBLIC\tier2_360.lib"
-		$file	"$LIBPUBLIC\tier3_360.lib"
+		$Lib	bitmap
+		$Lib	mathlib
+		$Lib	tier2
+		$Lib	tier3
 	}
 }

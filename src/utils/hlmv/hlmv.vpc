@@ -184,10 +184,10 @@ $Project "Hlmv"
 
 	$Folder	"Link Libraries"
 	{
-		$File	"$LIBPUBLIC\tier2.lib"
-		$File	"$LIBPUBLIC\appframework.lib"
-		$File	"$LIBPUBLIC\bitmap.lib"
-		$File	"$LIBPUBLIC\mathlib.lib"
-		$File	"$LIBCOMMON\mxtoolkitwin32.lib"
+		$Lib	tier2
+		$Lib	appframework
+		$Lib	bitmap
+		$Lib	mathlib
+		$Lib	"$LIBCOMMON\mxtoolkitwin32"
 	}
 }

@@ -55,10 +55,10 @@ $Project "Soundsystem"
 
 	$Folder	"Link Libraries"
 	{
-		$File	"$SRCDIR\dx9sdk\lib\dsound.lib"
-		$File	"$SRCDIR\dx9sdk\lib\dxguid.lib"
-		$File	"$LIBPUBLIC\mathlib.lib"
-		$File	"$LIBCOMMON\mss32.lib"
-		$File	"$LIBPUBLIC\tier2.lib"
+		$Lib	"$SRCDIR\dx9sdk\lib\dsound"
+		$Lib	"$SRCDIR\dx9sdk\lib\dxguid"
+		$Lib	"$LIBCOMMON\mss32" [$WIN32]
+		$Lib	mathlib
+		$Lib	tier2
 	}
 }

@@ -688,22 +688,22 @@ $Project "hammer_dll"
 
 	$Folder	"Link Libraries"
 	{
-		$File	"$LIBPUBLIC\bitmap.lib"
-		$File	"$LIBPUBLIC\choreoobjects.lib"
-		$File	"$LIBPUBLIC\datamodel.lib"
-		$File	"$LIBPUBLIC\dme_controls.lib"
-		$File	"$LIBPUBLIC\dmserializers.lib"
-		$File	"$LIBPUBLIC\fgdlib.lib"
-		$File	"$LIBCOMMON\jpeglib.lib"
-		$File	"$LIBPUBLIC\mathlib.lib"
-		$File	"$LIBPUBLIC\matsys_controls.lib"
-		$File	"$LIBPUBLIC\movieobjects.lib"
-		$File	"$LIBPUBLIC\sfmobjects.lib"
-		$File	"$LIBPUBLIC\raytrace.lib"
-		$File	"$LIBPUBLIC\tier2.lib"
-		$File	"$LIBPUBLIC\tier3.lib"
-		$File	"$LIBPUBLIC\vgui_controls.lib"
-		$File	"$LIBPUBLIC\dmxloader.lib"
+        $Lib	"$LIBCOMMON\jpeglib"
+		$Lib	bitmap
+		$Lib	choreoobjects
+		$Lib	datamodel
+		$Lib	dme_controls
+		$Lib	dmserializers
+		$Lib	fgdlib
+		$Lib	mathlib
+		$Lib	matsys_controls
+		$Lib	movieobjects
+		$Lib	sfmobjects
+		$Lib	raytrace
+		$Lib	tier2
+		$Lib	tier3
+		$Lib	vgui_controls
+		$Lib	dmxloader
 	}
 
 	$File	"whatsnew.txt"

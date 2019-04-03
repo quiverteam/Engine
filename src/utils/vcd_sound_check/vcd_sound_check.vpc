@@ -118,8 +118,8 @@ $Project "Vcd_sound_check"
 
 	$Folder	"Link Libraries"
 	{
-		$File	"$LIBPUBLIC\choreoobjects.lib"
-		$File	"$LIBPUBLIC\mathlib.lib"
-		$File	"$LIBPUBLIC\tier2.lib"
+		$Lib	choreoobjects
+		$Lib	mathlib
+		$Lib	tier2
 	}
 }
