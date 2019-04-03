@@ -69,13 +69,13 @@ bool SetupWin32ConsoleIO()
 			AllocConsole();
 		}
 
-		*stdout = *_fdopen( _open_osfhandle( reinterpret_cast< long >( GetStdHandle( STD_OUTPUT_HANDLE ) ), _O_TEXT ), "w" );
+		*stdout = *_fdopen( _open_osfhandle( reinterpret_cast< intptr_t >( GetStdHandle( STD_OUTPUT_HANDLE ) ), _O_TEXT ), "w" );
 		setvbuf( stdout, NULL, _IONBF, 0 );
 
-		*stdin = *_fdopen( _open_osfhandle( reinterpret_cast< long >( GetStdHandle( STD_INPUT_HANDLE ) ), _O_TEXT ), "r" );
+		*stdin = *_fdopen( _open_osfhandle( reinterpret_cast< intptr_t >( GetStdHandle( STD_INPUT_HANDLE ) ), _O_TEXT ), "r" );
 		setvbuf( stdin, NULL, _IONBF, 0 );
 
-		*stderr = *_fdopen( _open_osfhandle( reinterpret_cast< long >( GetStdHandle( STD_ERROR_HANDLE ) ), _O_TEXT ), "w" );
+		*stderr = *_fdopen( _open_osfhandle( reinterpret_cast< intptr_t >( GetStdHandle( STD_ERROR_HANDLE ) ), _O_TEXT ), "w" );
 		setvbuf( stdout, NULL, _IONBF, 0 );
 
 		std::ios_base::sync_with_stdio();

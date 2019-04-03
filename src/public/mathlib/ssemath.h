@@ -7,6 +7,7 @@
 #define SSEMATH_H
 
 #include <xmmintrin.h>
+#include <mmintrin.h>
 
 #include <mathlib/vector.h>
 #include <mathlib/mathlib.h>
@@ -36,20 +37,6 @@ typedef union
 
 typedef fltx4 i32x4;
 typedef fltx4 u32x4;
-
-#elif ( defined( _X360 ) )
-
-typedef union
-{
-	// This union allows float/int access (which generally shouldn't be done in inner loops)
-	__vector4	vmx;
-	float		m128_f32[4];
-	uint32		m128_u32[4];
-} fltx4_union;
-
-typedef __vector4 fltx4;
-typedef __vector4 i32x4; // a VMX register; just a way of making it explicit that we're doing integer ops.
-typedef __vector4 u32x4; // a VMX register; just a way of making it explicit that we're doing unsigned integer ops.
 
 #else
 
@@ -1525,21 +1512,6 @@ FORCEINLINE fltx4 FindHighestSIMD3( const fltx4 &a )
 // INTEGER SIMD OPERATIONS.
 // ------------------------------------
 
-
-#if 0				/* pc does not have these ops */
-// splat all components of a vector to a signed immediate int number.
-FORCEINLINE fltx4 IntSetImmediateSIMD(int to)
-{
-	//CHRISG: SSE2 has this, but not SSE1. What to do?
-	fltx4 retval;
-	SubInt( retval, 0 ) = to;
-	SubInt( retval, 1 ) = to;
-	SubInt( retval, 2 ) = to;
-	SubInt( retval, 3 ) = to;
-	return retval;
-}
-#endif
-
 // Load 4 aligned words into a SIMD register
 FORCEINLINE i32x4 LoadAlignedIntSIMD( const void * RESTRICT pSIMD)
 {
@@ -1630,6 +1602,8 @@ FORCEINLINE i32x4 IntShiftLeftWordSIMD(const i32x4 &vSrcA, const i32x4 &vSrcB)
 // like this.
 FORCEINLINE void ConvertStoreAsIntsSIMD(intx4 * RESTRICT pDest, const fltx4 &vSrc)
 {
+
+#ifndef WIN64
 	__m64 bottom = _mm_cvttps_pi32( vSrc );
 	__m64 top    = _mm_cvttps_pi32( _mm_movehl_ps(vSrc,vSrc) );
 
@@ -1637,6 +1611,16 @@ FORCEINLINE void ConvertStoreAsIntsSIMD(intx4 * RESTRICT pDest, const fltx4 &vSr
 	*reinterpret_cast<__m64 *>(&(*pDest)[2]) = top;
 
 	_mm_empty();
+#else
+	// TODO: Verify this implementation!!
+	// MSVC doesn't support MMX intrinsics in 64-bit because microsoft suks	REEEEEEEEEEEEEE
+
+	// Tested with disassembler: these generate cvttss2si instructions
+	* ((int*)pDest) = (int) * ((float*)& vSrc);
+	*((int*)pDest + 1) = (int) * ((float*)& vSrc + 1);
+	*((int*)pDest + 2) = (int) * ((float*)& vSrc + 2);
+	*((int*)pDest + 3) = (int) * ((float*)& vSrc + 3);
+#endif
 }
 
 
