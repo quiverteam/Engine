@@ -188,6 +188,6 @@ $Project "Hlmv"
 		$Lib	appframework
 		$Lib	bitmap
 		$Lib	mathlib
-		$Lib	$LIBCOMMON\mxtoolkitwin32.lib
+		$Lib	"$LIBCOMMON\mxtoolkitwin32"
 	}
 }

@@ -53,7 +53,7 @@ $Project "Vbspinfo"
 
 	$Folder	"Link Libraries"
 	{
-		$Lib    mathlib
-		$Lib    tier2
+		$Lib	mathlib
+		$Lib	tier2
 	}
 }

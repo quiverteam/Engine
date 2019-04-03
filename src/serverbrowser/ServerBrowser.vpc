@@ -18,7 +18,7 @@ $Configuration
 
 	$Linker
 	{
-		$AdditionalDependencies				"$BASE Advapi32.lib wsock32.lib Ws2_32.lib User32.lib" [$WINDOWS]
+        $AdditionalDependencies				"$BASE Advapi32.lib wsock32.lib Ws2_32.lib User32.lib" [$WINDOWS]
 	}
 }
 
@@ -84,8 +84,9 @@ $Project "ServerBrowser"
 		$File	"$SRCDIR\common\serverbrowser\IServerBrowser.h"
 	}
 
-	$Folder "Link Libraries"	[$WINDOWS]
+	$Folder "Link Libraries"
 	{
+        $Lib    steam_api
 		$Lib	tier2
 		$Lib	tier3
 		$Lib	vgui_controls

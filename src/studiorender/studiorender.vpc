@@ -102,7 +102,7 @@ $Project "StudioRender"
 		$File	"$SRCDIR\public\tier1\utlstringmap.h"
 	}
 
-	$folder "Link Libraries"	[$WIN32]
+	$folder "Link Libraries"
 	{
 		$Lib	bitmap
 		$Lib	mathlib

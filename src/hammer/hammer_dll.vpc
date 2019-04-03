@@ -52,7 +52,7 @@ $Project "hammer_dll"
 			{
 				$Compiler
 				{
-					$PreprocessorDefinitions			"NO_MEMOVERRIDE_NEW_DELETE"
+					$PreprocessorDefinitions			"$BASE; NO_MEMOVERRIDE_NEW_DELETE"
 					$Create/UsePrecompiledHeader		"Not Using Precompiled Headers"
 				}
 			}
@@ -688,13 +688,14 @@ $Project "hammer_dll"
 
 	$Folder	"Link Libraries"
 	{
+        $Lib	"$LIBCOMMON\jpeglib"
+        $Lib    "$LIBCOMMON\steam"
 		$Lib	bitmap
 		$Lib	choreoobjects
 		$Lib	datamodel
 		$Lib	dme_controls
 		$Lib	dmserializers
 		$Lib	fgdlib
-		$Lib	$LIBCOMMON\jpeglib
 		$Lib	mathlib
 		$Lib	matsys_controls
 		$Lib	movieobjects

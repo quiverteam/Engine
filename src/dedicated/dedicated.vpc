@@ -147,6 +147,7 @@ $Project "Dedicated"
 
 	$Folder	"Link Libraries"
 	{
+		$Lib	steam_api
 		$Lib	appframework
 		$Lib	mathlib
 		$Lib	tier2

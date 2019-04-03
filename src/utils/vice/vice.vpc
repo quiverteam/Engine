@@ -40,7 +40,7 @@ $Project "Vice"
 
 	$Folder	"Link Libraries"
 	{
-		$Lib "tier2"
-		$Lib "mathlib"
+		$Lib tier2
+		$Lib mathlib
 	}
 }

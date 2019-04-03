@@ -374,7 +374,7 @@ void CServerBrowserDialog::AddServerToFavorites(gameserveritem_t &server)
 #ifndef NO_STEAM
 	if ( SteamMatchmaking() )
 	{
-		SteamMatchmaking()->AddFavoriteGame2( 
+		SteamMatchmaking()->AddFavoriteGame( 
 			server.m_nAppID, 
 			server.m_NetAdr.GetIP(), 
 			server.m_NetAdr.GetConnectionPort(),		
@@ -581,7 +581,7 @@ void CServerBrowserDialog::OnConnectToGame( KeyValues *pMessageValues )
 #ifndef NO_STEAM
 	if (m_pHistory && SteamMatchmaking() )
 	{
-		SteamMatchmaking()->AddFavoriteGame2( 0, ::htonl( ip ), connectionPort, queryPort, k_unFavoriteFlagHistory, time( NULL ) );
+		SteamMatchmaking()->AddFavoriteGame( 0, ::htonl( ip ), connectionPort, queryPort, k_unFavoriteFlagHistory, time( NULL ) );
 		m_pHistory->SetRefreshOnReload();
 	}
 #endif

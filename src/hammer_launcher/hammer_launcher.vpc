@@ -39,5 +39,6 @@ $Project "Hammer_launcher"
 	$Folder	"Link Libraries"
 	{
 		$Lib	appframework
+        $Lib    $LIBCOMMON\steam
 	}
 }

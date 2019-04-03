@@ -134,15 +134,15 @@ $Project "Studiomdl"
 		$File	"$SRCDIR\public\vstdlib\vstdlib.h"
 	}
 	
-    $Folder	"Link Libraries"
+	$Folder	"Link Libraries"
 	{
-		$Lib appframework
-		$Lib datamodel
-		$Lib dmserializers
-		$Lib mathlib
-		$Lib movieobjects
-		$Lib nvtristrip
-		$Lib tier2
-		$Lib tier3
+		$Lib	appframework
+		$Lib	datamodel
+		$Lib	dmserializers
+		$Lib	mathlib
+		$Lib	movieobjects
+		$Lib	nvtristrip
+		$Lib	tier2
+		$Lib	tier3
 	}
 }

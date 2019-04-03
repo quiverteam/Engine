@@ -47,6 +47,6 @@ $Project "Vmf_tweak"
 
 	$Folder	"Link Libraries"
 	{
-		$Lib	"tier2"
+		$Lib   tier2
 	}
 }

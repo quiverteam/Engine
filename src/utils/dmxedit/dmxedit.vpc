@@ -52,6 +52,6 @@ $Project "Dmxedit"
 		$Lib	mathlib
 		$Lib	tier2
 		$Lib	tier3
-		$Lib	$LIBCOMMON\lua.lib
+		$Lib	"$LIBCOMMON\lua"
 	}
 }

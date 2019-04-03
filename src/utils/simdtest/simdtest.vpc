@@ -39,7 +39,7 @@ $Project "Simdtest"
 	
 	$Folder	"Link Libraries"
 	{
-		$Lib	mathlib	    [$WIN32||$LINUX]
-		$Lib	tier2	    [$WIN32||$LINUX]
+		$Lib	mathlib		[$WIN32||$LINUX]
+		$Lib	tier2		[$WIN32||$LINUX]
 	}
 }

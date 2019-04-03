@@ -47,18 +47,18 @@ $Project "Pet"
 
 	$Folder	"Link Libraries"
 	{
-		$Lib "datamodel"
-		$Lib "dme_controls"
-		$Lib "dmserializers"
-		$Lib "dmxloader"
-		$Lib "mathlib"
-		$Lib "matsys_controls"
-		$Lib "movieobjects"
-		$Lib "particles"
-		$Lib "sfmobjects"
-		$Lib "tier2"
-		$Lib "tier3"
-		$Lib "toolutils"
-		$Lib "vgui_controls"
+		$Lib	datamodel
+		$Lib	dme_controls
+		$Lib	dmserializers
+		$Lib	dmxloader
+		$Lib	mathlib
+		$Lib	matsys_controls
+		$Lib	movieobjects
+		$Lib	particles
+		$Lib	sfmobjects
+		$Lib	tier2
+		$Lib	tier3
+		$Lib	toolutils
+		$Lib	vgui_controls
 	}
 }
