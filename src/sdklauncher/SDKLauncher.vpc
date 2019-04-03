@@ -68,7 +68,7 @@ $Project "SDKLauncher"
 
 	$Folder "Link Libraries"
 	{
-		$Lib	"$LIBCOMMON\steam_api"
+		$Lib	"$LIBCOMMON\steam"
 		$Lib	appframework
 		$Lib	tier2
 		$Lib	tier3
