@@ -21,7 +21,7 @@ $Configuration
 
 	$Linker
 	{
-		$AdditionalDependencies				"Psapi.lib"
+		$AdditionalDependencies				"$BASE Psapi.lib"
 	}
 }
 

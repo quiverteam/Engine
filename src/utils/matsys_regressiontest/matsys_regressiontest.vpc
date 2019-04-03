@@ -19,7 +19,7 @@ $Configuration
 
 	$Linker
 	{
-		$AdditionalDependencies				"$LIBPUBLIC\nvtc.lib"
+		$AdditionalDependencies				"$BASE $LIBPUBLIC\nvtc.lib"
 	}
 }
 

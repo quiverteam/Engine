@@ -91,6 +91,7 @@ $Project "Panel_zoo"
 
 	$Folder	"Link Libraries"
 	{
+        $Lib    steam_api
 		$Lib	appframework
 		$Lib	tier2
 		$Lib	tier3

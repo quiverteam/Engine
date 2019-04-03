@@ -689,6 +689,7 @@ $Project "hammer_dll"
 	$Folder	"Link Libraries"
 	{
         $Lib	"$LIBCOMMON\jpeglib"
+        $Lib    "$LIBCOMMON\steam"
 		$Lib	bitmap
 		$Lib	choreoobjects
 		$Lib	datamodel

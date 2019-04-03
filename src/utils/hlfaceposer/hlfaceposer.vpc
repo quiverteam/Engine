@@ -400,9 +400,9 @@ $Project "hlfaceposer"
 		$Lib	appframework
 		$Lib	bitmap
 		$Lib	choreoobjects
-		$Lib	mathlib.
+		$Lib	mathlib
 		$Lib	tier2
-		$Lib	tier3.
+		$Lib	tier3
 		$Lib	datamodel
 		$Lib	dme_controls
 		$Lib	dmserializers
