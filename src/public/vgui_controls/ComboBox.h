@@ -25,6 +25,8 @@ class ComboBoxButton : public vgui::Button
 {
 public:
 	ComboBoxButton(ComboBox *parent, const char *panelName, const char *text);
+	virtual ~ComboBoxButton() {}
+
 	virtual void ApplySchemeSettings(IScheme *pScheme);
 	virtual IBorder *GetBorder(bool depressed, bool armed, bool selected, bool keyfocus);
 	virtual void OnCursorExited();

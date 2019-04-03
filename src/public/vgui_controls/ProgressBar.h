@@ -28,7 +28,7 @@ class ProgressBar : public Panel
 
 public:
 	ProgressBar(Panel *parent, const char *panelName);
-	~ProgressBar();
+	virtual ~ProgressBar();
 
 	// 'progress' is in the range [0.0f, 1.0f]
 	MESSAGE_FUNC_FLOAT( SetProgress, "SetProgress", progress );
@@ -94,6 +94,7 @@ class ContinuousProgressBar : public ProgressBar
 
 public:
 	ContinuousProgressBar(Panel *parent, const char *panelName);
+	virtual ~ContinuousProgressBar() {}
 
 	virtual void Paint();
 };

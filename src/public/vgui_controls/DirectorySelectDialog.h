@@ -24,6 +24,8 @@ class DirectoryTreeView : public TreeView
 {
 public:
 	DirectoryTreeView(DirectorySelectDialog *parent, const char *name);
+	virtual ~DirectoryTreeView() {}
+
 	virtual void GenerateChildrenOfNode(int itemIndex);
 
 private:
@@ -39,6 +41,7 @@ class DirectorySelectDialog : public Frame
 
 public:
 	DirectorySelectDialog(vgui::Panel *parent, const char *title);
+	virtual ~DirectorySelectDialog() {}
 
 	// sets where it should start searching
 	void SetStartDirectory(const char *path);
