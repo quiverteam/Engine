@@ -25,7 +25,6 @@ class DirectoryTreeView : public TreeView
 public:
 	DirectoryTreeView(DirectorySelectDialog *parent, const char *name);
 	virtual ~DirectoryTreeView() {}
-
 	virtual void GenerateChildrenOfNode(int itemIndex);
 
 private:

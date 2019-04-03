@@ -37,7 +37,7 @@ $Project "Vtf2tga"
 		$File	"$SRCDIR\public\vtf\vtf.h"
 	}
 
-	$Folder	"Link Libraries"
+    $Folder	"Link Libraries"
 	{
 		$Lib bitmap
 		$Lib mathlib

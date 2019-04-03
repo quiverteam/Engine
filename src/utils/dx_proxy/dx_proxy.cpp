@@ -106,7 +106,7 @@ typedef void* LPD3DXCONSTANTTABLE;
 //
 // No DX configuration
 #ifndef DX_PROXY_INC_CONFIG
-# error "DX9_PC or DX9_X360 must be defined!"
+# error "DX9_PC must be defined!"
 #endif // #ifndef DX_PROXY_INC_CONFIG
 
 
@@ -220,14 +220,6 @@ const char * WINAPI GetDllVersionLong( void )
 	return "{DX_PROXY for DX9_V00_PC RELEASE}";
 #endif
 
-#if defined( DX9_V00_X360 ) && defined( _DEBUG )
-	return "{DX_PROXY for DX9_V00_X360 DEBUG}";
-#endif
-
-#if defined( DX9_V00_X360 ) && defined( NDEBUG )
-	return "{DX_PROXY for DX9_V00_X360 RELEASE}";
-#endif
-
 #if defined( DX9_V30_PC ) && defined( _DEBUG )
 	return "{DX_PROXY for DX9_V30_PC DEBUG}";
 #endif
@@ -255,14 +247,6 @@ const char * WINAPI GetDllVersion( void )
 
 #if defined( DX9_V00_PC ) && defined( NDEBUG )
 	return "DXPRX_DX9_V00_PC_r";
-#endif
-
-#if defined( DX9_V00_X360 ) && defined( _DEBUG )
-	return "DXPRX_DX9_V00_X360_d";
-#endif
-
-#if defined( DX9_V00_X360 ) && defined( NDEBUG )
-	return "DXPRX_DX9_V00_X360_r";
 #endif
 
 #if defined( DX9_V30_PC ) && defined( _DEBUG )
@@ -309,17 +293,13 @@ Proxy_D3DXCompileShaderFromFile(
 	// Open the top-level file via our include interface
 	LPCVOID lpcvData;
 	UINT numBytes;
-	HRESULT hr = pInclude->Open( ( D3DXINCLUDE_TYPE ) 0, pSrcFile, NULL, &lpcvData, &numBytes
-#if defined( DX9_V00_X360 )
-		, s_dummyBuffer, sizeof( s_dummyBuffer )
-#endif
-		);
+	HRESULT hr = pInclude->Open( ( D3DXINCLUDE_TYPE ) 0, pSrcFile, NULL, &lpcvData, &numBytes );
 	if ( FAILED( hr ) )
 		return hr;
 
 	LPCSTR pShaderData = ( LPCSTR ) lpcvData;
 
-#if defined( DX9_V00_PC ) || defined( DX9_V30_PC ) || defined( DX9_V00_X360 )
+#if defined( DX9_V00_PC ) || defined( DX9_V30_PC )
 	#pragma comment(linker, "/EXPORT:Proxy_D3DXCompileShaderFromFile=?Proxy_D3DXCompileShaderFromFile@@YGJPBDPBU_D3DXMACRO@@PAUID3DXInclude@@00KPAPAUID3DXBuffer@@3PAPAUID3DXConstantTable@@@Z")
 	hr = D3DXCompileShader( pShaderData, numBytes, pDefines, pInclude, pFunctionName, pProfile, Flags, ppShader, ppErrorMsgs, ppConstantTable );
 #endif

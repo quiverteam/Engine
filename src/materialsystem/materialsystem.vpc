@@ -22,22 +22,6 @@ $Configuration
 	}
 }
 
-$Configuration "Debug"
-{
-	$Linker [$X360]
-	{
-		$AdditionalDependencies		"$BASE d3dx9d.lib"
-	}
-}
-
-$Configuration "Release"
-{
-	$Linker [$X360]
-	{
-		$AdditionalDependencies		"$BASE d3dx9.lib"
-	}
-}
-
 $Project "MaterialSystem"
 {
 	$Folder	"Source Files"

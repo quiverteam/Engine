@@ -33,11 +33,6 @@ GetNextCombo( 29, -1, 36 ) -> shader3.fxc : ( riCommandNumber = 31, rhCombo =  "
 
 */
 
-#define _SILENCE_STDEXT_HASH_DEPRECATION_WARNINGS
-#ifdef _SILENCE_STDEXT_HASH_DEPRECATION_WARNINGS
-#pragma message("C2338: Warning: <hash_map> is deprecated and will be REMOVED. We should probably remove this in Visual Studio 2017.")
-#endif
-
 class CUtlInplaceBuffer;
 
 namespace CfgProcessor
