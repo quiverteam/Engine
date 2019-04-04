@@ -5,7 +5,7 @@
 //-----------------------------------------------------------------------------
 
 $Macro SRCDIR		"..\.."
-$Macro OUTBINDIR	"$SRCDIR\..\game\bin"
+$Macro OUTBINDIR	"$BINDEFAULT"
 
 $Include "$SRCDIR\vpc_scripts\source_dll_base.vpc"
 
@@ -56,7 +56,7 @@ $Project "Serverplugin_empty"
 
 	$Folder	"Link Libraries"
 	{
-		$File "$SRCDIR\lib\public\mathlib.lib"
-		$File "$SRCDIR\lib\public\tier2.lib"
+		$Lib mathlib
+		$Lib tier2
 	}
 }

@@ -16,7 +16,7 @@
 #include "VGenericConfirmation.h"
 #include "materialsystem/materialsystem_config.h"
 #include "cdll_util.h"
-#include "nb_header_footer.h"
+//#include "nb_header_footer.h"
 #include "../settings_old/optionssubkeyboard.h"
 #include "vcontrolslistpanel.h"
 
@@ -39,12 +39,12 @@ BaseClass(parent, panelName)
 	SetUpperGarnishEnabled(true);
 	SetLowerGarnishEnabled(true);
 
-	m_pHeaderFooter = new CNB_Header_Footer( this, "HeaderFooter" );
+	/*m_pHeaderFooter = new CNB_Header_Footer( this, "HeaderFooter" );
 	m_pHeaderFooter->SetTitle( "" );
 	m_pHeaderFooter->SetHeaderEnabled( false );
 	m_pHeaderFooter->SetFooterEnabled( true );
 	m_pHeaderFooter->SetGradientBarEnabled( true );
-	m_pHeaderFooter->SetGradientBarPos( 60, 320 );
+	m_pHeaderFooter->SetGradientBarPos( 60, 320 );*/
 
 	m_pOptionsSubKeyboard = new COptionsSubKeyboard( this );
 	m_pOptionsSubKeyboard->OnResetData();

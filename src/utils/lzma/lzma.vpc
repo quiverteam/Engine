@@ -5,9 +5,9 @@
 //-----------------------------------------------------------------------------
 
 $Macro SRCDIR		"..\.."
-$Macro OUTLIBDIR	"$SRCDIR\lib\common\vc8"
+$Macro OUTLIBDIR	"$LIBCOMMON"
 
-$Include "$SRCDIR\vpc_scripts\source_lib_base.vpc"	[$WIN32]
+$Include "$SRCDIR\vpc_scripts\source_lib_base.vpc"
 
 $Configuration
 {

@@ -6,10 +6,12 @@ $Include "$SRCDIR\vpc_scripts\source_win32_analyze.vpc" [$ANALYZE]
 $Macro VS2008 2008 [$2008 && $WIN32]
 $Macro VS2015 2015 [$2015 && $WIN32]
 $Macro VS2017 2017 [$2017 && $WIN32]
+$Macro VS2019 2019 [$2019 && $WIN32]
 
 $Macro _MSC_VER 1800 [$VS2013 && $WIN32]
 $Macro _MSC_VER 1900 [$VS2015 && $WIN32]
 $Macro _MSC_VER 1910 [$VS2017 && $WIN32]
+$Macro _MSC_VER 1920 [$VS2019 && $WIN32]
 
 $Configuration
 {
@@ -30,9 +32,7 @@ $Configuration
 		$PlatformToolset "v120" [$VS2013]
 		$PlatformToolset "v140" [$VS2015]
 		$PlatformToolset "v141" [$VS2017]
-		
-		// Use the VS2013 set if none is chosen specifically.
-//		$PlatformToolset "v120" [!$VS2008 && !$VS2010 && !$VS2012 && !$VS2013 && !$VS2015 && !$VS2017]
+		$PlatformToolset "v142" [$VS2019]
 	}
 
 	$General
@@ -62,8 +62,8 @@ $Configuration
 		//$TreatWarningsAsErrors				"Yes (/WX)" [!$ANALYZE && !$WIN64]
 
 		// Defines to differentiate 32 from 64 bit builds
-		$PreprocessorDefinitions			"$BASE;PLATFORM_64BITS;WIN64;_WIN64;COMPILER_MSVC64" [$WIN64]
-		$PreprocessorDefinitions			"$BASE;COMPILER_MSVC32" [$WIN32]
+		$PreprocessorDefinitions			"$BASE;PLATFORM_64BITS;WIN64;_WIN64;COMPILER_MSVC64;PLATFORM_WINDOWS_PC64" [$WIN64]
+		$PreprocessorDefinitions			"$BASE;COMPILER_MSVC32;PLATFORM_WINDOWS_PC32" [$WIN32]
 		$PreprocessorDefinitions			"$BASE;WINDOWS"	[$WIN32||$WIN64]
 
 		// /Gw is a VS 2013 option that puts global and static variables in individual sections so that the
@@ -71,6 +71,6 @@ $Configuration
 		// reduces the client.dll size by about 1.14%. When linker optimizations are disabled this has no
 		// effect. This option does not show up in the IDE so we need to add it in $AdditionalOptions.
 		// http://blogs.msdn.com/b/vcblog/archive/2013/09/11/introducing-gw-compiler-switch.aspx
-		$AdditionalOptions	"$BASE /Gw" [$VS2013]
+		$AdditionalOptions	"$BASE /Gw" [$_MSC_VER >= 1800]
 	}
 }

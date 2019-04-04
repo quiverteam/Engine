@@ -3,9 +3,9 @@
 #include "vgui/ISurface.h"
 #include "vgui/IInput.h"
 #include "basemodui.h"
-#include "nb_header_footer.h"
+//#include "nb_header_footer.h"
 //#include "..\game\shared\hl2ce\hl2ce_missioninfo.h"
-#include "..\game\shared\core\missioninfo.h"
+#include "shared\missioninfo.h"
 
 class Campaigns : public vgui::Button
 {
@@ -230,13 +230,15 @@ void Campaigns::SetActiveCampaign( int rindex )
 	else if ( index < 0 )
 		index = missioninformer->GetCampaignCount() - 1;
 
-	ASWBackgroundMovie()->SetCurrentMovie(missioninformer->GetCampaignDetails(index)->GetString("Movie"));
-	if ( ASWBackgroundMovie()->GetVideoMaterial() )
+	//ASWBackgroundMovie()->SetCurrentMovie(missioninformer->GetCampaignDetails(index)->GetString("Movie"));
+//	if ( ASWBackgroundMovie()->GetVideoMaterial() )
+/*	if ( ASWBackgroundMovie()->GetAVIMaterial() )
 	{
 		float frame = RandomFloat(1.0, (ASWBackgroundMovie()->GetVideoMaterial()->GetVideoDuration() / 12));
-		if (ASWBackgroundMovie()->GetVideoMaterial()->SetTime(frame))
+	//	if (ASWBackgroundMovie()->GetVideoMaterial()->SetTime(frame))
+		if (ASWBackgroundMovie()->GetAVIMaterial()->SetTime(frame))
 			Msg("%f \n", frame);
-	}
+	}*/
 
 	m_nActiveCampaign = index;
 	m_iGameTitlePos1x = scheme()->GetProportionalScaledValue( missioninformer->GetCampaignDetails(index)->GetInt("DisplayTitleX") );
@@ -262,5 +264,5 @@ void Campaigns::SetActiveCampaign( int rindex )
 
 CON_COMMAND_F(setvideoframe, "setvideoframe", FCVAR_NONE)
 {
-	ASWBackgroundMovie()->GetVideoMaterial()->SetTime(1.023765);
+	//ASWBackgroundMovie()->GetVideoMaterial()->SetTime(1.023765);
 }

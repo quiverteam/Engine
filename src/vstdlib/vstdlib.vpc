@@ -5,14 +5,14 @@
 //-----------------------------------------------------------------------------
 
 $Macro SRCDIR		".."
-$Macro OUTBINDIR	"$SRCDIR\..\game\bin"
+$Macro OUTBINDIR	"$BINDEFAULT"
 
 $include "$SRCDIR\vpc_scripts\source_dll_base.vpc"
 
 $Linux
 {
 	$BuildForLinux 1
-	-$File	"processutils.cpp"			[$WIN32]
+	-$File	"processutils.cpp"			[$WINDOWS]
 	-$file  "$SRCDIR\linux\vstdlib_i686.so"
 }
 
@@ -28,7 +28,7 @@ $Configuration
 		$AdditionalDependencies		"$BASE odbc32.lib odbccp32.lib"			[$WIN32||$LINUX]
 
 		// pc publishes the import library directly
-		$ImportLibrary				"$SRCDIR\lib\public\$(TargetName).lib"	[$WIN32]
+		$ImportLibrary				"$LIBPUBLIC\$(TargetName).lib"
 	}
 }
 
@@ -44,7 +44,7 @@ $Project
 {
 	$folder	"Link Libraries"
 	{
-		-$File	"$SRCDIR\lib\public\vstdlib.lib"		[$WIN32||$LINUX]
+		-$File	"$LIBPUBLIC\vstdlib.lib"
 	}
 }
 
@@ -55,7 +55,7 @@ $Project "vstdlib"
 		$File	"cvar.cpp"
 		$File	"jobthread.cpp"
 		$File	"KeyValuesSystem.cpp"
-		$File	"processutils.cpp"			[$WIN32]
+		$File	"processutils.cpp"			[$WINDOWS]
 		$File	"random.cpp"
 		$File	"vcover.cpp"
 	}

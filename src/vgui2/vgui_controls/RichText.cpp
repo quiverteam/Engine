@@ -54,6 +54,7 @@ public:
 		SetPaintEnabled(true);
 #endif
 	}
+	virtual ~ClickPanel() {}
 	
 	void SetTextIndex( int linkStartIndex, int viewStartIndex )
 	{
@@ -113,6 +114,7 @@ public:
 		SetPaintEnabled( false );
 		m_pRichText = pParent;
 	}
+	virtual ~RichTextInterior() {}
 
 /*	virtual IAppearance *GetAppearance()
 	{

@@ -5,7 +5,7 @@
 //-----------------------------------------------------------------------------
 
 $Macro SRCDIR		"..\.."
-$Macro OUTBINDIR	"$SRCDIR\..\game\bin"
+$Macro OUTBINDIR	"$BINDEFAULT"
 $Macro OUTBINNAME "dist2alpha"
 
 $Include "$SRCDIR\vpc_scripts\source_exe_con_base.vpc"
@@ -59,8 +59,8 @@ $Project "Dist2alpha"
 
 	$Folder "Link Libraries"
 	{
-		$File	"$SRCDIR\lib\public\bitmap.lib"
-		$File	"$SRCDIR\lib\public\mathlib.lib"
-		$File	"$SRCDIR\lib\public\tier2.lib"
+		$Lib	bitmap
+		$Lib	mathlib
+		$Lib	tier2
 	}
 }

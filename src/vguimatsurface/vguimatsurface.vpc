@@ -5,7 +5,7 @@
 //-----------------------------------------------------------------------------
 
 $macro SRCDIR		".."
-$Macro OUTBINDIR	"$SRCDIR\..\game\bin"
+$Macro OUTBINDIR	"$BINDEFAULT"
 
 $include "$SRCDIR\vpc_scripts\source_dll_base.vpc"
 
@@ -88,23 +88,13 @@ $Project "vguimatsurface"
 		$File	"$SRCDIR\common\vgui_surfacelib\Win32Font.h"
 	}
 
-	$Folder	"Link Libraries" [$WIN32]
+	$Folder	"Link Libraries"
 	{
-		$File	"$SRCDIR\lib\public\bitmap.lib"
-		$File	"$SRCDIR\lib\public\mathlib.lib"
-		$File	"$SRCDIR\lib\public\tier2.lib"
-		$File	"$SRCDIR\lib\public\tier3.lib"
-		$File	"$SRCDIR\lib\public\vgui_controls.lib"
-		$File	"$SRCDIR\lib\public\vgui_surfacelib.lib"
-	}
-
-	$Folder	"Link Libraries" [$X360]
-	{
-		$File	"$SRCDIR\lib\public\bitmap_360.lib"
-		$File	"$SRCDIR\lib\public\mathlib_360.lib"
-		$File	"$SRCDIR\lib\public\tier2_360.lib"
-		$File	"$SRCDIR\lib\public\tier3_360.lib"
-		$File	"$SRCDIR\lib\public\vgui_controls_360.lib"
-		$File	"$SRCDIR\lib\public\vgui_surfacelib_360.lib"
+		$Lib	bitmap
+		$Lib	mathlib
+		$Lib	tier2
+		$Lib	tier3
+		$Lib	vgui_controls
+		$Lib	vgui_surfacelib
 	}
 }

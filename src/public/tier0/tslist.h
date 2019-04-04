@@ -28,10 +28,6 @@
 #include "tier0/memalloc.h"
 #include "tier0/memdbgoff.h"
 
-#if defined( _X360 )
-#define USE_NATIVE_SLIST
-#endif
-
 //-----------------------------------------------------------------------------
 
 #if defined( PLATFORM_64BITS )

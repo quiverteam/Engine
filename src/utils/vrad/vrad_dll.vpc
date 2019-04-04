@@ -5,7 +5,7 @@
 //-----------------------------------------------------------------------------
 
 $Macro SRCDIR		"..\.."
-$Macro OUTBINDIR	"$SRCDIR\..\game\bin"
+$Macro OUTBINDIR	"$BINDEFAULT"
 
 $Include "$SRCDIR\vpc_scripts\source_dll_base.vpc"
 
@@ -213,12 +213,12 @@ $Project "Vrad_dll"
 
 	$Folder	"Link Libraries"
 	{
-		$File "$SRCDIR\lib\public\bitmap.lib"
-		$File "$SRCDIR\lib\public\mathlib.lib"
-		$File "$SRCDIR\lib\public\raytrace.lib"
-		$File "$SRCDIR\lib\public\tier2.lib"
-		$File "$SRCDIR\lib\public\vmpi.lib"
-		$File "$SRCDIR\lib\public\vtf.lib"
+		$Lib bitmap
+		$Lib mathlib
+		$Lib raytrace
+		$Lib tier2
+		$Lib vmpi
+		$Lib vtf
 	}
 
 	$File	"notes.txt"

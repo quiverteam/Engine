@@ -5,7 +5,7 @@
 //-----------------------------------------------------------------------------
 
 $macro SRCDIR		".."
-$macro OUTLIBDIR	"$SRCDIR\lib\public"
+$macro OUTLIBDIR	"$LIBPUBLIC"
 
 $include "$SRCDIR\vpc_scripts\source_lib_base.vpc"
 
@@ -19,6 +19,7 @@ $Configuration
 	$Compiler
 	{
 		$PreprocessorDefinitions		"$BASE;SFMOBJECTS_STATIC_LIB"
+		$AdditionalIncludeDirectories	"$BASE,..\public\sfmobjects"
 	}
 
 	$Librarian [$WIN32]
@@ -31,19 +32,19 @@ $Project "sfmobjects"
 {
 	$Folder	"Source Files"
 	{
-		$File	"exportfacialanimation.cpp"
-		$File	"flexcontrolbuilder.cpp"
-		$File	"sfmanimationsetutils.cpp"
+		// $File	"exportfacialanimation.cpp"
+		// $File	"flexcontrolbuilder.cpp"
+		// $File	"sfmanimationsetutils.cpp"
 		$File	"sfmphonemeextractor.cpp"
-		$File	"sfmsession.cpp"
+		// $File	"sfmsession.cpp"
 	}
 
 	$Folder	"Header Files"
 	{
-		$File	"$SRCDIR\public\sfmobjects\exportfacialanimation.h"
-		$File	"$SRCDIR\public\sfmobjects\flexcontrolbuilder.h"
-		$File	"$SRCDIR\public\sfmobjects\sfmanimationsetutils.h"
+		//$File	"$SRCDIR\public\sfmobjects\exportfacialanimation.h"
+		//$File	"$SRCDIR\public\sfmobjects\flexcontrolbuilder.h"
+		//$File	"$SRCDIR\public\sfmobjects\sfmanimationsetutils.h"
 		$File	"$SRCDIR\public\sfmobjects\sfmphonemeextractor.h"
-		$File	"$SRCDIR\public\sfmobjects\sfmsession.h"
+		//$File	"$SRCDIR\public\sfmobjects\sfmsession.h"
 	}
 }

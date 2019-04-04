@@ -5,8 +5,7 @@
 //-----------------------------------------------------------------------------
 
 $Macro SRCDIR		"..\.."
-$Macro OUTBINDIR	"$SRCDIR\..\game\bin"
-$Macro OUTBINNAME	"shaderapidx9"
+$Macro OUTBINDIR	"$BINDEFAULT"
 
 $Include "$SRCDIR\vpc_scripts\source_dll_base.vpc"
 
@@ -15,8 +14,7 @@ $Configuration
 {
 	$Compiler
 	{
-		$AdditionalIncludeDirectories	"$BASE;$SRCDIR\dx9sdk\include;..\" 	[$WIN32]
-		$AdditionalIncludeDirectories	"$BASE;$SRCDIR\x360xdk\include\win32\vs2005;..\" [$X360]
+		$AdditionalIncludeDirectories	"$BASE;$SRCDIR\dx9sdk\include;..\"
 		$PreprocessorDefinitions		"$BASE;SHADERAPIDX9;SHADER_DLL_EXPORT;PROTECTED_THINGS_ENABLE;strncpy=use_Q_strncpy_instead;_snprintf=use_Q_snprintf_instead"
 
 //		$AdditionalOptions		"/FC"
@@ -25,18 +23,10 @@ $Configuration
 
 $Configuration "Debug"
 {
-	$Linker [$X360]
-	{
-		$AdditionalDependencies		"$BASE d3dx9d.lib xuirund.lib xuirenderd.lib"
-	}
 }
 
 $Configuration "Release"
 {
-	$Linker [$X360]
-	{
-		$AdditionalDependencies		"$BASE d3dx9.lib xuirun.lib xuirender.lib"
-	}
 }
 
 $Project "shaderapidx9"
@@ -131,22 +121,13 @@ $Project "shaderapidx9"
 		$File	"textureheap.h"					[$X360]
 	}
 
-	$Folder	"Link Libraries" [$WIN32]
+	$Folder	"Link Libraries"
 	{
-		$File	"$SRCDIR\lib\public\bitmap.lib"
-		$File	"$SRCDIR\lib\public\mathlib.lib"
-		$File	"$SRCDIR\lib\public\tier2.lib"
-		$File	"$SRCDIR\dx9sdk\lib\d3d9.lib"
-		$File	"$SRCDIR\dx9sdk\lib\d3dx9.lib"
-		$File	"$SRCDIR\lib\common\vc7\bzip2.lib"
-	}
-
-	$Folder	"Link Libraries" [$X360]
-	{
-		$File	"$SRCDIR\lib\public\bitmap_360.lib"
-		$File	"$SRCDIR\lib\public\mathlib_360.lib"
-		$File	"$SRCDIR\lib\public\vtf_360.lib"
-		$File	"$SRCDIR\lib\public\tier2_360.lib"
-		$File	"$SRCDIR\lib\common\vc7\bzip2_360.lib"
+		$Lib	"$LIBPUBLIC\bitmap"
+		$Lib	"$LIBPUBLIC\mathlib"
+		$Lib	"$LIBPUBLIC\tier2"
+		$Lib	"$SRCDIR\dx9sdk\lib\d3d9"
+		$Lib	"$SRCDIR\dx9sdk\lib\d3dx9"
+		$Lib	"$LIBCOMMON\bzip2"
 	}
 }

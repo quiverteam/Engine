@@ -1,9 +1,10 @@
 @echo off
 
+@REM -gameui for client gameui
 set cmdLine=-novid -dev -console +volume 0.25 +bind F5 screenshot +bind F12 screenshot -sw -w 1905 -h 1000 -game hl2r
 
-start "" quiver.exe %cmdLine%
-echo quiver.exe %cmdLine%
+start "" bin\win32\quiver.exe %cmdLine%
+echo bin\win32\quiver.exe %cmdLine%
 
 timeout 3
 

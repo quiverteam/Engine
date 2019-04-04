@@ -6,12 +6,13 @@
 
 #include "pch_tier0.h"
 #include "tier1/strtools.h"
-#if defined( _WIN32 ) && !defined( _X360 )
+#if defined( _WIN32 ) || defined(WIN64)
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
 #endif
 #ifdef _WIN32
 #include <process.h>
+#include <intrin.h>
 #elif _LINUX
 typedef int (*PTHREAD_START_ROUTINE)(
     void *lpThreadParameter
@@ -31,9 +32,6 @@ typedef void *LPVOID;
 #include <memory.h>
 #include "tier0/threadtools.h"
 #include "tier0/vcrmode.h"
-#ifdef _X360
-#include "xbox/xbox_win32stubs.h"
-#endif
 
 // Must be last header...
 #include "tier0/memdbgon.h"
@@ -69,6 +67,7 @@ struct ThreadProcInfo_t
 
 //---------------------------------------------------------
 
+
 static unsigned __stdcall ThreadProcConvert( void *pParam )
 {
 	ThreadProcInfo_t info = *((ThreadProcInfo_t *)pParam);
@@ -85,7 +84,7 @@ ThreadHandle_t CreateSimpleThread( ThreadFunc_t pfnThread, void *pParam, ThreadI
 	ThreadId_t idIgnored;
 	if ( !pID )
 		pID = &idIgnored;
-	return (ThreadHandle_t)VCRHook_CreateThread(NULL, stackSize, (LPTHREAD_START_ROUTINE)ThreadProcConvert, new ThreadProcInfo_t( pfnThread, pParam ), 0, pID);
+	return (ThreadHandle_t)VCRHook_CreateThread(NULL, stackSize, ThreadProcConvert, new ThreadProcInfo_t(pfnThread, pParam), 0, pID);
 #elif _LINUX
 	pthread_t tid;
 	pthread_create(&tid, NULL, ThreadProcConvert, new ThreadProcInfo_t( pfnThread, pParam ) );
@@ -278,7 +277,11 @@ void ThreadSetDebugName( ThreadId_t id, const char *pszName )
 
 		__try
 		{
+		#ifndef WIN64
 			RaiseException(MS_VC_EXCEPTION, 0, sizeof(info) / sizeof(DWORD), (DWORD *)&info);
+		#else
+			RaiseException(MS_VC_EXCEPTION, 0, sizeof(info) / sizeof(DWORD), (ULONG_PTR *)&info);
+		#endif
 		}
 		__except (EXCEPTION_CONTINUE_EXECUTION)
 		{
@@ -722,6 +725,15 @@ bool ThreadInterlockedAssignPointerIf( void * volatile *pDest, void *value, void
 }
 #endif
 
+#ifdef WIN64
+bool ThreadInterlockedAssignIf128(volatile int128 *pDest, const int128 &value, const int128 &comperand) NOINLINE
+{
+	Assert((size_t)pDest % 8 == 0); // Alignment check
+	int128 comp = comperand;
+	return (bool)_InterlockedCompareExchange128((int64*)pDest, *(int64*)&value, *(int64*)(&value + 1), (int64*)&comp);
+}
+#endif
+
 int64 ThreadInterlockedCompareExchange64( int64 volatile *pDest, int64 value, int64 comperand )
 {
 	Assert( (size_t)pDest % 8 == 0 );
@@ -748,7 +760,7 @@ bool ThreadInterlockedAssignIf64(volatile int64 *pDest, int64 value, int64 compe
 {
 	Assert( (size_t)pDest % 8 == 0 );
 
-#if defined(_WIN32) && !defined(_X360)
+#if defined(_WIN32) && !defined(WIN64)
 	__asm
 	{
 		lea esi,comperand;
@@ -1355,7 +1367,7 @@ bool CThread::Start( unsigned nBytesStack )
 	ThreadInit_t init = { this, &createComplete, &bInitSuccess };
 	m_hThread = hThread = (HANDLE)VCRHook_CreateThread( NULL,
 														nBytesStack,
-														(LPTHREAD_START_ROUTINE)GetThreadProc(),
+														GetThreadProc(),
 														new ThreadInit_t(init),
 														0,
 														&m_threadId );

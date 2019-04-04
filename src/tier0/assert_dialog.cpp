@@ -167,14 +167,22 @@ CAssertDisable* IgnoreAssertsNearby( int nRange )
 	return pDisable;
 }
 
-
-#if ( defined( _WIN32 ) && !defined( _X360 ) )
-int CALLBACK AssertDialogProc(
+#ifdef _WIN32
+#if defined(WIN64)
+INT_PTR CALLBACK AssertDialogProc(
   HWND hDlg,  // handle to dialog box
   UINT uMsg,     // message
   WPARAM wParam, // first message parameter
   LPARAM lParam  // second message parameter
 )
+#else
+int CALLBACK AssertDialogProc(
+	HWND hDlg,  // handle to dialog box
+	UINT uMsg,     // message
+	WPARAM wParam, // first message parameter
+	LPARAM lParam  // second message parameter
+)
+#endif
 {
 	switch( uMsg )
 	{

@@ -5,7 +5,7 @@
 //-----------------------------------------------------------------------------
 
 $Macro SRCDIR		"..\.."
-$Macro OUTBINDIR	"$SRCDIR\..\game\bin"
+$Macro OUTBINDIR	"$BINDEFAULT"
 
 $Include "$SRCDIR\vpc_scripts\source_dll_base.vpc"
 
@@ -14,12 +14,12 @@ $Configuration
 	$Compiler
 	{
 		$AdditionalIncludeDirectories		"$BASE,..\common;..\vmpi;$SRCDIR\dx9sdk\include"
-		$PreprocessorDefinitions			"$BASE;SHADERCOMPILE_EXPORTS;MPI;"
+		$PreprocessorDefinitions			"$BASE;SHADERCOMPILE_EXPORTS;MPI"
 	}
 
 	$Linker
 	{
-		$AdditionalDependencies				"ws2_32.lib odbc32.lib odbccp32.lib %(AdditionalDependencies)"
+		$AdditionalDependencies				"$BASE ws2_32.lib odbc32.lib odbccp32.lib %(AdditionalDependencies)"
 	}
 }
 
@@ -53,8 +53,8 @@ $Project "Shadercompile_dll"
 
 	$Folder	"Link Libraries"
 	{
-		$DynamicFile	"$SRCDIR\lib\public\tier2.lib"
-		$DynamicFile	"$SRCDIR\lib\public\vmpi.lib"
-		$DynamicFile	"$SRCDIR\lib\common\vc8\lzma.lib"
+		$DynamicFile	"$LIBPUBLIC\tier2.lib"
+		$DynamicFile	"$LIBPUBLIC\vmpi.lib"
+		$DynamicFile	"$LIBCOMMON\lzma.lib"
 	}
 }

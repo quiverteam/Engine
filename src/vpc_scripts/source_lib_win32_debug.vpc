@@ -9,14 +9,22 @@ $IgnoreRedundancyWarning	"ON"
 $MacroRequired				"SRCDIR"
 $MacroRequired				"OUTLIBNAME"
 $MacroRequired				"OUTLIBDIR"
+$MacroRequired				"LIBPUBLIC"
+$MacroRequired				"LIBCOMMON"
+$MacroRequired				"PLATSUBDIR"
+$MacroRequiredAllowEmpty	"GAMENAME"
+$MacroRequiredAllowEmpty	"INTERMEDIATESUBDIR"
+$MacroRequiredAllowEmpty	"_UNITYSUBDIR"
+$MacroRequiredAllowEmpty	"_STATICSUBDIR"
+$Macro						"_SUBDIRSUFFIX"		"$INTERMEDIATESUBDIR$_STATICSUBDIR$GAMENAME$PLATSUBDIR$_UNITYSUBDIR"
 
 $Configuration "Debug"
 {
 	$General	
 	{
 		// General
-		$OutputDirectory					".\Debug"
-		$IntermediateDirectory				".\Debug"
+		$OutputDirectory					"$OUTLIBDIR"
+		$IntermediateDirectory				".\Debug$_SUBDIRSUFFIX"
 		$ExtensionsToDeleteOnClean
 		$BuildLogFile
 		$InheritedProjectPropertySheets
@@ -48,7 +56,8 @@ $Configuration "Debug"
 		// General
 		$AdditionalIncludeDirectories		"$SRCDIR\common;$SRCDIR\public;$SRCDIR\public\tier0;$SRCDIR\public\tier1"
 		$Resolve#UsingReferences
-		$DebugInformationFormat				"Program Database for Edit & Continue (/ZI)"
+		$DebugInformationFormat				"Program Database for Edit & Continue (/ZI)" [$WIN32]
+		$DebugInformationFormat				"Program Database (/Zi)" [$WIN64]		
 		$SuppressStartupBanner		
 		$WarningLevel						"Level 4 (/W4)"
 		$Detect64bitPortabilityIssues		"Yes (/Wp64)"
@@ -65,20 +74,20 @@ $Configuration "Debug"
 		$WholeProgramOptimization
 
 		// Preprocessor
-		$PreprocessorDefinitions			"WIN32;_WIN32;_DEBUG;DEBUG;_LIB;_CRT_SECURE_NO_DEPRECATE;_CRT_NONSTDC_NO_DEPRECATE"
+		$PreprocessorDefinitions			"$BASE;_HAS_ITERATOR_DEBUGGING=0;WIN32;_WIN32;_DEBUG;DEBUG;_LIB;_CRT_SECURE_NO_DEPRECATE;_CRT_NONSTDC_NO_DEPRECATE;_ALLOW_RUNTIME_LIBRARY_MISMATCH;_ALLOW_ITERATOR_DEBUG_LEVEL_MISMATCH;_ALLOW_MSC_VER_MISMATCH;%(PreprocessorDefinitions)"
 		$IgnoreStandardIncludePath
 		$GeneratePreprocessedFile
 		$KeepComments
 
 		// Code Generation
 		$EnableStringPooling				"Yes (/GF)"
-		$EnableMinimalRebuild				"Yes (/Gm)"
+		$EnableMinimalRebuild				"Yes (/Gm)" [!$VS2017]
 		$EnableC++Exceptions				"No"
 		$SmallerTypeCheck
-		$BasicRuntimeChecks					"Both (/RTC1, equiv. to /RTCsu)"
+		$BasicRuntimeChecks					"Default"
 		$RuntimeLibrary						"Multi-threaded Debug (/MTd)"
 		$StructMemberAlignment
-		$BufferSecurityCheck				"No"
+		$BufferSecurityCheck				"Yes"
 		$EnableFunctionLevelLinking
 		$EnableEnhancedInstructionSet
 		$FloatingPointModel					"Fast (/fp:fast)"
@@ -119,12 +128,9 @@ $Configuration "Debug"
 		$ShowIncludes
 		$UndefinePreprocessorDefinitions
 		$UndefineAllPreprocessorDefinitions
-		$UseFullPaths
+		$UseFullPaths						"Yes (/FC)"
 		$OmitDefaultLibraryNames
 		$ErrorReporting						"Prompt Immediately (/errorReport:prompt)"
-
-		// Command Line
-		$AdditionalOptions
 	}
 
 	$Librarian

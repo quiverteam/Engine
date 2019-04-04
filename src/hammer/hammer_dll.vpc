@@ -5,7 +5,7 @@
 //-----------------------------------------------------------------------------
 
 $Macro SRCDIR		".."
-$Macro OUTBINDIR	"$SRCDIR\..\game\bin"
+$Macro OUTBINDIR	"$BINDEFAULT\utils"
 
 $Include "$SRCDIR\vpc_scripts\source_dll_base.vpc"
 
@@ -52,7 +52,7 @@ $Project "hammer_dll"
 			{
 				$Compiler
 				{
-					$PreprocessorDefinitions			"NO_MEMOVERRIDE_NEW_DELETE"
+					$PreprocessorDefinitions			"$BASE; NO_MEMOVERRIDE_NEW_DELETE"
 					$Create/UsePrecompiledHeader		"Not Using Precompiled Headers"
 				}
 			}
@@ -688,22 +688,23 @@ $Project "hammer_dll"
 
 	$Folder	"Link Libraries"
 	{
-		$File	"$SRCDIR\lib\public\bitmap.lib"
-		$File	"$SRCDIR\lib\public\choreoobjects.lib"
-		$File	"$SRCDIR\lib\public\datamodel.lib"
-		$File	"$SRCDIR\lib\public\dme_controls.lib"
-		$File	"$SRCDIR\lib\public\dmserializers.lib"
-		$File	"$SRCDIR\lib\public\fgdlib.lib"
-		$File	"$SRCDIR\lib\common\jpeglib.lib"
-		$File	"$SRCDIR\lib\public\mathlib.lib"
-		$File	"$SRCDIR\lib\public\matsys_controls.lib"
-		$File	"$SRCDIR\lib\public\movieobjects.lib"
-		$File	"$SRCDIR\lib\public\sfmobjects.lib"
-		$File	"$SRCDIR\lib\public\raytrace.lib"
-		$File	"$SRCDIR\lib\public\tier2.lib"
-		$File	"$SRCDIR\lib\public\tier3.lib"
-		$File	"$SRCDIR\lib\public\vgui_controls.lib"
-		$File	"$SRCDIR\lib\public\dmxloader.lib"
+        $Lib	"$LIBCOMMON\jpeglib"
+        $Lib    "$LIBCOMMON\steam"
+		$Lib	bitmap
+		$Lib	choreoobjects
+		$Lib	datamodel
+		$Lib	dme_controls
+		$Lib	dmserializers
+		$Lib	fgdlib
+		$Lib	mathlib
+		$Lib	matsys_controls
+		$Lib	movieobjects
+		$Lib	sfmobjects
+		$Lib	raytrace
+		$Lib	tier2
+		$Lib	tier3
+		$Lib	vgui_controls
+		$Lib	dmxloader
 	}
 
 	$File	"whatsnew.txt"

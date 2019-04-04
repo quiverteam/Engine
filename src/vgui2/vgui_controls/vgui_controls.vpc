@@ -5,10 +5,12 @@
 //-----------------------------------------------------------------------------
 
 $macro SRCDIR		"..\.."
-$Macro GENERATED_PROTO_DIR	"generated_proto"
-$macro PROTOBUF_LITE 0
+$Macro OUTLIBDIR	"$LIBPUBLIC"
 
-$include "$SRCDIR\vpc_scripts\source_lib_base.vpc"
+$Macro GENERATED_PROTO_DIR	"generated_proto"
+$Macro PROTOBUF_LITE 0
+
+$Include "$SRCDIR\vpc_scripts\source_lib_base.vpc"
 
 $Configuration
 {

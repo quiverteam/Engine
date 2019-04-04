@@ -6,7 +6,7 @@
 // ***** AUTO-GENERATED: PLEASE FIXUP MANUALLY BEFORE USING THIS SCRIPT! *****
 
 $Macro SRCDIR		"..\..\.."
-$Macro OUTBINDIR	"$SRCDIR\..\game\bin"
+$Macro OUTBINDIR	"$BINDEFAULT"
 
 $Include "$SRCDIR\vpc_scripts\source_dll_win32_base.vpc"
 
@@ -27,7 +27,7 @@ $Configuration	"Debug"
 		$Optimization						"Disabled (/Od)"
 		$AdditionalIncludeDirectories		"../../include/libparsifal"
 		$PreprocessorDefinitions			"_DEBUG;WIN32;_WINDOWS;XMLAPI=__declspec(dllexport);PARSIFAL_EXPORTS;DTD_SUPPORT"
-		$EnableMinimalRebuild				"Yes (/Gm)"
+		$EnableMinimalRebuild				"Yes (/Gm)" [!$VS2017]
 		$BasicRuntimeChecks					"Both (/RTC1, equiv. to /RTCsu)"
 		$RuntimeLibrary						"Multi-threaded Debug (/MTd)"
 		$PrecompiledHeaderFile				"Debug/parsifal.pch"

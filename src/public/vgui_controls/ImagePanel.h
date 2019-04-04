@@ -60,6 +60,7 @@ public:
 	
 	int GetNumFrames();
 	void SetFrame( int nFrame );
+	int GetFrame() const { return m_nFrame; }
 
 	void SetRotation( int iRotation ) { m_iRotation = iRotation; }
 
@@ -85,6 +86,7 @@ private:
 	Color m_FillColor;
 	Color m_DrawColor;
 	int m_iRotation;
+	int m_nFrame;
 };
 
 } // namespace vgui

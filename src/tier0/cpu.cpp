@@ -11,51 +11,34 @@
 
 #include "pch_tier0.h"
 
-#if defined(_WIN32) && !defined(_X360)
+#if defined(_WIN32) || defined(WIN64)
 #define WINDOWS_LEAN_AND_MEAN
 #include <windows.h>
+#include <intrin.h>
 #elif defined(_LINUX)
 #include <stdio.h>
 #endif
 
 static bool cpuid(unsigned long function, unsigned long& out_eax, unsigned long& out_ebx, unsigned long& out_ecx, unsigned long& out_edx)
 {
-#ifdef _LINUX
-	return false;
-#elif defined( _X360 )
-	return false;
+#if defined(_LINUX) || defined(POSIX)
+	asm("movl %4, %%eax\n\t"
+		"cpuid\n\t"
+		"movl %%eax, %0\n\t"
+		"movl %%ebx, %1\n\t"
+		"movl %%ecx, %2\n\t"
+		"movl %%edx, %3\n\t"
+		:	"=m"(out_eax), "=m"(out_ebx), "=m"(out_ecx), "=m"(out_edx)
+		: "m"(function));
+	return true;
 #else
-	bool retval = true;
-	unsigned long local_eax, local_ebx, local_ecx, local_edx;
-	_asm pushad;
-
-	__try
-	{
-        _asm
-		{
-			xor edx, edx		// Clue the compiler that EDX is about to be used.
-            mov eax, function   // set up CPUID to return processor version and features
-								//      0 = vendor string, 1 = version info, 2 = cache info
-            cpuid				// code bytes = 0fh,  0a2h
-            mov local_eax, eax	// features returned in eax
-            mov local_ebx, ebx	// features returned in ebx
-            mov local_ecx, ecx	// features returned in ecx
-            mov local_edx, edx	// features returned in edx
-		}
-    } 
-	__except(EXCEPTION_EXECUTE_HANDLER) 
-	{ 
-		retval = false; 
-	}
-
-	out_eax = local_eax;
-	out_ebx = local_ebx;
-	out_ecx = local_ecx;
-	out_edx = local_edx;
-
-	_asm popad
-
-	return retval;
+	int ret[4];
+	__cpuid(ret, function);
+	out_eax = ret[0];
+	out_ebx = ret[1];
+	out_ecx = ret[2];
+	out_edx = ret[3];
+	return true;
 #endif
 }
 
@@ -78,7 +61,7 @@ bool CheckMMXTechnology(void)
 //-----------------------------------------------------------------------------
 static bool IsWin98OrOlder()
 {
-#if defined(_WIN32) && !defined( _X360 )
+#if defined(_WIN32) || defined(WIN64)
 	bool retval = false;
 
 	OSVERSIONINFOEX osvi;
@@ -123,14 +106,6 @@ static bool IsWin98OrOlder()
 
 bool CheckSSETechnology(void)
 {
-#ifdef _LINUX
-	return true;
-#else
-if ( IsWin98OrOlder() )
-	{
-		return false;
-	}
-
     unsigned long eax,ebx,edx,unused;
     if ( !cpuid(1,eax,ebx,unused,edx) )
 	{
@@ -138,27 +113,19 @@ if ( IsWin98OrOlder() )
 	}
 
     return ( edx & 0x2000000L ) != 0;
-#endif
 }
 
 bool CheckSSE2Technology(void)
 {
-#ifdef _LINUX
-    return false;
-#else
 	unsigned long eax,ebx,edx,unused;
     if ( !cpuid(1,eax,ebx,unused,edx) )
 		return false;
 
     return ( edx & 0x04000000 ) != 0;
-#endif
 }
 
 bool Check3DNowTechnology(void)
 {
-#ifdef _LINUX
-    return false;
-#else
 	unsigned long eax, unused;
     if ( !cpuid(0x80000000,eax,unused,unused,unused) )
 		return false;
@@ -171,7 +138,6 @@ bool Check3DNowTechnology(void)
 		return ( eax & 1<<31 ) != 0;
     }
     return false;
-#endif
 }
 
 bool CheckCMOVTechnology()
@@ -189,36 +155,25 @@ bool CheckCMOVTechnology()
 
 bool CheckFCMOVTechnology(void)
 {
-#ifdef _LINUX
-    return false;
-#else
     unsigned long eax,ebx,edx,unused;
     if ( !cpuid(1,eax,ebx,unused,edx) )
 		return false;
 
     return ( edx & (1<<16) ) != 0;
-#endif
 }
 
 bool CheckRDTSCTechnology(void)
 {
-#ifdef _LINUX
-    return true;
-#else
 	unsigned long eax,ebx,edx,unused;
     if ( !cpuid(1,eax,ebx,unused,edx) )
 		return false;
 
     return ( edx & 0x10 ) != 0;
-#endif
 }
 
 // Return the Processor's vendor identification string, or "Generic_x86" if it doesn't exist on this CPU
 const tchar* GetProcessorVendorId()
 {
-#ifdef _LINUX
-	return "Generic_x86";
-#else
 	unsigned long unused, VendorIDRegisters[3];
 
 	static tchar VendorID[13];
@@ -243,18 +198,12 @@ const tchar* GetProcessorVendorId()
 	}
 
 	return VendorID;
-#endif
 }
 
 // Returns non-zero if Hyper-Threading Technology is supported on the processors and zero if not.  This does not mean that 
 // Hyper-Threading Technology is necessarily enabled.
 static bool HTSupported(void)
 {
-#if ( defined( _X360 ) || defined(_LINUX) )
-	// not entirtely sure about the semantic of HT support, it being an intel name
-	// are we asking about HW threads or HT?
-	return true;
-#else
 	const unsigned int HT_BIT		 = 0x10000000;  // EDX[28] - Bit 28 set indicates Hyper-Threading Technology is supported in hardware.
 	const unsigned int FAMILY_ID     = 0x0f00;      // EAX[11:8] - Bit 11 thru 8 contains family processor id
 	const unsigned int EXT_FAMILY_ID = 0x0f00000;	// EAX[23:20] - Bit 23 thru 20 contains extended family  processor id
@@ -275,16 +224,12 @@ static bool HTSupported(void)
 		if (vendor_id[0] == 'uneG' && vendor_id[1] == 'Ieni' && vendor_id[2] == 'letn')
 			return (reg_edx & HT_BIT) != 0;	// Genuine Intel Processor with Hyper-Threading Technology
 
-	return false;  // This is not a genuine Intel processor.
-#endif
+	return false;  // This is not a genuine Intel processor. :/
 }
 
 // Returns the number of logical processors per physical processors.
 static uint8 LogicalProcessorsPerPackage(void)
 {
-#if defined( _X360 )
-	return 2;
-#else
 	// EBX[23:16] indicate number of logical processors per package
 	const unsigned NUM_LOGICAL_BITS = 0x00FF0000;
 
@@ -297,7 +242,6 @@ static uint8 LogicalProcessorsPerPackage(void)
 		return 1;
 
 	return (uint8) ((reg_ebx & NUM_LOGICAL_BITS) >> 16);
-#endif
 }
 
 // Measure the processor clock speed by sampling the cycle count, waiting

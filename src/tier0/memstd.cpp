@@ -27,9 +27,6 @@
 #include "tier0/threadtools.h"
 #include "mem_helpers.h"
 #include "memstd.h"
-#ifdef _X360
-#include "xbox/xbox_console.h"
-#endif
 
 #ifdef TIME_ALLOC
 CAverageCycleCounter g_MallocCounter;

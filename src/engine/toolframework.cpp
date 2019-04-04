@@ -585,9 +585,13 @@ void CToolFrameworkInternal::LoadTools()
 				tool != NULL;
 				tool = tool->GetNextKey() )
 		{
+#pragma message("Double-check loading tools with Platform Sub Directories.")
 			if ( !Q_stricmp( tool->GetName(),  "library" ) )
 			{
-				// CHECK both bin/tools and gamedir/bin/tools
+				// CHECK both bin/platsubdir/tools and gamedir/bin/platsubdir/tools
+				char *newString = strcpy(newString, tool->GetString());
+				char *addString = "\\";
+				strncpy(newString, strcpy(addString, PLATFORM_SUBDIR), 0);
 				LoadToolsFromLibrary( tool->GetString() );
 			}
 		}

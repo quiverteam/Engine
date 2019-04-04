@@ -5,7 +5,7 @@
 //-----------------------------------------------------------------------------
 
 $macro SRCDIR		".."
-$Macro OUTBINDIR	"$SRCDIR\..\game\bin"
+$Macro OUTBINDIR	"$BINDEFAULT"
 
 $include "$SRCDIR\vpc_scripts\source_dll_base.vpc"
 
@@ -19,22 +19,6 @@ $Configuration
 	{
 		$PreprocessorDefinitions	"$BASE;DEFINE_MATERIALSYSTEM_INTERFACE;MATERIALSYSTEM_EXPORTS;PROTECTED_THINGS_ENABLE;strncpy=use_Q_strncpy_instead;_snprintf=use_Q_snprintf_instead;fopen=dont_use_fopen"
 		$Create/UsePCHThroughFile	"pch_materialsystem.h"
-	}
-}
-
-$Configuration "Debug"
-{
-	$Linker [$X360]
-	{
-		$AdditionalDependencies		"$BASE d3dx9d.lib"
-	}
-}
-
-$Configuration "Release"
-{
-	$Linker [$X360]
-	{
-		$AdditionalDependencies		"$BASE d3dx9.lib"
 	}
 }
 
@@ -166,19 +150,10 @@ $Project "MaterialSystem"
 
 	$Folder	"Link Libraries" [$WIN32]
 	{
-		$File	"$SRCDIR\lib\public\bitmap.lib"
-		$File	"$SRCDIR\lib\public\mathlib.lib"
-		$File	"$SRCDIR\lib\public\shaderlib.lib"
-		$File	"$SRCDIR\lib\public\tier2.lib"
-		$File	"$SRCDIR\lib\public\vtf.lib"
-	}
-
-	$Folder	"Link Libraries" [$X360]
-	{
-		$File	"$SRCDIR\lib\public\bitmap_360.lib"
-		$File	"$SRCDIR\lib\public\mathlib_360.lib"
-		$File	"$SRCDIR\lib\public\shaderlib_360.lib"
-		$File	"$SRCDIR\lib\public\tier2_360.lib"
-		$File	"$SRCDIR\lib\public\vtf_360.lib"
+		$Lib	bitmap
+		$Lib	mathlib
+		$Lib	shaderlib
+		$Lib	tier2
+		$Lib	vtf
 	}
 }

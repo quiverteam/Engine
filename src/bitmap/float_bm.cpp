@@ -357,8 +357,6 @@ float FloatBitMap_t::BrightestColor(void)
 		return ret;
 }
 
-#define MAX(a,b) (((a)>(b))?(a):(b))
-#define MIN(a,b) (((a)>(b))?(b):(a))
 template <class T> static inline void SWAP(T & a, T & b)
 {
 	T temp=a;

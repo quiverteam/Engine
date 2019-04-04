@@ -32,8 +32,8 @@ bool QueryLessFunc( const struct challenge_s &item1, const struct challenge_s &i
 	else if ( item1.addr.GetPort() > item2.addr.GetPort() )
 		return false;
 
-	int ip1 = item1.addr.GetIP();
-	int ip2 = item2.addr.GetIP();
+	int ip1 = item1.addr.GetIPNetworkByteOrder();
+	int ip2 = item2.addr.GetIPNetworkByteOrder();
 
 	return ip1 < ip2;
 }
@@ -244,16 +244,13 @@ void CDialogGameInfo::SetFriend( uint64 ulSteamIDFriend )
 	// store the friend we're associated with
 	m_SteamIDFriend = ulSteamIDFriend;
 
-	uint64 nGameID;
-	uint32 unGameIP;
-	uint16 usGamePort;
-	uint16 usQueryPort;
-	if ( SteamFriends()->GetFriendGamePlayed( ulSteamIDFriend, &nGameID, &unGameIP, &usGamePort, &usQueryPort ) )
+	FriendGameInfo_t friendGameInfo;
+	if ( SteamFriends()->GetFriendGamePlayed( ulSteamIDFriend, &friendGameInfo) )
 	{
-		uint16 usConnPort = usGamePort;
-		if ( usQueryPort < QUERY_PORT_ERROR )
-			usConnPort = usGamePort;
-		ChangeGame( unGameIP, usConnPort, usGamePort );
+		uint16 usConnPort = friendGameInfo.m_usGamePort;
+		if ( friendGameInfo.m_usQueryPort < QUERY_PORT_ERROR )
+			usConnPort = friendGameInfo.m_usGamePort;
+		ChangeGame( friendGameInfo.m_unGameIP, usConnPort, friendGameInfo.m_usGamePort );
 	}
 #endif
 }
@@ -285,7 +282,8 @@ void CDialogGameInfo::PerformLayout()
         // get the game from the friends info if we can
 		uint64 nGameID = 0;
 #ifndef NO_STEAM
-		SteamFriends()->GetFriendGamePlayed( m_SteamIDFriend, &nGameID, NULL, NULL, NULL );
+		FriendGameInfo_t friendGameInfo;
+		SteamFriends()->GetFriendGamePlayed( m_SteamIDFriend, &friendGameInfo );
 #endif
 		if ( nGameID )
 		{

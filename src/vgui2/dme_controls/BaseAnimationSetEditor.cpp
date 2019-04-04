@@ -14,7 +14,6 @@
 #include "vgui_controls/ComboBox.h"
 #include "vgui_controls/FileOpenDialog.h"
 #include "vgui_controls/MessageBox.h"
-#include "vgui_controls/perforcefilelistframe.h"
 #include "studio.h"
 #include "dme_controls/BaseAnimSetAttributeSliderPanel.h"
 #include "dme_controls/BaseAnimSetPresetFaderPanel.h"
@@ -617,11 +616,6 @@ void CBaseAnimationSetEditor::ImportAnimation( CDmeChannelsClip *pChannelsClip, 
 	CUtlVector< LogPreview_t > controls;
 	int nCount = bVisibleOnly ? BuildVisibleControlList( controls ) : BuildFullControlList( controls );
 
-	COperationFileListFrame *pStatusFrame = new COperationFileListFrame( this, 
-		"Import the Following Channels?", "Target Control", false );
-	pStatusFrame->SetCloseButtonVisible( false );
-	pStatusFrame->SetOperationColumnHeaderText( "Source Channel" );
-
 	int nSrcCount = pChannelsClip->m_Channels.Count();
 	CDmeChannel** ppFoundChannels = (CDmeChannel**)_alloca( nSrcCount * sizeof(CDmeChannel*) );
 	int nFoundCount = 0;
@@ -641,7 +635,6 @@ void CBaseAnimationSetEditor::ImportAnimation( CDmeChannelsClip *pChannelsClip, 
 			CDmeChannel *pImportChannel = FindImportChannel( pChannel, pChannelsClip );
 			if ( !pImportChannel )
 			{
-				pStatusFrame->AddOperation( "No source channel", pChannelInfo, Color( 255, 0, 0, 255 ) ); 
 				continue;
 			}
 
@@ -650,7 +643,6 @@ void CBaseAnimationSetEditor::ImportAnimation( CDmeChannelsClip *pChannelsClip, 
 			char pImportInfo[512];
 			Q_snprintf( pImportInfo, sizeof(pImportInfo), "\"%s\" : %s", 
 				pImportChannel->GetToElement()->GetName(), pImportChannel->GetToAttribute()->GetName() );
-			pStatusFrame->AddOperation( pImportInfo, pChannelInfo, Color( 0, 255, 0, 255 ) );
 		}
 	}
 
@@ -671,13 +663,11 @@ void CBaseAnimationSetEditor::ImportAnimation( CDmeChannelsClip *pChannelsClip, 
 		char pImportInfo[512];
 		Q_snprintf( pImportInfo, sizeof(pImportInfo), "\"%s\" : %s", 
 			pMissingChannel->GetToElement()->GetName(), pMissingChannel->GetToAttribute()->GetName() );
-		pStatusFrame->AddOperation( pImportInfo, "No destination control", Color( 255, 255, 0, 255 ) );
 	}
 
 	KeyValues *pContext = new KeyValues( "context" );
 	SetElementKeyValue( pContext, "channelsClip", pChannelsClip );
 	pContext->SetInt( "visibleOnly", bVisibleOnly );
-	pStatusFrame->DoModal( pContext, "ImportConfirmed" );
 }
 
 

@@ -38,7 +38,7 @@ class SectionedListPanel : public Panel
 
 public:
 	SectionedListPanel(vgui::Panel *parent, const char *name);
-	~SectionedListPanel();
+	virtual ~SectionedListPanel();
 
 	// adds a new section; returns false if section already exists
 	virtual void AddSection(int sectionID, const char *name, SectionSortFunc_t sortFunc = NULL);
@@ -300,6 +300,7 @@ class SectionedListPanelHeader : public Label
 public:
 	SectionedListPanelHeader(SectionedListPanel *parent, const char *name, int sectionID);
 	SectionedListPanelHeader(SectionedListPanel *parent, const wchar_t *name, int sectionID);
+	virtual ~SectionedListPanelHeader() {}
 
 	virtual void ApplySchemeSettings(IScheme *pScheme) OVERRIDE;
 	virtual void Paint() OVERRIDE;

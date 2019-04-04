@@ -12,7 +12,7 @@
 
 #include <vgui_controls/Panel.h>
 #include <vgui_controls/EditablePanel.h>
-#include "avi/ibik.h"
+#include "avi/iavi.h"
 
 
 class VideoPanel : public vgui::EditablePanel
@@ -51,7 +51,7 @@ protected:
 	virtual void OnVideoOver(){}
 
 protected:
-	BIKMaterial_t	m_BIKHandle;
+	AVIMaterial_t	m_AVIHandle;
 	IMaterial		*m_pMaterial;
 	int				m_nPlaybackHeight;			// Calculated to address ratio changes
 	int				m_nPlaybackWidth;

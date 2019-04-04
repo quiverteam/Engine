@@ -21,6 +21,10 @@
 
 #include "tier0/IOCTLCodes.h"
 
+#if defined( WIN64 ) || defined( _WIN32 )
+#include <intrin.h>
+#endif // WIN64 || _WIN32
+
 PME* PME::_singleton = 0;
 
 // Single interface.
@@ -434,17 +438,23 @@ double PME::GetCPUClockSpeedSlow(void)
     while (start_ms <= GetTickCount());
 
     // read timestamp (you could use QueryPerformanceCounter in hires mode if you want)
+
+#ifndef WIN64
     __asm
     {
         rdtsc
         mov dword ptr [start_tsc+0],eax
         mov dword ptr [start_tsc+4],edx
     }
+#else
+	start_tsc = __rdtsc();
+#endif
 
     // wait for end
     stop_ms = start_ms + 1000; // longer wait gives better resolution
     while (stop_ms > GetTickCount());
 
+#ifndef WIN64
     // read timestamp (you could use QueryPerformanceCounter in hires mode if you want)
     __asm
     {
@@ -452,6 +462,9 @@ double PME::GetCPUClockSpeedSlow(void)
         mov dword ptr [stop_tsc+0],eax
         mov dword ptr [stop_tsc+4],edx
     }
+#else
+	stop_tsc = __rdtsc();
+#endif
 
 
     // normalize priority

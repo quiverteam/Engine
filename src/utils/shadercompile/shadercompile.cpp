@@ -49,6 +49,7 @@
 
 #include "cmdsink.h"
 #include "d3dxfxc.h"
+#include "d3dx9shader.h"
 #include "subprocess.h"
 #include "cfgprocessor.h"
 
@@ -2381,6 +2382,65 @@ int ShaderCompile_Main( int argc, char* argv[] )
 
 	SetupDebugFile();
 	numthreads = 1; // managed specifically in Worker_ProcessCommandRange_Singleton::Startup
+
+	/*
+	Find custom flags
+	*/
+	{
+		if (CommandLine()->FindParm("--partial-precision") || CommandLine()->FindParm("/Gpp"))
+			gFlags |= D3DXSHADER_PARTIALPRECISION;
+		if (CommandLine()->FindParm("/Vd") || CommandLine()->FindParm("--no-validation"))
+			gFlags |= D3DXSHADER_SKIPVALIDATION;
+		if (CommandLine()->FindParm("/Zi") || CommandLine()->FindParm("--include-debug-info"))
+			gFlags |= D3DXSHADER_DEBUG;
+		if (CommandLine()->FindParm("/Gec") || CommandLine()->FindParm("--enable-backwards-compat"))
+			gFlags |= D3DXSHADER_ENABLE_BACKWARDS_COMPATIBILITY;
+		if (CommandLine()->FindParm("/Gis") || CommandLine()->FindParm("--enable-ieee-strict"))
+			gFlags |= D3DXSHADER_IEEE_STRICTNESS;
+		if (CommandLine()->FindParm("/Op") || CommandLine()->FindParm("--disable-preshader"))
+			gFlags |= D3DXSHADER_NO_PRESHADER;
+
+		// Flow control
+		if (CommandLine()->FindParm("/Gfa") || CommandLine()->FindParm("--no-flow-control"))
+			gFlags |= D3DXSHADER_AVOID_FLOW_CONTROL;
+		else if (CommandLine()->FindParm("/Gfp") || CommandLine()->FindParm("--prefer-flow-control"))
+			gFlags |= D3DXSHADER_PREFER_FLOW_CONTROL;
+
+		// Optimization
+		if (CommandLine()->FindParm("/Od") || CommandLine()->FindParm("--disable-optimization"))
+			gFlags |= D3DXSHADER_SKIPOPTIMIZATION;
+		else if (CommandLine()->FindParm("/O0"))
+			gFlags |= D3DXSHADER_OPTIMIZATION_LEVEL0;
+		else if (CommandLine()->FindParm("/O1"))
+			gFlags |= D3DXSHADER_OPTIMIZATION_LEVEL1;
+		else if (CommandLine()->FindParm("/O2"))
+			gFlags |= D3DXSHADER_OPTIMIZATION_LEVEL2;
+		else if (CommandLine()->FindParm("/O3"))
+			gFlags |= D3DXSHADER_OPTIMIZATION_LEVEL3;
+
+		if (CommandLine()->FindParm("--help") || CommandLine()->FindParm("-h"))
+		{
+			printf("-------- SHADERCOMPILE.EXE HELP --------\n");
+			printf("\n--------    GENERAL OPTIONS     --------\n");
+			printf("-h    --help                              - Show this help\n");
+			printf("/Gpp  --partial-precision                 - Enable partial precision (faster runtimes)\n");
+			printf("/Vd   --no-validation                     - Disable validation (faster compile times)\n");
+			printf("/Zi   --include-debug-info                - Include debug info in output (no change in compile times)\n");
+			printf("/Gec  --enable-backwards-compat           - Enable backwards compatibility with earlier shader models (no change in compile times)\n");
+			printf("/Gis  --enable-ieee-strict                - Enable IEEE strictness (no change in compile times)\n");
+			printf("/Op   --disable-preshader                 - Disables preshaders (no change in compile times)\n");
+			printf("\n-------- OPTIMIZATION OPTIONS  --------\n");
+			printf("/Gfa  --no-flow-control                   - Avoids flow control in shaders (faster runtimes, no change in compile times)\n");
+			printf("/Gfp  --prefer-flow-control               - Prefers flow control in shaders (slower runtimes, no change in compile times)\n");
+			printf("/Od   --disable-optimization              - Disables all optimization passes (slower runtimes, fast compile times)\n");
+			printf("/O0                                       - Optimization level 0 (faster runtimes)\n");
+			printf("/O1                                       - Optimization level 1 (faster runtimes, slower compile times)\n");
+			printf("/O2                                       - Optimization level 2 (faster runtimes, slower compile times)\n");
+			printf("/O4                                       - Optimization level 4 (fastest runtimes, much slower compile times)\n");
+			exit(0);
+		}
+	}
+
 
 	/*
 	Special section of code implementing "-subprocess" flag

@@ -17,7 +17,7 @@
 #include "ivoicetweak.h"
 #include "materialsystem/materialsystem_config.h"
 #include "cdll_util.h"
-#include "nb_header_footer.h"
+//#include "nb_header_footer.h"
 #include "vgui_controls/ImagePanel.h"
 
 // memdbgon must be the last include file in a .cpp file!!!
@@ -961,7 +961,7 @@ Panel* Audio::NavigateBack()
 
 void Audio::UseSelectedLanguage()
 {
-	m_pchUpdatedAudioLanguage = GetLanguageICUName( m_nSelectedAudioLanguage );
+	//m_pchUpdatedAudioLanguage = GetLanguageICUName( m_nSelectedAudioLanguage );
 }
 
 void Audio::ResetLanguage()

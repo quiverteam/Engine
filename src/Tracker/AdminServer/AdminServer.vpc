@@ -5,7 +5,7 @@
 //-----------------------------------------------------------------------------
 
 $Macro SRCDIR		"..\.."
-$Macro OUTBINDIR	"$SRCDIR\..\game\bin"
+$Macro OUTBINDIR	"$BINDEFAULT"
 
 $Include "$SRCDIR\vpc_scripts\source_dll_base.vpc"
 
@@ -19,7 +19,7 @@ $Configuration
 
 	$Linker
 	{
-		$AdditionalDependencies				"wsock32.lib"
+		$AdditionalDependencies				"$BASE wsock32.lib"
 	}
 }
 
@@ -109,8 +109,8 @@ $Project "AdminServer"
 
 	$Folder	"Link Libraries"
 	{
-		$File	"$SRCDIR\lib\public\tier2.lib"
-		$File	"$SRCDIR\lib\public\tier3.lib"
-		$File	"$SRCDIR\lib\public\vgui_controls.lib"
+		$Lib	tier2
+		$Lib	tier3
+		$Lib	vgui_controls
 	}
 }

@@ -5,7 +5,7 @@
 //-----------------------------------------------------------------------------
 
 $Macro SRCDIR		".."
-$Macro OUTBINDIR	"$SRCDIR\..\game\bin"
+$Macro OUTBINDIR	"$BINDEFAULT"
 
 $Include "$SRCDIR\vpc_scripts\source_dll_base.vpc"
 
@@ -77,17 +77,9 @@ $Project "launcher"
 		$File	"$SRCDIR\public\vstdlib\vstdlib.h"
 	}
 
-	$folder	"Link Libraries"	[$WIN32||$LINUX]
+	$folder	"Link Libraries"
 	{
-		$File	"$SRCDIR\lib\public\appframework.lib"		
-		$File	"$SRCDIR\lib\public\tier2.lib"			
-		$File	"$SRCDIR\lib\public\tier3.lib"				
-	}
-
-	$folder	"Link Libraries"	[$X360]
-	{
-		$File	"$SRCDIR\lib\public\appframework_360.lib"
-		$File	"$SRCDIR\lib\public\tier2_360.lib"
-		$File	"$SRCDIR\lib\public\tier3_360.lib"
-	}
+		$Lib	"$LIBPUBLIC\appframework"
+		$Lib	"$LIBPUBLIC\tier2"
+		$Lib	"$LIBPUBLIC\tier3"
 }

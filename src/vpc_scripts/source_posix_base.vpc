@@ -1,8 +1,8 @@
 
 $Include "$SRCDIR\vpc_scripts\version.vpc"
 
-$Macro LIBPUBLIC	"$SRCDIR\lib\public$PLATSUBDIR"
-$Macro LIBCOMMON	"$SRCDIR\lib\common$PLATSUBDIR"
+$Macro LIBPUBLIC	"$SRCDIR\lib\public\$PLATSUBDIR"
+$Macro LIBCOMMON	"$SRCDIR\lib\common\$PLATSUBDIR"
 
 $MacroRequired				"SRCDIR"
 

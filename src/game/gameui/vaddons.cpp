@@ -29,7 +29,7 @@
 #include "vgui_controls/TextImage.h"
 #include "UtlBuffer.h"
 #include "tier2/fileutils.h"
-#include "nb_header_footer.h"
+//#include "nb_header_footer.h"
 #include "nb_button.h"
 
 // use the JPEGLIB_USE_STDIO define so that we can read in jpeg's from outside the game directory tree.  For Spray Import.
@@ -211,11 +211,11 @@ BaseClass( parent, panelName, false, true )
 	SetDeleteSelfOnClose(true);
 	SetProportional( true );
 
-	m_pHeaderFooter = new CNB_Header_Footer( this, "HeaderFooter" );
+	/*m_pHeaderFooter = new CNB_Header_Footer( this, "HeaderFooter" );
 	m_pHeaderFooter->SetTitle( "" );
 	m_pHeaderFooter->SetHeaderEnabled( false );
 	m_pHeaderFooter->SetGradientBarEnabled( true );
-	m_pHeaderFooter->SetGradientBarPos( 75, 350 );
+	m_pHeaderFooter->SetGradientBarPos( 75, 350 );*/
 
 	m_GplAddons = new GenericPanelList( this, "GplAddons", GenericPanelList::ISM_ELEVATOR );
 	m_GplAddons->ShowScrollProgress( true );

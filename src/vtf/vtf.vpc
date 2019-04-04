@@ -5,7 +5,7 @@
 //-----------------------------------------------------------------------------
 
 $macro SRCDIR		".."
-$Macro OUTLIBDIR	"$SRCDIR\lib\public"
+$Macro OUTLIBDIR	"$LIBPUBLIC"
 
 $include "$SRCDIR\vpc_scripts\source_lib_base.vpc"
 
@@ -27,7 +27,6 @@ $Project "vtf"
 {
 	$Folder	"Source Files"
 	{
-		$File	"convert_x360.cpp"
 		$File	"s3tc_decode.cpp" 	[$WIN32]
 		$File	"vtf.cpp"
 	}

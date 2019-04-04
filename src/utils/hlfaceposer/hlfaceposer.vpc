@@ -5,7 +5,7 @@
 //-----------------------------------------------------------------------------
 
 $Macro SRCDIR		"..\.."
-$Macro OUTBINDIR	"$SRCDIR\..\game\bin"
+$Macro OUTBINDIR	"$BINDEFAULT"
 
 $Include "$SRCDIR\vpc_scripts\source_exe_base.vpc"
 
@@ -395,19 +395,19 @@ $Project "hlfaceposer"
 
 	$Folder	"Link Libraries"
 	{
-		$File	"$SRCDIR\lib\public\appframework.lib"
-		$File	"$SRCDIR\lib\public\bitmap.lib"
-		$File	"$SRCDIR\lib\public\choreoobjects.lib"
-		$File	"$SRCDIR\lib\public\mathlib.lib"
-		$File	"$SRCDIR\lib\common\mxtoolkitwin32.lib"
-		$File	"$SRCDIR\lib\public\tier2.lib"
-		$File	"$SRCDIR\lib\public\tier3.lib"
-		
-		$File	"$SRCDIR\lib\public\datamodel.lib"
-		$File	"$SRCDIR\lib\public\dme_controls.lib"
-		$File	"$SRCDIR\lib\public\dmserializers.lib"
-		$File	"$SRCDIR\lib\public\matsys_controls.lib"
-		$File	"$SRCDIR\lib\public\movieobjects.lib"
-		$File	"$SRCDIR\lib\public\vgui_controls.lib"
+        $Lib	"$LIBCOMMON\mxtoolkitwin32"
+
+		$Lib	appframework
+		$Lib	bitmap
+		$Lib	choreoobjects
+		$Lib	mathlib
+		$Lib	tier2
+		$Lib	tier3
+		$Lib	datamodel
+		$Lib	dme_controls
+		$Lib	dmserializers
+		$Lib	matsys_controls
+		$Lib	movieobjects
+		$Lib	vgui_controls
 	}
 }

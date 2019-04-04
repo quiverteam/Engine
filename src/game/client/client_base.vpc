@@ -5,7 +5,7 @@
 //-----------------------------------------------------------------------------
 
 $Macro OUTBINNAME	"client"
-$Macro OUTBINDIR	"$SRCDIR\..\game\$GAMENAME\bin"
+$Macro OUTBINDIR	"$SRCDIR\..\game\$GAMENAME\bin\$PLATSUBDIR"
 
 $MacroRequired "GAMENAME"
 
@@ -15,8 +15,8 @@ $Configuration	"Debug"
 {
 	$General
 	{
-		$OutputDirectory			".\Debug_$GAMENAME"			[$WIN32]
-		$IntermediateDirectory		".\Debug_$GAMENAME"			[$WIN32]
+		$OutputDirectory			".\Debug_$GAMENAME"			[$WINDOWS]
+		$IntermediateDirectory		".\Debug_$GAMENAME"			[$WINDOWS]
 	}
 }
 
@@ -24,8 +24,8 @@ $Configuration	"Release"
 {
 	$General
 	{
-		$OutputDirectory			".\Release_$GAMENAME"		[$WIN32]
-		$IntermediateDirectory		".\Release_$GAMENAME"		[$WIN32]
+		$OutputDirectory			".\Release_$GAMENAME"		[$WINDOWS]
+		$IntermediateDirectory		".\Release_$GAMENAME"		[$WINDOWS]
 	}
 }
 
@@ -43,7 +43,7 @@ $Configuration
 	$Linker
 	{
 		$IgnoreImportLibrary			"TRUE"
-		$AdditionalDependencies			"winmm.lib;Shell32.lib;User32.lib"	[$WIN32]
+		$AdditionalDependencies			"winmm.lib;Shell32.lib;User32.lib"	[$WINDOWS]
 	}
 }
 
@@ -295,7 +295,7 @@ $Project
 		$File	"ragdoll.cpp"
 		$File	"$SRCDIR\game\shared\ragdoll_shared.cpp"
 		$File	"recvproxy.cpp"
-		$File	"basepresence.cpp"			[$WIN32]
+		$File	"basepresence.cpp"			[$WINDOWS]
 		$File	"$SRCDIR\game\shared\rope_helpers.cpp"
 		$File	"$SRCDIR\game\shared\saverestore.cpp"
 		$File	"$SRCDIR\game\shared\sceneentity_shared.cpp"
@@ -500,7 +500,7 @@ $Project
 		}
 	}
 
-	$Folder	"MP3" [$WIN32]
+	$Folder	"MP3" [$WINDOWS]
 	{
 		$File	"mp3player.cpp"
 		$File	"mp3player.h"
@@ -1073,16 +1073,16 @@ $Project
 		$File	"game_controls\iconpanel.h"
 	}
 	
-	$Folder	"Link Libraries" [$WIN32]
+	$Folder	"Link Libraries" [$WINDOWS]
 	{
-		$File	"$SRCDIR\lib\public\bitmap.lib"
-		$File	"$SRCDIR\lib\public\choreoobjects.lib"
-		$File	"$SRCDIR\lib\public\dmxloader.lib"
-		$File	"$SRCDIR\lib\public\mathlib.lib"
-		$File	"$SRCDIR\lib\public\particles.lib"
-		$File	"$SRCDIR\lib\public\tier2.lib"
-		$File	"$SRCDIR\lib\public\tier3.lib"
-		$File	"$SRCDIR\lib\public\vgui_controls.lib"
-		$File	"$SRCDIR\lib\public\steam_api.lib"
+		$Lib	"$LIBPUBLIC\bitmap"
+		$Lib	"$LIBPUBLIC\choreoobjects"
+		$Lib	"$LIBPUBLIC\dmxloader"
+		$Lib	"$LIBPUBLIC\mathlib"
+		$Lib	"$LIBPUBLIC\particles"
+		$Lib	"$LIBPUBLIC\tier2"
+		$Lib	"$LIBPUBLIC\tier3"
+		$Lib	"$LIBPUBLIC\vgui_controls"
+		$Lib	"$LIBPUBLIC\steam_api"
 	}
 }

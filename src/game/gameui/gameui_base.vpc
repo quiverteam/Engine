@@ -9,9 +9,9 @@ $macro SRCDIR		"..\.."
 $MacroRequired "GAMENAME"
 
 $Macro OUTBINNAME	"gameui"
-$Macro OUTBINDIR	"$SRCDIR\..\game\$GAMENAME\bin"
+$Macro OUTBINDIR	"$SRCDIR\..\game\$GAMENAME\bin\$PLATSUBDIR"
 
-$include "$SRCDIR\vpc_scripts\source_dll_base.vpc"	[$WIN32||$LINUX]
+$include "$SRCDIR\vpc_scripts\source_dll_base.vpc"	[$WINDOWS||$LINUX]
 
 $Configuration	"Debug"
 {
@@ -54,7 +54,7 @@ $Configuration
 	$Linker
 	{
 		$IgnoreImportLibrary			"TRUE"
-		$AdditionalDependencies			"$BASE Ws2_32.lib odbc32.lib odbccp32.lib Shlwapi.lib winmm.lib" [$WIN32]
+		$AdditionalDependencies			"$BASE Ws2_32.lib odbc32.lib odbccp32.lib Shlwapi.lib winmm.lib" [$WINDOWS]
 		$IgnoreSpecificLibrary			"libc;libcd;libcmtd;msvcrt"
 	}
 }
@@ -82,16 +82,15 @@ $Project
 		$File	"SaveGameDialog.h"
 		$File	"TGAImagePanel.cpp"
 		$File	"TGAImagePanel.h"
-	
-		// do we use vgui_video.cpp/h instead?
-		//$File	"$SRCDIR\game\client\vgui_video_player.h"
-		//$File	"$SRCDIR\game\client\vgui_video_player.cpp"
-
+		
+	//	$File	"vgui_video_player.h"
+	//	$File	"vgui_video_player.cpp"
+		
 		$File	"nb_button.h"
 		$File	"nb_button.cpp"
-		$File	"nb_header_footer.h"
-		$File	"nb_header_footer.cpp"
-
+	//	$File	"nb_header_footer.h"
+	//	$File	"nb_header_footer.cpp"
+		
 		$File	"cbase.h"
 
 		$File	"basemodframe.h"
@@ -306,18 +305,21 @@ $Project
 		$File	"$SRCDIR\common\language.h"
 	}
 	
-	$Folder	"Link Libraries" [$WIN32]
+	$Folder	"Link Libraries" [$WINDOWS]
 	{
-		$File	"$SRCDIR\lib\common\jpeglib.lib"
-		$File	"$SRCDIR\lib\public\bitmap.lib"
-		$File	"$SRCDIR\lib\public\mathlib.lib"
-		$File	"$SRCDIR\lib\public\tier2.lib"
-		$File	"$SRCDIR\lib\public\tier3.lib"
-		$File	"$SRCDIR\lib\public\dmxloader.lib"
-		$File	"$SRCDIR\lib\public\vgui_controls.lib"
-		$File	"$SRCDIR\lib\public\matsys_controls.lib"
-		$File	"$SRCDIR\lib\public\vtf.lib"
-		$ImpLib "$SRCDIR\lib\public\steam_api"
+		$Lib	"$LIBCOMMON\jpeglib"
+		$Lib	"$LIBPUBLIC\bitmap"
+		$Lib	"$LIBPUBLIC\mathlib"
+		$Lib	"$LIBPUBLIC\tier2"
+		$Lib	"$LIBPUBLIC\tier3"
+		$Lib	"$LIBPUBLIC\dmxloader"
+		$Lib	"$LIBPUBLIC\vgui_controls"
+		$Lib	"$LIBPUBLIC\matsys_controls"
+		$Lib	"$LIBPUBLIC\vtf"
+		
+		// tf does ImpLib do differently than Lib
+		//$ImpLib "$LIBPUBLIC\steam_api"
+		$Lib	"$LIBPUBLIC\steam_api"
 	}
 	
 	$Folder	"Game_MapLab"

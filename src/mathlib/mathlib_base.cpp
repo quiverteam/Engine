@@ -21,13 +21,7 @@
 
 #include "mathlib/mathlib.h"
 #include "mathlib/vector.h"
-#if !defined( _X360 )
-#include "mathlib/amd3dx.h"
-#ifndef OSX
-#include "3dnow.h"
-#endif
 #include "sse.h"
-#endif
 
 #include "mathlib/ssemath.h"
 #include "mathlib/ssequaternion.h"
@@ -3315,8 +3309,6 @@ void MathLib_Init( float gamma, float texGamma, float brightness, int overbright
 		return;
 
 	// FIXME: Hook SSE into VectorAligned + Vector4DAligned
-
-#if !defined( _X360 )
 	// Grab the processor information:
 	const CPUInformation& pi = *GetCPUInformation();
 
@@ -3341,32 +3333,11 @@ void MathLib_Init( float gamma, float texGamma, float brightness, int overbright
 		s_bMMXEnabled = false;
 	}
 
-	// SSE Generally performs better than 3DNow when present, so this is placed 
-	// first to allow SSE to override these settings.
-#if !defined( OSX ) && !defined( PLATFORM_WINDOWS_PC64 ) && !defined(LINUX)
-	if ( bAllow3DNow && pi.m_b3DNow )
-	{
-		s_b3DNowEnabled = true;
-
-		// Select the 3DNow specific routines if available;
-		pfVectorNormalize = _3DNow_VectorNormalize;
-		pfVectorNormalizeFast = _3DNow_VectorNormalizeFast;
-		pfInvRSquared = _3DNow_InvRSquared;
-		pfSqrt = _3DNow_Sqrt;
-		pfRSqrt = _3DNow_RSqrt;
-		pfRSqrtFast = _3DNow_RSqrt;
-	}
-	else
-#endif
-	{
-		s_b3DNowEnabled = false;
-	}
-
-	if ( bAllowSSE && pi.m_bSSE )
+	if ( (bAllowSSE && pi.m_bSSE))
 	{
 		s_bSSEEnabled = true;
+		s_b3DNowEnabled = false;
 
-#ifndef PLATFORM_WINDOWS_PC64
 		// These are not yet available.
 		// Select the SSE specific routines if available
 		pfVectorNormalize = _VectorNormalize;
@@ -3375,30 +3346,25 @@ void MathLib_Init( float gamma, float texGamma, float brightness, int overbright
 		pfSqrt = _SSE_Sqrt;
 		pfRSqrt = _SSE_RSqrtAccurate;
 		pfRSqrtFast = _SSE_RSqrtFast;
-#endif
-#ifdef PLATFORM_WINDOWS_PC32
 		pfFastSinCos = _SSE_SinCos;
 		pfFastCos = _SSE_cos;
-#endif
 	}
 	else
 	{
 		s_bSSEEnabled = false;
+		s_b3DNowEnabled = false;
 	}
 
 	if ( bAllowSSE2 && pi.m_bSSE2 )
 	{
 		s_bSSE2Enabled = true;
-#ifdef PLATFORM_WINDOWS_PC32
 		pfFastSinCos = _SSE2_SinCos;
 		pfFastCos = _SSE2_cos;
-#endif
 	} 
 	else
 	{
 		s_bSSE2Enabled = false;
 	}
-#endif // !_X360
 
 	s_bMathlibInitialized = true;
 

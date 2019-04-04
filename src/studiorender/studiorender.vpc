@@ -5,7 +5,7 @@
 //-----------------------------------------------------------------------------
 
 $macro SRCDIR		".."
-$Macro OUTBINDIR	"$SRCDIR\..\game\bin"
+$Macro OUTBINDIR	"$BINDEFAULT"
 
 $include "$SRCDIR\vpc_scripts\source_dll_base.vpc"
 
@@ -102,19 +102,11 @@ $Project "StudioRender"
 		$File	"$SRCDIR\public\tier1\utlstringmap.h"
 	}
 
-	$folder "Link Libraries"	[$WIN32]
+	$folder "Link Libraries"
 	{
-		$file	"$SRCDIR\lib\public\bitmap.lib"
-		$file	"$SRCDIR\lib\public\mathlib.lib"
-		$file	"$SRCDIR\lib\public\tier2.lib"
-		$file	"$SRCDIR\lib\public\tier3.lib"
-	}
-
-	$folder "Link Libraries"	[$X360]
-	{
-		$file	"$SRCDIR\lib\public\bitmap_360.lib"
-		$file	"$SRCDIR\lib\public\mathlib_360.lib"
-		$file	"$SRCDIR\lib\public\tier2_360.lib"
-		$file	"$SRCDIR\lib\public\tier3_360.lib"
+		$Lib	bitmap
+		$Lib	mathlib
+		$Lib	tier2
+		$Lib	tier3
 	}
 }

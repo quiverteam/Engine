@@ -89,11 +89,11 @@ int APIENTRY WinMain( HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdL
 #ifdef _DEBUG
 	int len = 
 #endif
-	_snprintf( szBuffer, sizeof( szBuffer ) - 1, "PATH=%s\\bin\\;%s", pRootDir, pPath );
+	_snprintf( szBuffer, sizeof( szBuffer ) - 1, "PATH=%s\\;%s", pRootDir, pPath );
 	assert( len < 4096 );
 	_putenv( szBuffer );
 
-	HINSTANCE launcher = LoadLibrary("bin\\dedicated.dll"); // STEAM OK ... filesystem not mounted yet
+	HINSTANCE launcher = LoadLibrary("dedicated.dll"); // STEAM OK ... filesystem not mounted yet
 	if (!launcher)
 	{
 		char *pszError;

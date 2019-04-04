@@ -5,7 +5,7 @@
 //-----------------------------------------------------------------------------
 
 $Macro SRCDIR		".."
-$Macro OUTBINDIR	"$SRCDIR\..\game\bin"
+$Macro OUTBINDIR	"$BINDEFAULT"
 
 $Include "$SRCDIR\vpc_scripts\source_dll_base.vpc"
 
@@ -18,8 +18,7 @@ $Configuration
 
 	$Linker
 	{
-		$AdditionalDependencies				"$BASE Advapi32.lib wsock32.lib Ws2_32.lib User32.lib" [$WIN32]
-		$AdditionalDependencies				"$BASE Xonline.lib" [$X360]
+        $AdditionalDependencies				"$BASE Advapi32.lib wsock32.lib Ws2_32.lib User32.lib" [$WINDOWS]
 	}
 }
 
@@ -85,17 +84,11 @@ $Project "ServerBrowser"
 		$File	"$SRCDIR\common\serverbrowser\IServerBrowser.h"
 	}
 
-	$Folder "Link Libraries"	[$WIN32]
+	$Folder "Link Libraries"
 	{
-		$File	"$SRCDIR\lib\public\tier2.lib"
-		$File	"$SRCDIR\lib\public\tier3.lib"
-		$File	"$SRCDIR\lib\public\vgui_controls.lib"
-	}
-
-	$Folder "Link Libraries"	[$X360]
-	{
-		$File	"$SRCDIR\lib\public\tier2_360.lib"
-		$File	"$SRCDIR\lib\public\tier3_360.lib"
-		$File	"$SRCDIR\lib\public\vgui_controls_360.lib"
+        $Lib    steam_api
+		$Lib	tier2
+		$Lib	tier3
+		$Lib	vgui_controls
 	}
 }

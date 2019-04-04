@@ -48,7 +48,11 @@ bool GetVConfigRegistrySetting( const char *pName, char *pReturn, int size )
 //-----------------------------------------------------------------------------
 void NotifyVConfigRegistrySettingChanged( void )
 {
+#ifndef WIN64
 	DWORD dwReturnValue = 0;
+#else
+	ULONG_PTR dwReturnValue = 0;
+#endif
 	
 	// Propagate changes so that environment variables takes immediate effect!
 	SendMessageTimeout( HWND_BROADCAST, WM_SETTINGCHANGE, 0, (LPARAM) "Environment", SMTO_ABORTIFHUNG, 5000, &dwReturnValue );

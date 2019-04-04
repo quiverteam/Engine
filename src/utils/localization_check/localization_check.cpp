@@ -1405,7 +1405,7 @@ void CheckUnusedSounds()
 			
 	// Now check for closecaption_xxx.txt entries which are orphaned because there isn't an existing sound script entry in use for them
 	StringIndex_t str = g_pVGuiLocalize->GetFirstStringIndex();
-	while ( str != vgui::INVALID_STRING_INDEX )
+	while ( str != INVALID_LOCALIZE_STRING_INDEX )
 	{
 		char const *keyname = g_pVGuiLocalize->GetNameByIndex( str );
 

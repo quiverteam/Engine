@@ -5,7 +5,7 @@
 //-----------------------------------------------------------------------------
 
 $Macro SRCDIR		"..\.."
-$Macro OUTBINDIR	"$SRCDIR\unittests\testprocess"
+$Macro OUTBINDIR	"$SRCDIR\unittests\$PLATSUBDIR\testprocess"
 
 $Include "$SRCDIR\vpc_scripts\source_exe_con_base.vpc"
 
@@ -31,6 +31,6 @@ $Project "Testprocess"
 
 	$Folder	"Link Libraries"
 	{
-		$File	"$SRCDIR\lib\public\tier2.lib"
+		$Lib	"$LIBPUBLIC\tier2"
 	}
 }

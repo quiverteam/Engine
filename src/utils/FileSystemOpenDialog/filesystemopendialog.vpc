@@ -5,7 +5,7 @@
 //-----------------------------------------------------------------------------
 
 $Macro SRCDIR		"..\.."
-$Macro OUTBINDIR	"$SRCDIR\..\game\bin"
+$Macro OUTBINDIR	"$BINDEFAULT"
 
 $Include "$SRCDIR\vpc_scripts\source_dll_base.vpc"
 
@@ -14,7 +14,7 @@ $Configuration
 	$Compiler
 	{
 		$AdditionalIncludeDirectories		"$BASE,..\common"
-		$PreprocessorDefinitions			"$BASE;;WINVER=0x502"
+		$PreprocessorDefinitions			"$BASE;WINVER=0x502"
 		$Create/UsePrecompiledHeader		"Use Precompiled Header (/Yu)"
 		$PrecompiledHeaderFile				"Debug/FileSystemOpenDialog.pch"
 		$EnableC++Exceptions				"Yes (/EHsc)"
@@ -34,19 +34,11 @@ $Project "FileSystemOpenDialog"
 		-$File	"$SRCDIR\public\tier0\memoverride.cpp"
 		$File	"$SRCDIR\public\tier0\memoverride.cpp"
 		{
-			$Configuration	"Release"
+			$Configuration
 			{
 				$Compiler
 				{
-					$PreprocessorDefinitions			"NO_MEMOVERRIDE_NEW_DELETE"
-					$Create/UsePrecompiledHeader		"Not Using Precompiled Headers"
-				}
-			}
-			$Configuration	"Debug"
-			{
-				$Compiler
-				{
-					$PreprocessorDefinitions			"NO_MEMOVERRIDE_NEW_DELETE"
+					$PreprocessorDefinitions			"$BASE;NO_MEMOVERRIDE_NEW_DELETE"
 					$Create/UsePrecompiledHeader		"Not Using Precompiled Headers"
 				}
 			}
@@ -78,6 +70,6 @@ $Project "FileSystemOpenDialog"
 
 	$Folder "Link Libraries"
 	{
-		$File	"$SRCDIR\lib\common\jpeglib.lib"
+		$Lib	"$LIBCOMMON\jpeglib"
 	}
 }

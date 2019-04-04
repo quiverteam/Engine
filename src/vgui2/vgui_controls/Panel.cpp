@@ -159,6 +159,7 @@ class CDragDropHelperPanel : public Panel
 	DECLARE_CLASS_SIMPLE( CDragDropHelperPanel, Panel );
 public:
 	CDragDropHelperPanel();
+	virtual ~CDragDropHelperPanel() {}
 
 	virtual VPANEL IsWithinTraverse(int x, int y, bool traversePopups);
 	virtual void PostChildPaint();
@@ -408,6 +409,8 @@ KeyBindingContextHandle_t Panel::CreateKeyBindingsContext( char const *filename,
 {
 	return g_KBMgr.CreateContext( filename, pathID );
 }
+
+int Panel::s_NavLock = 0;
 
 COMPILE_TIME_ASSERT( ( MOUSE_MIDDLE - MOUSE_LEFT ) == 2 );
 Panel* Panel::m_sMousePressedPanels[] = { NULL, NULL, NULL };
