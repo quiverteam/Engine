@@ -9,6 +9,10 @@
 #include <xmmintrin.h>
 #include <mmintrin.h>
 
+#ifdef _USE_AVX
+#include <immintrin.h>
+#endif
+
 #include <mathlib/vector.h>
 #include <mathlib/mathlib.h>
 
@@ -43,6 +47,12 @@ typedef fltx4 u32x4;
 typedef __m128 fltx4;
 typedef __m128 i32x4;
 typedef __m128 u32x4;
+typedef __m128d fltdx4;
+
+typedef __m256 fltx8;
+typedef __m256 i32x8;
+typedef __m256 u32x8;
+typedef __m256d fltdx8;
 
 #endif
 
@@ -2243,6 +2253,102 @@ FORCEINLINE fltx4 BiasSIMD( const fltx4 &val, const fltx4 &precalc_param )
 	//!!speed!! use reciprocal est?
 	//!!speed!! could save one op by precalcing _2_ values
 	return DivSIMD( val, AddSIMD( MulSIMD( precalc_param, SubSIMD( Four_Ones, val ) ), Four_Ones ) );
+}
+
+/*
+
+Extra SSE functions with AVX
+
+*/
+
+//
+// Aligned Add of 8 packed floats using AVX instructions
+//
+FORCEINLINE fltx8 AddAVX(const fltx8& v1, const fltx8& v2)
+{
+#ifdef _USE_AVX
+	return _mm256_add_ps(v1, v2);
+#else
+	__m256 res;
+	*((__m128*) & res) = _mm_add_ps(*(__m128*) & v1, *(__m128*) & v2);
+	*((__m128*) & res + 1) = _mm_add_ps(*((__m128*) & v1 + 1), *((__m128*) & v2 + 1));
+	return res;
+#endif
+}
+
+//
+// Aligned sub of 8 packed floats using AVX
+//
+FORCEINLINE fltx8 SubAVX(const fltx8& v1, const fltx8& v2)
+{
+#ifdef _USE_AVX
+	return _mm256_sub_ps(v1, v2);
+#else
+	__m256 res;
+	*((__m128*) & res) = _mm_sub_ps(*(__m128*) & v1, *(__m128*) & v2);
+	*((__m128*) & res + 1) = _mm_sub_ps(*((__m128*) & v1 + 1), *((__m128*) & v2 + 1));
+	return res;
+#endif
+}
+
+//
+// Aligned mul of 8 packed floats using AVX
+//
+FORCEINLINE fltx8 MulAVX(const fltx8& v1, const fltx8& v2)
+{
+#ifdef _USE_AVX
+	return _mm256_mul_ps(v1, v2);
+#else
+	__m256 res;
+	*((__m128*) & res) = _mm_mul_ps(*(__m128*) & v1, *(__m128*) & v2);
+	*((__m128*) & res + 1) = _mm_mul_ps(*((__m128*) & v1 + 1), *((__m128*) & v2 + 1));
+	return res;
+#endif
+}
+
+//
+// Aligned div of 8 packed floats using AVX
+//
+FORCEINLINE fltx8 DivAVX(const fltx8& v1, const fltx8& v2)
+{
+#ifdef _USE_AVX
+	return _mm256_div_ps(v1, v2);
+#else
+	__m256 res;
+	*((__m128*) & res) = _mm_div_ps(*(__m128*) & v1, *(__m128*) & v2);
+	*((__m128*) & res + 1) = _mm_div_ps(*((__m128*) & v1 + 1), *((__m128*) & v2 + 1));
+	return res;
+#endif
+}
+
+//
+// Aligned sqrt of 8 packed floats using AVX
+//
+FORCEINLINE fltx8 SqrtAVX(const fltx8& v1)
+{
+#ifdef _USE_AVX
+	return _mm256_sqrt_ps(v1, v2);
+#else
+	__m256 res;
+	*((__m128*) & res) = _mm_sqrt_ps(*(__m128*) & v1);
+	*((__m128*) & res + 1) = _mm_sqrt_ps(*((__m128*) & v1 + 1));
+	return res;
+#endif
+}
+
+//
+// Aligned rsqrt of 8 packed floats using AVX
+//
+FORCEINLINE fltx8 RsqrtAVX(const fltx8& v1)
+{
+#ifdef _USE_AVX
+	return _mm256_rsqrt_ps(v1, v2);
+#else
+	__m256 res;
+	*((__m128*) & res) = _mm_rsqrt_ps(*(__m128*) & v1);
+	*((__m128*) & res + 1) = _mm_rsqrt_ps(*((__m128*) & v1 + 1));
+	return res;
+#endif
 }
 
 //-----------------------------------------------------------------------------
