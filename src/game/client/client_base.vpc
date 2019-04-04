@@ -51,6 +51,8 @@ $Project
 {
 	$Folder	"Source Files"
 	{
+		$File	"$SRCDIR\vgui2\game_controls\FloatSlider.cpp"
+		
 		$File	"hl2\C_Func_Monitor.cpp"
 		$File	"geiger.cpp"
 		$File	"history_resource.cpp"
@@ -127,6 +129,7 @@ $Project
 		$File	"c_hairball.cpp"
 		$File	"c_info_overlay_accessor.cpp"
 		$File	"c_lightglow.cpp"
+		$File	"c_lights.cpp"
 		$File	"C_MaterialModifyControl.cpp"
 		$File	"c_particle_system.cpp"
 		$File	"c_physbox.cpp"
@@ -540,6 +543,7 @@ $Project
 		$File	"c_func_reflective_glass.h"
 		$File	"c_gib.h"
 		$File	"c_impact_effects.h"
+		$File	"c_lights.h"
 		$File	"c_physbox.h"
 		$File	"c_physicsprop.h"
 		$File	"c_pixel_visibility.h"

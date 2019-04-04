@@ -66,6 +66,7 @@ struct VertexLitGeneric_DX9_Vars_t
 	int m_nDiffuseWarpTexture;
 	int m_nPhongWarpTexture;	
 	int m_nPhongBoost;
+	int m_nPhongExponentFactor;
 	int m_nPhongFresnelRanges;
 	int m_nSelfIllumEnvMapMask_Alpha;
 	int m_nAmbientOnly;
@@ -113,6 +114,7 @@ struct VertexLitGeneric_DX9_Vars_t
 	int m_nScaleOutlineSoftnessBasedOnScreenRes;
 
 	int m_nSeparateDetailUVs;
+	int m_nDetailTextureTransform;
 
 	int m_nLinearWrite;
 	int m_nGammaColorRead;
@@ -125,13 +127,41 @@ struct VertexLitGeneric_DX9_Vars_t
 
 	int m_nSelfIllumMask;
 	int m_nReceiveFlashlight;
+
+// new --------------------------------
+
+	int m_nBlendTintByBaseAlpha;
+
+	int m_nTintReplacesBaseColor;
+
+	/*int m_nSelfIllumTwoTexture;
+	int m_nSelfIllumTwoTexture_Amount;
+	int m_nSelfIllumTwoTexture_Texture;*/
+
+	int m_nTwoSidedLighting;
+
+	/*int m_nTreeSway;
+	int m_nTreeSwayHeight;
+	int m_nTreeSwayStartHeight;
+	int m_nTreeSwayRadius;
+	int m_nTreeSwayStartRadius;
+	int m_nTreeSwaySpeed;
+	int m_nTreeSwaySpeedHighWindMultiplier;
+	int m_nTreeSwayStrength;
+	int m_nTreeSwayScrumbleSpeed;
+	int m_nTreeSwayScrumbleStrength;
+	int m_nTreeSwayScrumbleFrequency;
+	int m_nTreeSwayFalloffExp;
+	int m_nTreeSwayScrumbleFalloffExp;
+	int m_nTreeSwaySpeedLerpStart;
+	int m_nTreeSwaySpeedLerpEnd;*/
 };
 
 void InitParamsVertexLitGeneric_DX9( CBaseVSShader *pShader, IMaterialVar** params, const char *pMaterialName, bool bVertexLitGeneric, VertexLitGeneric_DX9_Vars_t &info );
 void InitVertexLitGeneric_DX9( CBaseVSShader *pShader, IMaterialVar** params, bool bVertexLitGeneric, VertexLitGeneric_DX9_Vars_t &info );
 void DrawVertexLitGeneric_DX9( CBaseVSShader *pShader, IMaterialVar** params, IShaderDynamicAPI *pShaderAPI, IShaderShadow* pShaderShadow,
 							   bool bVertexLitGeneric, VertexLitGeneric_DX9_Vars_t &info, VertexCompressionType_t vertexCompression,
-							   CBasePerMaterialContextData **pContextDataPtr
+							   CBasePerMaterialContextData **pContextDataPtr, bool bForceFlashlight = false
 	);
 
 

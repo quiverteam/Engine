@@ -11,6 +11,8 @@
 // memdbgon must be the last include file in a .cpp file!!!
 #include "tier0/memdbgon.h"
 
+static ConVar create_flashlight_quadratic( "create_flashlight_quadratic", "150", 0 );
+
 LINK_ENTITY_TO_CLASS( env_projectedtexture, CEnvProjectedTexture );
 
 BEGIN_DATADESC( CEnvProjectedTexture )
@@ -85,6 +87,19 @@ CEnvProjectedTexture::CEnvProjectedTexture( void )
 	m_bLightOnlyTarget = false;
 	m_bLightWorld = true;
 	m_bCameraSpace = false;
+
+	/*m_bUberlight = false;
+	m_fNearEdge = 0.f;
+	m_fFarEdge = 0.f;
+	m_fCutOn = 0.f;
+	m_fCutOff = 0.f;
+	m_fShearx = 0.f;
+	m_fSheary = 0.f;
+	m_fWidth = 0.f;
+	m_fWedge = 0.f;
+	m_fHeight = 0.f;
+	m_fHedge = 0.f;
+	m_fRoundness = 0.f;*/
 
 // this is here as a reminder since it's not removed from everything else yet,
 // only remove it once this is completely gone, whatever it is
@@ -231,8 +246,14 @@ void CC_CreateFlashlight( const CCommand &args )
 	{
 		pFlashlight->SetName( AllocPooledString( args[1] ) );
 	}
+	
+	pFlashlight->m_bAlwaysUpdate = true;
+	pFlashlight->m_bEnableShadows = true;
+	pFlashlight->m_nQuadratic = create_flashlight_quadratic.GetInt();
+	pFlashlight->m_flLightFOV = 90;
+	pFlashlight->m_flNearZ = 4;
+	pFlashlight->m_flFarZ = 1500;
 
 	pFlashlight->Teleport( &origin, &angles, NULL );
-
 }
 static ConCommand create_flashlight("create_flashlight", CC_CreateFlashlight, 0, FCVAR_CHEAT);

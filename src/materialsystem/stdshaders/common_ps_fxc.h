@@ -215,11 +215,11 @@ HALF4 EnvReflect( sampler envmapSampler,
 */
 
 // Vectorized smoothstep for doing three smoothsteps at once.  Used by uberlight
-/*float3 smoothstep3( float3 edge0, float3 edge1, float3 OneOverWidth, float3 x )
+float3 smoothstep3( float3 edge0, float3 edge1, float3 OneOverWidth, float3 x )
 {
 	x = saturate((x - edge0) * OneOverWidth);	// Scale, bias and saturate x to the range of zero to one
 	return x*x*(3-2*x);							// Evaluate polynomial
-}*/
+}
 
 float CalcWaterFogAlpha( const float flWaterZ, const float flEyePosZ, const float flWorldPosZ, const float flProjPosZ, const float flFogOORange )
 {

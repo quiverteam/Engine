@@ -41,6 +41,11 @@ enum CommandBufferCommand_t
 	CBCMD_SETPIXELSHADERSTATEAMBIENTLIGHTCUBE = 262,		// int cmd, int regdest
 	CBCMD_SETAMBIENTCUBEDYNAMICSTATEVERTEXSHADER = 263,		// int cmd
 	CBCMD_SET_DEPTH_FEATHERING_CONST = 264,					// int cmd, int constant register, float blend scale
+	
+	//CBCMD_SET_VERTEX_SHADER_FLASHLIGHT_STATE,		// cmd, int first_reg (for worldToTexture matrix)
+	//CBCMD_SET_PIXEL_SHADER_FLASHLIGHT_STATE,		// cmd, int color reg, int atten reg, int origin reg, sampler (for flashlight texture)
+	
+	CBCMD_SET_PIXEL_SHADER_UBERLIGHT_STATE,			// cmd
 
 	// texture binding
 	CBCMD_BIND_STANDARD_TEXTURE = 512,						// cmd, sampler, texture id
@@ -52,14 +57,5 @@ enum CommandBufferCommand_t
 
 
 };
-
-
-
-
-
-
-
-
-
 
 #endif // commandbuffer_h

@@ -367,6 +367,39 @@ public:
 		m_Storage.PutFloat( fDepthBlendScale );
 	}
 
+	FORCEINLINE void SetVertexShaderFlashlightState( int iConstant )
+	{
+		this->m_Storage.PutInt( CBCMD_SET_VERTEX_SHADER_FLASHLIGHT_STATE );
+		this->m_Storage.PutInt( iConstant );
+	}
+
+	/*FORCEINLINE void SetPixelShaderFlashlightState( const CBCmdSetPixelShaderFlashlightState_t &state )
+	{
+		this->m_Storage.PutInt( CBCMD_SET_PIXEL_SHADER_FLASHLIGHT_STATE );
+		this->m_Storage.PutInt( state.m_LightSampler );
+		this->m_Storage.PutInt( state.m_DepthSampler );
+		this->m_Storage.PutInt( state.m_ShadowNoiseSampler );
+		this->m_Storage.PutInt( state.m_nColorConstant );
+		this->m_Storage.PutInt( state.m_nAttenConstant );
+		this->m_Storage.PutInt( state.m_nOriginConstant );
+		this->m_Storage.PutInt( state.m_nDepthTweakConstant );
+		this->m_Storage.PutInt( state.m_nScreenScaleConstant );
+		this->m_Storage.PutInt( state.m_nWorldToTextureConstant );
+		this->m_Storage.PutInt( state.m_bFlashlightNoLambert );
+		this->m_Storage.PutInt( state.m_bSinglePassFlashlight );
+	}*/
+
+	FORCEINLINE void SetPixelShaderUberLightState( int iEdge0Const, int iEdge1Const, int iEdgeOOWConst, int iShearRoundConst, int iAABBConst, int iWorldToLightConst )
+	{
+		this->m_Storage.PutInt( CBCMD_SET_PIXEL_SHADER_UBERLIGHT_STATE );
+		this->m_Storage.PutInt( iEdge0Const );
+		this->m_Storage.PutInt( iEdge1Const );
+		this->m_Storage.PutInt( iEdgeOOWConst );
+		this->m_Storage.PutInt( iShearRoundConst );
+		this->m_Storage.PutInt( iAABBConst );
+		this->m_Storage.PutInt( iWorldToLightConst );
+	}
+
 	FORCEINLINE void Goto( uint8 *pCmdBuf )
 	{
 		m_Storage.PutInt( CBCMD_JUMP );

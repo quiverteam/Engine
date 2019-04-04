@@ -16,7 +16,6 @@ sampler IrisSampler				: register( s3 );
 
 #if FLASHLIGHTSHADOWS && (!SHADER_MODEL_PS_1_1) && (!SHADER_MODEL_PS_1_4) && (!SHADER_MODEL_PS_2_0)
 sampler FlashlightDepthSampler	: register( s4 );
-sampler RandomRotationSampler	: register( s5 );
 #endif
 
 #if defined( SHADER_MODEL_PS_1_1 ) || defined ( SHADER_MODEL_PS_1_4 )
@@ -72,7 +71,7 @@ float4 main( PS_INPUT i ) : COLOR
 
 	// Do shadow depth mapping...
 #if FLASHLIGHTSHADOWS && ( defined(SHADER_MODEL_PS_2_B) || defined(SHADER_MODEL_PS_3_0) )
-	float flShadow = DoFlashlightShadow( FlashlightDepthSampler, RandomRotationSampler, vProjCoords, i.projPos.xy / i.projPos.z, FLASHLIGHTDEPTHFILTERMODE, g_vShadowTweaks, true );
+	float flShadow = DoFlashlightShadow( FlashlightDepthSampler, vProjCoords, i.projPos.xy / i.projPos.z, FLASHLIGHTDEPTHFILTERMODE, g_vShadowTweaks, true );
 	float flAttenuated = lerp( flShadow, 1.0f, g_vShadowTweaks.y );								// Blend between fully attenuated and not attenuated
 	flShadow = lerp( flAttenuated, flShadow, dot(i.vertAtten, float3(0.30f, 0.59f, 0.11f) ) );	// Blend between shadow and above, according to light attenuation
 	outcolor *= flShadow * spotColor * albedo;

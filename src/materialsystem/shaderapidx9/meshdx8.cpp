@@ -3016,10 +3016,8 @@ void CMeshDX8::SetVertexIDStreamState()
 {
 	// FIXME: this method duplicates the code in CMeshMgr::SetVertexIDStreamState
 
-	if ( IsX360() )
-		return;
-
-	bool bUsingVertexID = IsUsingVertexID();
+	// was crashing the engine when used
+	bool bUsingVertexID = false; //IsUsingVertexID();
 	if ( bUsingVertexID != g_bUsingVertexID )
 	{
 		if ( bUsingVertexID )

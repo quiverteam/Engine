@@ -9,14 +9,8 @@
 #include "BaseVSShader.h"
 #include "cpp_shader_constant_register_map.h"
 
-#include "vertexlit_and_unlit_generic_vs20.inc"
-#include "decalmodulate_ps20.inc"
-#include "decalmodulate_ps20b.inc"
-
-#ifndef _X360
 #include "vertexlit_and_unlit_generic_vs30.inc"
 #include "decalmodulate_ps30.inc"
-#endif
 
 // memdbgon must be the last include file in a .cpp file!!!
 #include "tier0/memdbgon.h"
@@ -79,49 +73,23 @@ BEGIN_VS_SHADER( DecalModulate_dx9,
 			pShaderShadow->DisableFogGammaCorrection( true ); //fog should stay exactly middle grey
 			FogToGrey();
 
-#ifndef _X360
-			if ( !g_pHardwareConfig->HasFastVertexTextures() )
-#endif
-			{
-				DECLARE_STATIC_VERTEX_SHADER( vertexlit_and_unlit_generic_vs20 );
-				SET_STATIC_VERTEX_SHADER_COMBO( VERTEXCOLOR,  false );
-				SET_STATIC_VERTEX_SHADER_COMBO( CUBEMAP,  false );
-				SET_STATIC_VERTEX_SHADER_COMBO( HALFLAMBERT,  false );
-				SET_STATIC_VERTEX_SHADER_COMBO( FLASHLIGHT,  false );
-				SET_STATIC_VERTEX_SHADER_COMBO( SEAMLESS_BASE,  false );
-				SET_STATIC_VERTEX_SHADER_COMBO( SEAMLESS_DETAIL,  false );
-				SET_STATIC_VERTEX_SHADER_COMBO( SEPARATE_DETAIL_UVS, false );
-				SET_STATIC_VERTEX_SHADER( vertexlit_and_unlit_generic_vs20 );
+		//	const bool bTwoSidedLighting = info.m_nTwoSidedLighting >= 0 && params[info.m_nTwoSidedLighting]->GetIntValue() > 0;
+			const bool bTwoSidedLighting = false;
 
-				if( g_pHardwareConfig->SupportsPixelShaders_2_b() )
-				{
-					DECLARE_STATIC_PIXEL_SHADER( decalmodulate_ps20b );
-					SET_STATIC_PIXEL_SHADER( decalmodulate_ps20b );
-				}
-				else
-				{
-					DECLARE_STATIC_PIXEL_SHADER( decalmodulate_ps20 );
-					SET_STATIC_PIXEL_SHADER( decalmodulate_ps20 );
-				}
-			}
-#ifndef _X360
-			else
-			{
-				DECLARE_STATIC_VERTEX_SHADER( vertexlit_and_unlit_generic_vs30 );
-				SET_STATIC_VERTEX_SHADER_COMBO( VERTEXCOLOR,  false );
-				SET_STATIC_VERTEX_SHADER_COMBO( CUBEMAP,  false );
-				SET_STATIC_VERTEX_SHADER_COMBO( HALFLAMBERT,  false );
-				SET_STATIC_VERTEX_SHADER_COMBO( FLASHLIGHT,  false );
-				SET_STATIC_VERTEX_SHADER_COMBO( SEAMLESS_BASE,  false );
-				SET_STATIC_VERTEX_SHADER_COMBO( SEAMLESS_DETAIL,  false );
-				SET_STATIC_VERTEX_SHADER_COMBO( SEPARATE_DETAIL_UVS, false );
-				SET_STATIC_VERTEX_SHADER_COMBO( DECAL, true );
-				SET_STATIC_VERTEX_SHADER( vertexlit_and_unlit_generic_vs30 );
+			DECLARE_STATIC_VERTEX_SHADER( vertexlit_and_unlit_generic_vs30 );
+			SET_STATIC_VERTEX_SHADER_COMBO( VERTEXCOLOR,  false );
+			SET_STATIC_VERTEX_SHADER_COMBO( CUBEMAP,  false );
+			SET_STATIC_VERTEX_SHADER_COMBO( HALFLAMBERT,  false );
+			SET_STATIC_VERTEX_SHADER_COMBO( FLASHLIGHT,  false );
+			SET_STATIC_VERTEX_SHADER_COMBO( SEAMLESS_BASE,  false );
+			SET_STATIC_VERTEX_SHADER_COMBO( SEAMLESS_DETAIL,  false );
+			SET_STATIC_VERTEX_SHADER_COMBO( SEPARATE_DETAIL_UVS, false );
+			SET_STATIC_VERTEX_SHADER_COMBO( DECAL, true );
+			SET_STATIC_VERTEX_SHADER_COMBO( TWO_SIDED_LIGHTING, bTwoSidedLighting );
+			SET_STATIC_VERTEX_SHADER( vertexlit_and_unlit_generic_vs30 );
 
-				DECLARE_STATIC_PIXEL_SHADER( decalmodulate_ps30 );
-				SET_STATIC_PIXEL_SHADER( decalmodulate_ps30 );
-			}
-#endif
+			DECLARE_STATIC_PIXEL_SHADER( decalmodulate_ps30 );
+			SET_STATIC_PIXEL_SHADER( decalmodulate_ps30 );
 
 			// Set stream format (note that this shader supports compression)
 			unsigned int flags = VERTEX_POSITION | VERTEX_FORMAT_COMPRESSED;
@@ -159,6 +127,7 @@ BEGIN_VS_SHADER( DecalModulate_dx9,
 			transformation[1].Init( 0.0f, 1.0f, 0.0f, 0.0f );
 		 	pShaderAPI->SetVertexShaderConstant( VERTEX_SHADER_SHADER_SPECIFIC_CONST_0, transformation[0].Base(), 2 ); 
 
+			ITexture *pCascadedDepthTexture = NULL;
 			MaterialFogMode_t fogType = s_pShaderAPI->GetSceneFogMode();
 			int fogIndex = ( fogType == MATERIAL_FOG_LINEAR_BELOW_FOG_Z ) ? 1 : 0;
 
@@ -169,55 +138,26 @@ BEGIN_VS_SHADER( DecalModulate_dx9,
 			vEyePos_SpecExponent[3] = 0.0f;
 			pShaderAPI->SetPixelShaderConstant( PSREG_EYEPOS_SPEC_EXPONENT, vEyePos_SpecExponent, 1 );
 
-#ifndef _X360
-			if ( !g_pHardwareConfig->HasFastVertexTextures() )
-#endif
-			{
-				DECLARE_DYNAMIC_VERTEX_SHADER( vertexlit_and_unlit_generic_vs20 );
-				SET_DYNAMIC_VERTEX_SHADER_COMBO( DYNAMIC_LIGHT, 0 );	// Use simplest possible vertex lighting, since ps is so simple
-				SET_DYNAMIC_VERTEX_SHADER_COMBO( STATIC_LIGHT, 0 );		//
-				SET_DYNAMIC_VERTEX_SHADER_COMBO( DOWATERFOG, fogIndex );
-				SET_DYNAMIC_VERTEX_SHADER_COMBO( SKINNING, 0 );
-				SET_DYNAMIC_VERTEX_SHADER_COMBO( LIGHTING_PREVIEW, 0 );
-				SET_DYNAMIC_VERTEX_SHADER_COMBO( COMPRESSED_VERTS, (int)vertexCompression );
-				SET_DYNAMIC_VERTEX_SHADER( vertexlit_and_unlit_generic_vs20 );
+			const int iCascadedShadowCombo = ( pCascadedDepthTexture != NULL ) ? 1 : 0;
+			SetHWMorphVertexShaderState( VERTEX_SHADER_SHADER_SPECIFIC_CONST_6, VERTEX_SHADER_SHADER_SPECIFIC_CONST_7, SHADER_VERTEXTEXTURE_SAMPLER0 );
 
-				if( g_pHardwareConfig->SupportsPixelShaders_2_b() )
-				{
-					DECLARE_DYNAMIC_PIXEL_SHADER( decalmodulate_ps20b );
-					SET_DYNAMIC_PIXEL_SHADER_COMBO( PIXELFOGTYPE, pShaderAPI->GetPixelFogCombo() );
-					SET_DYNAMIC_PIXEL_SHADER( decalmodulate_ps20b );
-				}
-				else
-				{
-					DECLARE_DYNAMIC_PIXEL_SHADER( decalmodulate_ps20 );
-					SET_DYNAMIC_PIXEL_SHADER_COMBO( PIXELFOGTYPE, pShaderAPI->GetPixelFogCombo() );
-					SET_DYNAMIC_PIXEL_SHADER( decalmodulate_ps20 );
-				}
-			}
-#ifndef _X360
-			else
-			{
-				SetHWMorphVertexShaderState( VERTEX_SHADER_SHADER_SPECIFIC_CONST_6, VERTEX_SHADER_SHADER_SPECIFIC_CONST_7, SHADER_VERTEXTEXTURE_SAMPLER0 );
+			DECLARE_DYNAMIC_VERTEX_SHADER( vertexlit_and_unlit_generic_vs30 );
+			SET_DYNAMIC_VERTEX_SHADER_COMBO( DYNAMIC_LIGHT, 0 );	// Use simplest possible vertex lighting, since ps is so simple
+			SET_DYNAMIC_VERTEX_SHADER_COMBO( STATIC_LIGHT, 0 );		//
+			SET_DYNAMIC_VERTEX_SHADER_COMBO( DOWATERFOG, fogIndex );
+			SET_DYNAMIC_VERTEX_SHADER_COMBO( SKINNING, pShaderAPI->GetCurrentNumBones() > 0 );
+			SET_DYNAMIC_VERTEX_SHADER_COMBO( LIGHTING_PREVIEW, 0 );
+			SET_DYNAMIC_VERTEX_SHADER_COMBO( MORPHING, pShaderAPI->IsHWMorphingEnabled() );
+			SET_DYNAMIC_VERTEX_SHADER_COMBO( COMPRESSED_VERTS, (int)vertexCompression );
+			SET_DYNAMIC_VERTEX_SHADER_COMBO( CASCADED_SHADOW, iCascadedShadowCombo );
+			SET_DYNAMIC_VERTEX_SHADER( vertexlit_and_unlit_generic_vs30 );
 
-				DECLARE_DYNAMIC_VERTEX_SHADER( vertexlit_and_unlit_generic_vs30 );
-				SET_DYNAMIC_VERTEX_SHADER_COMBO( DYNAMIC_LIGHT, 0 );	// Use simplest possible vertex lighting, since ps is so simple
-				SET_DYNAMIC_VERTEX_SHADER_COMBO( STATIC_LIGHT, 0 );		//
-				SET_DYNAMIC_VERTEX_SHADER_COMBO( DOWATERFOG, fogIndex );
-				SET_DYNAMIC_VERTEX_SHADER_COMBO( SKINNING, pShaderAPI->GetCurrentNumBones() > 0 );
-				SET_DYNAMIC_VERTEX_SHADER_COMBO( LIGHTING_PREVIEW, 0 );
-				SET_DYNAMIC_VERTEX_SHADER_COMBO( MORPHING, pShaderAPI->IsHWMorphingEnabled() );
-				SET_DYNAMIC_VERTEX_SHADER_COMBO( COMPRESSED_VERTS, (int)vertexCompression );
-				SET_DYNAMIC_VERTEX_SHADER( vertexlit_and_unlit_generic_vs30 );
+			DECLARE_DYNAMIC_PIXEL_SHADER( decalmodulate_ps30 );
+			SET_DYNAMIC_PIXEL_SHADER_COMBO( PIXELFOGTYPE, pShaderAPI->GetPixelFogCombo() );
+			SET_DYNAMIC_PIXEL_SHADER( decalmodulate_ps30 );
 
-				DECLARE_DYNAMIC_PIXEL_SHADER( decalmodulate_ps30 );
-				SET_DYNAMIC_PIXEL_SHADER_COMBO( PIXELFOGTYPE, pShaderAPI->GetPixelFogCombo() );
-				SET_DYNAMIC_PIXEL_SHADER( decalmodulate_ps30 );
-
-				bool bUnusedTexCoords[3] = { false, false, !pShaderAPI->IsHWMorphingEnabled() };
-				pShaderAPI->MarkUnusedVertexFields( 0, 3, bUnusedTexCoords );
-			}
-#endif
+			bool bUnusedTexCoords[3] = { false, false, !pShaderAPI->IsHWMorphingEnabled() };
+			pShaderAPI->MarkUnusedVertexFields( 0, 3, bUnusedTexCoords );
 		}
 		Draw( );
 	}

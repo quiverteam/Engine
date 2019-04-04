@@ -399,6 +399,41 @@ struct MaterialVideoMode_t
 	ImageFormat m_Format;	// use ImageFormats (ignored for windowed mode)
 	int m_RefreshRate;		// 0 == default (ignored for windowed mode)
 };
+//--------------------------------------------------------------------------------
+// Uberlight parameters
+//--------------------------------------------------------------------------------
+struct UberlightState_t
+{
+	UberlightState_t()
+	{
+		m_bEnabled		= false;
+		m_fNearEdge 	= 2.0f;
+		m_fFarEdge  	= 100.0f;
+		m_fCutOn    	= 10.0f;
+		m_fCutOff   	= 1500.0f;
+		m_fShearx   	= 0.0f;
+		m_fSheary   	= 0.0f;
+		m_fWidth    	= 0.3f;
+		m_fWedge    	= 0.05f;
+		m_fHeight		= 0.3f;
+		m_fHedge		= 0.05f;
+		m_fRoundness	= 0.5f; //0.8f;
+	}
+	bool m_bEnabled;
+	float m_fNearEdge;
+	float m_fFarEdge;
+	float m_fCutOn;
+	float m_fCutOff;
+	float m_fShearx;
+	float m_fSheary;
+	float m_fWidth;
+	float m_fWedge;
+	float m_fHeight;
+	float m_fHedge;
+	float m_fRoundness;
+
+	IMPLEMENT_OPERATOR_EQUAL( UberlightState_t );
+};
 
 // fixme: should move this into something else.
 struct FlashlightState_t
@@ -408,23 +443,28 @@ struct FlashlightState_t
 		m_bEnableShadows = false;						// Provide reasonable defaults for shadow depth mapping parameters
 		m_bDrawShadowFrustum = false;
 		m_flShadowMapResolution = 2048.0f;
-		m_flShadowFilterSize = 1.0f; // only used on DoShadowPoisson16Sample
+		m_flShadowFilterSize = 1.0f;
 		m_flShadowSlopeScaleDepthBias = 4.0f;
 		m_flShadowDepthBias = 0.00001f;
-		m_flShadowJitterSeed = 0.0f;
-		m_flShadowAtten = 0.0f;
+		m_flShadowJitterSeed = 0.0f; // i think this is unused
+		m_flShadowAtten = 0.0f; // fade out for the shadows?
+		m_nShadowQuality = 0;
+
 		m_bScissor = false; 
 		m_nLeft = -1;
 		m_nTop = -1;
 		m_nRight = -1;
 		m_nBottom = -1;
-		m_nShadowQuality = 0;
+
+		m_bUberlight = false;
 
 		/*m_bOrtho = false;
 		m_fOrthoLeft = -1.0f;
 		m_fOrthoRight = 1.0f;
 		m_fOrthoTop = -1.0f;
 		m_fOrthoBottom = 1.0f;*/
+		
+		m_fBrightnessScale = 1.0f;
 	}
 
 	Vector m_vecLightOrigin;
@@ -444,6 +484,7 @@ struct FlashlightState_t
 	float m_fLinearAtten;
 	float m_fConstantAtten;
 	float m_Color[4];
+	float m_fBrightnessScale;
 	ITexture *m_pSpotlightTexture;
 	int m_nSpotlightTextureFrame;
 
@@ -457,6 +498,10 @@ struct FlashlightState_t
 	float m_flShadowJitterSeed;
 	float m_flShadowAtten;
 	int   m_nShadowQuality;
+	
+	// Uberlight parameters
+	bool m_bUberlight;
+	UberlightState_t m_uberlightState;
 
 	// Getters for scissor members
 	bool DoScissor() { return m_bScissor; }
