@@ -37,9 +37,9 @@ $Project
 
 	$Folder	"Link Libraries"
 	{
-		-$Lib	"$LIBPUBLIC\tier0" 			[$WINDOWS||$POSIX]
-		-$Lib	"$LIBPUBLIC\tier1"			[$WINDOWS||$POSIX]
-		-$Lib	"$LIBPUBLIC\vstdlib"		[$WINDOWS||$POSIX]
+		//-$Lib	"$LIBPUBLIC\tier0" 			[$WINDOWS||$POSIX]
+		//-$Lib	"$LIBPUBLIC\tier1"			[$WINDOWS||$POSIX]
+		//-$Lib	"$LIBPUBLIC\vstdlib"		[$WINDOWS||$POSIX]
 		
 		-$file	"$SRCDIR\linux\tier0_i686.so"				\
 		-$Lib	"$LIBPUBLIC\tier1"	\
@@ -114,7 +114,7 @@ $Project "tier0"
 			{
 				$Compiler
 				{
-					$Create/UsePrecompiledHeader	"Create Precompiled Header (/Yc)"
+					$Create/UsePrecompiledHeader	"Create Precompiled Header (/Yc)" [$WINDOWS]
 				}
 			}
 		}
