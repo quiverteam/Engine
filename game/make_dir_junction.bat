@@ -1,11 +1,11 @@
 @echo off
 
 @REM replace this with your Half-Life 2 or Source 2013 directory
-set "HL2Dir=C:\Program Files (x86)\Steam\steamapps\common\Half-Life 2"
+@REM set "HL2Dir=C:\Program Files (x86)\Steam\steamapps\common\Half-Life 2"
 
 if not exist "%HL2Dir%" (
-	echo You need to set a different directory for your HL2 or Source 2013 install,
-	echo As "%HL2Dir%" does not exist.
+	echo Unable to find the directory "%HL2Dir%"
+	echo If you've not done so already, please set the environment variable HL2Dir to your Source 2013 or Hl2 install directory.
 	pause
 	exit
 )
