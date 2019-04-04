@@ -89,6 +89,6 @@ $Project "Vmtcheck"
 
 	$Folder	"Link Libraries"
 	{
-		$Lib	"tier2"
+		$Lib	tier2
 	}
 }

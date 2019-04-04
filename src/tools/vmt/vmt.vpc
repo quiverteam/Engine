@@ -18,7 +18,7 @@ $Configuration
 
 	$Linker
 	{
-		$AdditionalDependencies				"Psapi.lib"
+		$AdditionalDependencies				"$BASE Psapi.lib"
 	}
 }
 
@@ -43,16 +43,16 @@ $Project "Vmt"
 
 	$Folder	"Link Libraries"
 	{
-        $Lib    "datamodel"
-		$Lib	"dme_controls"
-		$Lib	"dmserializers"
-		$Lib	"mathlib"
-		$Lib	"matsys_controls"
-		$Lib	"movieobjects"
-		$Lib	"sfmobjects"
-		$Lib	"tier2"
-		$Lib	"tier3"
-		$Lib	"toolutils"
-		$Lib	"vgui_controls"
+		$Lib	datamodel
+		$Lib	dme_controls
+		$Lib	dmserializers
+		$Lib	mathlib
+		$Lib	matsys_controls
+		$Lib	movieobjects
+		$Lib	sfmobjects
+		$Lib	tier2
+		$Lib	tier3
+		$Lib	toolutils
+		$Lib	vgui_controls
 	}
 }

@@ -92,11 +92,10 @@ $Project "Vvis_dll"
 		$File	"$SRCDIR\public\wadtypes.h"
 	}
 
-    $Folder	"Link Libraries"
+	$Folder	"Link Libraries"
 	{
 		$Lib mathlib
 		$Lib tier2
 		$Lib vmpi
-		$Lib "$LIBCOMMON/lzma"
 	}
 }

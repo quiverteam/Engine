@@ -28,9 +28,9 @@ $Project "Mksheet"
 	
 	$Folder	"Link Libraries"
 	{
-		$Lib    bitmap
-		$Lib    mathlib
-		$Lib    raytrace
-		$Lib    tier2
+		$Lib	bitmap
+		$Lib	mathlib
+		$Lib	raytrace
+		$Lib	tier2
 	}
 }

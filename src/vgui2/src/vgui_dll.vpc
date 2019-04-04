@@ -105,10 +105,10 @@ $Project "vgui2"
 		$File	"VGUI_Border.h"
 	}
 
-	$Folder "Link Libraries" [$WIN32]
+	$Folder "Link Libraries"
 	{
-		$Lib	"vgui_surfacelib"
-		$Lib	"tier2"
-		$Lib	"tier3"
+		$Lib	vgui_surfacelib
+		$Lib	tier2
+		$Lib	tier3
 	}
 }

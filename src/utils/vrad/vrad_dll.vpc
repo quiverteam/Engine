@@ -213,14 +213,7 @@ $Project "Vrad_dll"
 
 	$Folder	"Link Libraries"
 	{
-		// $Lib "$LIBPUBLIC\bitmap.lib"
-		// $File "$LIBPUBLIC\mathlib.lib"
-		// $File "$LIBPUBLIC\raytrace.lib"
-		// $File "$LIBPUBLIC\tier2.lib"
-		// $File "$LIBPUBLIC\vmpi.lib"
-		// $File "$LIBPUBLIC\vtf.lib"
-
-        $Lib bitmap
+		$Lib bitmap
 		$Lib mathlib
 		$Lib raytrace
 		$Lib tier2

@@ -259,7 +259,7 @@ gameserveritem_t *CBaseGamesPage::GetServer( unsigned int serverID )
 
 	if ( serverID >= 0 )
 	{
-		return SteamMatchmakingServers()->GetServerDetails( m_eMatchMakingType, serverID );
+		return SteamMatchmakingServers()->GetServerDetails( m_hRequest, serverID );
 	}
 	else
 	{
@@ -419,10 +419,10 @@ void CBaseGamesPage::ServerResponded( gameserveritem_t &server )
 //-----------------------------------------------------------------------------
 // Purpose: Callback for ISteamMatchmakingServerListResponse
 //-----------------------------------------------------------------------------
-void CBaseGamesPage::ServerResponded( int iServer )
+void CBaseGamesPage::ServerResponded( HServerListRequest request, int iServer )
 {
 #ifndef NO_STEAM
-	gameserveritem_t *pServerItem = SteamMatchmakingServers()->GetServerDetails( m_eMatchMakingType, iServer );
+	gameserveritem_t *pServerItem = SteamMatchmakingServers()->GetServerDetails( request, iServer );
 	if ( !pServerItem )
 	{
 		Assert( !"Missing server response" );
@@ -709,7 +709,7 @@ void CBaseGamesPage::ApplyGameFilters()
 	FOR_EACH_MAP_FAST( m_mapServers, i )
 	{
 		serverdisplay_t &server = m_mapServers[ i ];
-		gameserveritem_t *pServer = SteamMatchmakingServers()->GetServerDetails( m_eMatchMakingType, server.m_iServerID );
+		gameserveritem_t *pServer = SteamMatchmakingServers()->GetServerDetails( m_hRequest, server.m_iServerID );
 		if ( !pServer ) 
 			continue;
 
@@ -727,7 +727,7 @@ void CBaseGamesPage::ApplyGameFilters()
 		{
 			// server passed filters, so it can be refreshed again
 			server.m_bDoNotRefresh = false;
-			gameserveritem_t *pServer = SteamMatchmakingServers()->GetServerDetails( m_eMatchMakingType, server.m_iServerID );
+			gameserveritem_t *pServer = SteamMatchmakingServers()->GetServerDetails( m_hRequest, server.m_iServerID );
 
 			// re-add item to list
 			if ( !m_pGameList->IsValidItemID( server.m_iListID ) )
@@ -1134,7 +1134,7 @@ void CBaseGamesPage::OnCommand(const char *command)
 	{
 #ifndef NO_STEAM
 		if ( SteamMatchmakingServers() )
-			SteamMatchmakingServers()->RefreshQuery( m_eMatchMakingType );
+			SteamMatchmakingServers()->RefreshQuery( m_hRequest );
 		SetRefreshing( true );
 		m_iServerRefreshCount = 0;
 #endif
@@ -1213,7 +1213,7 @@ void CBaseGamesPage::OnAddToFavorites()
 	{
 		int serverID = m_pGameList->GetItemUserData(m_pGameList->GetSelectedItem(i));
 
-		gameserveritem_t *pServer = SteamMatchmakingServers()->GetServerDetails( m_eMatchMakingType, serverID );
+		gameserveritem_t *pServer = SteamMatchmakingServers()->GetServerDetails( m_hRequest, serverID );
 		if ( pServer )
 		{
 			// add to favorites list
@@ -1227,9 +1227,9 @@ void CBaseGamesPage::OnAddToFavorites()
 //-----------------------------------------------------------------------------
 // Purpose: 
 //-----------------------------------------------------------------------------
-void CBaseGamesPage::ServerFailedToRespond( int iServer )
+void CBaseGamesPage::ServerFailedToRespond( HServerListRequest request, int iServer )
 {
-	ServerResponded( iServer );
+	ServerResponded( request, iServer );
 }
 
 
@@ -1267,7 +1267,7 @@ void CBaseGamesPage::OnRefreshServer( int serverID )
 		int serverID = m_pGameList->GetItemUserData(m_pGameList->GetSelectedItem(i));
 
 		// refresh this server
-		SteamMatchmakingServers()->RefreshServer( m_eMatchMakingType, serverID );
+		SteamMatchmakingServers()->RefreshServer( m_hRequest, serverID );
 	}
 
 	SetRefreshing(IsRefreshing());
@@ -1349,10 +1349,10 @@ void CBaseGamesPage::StopRefresh()
 #ifndef NO_STEAM
 	// Stop the server list refreshing
 	if ( SteamMatchmakingServers() )
-		SteamMatchmakingServers()->CancelQuery( m_eMatchMakingType );
+		SteamMatchmakingServers()->CancelQuery( m_hRequest );
 #endif
 	// update UI
-	RefreshComplete( eServerResponded );
+	RefreshComplete( m_hRequest, eServerResponded );
 }
 
 //-----------------------------------------------------------------------------
@@ -1361,7 +1361,7 @@ void CBaseGamesPage::StopRefresh()
 bool CBaseGamesPage::IsRefreshing()
 {
 #ifndef NO_STEAM
-	return SteamMatchmakingServers() && SteamMatchmakingServers()->IsRefreshing( m_eMatchMakingType );
+	return SteamMatchmakingServers() && SteamMatchmakingServers()->IsRefreshing( m_hRequest );
 #else
 	return false;
 #endif
@@ -1453,7 +1453,7 @@ void CBaseGamesPage::OnFavoritesMsg( FavoritesListChanged_t *pFavListChanged )
 			if ( pFavListChanged->m_bAdd )	
 			{
 				if ( m_mapServerIP[ iIPServer ] > 0 )
-					ServerResponded( m_mapServerIP[ iIPServer ] );
+					ServerResponded( m_hRequest, m_mapServerIP[ iIPServer ] );
 			}
 			else
 			{

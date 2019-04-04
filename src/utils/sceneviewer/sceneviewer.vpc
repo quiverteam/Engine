@@ -43,16 +43,16 @@ $Project "Sceneviewer"
 
 	$Folder "Link Libraries"
 	{
-		$Lib "appframework"
-		$Lib "datamodel"
-		$Lib "dme_controls"
-		$Lib "dmserializers"
-		$Lib "mathlib"
-		$Lib "matsys_controls"
-		$Lib "movieobjects"
-		$Lib "sfmobjects"
-		$Lib "tier2"
-		$Lib "tier3"
-		$Lib "vgui_controls"
+		$Lib	appframework
+		$Lib	datamodel
+		$Lib	dme_controls
+		$Lib	dmserializers
+		$Lib	mathlib
+		$Lib	matsys_controls
+		$Lib	movieobjects
+		$Lib	sfmobjects
+		$Lib	tier2
+		$Lib	tier3
+		$Lib	vgui_controls
 	}
 }

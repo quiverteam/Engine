@@ -20,6 +20,7 @@ $Configuration
 
 	$Linker
 	{
+		$AdditionalDependencies			"$BASE vgui_surfacelib_360.lib"			[$X360]
 		$AdditionalDependencies			"$BASE vgui_surfacelib.lib nvtc.lib"	[$WIN32]
 	}
 }
@@ -87,13 +88,13 @@ $Project "vguimatsurface"
 		$File	"$SRCDIR\common\vgui_surfacelib\Win32Font.h"
 	}
 
-	$Folder	"Link Libraries" [$WIN32]
+	$Folder	"Link Libraries"
 	{
-		$Lib	"bitmap"
-		$Lib	"mathlib"
-		$Lib	"tier2"
-		$Lib	"tier3"
-		$Lib	"vgui_controls"
-		$Lib	"vgui_surfacelib"
+		$Lib	bitmap
+		$Lib	mathlib
+		$Lib	tier2
+		$Lib	tier3
+		$Lib	vgui_controls
+		$Lib	vgui_surfacelib
 	}
 }

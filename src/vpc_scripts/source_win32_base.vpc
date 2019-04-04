@@ -32,7 +32,7 @@ $Configuration
 		$PlatformToolset "v120" [$VS2013]
 		$PlatformToolset "v140" [$VS2015]
 		$PlatformToolset "v141" [$VS2017]
-		$PlatformToolset "v141" [$VS2019] // Added Visual Studio 2019 support (the 2019 toolset is unavailable in preview)
+		$PlatformToolset "v142" [$VS2019]
 	}
 
 	$General

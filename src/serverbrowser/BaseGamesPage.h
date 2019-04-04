@@ -14,6 +14,17 @@
 
 class CBaseGamesPage;
 
+enum EMatchMakingType
+{
+	eInternetServer = 0,
+	eLANServer,
+	eFriendsServer,
+	eFavoritesServer,
+	eHistoryServer,
+	eSpectatorServer,
+	eInvalidServer
+};
+
 //-----------------------------------------------------------------------------
 // Purpose: Acts like a regular ListPanel but forwards enter key presses
 // to its outer control.
@@ -85,10 +96,10 @@ protected:
 	void UpdateStatus();
 
 	// ISteamMatchmakingServerListResponse callbacks
-	virtual void ServerResponded( int iServer );
+	virtual void ServerResponded( HServerListRequest request, int iServer );
 	virtual void ServerResponded( int iServer, gameserveritem_t *pServerItem );
-	virtual void ServerFailedToRespond( int iServer );
-	virtual void RefreshComplete( EMatchMakingServerResponse response ) = 0;
+	virtual void ServerFailedToRespond( HServerListRequest request, int iServer );
+	virtual void RefreshComplete( HServerListRequest request, EMatchMakingServerResponse response ) = 0;
 
 	// ISteamMatchmakingPingResponse callbacks
 	virtual void ServerResponded( gameserveritem_t &server );
@@ -148,6 +159,7 @@ protected:
 	int m_iServerRefreshCount;
 
 	EMatchMakingType m_eMatchMakingType;
+	HServerListRequest m_hRequest;
 
 protected:
 	virtual void CreateFilters();

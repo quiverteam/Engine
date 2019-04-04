@@ -251,11 +251,11 @@ $Project "Scenemanager"
 
 	$Folder	"Link Libraries"
 	{
-		$Lib appframework
-		$Lib choreoobjects
-		$Lib mathlib
-		$Lib $LIBCOMMON\mxtoolkitwin32
-		$Lib tier2
-		$Lib tier3
+		$Lib	"$LIBCOMMON\mxtoolkitwin32"
+		$Lib	appframework
+		$Lib	choreoobjects
+		$Lib	mathlib
+		$Lib	tier2
+		$Lib	tier3
 	}
 }
