@@ -145,3 +145,5 @@ modeswitchsave.tga
 /src/lib/public/tier0.lib
 /src/lib/public/tier1.lib
 /src/lib/public/vstdlib.lib
+
+\.vscode/
