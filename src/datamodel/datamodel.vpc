@@ -9,11 +9,6 @@ $Macro OUTLIBDIR	"$LIBPUBLIC"
 
 $Include "$SRCDIR\vpc_scripts\source_lib_base.vpc"
 
-//$Linux
-//{
-//		$BuildForLinux 1
-//}
-
 $Configuration
 {
 	$Compiler
@@ -55,8 +50,6 @@ $Project "Datamodel"
 		$File	"dmserializerbinary.cpp"
 		$File	"dmserializerkeyvalues.cpp"
 		$File	"dmserializerkeyvalues2.cpp"
-		$File	"dmserializerxml.cpp"
-		$File	"dmserializerxml.h"
 		$File	"undomanager.cpp"
 	}
 
@@ -88,11 +81,6 @@ $Project "Datamodel"
 		$File	"$SRCDIR\public\tier0\platform.h"
 		$File	"$SRCDIR\public\protected_things.h"
 		$File	"$SRCDIR\Public\string_t.h"
-	}
-
-	$Folder	"Link Libraries"
-	{
-		$DynamicFile	"$LIBCOMMON\parsifal.lib"
 	}
 
 	$Folder	"Interface"

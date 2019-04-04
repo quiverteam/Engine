@@ -7,7 +7,7 @@
 //
 
 $Macro SRCDIR		"..\.."
-$Macro OUTBINDIR	"$SRCDIR\dx10sdk\utilities\dx9_30"
+$Macro OUTBINDIR	"$SRCDIR\dx_proxy\dx9_30"
 $Macro DX_SDK_VER	"DX9_V30_PC"
 
 $Include "dx_proxy_base.vpc"
