@@ -302,7 +302,7 @@ void C_EnvProjectedTexture::UpdateLight( void )
 		NDebugOverlay::Box( vec3_origin, mins, maxs, 0, 255, 0, 100, 0.0f );
 #endif
 			
-		bool bVisible = IsBBoxVisible( mins, maxs );
+		bVisible = IsBBoxVisible( mins, maxs );
 		if (!bVisible)
 		{
 			// Spotlight's extents aren't in view
@@ -337,8 +337,8 @@ void C_EnvProjectedTexture::UpdateLight( void )
 	state.m_pSpotlightTexture = m_SpotlightTexture;
 	state.m_nSpotlightTextureFrame = m_nSpotlightTextureFrame;
 
-	state.m_bUberlight = r_projtex_uberlight_enable.GetBool();
-	m_UberlightState.m_bEnabled = r_projtex_uberlight_enable.GetBool();
+	state.m_bUberlight = false; //r_projtex_uberlight_enable.GetBool();
+	m_UberlightState.m_bEnabled = false; //r_projtex_uberlight_enable.GetBool();
 	m_UberlightState.m_fNearEdge = m_fNearEdge;
 	m_UberlightState.m_fFarEdge = m_fFarEdge;
 	m_UberlightState.m_fCutOn = m_fCutOn;

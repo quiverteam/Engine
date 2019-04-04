@@ -11,6 +11,8 @@
 // memdbgon must be the last include file in a .cpp file!!!
 #include "tier0/memdbgon.h"
 
+static ConVar create_flashlight_quadratic( "create_flashlight_quadratic", "150", 0 );
+
 LINK_ENTITY_TO_CLASS( env_projectedtexture, CEnvProjectedTexture );
 
 BEGIN_DATADESC( CEnvProjectedTexture )
@@ -247,11 +249,11 @@ void CC_CreateFlashlight( const CCommand &args )
 	
 	pFlashlight->m_bAlwaysUpdate = true;
 	pFlashlight->m_bEnableShadows = true;
-	pFlashlight->m_nQuadratic = 10000;
+	pFlashlight->m_nQuadratic = create_flashlight_quadratic.GetInt();
 	pFlashlight->m_flLightFOV = 90;
 	pFlashlight->m_flNearZ = 4;
-	pFlashlight->m_flFarZ = 750;
-	pFlashlight->Teleport( &origin, &angles, NULL );
+	pFlashlight->m_flFarZ = 1500;
 
+	pFlashlight->Teleport( &origin, &angles, NULL );
 }
 static ConCommand create_flashlight("create_flashlight", CC_CreateFlashlight, 0, FCVAR_CHEAT);

@@ -43,7 +43,8 @@ public:
 
 	CNetworkHandle( CBaseEntity, m_hTargetEntity );
 
-private:
+// commented out for create flashlight for 600 years
+//private:
 
 	CNetworkVar(	bool,		m_bState );
 	CNetworkVar(	bool,		m_bAlwaysUpdate );
@@ -58,7 +59,6 @@ private:
 	CNetworkVar(	int,		m_nLinear );
 	CNetworkVar(	int,		m_nQuadratic );
 	CNetworkVar(	int,		m_nConstant );
-
 
 	CNetworkVar(	float,		m_flAmbient );
 	CNetworkString(				m_SpotlightTextureName, MAX_PATH );
