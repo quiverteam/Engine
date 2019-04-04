@@ -1,18 +1,21 @@
-
+//
+// Base for all POSIX and POSIX-like builds
+//
 $Include "$SRCDIR\vpc_scripts\version.vpc"
+$Include "$SRCDIR\vpc_scripts\source_x64_base.vpc"
 
 $Macro LIBPUBLIC	"$SRCDIR\lib\public\$PLATSUBDIR"
 $Macro LIBCOMMON	"$SRCDIR\lib\common\$PLATSUBDIR"
 
 $MacroRequired				"SRCDIR"
 
-
 $Configuration "Debug"
 {
 	$Compiler
 	{
 		$PreprocessorDefinitions			"$BASE;DEBUG;_DEBUG"
-		$OptimizerLevel					"-gdwarf-2 -g2 $(OptimizerLevel_CompilerSpecific)"
+		$OptimizerLevel						"-gdwarf-2 -g2 $(OptimizerLevel_CompilerSpecific)"
+		$GCC_ExtraCompilerFlags				"-O1" //I dont know if OptimizerLevel will accept stuff like "-O1" so this is here
 	}
 }
 
@@ -22,6 +25,7 @@ $Configuration "Release"
 	{
 		$PreprocessorDefinitions		"$BASE;NDEBUG"
 		$OptimizerLevel					"-gdwarf-2 -g2 $(OptimizerLevel_CompilerSpecific)"
+		$GCC_ExtraCompilerFlags			"-O3"
 	}
 }
 
@@ -35,18 +39,33 @@ $Configuration
 	$Compiler
 	{
 		$AdditionalIncludeDirectories		"$SRCDIR\common;$SRCDIR\public;$SRCDIR\public\tier0;$SRCDIR\public\tier1"
-		$AdditionalLibraryDirectories		"$LIBCOMMON;$LIBPUBLIC" [$OSXALL]
-		$PreprocessorDefinitions		"$BASE;GNUC;POSIX;COMPILER_GCC;_DLL_EXT=$_DLL_EXT"
-		$PreprocessorDefinitions		"$BASE;DEDICATED" [$DEDICATED]
+		
+		$AdditionalLibraryDirectories		"$LIBCOMMON;$LIBPUBLIC"
+		
+		$PreprocessorDefinitions			"$BASE;_DLL_EXT=$_DLL_EXT"
+		$PreprocessorDefinitions			"$BASE;GNUC;POSIX;COMPILER_GCC"						[!$CLANG]
+		$PreprocessorDefinitions			"$BASE;CLANG;COMPILER_CLANG"						[$CLANG]
+		
+		$PreprocessorDefinitions			"$BASE;DEDICATED" [$DEDICATED]
+		
 		// the 10240 in the following line is the output of `sysctl -n kern.maxfilesperproc`
 		$PreprocessorDefinitions		"$BASE;_OSX;OSX;_DARWIN_UNLIMITED_SELECT;FD_SETSIZE=10240;" [$OSXALL]
-		$PreprocessorDefinitions		"$BASE;OVERRIDE_V_DEFINES"	  [$OSXALL]						
-		$PreprocessorDefinitions		"$BASE;_LINUX;LINUX;" [$LINUXALL]
-		$SymbolVisibility				"hidden" 					[$POSIX]
-		$PreprocessorDefinitions		"$BASE;POSIX;_POSIX"		[$POSIX]
+		$PreprocessorDefinitions		"$BASE;OVERRIDE_V_DEFINES"	  					[$OSXALL]						
+		$PreprocessorDefinitions		"$BASE;_LINUX;LINUX;" 							[$LINUXALL]
+		$SymbolVisibility				"hidden" 										[$POSIX]
+		$PreprocessorDefinitions		"$BASE;POSIX;_POSIX"							[$POSIX]
 
-		$PreprocessorDefinitions		"$BASE;PLATFORM_64BITS"		[$OSX64]
-		$GCC_ExtraCompilerFlags			"$BASE -arch x86_64"		[$OSX64]
+		// Extra compile opts for 64-bit gcc stuff
+		$GCC_ExtraCompilerFlags			"$BASE -arch x86_64 -m64"						[$POSIX64 && !$CLANG]
+		$GCC_ExtraCompilerFlags			"$BASE -mcpu=x86-64 -m64"						[$POSIX64 && $CLANG]
+		$GCC_ExtraCompilerFlags			"$BASE -msse -msse2 -msse3"						[$POSIX64]
+		$GCC_ExtraCompilerFlags			"$BASE -mavx"									[$POSIX64 && $USE_AVX]
+		
+		// Preprocessor for 64-bit posix/linux/osx stuff
+		$PreprocessorDefinitions		"$BASE;PLATFORM_64BITS;_x86_64_;_x64_;_X64_;	[$OSX64 || $POSIX64 || $LINUX64]
+		$PreprocessorDefinitions		"$BASE;_POSIX64;POSIX64"						[$POSIX64]
+		$PreprocessorDefinitions		"$BASE;_LINUX64;LINUX64"						[$LINUX64]
+		$PreprocessorDefinitions		"$BASE;_OSX64;OSX64"							[$OSX64]
 
 		$Create/UsePCHThroughFile	"stdafx.h"
 	}

@@ -8,7 +8,7 @@ $Configuration
 {
 	$General
 	{
-		$ConfigurationType                                      "Static Library (.lib)"
+		$ConfigurationType					"Static Library (.lib)"
 		$GameOutputFile						"$OUTLIBDIR/$OUTLIBNAME$_STATICLIB_EXT"
 	}
 
