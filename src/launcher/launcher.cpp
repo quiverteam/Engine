@@ -585,7 +585,7 @@ bool CSourceAppSystemGroup::Create()
 		{ "datacache.dll",			STUDIO_DATA_CACHE_INTERFACE_VERSION },
 		{ "studiorender.dll",		STUDIO_RENDER_INTERFACE_VERSION },
 		{ "vphysics.dll",			VPHYSICS_INTERFACE_VERSION },
-		{ "valve_avi.dll",				AVI_INTERFACE_VERSION },
+		{ "qvideo.dll",				AVI_INTERFACE_VERSION },
 		// NOTE: This has to occur before vgui2.dll so it replaces vgui2's surface implementation
 		{ "vguimatsurface.dll",		VGUI_SURFACE_INTERFACE_VERSION },
 		{ "vgui2.dll",				VGUI_IVGUI_INTERFACE_VERSION },

@@ -42,7 +42,6 @@
 #include "gameui/igameui.h"
 #include "matchmaking.h"
 #include "sv_main.h"
-#include "bink/bink.h"
 
 #if defined( _X360 )
 #include "xbox/xbox_win32stubs.h"
@@ -1141,8 +1140,8 @@ void CGame::PlayStartupVideos( void )
 //-----------------------------------------------------------------------------
 void CGame::PlayVideoAndWait( const char *filename )
 {
-
-#if !defined(_X360) && defined(_WIN32)
+#pragma message("src/engine/sys_mainwnd.cpp, LN 1143: Replace Bink startup videos!")
+/*#if !defined(_X360) && defined(_WIN32)
 
 	if ( !filename || !filename[0] )
 		return;
@@ -1272,7 +1271,7 @@ void CGame::PlayVideoAndWait( const char *filename )
 	// Free this as well
 	FreeLibrary( hInst );
 
-#endif // _X360
+#endif // _X360*/
 }
 
 

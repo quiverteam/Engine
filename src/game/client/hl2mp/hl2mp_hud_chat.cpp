@@ -14,7 +14,6 @@
 #include "c_playerresource.h"
 #include "c_hl2mp_player.h"
 #include "hl2mp_gamerules.h"
-#include "ihudlcd.h"
 
 
 

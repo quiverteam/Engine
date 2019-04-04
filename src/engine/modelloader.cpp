@@ -4613,8 +4613,8 @@ void CModelLoader::Sprite_UnloadModel( model_t *mod )
 	mod->nLoadFlags &= ~FMODELLOADER_LOADED;
 
 	char loadName[MAX_PATH];
-	bool bIsAVI, bIsBIK;
-	BuildSpriteLoadName( mod->szName, loadName, sizeof( loadName ), bIsAVI, bIsBIK );
+	bool bIsAVI;
+	BuildSpriteLoadName( mod->szName, loadName, sizeof( loadName ), bIsAVI );
 
 	IMaterial *mat = materials->FindMaterial( loadName, TEXTURE_GROUP_OTHER );
 	if ( !IsErrorMaterial( mat ) )
