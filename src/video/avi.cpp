@@ -5,7 +5,7 @@
 //=============================================================================
 
 
-#include "avi/iavi.h"
+#include "video/iavi.h"
 #include "avi.h"
 #include "filesystem.h"
 #include "tier1/strtools.h"

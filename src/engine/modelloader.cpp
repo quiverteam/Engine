@@ -20,8 +20,7 @@
 #include "materialsystem/imaterialsystemhardwareconfig.h"
 #include "materialsystem/materialsystem_config.h"
 #include "gl_rsurf.h"
-#include "avi/iavi.h"
-#include "avi/ibik.h"
+#include "video/iavi.h"
 #include "materialsystem/itexture.h"
 #include "Overlay.h"
 #include "utldict.h"
@@ -3518,15 +3517,14 @@ model_t	*CModelLoader::LoadModel( model_t *mod, REFERENCETYPE *pReferencetype )
 //-----------------------------------------------------------------------------
 // Purpose: Creates the name of the sprite
 //-----------------------------------------------------------------------------
-static void BuildSpriteLoadName( const char *pName, char *pOut, int outLen, bool &bIsAVI, bool &bIsBIK )
+static void BuildSpriteLoadName( const char *pName, char *pOut, int outLen, bool &bIsAVI )
 {
 	// If it's a .vmt and they put a path in there, then use the path.
 	// Otherwise, use the old method of prepending the sprites directory.
 	const char *pExt = V_GetFileExtension( pName );
 	bIsAVI = !Q_stricmp( pExt, "avi" );
-	bIsBIK = !Q_stricmp( pExt, "bik" );
 	bool bIsVMT = !Q_stricmp( pExt, "vmt" );
-	if ( ( bIsAVI || bIsBIK || bIsVMT ) && ( strchr( pName, '/' ) || strchr( pName, '\\' ) ) )
+	if ( ( bIsAVI || bIsVMT ) && ( strchr( pName, '/' ) || strchr( pName, '\\' ) ) )
 	{
 		// The material system cannot handle a prepended "materials" dir
 		// Keep .avi extensions on the material to load avi-based materials
@@ -4516,7 +4514,7 @@ void CModelLoader::Map_UnloadModel( model_t *mod )
 //-----------------------------------------------------------------------------
 // Computes dimensions + frame count of a material 
 //-----------------------------------------------------------------------------
-static void GetSpriteInfo( const char *pName, bool bIsAVI, bool bIsBIK, int &nWidth, int &nHeight, int &nFrameCount )
+static void GetSpriteInfo( const char *pName, bool bIsAVI, int &nWidth, int &nHeight, int &nFrameCount )
 {
 	nFrameCount = 1;
 	nWidth = nHeight = 1;
@@ -4526,7 +4524,6 @@ static void GetSpriteInfo( const char *pName, bool bIsAVI, bool bIsBIK, int &nWi
 	// is that this code gets run on dedicated servers also.
 	IMaterial *pMaterial = NULL;
 	AVIMaterial_t hAVIMaterial = AVIMATERIAL_INVALID; 
-	BIKMaterial_t hBIKMaterial = BIKMATERIAL_INVALID; 
 	if ( bIsAVI )
 	{
 		hAVIMaterial = avi->CreateAVIMaterial( pName, pName, "GAME" );
@@ -4535,16 +4532,6 @@ static void GetSpriteInfo( const char *pName, bool bIsAVI, bool bIsBIK, int &nWi
 		if ( hAVIMaterial != AVIMATERIAL_INVALID )
 		{
 			pMaterial = avi->GetMaterial( hAVIMaterial );
-		}
-	}
-	else if ( bIsBIK )
-	{
-		hBIKMaterial = bik->CreateMaterial( pName, pName, "GAME" );
-		if (hBIKMaterial != BIKMATERIAL_INVALID )
-		{
-			bik->GetFrameSize( hBIKMaterial, &nWidth, &nHeight );
-			nFrameCount = bik->GetFrameCount( hBIKMaterial );
-			pMaterial = bik->GetMaterial( hBIKMaterial );
 		}
 	}
 	else
@@ -4567,11 +4554,6 @@ static void GetSpriteInfo( const char *pName, bool bIsAVI, bool bIsBIK, int &nWi
 	if ( hAVIMaterial != AVIMATERIAL_INVALID )
 	{
 		avi->DestroyAVIMaterial( hAVIMaterial );
-	}
-
-	if ( hBIKMaterial != BIKMATERIAL_INVALID )
-	{
-		bik->DestroyMaterial( hBIKMaterial );
 	}
 }
 
@@ -4609,9 +4591,9 @@ void CModelLoader::Sprite_LoadModel( model_t *mod )
 
 	// Figure out the real load name..
 	char loadName[MAX_PATH];
-	bool bIsAVI, bIsBIK;
-	BuildSpriteLoadName( mod->szName, loadName, MAX_PATH, bIsAVI, bIsBIK );
-	GetSpriteInfo( loadName, bIsAVI, bIsBIK, mod->sprite.width, mod->sprite.height, mod->sprite.numframes );
+	bool bIsAVI;
+	BuildSpriteLoadName( mod->szName, loadName, MAX_PATH, bIsAVI );
+	GetSpriteInfo( loadName, bIsAVI, mod->sprite.width, mod->sprite.height, mod->sprite.numframes );
 
 #ifndef SWDS
 	if ( g_ClientDLL && mod->sprite.sprite )

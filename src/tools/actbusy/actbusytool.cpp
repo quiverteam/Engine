@@ -32,7 +32,7 @@
 #include "toolutils/toolwindowfactory.h"
 #include "toolutils/basepropertiescontainer.h"
 #include "toolutils/savewindowpositions.h"
-#include "avi/iavi.h"
+#include "video/iavi.h"
 #include "tier2/fileutils.h"
 #include "tier3/tier3.h"
 #include "vgui/ivgui.h"

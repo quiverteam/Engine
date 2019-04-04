@@ -36,8 +36,7 @@
 #include "vphysics_interface.h"
 #include "filesystem_init.h"
 #include "vstdlib/iprocessutils.h"
-#include "avi/iavi.h"
-#include "avi/ibik.h"
+#include "video/iavi.h"
 #include "tier1/tier1.h"
 #include "tier2/tier2.h"
 #include "tier3/tier3.h"
@@ -587,7 +586,6 @@ bool CSourceAppSystemGroup::Create()
 		{ "studiorender.dll",		STUDIO_RENDER_INTERFACE_VERSION },
 		{ "vphysics.dll",			VPHYSICS_INTERFACE_VERSION },
 		{ "valve_avi.dll",				AVI_INTERFACE_VERSION },
-		{ "valve_avi.dll",				BIK_INTERFACE_VERSION },
 		// NOTE: This has to occur before vgui2.dll so it replaces vgui2's surface implementation
 		{ "vguimatsurface.dll",		VGUI_SURFACE_INTERFACE_VERSION },
 		{ "vgui2.dll",				VGUI_IVGUI_INTERFACE_VERSION },

@@ -23,7 +23,6 @@
 #include "c_team.h"
 #include "c_playerresource.h"
 #include "filesystem.h"
-#include "g15/ig15.h"
 
 #include "tier0/icommandline.h"
 

@@ -33,7 +33,7 @@ $Project "qvideo"
 
 	$Folder	"Interface"
 	{
-		$File	"$SRCDIR\public\avi\iavi.h"
+		$File	"$SRCDIR\public\video\iavi.h"
 	}
 	
 	$Folder	"Link Libraries"

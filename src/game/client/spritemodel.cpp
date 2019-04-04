@@ -218,7 +218,6 @@ static unsigned int spriteOrientationCache = 0;
 bool CEngineSprite::Init( const char *pName )
 {
 	m_hAVIMaterial = AVIMATERIAL_INVALID;
-	m_hBIKMaterial = BIKMATERIAL_INVALID;
 	m_width = m_height = m_numFrames = 1;
 
 	const char *pExt = Q_GetFileExtension( pName );
@@ -233,16 +232,6 @@ bool CEngineSprite::Init( const char *pName )
 		m_material = avi->GetMaterial( m_hAVIMaterial );
 		avi->GetFrameSize( m_hAVIMaterial, &m_width, &m_height );
 		m_numFrames = avi->GetFrameCount( m_hAVIMaterial );
-	}
-	else if ( bIsBIK )
-	{
-		m_hBIKMaterial = bik->CreateMaterial( pName, pName, "GAME" );
-		if (m_hBIKMaterial == BIKMATERIAL_INVALID )
-			return false;
-
-		m_material = bik->GetMaterial( m_hBIKMaterial );
-		bik->GetFrameSize( m_hBIKMaterial, &m_width, &m_height );
-		m_numFrames = bik->GetFrameCount( m_hBIKMaterial );
 	}
 	else
 	{
@@ -311,15 +300,6 @@ bool CEngineSprite::IsAVI()
 }
 
 //-----------------------------------------------------------------------------
-// Is the sprite an BIK?
-//-----------------------------------------------------------------------------
-bool CEngineSprite::IsBIK()
-{
-	return ( m_hBIKMaterial != AVIMATERIAL_INVALID );
-}
-
-
-//-----------------------------------------------------------------------------
 // Returns the texture coordinate range	used to draw the sprite
 //-----------------------------------------------------------------------------
 void CEngineSprite::GetTexCoordRange( float *pMinU, float *pMinV, float *pMaxU, float *pMaxV )
@@ -329,10 +309,6 @@ void CEngineSprite::GetTexCoordRange( float *pMinU, float *pMinV, float *pMaxU, 
 	if ( IsAVI() )
 	{
 		avi->GetTexCoordRange( m_hAVIMaterial, pMaxU, pMaxV );
-	}
-	if ( IsBIK() )
-	{
-		bik->GetTexCoordRange( m_hBIKMaterial, pMaxU, pMaxV );
 	}
 	float flOOWidth = ( m_width != 0 ) ? 1.0f / m_width : 1.0f;
 	float flOOHeight = ( m_height!= 0 ) ? 1.0f / m_height : 1.0f;
@@ -384,10 +360,6 @@ void CEngineSprite::SetFrame( float frame )
 	if ( IsAVI() )
 	{
 		avi->SetFrame( m_hAVIMaterial, frame );
-	}
-	else if ( IsBIK() )
-	{
-		bik->SetFrame( m_hBIKMaterial, frame );
 	}
 	else
 	{

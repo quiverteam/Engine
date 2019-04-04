@@ -28,7 +28,7 @@
 #include "cdll_engine_int.h"
 #include "vgui_baseui_interface.h"
 #include "iengine.h"
-#include "avi/iavi.h"
+#include "video/iavi.h"
 #include "keys.h"
 #include "vguimatsurface/imatsystemsurface.h"
 #include "tier3/tier3.h"
