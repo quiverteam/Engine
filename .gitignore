@@ -147,3 +147,5 @@ modeswitchsave.tga
 /src/lib/public/vstdlib.lib
 
 \.vscode/
+
+*.kdev4
