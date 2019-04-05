@@ -2,7 +2,7 @@
 // Base for all POSIX and POSIX-like builds
 //
 $Include "$SRCDIR\vpc_scripts\version.vpc"
-$Include "$SRCDIR\vpc_scripts\source_x64_base.vpc"
+$Include "$SRCDIR\vpc_scripts\source_x64_base.vpc" [$POSIX64 || $OSX64]
 
 $Macro LIBPUBLIC	"$SRCDIR\lib\public\$PLATSUBDIR"
 $Macro LIBCOMMON	"$SRCDIR\lib\common\$PLATSUBDIR"
