@@ -19,6 +19,8 @@
 #include <intrin.h>
 #endif
 
+#include <xmmintrin.h>
+
 #ifdef POSIX
 #include <pthread.h>
 #include <errno.h>
@@ -65,7 +67,7 @@ const unsigned TT_INFINITE = 0xffffffff;
 
 #endif // NO_THREAD_LOCAL
 
-typedef unsigned long ThreadId_t;
+typedef unsigned int ThreadId_t;
 
 //-----------------------------------------------------------------------------
 //
@@ -234,17 +236,13 @@ inline void const *ThreadInterlockedCompareExchangePointerToConst( void const * 
 inline bool ThreadInterlockedAssignPointerToConstIf( void const * volatile *p, void const *value, void const *comperand )			{ return ThreadInterlockedAssignPointerIf( const_cast < void * volatile * > ( p ), const_cast < void * > ( value ), const_cast < void * > ( comperand ) ); }
 
 #if defined( PLATFORM_64BITS )
-#if defined (_WIN32) 
 typedef __m128i int128;
 inline int128 int128_zero()	{ return _mm_setzero_si128(); }
-#else
-typedef __int128_t int128;
-#define int128_zero() 0
-#endif
+
 
 PLATFORM_INTERFACE bool ThreadInterlockedAssignIf128( volatile int128 *pDest, const int128 &value, const int128 &comperand ) NOINLINE;
 
-#endif
+#endif //PLATFORM_64BITS
 
 PLATFORM_INTERFACE int64 ThreadInterlockedIncrement64( int64 volatile * ) NOINLINE;
 PLATFORM_INTERFACE int64 ThreadInterlockedDecrement64( int64 volatile * ) NOINLINE;

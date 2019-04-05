@@ -1,4 +1,4 @@
-//========== Copyright © 2005, Valve Corporation, All rights reserved. ========
+//========== Copyright ï¿½ 2005, Valve Corporation, All rights reserved. ========
 //
 // Purpose:
 //
@@ -447,11 +447,13 @@ CThreadEvent::CThreadEvent( bool bManualReset )
 #endif
 }
 
+#ifdef _WIN32
 CThreadEvent::CThreadEvent( HANDLE hHandle )
 {
 	m_hSyncObject = hHandle;
 	m_bCreatedHandle = false;
 }
+#endif
 
 //-----------------------------------------------------------------------------
 //
@@ -1377,7 +1379,7 @@ bool CThread::Start( unsigned nBytesStack )
 		return false;
 	}
 #elif _LINUX
-	ThreadInit_t init = { this, &bInitSuccess };
+	ThreadInit_t init = { this, NULL, &bInitSuccess };
 	pthread_attr_t attr;
 	pthread_attr_init( &attr );
 	pthread_attr_setstacksize( &attr, max( nBytesStack, 1024*1024 ) );
@@ -1550,6 +1552,7 @@ bool CThread::SetPriority(int priority)
 
 //---------------------------------------------------------
 
+#ifndef LINUX
 unsigned CThread::Suspend()
 {
 #ifdef _WIN32
@@ -1571,6 +1574,7 @@ unsigned CThread::Resume()
 	return 0;
 #endif
 }
+#endif
 
 //---------------------------------------------------------
 

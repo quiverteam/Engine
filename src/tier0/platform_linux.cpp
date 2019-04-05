@@ -1,4 +1,4 @@
-//========= Copyright © 1996-2005, Valve Corporation, All rights reserved. ============//
+//========= Copyright ï¿½ 1996-2005, Valve Corporation, All rights reserved. ============//
 //
 // Purpose: 
 //
@@ -7,8 +7,8 @@
 
 #include "tier0/platform.h"
 #include "tier0/vcrmode.h"
-#include "tier0/memalloc.h"
 #include "tier0/dbg.h"
+#include "tier0/memalloc.h"
 
 #include <sys/time.h>
 #include <unistd.h>
@@ -32,7 +32,7 @@ double Plat_FloatTime()
 	return VCRHook_Sys_FloatTime( ( tp.tv_sec - secbase ) + tp.tv_usec / 1000000.0 );
 }
 
-unsigned long Plat_MSTime()
+unsigned int Plat_MSTime()
 {
         struct timeval  tp;
         static int      secbase = 0;
@@ -53,6 +53,7 @@ unsigned long Plat_MSTime()
 
 bool vtune( bool resume )
 {
+	return false;
 }
 
 
@@ -69,6 +70,7 @@ Plat_AllocErrorFn g_AllocError = Plat_DefaultAllocErrorFn;
 
 PLATFORM_INTERFACE void* Plat_Alloc( unsigned long size )
 {
+#ifndef NO_MALLOC_OVERRIDE
 	void *pRet = g_pMemAlloc->Alloc( size );
 	if ( pRet )
 	{
@@ -79,11 +81,15 @@ PLATFORM_INTERFACE void* Plat_Alloc( unsigned long size )
 		g_AllocError( size );
 		return 0;
 	}
+#else
+	return malloc(size);
+#endif
 }
 
 
 PLATFORM_INTERFACE void* Plat_Realloc( void *ptr, unsigned long size )
 {
+#ifndef NO_MALLOC_OVERRIDE
 	void *pRet = g_pMemAlloc->Realloc( ptr, size );
 	if ( pRet )
 	{
@@ -94,12 +100,19 @@ PLATFORM_INTERFACE void* Plat_Realloc( void *ptr, unsigned long size )
 		g_AllocError( size );
 		return 0;
 	}
+#else
+	return realloc(ptr, size);
+#endif
 }
 
 
 PLATFORM_INTERFACE void Plat_Free( void *ptr )
 {
+#ifndef NO_MALLOC_OVERRIDE
 	g_pMemAlloc->Free( ptr );
+#else
+	free(ptr);
+#endif
 }
 
 
