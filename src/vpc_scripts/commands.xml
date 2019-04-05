@@ -1,0 +1,17 @@
+<commands>
+	<!-- Windows only stuff/-->
+	<command name="libraries" platform="windows">/hl2 /hl2r /hl2mp /episodic +libraries /mksln libraries /win32 /define:VS2019</command>
+	<command name="libraries_x64" platform="windows">/hl2 /hl2r /hl2mp /episodic +libraries /mksln libraries_x64 /win64 /define:VS2019</command>
+	<command name="core" platform="windows">/hl2 /hl2r /hl2mp /episodic +core /win32 /define:VS2019</command>
+	<command name="core_x64" platform="windows">/hl2 /hl2r /hl2mp /episodic +core /win64 /define:VS2019</command>
+	<command name="binaries" platform="windows">/hl2 /hl2r /hl2mp /episodic +binaries /win32 /define:VS2019</command>
+	<command name="binaries_x64" platform="windows">/hl2 /hl2r /hl2mp /episodic +binaries /win64 /define:VS2019</command>
+	<command name="everything" platform="windows">/hl2 /hl2r /hl2mp /episodic +everything /win32 /define:VS2019</command>
+	<command name="everything_x64" platform="windows">/hl2 /hl2r /hl2mp /episodic +everything /win64 /define:VS2019</command>
+
+	<!-- Posix only stuff/-->
+	<command name="core" platform="posix">/hl2 /hl2r /hl2mp /episodic +core /posix</command>
+	<command name="libraries" platform="posix">/hl2 /hl2r /hl2mp /episodic +libraries /posix</command>
+	<command name="binaries" platform="posix">/hl2 /hl2r /hl2mp /episodic +binaries /posix</command>
+	<command name="everything" platform="posix">/hl2 /hl2r /hl2mp /episodic +everything /posix</command>
+</commands>
