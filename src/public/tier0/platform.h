@@ -21,6 +21,11 @@
 #define COMPILER_CLANG 1
 #endif
 
+// Calling convention decls
+#if defined(__GCC__) || defined(__clang__)
+#define __stdcall __attribute__((stdcall))
+#endif
+
 #if defined( _X360 )
 	#define NO_STEAM
 	#define NO_VOICE

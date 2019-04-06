@@ -1,4 +1,4 @@
-//========= Copyright © 1996-2005, Valve Corporation, All rights reserved. ============//
+//========= Copyright ï¿½ 1996-2005, Valve Corporation, All rights reserved. ============//
 //
 // Purpose: 
 //
@@ -373,6 +373,7 @@ static int VCR_Hook_PeekMessage(
 	)
 {
 	Assert( "VCR_Hook_PeekMessage unsupported" );
+	return 0;
 }
 
 

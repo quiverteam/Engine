@@ -67,7 +67,11 @@ const unsigned TT_INFINITE = 0xffffffff;
 
 #endif // NO_THREAD_LOCAL
 
-typedef unsigned int ThreadId_t;
+#ifndef PLATFORM_64BITS
+typedef unsigned long ThreadId_t;
+#else
+typedef unsigned long long ThreadId_t;
+#endif
 
 //-----------------------------------------------------------------------------
 //
@@ -1194,7 +1198,7 @@ public:
 	// Access the thread handle directly
 	HANDLE GetThreadHandle();
 	uint GetThreadId();
-#elif defined( LINUX )
+#elif defined( _POSIX )
 	uint GetThreadId();
 #endif
 
@@ -1226,7 +1230,7 @@ public:
 	// wait for a thread to execute its SuspendCooperative call 
 	void BWaitForThreadSuspendCooperative();
 
-#ifndef LINUX
+#ifndef _POSIX
 	// forcefully Suspend a thread
 	unsigned int Suspend();
 
@@ -1279,6 +1283,12 @@ protected:
 	// "Virtual static" facility
 	typedef unsigned (__stdcall *ThreadProc_t)( void * );
 	virtual ThreadProc_t GetThreadProc();
+
+	// Posix thread proc
+	typedef void*(__stdcall *PosixThreadProc_t)(void*);
+	PosixThreadProc_t GetPosixThreadProc();
+	static void* __stdcall PosixThreadProc(void* param);
+
 	virtual bool IsThreadRunning();
 
 	CThreadMutex m_Lock;
@@ -1315,6 +1325,7 @@ private:
 	ThreadId_t m_threadId;
 #elif defined(POSIX)
 	pthread_t m_threadId;
+	bool m_bThreadRunning;
 #endif
 	CInterlockedInt m_nSuspendCount;
 	CThreadEvent m_SuspendEvent;
@@ -1409,8 +1420,8 @@ public:
 
 protected:
 #ifndef _WIN32
-#define __stdcall
-#endif
+//#define __stdcall
+#endif 
 	typedef uint32 (__stdcall *WaitFunc_t)( int nEvents, CThreadEvent * const *pEvents, int bWaitAll, uint32 timeout );
 	
 	int Call( unsigned, unsigned timeout, bool fBoost, WaitFunc_t = NULL, CFunctor *pParamFunctor = NULL );

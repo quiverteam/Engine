@@ -90,7 +90,7 @@ ThreadHandle_t CreateSimpleThread( ThreadFunc_t pfnThread, void *pParam, ThreadI
 	pthread_create(&tid, NULL, ThreadProcConvert, new ThreadProcInfo_t( pfnThread, pParam ) );
 	if ( pID )
 		*pID = (ThreadId_t)tid;
-	return tid;
+	return (ThreadHandle_t)tid;
 #endif
 }
 
@@ -176,7 +176,7 @@ bool ThreadSetPriority( ThreadHandle_t hThread, int priority )
 #elif _LINUX
 	struct sched_param thread_param; 
 	thread_param.sched_priority = priority; 
-	pthread_setschedparam( hThread, SCHED_RR, &thread_param );
+	pthread_setschedparam( (pthread_t)hThread, SCHED_RR, &thread_param );
 	return true;
 #endif
 }
@@ -1292,7 +1292,8 @@ CThread::CThread()
 	m_hThread( NULL ),
 #endif
 	m_threadId( 0 ),
-	m_result( 0 )
+	m_result( 0 ),
+	m_bThreadRunning(false)
 {
 	m_szName[0] = 0;
 }
@@ -1333,7 +1334,7 @@ const char *CThread::GetName()
 #ifdef _WIN32
 		_snprintf( m_szName, sizeof(m_szName) - 1, "Thread(%p/%p)", this, m_hThread );
 #elif _LINUX
-		_snprintf( m_szName, sizeof(m_szName) - 1, "Thread(%0x%x/0x%x)", this, m_threadId );
+		_snprintf( m_szName, sizeof(m_szName) - 1, "Thread(%0x%x/0x%x)", (unsigned)this, (unsigned)m_threadId );
 #endif
 		m_szName[sizeof(m_szName) - 1] = 0;
 	}
@@ -1378,17 +1379,19 @@ bool CThread::Start( unsigned nBytesStack )
 		AssertMsg1( 0, "Failed to create thread (error 0x%x)", GetLastError() );
 		return false;
 	}
-#elif _LINUX
+#elif _POSIX
 	ThreadInit_t init = { this, NULL, &bInitSuccess };
 	pthread_attr_t attr;
 	pthread_attr_init( &attr );
 	pthread_attr_setstacksize( &attr, max( nBytesStack, 1024*1024 ) );
-	if ( pthread_create( &m_threadId, &attr, GetThreadProc(), new ThreadInit_t( init ) ) != 0 )
+
+	if ( pthread_create( &m_threadId, &attr, GetPosixThreadProc(), new ThreadInit_t( init ) ) != 0 )
 	{
 		AssertMsg1( 0, "Failed to create thread (error 0x%x)", GetLastError() );
 		return false;
 	}
 	bInitSuccess = true;
+	m_bThreadRunning = true;
 #endif
 
 
@@ -1408,7 +1411,7 @@ bool CThread::Start( unsigned nBytesStack )
 #ifdef _WIN32
 		CloseHandle( m_hThread );
 		m_hThread = NULL;
-#elif _LINUX
+#elif _POSIX
 		m_threadId = 0;
 #endif
 		return false;
@@ -1423,7 +1426,7 @@ bool CThread::Start( unsigned nBytesStack )
 
 #ifdef _WIN32
 	return !!m_hThread;
-#elif _LINUX
+#elif _POSIX
 	return !!m_threadId;
 #endif
 }
@@ -1516,6 +1519,8 @@ void CThread::Stop(int exitCode)
 #ifdef _WIN32
 			CloseHandle( m_hThread );
 			m_hThread = NULL;
+#elif defined(_POSIX)
+			m_bThreadRunning = false;
 #endif
 			m_threadId = 0;
 		}
@@ -1552,7 +1557,7 @@ bool CThread::SetPriority(int priority)
 
 //---------------------------------------------------------
 
-#ifndef LINUX
+#ifndef _POSIX
 unsigned CThread::Suspend()
 {
 #ifdef _WIN32
@@ -1580,7 +1585,6 @@ unsigned CThread::Resume()
 
 bool CThread::Terminate(int exitCode)
 {
-#ifndef _X360
 #ifdef _WIN32
 	// I hope you know what you're doing!
 	if (!TerminateThread(m_hThread, exitCode))
@@ -1588,16 +1592,13 @@ bool CThread::Terminate(int exitCode)
 	CloseHandle( m_hThread );
 	m_hThread = NULL;
 	m_threadId = 0;
-#elif _LINUX
+#elif _POSIX
 	pthread_kill( m_threadId, SIGKILL );
 	m_threadId = 0;
+	m_bThreadRunning = false;
 #endif
 
 	return true;
-#else
-	AssertMsg( 0, "Cannot terminate a thread on the Xbox!" );
-	return false;
-#endif
 }
 
 //---------------------------------------------------------
@@ -1676,9 +1677,26 @@ CThread::ThreadProc_t CThread::GetThreadProc()
 	return ThreadProc;
 }
 
+CThread::PosixThreadProc_t CThread::GetPosixThreadProc()
+{
+	return PosixThreadProc;
+}
+
 bool CThread::IsThreadRunning()
 {
+#ifdef _WIN32
 	return m_hThread;
+#elif defined(_POSIX)
+	return m_bThreadRunning;
+#endif
+}
+
+//---------------------------------------------------------
+
+// Calls normal thread proc so GCC shuts up about the invalid conversion
+void* __stdcall CThread::PosixThreadProc(void* param)
+{
+	return (void*)ThreadProc(param);
 }
 
 //---------------------------------------------------------
@@ -1689,11 +1707,6 @@ unsigned __stdcall CThread::ThreadProc(LPVOID pv)
   ThreadInit_t *pInit = (ThreadInit_t *)pv;
 #else
 	std::auto_ptr<ThreadInit_t> pInit((ThreadInit_t *)pv);
-#endif
-  
-#ifdef _X360
-        // Make sure all threads are consistent w.r.t floating-point math
-	SetupFPUControlWord();
 #endif
 
 	CThread *pThread = pInit->pThread;
