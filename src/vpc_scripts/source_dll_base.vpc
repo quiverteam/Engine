@@ -5,7 +5,7 @@ $include "$SRCDIR\vpc_scripts\source_base.vpc"
 $include "$SRCDIR\vpc_scripts\source_dll_posix_base.vpc"	[$POSIX]
 //$Include "$SRCDIR\vpc_scripts\source_dll_linux_base.vpc"	[$LINUX]
 $Include "$SRCDIR\vpc_scripts\source_dll_win32_base.vpc"	[$WINDOWS]
-$Include "$SRCDIR\vpc_scripts\source_x64_base.vpc" 		[$WIN64]
+$Include "$SRCDIR\vpc_scripts\source_x64_base.vpc" 			[$WIN64 || $POSIX64 || $OSX64]
 
 $Configuration
 {
