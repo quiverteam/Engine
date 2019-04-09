@@ -8,10 +8,7 @@
 
 #include <xmmintrin.h>
 #include <mmintrin.h>
-
-#ifdef _USE_AVX
 #include <immintrin.h>
-#endif
 
 #include <mathlib/vector.h>
 #include <mathlib/mathlib.h>
@@ -39,8 +36,16 @@ typedef union
 	uint32 m128_u32[4];
 } fltx4;
 
+typedef union
+{
+	float m256_f32[8];
+	uint32 m256_i32[8];
+} fltx8;
+
 typedef fltx4 i32x4;
 typedef fltx4 u32x4;
+typedef fltx8 i32x8;
+typedef fltx8 u32x8;
 
 #else
 
@@ -49,12 +54,38 @@ typedef __m128 i32x4;
 typedef __m128 u32x4;
 typedef __m128d fltdx4;
 
+// On GCC, when the -mavx option is disabled, __m256, etc. will not be defined. MSVC does define these even if avx intrinics generation is disabled.
+#ifndef _USE_AVX
+
+typedef union
+{
+	float m256_f32[8];
+	uint32 m256_i32[8];
+} fltx8;
+
+typedef union
+{
+	double m256_f64[4];
+	uint64 m256_i64[4];
+} fltdx8;
+
+typedef fltx8 __m256;
+typedef fltx8 __m256i;
+typedef fltdx8 __m256d;
+typedef fltx8 u32x8;
+typedef fltx8 i32x8;
+
+#else
+
 typedef __m256 fltx8;
 typedef __m256 i32x8;
 typedef __m256 u32x8;
 typedef __m256d fltdx8;
 
+#endif //_USE_AVX
+
 #endif
+
 
 // The FLTX4 type is a fltx4 used as a parameter to a function.
 // On the 360, the best way to do this is pass-by-copy on the registers.

@@ -1274,10 +1274,14 @@ inline void CVertexBuilder::FastVertexAVX(const ModelVertexDX8_t &vertex)
 	Assert(m_CompressionType == VERTEX_COMPRESSION_NONE); // FIXME: support compressed verts if needed
 	Assert(m_nCurrentVertex < m_nMaxVertexCount);
 
+#ifdef _USE_AVX
 	__m256* v1 = (__m256*)&m_pCurrPosition;
 	__m256* v2 = ((__m256*)&m_pCurrPosition + 1);
 	*v1 = _mm256_loadu_ps((float*)&vertex);
 	*v2 = _mm256_loadu_ps((float*)&vertex + 4);
+#else
+	this->FastVertexSSE(vertex);
+#endif
 
 	IncrementFloatPointer(m_pCurrPosition, m_VertexSize_Position);
 
