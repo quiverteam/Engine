@@ -31,11 +31,6 @@ $Configuration "Release"
 
 $Configuration
 {
-	$General
-	{
-		$ConfigurationType				"Application (.exe)"
-	}
-
 	$Compiler
 	{
 		$AdditionalIncludeDirectories		"$SRCDIR\common;$SRCDIR\public;$SRCDIR\public\tier0;$SRCDIR\public\tier1"
