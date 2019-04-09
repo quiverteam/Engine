@@ -40,123 +40,6 @@ Rather than using static libraries, this just gets included into a translation u
 	suite->insert_test(__unitlib2__internal__test);\
 }
 
-class CUnitTest;
-
-class CUnitTestSuite
-{
-private:
-	std::vector<CUnitTest> Tests;
-	std::string Name;
-public:
-	CUnitTestSuite(const CUnitTestSuite& other)
-	{
-		this->Name = other.Name;
-		this->Tests = other.Tests;
-	}
-
-	CUnitTestSuite(CUnitTestSuite&& other)
-	{
-		this->Name = other.Name;
-		this->Tests = other.Tests;
-		other.Name = "";
-		other.Tests = std::vector<CUnitTest>();
-	}
-
-	CUnitTestSuite(std::string name) 
-	{
-		Name = name;
-	}
-
-	// Returns a list of tests
-	std::vector<CUnitTest> get_tests() const { return Tests; };
-
-	// Inserts a new test
-	void insert_test(const CUnitTest& test) { Tests.push_back(test); };
-
-	// Returns the number of tests that passed
-	int get_pass_count() const
-	{
-		int passed = 0;
-		for(auto x : Tests)
-		{
-			if(x.passed())
-				passed++;
-		}
-		return passed;
-	}
-
-	// Returns the number of tests that failed
-	int get_fail_count() const
-	{
-		int passed = 0;
-		for(auto x : Tests)
-		{
-			if(!x.passed())
-				passed++;
-		}
-		return passed;
-	}
-
-	// Returns the total number of tests
-	int get_test_count() const { return Tests.size(); };
-
-	// Returns a list of passed tests
-	std::vector<CUnitTest> get_passed_tests() const
-	{
-		std::vector<CUnitTest> passed;
-		for(auto x : Tests)
-		{
-			if(x.passed())
-				passed.push_back(x);
-		}
-		return passed;
-	}
-
-	// Returns a list of failed tests
-	std::vector<CUnitTest> get_failed_tests() const
-	{
-		std::vector<CUnitTest> failed;
-		for(auto x : Tests)
-		{
-			if(!x.passed())
-				failed.push_back(x);
-		}
-		return failed;
-	}
-
-	// Print test results to stdout
-	void print_results() const
-	{
-		using namespace std;
-		printf("=================================\n");
-		printf("Results for suite:\n%s", this->Name.c_str());
-		printf("=================================\n");
-		
-		for(auto x : Tests)
-		{
-			printf("\n%s: ", x.get_name());
-			if(x.passed)
-				printf("PASSED\n");
-			else
-				printf("FAILED\n");
-			if(x.has_message())
-				printf("%s\n", x.get_message());
-		}
-
-		printf("=================================\n");
-		printf("%i out of %i tests passed.\n", this->get_pass_count(), this->get_test_count());
-		printf("%i failed.\n", this->get_fail_count());
-		printf("%f%% completed.\n", (float)(this->get_pass_count() / this->get_test_count() * 100.0f));
-		printf("=================================\n");
-	}
-
-	// Writes the unit tests to and XML file
-	void write_xml(std::ostream stream)
-	{
-
-	}
-};
-
 class CUnitTest
 {
 	bool bPassed;
@@ -268,6 +151,121 @@ public:
 
 };
 
+class CUnitTestSuite
+{
+private:
+	std::vector<CUnitTest> Tests;
+	std::string Name;
+public:
+	CUnitTestSuite(const CUnitTestSuite& other)
+	{
+		this->Name = other.Name;
+		this->Tests = other.Tests;
+	}
+
+	CUnitTestSuite(CUnitTestSuite&& other)
+	{
+		this->Name = other.Name;
+		this->Tests = other.Tests;
+		other.Name = "";
+		other.Tests = std::vector<CUnitTest>();
+	}
+
+	CUnitTestSuite(std::string name) 
+	{
+		Name = name;
+	}
+
+	// Returns a list of tests
+	std::vector<CUnitTest> get_tests() const { return Tests; };
+
+	// Inserts a new test
+	void insert_test(const CUnitTest& test) { Tests.push_back(test); };
+
+	// Returns the number of tests that passed
+	int get_pass_count() const
+	{
+		int passed = 0;
+		for(auto x : Tests)
+		{
+			if(x.passed())
+				passed++;
+		}
+		return passed;
+	}
+
+	// Returns the number of tests that failed
+	int get_fail_count() const
+	{
+		int passed = 0;
+		for(auto x : Tests)
+		{
+			if(!x.passed())
+				passed++;
+		}
+		return passed;
+	}
+
+	// Returns the total number of tests
+	int get_test_count() const { return Tests.size(); };
+
+	// Returns a list of passed tests
+	std::vector<CUnitTest> get_passed_tests() const
+	{
+		std::vector<CUnitTest> passed;
+		for(auto x : Tests)
+		{
+			if(x.passed())
+				passed.push_back(x);
+		}
+		return passed;
+	}
+
+	// Returns a list of failed tests
+	std::vector<CUnitTest> get_failed_tests() const
+	{
+		std::vector<CUnitTest> failed;
+		for(auto x : Tests)
+		{
+			if(!x.passed())
+				failed.push_back(x);
+		}
+		return failed;
+	}
+
+	// Print test results to stdout
+	void print_results() const
+	{
+		using namespace std;
+		printf("=================================\n");
+		printf("Results for suite:\n%s", this->Name.c_str());
+		printf("=================================\n");
+		
+		for(auto x : Tests)
+		{
+			printf("\n%s: ", x.get_name().c_str());
+			if(x.passed())
+				printf("PASSED\n");
+			else
+				printf("FAILED\n");
+			if(x.has_message())
+				printf("%s\n", x.get_message().c_str());
+		}
+
+		printf("=================================\n");
+		printf("%i out of %i tests passed.\n", this->get_pass_count(), this->get_test_count());
+		printf("%i failed.\n", this->get_fail_count());
+		printf("%f%% completed.\n", (float)(this->get_pass_count() / this->get_test_count() * 100.0f));
+		printf("=================================\n");
+	}
+
+	// Writes the unit tests to and XML file
+	void write_xml(std::ostream stream)
+	{
+
+	}
+};
+
 #define DECLARE_PERF_TEST_SUITE(var, name) CPerfTestSuite* var = new CPerfTestSuite(name)
 
 //
@@ -300,7 +298,7 @@ public:
 // Ends a multisample performance test
 //
 #define END_MULTISTEP_PERF_TEST(name, suite)\
-	suite->insert_test(__unitlib2__internal__stepped);
+	suite->insert_test(__unitlib2__internal__stepped);\
 }
 
 //
@@ -321,6 +319,140 @@ public:
 }
 
 class CPerfTest;
+
+class CPerfTest
+{
+private:
+	unsigned long long Cycles;
+	std::string Name;
+
+public:
+	CPerfTest(std::string name)
+	{
+		Name = name;
+		Cycles = 0;
+	}
+
+	CPerfTest(const CPerfTest& other)
+	{
+		this->Cycles = other.Cycles;
+		this->Name = other.Name;
+	}
+
+	CPerfTest(CPerfTest&& other)
+	{
+		this->Cycles = other.Cycles;
+		this->Name = other.Name;
+		other.Cycles = 0;
+		other.Name = "";
+	}
+
+	void set_cycles(unsigned long long cycles)
+	{
+		this->Cycles = cycles;
+	}
+
+	unsigned long long get_cycles() const
+	{
+		return Cycles;
+	}
+
+	std::string get_name() const
+	{
+		return Name;
+	}
+
+	virtual void print(std::ostream& stream) const
+	{
+		stream << "\n";
+		stream << this->get_name() << " completed in " << get_cycles() << " cycles.\n";
+	}
+
+	virtual void to_xml(std::ostream& stream) const
+	{
+		stream << "<perftest type=\"normal\">";
+		stream << this->get_cycles();
+		stream << "</perftest>\n";
+	}
+};
+
+//
+// A type of performance test with multiple steps 
+//
+class CSteppedPerfTest : public CPerfTest
+{
+private:
+	std::list<unsigned long long> Times;
+public:
+
+	CSteppedPerfTest(std::string name) :
+		CPerfTest(name)
+	{
+
+	}
+
+	// Prunes tests with abnormal times
+	// Deviation is a percentage different from the average that something can be
+	void prune(float deviation = 50.0f)
+	{
+		double favg = 0.0f;
+		for(auto x : Times)
+		{
+			favg += x;
+		}
+		favg /= Times.size();
+
+		for(auto x : Times)
+		{
+			if(x/favg > (1.0f + deviation/100.0f))
+				Times.remove(x);
+		}
+		// TODO: Make this better
+		this->set_cycles((unsigned long long)get_average_time());
+	}
+
+	int get_step_count() const
+	{
+		return Times.size();
+	}
+
+	std::list<unsigned long long> get_steps() const
+	{
+		return Times;
+	}
+
+	void add_step(unsigned long long duration)
+	{
+		Times.push_back(duration);
+		// TODO: Make this better
+		this->set_cycles((unsigned long long)get_average_time());
+	}
+
+	float get_average_time() const
+	{
+		double avg = 0.0f;
+		for(auto x : Times)
+		{
+			avg += x;
+		}
+		avg /= get_step_count();
+		return avg;
+	}
+
+	virtual void print(std::ostream& stream) const
+	{
+		stream << "\n";
+		stream << this->get_name() << " completed in " << get_average_time() << " cycles.\n";
+		stream << "Test had a total of " << this->get_step_count() << " steps.\n";
+	}
+
+	virtual void to_xml(std::ostream& stream) const
+	{
+		stream << "<perftest type=\"stepped\" steps=\"" << this->get_step_count() << "\">";
+		stream << this->get_average_time();
+		stream << "</perftest>\n";
+	}
+};
 
 class CPerfTestSuite
 {
@@ -398,7 +530,7 @@ public:
 		printf("=================================\n");
 	}
 
-	void print_results(std::ostream stream)
+	void print_results(std::ostream& stream)
 	{
 		stream << "\n=================================\n";
 		stream << "Performance test results for:\n" << Name << "\n";
@@ -418,7 +550,7 @@ public:
 		stream << "\n=================================\n";
 	}
 
-	void to_xml(std::ostream stream)
+	void to_xml(std::ostream& stream)
 	{
 		stream << "<perftestsuite name=\"" << this->Name << "\" test_count=\"" << this->get_test_count() << "\">\n";
 		for(auto x : this->Tests)
@@ -426,139 +558,5 @@ public:
 			x.to_xml(stream);
 		}
 		stream << "</perftestsuite>\n";
-	}
-};
-
-class CPerfTest
-{
-private:
-	unsigned long long Cycles;
-	std::string Name;
-
-public:
-	CPerfTest(std::string name)
-	{
-		Name = name;
-		Cycles = 0;
-	}
-
-	CPerfTest(const CPerfTest& other)
-	{
-		this->Cycles = other.Cycles;
-		this->Name = other.Name;
-	}
-
-	CPerfTest(CPerfTest&& other)
-	{
-		this->Cycles = other.Cycles;
-		this->Name = other.Name;
-		other.Cycles = 0;
-		other.Name = "";
-	}
-
-	void set_cycles(unsigned long long cycles)
-	{
-		this->Cycles = cycles;
-	}
-
-	unsigned long long get_cycles() const
-	{
-		return Cycles;
-	}
-
-	std::string get_name() const
-	{
-		return Name;
-	}
-
-	virtual void print(std::ostream stream) const
-	{
-		stream << "\n";
-		stream << this->get_name() << " completed in " << get_cycles() << " cycles.\n";
-	}
-
-	virtual void to_xml(std::ostream stream) const
-	{
-		stream << "<perftest type=\"normal\">";
-		stream << this->get_cycles();
-		stream << "</perftest>\n";
-	}
-};
-
-//
-// A type of performance test with multiple steps 
-//
-class CSteppedPerfTest : public CPerfTest
-{
-private:
-	std::list<unsigned long long> Times;
-public:
-
-	CSteppedPerfTest(std::string name) :
-		CPerfTest(name)
-	{
-
-	}
-
-	// Prunes tests with abnormal times
-	// Deviation is a percentage different from the average that something can be
-	void prune(float deviation = 50.0f)
-	{
-		double favg = 0.0f;
-		for(auto x : Times)
-		{
-			favg += x;
-		}
-		favg /= Times.size();
-
-		for(auto x : Times)
-		{
-			if(x/favg > (1.0f + deviation/100.0f))
-				Times.remove(x);
-		}
-		// TODO: Make this better
-		this->set_cycles((unsigned long long)get_average_time());
-	}
-
-	int get_step_count() const
-	{
-		return Times.size();
-	}
-
-	std::list<unsigned long long> get_steps() const
-	{
-		return Times;
-	}
-
-	void add_step(unsigned long long duration)
-	{
-		Times.push_back(duration);
-		// TODO: Make this better
-		this->set_cycles((unsigned long long)get_average_time());
-	}
-
-	float get_average_time() const
-	{
-		double avg = 0.0f;
-		for(auto x : Times)
-		{
-			avg += x;
-		}
-		avg /= get_step_count();
-		return avg;
-	}
-
-	virtual void print(std::ostream stream) const
-	{
-		stream << "\n";
-		stream << this->get_name() << " completed in " << get_average_time() << " cycles.\n";
-		stream << "Test had a total of " << this->get_step_count() << " steps.\n";
-	}
-
-	virtual void to_xml(std::ostream stream) const
-	{
-		stream << "<perftest type=\"stepped\" steps=\"" << this->get_step_count() << "\">";
-		stream << this->get_average_time();
-		stream << "</perftest>\n";
 	}
 };
