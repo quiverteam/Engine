@@ -4,8 +4,14 @@
 #include <vector.h>
 #include <mathlib.h>
 #include <stdlib.h>
+#include <stddef.h>
+#include <stdint.h>
 
+#include "unitlib2/unitlib2.h"
+
+#ifdef _WIN32
 #include <intrin.h>
+#endif
 
 #define TEST_COUNT 256
 
@@ -28,17 +34,17 @@ void RunVectorTests()
 	printf("After Normalization:\n");
 	PrintVec(v1);
 
-	uint64 testtimes[TEST_COUNT];
+	uint64_t testtimes[TEST_COUNT];
 
 	for (int i = 0; i < TEST_COUNT; i++)
 	{
 		Vector v2 = Vector(rand(), rand(), rand());
 
-		uint64 n1 = __rdtsc();
+		uint64_t n1 = __rdtsc();
 
 		v2.NormalizeInPlace();
 
-		uint64 n2 = __rdtsc();
+		uint64_t n2 = __rdtsc();
 
 		testtimes[i] = n2 - n1;
 	}
