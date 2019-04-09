@@ -1,4 +1,6 @@
 // Vector tests
+#include "unitlib2/unitlib2.h"
+
 #include "Tests.h"
 
 #include <vector.h>
@@ -7,7 +9,6 @@
 #include <stddef.h>
 #include <stdint.h>
 
-#include "unitlib2/unitlib2.h"
 
 #ifdef _WIN32
 #include <intrin.h>
