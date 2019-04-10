@@ -13,11 +13,11 @@ $MacroRequired				"OUTLIBDIR"
 $Macro LIBPUBLIC	"$SRCDIR\lib\public\$PLATSUBDIR"
 $Macro LIBCOMMON	"$SRCDIR\lib\common\$PLATSUBDIR"
 
-$Include "$SRCDIR\vpc_scripts\source_lib_win32_debug.vpc" 	[$WIN32]
-$Include "$SRCDIR\vpc_scripts\source_lib_win32_release.vpc" 	[$WIN32]
-$Include "$SRCDIR\vpc_scripts\source_lib_win64_debug.vpc"	[$WIN64]
-$Include "$SRCDIR\vpc_scripts\source_lib_win64_release.vpc"	[$WIN64]
-$Include "$SRCDIR\vpc_scripts\source_win32_base.vpc"
+// Win32 configs
+$Include "$SRCDIR\vpc_scripts\win32\lib_base_debug.vpc"
+$Include "$SRCDIR\vpc_scripts\win32\lib_base_release.vpc"
+
+$Include "$SRCDIR\vpc_scripts\source_win_base.vpc"
 
 $IgnoreRedundancyWarning	"ON"
 
@@ -32,8 +32,7 @@ $Configuration
 
 	$Compiler
 	{
-		$PreprocessorDefinitions			"$BASE;PLATFORM_64BITS;WIN64;_WIN64;COMPILER_MSVC64" [$WIN64]
-		$PreprocessorDefinitions			"$BASE;COMPILER_MSVC32" [$WIN32]
+		$PreprocessorDefinitions			"$BASE;COMPILER_MSVC32"
 		$PreprocessorDefinitions			"$BASE;COMPILER_MSVC;_DLL_EXT=$_DLL_EXT"
 		$PreprocessorDefinitions			"$BASE;LIBNAME=$OUTLIBNAME"
 	}

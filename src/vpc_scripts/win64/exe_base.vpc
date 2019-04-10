@@ -15,11 +15,12 @@ $Macro LIBPUBLIC	"$SRCDIR\lib\public\$PLATSUBDIR"
 $Macro LIBCOMMON	"$SRCDIR\lib\common\$PLATSUBDIR"
 
 $Include "$SRCDIR\vpc_scripts\loadaddress.vpc"
-$Include "$SRCDIR\vpc_scripts\source_exe_win_win32_debug.vpc"	[$WIN32]
-$Include "$SRCDIR\vpc_scripts\source_exe_win_win32_release.vpc"	[$WIN32]
-$Include "$SRCDIR\vpc_scripts\source_exe_win64_debug.vpc"		[$WIN64]
-$Include "$SRCDIR\vpc_scripts\source_exe_win64_release.vpc"		[$WIN64]
-$Include "$SRCDIR\vpc_scripts\source_win32_base.vpc"
+
+// Win64 scripts
+$Include "$SRCDIR\vpc_scripts\win64\exe_base_debug.vpc"
+$Include "$SRCDIR\vpc_scripts\win64\exe_base_release.vpc"
+
+$Include "$SRCDIR\vpc_scripts\source_win_base.vpc"
 
 $IgnoreRedundancyWarning	"ON"
 
@@ -34,8 +35,7 @@ $Configuration
 
 	$Compiler
 	{
-		$PreprocessorDefinitions			"$BASE;PLATFORM_64BITS;WIN64;_WIN64;COMPILER_MSVC64" [$WIN64]
-		$PreprocessorDefinitions			"$BASE;COMPILER_MSVC32" [$WIN32]		
+		$PreprocessorDefinitions			"$BASE;PLATFORM_64BITS;WIN64;_WIN64;COMPILER_MSVC64"	
 		$PreprocessorDefinitions			"$BASE;COMPILER_MSVC;EXENAME=$OUTBINNAME;_DLL_EXT=$_DLL_EXT"
 	}
 
@@ -46,9 +46,9 @@ $Configuration
 	
 	$Linker
 	{
-		$AdditionalDependencies				"$BASE shell32.lib user32.lib advapi32.lib gdi32.lib comdlg32.lib ole32.lib" [$WIN32]
-		$TargetMachine						"MachineX86 (/MACHINE:X86)"	[$WIN32]
-		$TargetMachine						"MachineX64 (/MACHINE:X64)"	[$WIN64]
+		// Is this needed on win64?
+		//$AdditionalDependencies				"$BASE shell32.lib user32.lib advapi32.lib gdi32.lib comdlg32.lib ole32.lib" [$WIN32]
+		$TargetMachine							"MachineX64 (/MACHINE:X64)"
 		// NXCOMPAT (also known as DEP or Data Access Protection) should be enabled for all
 		// executables for security and debugging reasons.
 		$AdditionalOptions					"/NXCOMPAT"

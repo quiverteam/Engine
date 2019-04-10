@@ -10,7 +10,7 @@ $MacroRequired				"OUTBINDIR"
 $MacroRequired				"PLATSUBDIR"
 
 
-$Include "$SRCDIR\vpc_scripts\source_exe_win_win32_base.vpc"
+$Include "$SRCDIR\vpc_scripts\win32\exe_base.vpc"
 
 $Configuration
 {

@@ -1,9 +1,11 @@
 
 $Include "$SRCDIR\vpc_scripts\version.vpc"
-$Include "$SRCDIR\vpc_scripts\source_linux_base_project.vpc"
+$Include "$SRCDIR\vpc_scripts\source_posix_base.vpc"
+
 
 $MacroRequired	 "OUTBINNAME"	"$PROJECTNAME"
 $MacroRequired	 "OUTBINDIR"	"$BINDEFAULT"
+
 
 // General configuration info.
 $Configuration
@@ -11,13 +13,17 @@ $Configuration
 	$General
 	{
 		$ConfigurationType				"Dynamic Library (.dll)"
-		$OutputFile					"$(OBJ_DIR)/$OUTBINNAME$_DLL_EXT"
-		$GameOutputFile					"$OUTBINDIR/$OUTBINNAME$_DLL_EXT"
+		$GameOutputFile					"$OUTBINDIR/$OUTBINNAME$OUTDLLEXT"
 	}
 
 	$Compiler
 	{
-		$PreprocessorDefinitions	"$BASE;RAD_TELEMETRY_DISABLED"
+		$PreprocessorDefinitions		"$BASE;DLLNAME=$OUTBINNAME"
+	}
+
+	$Linker
+	{
+		$OutputFile					"$(OBJ_DIR)/$OUTBINNAME$OUTDLLEXT"
 	}
 }
 
