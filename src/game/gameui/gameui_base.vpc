@@ -11,7 +11,7 @@ $MacroRequired "GAMENAME"
 $Macro OUTBINNAME	"gameui"
 $Macro OUTBINDIR	"$SRCDIR\..\game\$GAMENAME\bin\$PLATSUBDIR"
 
-$include "$SRCDIR\vpc_scripts\source_dll_base.vpc"	[$WINDOWS||$LINUX]
+$include "$SRCDIR\vpc_scripts\quiver_dll_base.vpc"	[$WINDOWS||$LINUX]
 
 $Configuration	"Debug"
 {

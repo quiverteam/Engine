@@ -1,5 +1,5 @@
 $Include "$SRCDIR\vpc_scripts\platform_dirs.vpc"
-$Include "$SRCDIR\vpc_scripts\source_base.vpc"
+$Include "$SRCDIR\vpc_scripts\quiver_base.vpc"
 
 $MacroRequired OUTLIBDIR	"$SRCDIR\lib\public\$PLATSUBDIR"
 
@@ -7,7 +7,7 @@ $Include "$SRCDIR\vpc_scripts\posix32\lib_base.vpc"		[$POSIX32]
 $Include "$SRCIDR\vpc_scripts\posix64\lib_base.vpc"		[$POSIX64]
 $Include "$SRCIDR\vpc_scripts\win32\lib_base.vpc"		[$WIN32]
 $Include "$SRCDIR\vpc_scripts\win64\lib_base.vpc"		[$WIN64]
-$Include "$SRCDIR\vpc_scripts\source_x64_base.vpc"		[$WIN64]
+$Include "$SRCDIR\vpc_scripts\amd64_base.vpc"		[$WIN64]
 
 $Configuration
 {

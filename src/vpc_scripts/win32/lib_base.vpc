@@ -17,7 +17,7 @@ $Macro LIBCOMMON	"$SRCDIR\lib\common\$PLATSUBDIR"
 $Include "$SRCDIR\vpc_scripts\win32\lib_base_debug.vpc"
 $Include "$SRCDIR\vpc_scripts\win32\lib_base_release.vpc"
 
-$Include "$SRCDIR\vpc_scripts\source_win_base.vpc"
+$Include "$SRCDIR\vpc_scripts\win_base.vpc"
 
 $IgnoreRedundancyWarning	"ON"
 

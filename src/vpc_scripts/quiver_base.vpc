@@ -1,5 +1,5 @@
 //-----------------------------------------------------------------------------
-//	source_base.VPC
+//	quiver_base.vpc
 //
 //  This is the base VPC file that is included by all others, on all platforms.
 //

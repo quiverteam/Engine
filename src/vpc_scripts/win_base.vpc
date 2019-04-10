@@ -1,7 +1,7 @@
 // Settings for /analyze are in a separate .vpc file so that they can be
 // changed without triggering a full rebuild of non-analyze builds. On non-analyze
 // builds the analyze.vpc file will not be listed as a dependency.
-$Include "$SRCDIR\vpc_scripts\source_win32_analyze.vpc" [$ANALYZE]
+$Include "$SRCDIR\vpc_scripts\win32_analyze.vpc" [$ANALYZE]
 
 $Macro VS2008 2008 [$2008 && $WIN32]
 $Macro VS2015 2015 [$2015 && $WIN32]
