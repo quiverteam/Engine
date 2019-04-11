@@ -34,7 +34,7 @@ Rather than using static libraries, this just gets included into a translation u
 
 #define TEST_CASE(cond) __unitlib2__internal__test.eval(cond)
 
-#define TEST_ACCURACY(value, expected, max_dev) __unitlib2__internal__test.within_range(value, expected, max_dev)
+#define TEST_ACCURACY(value, expected, max_dev) __unitlib2__internal__test.within_accuracy(value, expected, max_dev)
 
 #define END_UNIT_TEST(suite) \
 	suite->insert_test(__unitlib2__internal__test);\
@@ -101,6 +101,19 @@ public:
 			Message += "Test completed: The value " + std::to_string(expected) + " was within " +std::to_string(deviation) + " of " + std::to_string(val) + "\nThe value was within " + std::to_string(v) + "\n"; 
 	}
 
+	// Specialization for float
+	void within_accuracy(float expected, float val, float percent_dev)
+	{
+		within_accuracy((long double)expected, (long double)val, (long double)percent_dev);
+	}
+
+
+	// Specialization for double
+	void within_accuracy(double expected, double val, double percent_dev)
+	{
+		within_accuracy((long double)expected, (long double)val, (long double)percent_dev);
+	}
+
 	// Tests accuracy of numerical things. Uses long double for best precision
 	void within_accuracy(long double expected, long double val, long double percent_dev)
 	{
@@ -115,7 +128,7 @@ public:
 			Message += "Test completed: The value " + std::to_string(expected) + " was within " +std::to_string(percent_dev) + "%% of " + std::to_string(val) + "\nThe value was within " + std::to_string(v) + "%%\n"; 
 	}
 
-	// Tests accuracy of integers
+	// Tests accuracy of integers, this won't have percision issues
 	void within_accuracy(long long expected, long long val, long double percent_dev)
 	{
 		long double v = (long double)(expected / val) * 100.0;
