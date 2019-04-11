@@ -1,4 +1,4 @@
-//===== Copyright © 1996-2005, Valve Corporation, All rights reserved. ======//
+//===== Copyright ï¿½ 1996-2005, Valve Corporation, All rights reserved. ======//
 //
 // Purpose: 
 //
@@ -27,9 +27,6 @@
 #include "tier0/threadtools.h"
 #include "tier0/icommandline.h"
 #include <math.h>
-#if defined( _X360 )
-#include "xbox/xbox_console.h"
-#endif
 
 #ifndef STEAM
 #define PvRealloc realloc
@@ -60,14 +57,6 @@ struct SpewGroup_t
 //-----------------------------------------------------------------------------
 SpewRetval_t DefaultSpewFunc( SpewType_t type, const tchar *pMsg )
 {
-#ifdef _X360
-	if ( XBX_IsConsoleConnected() )
-	{
-		// send to console
-		XBX_DebugString( XMAKECOLOR( 0,0,0 ), pMsg );
-	}
-	else
-#endif
 	{
 		_tprintf( _T("%s"), pMsg );
 #ifdef _WIN32
