@@ -26,7 +26,7 @@ Rather than using static libraries, this just gets included into a translation u
 #include <cstdlib>
 #include <iostream>
 
-#define DECLARE_TEST_SUITE(var, name) CUnitTestSuite* var = new CUnitTestSuite(#name)
+#define DECLARE_TEST_SUITE(var, name) static CUnitTestSuite* var = new CUnitTestSuite(#name)
 
 #define BEGIN_UNIT_TEST(name, suite)\
 {	\
@@ -279,7 +279,7 @@ public:
 	}
 };
 
-#define DECLARE_PERF_TEST_SUITE(var, name) CPerfTestSuite* var = new CPerfTestSuite(name)
+#define DECLARE_PERF_TEST_SUITE(var, name) static CPerfTestSuite* var = new CPerfTestSuite(name)
 
 //
 // Multistep perf tests take multiple values from tests and averages them together.
