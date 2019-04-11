@@ -23,37 +23,37 @@ void PrintVec(const Vector& v)
 
 void RunVectorTests()
 {
-	MathLib_Init();
+	//
+	// Vector normalization test 1
+	//
+	BEGIN_UNIT_TEST("Vector Normalization Test #1", VectorTestSuite)
 
-	Vector v1 = Vector(rand(), rand(), rand());
+	Vector v = Vector(232.3f, 320.0f, 302.0f);
 
-	printf("Before Normalization:\n");
-	PrintVec(v1);
+	float m = v.NormalizeInPlace();
 
-	v1.NormalizeInPlace();
+	// Normalized vector should be within a certain range of this:
+	TEST_ACCURACY(v.x, 0.4669f, 0.05f);
+	TEST_ACCURACY(v.y, 0.6431f, 0.05);
+	TEST_ACCURACY(v.z, 0.607f, 0.05);
+	TEST_ACCURACY(m, 1.0f, 0.05);
 
-	printf("After Normalization:\n");
-	PrintVec(v1);
+	END_UNIT_TEST(VectorTestSuite)
 
-	uint64_t testtimes[TEST_COUNT];
+	//
+	// Vector normalization test 2
+	//
+	BEGIN_UNIT_TEST("Vector Normalization Test #2", VectorTestSuite)
 
-	for (int i = 0; i < TEST_COUNT; i++)
-	{
-		Vector v2 = Vector(rand(), rand(), rand());
+	Vector v = Vector(13.239f, 1020.059f, 0.1f);
 
-		uint64_t n1 = __rdtsc();
+	float m = v.NormalizeInPlace();
 
-		v2.NormalizeInPlace();
+	// Normalized vector should be within a certain range of this:
+	TEST_ACCURACY(v.x, 0.012978f, 0.05f);
+	TEST_ACCURACY(v.y, 1.0f, 0.05);
+	TEST_ACCURACY(v.z, 0.00009803f, 0.05);
+	TEST_ACCURACY(m, 1.0f, 0.05);
 
-		uint64_t n2 = __rdtsc();
-
-		testtimes[i] = n2 - n1;
-	}
-
-	float avg = 0.0f;
-	for (int i = 0; i < TEST_COUNT; i++)
-		avg += testtimes[i];
-	avg /= TEST_COUNT;
-
-	printf("Normalization avg cycles: %f\n", avg);
+	END_UNIT_TEST(VectorTestSuite)
 }
