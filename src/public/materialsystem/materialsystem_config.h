@@ -32,6 +32,7 @@ enum MaterialSystem_Config_Flags_t
 	MATSYS_VIDCFG_FLAGS_LIMIT_WINDOWED_SIZE			= ( 1 << 13 ),
 	MATSYS_VIDCFG_FLAGS_SCALE_TO_OUTPUT_RESOLUTION  = ( 1 << 14 ),
 	MATSYS_VIDCFG_FLAGS_USING_MULTIPLE_WINDOWS      = ( 1 << 15 ),
+	MATSYS_VIDCFG_FLAGS_NOBORDERWINDOW				= ( 1 << 16 )
 };
 
 struct MaterialSystemHardwareIdentifier_t
@@ -44,6 +45,7 @@ struct MaterialSystemHardwareIdentifier_t
 struct MaterialSystem_Config_t
 {
 	bool Windowed() const { return ( m_Flags & MATSYS_VIDCFG_FLAGS_WINDOWED ) != 0; }
+	bool NoBorderWindow() const { return ( m_Flags & MATSYS_VIDCFG_FLAGS_NOBORDERWINDOW ) != 0; }
 	bool Resizing() const { return ( m_Flags & MATSYS_VIDCFG_FLAGS_RESIZING ) != 0; }
 	bool WaitForVSync() const { return ( m_Flags & MATSYS_VIDCFG_FLAGS_NO_WAIT_FOR_VSYNC ) == 0; }
 	bool Stencil() const { return (m_Flags & MATSYS_VIDCFG_FLAGS_STENCIL ) != 0; }

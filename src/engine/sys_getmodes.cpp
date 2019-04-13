@@ -77,13 +77,14 @@ public:
 	virtual vmode_t		*GetMode( int num );
 	virtual int			GetModeCount( void );
 	virtual bool		IsWindowedMode( void ) const;
+	virtual bool		IsNoborderWindowMode( void ) const;
 	virtual void		UpdateWindowPosition( void );
 	virtual void		RestoreVideo( void );
 	virtual void		ReleaseVideo( void );
 	virtual void		DrawNullBackground( void *hdc, int w, int h );
 	virtual void		InvalidateWindow();
 	virtual void		DrawStartupGraphic();
-	virtual bool		CreateGameWindow( int nWidth, int nHeight, bool bWindowed );
+	virtual bool		CreateGameWindow( int nWidth, int nHeight, bool bWindowed, bool bNoBorderWindow );
 	virtual int			GetModeWidth( void ) const;
 	virtual int			GetModeHeight( void ) const;
 	virtual const vrect_t &GetClientViewRect( ) const;
@@ -98,7 +99,7 @@ protected:
 	bool				GetInitialized( ) const;
 	void				SetInitialized( bool init );
 	void				AdjustWindow( int nWidth, int nHeight, int nBPP, bool bWindowed );
-	void				ResetCurrentModeForNewResolution( int width, int height, bool bWindowed );
+	void				ResetCurrentModeForNewResolution( int width, int height, bool bWindowed, bool bNoBorderWindow );
 	int					GetModeBPP( ) const { return 32; }
 	void				DrawStartupVideo();
 	void				ComputeStartupGraphicName( char *pBuf, int nBufLen );
@@ -159,6 +160,7 @@ protected:
 	int					m_nModeWidth;
 	int					m_nModeHeight;
  	bool				m_bWindowed;
+	bool				m_bNoBorderMode;
 	bool				m_bSetModeOnce;
 
 	// Client view rectangle
@@ -243,6 +245,15 @@ void CVideoMode_Common::SetInitialized( bool init )
 bool CVideoMode_Common::IsWindowedMode( void ) const
 {
 	return m_bWindowed;
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: 
+// Output : Returns true on success, false on failure.
+//-----------------------------------------------------------------------------
+bool CVideoMode_Common::IsNoborderWindowMode(void) const
+{
+	return m_bNoBorderMode;
 }
 
 
@@ -383,12 +394,13 @@ int CVideoMode_Common::FindVideoMode( int nDesiredWidth, int nDesiredHeight, boo
 //-----------------------------------------------------------------------------
 // Choose the actual video mode based on the available modes
 //-----------------------------------------------------------------------------
-void CVideoMode_Common::ResetCurrentModeForNewResolution( int nWidth, int nHeight, bool bWindowed )
+void CVideoMode_Common::ResetCurrentModeForNewResolution( int nWidth, int nHeight, bool bWindowed, bool bNoBorderWindow )
 {
 	// Fill in vid structure for the mode
 	int nGameMode = FindVideoMode( nWidth, nHeight, bWindowed );
 	vmode_t *pMode = GetMode( nGameMode );
 	m_bWindowed = bWindowed;
+	m_bNoBorderMode = bNoBorderWindow;
 	m_nModeWidth = pMode->width;
 	m_nModeHeight = pMode->height;
 }
@@ -397,7 +409,7 @@ void CVideoMode_Common::ResetCurrentModeForNewResolution( int nWidth, int nHeigh
 //-----------------------------------------------------------------------------
 // Creates the game window, plays the startup movie
 //-----------------------------------------------------------------------------
-bool CVideoMode_Common::CreateGameWindow( int nWidth, int nHeight, bool bWindowed )
+bool CVideoMode_Common::CreateGameWindow( int nWidth, int nHeight, bool bWindowed, bool bNoBorderWindow )
 {
 	COM_TimestampedLog( "CVideoMode_Common::Init  CreateGameWindow" );
 
@@ -416,7 +428,7 @@ bool CVideoMode_Common::CreateGameWindow( int nWidth, int nHeight, bool bWindowe
 	{
 		// Fill in vid structure for the mode.
 		// Note: ModeWidth/Height may *not* match requested nWidth/nHeight
-		ResetCurrentModeForNewResolution( nWidth, nHeight, bWindowed );
+		ResetCurrentModeForNewResolution( nWidth, nHeight, bWindowed, bNoBorderWindow );
 
 		// When running in stand-alone mode, create your own window 
 		if ( !game->CreateGameWindow() )
@@ -429,7 +441,7 @@ bool CVideoMode_Common::CreateGameWindow( int nWidth, int nHeight, bool bWindowe
 		DrawStartupVideo();
 
 		// Set the mode and let the materialsystem take over
-		if ( !SetMode( GetModeWidth(), GetModeHeight(), IsWindowedMode() ) )
+		if ( !SetMode( GetModeWidth(), GetModeHeight(), IsWindowedMode(), IsNoborderWindowMode() ) )
 			return false;
 
 		// Play our videos or display our temp image for the background
@@ -951,9 +963,17 @@ void CVideoMode_Common::AdjustWindow( int nWidth, int nHeight, int nBPP, bool bW
 
 	if ( bWindowed )
 	{
-		// Give it a frame (pretty much WS_OVERLAPPEDWINDOW except for we do not modify the
-		// flags corresponding to resizing-frame and maximize-box)
-		style |= WS_OVERLAPPED | WS_CAPTION | WS_SYSMENU | WS_MINIMIZEBOX;
+		if (!CommandLine()->FindParm("-noborder"))
+		{
+			// Give it a frame (pretty much WS_OVERLAPPEDWINDOW except for we do not modify the
+			// flags corresponding to resizing-frame and maximize-box)
+			style |= WS_OVERLAPPED | WS_CAPTION | WS_SYSMENU | WS_MINIMIZEBOX;
+		}
+		else
+		{
+			style &= ~WS_OVERLAPPEDWINDOW;
+		}
+		
 		SetWindowLong( (HWND)game->GetMainWindow(), GWL_STYLE, style );
 
 		// remove topmost flag
@@ -1669,7 +1689,7 @@ public:
 	virtual bool		Init( );
 	virtual void		Shutdown( void );
 	virtual void		SetGameWindow( void *hWnd );
-	virtual bool		SetMode( int nWidth, int nHeight, bool bWindowed );
+	virtual bool		SetMode( int nWidth, int nHeight, bool bWindowed, bool bNoBorder );
 	virtual void		ReleaseVideo( void );
 	virtual void		RestoreVideo( void );
 	virtual void		AdjustForModeChange( void );
@@ -1782,7 +1802,7 @@ void CVideoMode_MaterialSystem::Shutdown()
 //-----------------------------------------------------------------------------
 // Sets the video mode
 //-----------------------------------------------------------------------------
-bool CVideoMode_MaterialSystem::SetMode( int nWidth, int nHeight, bool bWindowed )
+bool CVideoMode_MaterialSystem::SetMode( int nWidth, int nHeight, bool bWindowed, bool bNoBorder )
 {
 	// Necessary for mode selection to work
 	int nFoundMode = FindVideoMode( nWidth, nHeight, bWindowed );
@@ -1800,6 +1820,7 @@ bool CVideoMode_MaterialSystem::SetMode( int nWidth, int nHeight, bool bWindowed
 #endif
 	
 	config.SetFlag( MATSYS_VIDCFG_FLAGS_WINDOWED, bWindowed );
+	config.SetFlag( MATSYS_VIDCFG_FLAGS_NOBORDERWINDOW, bNoBorder );
 
 	// FIXME: This is trash. We have to do *different* things depending on how we're setting the mode!
 	if ( !m_bSetModeOnce )
@@ -1835,11 +1856,12 @@ void CVideoMode_MaterialSystem::AdjustForModeChange( void )
 	int nNewWidth = g_pMaterialSystemConfig->m_VideoMode.m_Width;
 	int nNewHeight = g_pMaterialSystemConfig->m_VideoMode.m_Height;
 	bool bWindowed = g_pMaterialSystemConfig->Windowed();
+	bool bNoWindowBorder = g_pMaterialSystemConfig->NoBorderWindow();
 
 	// reset the window size
 	CMatRenderContextPtr pRenderContext( materials );
 
-	ResetCurrentModeForNewResolution( nNewWidth, nNewHeight, bWindowed );
+	ResetCurrentModeForNewResolution( nNewWidth, nNewHeight, bWindowed, bNoWindowBorder );
 	AdjustWindow( GetModeWidth(), GetModeHeight(), GetModeBPP(), IsWindowedMode() );
 	MarkClientViewRectDirty();
 	pRenderContext->Viewport( 0, 0, GetModeWidth(), GetModeHeight() );

@@ -605,6 +605,7 @@ void PrintMaterialSystemConfig( const MaterialSystem_Config_t &config )
 	Warning( "dxSupportLevel: %d\n", config.dxSupportLevel );
 	Warning( "monitorGamma: %f\n", config.m_fMonitorGamma );
 	Warning( "MATSYS_VIDCFG_FLAGS_WINDOWED: %s\n", ( config.m_Flags & MATSYS_VIDCFG_FLAGS_WINDOWED ) ? "true" : "false" );
+	Warning( "MATSYS_VIDCFG_FLAGS_NOBORDER: %s\n", ( config.m_Flags & MATSYS_VIDCFG_FLAGS_NOBORDERWINDOW ) ? "true" : "false" );
 	Warning( "MATSYS_VIDCFG_FLAGS_FORCE_TRILINEAR: %s\n", ( config.m_Flags & MATSYS_VIDCFG_FLAGS_FORCE_TRILINEAR ) ? "true" : "false" );
 	Warning( "MATSYS_VIDCFG_FLAGS_FORCE_HWSYNC: %s\n", ( config.m_Flags & MATSYS_VIDCFG_FLAGS_FORCE_HWSYNC ) ? "true" : "false" );
 	Warning( "MATSYS_VIDCFG_FLAGS_DISABLE_SPECULAR: %s\n", ( config.m_Flags & MATSYS_VIDCFG_FLAGS_DISABLE_SPECULAR ) ? "true" : "false" );
@@ -627,7 +628,7 @@ CON_COMMAND( mat_configcurrent, "show the current video control panel config for
 #if !defined(SWDS)
 CON_COMMAND( mat_setvideomode, "sets the width, height, windowed state of the material system" )
 {
-	if ( args.ArgC() != 4 )
+	if ( args.ArgC() < 4 )
 	{
 		ConMsg ( "usage: width, height, windowed\n" );
 		return;
@@ -636,8 +637,14 @@ CON_COMMAND( mat_setvideomode, "sets the width, height, windowed state of the ma
 	int nWidth = Q_atoi( args[1] );
 	int nHeight = Q_atoi( args[2] );
 	bool bWindowed = Q_atoi( args[3] ) > 0 ? true : false;
+	bool isNoBorder = videomode->IsNoborderWindowMode();
 
-	videomode->SetMode( nWidth, nHeight, bWindowed );
+	if (args.ArgC() >= 5)
+	{
+		isNoBorder = Q_atoi(args[4]) > 0 ? true : false;
+	}
+
+	videomode->SetMode( nWidth, nHeight, bWindowed, isNoBorder );
 }
 #endif
 
