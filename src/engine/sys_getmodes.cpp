@@ -5,10 +5,8 @@
 //===========================================================================//
 
 #ifdef _WIN32
-#if !defined( _X360 )
 #include "winlite.h"
-#endif
-#endif
+#endif // _WIN32
 #include "sysexternal.h"
 #include "cmd.h"
 #include "modelloader.h"
@@ -41,11 +39,6 @@
 #include "avi/iavi.h"
 #include "tier2/tier2.h"
 #include "tier2/renderutils.h"
-#if defined( _X360 )
-#include "xbox/xbox_win32stubs.h"
-#else
-#include "xbox/xboxstubs.h"
-#endif
 
 // memdbgon must be the last include file in a .cpp file!!!
 #include "tier0/memdbgon.h"
@@ -84,13 +77,14 @@ public:
 	virtual vmode_t		*GetMode( int num );
 	virtual int			GetModeCount( void );
 	virtual bool		IsWindowedMode( void ) const;
+	virtual bool		IsNoborderWindowMode( void ) const;
 	virtual void		UpdateWindowPosition( void );
 	virtual void		RestoreVideo( void );
 	virtual void		ReleaseVideo( void );
 	virtual void		DrawNullBackground( void *hdc, int w, int h );
 	virtual void		InvalidateWindow();
 	virtual void		DrawStartupGraphic();
-	virtual bool		CreateGameWindow( int nWidth, int nHeight, bool bWindowed );
+	virtual bool		CreateGameWindow( int nWidth, int nHeight, bool bWindowed, bool bNoBorderWindow );
 	virtual int			GetModeWidth( void ) const;
 	virtual int			GetModeHeight( void ) const;
 	virtual const vrect_t &GetClientViewRect( ) const;
@@ -105,7 +99,7 @@ protected:
 	bool				GetInitialized( ) const;
 	void				SetInitialized( bool init );
 	void				AdjustWindow( int nWidth, int nHeight, int nBPP, bool bWindowed );
-	void				ResetCurrentModeForNewResolution( int width, int height, bool bWindowed );
+	void				ResetCurrentModeForNewResolution( int width, int height, bool bWindowed, bool bNoBorderWindow );
 	int					GetModeBPP( ) const { return 32; }
 	void				DrawStartupVideo();
 	void				ComputeStartupGraphicName( char *pBuf, int nBufLen );
@@ -145,11 +139,7 @@ private:
 protected:
 	enum
 	{
-#if !defined( _X360 )
 		MAX_MODE_LIST =	512
-#else
-		MAX_MODE_LIST =	2
-#endif
 	};
 
 	enum
@@ -170,6 +160,7 @@ protected:
 	int					m_nModeWidth;
 	int					m_nModeHeight;
  	bool				m_bWindowed;
+	bool				m_bNoBorderMode;
 	bool				m_bSetModeOnce;
 
 	// Client view rectangle
@@ -254,6 +245,15 @@ void CVideoMode_Common::SetInitialized( bool init )
 bool CVideoMode_Common::IsWindowedMode( void ) const
 {
 	return m_bWindowed;
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: 
+// Output : Returns true on success, false on failure.
+//-----------------------------------------------------------------------------
+bool CVideoMode_Common::IsNoborderWindowMode(void) const
+{
+	return m_bNoBorderMode;
 }
 
 
@@ -394,12 +394,13 @@ int CVideoMode_Common::FindVideoMode( int nDesiredWidth, int nDesiredHeight, boo
 //-----------------------------------------------------------------------------
 // Choose the actual video mode based on the available modes
 //-----------------------------------------------------------------------------
-void CVideoMode_Common::ResetCurrentModeForNewResolution( int nWidth, int nHeight, bool bWindowed )
+void CVideoMode_Common::ResetCurrentModeForNewResolution( int nWidth, int nHeight, bool bWindowed, bool bNoBorderWindow )
 {
 	// Fill in vid structure for the mode
 	int nGameMode = FindVideoMode( nWidth, nHeight, bWindowed );
 	vmode_t *pMode = GetMode( nGameMode );
 	m_bWindowed = bWindowed;
+	m_bNoBorderMode = bNoBorderWindow;
 	m_nModeWidth = pMode->width;
 	m_nModeHeight = pMode->height;
 }
@@ -408,7 +409,7 @@ void CVideoMode_Common::ResetCurrentModeForNewResolution( int nWidth, int nHeigh
 //-----------------------------------------------------------------------------
 // Creates the game window, plays the startup movie
 //-----------------------------------------------------------------------------
-bool CVideoMode_Common::CreateGameWindow( int nWidth, int nHeight, bool bWindowed )
+bool CVideoMode_Common::CreateGameWindow( int nWidth, int nHeight, bool bWindowed, bool bNoBorderWindow )
 {
 	COM_TimestampedLog( "CVideoMode_Common::Init  CreateGameWindow" );
 
@@ -427,7 +428,7 @@ bool CVideoMode_Common::CreateGameWindow( int nWidth, int nHeight, bool bWindowe
 	{
 		// Fill in vid structure for the mode.
 		// Note: ModeWidth/Height may *not* match requested nWidth/nHeight
-		ResetCurrentModeForNewResolution( nWidth, nHeight, bWindowed );
+		ResetCurrentModeForNewResolution( nWidth, nHeight, bWindowed, bNoBorderWindow );
 
 		// When running in stand-alone mode, create your own window 
 		if ( !game->CreateGameWindow() )
@@ -440,7 +441,7 @@ bool CVideoMode_Common::CreateGameWindow( int nWidth, int nHeight, bool bWindowe
 		DrawStartupVideo();
 
 		// Set the mode and let the materialsystem take over
-		if ( !SetMode( GetModeWidth(), GetModeHeight(), IsWindowedMode() ) )
+		if ( !SetMode( GetModeWidth(), GetModeHeight(), IsWindowedMode(), IsNoborderWindowMode() ) )
 			return false;
 
 		// Play our videos or display our temp image for the background
@@ -546,9 +547,6 @@ void CVideoMode_Common::SetupStartupGraphic()
 //-----------------------------------------------------------------------------
 void CVideoMode_Common::DrawStartupVideo()
 {
-	if ( IsX360() )
-		return;
-
 	// render an avi, if we have one
 	if ( !m_bPlayedStartupVideo && !InEditMode() )
 	{
@@ -563,9 +561,6 @@ void CVideoMode_Common::DrawStartupVideo()
 //-----------------------------------------------------------------------------
 void CVideoMode_Common::DrawStartupGraphic()
 {
-	if ( IsX360() )
-		return;
-
 	SetupStartupGraphic();
 
 	if ( !m_pBackgroundTexture || !m_pLoadingTexture )
@@ -624,9 +619,6 @@ void CVideoMode_Common::DrawStartupGraphic()
 //-----------------------------------------------------------------------------
 void CVideoMode_Common::BlitGraphicToHDCWithAlpha(HDC hdc, byte *rgba, int imageWidth, int imageHeight, int x0, int y0, int x1, int y1)
 {
-	if ( IsX360() )
-		return;
-
 	int x = x0;
 	int y = y0;
 	int wide = x1 - x0;
@@ -663,9 +655,6 @@ void CVideoMode_Common::InvalidateWindow()
 
 void CVideoMode_Common::DrawNullBackground( void *hHDC, int w, int h )
 {
-	if ( IsX360() )
-		return;
-
 	HDC hdc = (HDC)hHDC;
 
 	// Show a message if running without renderer..
@@ -779,9 +768,6 @@ typedef GUID UUID;
 //-----------------------------------------------------------------------------
 void CVideoMode_Common::BlitGraphicToHDC(HDC hdc, byte *rgba, int imageWidth, int imageHeight, int x0, int y0, int x1, int y1)
 {
-	if ( IsX360() )
-		return;
-
 	int x = x0;
 	int y = y0;
 	int wide = x1 - x0;
@@ -971,16 +957,23 @@ void CVideoMode_Common::AdjustWindow( int nWidth, int nHeight, int nBPP, bool bW
 	WindowRect.right	= nWidth;
 	WindowRect.bottom	= nHeight;
 
-#ifndef _X360
 	// Get window style
 	DWORD style = GetWindowLong( (HWND)game->GetMainWindow(), GWL_STYLE );
 	DWORD exStyle = GetWindowLong( (HWND)game->GetMainWindow(), GWL_EXSTYLE );
 
 	if ( bWindowed )
 	{
-		// Give it a frame (pretty much WS_OVERLAPPEDWINDOW except for we do not modify the
-		// flags corresponding to resizing-frame and maximize-box)
-		style |= WS_OVERLAPPED | WS_CAPTION | WS_SYSMENU | WS_MINIMIZEBOX;
+		if (!CommandLine()->FindParm("-noborder"))
+		{
+			// Give it a frame (pretty much WS_OVERLAPPEDWINDOW except for we do not modify the
+			// flags corresponding to resizing-frame and maximize-box)
+			style |= WS_OVERLAPPED | WS_CAPTION | WS_SYSMENU | WS_MINIMIZEBOX;
+		}
+		else
+		{
+			style &= ~WS_OVERLAPPEDWINDOW;
+		}
+		
 		SetWindowLong( (HWND)game->GetMainWindow(), GWL_STYLE, style );
 
 		// remove topmost flag
@@ -990,28 +983,20 @@ void CVideoMode_Common::AdjustWindow( int nWidth, int nHeight, int nBPP, bool bW
 
 	// Compute rect needed for that size client area based on window style
 	AdjustWindowRectEx( &WindowRect, style, FALSE, exStyle );
-#endif
 
 	// Prepare to set window pos, which is required when toggling between topmost and not window flags
 	HWND hWndAfter = NULL;
 	DWORD dwSwpFlags = 0;
-#ifndef _X360
+
+	if ( bWindowed )
 	{
-		if ( bWindowed )
-		{
-			hWndAfter = HWND_NOTOPMOST;
-		}
-		else
-		{
-			hWndAfter = HWND_TOPMOST;
-		}
-		dwSwpFlags = SWP_FRAMECHANGED;
+		hWndAfter = HWND_NOTOPMOST;
 	}
-#else
+	else
 	{
-		dwSwpFlags = SWP_NOZORDER;
+		hWndAfter = HWND_TOPMOST;
 	}
-#endif
+	dwSwpFlags = SWP_FRAMECHANGED;
 
 	// Move the window to 0, 0 and the new true size
 	SetWindowPos( (HWND)game->GetMainWindow(),
@@ -1211,13 +1196,6 @@ ITexture *CVideoMode_Common::GetFullFrameFB0( void )
 
 void CVideoMode_Common::BlitHiLoScreenBuffersTo16Bit( void )
 {
-	if ( IsX360() )
-	{
-		// FIXME: this breaks in 480p due to (at least) the multisampled depth buffer (need to cache, clear and restore the depth target)
-		Assert( 0 );
-		return;
-	}
-	
 	IMaterial *pHDRCombineMaterial = materials->FindMaterial( "dev/hdrcombineto16bit", TEXTURE_GROUP_OTHER, true );
 //	if( IsErrorMaterial( pHDRCombineMaterial ) )
 //	{
@@ -1293,13 +1271,6 @@ void GetCubemapOffset( CubeMapFaceIndex_t faceIndex, int &x, int &y, int &faceDi
 //-----------------------------------------------------------------------------
 void CVideoMode_Common::TakeSnapshotPFMRect( const char *pFilename, int x, int y, int w, int h, int resampleWidth, int resampleHeight, CubeMapFaceIndex_t faceIndex )
 {
-	if ( IsX360() )
-	{
-		// FIXME: this breaks in 480p due to (at least) the multisampled depth buffer (need to cache, clear and restore the depth target)
-		Assert( 0 );
-		return;
-	}
-
 	if ( g_pMaterialSystemHardwareConfig->GetHDRType() == HDR_TYPE_NONE )
 	{
 		Warning( "Unable to take PFM screenshots if HDR isn't enabled!\n" );
@@ -1376,12 +1347,6 @@ void CVideoMode_Common::TakeSnapshotPFMRect( const char *pFilename, int x, int y
 //-----------------------------------------------------------------------------
 void CVideoMode_Common::TakeSnapshotTGARect( const char *pFilename, int x, int y, int w, int h, int resampleWidth, int resampleHeight, bool bPFM, CubeMapFaceIndex_t faceIndex )
 {
-	if ( IsX360() )
-	{
-		Assert( 0 );
-		return;
-	}
-
 	if ( bPFM )
 	{
 		TakeSnapshotPFMRect( pFilename, x, y, w, h, resampleWidth, resampleHeight, faceIndex );
@@ -1610,7 +1575,6 @@ GLOBAL(void) jpeg_UtlBuffer_dest (j_compress_ptr cinfo, CUtlBuffer *pBuffer )
 
 bool CVideoMode_Common::TakeSnapshotJPEGToBuffer( CUtlBuffer& buf, int quality )
 {
-#if !defined( _X360 )
 	if ( g_LostVideoMemory )
 		return false;
 
@@ -1678,10 +1642,6 @@ bool CVideoMode_Common::TakeSnapshotJPEGToBuffer( CUtlBuffer& buf, int quality )
 	
 	delete[] pImage;
 
-#else
-	// not supporting
-	Assert( 0 );
-#endif
 	return true;
 }
 
@@ -1691,7 +1651,6 @@ bool CVideoMode_Common::TakeSnapshotJPEGToBuffer( CUtlBuffer& buf, int quality )
 //-----------------------------------------------------------------------------
 void CVideoMode_Common::TakeSnapshotJPEG( const char *pFilename, int quality )
 {
-#if !defined( _X360 )
 	Assert( pFilename );
 
 	// Output buffer
@@ -1715,10 +1674,6 @@ void CVideoMode_Common::TakeSnapshotJPEG( const char *pFilename, int quality )
 
 	Msg( "Wrote '%s':  %s (%dx%d) compresssed (quality %i) to %s\n",
 		pFilename, orig, GetModeWidth(), GetModeHeight(), quality, final );
-
-#else
-	Assert( 0 );
-#endif
 }
 
 //-----------------------------------------------------------------------------
@@ -1734,7 +1689,7 @@ public:
 	virtual bool		Init( );
 	virtual void		Shutdown( void );
 	virtual void		SetGameWindow( void *hWnd );
-	virtual bool		SetMode( int nWidth, int nHeight, bool bWindowed );
+	virtual bool		SetMode( int nWidth, int nHeight, bool bWindowed, bool bNoBorder );
 	virtual void		ReleaseVideo( void );
 	virtual void		RestoreVideo( void );
 	virtual void		AdjustForModeChange( void );
@@ -1847,7 +1802,7 @@ void CVideoMode_MaterialSystem::Shutdown()
 //-----------------------------------------------------------------------------
 // Sets the video mode
 //-----------------------------------------------------------------------------
-bool CVideoMode_MaterialSystem::SetMode( int nWidth, int nHeight, bool bWindowed )
+bool CVideoMode_MaterialSystem::SetMode( int nWidth, int nHeight, bool bWindowed, bool bNoBorder )
 {
 	// Necessary for mode selection to work
 	int nFoundMode = FindVideoMode( nWidth, nHeight, bWindowed );
@@ -1865,25 +1820,7 @@ bool CVideoMode_MaterialSystem::SetMode( int nWidth, int nHeight, bool bWindowed
 #endif
 	
 	config.SetFlag( MATSYS_VIDCFG_FLAGS_WINDOWED, bWindowed );
-
-#if defined( _X360 )
-	XVIDEO_MODE videoMode;
-	XGetVideoMode( &videoMode );
-	if ( videoMode.fIsWideScreen )
-	{
-		extern ConVar r_aspectratio;
-		r_aspectratio.SetValue( 16.0f/9.0f );
-	}
-	config.SetFlag( MATSYS_VIDCFG_FLAGS_SCALE_TO_OUTPUT_RESOLUTION, (DWORD)nWidth != videoMode.dwDisplayWidth || (DWORD)nHeight != videoMode.dwDisplayHeight );
-	if ( nHeight == 480 || nWidth == 576 )
-	{
-		// Use 2xMSAA for standard def (see mat_software_aa_strength for fake hi-def aa)
-		// FIXME: shuffle the EDRAM surfaces to allow 4xMSAA for standard def
-		//        (they would overlap & trash each other with the current arrangement)
-		// NOTE: This should affect 640x480 and 848x480 (which is also used for 640x480 widescreen), and PAL 640x576
-		config.m_nAASamples = 2;
-	}
-#endif
+	config.SetFlag( MATSYS_VIDCFG_FLAGS_NOBORDERWINDOW, bNoBorder );
 
 	// FIXME: This is trash. We have to do *different* things depending on how we're setting the mode!
 	if ( !m_bSetModeOnce )
@@ -1919,11 +1856,12 @@ void CVideoMode_MaterialSystem::AdjustForModeChange( void )
 	int nNewWidth = g_pMaterialSystemConfig->m_VideoMode.m_Width;
 	int nNewHeight = g_pMaterialSystemConfig->m_VideoMode.m_Height;
 	bool bWindowed = g_pMaterialSystemConfig->Windowed();
+	bool bNoWindowBorder = g_pMaterialSystemConfig->NoBorderWindow();
 
 	// reset the window size
 	CMatRenderContextPtr pRenderContext( materials );
 
-	ResetCurrentModeForNewResolution( nNewWidth, nNewHeight, bWindowed );
+	ResetCurrentModeForNewResolution( nNewWidth, nNewHeight, bWindowed, bNoWindowBorder );
 	AdjustWindow( GetModeWidth(), GetModeHeight(), GetModeBPP(), IsWindowedMode() );
 	MarkClientViewRectDirty();
 	pRenderContext->Viewport( 0, 0, GetModeWidth(), GetModeHeight() );
@@ -1965,9 +1903,6 @@ void CVideoMode_MaterialSystem::SetGameWindow( void *hWnd )
 //-----------------------------------------------------------------------------
 void CVideoMode_MaterialSystem::ReleaseVideo( void )
 {
-	if ( IsX360() )
-		return;
-
 	if ( IsWindowedMode() )
 		return;
 
@@ -1980,9 +1915,6 @@ void CVideoMode_MaterialSystem::ReleaseVideo( void )
 //-----------------------------------------------------------------------------
 void CVideoMode_MaterialSystem::RestoreVideo( void )
 {
-	if ( IsX360() )
-		return;
-
 	if ( IsWindowedMode() )
 		return;
 
@@ -1996,9 +1928,6 @@ void CVideoMode_MaterialSystem::RestoreVideo( void )
 //-----------------------------------------------------------------------------
 void CVideoMode_MaterialSystem::ReleaseFullScreen( void )
 {
-	if ( IsX360() )
-		return;
-
 	if ( IsWindowedMode() )
 		return;
 
@@ -2013,9 +1942,6 @@ void CVideoMode_MaterialSystem::ReleaseFullScreen( void )
 //-----------------------------------------------------------------------------
 void CVideoMode_MaterialSystem::ChangeDisplaySettingsToFullscreen( int nWidth, int nHeight, int nBPP )
 {
-	if ( IsX360() )
-		return;
-
 	if ( IsWindowedMode() )
 		return;
 

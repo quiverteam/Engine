@@ -964,7 +964,7 @@ bool CEngineAPI::ModInit( const char *pModName, const char *pGameDir )
 
 	// Create the game window now that we have a search path
 	// FIXME: Deal with initial window width + height better
-	if ( !videomode || !videomode->CreateGameWindow( g_pMaterialSystemConfig->m_VideoMode.m_Width, g_pMaterialSystemConfig->m_VideoMode.m_Height, g_pMaterialSystemConfig->Windowed() ) )
+	if ( !videomode || !videomode->CreateGameWindow( g_pMaterialSystemConfig->m_VideoMode.m_Width, g_pMaterialSystemConfig->m_VideoMode.m_Height, g_pMaterialSystemConfig->Windowed(), g_pMaterialSystemConfig->NoBorderWindow() ) )
 	{
 		return false;
 	}
