@@ -75,7 +75,7 @@ int main(int argc, char* argv[])
 	char fullPath[512], redirectFilename[512];
 	MakeFullPath( argv[0], fullPath, sizeof( fullPath ) );
 	Q_StripFilename( fullPath );
-	Q_snprintf( redirectFilename, sizeof( redirectFilename ), "%s\\%s", fullPath, "vrad.redirect" );
+	Q_snprintf( redirectFilename, sizeof( redirectFilename ), "%s\\%s", fullPath, "shadercompile.redirect" );
 
 	Pause();	
 	// First, look for vrad.redirect and load the dll specified in there if possible.
@@ -91,9 +91,9 @@ int main(int argc, char* argv[])
 
 			pModule = Sys_LoadModule( dllName );
 			if ( pModule )
-				printf( "Loaded alternate VRAD DLL (%s) specified in vrad.redirect.\n", dllName );
+				printf( "Loaded alternate shadercompile_dll (%s) specified in shadercompile.redirect.\n", dllName );
 			else
-				printf( "Can't find '%s' specified in vrad.redirect.\n", dllName );
+				printf( "Can't find '%s' specified in shadercompile.redirect.\n", dllName );
 		}
 		
 		fclose( fp );
@@ -110,7 +110,7 @@ int main(int argc, char* argv[])
 	Pause();	
 	if( !pModule )
 	{
-		printf( "vrad_launcher error: can't load %s\n%s", dllName, GetLastErrorString() );
+		printf( "shadercompile_launcher error: can't load %s\n%s", dllName, GetLastErrorString() );
 		Pause();	
 		return 1;
 	}
@@ -119,7 +119,7 @@ int main(int argc, char* argv[])
 	CreateInterfaceFn fn = Sys_GetFactory( pModule );
 	if( !fn )
 	{
-		printf( "vrad_launcher error: can't get factory from vrad_dll.dll\n" );
+		printf( "shadercompile_launcher error: can't get factory from shadercompile_dll.dll\n" );
 		Sys_UnloadModule( pModule );
 		return 2;
 	}
@@ -128,7 +128,7 @@ int main(int argc, char* argv[])
 	IShaderCompileDLL *pDLL = (IShaderCompileDLL*)fn( SHADER_COMPILE_INTERFACE_VERSION, &retCode );
 	if( !pDLL )
 	{
-		printf( "vrad_launcher error: can't get IVRadDLL interface from vrad_dll.dll\n" );
+		printf( "shadercompile_launcher error: can't get IVRadDLL interface from shadercompile_dll.dll\n" );
 		Sys_UnloadModule( pModule );
 		return 3;
 	}
