@@ -149,3 +149,7 @@ modeswitchsave.tga
 \.vscode/
 
 *.kdev4
+
+
+# Devtools stuff
+!src/devtools/*.mak
