@@ -700,7 +700,7 @@ $Project "shaderapidx10"
 
 $Project "shaderapiempty"
 {
-	"materialsystem\shaderapiempty\shaderapiempty.vpc" [$WINDOWS]
+	"materialsystem\shaderapiempty\shaderapiempty.vpc"
 }
 
 $Project "shaderapitest"
