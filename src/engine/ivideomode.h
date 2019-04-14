@@ -35,13 +35,13 @@ public:
 	virtual void			DrawStartupGraphic() = 0;
 
 	// Creates the game window, plays the startup movie, starts up the material system
-	virtual bool			CreateGameWindow( int nWidth, int nHeight, bool bWindowed ) = 0;
+	virtual bool			CreateGameWindow( int nWidth, int nHeight, bool bWindowed, bool bNoBorderWindow ) = 0;
 
 	// Sets the game window in editor mode
 	virtual void			SetGameWindow( void *hWnd ) = 0;
 
 	// Sets the video mode, and re-sizes the window
-	virtual bool			SetMode( int nWidth, int nHeight, bool bWindowed ) = 0;
+	virtual bool			SetMode( int nWidth, int nHeight, bool bWindowed, bool bNoBorderWindow ) = 0;
 
 	// Returns the fullscreen modes for the adapter the game was started on
 	virtual int				GetModeCount( void ) = 0;
@@ -64,6 +64,7 @@ public:
 	virtual int				GetModeWidth() const = 0;
 	virtual int				GetModeHeight() const = 0;
 	virtual	bool			IsWindowedMode() const = 0;
+	virtual bool			IsNoborderWindowMode() const = 0;
 
 	// Returns the subrect to draw the client view into.
 	// Coordinates are measured relative to the drawable region of the window
