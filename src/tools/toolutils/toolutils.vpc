@@ -7,7 +7,7 @@
 $Macro SRCDIR		"..\.."
 $Macro OUTLIBDIR	"$LIBPUBLIC"
 
-$Include "$SRCDIR\vpc_scripts\source_lib_base.vpc"
+$Include "$SRCDIR\vpc_scripts\quiver_lib_base.vpc"
 
 $Project "Toolutils"
 {

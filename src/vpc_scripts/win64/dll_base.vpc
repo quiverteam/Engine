@@ -20,7 +20,7 @@ $Include "$SRCDIR\vpc_scripts\loadaddress.vpc"
 $Include "$SRCDIR\vpc_scripts\win64\dll_base_debug.vpc"
 $Include "$SRCDIR\vpc_scripts\win64\dll_base_release.vpc"
 
-$Include "$SRCDIR\vpc_scripts\source_win_base.vpc"
+$Include "$SRCDIR\vpc_scripts\win_base.vpc"
 
 $IgnoreRedundancyWarning	"ON"
 

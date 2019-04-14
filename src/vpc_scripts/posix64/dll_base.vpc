@@ -1,6 +1,6 @@
 
 $Include "$SRCDIR\vpc_scripts\version.vpc"
-$Include "$SRCDIR\vpc_scripts\source_posix_base.vpc"
+$Include "$SRCDIR\vpc_scripts\posix_base.vpc"
 
 
 $MacroRequired	 "OUTBINNAME"	"$PROJECTNAME"

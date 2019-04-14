@@ -7,7 +7,7 @@
 $macro SRCDIR		"..\.."
 $Macro OUTBINDIR	"$BINDEFAULT"
 
-$Include "$SRCDIR\vpc_scripts\source_dll_base.vpc"
+$Include "$SRCDIR\vpc_scripts\quiver_dll_base.vpc"
 
 $Configuration	"Debug"
 {
