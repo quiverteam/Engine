@@ -1,0 +1,48 @@
+//-----------------------------------------------------------------------------
+//	TIER4.VPC
+//
+//	Project Script
+//-----------------------------------------------------------------------------
+
+$Macro SRCDIR		".."
+$Macro OUTLIBDIR	"$LIBPUBLIC"
+ 
+$include "$SRCDIR\vpc_scripts\quiver_lib_base.vpc"
+
+$Linux
+{
+	$BuildForLinux 1
+}
+
+$Configuration
+{
+	$Compiler
+	{
+		$PreprocessorDefinitions		"$BASE;TIER4_STATIC_LIB"
+		$AdditionalIncludeDirectories	"$BASE;$SRCDIR\public\tier4"
+	}
+	
+	$Linker
+	{
+		$AdditionalDependencies		"$BASE shlwapi.lib winmm.lib wsock32.lib odbc32.lib odbccp32.lib Rpcrt4.lib" [$WINDOWS]
+
+		// Link against sdl2
+		$GCC_ExtraLinkerFlags		"-lSDL2"	[$POSIX]
+	}
+}
+
+$Project "tier4"
+{
+	$Folder	"Source Files"
+	{
+		$File		"MessageBox.cpp"
+		$File		"AssertDialog.cpp"
+	}
+
+	$Folder	"Header Files"
+	{
+		$File		"$SRCDIR\public\tier4\tier4.h"
+		$File		"$SRCDIR\public\tier4\MessageBox.h"
+		$File		"$SRCDIR\public\tier4\AssertDialog.h"
+	}
+}

@@ -898,6 +898,11 @@ $Project "tier3"
 	"tier3\tier3.vpc" 	[$WINDOWS||$POSIX]
 }
 
+$Project "tier4"
+{
+	"tier4\tier4.vpc" [$WINDOWS||$POSIX]
+}
+
 $Project "tier1test"
 {
 	"unittests\tier1test\tier1test.vpc" 	[$WINDOWS]
