@@ -9,6 +9,8 @@ $Macro LIBCOMMON	"$SRCDIR\lib\common\$PLATSUBDIR"
 
 $MacroRequired				"SRCDIR"
 
+$Macro BINDEFAULT	"$SRCDIR\..\game\bin\$PLATSUBDIR"
+
 $Configuration "Debug"
 {
 	$Compiler
