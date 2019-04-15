@@ -7,28 +7,21 @@ Custom Source Engine branch based on Source Engine 2007, currently available on 
 
 ### Windows
 
-1. Install [Perl](http://strawberryperl.com/).
+1. Install [Perl](http://strawberryperl.com/), open Perl Command Line and enter `cpan String::CRC32`. This is needed for building shaders.
 
-2. Open Perl Command Line and enter `cpan String::CRC32`
+2. Run src/createallprojects.bat and build the solution in Release, Debug is broken currently.
 
-3. Install [Python](https://www.python.org/) (Optional).
+3. Run src/materialsystem/stdshaders/buildallshaders.bat, then build stdshader projects.
 
-4. Run createcoreprojects.bat and build the solution in Release.
+4. Edit game/make_dir_junction.bat with your HL2 install directory if needed and Run.
 
-5. Run src/materialsystem/stdshaders/buildallshaders.bat.
+You can run the engine with run_mod_hl2.bat or run_hl2r.bat.
 
-6. Run src/createallprojects.bat or src/createbinprojects.bat and build the solution in Release.
+NOTE: not all projects build at the moment.
 
-7. Edit game/make_dir_junction.bat with your HL2 install directory if needed and Run
+### Linux and MacOS
 
-You can run the engine with run_mod_hl2.bat, run_mod_episodic.bat, or run_hl2r.bat.
-
-### Linux
-
-Linux support is unavailable at the moment, you can help. See Supporting Non-Windows Platforms.
-
-### macOS
-macOS support is unavailable at the moment, you can help. See Supporting Non-Windows Platforms.
+Linux and MacOS support is currently being worked on in the posix-support branch. If you want to help, See Supporting Non-Windows Platforms.
 
 ## How you can help
 
