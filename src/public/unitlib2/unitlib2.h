@@ -25,8 +25,11 @@ Rather than using static libraries, this just gets included into a translation u
 #include <cstring>
 #include <cstdlib>
 #include <iostream>
+#include <math.h>
 
-#define DECLARE_TEST_SUITE(var, name) static CUnitTestSuite* var = new CUnitTestSuite(#name)
+#define DECLARE_TEST_SUITE(var) extern CUnitTestSuite* var;
+
+#define DEFINE_TEST_SUITE(var, name) CUnitTestSuite* var = new CUnitTestSuite(name)
 
 #define BEGIN_UNIT_TEST(name, suite)\
 {	\
@@ -96,9 +99,11 @@ public:
 			bPassed = v <= 0.0 ? (+v) < deviation : v < deviation;
 
 		if(!bPassed)
-			Message += "Test failed: The value " + std::to_string(expected) + " was not within " + std::to_string(deviation) + " of " + std::to_string(val) + "\nThe value was within " + std::to_string(v) + "\n";
+			Message += "Test FAILED: The value " + std::to_string(expected) + " was not within " + std::to_string(deviation)\
+			 + " of " + std::to_string(val) + "\nThe value was within " + std::to_string(v) + "\n";
 		else
-			Message += "Test completed: The value " + std::to_string(expected) + " was within " +std::to_string(deviation) + " of " + std::to_string(val) + "\nThe value was within " + std::to_string(v) + "\n"; 
+			Message += "Test COMPLETED: The value " + std::to_string(expected) + " was within " +std::to_string(deviation)\
+			 + " of " + std::to_string(val) + "\nThe value was within " + std::to_string(v) + "\n"; 
 	}
 
 	// Specialization for float
@@ -117,29 +122,33 @@ public:
 	// Tests accuracy of numerical things. Uses long double for best precision
 	void within_accuracy(long double expected, long double val, long double percent_dev)
 	{
-		long double v = (long double)(expected / val) * 100.0;
+		long double v = (long double)((expected-val) / val) * 100.0;
 		if(bCompleted)
 			bPassed = (v <= 0.0 ? (+v) < percent_dev : v < percent_dev) && bPassed;
 		else
 			bPassed = v <= 0.0 ? (+v) < percent_dev : v < percent_dev;
 		if(!bPassed)
-			Message += "Test failed: The value " + std::to_string(expected) + " was not within " + std::to_string(percent_dev) + "%% of " + std::to_string(val) + "\nThe value was within " + std::to_string(v) + "%%\n";
+			Message += "Test FAILED: The value " + std::to_string(expected) + " was not within " + std::to_string(percent_dev * 100.0f)\
+			 + "% of " + std::to_string(val) + "\nThe value was within " + std::to_string(fabs(v)) + "%\n";
 		else
-			Message += "Test completed: The value " + std::to_string(expected) + " was within " +std::to_string(percent_dev) + "%% of " + std::to_string(val) + "\nThe value was within " + std::to_string(v) + "%%\n"; 
+			Message += "Test COMPLETED: The value " + std::to_string(expected) + " was within " +std::to_string(percent_dev * 100.0f)\
+			 + "% of " + std::to_string(val) + "\nThe value was within " + std::to_string(fabs(v)) + "%\n"; 
 	}
 
 	// Tests accuracy of integers, this won't have percision issues
 	void within_accuracy(long long expected, long long val, long double percent_dev)
 	{
-		long double v = (long double)(expected / val) * 100.0;
+		long double v = (long double)((expected-val) / val) * 100.0;
 		if(bCompleted)
 			bPassed = (v <= 0.0 ? (+v) < percent_dev : v < percent_dev) && bPassed;
 		else
 			bPassed = v <= 0.0 ? (+v) < percent_dev : v < percent_dev;
 		if(!bPassed)
-			Message += "Test failed: The value " + std::to_string(expected) + " was not within " + std::to_string(percent_dev) + "%% of " + std::to_string(val) + "\nThe value was within " + std::to_string(v) + "%%\n";
+			Message += "Test FAILED: The value " + std::to_string(expected) + " was not within " + std::to_string(percent_dev * 100.0f) + "% of " + std::to_string(val)\
+			 + "\nThe value was within " + std::to_string(fabs(v)) + "%\n";
 		else
-			Message += "Test completed: The value " + std::to_string(expected) + " was within " +std::to_string(percent_dev) + "%% of " + std::to_string(val) + "\nThe value was within " + std::to_string(v) + "%%\n"; 
+			Message += "Test COMPLETED: The value " + std::to_string(expected) + " was within " +std::to_string(percent_dev * 100.0f) + "% of " + std::to_string(val)\
+			 + "\nThe value was within " + std::to_string(fabs(v)) + "%\n"; 
 	}
 
 	std::string get_name() const
@@ -193,7 +202,7 @@ public:
 	std::vector<CUnitTest> get_tests() const { return Tests; };
 
 	// Inserts a new test
-	void insert_test(const CUnitTest& test) { Tests.push_back(test); };
+	void insert_test(CUnitTest test) { Tests.push_back(test); };
 
 	// Returns the number of tests that passed
 	int get_pass_count() const
@@ -251,7 +260,7 @@ public:
 	{
 		using namespace std;
 		printf("=================================\n");
-		printf("Results for suite:\n%s", this->Name.c_str());
+		printf("Results for suite:\n%s\n", this->Name.c_str());
 		printf("=================================\n");
 		
 		for(auto x : Tests)
@@ -265,10 +274,17 @@ public:
 				printf("%s\n", x.get_message().c_str());
 		}
 
-		printf("=================================\n");
-		printf("%i out of %i tests passed.\n", this->get_pass_count(), this->get_test_count());
-		printf("%i failed.\n", this->get_fail_count());
-		printf("%f%% completed.\n", (float)(this->get_pass_count() / this->get_test_count() * 100.0f));
+		printf("\n=================================\n");
+		if(this->get_test_count() == 0)
+		{
+			printf("No tests completed.\n");
+		}
+		else
+		{
+			printf("%i out of %i tests passed.\n", this->get_pass_count(), this->get_test_count());
+			printf("%i failed.\n", this->get_fail_count());
+			printf("%f%% completed.\n", (float)(this->get_pass_count() / this->get_test_count() * 100.0f));
+		}
 		printf("=================================\n");
 	}
 
@@ -279,7 +295,9 @@ public:
 	}
 };
 
-#define DECLARE_PERF_TEST_SUITE(var, name) static CPerfTestSuite* var = new CPerfTestSuite(name)
+#define DECLARE_PERF_TEST_SUITE(var) extern CPerfTestSuite* var
+
+#define DEFINE_PERF_TEST_SUITE(var, name) CPerfTestSuite* var = new CPerfTestSuite(name)
 
 //
 // Multistep perf tests take multiple values from tests and averages them together.
