@@ -1,5 +1,5 @@
 //-----------------------------------------------------------------------------
-//	SOURCE_DLL_WIN32_BASE.VPC
+//	DLL BASE FOR WIN64
 //
 //	Base Settings for all Source(TM) Projects
 //-----------------------------------------------------------------------------
@@ -15,22 +15,14 @@ $Macro LIBPUBLIC	"$SRCDIR\lib\public\$PLATSUBDIR"
 $Macro LIBCOMMON	"$SRCDIR\lib\common\$PLATSUBDIR"
 
 $Include "$SRCDIR\vpc_scripts\loadaddress.vpc"
-$Include "$SRCDIR\vpc_scripts\source_dll_win32_debug.vpc" 	[$WIN32]
-$Include "$SRCDIR\vpc_scripts\source_dll_win32_release.vpc" [$WIN32]
-$Include "$SRCDIR\vpc_scripts\source_dll_win64_debug.vpc" 	[$WIN64]
-$Include "$SRCDIR\vpc_scripts\source_dll_win64_release.vpc" [$WIN64]
-$Include "$SRCDIR\vpc_scripts\source_win32_base.vpc"
+
+// Win64 scripts
+$Include "$SRCDIR\vpc_scripts\win64\dll_base_debug.vpc"
+$Include "$SRCDIR\vpc_scripts\win64\dll_base_release.vpc"
+
+$Include "$SRCDIR\vpc_scripts\source_win_base.vpc"
 
 $IgnoreRedundancyWarning	"ON"
-
-/*$Linux
-{
-	-$file	"$LIBPUBLIC\tier0.lib"
-	$file   "$SRCDIR\linux\tier0_i686.so"
-
-	-$file	"$LIBPUBLIC\vstdlib.lib"
-	$file	"$SRCDIR\linux\vstdlib_i686.so"
-}*/
 
 // Common Configuration
 $Configuration
@@ -42,8 +34,7 @@ $Configuration
 	
 	$Compiler
 	{
-		$PreprocessorDefinitions			"$BASE;PLATFORM_64BITS;WIN64;_WIN64;COMPILER_MSVC64" [$WIN64]
-		$PreprocessorDefinitions			"$BASE;COMPILER_MSVC32" [$WIN32]		
+		$PreprocessorDefinitions			"$BASE;PLATFORM_64BITS;WIN64;_WIN64;COMPILER_MSVC64"	
 		$PreprocessorDefinitions			"$BASE;COMPILER_MSVC;_DLL_EXT=$_DLL_EXT"
 		$PreprocessorDefinitions			"$BASE;DLLNAME=$OUTBINNAME"		
 	}
@@ -55,9 +46,8 @@ $Configuration
 	
 	$Linker
 	{
-		$AdditionalDependencies				"$BASE shell32.lib user32.lib advapi32.lib gdi32.lib comdlg32.lib ole32.lib" [$WIN32||$WIN64]
-		$TargetMachine						"MachineX86 (/MACHINE:X86)"	[$WIN32]
-		$TargetMachine						"MachineX64 (/MACHINE:X64)"	[$WIN64]
+		$AdditionalDependencies				"$BASE shell32.lib user32.lib advapi32.lib gdi32.lib comdlg32.lib ole32.lib" [$WIN64]
+		$TargetMachine						"MachineX64 (/MACHINE:X64)"
 		// Suppress this pointless warning using the undocumented /ignore linker switch
 		// schemalib.lib(schemaclassinfo.obj) : warning LNK4221: This object file does not define any previously undefined public symbols, so it will not be used by any link operation that consumes this library
 		$AdditionalOptions					"$BASE /ignore:4221"
