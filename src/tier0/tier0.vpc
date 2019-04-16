@@ -40,9 +40,9 @@ $Project
 		-$Lib	"$LIBPUBLIC\tier0" 			[$WINDOWS]
 		-$Lib	"$LIBPUBLIC\tier1"			[$WINDOWS]
 		-$Lib	"$LIBPUBLIC\vstdlib"		[$WINDOWS]
-		-$Lib	"$LIBPUBLIC\libtier0"		[$POSIX]
-		-$Lib	"$LIBPUBLIC\libvstdlib"		[$POSIX]
-		-$Lib	"$LIBPUBLIC\libtier1"		[$POSIX]
+		//-$Lib	"$LIBPUBLIC\tier0"		[$POSIX]
+		-$file	"$LIBPUBLIC\libvstdlib.so"		[$POSIX]
+		-$Lib	"$LIBPUBLIC\tier1"		[$POSIX]
 		
 		//-$file	"$SRCDIR\linux\tier0_i686.so"				\
 		//-$Lib	"$LIBPUBLIC\tier1"	\
@@ -74,7 +74,6 @@ $Project "tier0"
 		$File	"memdbg.cpp"
 		$File	"memstd.cpp"
 		$File	"memvalidate.cpp"
-		$File	"dbg.cpp"
 		$File	"minidump.cpp"			
 		{
 			$Configuration
