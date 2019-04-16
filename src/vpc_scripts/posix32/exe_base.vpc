@@ -30,7 +30,8 @@ $Configuration
 
 	$Linker
 	{
-		$OutputFile						"$SRCDIR/../game/$OUTBINNAME"
+		$OutputFile						"$SRCDIR/../game/bin/linux32/$OUTBINNAME"	[$LINUXALL]
+		$OutputFile						"$SRCDIR/../game/bin/osx32/$OUTBINNAME"		[$OSX32]
 
 		// In order to get the Valve standard allocator memory alignment (16-byte
 		// alignment for objects that are a multiple of 16 bytes) we use tcmalloc.
