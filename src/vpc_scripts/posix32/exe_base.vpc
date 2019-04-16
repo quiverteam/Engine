@@ -37,7 +37,7 @@ $Configuration
 		// Using -l will ask the linker to use it, but if there are no references
 		// to malloc/free then it may not actually use it. Wrapping the flag in the
 		// as-needed controls forces it to be pulled in (from libtcmalloc_minimal.so).
-		$GCC_ExtraLinkerFlags			"-Wl,--no-as-needed -ltcmalloc_minimal -Wl,--as-needed" [$LINUXALL&&!$DEDICATED]
+		$GCC_ExtraLinkerFlags			"-Wl,--no-as-needed -Wl,--as-needed" [$LINUXALL&&!$DEDICATED]
 	}
 }
 
