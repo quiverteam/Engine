@@ -19,6 +19,8 @@ $Configuration
 	$Linker
 	{
 		$AdditionalDependencies		"$BASE shlwapi.lib winmm.lib wsock32.lib odbc32.lib odbccp32.lib $SRCDIR\dx9sdk\lib\dinput8.lib $SRCDIR\dx9sdk\lib\ddraw.lib" [$WIN32]
+
+		$GCC_ExtraLinkerFlags		"-lSDL2"	[$POSIX]
 	}
 }
 
@@ -43,7 +45,10 @@ $Project "launcher"
 	$Folder	"Source Files"
 	{
 		$File	"$SRCDIR\public\filesystem_init.cpp"
-		$File	"launcher.cpp"
+		$File 	"launcher.cpp"
+		$File 	"launcher.h"
+		$File	"launcher_win.cpp"		[$WINDOWS]
+		$File 	"launcher_posix.cpp"	[$POSIX]
 		$File	"reslistgenerator.cpp"
 	}
 

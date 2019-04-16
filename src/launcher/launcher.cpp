@@ -1,4 +1,4 @@
-//===== Copyright © 1996-2005, Valve Corporation, All rights reserved. ======//
+//===== Copyright ï¿½ 1996-2005, Valve Corporation, All rights reserved. ======//
 //
 // Purpose: 
 //
@@ -14,22 +14,28 @@
 #include "tier0/icommandline.h"
 #include "engine_launcher_api.h"
 #include "tier0/vcrmode.h"
-#include "IFileSystem.h"
+#include "ifilesystem.h"
 #include "tier1/interface.h"
 #include "tier0/dbg.h"
 #include "iregistry.h"
-#include "appframework/iappsystem.h"
-#include "appframework/appframework.h"
+#include "appframework/IAppSystem.h"
+#include "appframework/AppFramework.h"
 #include <vgui/VGUI.h>
 #include <vgui/ISurface.h>
 #include "tier0/platform.h"
 #include "tier0/memalloc.h"
 #include "filesystem.h"
 #include "tier1/utlrbtree.h"
+
+#ifdef _WIN32
 #include <direct.h>
+#else
+#include <unistd.h>
+#endif
+
 #include "materialsystem/imaterialsystem.h"
 #include "istudiorender.h"
-#include "vgui/ivgui.h"
+#include "vgui/IVGui.h"
 #include "IHammer.h"
 #include "datacache/idatacache.h"
 #include "datacache/imdlcache.h"
@@ -44,12 +50,6 @@
 #include "filesystem/IQueuedLoader.h"
 #include "reslistgenerator.h"
 #include "tier1/fmtstr.h"
-
-#if defined( _X360 )
-#include "xbox/xbox_win32stubs.h"
-#include "xbox/xbox_console.h"
-#include "xbox/xbox_launch.h"
-#endif
 
 // memdbgon must be the last include file in a .cpp file!!!
 #include "tier0/memdbgon.h"
@@ -98,49 +98,14 @@ public:
 	{
 		if ( m_bCheckLeaks )
 		{
+			#ifndef NO_MALLOC_OVERRIDE
 			g_pMemAlloc->DumpStats();
+			#endif
 		}
 	}
 
 	bool m_bCheckLeaks;
 } g_LeakDump;
-
-//-----------------------------------------------------------------------------
-// Spew function!
-//-----------------------------------------------------------------------------
-SpewRetval_t LauncherDefaultSpewFunc( SpewType_t spewType, char const *pMsg )
-{
-#ifndef _CERT
-	OutputDebugStringA( pMsg );
-	switch( spewType )
-	{
-	case SPEW_MESSAGE:
-	case SPEW_LOG:
-		return SPEW_CONTINUE;
-
-	case SPEW_WARNING:
-		if ( !stricmp( GetSpewOutputGroup(), "init" ) )
-		{
-			::MessageBox( NULL, pMsg, "Warning!", MB_OK | MB_SYSTEMMODAL | MB_ICONERROR );
-		}
-		return SPEW_CONTINUE;
-
-	case SPEW_ASSERT:
-		if ( !ShouldUseNewAssertDialog() )
-			::MessageBox( NULL, pMsg, "Assert!", MB_OK | MB_SYSTEMMODAL | MB_ICONERROR );
-		return SPEW_DEBUGGER;
-	
-	case SPEW_ERROR:
-	default:
-		::MessageBox( NULL, pMsg, "Error!", MB_OK | MB_SYSTEMMODAL | MB_ICONERROR );
-		_exit( 1 );
-	}
-#else
-	if ( spewType != SPEW_ERROR)
-		return SPEW_CONTINUE;
-	_exit( 1 );
-#endif
-}
 
 
 //-----------------------------------------------------------------------------
@@ -179,14 +144,7 @@ void SetGameDirectory( const char *game )
 //-----------------------------------------------------------------------------
 // Gets the executable name
 //-----------------------------------------------------------------------------
-bool GetExecutableName( char *out, int outSize )
-{
-	if ( !::GetModuleFileName( ( HINSTANCE )GetModuleHandle( NULL ), out, outSize ) )
-	{
-		return false;
-	}
-	return true;
-}
+
 
 //-----------------------------------------------------------------------------
 // Purpose: Return the base directory
@@ -432,6 +390,7 @@ static bool IsWin98OrOlder()
 {
 	bool retval = false;
 
+#ifdef _WIN32
 	OSVERSIONINFOEX osvi;
 	ZeroMemory(&osvi, sizeof(OSVERSIONINFOEX));
 	osvi.dwOSVersionInfoSize = sizeof(OSVERSIONINFOEX);
@@ -465,6 +424,9 @@ static bool IsWin98OrOlder()
 	}
 
 	return retval;
+#else
+	return false;
+#endif //_WIN32
 }
 
 
