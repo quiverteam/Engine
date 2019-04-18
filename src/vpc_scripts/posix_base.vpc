@@ -59,7 +59,7 @@ $Configuration
 		$GCC_ExtraCompilerFlags			"$BASE -mavx"									[$POSIX64 && $USE_AVX]
 		
 		// Preprocessor for 64-bit posix/linux/osx stuff
-		$PreprocessorDefinitions		"$BASE;PLATFORM_64BITS;_x86_64_;_x64_;_X64_;	[$OSX64 || $POSIX64 || $LINUX64]
+		$PreprocessorDefinitions		"$BASE;PLATFORM_64BITS;_x86_64_;_x64_;_X64_;"	[$OSX64 || $POSIX64 || $LINUX64]
 		$PreprocessorDefinitions		"$BASE;_POSIX64;POSIX64"						[$POSIX64]
 		$PreprocessorDefinitions		"$BASE;_LINUX64;LINUX64"						[$LINUX64]
 		$PreprocessorDefinitions		"$BASE;_OSX64;OSX64"							[$OSX64]
