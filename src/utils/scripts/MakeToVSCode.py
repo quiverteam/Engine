@@ -120,7 +120,7 @@ def ConvertDir(dir: str):
 def ParseMacros(macros: list) -> list:
 	ret = list()
 	for macro in macros:
-		macro.replace("-D", "")
+		macro = macro.replace("-D", "")
 		tokens = macro.split("=")
 		ret.append(tokens[0])
 	return ret
