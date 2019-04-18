@@ -44,7 +44,7 @@ def ConvertFile(file: str, dir: str):
 
 	for include in includes:
 		#include.replace('../', '')
-		doc += '"' + str(pathlib.Path(include).resolve()) + '",\n'
+		doc += '"' + include + '",\n'
 	
 	# Stupid commas fuck json
 	if len(includes) > 1:
@@ -52,9 +52,13 @@ def ConvertFile(file: str, dir: str):
 	
 	doc += '\n],\n"defines":['
 
+	
+
 	if defines == None:
 		defines = []
 
+	defines += ["VPROF_LEVEL", "GNUC", "NO_HOOK_MALLOC", "NO_MALLOC_OVERRIDE"]
+	
 	for define in defines:
 		doc += '"' + define + '",\n'
 
@@ -85,7 +89,7 @@ def ConvertFile(file: str, dir: str):
 	doc += '{\n"folders":[\n'
 	for include in includes:
 		doc += '{\n'
-		doc += '"path": "' + str(pathlib.Path(include).resolve()) + '"'
+		doc += '"path": "' + include + '"'
 		doc += '},\n'
 	
 	doc += '{\n"path": "."\n}\n'
