@@ -1627,6 +1627,13 @@ typedef void (*Plat_WatchDogHandlerFunction_t)(void);
 PLATFORM_INTERFACE void Plat_SetWatchdogHandlerFunction( Plat_WatchDogHandlerFunction_t function );
 
 
+//
+// Functions for library loading and unloading and other stuff
+//
+PLATFORM_INTERFACE void* Plat_LoadLibrary(const char* path);
+PLATFORM_INTERFACE void Plat_UnloadLibrary(void* handle);
+PLATFORM_INTERFACE void* Plat_FindProc(void* module_handle, const char* sym_name);
+
 //-----------------------------------------------------------------------------
 
 #include "tier0/valve_on.h"

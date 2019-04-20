@@ -12,6 +12,7 @@
 
 #include <sys/time.h>
 #include <unistd.h>
+#include <dlfcn.h>
 
 double Plat_FloatTime()
 {
@@ -131,4 +132,27 @@ PLATFORM_INTERFACE void Plat_SetCommandLine( const char *cmdLine )
 PLATFORM_INTERFACE const tchar *Plat_GetCommandLine()
 {
 	return g_CmdLine;
+}
+
+//
+// Implementation of dynamic lib loading code for posix
+//
+PLATFORM_INTERFACE void* Plat_LoadLibrary(const char* path)
+{
+	Assert(path != NULL);
+	// Might change this to RTLD_NOW if it becomes an issue, but this should be fine
+	return dlopen(path, RTLD_LAZY);
+}
+
+PLATFORM_INTERFACE void Plat_UnloadLibrary(void* handle)
+{
+	Assert(handle != NULL);
+	dlclose(handle);
+}
+
+PLATFORM_INTERFACE void* Plat_FindProc(void* module_handle, const char* sym_name)
+{
+	Assert(module_handle != NULL);
+	Assert(sym_name != NULL);
+	return dlsym(module_handle, sym_name);
 }
