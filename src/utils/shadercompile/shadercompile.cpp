@@ -2454,10 +2454,10 @@ int ShaderCompile_Main( int argc, char* argv[] )
 	// This needs to get called before VMPI is setup because in SDK mode, VMPI will change the args around.
 	SetupExeDir( argc, argv );
 
-	g_bIsX360 = CommandLine()->FindParm( "-x360" ) != 0;
+	g_bIsX360 = false; //CommandLine()->FindParm( "-x360" ) != 0;
 	// g_bSuppressWarnings = g_bIsX360;
 
-	bool bShouldUseVMPI = ( CommandLine()->FindParm( "-nompi" ) == 0 );
+	bool bShouldUseVMPI = !( CommandLine()->FindParm( "-mpi" ) == 0 );
 	if ( bShouldUseVMPI )
 	{	
 		// Master, start accepting connections.
