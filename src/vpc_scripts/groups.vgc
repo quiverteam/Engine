@@ -162,6 +162,9 @@ $Group "game"
 	"vstdlib"
 	"vtf" 
 	"unicode"
+	
+	// why does the engine need this?
+	"vaudio_miles"
 }
 
 $Group "everything"
