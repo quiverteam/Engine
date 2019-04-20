@@ -206,9 +206,10 @@ $Project "dx_proxy_dx9_v30_pc"
 	"utils\dx_proxy\dx_proxy_dx9_v30_pc.vpc"
 }
 
+// has no use
 $Project "dx_proxy_dx10_v00_pc"
 {
-	"utils\dx_proxy\dx_proxy_dx10_v00_pc.vpc"
+//	"utils\dx_proxy\dx_proxy_dx10_v00_pc.vpc"
 }
 
 $Project "elementviewer"
