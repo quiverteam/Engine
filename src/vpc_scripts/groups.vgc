@@ -161,6 +161,7 @@ $Group "game"
 	"vguimatsurface"
 	"vstdlib"
 	"vtf" 
+	"unicode"
 }
 
 $Group "everything"
