@@ -89,42 +89,31 @@
 #define IsDebug() false
 #endif
 
-// Deprecating, infavor of IsX360() which will revert to IsXbox()
-// after confidence of xbox 1 code flush
+// Eventually remove all uses these
+#define IsConsole() false
+#define IsX360()	false
 #define IsXbox()	false
+#define IsPS3()		false
+#define IsPC()		true
+// #define PLATFORM_X360 0
 
+// why is this such a mess
 #ifdef _WIN32
 	#define IsLinux() false
 	#define IsOSX() false
 	#define IsPosix() false
-	#define PLATFORM_WINDOWS 1 // Windows PC or Xbox 360
-	#ifndef _X360
-		#define IsWindows() true
-		#define IsPC() true
-		#define IsConsole() false
-		#define IsX360() false
-		#define IsPS3() false
-		#define IS_WINDOWS_PC
-		#define PLATFORM_WINDOWS_PC 1 // Windows PC
-		#ifdef _WIN64
-			#define IsPlatformWindowsPC64() true
-			#define IsPlatformWindowsPC32() false
-			#define PLATFORM_WINDOWS_PC64 1
-		#else
-			#define IsPlatformWindowsPC64() false
-			#define IsPlatformWindowsPC32() true
-			#define PLATFORM_WINDOWS_PC32 1
-		#endif
+	#define IsWindows() true
+	#define IS_WINDOWS_PC
+	#define PLATFORM_WINDOWS 1 // these two are old checks for if its xbox or windows i think
+	#define PLATFORM_WINDOWS_PC 1
+	#ifdef _WIN64
+		#define IsPlatformWindowsPC64() true
+		#define IsPlatformWindowsPC32() false
+		#define PLATFORM_WINDOWS_PC64 1
 	#else
-		#define PLATFORM_X360 1
-		#ifndef _CONSOLE
-			#define _CONSOLE
-		#endif
-		#define IsWindows() false
-		#define IsPC() false
-		#define IsConsole() true
-		#define IsX360() true
-		#define IsPS3() false
+		#define IsPlatformWindowsPC64() false
+		#define IsPlatformWindowsPC32() true
+		#define PLATFORM_WINDOWS_PC32 1
 	#endif
 	// Adding IsPlatformOpenGL() to help fix a bunch of code that was using IsPosix() to infer if the DX->GL translation layer was being used.
 	#if defined( DX_TO_GL_ABSTRACTION )
@@ -133,11 +122,7 @@
 		#define IsPlatformOpenGL() false
 	#endif
 #elif defined(POSIX)
-	#define IsPC() true
 	#define IsWindows() false
-	#define IsConsole() false
-	#define IsX360() false
-	#define IsPS3() false
 	#if defined( LINUX )
 		#define IsLinux() true
 	#else
@@ -174,13 +159,6 @@ typedef signed char int8;
 	#else
 		typedef __int32 intp;
 		typedef unsigned __int32 uintp;
-	#endif
-
-	#if defined( _X360 )
-		#ifdef __m128
-			#undef __m128
-		#endif
-		#define __m128				__vector4
 	#endif
 
 	// Use this to specify that a function is an override of a virtual function.
@@ -225,16 +203,12 @@ typedef signed char int8;
 //-----------------------------------------------------------------------------
 // Set up platform type defines.
 //-----------------------------------------------------------------------------
-#if defined( PLATFORM_X360 ) || defined( _PS3 )
-	#if !defined( _GAMECONSOLE )
-		#define _GAMECONSOLE
-	#endif
-	#define IsPC()			false
-	#define IsGameConsole()	true
-#else
-	#define IsPC()			true
-	#define IsGameConsole()	false
-#endif
+// Remove:
+#define IsGameConsole()	false
+// _GAMECONSOLE
+// _PS3
+// PLATFORM_X360
+#define IsPC()			true	// remove this since it will always be pc
 
 #ifdef PLATFORM_64BITS
 	#define IsPlatform64Bits()	true
@@ -259,18 +233,8 @@ typedef unsigned int		uint;
 // Ensure that everybody has the right compiler version installed. The version
 // number can be obtained by looking at the compiler output when you type 'cl'
 // and removing the last two digits and the periods: 16.00.40219.01 becomes 160040219
-#if _MSC_FULL_VER > 180000000
-	#if _MSC_FULL_VER < 180030723
-		#error You must install VS 2013 Update 3
-	#endif
-#elif _MSC_FULL_VER > 160000000
-	#if _MSC_FULL_VER < 160040219
-		#error You must install VS 2010 SP1
-	#endif
-#else
-	#if _MSC_FULL_VER < 140050727
-		#error You must install VS 2005 SP1
-	#endif
+#if _MSC_FULL_VER < 191025017
+	#error You must install VS 2017 or newer
 #endif
 #endif
 
