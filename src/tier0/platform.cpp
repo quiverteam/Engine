@@ -265,4 +265,23 @@ PLATFORM_INTERFACE void Plat_SetAllocErrorFn( Plat_AllocErrorFn fn )
 
 #endif
 
+PLATFORM_INTERFACE void* Plat_LoadLibrary(const char* path)
+{
+	Assert(path != NULL);
+	return (void*)LoadLibrary(path);
+}
+
+PLATFORM_INTERFACE void Plat_UnloadLibrary(void* handle)
+{
+	Assert(handle != NULL);
+	FreeLibrary(handle);
+}
+
+PLATFORM_INTERFACE void* Plat_FindProc(void* module_handle, const char* sym_name)
+{
+	Assert(module_handle != NULL);
+	Assert(sym_name != NULL);
+	return GetProcAddress(module_handle, sym_name);
+}
+
 #endif // _LINUX
