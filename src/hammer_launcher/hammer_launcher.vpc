@@ -5,7 +5,7 @@
 //-----------------------------------------------------------------------------
 
 $Macro SRCDIR		".."
-$Macro OUTBINDIR	"$BINDEFAULT\utils"
+$Macro OUTBINDIR	"$BINDEFAULT"
 $Macro OUTBINNAME	"hammer"
 
 $Include "$SRCDIR\vpc_scripts\source_exe_base.vpc"
