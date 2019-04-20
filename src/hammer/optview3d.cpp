@@ -79,11 +79,11 @@ void COPTView3D::DoDataExchange(CDataExchange* pDX)
 	DDV_FOVRange(pDX, Options.view3d.fFOV);
 	//}}AFX_DATA_MAP
 
-	m_cBackPlane.SetRange(500, 10000, TRUE);
-	m_ModelDistance.SetRange(0, 10000, TRUE);
-	m_DetailDistance.SetRange(0, 10000, TRUE);
-	m_ForwardSpeedMax.SetRange(100, 10000, TRUE);
-	m_TimeToMaxSpeed.SetRange(0, 10000, TRUE);
+	m_cBackPlane.SetRange(500, 30000, TRUE);
+	m_ModelDistance.SetRange(0, 30000, TRUE);
+	m_DetailDistance.SetRange(0, 30000, TRUE);
+	m_ForwardSpeedMax.SetRange(100, 30000, TRUE);
+	m_TimeToMaxSpeed.SetRange(0, 30000, TRUE);
 
 	//
 	// If going from controls to data.

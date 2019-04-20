@@ -2564,7 +2564,7 @@ void CHudCloseCaption::InitCaptionDictionary( const char *dbfile )
 
 	g_AsyncCaptionResourceManager.Clear();
 
-	char searchPaths[512];
+	char searchPaths[4096];
 	filesystem->GetSearchPath( "GAME", true, searchPaths, sizeof( searchPaths ) );
 
 	for ( char *path = strtok( searchPaths, ";" ); path; path = strtok( NULL, ";" ) )

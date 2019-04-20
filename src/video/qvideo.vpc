@@ -1,0 +1,44 @@
+//-----------------------------------------------------------------------------
+//	QVIDEO.VPC
+//
+//	Project Script
+//-----------------------------------------------------------------------------
+
+$Macro SRCDIR		".."
+$Macro OUTBINDIR	"$BINDEFAULT"
+
+$Include "$SRCDIR\vpc_scripts\source_dll_base.vpc"
+
+$Configuration
+{
+	$Linker
+	{
+		$IgnoreImportLibrary				"Yes"
+		$AdditionalDependencies				"$BASE vfw32.lib"
+	}
+}
+
+$Project "qvideo"
+{
+	$Folder	"Source Files"
+	{
+		$File	"avi.cpp"
+	}
+
+	$Folder	"Header Files"
+	{
+		$File	"avi.h"
+		$File	"$SRCDIR\public\pixelwriter.h"
+	}
+
+	$Folder	"Interface"
+	{
+		$File	"$SRCDIR\public\video\iavi.h"
+	}
+	
+	$Folder	"Link Libraries"
+	{
+		$Lib	"$LIBPUBLIC\tier2"
+		$Lib	"$LIBPUBLIC\tier3"
+	}
+}

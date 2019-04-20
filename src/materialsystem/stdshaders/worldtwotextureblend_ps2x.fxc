@@ -14,12 +14,12 @@
 // STATIC: "DETAIL_ALPHA_MASK_BASE_TEXTURE"	"0..1"
 // STATIC: "FLASHLIGHT"						"0..1"
 // STATIC: "SEAMLESS"						"0..1"
-// STATIC: "FLASHLIGHTDEPTHFILTERMODE"		"0..2"	[ps20b]
+// STATIC: "FLASHLIGHTDEPTHFILTERMODE"		"0..2"	[ps20b] [ps30]
 
 // DYNAMIC: "WRITEWATERFOGTODESTALPHA"		"0..1"
 // DYNAMIC: "PIXELFOGTYPE"					"0..1"
-// DYNAMIC: "WRITE_DEPTH_TO_DESTALPHA"		"0..1" [ps20b]
-// DYNAMIC: "FLASHLIGHTSHADOWS"				"0..1" [ps20b]
+// DYNAMIC: "WRITE_DEPTH_TO_DESTALPHA"		"0..1" [ps20b] [ps30]
+// DYNAMIC: "FLASHLIGHTSHADOWS"				"0..1" [ps20b] [ps30]
 
 //	SKIP: $DETAILTEXTURE && ( $BUMPMAP && !$DETAIL_ALPHA_MASK_BASE_TEXTURE )
 //  SKIP: !$BUMPMAP && $DIFFUSEBUMPMAP
@@ -29,7 +29,7 @@
 //  SKIP: FLASHLIGHT && ($BUMPMAP || $DIFFUSEBUMPMAP)
 
 // We don't care about flashlight depth unless the flashlight is on
-// SKIP: ( $FLASHLIGHT == 0 ) && ( $FLASHLIGHTSHADOWS == 1 )	[ps20b]
+// SKIP: ( $FLASHLIGHT == 0 ) && ( $FLASHLIGHTSHADOWS == 1 )	[ps20b] [ps30]
 
 #if defined( SHADER_MODEL_PS_2_0 )
 #	define WRITE_DEPTH_TO_DESTALPHA 0
@@ -166,7 +166,7 @@ float4 main( PS_INPUT i ) : COLOR
 
 		diffuseLighting = DoFlashlight( g_FlashlightPos, i.worldPos_projPosZ.xyz, flashlightSpacePosition,
 			worldSpaceNormal, g_FlashlightAttenuationFactors.xyz, 
-			g_FlashlightAttenuationFactors.w, FlashlightSampler, FlashlightSampler, NormalizeSampler,
+			g_FlashlightAttenuationFactors.w, FlashlightSampler, /*FlashlightSampler,*/ NormalizeSampler,
 			nShadowSampleLevel,	bDoShadows, false, float2(0, 0), false );
 	}
 	else

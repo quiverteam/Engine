@@ -8,7 +8,8 @@
 #include "mathlib/bumpvects.h"
 #include "cpp_shader_constant_register_map.h"
 
-#include "lightmappedgeneric_vs20.inc"
+#include "lightmappedgeneric_vs30.inc"
+
 #include "lightmappedgeneric_decal_vs20.inc"
 #include "lightmappedgeneric_decal_ps20.inc"
 #include "lightmappedgeneric_decal_ps20b.inc"
@@ -153,7 +154,7 @@ BEGIN_VS_SHADER( DecalBaseTimesLightmapAlphaBlendSelfIllum_DX9, "" )
 
 			pShaderShadow->VertexShaderVertexFormat( VERTEX_POSITION, 1, 0, 0 );
 
-			DECLARE_STATIC_VERTEX_SHADER( lightmappedgeneric_vs20 );
+			DECLARE_STATIC_VERTEX_SHADER( lightmappedgeneric_vs30 );
 			SET_STATIC_VERTEX_SHADER_COMBO( ENVMAP_MASK, false );
 			SET_STATIC_VERTEX_SHADER_COMBO( TANGENTSPACE, false );
 			SET_STATIC_VERTEX_SHADER_COMBO( BUMPMAP, false );
@@ -166,7 +167,7 @@ BEGIN_VS_SHADER( DecalBaseTimesLightmapAlphaBlendSelfIllum_DX9, "" )
 #ifdef _X360
 			SET_STATIC_VERTEX_SHADER_COMBO( FLASHLIGHT,  0 );
 #endif
-			SET_STATIC_VERTEX_SHADER( lightmappedgeneric_vs20 );
+			SET_STATIC_VERTEX_SHADER( lightmappedgeneric_vs30 );
 
 			if( g_pHardwareConfig->SupportsPixelShaders_2_b() )
 			{
@@ -185,11 +186,15 @@ BEGIN_VS_SHADER( DecalBaseTimesLightmapAlphaBlendSelfIllum_DX9, "" )
 		{
 			BindTexture( SHADER_SAMPLER0, SELFILLUMTEXTURE, SELFILLUMTEXTUREFRAME );
 
-			DECLARE_DYNAMIC_VERTEX_SHADER( lightmappedgeneric_vs20 );
+			ITexture *pCascadedDepthTexture = /*hasFlashlight ? NULL :*/ ( ITexture* )pShaderAPI->GetIntRenderingParameter( INT_CASCADED_DEPTHTEXTURE );
+			const int iCascadedShadowCombo = ( pCascadedDepthTexture != NULL ) ? 1 : 0;
+
+			DECLARE_DYNAMIC_VERTEX_SHADER( lightmappedgeneric_vs30 );
 			SET_DYNAMIC_VERTEX_SHADER_COMBO( FASTPATH, false );
 			SET_DYNAMIC_VERTEX_SHADER_COMBO( DOWATERFOG, pShaderAPI->GetSceneFogMode() == MATERIAL_FOG_LINEAR_BELOW_FOG_Z );
 			SET_DYNAMIC_VERTEX_SHADER_COMBO( LIGHTING_PREVIEW, false );
-			SET_DYNAMIC_VERTEX_SHADER( lightmappedgeneric_vs20 );
+			SET_DYNAMIC_VERTEX_SHADER_COMBO( CASCADED_SHADOW, iCascadedShadowCombo );
+			SET_DYNAMIC_VERTEX_SHADER( lightmappedgeneric_vs30 );
 
 			pShaderAPI->SetPixelShaderFogParams( PSREG_FOG_PARAMS );					
 

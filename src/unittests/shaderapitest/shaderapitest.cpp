@@ -27,7 +27,7 @@
 #include "tier1/lzmadecoder.h"
 #include "materialsystem/imesh.h"
 #include "materialsystem/shader_vcs_version.h"
-#include "../utils/bzip2/bzlib.h"
+#include "../thirdparty/bzip2/bzlib.h"
 
 
 class CShaderUtilTemp : public CBaseAppSystem< IShaderUtil >

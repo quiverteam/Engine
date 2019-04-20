@@ -1,0 +1,128 @@
+//-----------------------------------------------------------------------------
+//	DLL BASE FOR WIN64
+//
+//	Base Settings for all Source(TM) Projects
+//-----------------------------------------------------------------------------
+
+$Include "$SRCDIR\vpc_scripts\version.vpc"
+
+$MacroRequired				"SRCDIR"
+$MacroRequired				"OUTBINNAME"	"$PROJECTNAME"
+$MacroRequired				"OUTBINDIR"
+
+$Macro BINDEFAULT	"$SRCDIR\..\game\bin\$PLATSUBDIR"
+$Macro LIBPUBLIC	"$SRCDIR\lib\public\$PLATSUBDIR"
+$Macro LIBCOMMON	"$SRCDIR\lib\common\$PLATSUBDIR"
+
+$Include "$SRCDIR\vpc_scripts\loadaddress.vpc"
+
+// Win64 scripts
+$Include "$SRCDIR\vpc_scripts\win64\dll_base_debug.vpc"
+$Include "$SRCDIR\vpc_scripts\win64\dll_base_release.vpc"
+
+$Include "$SRCDIR\vpc_scripts\source_win_base.vpc"
+
+$IgnoreRedundancyWarning	"ON"
+
+// Common Configuration
+$Configuration
+{
+	$General
+	{
+		$TargetName	"$OUTBINNAME"
+	}
+	
+	$Compiler
+	{
+		$PreprocessorDefinitions			"$BASE;PLATFORM_64BITS;WIN64;_WIN64;COMPILER_MSVC64"	
+		$PreprocessorDefinitions			"$BASE;COMPILER_MSVC;_DLL_EXT=$_DLL_EXT"
+		$PreprocessorDefinitions			"$BASE;DLLNAME=$OUTBINNAME"		
+	}
+
+	$Compiler [$WIN32]
+	{
+		$EnableEnhancedInstructionSet	"Streaming SIMD Extensions (/arch:SSE)"
+	}
+	
+	$Linker
+	{
+		$AdditionalDependencies				"$BASE shell32.lib user32.lib advapi32.lib gdi32.lib comdlg32.lib ole32.lib" [$WIN64]
+		$TargetMachine						"MachineX64 (/MACHINE:X64)"
+		// Suppress this pointless warning using the undocumented /ignore linker switch
+		// schemalib.lib(schemaclassinfo.obj) : warning LNK4221: This object file does not define any previously undefined public symbols, so it will not be used by any link operation that consumes this library
+		$AdditionalOptions					"$BASE /ignore:4221"
+	}
+
+	$PreBuildEvent
+	{
+		$CommandLine		"if EXIST $QUOTE$OUTBINDIR\$(TargetFileName)$QUOTE for /f $QUOTEdelims=$QUOTE %%A in ('attrib $QUOTE$OUTBINDIR\$(TargetFileName)$QUOTE') do set valveTmpIsReadOnly=$QUOTE%%A$QUOTE" "\n" \
+							"set valveTmpIsReadOnlyLetter=%valveTmpIsReadOnly:~6,1%" "\n" \
+							"if $QUOTE%valveTmpIsReadOnlyLetter%$QUOTE==$QUOTER$QUOTE del /q $QUOTE$(TargetDir)$QUOTE$(TargetFileName)" "\n" \
+							"$CRCCHECK" "\n"
+	}
+
+	$PostBuildEvent [!$ANALYZE]
+	{
+		$CommandLine		"if not exist $QUOTE$OUTBINDIR$QUOTE mkdir $QUOTE$OUTBINDIR$QUOTE" "\n" 
+		$CommandLine		"$BASE" "call $SRCDIR\vpc_scripts\valve_p4_edit.cmd $QUOTE$OUTBINDIR\$(TargetFileName)$QUOTE $SRCDIR" "\n" [!$SOURCESDK]
+		$CommandLine		"$BASE" "copy $QUOTE$(TargetDir)$(TargetFileName)$QUOTE $QUOTE$OUTBINDIR\$(TargetFileName)$QUOTE" "\n" \
+							"if ERRORLEVEL 1 goto BuildEventFailed" "\n" \
+							"if exist $QUOTE$(TargetDir)$(TargetName).map$QUOTE copy $QUOTE$(TargetDir)$(TargetName).map$QUOTE $OUTBINDIR\$(TargetName).map" "\n" 
+		$CommandLine		"$BASE" "call $SRCDIR\vpc_scripts\valve_p4_edit.cmd $QUOTE$OUTBINDIR\$(TargetName).pdb$QUOTE $SRCDIR" "\n"  [!$SOURCESDK] 
+		$CommandLine		"$BASE" "copy $QUOTE$(TargetDir)$(TargetName).pdb$QUOTE $OUTBINDIR\$(TargetName).pdb" "\n" \
+							"if ERRORLEVEL 1 goto BuildEventFailed" "\n" \
+							"goto BuildEventOK" "\n" \
+							":BuildEventFailed" "\n" \
+							"echo *** ERROR! PostBuildStep FAILED for $(ProjectName)! EXE or DLL is probably running. ***" "\n" \
+							"del /q $QUOTE$(TargetDir)$(TargetFileName)$QUOTE" "\n" \
+							"exit 1" "\n" \
+							":BuildEventOK" "\n" 
+
+		$CommandLine		"$BASE" "\n" \
+							"call $SRCDIR\devtools\bin\vsign.bat -sign $OUTBINDIR\$(TargetFileName)" "\n" [$RETAIL && $PUBLISH]
+
+		$CommandLine		"$BASE" "\n" \
+							"call $SRCDIR\devtools\bin\vsign.bat -signvalve $OUTBINDIR\$(TargetFileName)" "\n" [!$RETAIL && !$PUBLISH && !$SOURCESDK]
+
+		$Description		"Publishing to $OUTBINDIR"
+		$ExcludedFromBuild					"No"
+	}
+}
+
+// Skeleton Project - All derived projects get this as a starting base
+$Project
+{
+	$Folder	"Source Files"
+	{
+		$File	"$SRCDIR\public\tier0\memoverride.cpp"
+		{
+			$Configuration
+			{
+				$Compiler
+				{
+					$Create/UsePrecompiledHeader	"Not Using Precompiled Headers"
+				}
+			}
+		}
+
+		$File	"$SRCDIR\common\debug_dll_check.cpp"	[!$SOURCESDK]	
+		{
+			$Configuration
+			{
+				$Compiler
+				{
+					$Create/UsePrecompiledHeader	"Not Using Precompiled Headers"
+				}
+			}
+		}
+	}
+
+	$Folder	"Link Libraries"
+	{
+		// DynamicFile allows us to build the solution without these needing to exist
+		$DynamicFile	"$LIBPUBLIC\tier0.lib" 
+		$DynamicFile	"$LIBPUBLIC\tier1.lib"
+		$DynamicFile	"$LIBPUBLIC\vstdlib.lib"
+	}
+}
+

@@ -19,7 +19,7 @@ $Configuration
 
 	$Linker
 	{
-		$AdditionalDependencies				"$BASE comctl32.lib winmm.lib Msimg32.lib %(AdditionalDependencies)"
+		$AdditionalDependencies				"$BASE comctl32.lib winmm.lib Msimg32.lib"
 		$EntryPoint							"mainCRTStartup"
 	}
 }
@@ -329,16 +329,16 @@ $Project "hlfaceposer"
 		$File	"$SRCDIR\public\protected_things.h"
 		$File	"$SRCDIR\public\vstdlib\random.h"
 //		$File	"$SRCDIR\Public\s3_intrf.h"
-		$File	"..\sapi51\Include\sapi.h"
-		$File	"..\sapi51\Include\sapiddk.h"
+		$File	"$SRCDIR\thirdparty\sapi51\Include\sapi.h"
+		$File	"$SRCDIR\thirdparty\sapi51\Include\sapiddk.h"
 		$File	"..\common\scriplib.h"
 		$File	"$SRCDIR\game\shared\sharedInterface.h"
 		$File	"$SRCDIR\public\soundchars.h"
 		$File	"$SRCDIR\Public\soundflags.h"
-		$File	"..\sapi51\Include\Spddkhlp.h"
-		$File	"..\sapi51\Include\spdebug.h"
-		$File	"..\sapi51\Include\sperror.h"
-		$File	"..\sapi51\Include\sphelper.h"
+		$File	"$SRCDIR\thirdparty\sapi51\Include\Spddkhlp.h"
+		$File	"$SRCDIR\thirdparty\sapi51\Include\spdebug.h"
+		$File	"$SRCDIR\thirdparty\sapi51\Include\sperror.h"
+		$File	"$SRCDIR\thirdparty\sapi51\Include\sphelper.h"
 		$File	"$SRCDIR\Public\string_t.h"
 		$File	"$SRCDIR\public\tier1\strtools.h"
 		$File	"$SRCDIR\Public\studio.h"

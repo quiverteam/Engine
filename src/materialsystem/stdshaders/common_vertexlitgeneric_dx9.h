@@ -39,12 +39,8 @@ struct PixelShaderLightInfo
 float3 PixelShaderAmbientLight( const float3 worldNormal, const float3 cAmbientCube[6] )
 {
 	float3 linearColor, nSquared = worldNormal * worldNormal;
-	float3 isNegative = ( worldNormal < 0.0 );
-	float3 isPositive = 1-isNegative;
-
-	isNegative *= nSquared;
-	isPositive *= nSquared;
-
+	float3 isNegative = ( worldNormal >= 0.0 ) ? 0 : nSquared;
+	float3 isPositive = ( worldNormal >= 0.0 ) ? nSquared : 0;
 	linearColor = isPositive.x * cAmbientCube[0] + isNegative.x * cAmbientCube[1] +
 				  isPositive.y * cAmbientCube[2] + isNegative.y * cAmbientCube[3] +
 				  isPositive.z * cAmbientCube[4] + isNegative.z * cAmbientCube[5];
@@ -67,17 +63,9 @@ float3 VertexShaderAmbientLight( const float3 worldNormal, const float3 cAmbient
 
 float3 AmbientLight( const float3 worldNormal, const float3 cAmbientCube[6] )
 {
-	// Vertex shader cases
-#ifdef SHADER_MODEL_VS_1_0
-	return VertexShaderAmbientLight( worldNormal, cAmbientCube );
-#elif SHADER_MODEL_VS_1_1
-	return VertexShaderAmbientLight( worldNormal, cAmbientCube );
-#elif SHADER_MODEL_VS_2_0
-	return VertexShaderAmbientLight( worldNormal, cAmbientCube );
-#elif SHADER_MODEL_VS_3_0
+#if defined( SHADER_MODEL_VS_2_0 ) || defined( SHADER_MODEL_VS_3_0 )
 	return VertexShaderAmbientLight( worldNormal, cAmbientCube );
 #else
-	// Pixel shader case
 	return PixelShaderAmbientLight( worldNormal, cAmbientCube );
 #endif
 }
@@ -407,23 +395,7 @@ float3 PixelShaderDoLighting( const float3 worldPos, const float3 worldNormal,
 				   const bool bDoAmbientOcclusion, const float fAmbientOcclusion,
 				   const bool bDoLightingWarp, in sampler lightWarpSampler )
 {
-	float3 returnColor;
-
-	// special case for no lighting
-	if( !bStaticLight && !bAmbientLight )
-	{
-		returnColor = float3( 0.0f, 0.0f, 0.0f );
-	}
-	else if( bStaticLight && !bAmbientLight  )
-	{
-		// special case for static lighting only
-		returnColor = GammaToLinear( staticLightingColor );
-	}
-	else
-	{
-		float3 linearColor;
-
-		linearColor = PixelShaderDoLightingLinear( worldPos, worldNormal, staticLightingColor, 
+	float3 linearColor = PixelShaderDoLightingLinear( worldPos, worldNormal, staticLightingColor, 
 			bStaticLight, bAmbientLight, lightAtten,
 			cAmbientCube, NormalizeSampler, nNumLights, cLightInfo, bHalfLambert,
 			bDoAmbientOcclusion, fAmbientOcclusion,
@@ -431,11 +403,9 @@ float3 PixelShaderDoLighting( const float3 worldPos, const float3 worldNormal,
 
 		// go ahead and clamp to the linear space equivalent of overbright 2 so that we match
 		// everything else.
-//		returnColor = HuePreservingColorClamp( linearColor, pow( 2.0f, 2.2 ) );
-		returnColor = linearColor;
-	}
+//		linearColor = HuePreservingColorClamp( linearColor, pow( 2.0f, 2.2 ) );
 
-	return returnColor;
+	return linearColor;
 }
 
 #endif //#ifndef COMMON_VERTEXLITGENERIC_DX9_H_

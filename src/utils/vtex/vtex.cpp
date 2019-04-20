@@ -2215,13 +2215,15 @@ static bool LoadConfigFile( const char *pFileBaseName, VTexConfigInfo_t &info, b
 void Usage( void )
 {
 	VTexError( 
-		"Usage: vtex [-outputdir dir] [-quiet] [-nopause] [-mkdir] [-shader ShaderName] [-vmtparam Param Value] tex1.txt tex2.txt . . .\n"
+		"Usage: vtex [-outdir dir] [-quiet] [-nopause] [-mkdir] [-shader ShaderName] [-vmtparam Param Value] tex1.txt tex2.txt . . .\n"
 		"-quiet            : don't print anything out, don't pause for input\n"
 		"-warningsaserrors : treat warnings as errors\n"
 		"-nopause          : don't pause for input\n"
 		"-nomkdir          : don't create destination folder if it doesn't exist\n"
 		"-vmtparam         : adds parameter and value to the .vmt file\n"
-		"-outputdir <dir>  : write output to the specified dir regardless of source filename and vproject\n"
+		"-deducepath       : Automatically get the path from input file directory?\n"
+		"-outdir <dir>  : write output to the specified dir regardless of source filename and vproject\n"
+		//"-outputdir <dir>  : write output to the specified dir regardless of source filename and vproject\n"
 		"-deducepath       : deduce path of sources by target file names\n"
 		"-quickconvert     : use with \"-nop4 -dontusegamedir -quickconvert\" to upgrade old .vmt files\n"
 		"-crcvalidate      : validate .vmt against the sources\n"

@@ -19,7 +19,7 @@
 #include "c_basehlplayer.h"
 #endif // HL2_CLIENT_DLL
 
-extern ConVar r_flashlightdepthres;
+extern ConVar r_shadowmapresolution;
 
 // memdbgon must be the last include file in a .cpp file!!!
 #include "tier0/memdbgon.h"
@@ -341,7 +341,7 @@ void CFlashlightEffect::UpdateLightNew(const Vector &vecPos, const Vector &vecFo
 	state.m_FarZ = r_flashlightfar.GetFloat();
 	//state.m_bEnableShadows = r_flashlightdepthtexture.GetBool();
 	state.m_bEnableShadows = true;
-	state.m_flShadowMapResolution = r_flashlightdepthres.GetInt();
+	state.m_flShadowMapResolution = r_shadowmapresolution.GetInt();
 
 	state.m_flShadowFilterSize = r_flashlight_filtersize.GetFloat();
 

@@ -12,7 +12,6 @@
 #include "iprediction.h"
 #include "eax.h"
 #include "tier0/icommandline.h"
-#include "avi/ibik.h"
 #include "../../sys_dll.h"
 
 // memdbgon must be the last include file in a .cpp file!!!
@@ -152,12 +151,6 @@ bool CAudioDirectSound::Init( void )
 
 	if ( SNDDMA_InitDirect() == SIS_SUCCESS)
 	{
-		// Tells Bink to use DirectSound for its audio decoding
-		if ( bik->SetDirectSoundDevice( pDS ) == 0 )
-		{
-			Assert( 0 );
-		}
-		
 		return true;
 	}
 

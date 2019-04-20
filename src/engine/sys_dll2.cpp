@@ -35,8 +35,7 @@
 #include "sys_dll.h"
 #include "materialsystem/materialsystem_config.h"
 #include "server.h"
-#include "avi/iavi.h"
-#include "avi/ibik.h"
+#include "video/iavi.h"
 #include "datacache/idatacache.h"
 #include "vphysics_interface.h"
 #include "inputsystem/iinputsystem.h"
@@ -81,7 +80,6 @@ extern CreateInterfaceFn g_AppSystemFactory;
 IHammer *g_pHammer = NULL;
 IPhysics *g_pPhysics = NULL;
 IAvi *avi = NULL;
-IBik *bik = NULL;
 #ifndef SWDS
 extern CreateInterfaceFn g_ClientFactory;
 #endif
@@ -473,10 +471,6 @@ bool CEngineAPI::Connect( CreateInterfaceFn factory )
 		if ( !avi )
 			return false;
 	}
-
-	bik = (IBik*)factory( BIK_INTERFACE_VERSION, NULL );
-	if ( !bik )
-		return false;
 	
 	if ( !g_pStudioRender || !g_pDataCache || !g_pPhysics || !g_pMDLCache || !g_pMatSystemSurface || !g_pInputSystem )
 	{
@@ -555,7 +549,7 @@ InitReturnVal_t CEngineAPI::Init()
 	m_bRunningSimulation = false;
 
 	// Initialize the FPU control word
-#if !defined( SWDS ) && !defined( _X360 )
+#if !defined( SWDS )
 	_asm
 	{
 		fninit
@@ -686,25 +680,13 @@ void CEngineAPI::PumpMessages()
 	// Get input from attached devices
 	g_pInputSystem->PollInputState();
 
-	if ( IsX360() )
-	{
-		// handle Xbox system messages
-		XBX_ProcessEvents();
-	}
-
 	// NOTE: Under some implementations of Win9x, 
 	// dispatching messages can cause the FPU control word to change
-	if ( IsPC() )
-	{
-		SetupFPUControlWord();
-	}
+	SetupFPUControlWord();
 
 	game->DispatchAllStoredGameMessages();
 
-	if ( IsPC() )
-	{
-		EatTextModeKeyPresses();
-	}
+	EatTextModeKeyPresses();
 }
 
 //-----------------------------------------------------------------------------

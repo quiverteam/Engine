@@ -12,7 +12,7 @@
 
 #include "datamodel/dmelement.h"
 #include "datamodel/dmehandle.h"
-#include "avi/iavi.h"
+#include "video/iavi.h"
 #include "materialsystem/materialsystemutil.h"
 #include "tier1/utlmap.h"
 #include "movieobjects/timeutils.h"

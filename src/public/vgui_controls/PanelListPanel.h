@@ -77,6 +77,11 @@ public:
 	void		SetVerticalBufferPixels( int buffer );
 
 	void		ScrollToItem( int itemNumber );
+	
+	// scrollbar
+	//void		SetShowScrollBar( bool bShow );
+	//bool		GetShowScrollbar() { return m_bShowScrollBar; }
+	ScrollBar	*GetScrollBar() { return m_vbar; }
 
 	CUtlVector< int > *GetSortedVector( void )
 	{

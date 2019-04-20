@@ -49,7 +49,7 @@
 #include "tier0/vcrmode.h"
 #include "SteamInterface.h"
 #include "sys_dll.h"
-#include "avi/iavi.h"
+#include "video/iavi.h"
 #include "cl_steamauth.h"
 #include "filesystem/IQueuedLoader.h"
 #include "tier2/tier2.h"

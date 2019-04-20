@@ -9,7 +9,6 @@
 #include "datamodel.h"
 #include "dependencygraph.h"
 #include "dmattributeinternal.h"
-#include "dmserializerxml.h"
 #include "dmserializerkeyvalues.h"
 #include "dmserializerkeyvalues2.h"
 #include "dmserializerbinary.h"
@@ -138,7 +137,6 @@ InitReturnVal_t CDataModel::Init( )
 	if ( nRetVal != INIT_OK )
 		return nRetVal;
 
-	InstallXMLSerializer( this );
 	InstallKeyValuesSerializer( this );
 	InstallKeyValues2Serializer( this );
 	InstallBinarySerializer( this );

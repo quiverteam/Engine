@@ -13,6 +13,7 @@ $Linux
 {
 	$BuildForLinux 1
 }
+
 $Configuration
 {
 	$Compiler
@@ -32,6 +33,17 @@ $Project "shaderapiempty"
 	$Folder	"Source Files"
 	{
 		$File	"ShaderAPIEmpty.cpp"
+		$File	"ShaderAPIEmpty.h"
+		$File	"Mesh.h"
+		$File	"Mesh.cpp"
+		$File	"DeviceManager.h"
+		$File	"DeviceManager.cpp"
+		$File	"ShaderDevice.h"
+		$File	"ShaderDevice.cpp"
+		$File	"ShaderShadow.h"
+		$File	"ShaderShadow.cpp"
+		$File	"ShaderAPI.h"
+		$File	"ShaderAPI.cpp"
 	}
 
 	$Folder	"Header Files"

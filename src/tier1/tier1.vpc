@@ -87,9 +87,9 @@ $Project "tier1"
 	// Encoding support requires the full lzma project
 	$Folder "LZMA Decompression Support"
 	{
-		$File	"$SRCDIR\utils\lzma\C\LzmaDec.h"
-		$File	"$SRCDIR\utils\lzma\C\LzmaDec.c"
-		$File	"$SRCDIR\utils\lzma\CPP\Common\MyTypes.h"
+		$File	"$SRCDIR\thirdparty\lzma\C\LzmaDec.h"
+		$File	"$SRCDIR\thirdparty\lzma\C\LzmaDec.c"
+		$File	"$SRCDIR\thirdparty\lzma\CPP\Common\MyTypes.h"
 	}
 
 	$Folder	"Header Files"
