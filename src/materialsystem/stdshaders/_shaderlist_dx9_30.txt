@@ -28,7 +28,7 @@ morphaccumulate_ps30.fxc
 morphweight_vs30.fxc
 morphweight_ps30.fxc
 skin_vs20.fxc
-skin_ps20b.fxc
+//skin_ps20b.fxc
 teeth_vs20.fxc
 teeth_ps2x.fxc
 teeth_bump_vs20.fxc
@@ -59,7 +59,6 @@ worldtwotextureblend_ps2x.fxc
 
 
 //volume_clouds_ps2x.fxc
-//Water_ps2x.fxc
 
 // -----------------------------------------------------------------------------------------
 //
@@ -72,9 +71,14 @@ aftershock_vs20.fxc
 core_ps2x.fxc
 core_vs20.fxc
 
+portal_refract_ps2x.fxc
+
+Refract_ps2x.fxc
+
 // -----------------------------------------------------------------------------------------
 //
 // ASW Shaders
 //
 // -----------------------------------------------------------------------------------------
 blurgaussian_3x3_ps30.fxc
+

@@ -1,7 +1,7 @@
 @echo off
 
 @REM -gameui for client gameui
-set cmdLine=-novid -dev -console +volume 0.25 +bind F5 screenshot +bind F12 screenshot -sw -w 1905 -h 1000 -game hl2r
+set cmdLine=-novid -dev -console +volume 0.25 +bind F5 screenshot +bind F12 screenshot -sw -w 1920 -h 1080 -noborder -game hl2r
 
 start "" bin\win32\quiver.exe %cmdLine%
 echo bin\win32\quiver.exe %cmdLine%
