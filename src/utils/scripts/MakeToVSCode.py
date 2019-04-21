@@ -3,18 +3,45 @@
 # Makefile parser for vscode
 #
 #
-import os, io, json, sys, pathlib
+import os, io, json, sys, pathlib, glob
+from copy import deepcopy
 
 
+Configurations = {
+	"configurations": [
+		{
+			"name": "Debug",
+			"includePath": [
+				
+			],
+			"defines": [
+				
+			],
+			"compilerPath": "/usr/bin/gcc",
+			"cStandard": "c11",
+			"cppStandard": "c++11",
+			"intelliSenseMode": "gcc-x64",
+		}
+	],
+	"version": 4
+}
 
-	
+Workspace = {
+	"folders": [
+	]
+}
 
 #
 # Converts the specified makefile in str in the dir to a vscode boi
+# This is pretty dumb actually. There are no makefile parsers for python unfortunately
 #
 def ConvertFile(file: str, dir: str):
 	defines = None
 	includes = None
+	
+	#
+	# Read makefile
+	#
 	print("Reading...")
 	with io.open(file, "r") as stream:
 		line = stream.readline()
@@ -28,77 +55,50 @@ def ConvertFile(file: str, dir: str):
 				line = line.replace("+=", "")
 				includes = line.split(None)
 			line = stream.readline()
+	
+	#
+	# Create the linter config
 	# Now create vscode dir inside the specified dir
 	if not pathlib.Path(dir + "/.vscode/").exists():
 		os.mkdir(dir + "/.vscode/")
 	dir += "/.vscode/"
 	# Create json doc
 
-	doc = '{\n"configurations": [\n'
-	doc += '{\n'
-	doc += '"name": "Debug",\n'
-	doc += '"includePath": [\n'
+	doc = deepcopy(Configurations)
 	
 	if includes == None:
 		includes = []
 
 	for include in includes:
-		#include.replace('../', '')
-		doc += '"' + include + '",\n'
-	
-	# Stupid commas fuck json
-	if len(includes) > 1:
-		doc += '"' + includes[0] + '"\n'
-	
-	doc += '\n],\n"defines":['
-
-	
+		doc["configurations"][0]["includePath"].append(str(include))
 
 	if defines == None:
 		defines = []
 
-	defines += ["VPROF_LEVEL", "GNUC", "NO_HOOK_MALLOC", "NO_MALLOC_OVERRIDE"]
+	doc["configurations"][0]["defines"].append("VPROF_LEVEL")# "GNUC", "NO_HOOK_MALLOC", "NO_MALLOC_OVERRIDE")
 	
 	for define in defines:
-		doc += '"' + define + '",\n'
-
-	# Stupid commas fuck json
-	if len(defines) > 1:
-		doc += '"' + defines[0] + '"\n'
-
-	doc += '],\n'
-	doc += '"compilerPath": "/usr/bin/gcc",\n'
-	doc += '"cStandard": "c11",\n'
-	doc += '"cppStandard": "c++11",\n'
-	doc += '"intelliSenseMode": "gcc-x64"\n'
-	doc += '}\n'
-	doc += '],\n'
-	doc += '"version": 4\n'
-	doc += '}\n'
+		doc["configurations"][0]["defines"].append(str(define))
 
 	print("Writing Linter Config...")
 	with io.open(dir + "c_cpp_properties.json", "w+") as stream:
-		for c in doc:
-			stream.write(c)
+		json.dump(doc, stream, indent=4)
 
+	#
+	# Create workspace for vscode
+	#
 	filename = os.path.basename(file)
-	workspace = str(pathlib.Path(dir + "/../" + filename + ".code-workspace").resolve())
+	path = pathlib.Path(dir + "/../" + filename).with_suffix('.code-workspace').resolve()
+	workspace = str(path)
 	print("Writing Workspace file: " + workspace)
 
-	doc = ""
-	doc += '{\n"folders":[\n'
-	for include in includes:
-		doc += '{\n'
-		doc += '"path": "' + include + '"'
-		doc += '},\n'
+	doc = deepcopy(Workspace)
 	
-	doc += '{\n"path": "."\n}\n'
-	doc += '],\n"settings": {}\n'
-	doc += '}\n'
+	for include in includes:
+		doc["folders"].append({"path": str(include)})
 
 	with io.open(workspace, "w+") as stream:
-		for c in doc:
-			stream.write(c)
+		json.dump(doc, stream, indent=4)
 	
 	print("Done!")
 
@@ -145,15 +145,24 @@ def main():
 		print("========= Help =========")
 		print('-h --help		Prints this help')
 		print('-p <path>		Base directory')
+		print('-c 				Cleans all workspace definitions')
 	
 	path = False
 	apath = ''
 	for param in sys.argv:
 		if path == True:
 			apath = param
+			path = False	
 
 		if param == '-p':
 			path = True
+			
+		if param == '-c':
+			print("Cleaning")
+			gl = glob.glob('./*/*.code-workspace', recursive=True)
+			for f in gl:
+				print("Removing " + str(f) + ".")
+				os.remove(f)
 
 	if apath != '':
 		ConvertDir(apath)
