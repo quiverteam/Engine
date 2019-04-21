@@ -35,7 +35,7 @@ Workspace = {
 # Converts the specified makefile in str in the dir to a vscode boi
 # This is pretty dumb actually. There are no makefile parsers for python unfortunately
 #
-def ConvertFile(file: str, dir: str):
+def ConvertFile(file: str, dir: str, root: str):
 	defines = None
 	includes = None
 	
@@ -88,6 +88,7 @@ def ConvertFile(file: str, dir: str):
 	# Create workspace for vscode
 	#
 	filename = os.path.basename(file)
+	dirpath = pathlib.Path(dir + "/../").resolve()
 	path = pathlib.Path(dir + "/../" + filename).with_suffix('.code-workspace').resolve()
 	workspace = str(path)
 	print("Writing Workspace file: " + workspace)
@@ -96,6 +97,9 @@ def ConvertFile(file: str, dir: str):
 	
 	for include in includes:
 		doc["folders"].append({"path": str(include)})
+		
+	doc["folders"].append({"path": str(dirpath)})
+	doc["folders"].append({"name": "Source-Root", "path": str(root)})
 
 	with io.open(workspace, "w+") as stream:
 		json.dump(doc, stream, indent=4)
@@ -107,15 +111,15 @@ def ConvertFile(file: str, dir: str):
 			
 
 
-def ConvertDir(dir: str):
+def ConvertDir(dir: str, root: str):
 	print("========= Scanning " + str(pathlib.Path(dir).resolve()) + " =========")
 	for d in os.listdir(dir):
 		if str(d).endswith(".mak"):
 			print("Found makefile: " + str(d))
 			print("Converting...")
-			ConvertFile(dir + "/" + d, str(pathlib.Path(dir).resolve()))
+			ConvertFile(dir + "/" + d, str(pathlib.Path(dir).resolve()), str(pathlib.Path(root).resolve()))
 		if os.path.isdir(dir + "/" + d):
-			ConvertDir(dir + "/" + d)
+			ConvertDir(dir + "/" + d, root)
 
 def ParseMacros(macros: list) -> list:
 	ret = list()
@@ -149,10 +153,12 @@ def main():
 	
 	path = False
 	apath = ''
+	aroot = ''
+	root = False
 	for param in sys.argv:
 		if path == True:
 			apath = param
-			path = False	
+			path = False
 
 		if param == '-p':
 			path = True
@@ -165,5 +171,5 @@ def main():
 				os.remove(f)
 
 	if apath != '':
-		ConvertDir(apath)
+		ConvertDir(apath, apath)
 main()
