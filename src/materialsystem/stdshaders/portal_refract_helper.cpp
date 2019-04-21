@@ -6,8 +6,7 @@
 
 // Auto generated inc files
 #include "portal_refract_vs20.inc"
-#include "portal_refract_ps20.inc"
-#include "portal_refract_ps20b.inc"
+#include "portal_refract_ps30.inc"
 
 void InitParamsPortalRefract( CBaseVSShader *pShader, IMaterialVar** params, const char *pMaterialName, PortalRefractVars_t &info )
 {
@@ -72,18 +71,9 @@ void DrawPortalRefract( CBaseVSShader *pShader, IMaterialVar** params,
 		SET_STATIC_VERTEX_SHADER( portal_refract_vs20 );
 
 		// Pixel Shader
-		if( g_pHardwareConfig->SupportsPixelShaders_2_b() )
-		{
-			DECLARE_STATIC_PIXEL_SHADER( portal_refract_ps20b );
-			SET_STATIC_PIXEL_SHADER_COMBO( STAGE, nStage );
-			SET_STATIC_PIXEL_SHADER( portal_refract_ps20b );
-		}
-		else
-		{
-			DECLARE_STATIC_PIXEL_SHADER( portal_refract_ps20 );
-			SET_STATIC_PIXEL_SHADER_COMBO( STAGE, nStage );
-			SET_STATIC_PIXEL_SHADER( portal_refract_ps20 );
-		}
+		DECLARE_STATIC_PIXEL_SHADER( portal_refract_ps30 );
+		SET_STATIC_PIXEL_SHADER_COMBO( STAGE, nStage );
+		SET_STATIC_PIXEL_SHADER( portal_refract_ps30 );
 
 		// Textures
 		pShaderShadow->EnableTexture( SHADER_SAMPLER0, true ); // Refraction texture
@@ -131,17 +121,9 @@ void DrawPortalRefract( CBaseVSShader *pShader, IMaterialVar** params,
 		pShaderAPI->SetVertexShaderConstant( VERTEX_SHADER_SHADER_SPECIFIC_CONST_0, vPackedVsConst1, 1 );
 
 		// Set Pixel Shader Combos
-		if( g_pHardwareConfig->SupportsPixelShaders_2_b() )
-		{
-			DECLARE_DYNAMIC_PIXEL_SHADER( portal_refract_ps20b );
-			SET_DYNAMIC_PIXEL_SHADER_COMBO( PIXELFOGTYPE, pShaderAPI->GetPixelFogCombo() );
-			SET_DYNAMIC_PIXEL_SHADER( portal_refract_ps20b );
-		}
-		else
-		{
-			DECLARE_DYNAMIC_PIXEL_SHADER( portal_refract_ps20 );
-			SET_DYNAMIC_PIXEL_SHADER( portal_refract_ps20 );
-		}
+		DECLARE_DYNAMIC_PIXEL_SHADER( portal_refract_ps30 );
+		SET_DYNAMIC_PIXEL_SHADER_COMBO( PIXELFOGTYPE, pShaderAPI->GetPixelFogCombo() );
+		SET_DYNAMIC_PIXEL_SHADER( portal_refract_ps30 );
 
 		// Bind textures
 		if ( nStage == 0 ) // Only bind frame buffer texture for first stage

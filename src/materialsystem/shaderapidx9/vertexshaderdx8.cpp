@@ -28,7 +28,7 @@
 #include "filesystem.h"
 #include "convar.h"
 #include "materialsystem/shader_vcs_version.h"
-#include "../utils/bzip2/bzlib.h"
+#include "../thirdparty/bzip2/bzlib.h"
 #include "tier1/lzmadecoder.h"
 #include "tier1/utlmap.h"
 

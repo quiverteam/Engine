@@ -37,3 +37,14 @@ $Configuration "Release"
 //		$PreprocessorDefinitions		"$BASE;_RETAIL"		[$RETAIL]
 	}
 }
+
+// Base definitions
+$Configuration
+{
+	$Compiler
+	{
+		$PreprocessorDefinitions		"$BASE;_X64_;_x64_;PLATFORM_64BITS;_x86_64_;_X86_64_"	[$WIN64 || $POSIX64 || $OSX64]
+		$PreprocessorDefinitions		"$BASE;_x86_;_X86_;PLATFORM_32BITS;_I386_;_I386"		[$WIN32 || $POSIX32 || $OSX32]
+	}
+}
+	

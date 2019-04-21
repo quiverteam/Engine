@@ -14,9 +14,9 @@
 #include "tier0/basetypes.h"
 #include "tier0/dbg.h"
 
-#include "../utils/lzma/C/7zTypes.h"
-#include "../utils/lzma/C/LzmaEnc.h"
-#include "../utils/lzma/C/LzmaDec.h"
+#include "../thirdparty/lzma/C/7zTypes.h"
+#include "../thirdparty/lzma/C/LzmaEnc.h"
+#include "../thirdparty/lzma/C/LzmaDec.h"
 
 // Ugly define to let us forward declare the anonymous-struct-typedef that is CLzmaDec in the header.
 #define CLzmaDec_t CLzmaDec

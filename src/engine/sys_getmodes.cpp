@@ -36,7 +36,7 @@
 #include "sys_dll.h"
 #include "materialsystem/imaterial.h"
 #include "IHammer.h"
-#include "avi/iavi.h"
+#include "video/iavi.h"
 #include "tier2/tier2.h"
 #include "tier2/renderutils.h"
 

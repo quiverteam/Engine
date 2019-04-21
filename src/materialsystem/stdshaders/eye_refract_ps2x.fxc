@@ -49,7 +49,6 @@ sampler g_tLightwarpSampler				: register( s4 ); // 1D texture for TF NPR lighti
 
 sampler g_tFlashlightCookieSampler		: register( s5 );
 sampler g_tFlashlightDepthSampler		: register( s6 );
-sampler g_tRandomRotationSampler		: register( s7 );
 
 // Shaders Constants and Globals ==================================================================
 const float4 g_vPackedConst0			: register( c0 );
@@ -313,7 +312,7 @@ float4 main( PS_INPUT i ) : COLOR
 		// Shadow depth map
 #if FLASHLIGHTSHADOWS && !defined( SHADER_MODEL_PS_2_0 )
 		int nShadowLevel = FLASHLIGHTDEPTHFILTERMODE;
-		float flShadow = DoFlashlightShadow( g_tFlashlightDepthSampler, g_tRandomRotationSampler, vProjCoords, float2(0,0), nShadowLevel, g_vShadowTweaks, false );
+		float flShadow = DoFlashlightShadow( g_tFlashlightDepthSampler, vProjCoords, float2(0,0), nShadowLevel, g_vShadowTweaks, false );
 		float flAttenuated = lerp( flShadow, 1.0f, g_vShadowTweaks.y );		// Blend between fully attenuated and not attenuated
 		flShadow = lerp( flAttenuated, flShadow, flFlashlightAttenuation ); // Blend between shadow and above, according to light attenuation
 		cFlashlightCookieColor *= flShadow; // Apply shadow term to cookie color

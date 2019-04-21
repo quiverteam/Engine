@@ -903,7 +903,7 @@ inline bool MatricesAreEqual( const VMatrix &src1, const VMatrix &src2, float fl
 	{
 		for ( int j = 0; j < 3; ++j )
 		{
-			if ( fabs( src1[i][j] - src2[i][j] ) > flTolerance )
+			if ( fabsf( src1[i][j] - src2[i][j] ) > flTolerance )
 				return false;
 		}
 	}

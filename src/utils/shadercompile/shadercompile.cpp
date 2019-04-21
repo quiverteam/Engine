@@ -1831,7 +1831,6 @@ void Worker_ProcessCommandRange_Singleton::Startup( void )
 		if ( m_MT.pThreadPool )
 		{
 			m_MT.tpsp.bIOThreads = false;
-			//m_MT.tpsp.nThreads = 0; // so we are just forcing it to 0 instead of checking the cpu thread count? cool.
 			m_MT.tpsp.nThreads = cpu.m_nLogicalProcessors - 1;
 
 			if ( m_MT.pThreadPool->Start( m_MT.tpsp ) )
@@ -2455,10 +2454,10 @@ int ShaderCompile_Main( int argc, char* argv[] )
 	// This needs to get called before VMPI is setup because in SDK mode, VMPI will change the args around.
 	SetupExeDir( argc, argv );
 
-	g_bIsX360 = CommandLine()->FindParm( "-x360" ) != 0;
+	g_bIsX360 = false; //CommandLine()->FindParm( "-x360" ) != 0;
 	// g_bSuppressWarnings = g_bIsX360;
 
-	bool bShouldUseVMPI = ( CommandLine()->FindParm( "-nompi" ) == 0 );
+	bool bShouldUseVMPI = !( CommandLine()->FindParm( "-mpi" ) == 0 );
 	if ( bShouldUseVMPI )
 	{	
 		// Master, start accepting connections.

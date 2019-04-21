@@ -1198,7 +1198,6 @@ $Project "engine"
 		$Lib	"$LIBPUBLIC\steam_api"
 		
 		$Lib	"$LIBCOMMON\bzip2"
-		$Lib	"$LIBCOMMON\binkw32"
 		$Lib	"$LIBCOMMON\jpeglib"
 		
 		// TODO: remove this

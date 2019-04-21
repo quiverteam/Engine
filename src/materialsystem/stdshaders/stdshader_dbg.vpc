@@ -53,7 +53,7 @@ $Project "stdshader_dbg"
 		$File	"debugnormalmap.cpp"
 		$File	"debugtangentspace.cpp"
 		$File	"fillrate.cpp"
-		$File	"fillrate_dx6.cpp"
+		//$File	"fillrate_dx6.cpp"
 
 // Well, VAC2 is out... we don't have access to it though
 //		$Folder	"Remove me when VAC2 is out" [$WIN32]
@@ -80,7 +80,13 @@ $Project "stdshader_dbg"
 	$File	"$SRCDIR\devtools\bin\fxc_prep.pl"
 	$File	"$SRCDIR\devtools\bin\updateshaders.pl"
 
-	$Shaders	"stdshader_dx9_20b.txt"
-	$Shaders	"stdshader_dx9_30.txt"
-	//$Shaders	"stdshader_dx10.txt" // none yet
+	$File	"_buildallshaders.bat"
+	$File	"_buildshaders.bat"
+
+	$Shaders	"_shaderlist_dx9_20b.txt"
+	$Shaders	"_shaderlist_dx9_30.txt"
+	//$Shaders	"_shaderlist_dx10.txt" // none yet
+	
+	//$Shaders	"stdshader_flashlight_dx9_20b.txt"
+	$Shaders	"_shaderlist_flashlight_dx9_30.txt"
 }

@@ -8,7 +8,7 @@
 
 #define PROTECTED_THINGS_DISABLE
 
-#if !defined( _X360 ) && defined( WIN32 )
+#if defined(_WIN32)
 #include "winlite.h"
 #include <shellapi.h>
 #elif defined( POSIX )

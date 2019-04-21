@@ -60,7 +60,7 @@
 #include "steam/steam_api.h"
 //#include "protocol.h"
 #include "game/server/iplayerinfo.h"
-#include "avi/iavi.h"
+#include "video/iavi.h"
 
 #include "basemodpanel.h"
 #include "basemodui.h"

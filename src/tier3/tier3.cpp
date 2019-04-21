@@ -17,8 +17,7 @@
 #include "VGuiMatSurface/IMatSystemSurface.h"
 #include "datacache/idatacache.h"
 #include "datacache/imdlcache.h"
-#include "avi/iavi.h"
-#include "avi/ibik.h"
+#include "video/iavi.h"
 #include "movieobjects/idmemakefileutils.h"
 #include "vphysics_interface.h"
 #include "SoundEmitterSystem/isoundemittersystembase.h"
@@ -112,10 +111,6 @@ void ConnectTier3Libraries( CreateInterfaceFn *pFactoryList, int nFactoryCount )
 		{
 			g_pAVI = (IAvi *)pFactoryList[i](AVI_INTERFACE_VERSION, NULL );
 		}
-		if ( !g_pBIK )
-		{
-			g_pBIK = (IBik *)pFactoryList[i](BIK_INTERFACE_VERSION, NULL );
-		}
 		if ( !g_pDmeMakefileUtils )
 		{
 			g_pDmeMakefileUtils = (IDmeMakefileUtils*)pFactoryList[i]( DMEMAKEFILE_UTILS_INTERFACE_VERSION, NULL );
@@ -147,7 +142,6 @@ void DisconnectTier3Libraries()
 	g_pMDLCache = 0;
 	mdlcache = 0;
 	g_pAVI = 0;
-	g_pBIK = 0;
 	g_pPhysicsCollision = 0;
 	g_pDmeMakefileUtils = NULL;
 	g_pSoundEmitterSystem = 0;

@@ -8,12 +8,13 @@ $Macro SRCDIR		"..\.."
 $Macro GAMENAME 	"hl2r"
 
 $Include "$SRCDIR\game\client\client_base.vpc"
+//$Include "$SRCDIR\game\client\client_editor.vpc"
 
 $Configuration
 {
 	$Compiler
 	{
-		$AdditionalIncludeDirectories	".\hl2;.\hl2\elements;$SRCDIR\game\shared\hl2;$SRCDIR\game\shared\episodic;..\..\public;$BASE"
+		$AdditionalIncludeDirectories	".\hl2r;.\hl2;.\hl2\elements;$SRCDIR\game\shared\hl2;$SRCDIR\game\shared\episodic;..\..\public;$BASE"
 		$PreprocessorDefinitions		"$BASE;HL2_CLIENT_DLL;HL2_EPISODIC;HL2R_CLIENT"
 	}
 }
@@ -25,6 +26,16 @@ $Project "Client (HL2R)"
 		$File	"hud_chat.cpp"
 		$File	"c_team_objectiveresource.cpp"
 		$File	"c_team_objectiveresource.h"
+		
+		// Remove Files replaced in HL2R
+		-$File	"flashlighteffect.cpp"
+		-$File	"flashlighteffect.h"
+		
+		$Folder	"HL2R DLL"
+		{
+			$File	"hl2r\c_hl2r_flashlighteffect.cpp"
+			$File	"hl2r\c_hl2r_flashlighteffect.h"
+		}
 
 		$Folder	"HL2 DLL"
 		{

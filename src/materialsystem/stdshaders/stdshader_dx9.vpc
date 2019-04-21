@@ -115,7 +115,7 @@ $Project "stdshader_dx9"
 		$File	"sfm_integercombine.cpp"
 		$File	"shadow.cpp"
 		$File	"shadowbuild_dx9.cpp"
-		//$File	"shadowmodel_dx9.cpp"
+	//	$File	"shadowmodel_dx9.cpp"
 		$File	"shatteredglass.cpp"
 		$File	"showz.cpp"
 		$File	"skin_dx9_helper.cpp"
@@ -170,7 +170,7 @@ $Project "stdshader_dx9"
 		$File	"particlelitgeneric_dx9_helper.h"
 		$File	"vertexlitgeneric_dx95_helper.h"
 		$File	"vortwarp_vs20_helper.h"
-		$File	"worldvertextransition_dx8_helper.h"
+		//$File	"worldvertextransition_dx8_helper.h"
 		$File	"water_ps2x_helper.h"
 	}
 
@@ -188,14 +188,12 @@ $Project "stdshader_dx9"
 	$File	"$SRCDIR\devtools\bin\copyshaders.pl"
 	$File	"$SRCDIR\devtools\bin\valve_perl_helpers.pl"
 	$File	"$SRCDIR\devtools\bin\checkshaderchecksums.pl"
-	$File	"buildallshaders.bat"
-	$File	"buildshaders.bat"
+	$File	"_buildallshaders.bat"
+	$File	"_buildshaders.bat"
 
-	$Shaders	"stdshader_dx9_20b_nointercept.txt"
-	$Shaders	"stdshader_dx9_20b.txt"
-	$Shaders	"stdshader_dx9_30.txt"
-	//$Shaders	"stdshader_dx10.txt" // none yet
+	$Shaders	"_shaderlist_dx9_20b.txt"
+	$Shaders	"_shaderlist_dx9_30.txt"
+	//$Shaders	"_shaderlist_dx10.txt" // none yet
 	
-	$Shaders	"stdshader_flashlight_dx9_20b.txt"
-	$Shaders	"stdshader_flashlight_dx9_30.txt"
+	$Shaders	"_shaderlist_flashlight_dx9_30.txt"
 }

@@ -139,7 +139,7 @@ int CalcHeapUsed()
 	hinfo._pentry = NULL;
 	while( ( heapstatus = _heapwalk( &hinfo ) ) == _HEAPOK )
 	{
-		nTotal += (hinfo._useflag == _USEDENTRY) ? hinfo._size : 0;
+		nTotal += (int)((hinfo._useflag == _USEDENTRY) ? hinfo._size : 0);
 	}
 
 	switch (heapstatus)

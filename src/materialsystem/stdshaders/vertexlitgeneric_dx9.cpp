@@ -1,4 +1,4 @@
-//========= Copyright © 1996-2006, Valve Corporation, All rights reserved. ============//
+//========= Copyright Valve Corporation, All rights reserved. ============//
 //
 // Purpose: 
 //
@@ -11,7 +11,6 @@
 #include "emissive_scroll_blended_pass_helper.h"
 #include "cloak_blended_pass_helper.h"
 #include "flesh_interior_blended_pass_helper.h"
-
 
 BEGIN_VS_SHADER( VertexLitGeneric, "Help for VertexLitGeneric" )
 	BEGIN_SHADER_PARAMS
@@ -40,6 +39,7 @@ BEGIN_VS_SHADER( VertexLitGeneric, "Help for VertexLitGeneric" )
 		SHADER_PARAM( SELFILLUMFRESNELMINMAXEXP, SHADER_PARAM_TYPE_VEC4, "0", "Self illum fresnel min, max, exp" )
 		SHADER_PARAM( ALPHATESTREFERENCE, SHADER_PARAM_TYPE_FLOAT, "0.0", "" )	
 		SHADER_PARAM( FLASHLIGHTNOLAMBERT, SHADER_PARAM_TYPE_BOOL, "0", "Flashlight pass sets N.L=1.0" )
+		//SHADER_PARAM( LIGHTMAP, SHADER_PARAM_TYPE_TEXTURE, "shadertest/BaseTexture", "lightmap texture--will be bound by the engine")
 
 		// Debugging term for visualizing ambient data on its own
 		SHADER_PARAM( AMBIENTONLY, SHADER_PARAM_TYPE_INTEGER, "0", "Control drawing of non-ambient light ()" )
@@ -52,16 +52,19 @@ BEGIN_VS_SHADER( VertexLitGeneric, "Help for VertexLitGeneric" )
 		SHADER_PARAM( PHONGFRESNELRANGES, SHADER_PARAM_TYPE_VEC3, "[0  0.5  1]", "Parameters for remapping fresnel output" )
 		SHADER_PARAM( PHONGBOOST, SHADER_PARAM_TYPE_FLOAT, "1.0", "Phong overbrightening factor (specular mask channel should be authored to account for this)" )
 		SHADER_PARAM( PHONGEXPONENTTEXTURE, SHADER_PARAM_TYPE_TEXTURE, "shadertest/BaseTexture", "Phong Exponent map" )
+		SHADER_PARAM( PHONGEXPONENTFACTOR, SHADER_PARAM_TYPE_FLOAT, "0.0", "When using a phong exponent texture, this will be multiplied by the 0..1 that comes out of the texture." )
 		SHADER_PARAM( PHONG, SHADER_PARAM_TYPE_BOOL, "0", "enables phong lighting" )
 		SHADER_PARAM( BASEMAPALPHAPHONGMASK, SHADER_PARAM_TYPE_INTEGER, "0", "indicates that there is no normal map and that the phong mask is in base alpha" )
 		SHADER_PARAM( INVERTPHONGMASK, SHADER_PARAM_TYPE_INTEGER, "0", "invert the phong mask (0=full phong, 1=no phong)" )
 		SHADER_PARAM( ENVMAPFRESNEL, SHADER_PARAM_TYPE_FLOAT, "0", "Degree to which Fresnel should be applied to env map" )
 		SHADER_PARAM( SELFILLUMMASK, SHADER_PARAM_TYPE_TEXTURE, "shadertest/BaseTexture", "If we bind a texture here, it overrides base alpha (if any) for self illum" )
+		SHADER_PARAM( SELFILLUMMASKFRAME, SHADER_PARAM_TYPE_INTEGER, "0", "" )
 
 	    // detail (multi-) texturing
 	    SHADER_PARAM( DETAILBLENDMODE, SHADER_PARAM_TYPE_INTEGER, "0", "mode for combining detail texture with base. 0=normal, 1= additive, 2=alpha blend detail over base, 3=crossfade" )
 		SHADER_PARAM( DETAILBLENDFACTOR, SHADER_PARAM_TYPE_FLOAT, "1", "blend amount for detail texture." )
 		SHADER_PARAM( DETAILTINT, SHADER_PARAM_TYPE_COLOR, "[1 1 1]", "detail texture tint" )
+		SHADER_PARAM( DETAILTEXTURETRANSFORM, SHADER_PARAM_TYPE_MATRIX, "center .5 .5 scale 1 1 rotate 0 translate 0 0", "$detail texcoord transform" )
 
 		// Rim lighting terms
 		SHADER_PARAM( RIMLIGHT, SHADER_PARAM_TYPE_BOOL, "0", "enables rim lighting" )
@@ -116,6 +119,31 @@ BEGIN_VS_SHADER( VertexLitGeneric, "Help for VertexLitGeneric" )
 		SHADER_PARAM( LINEARWRITE, SHADER_PARAM_TYPE_INTEGER, "0", "Disables SRGB conversion of shader results." )
 		SHADER_PARAM( DEPTHBLEND, SHADER_PARAM_TYPE_INTEGER, "0", "fade at intersection boundaries. Only supported without bumpmaps" )
 		SHADER_PARAM( DEPTHBLENDSCALE, SHADER_PARAM_TYPE_FLOAT, "50.0", "Amplify or reduce DEPTHBLEND fading. Lower values make harder edges." )
+
+		SHADER_PARAM( BLENDTINTBYBASEALPHA, SHADER_PARAM_TYPE_BOOL, "0", "Use the base alpha to blend in the $color modulation")
+		SHADER_PARAM( BLENDTINTCOLOROVERBASE, SHADER_PARAM_TYPE_FLOAT, "0", "blend between tint acting as a multiplication versus a replace" )
+
+		SHADER_PARAM( SELFILLUMTWOTEXTUREBLEND, SHADER_PARAM_TYPE_BOOL, "0", "" )
+		SHADER_PARAM( SELFILLUMTWOTEXTUREBLEND_AMOUNT, SHADER_PARAM_TYPE_FLOAT, "0", "" )
+		SHADER_PARAM( SELFILLUMTWOTEXTUREBLEND_TEXTURE, SHADER_PARAM_TYPE_TEXTURE, "0", "" )
+		SHADER_PARAM( TWOSIDEDLIGHTING, SHADER_PARAM_TYPE_BOOL, "0", "" )
+
+		// vertexlitgeneric tree sway animation control
+		SHADER_PARAM( TREESWAY, SHADER_PARAM_TYPE_INTEGER, "0", "" )
+		SHADER_PARAM( TREESWAYHEIGHT, SHADER_PARAM_TYPE_FLOAT, "1000", "" )
+		SHADER_PARAM( TREESWAYSTARTHEIGHT, SHADER_PARAM_TYPE_FLOAT, "0.2", "" )
+		SHADER_PARAM( TREESWAYRADIUS, SHADER_PARAM_TYPE_FLOAT, "300", "" )
+		SHADER_PARAM( TREESWAYSTARTRADIUS, SHADER_PARAM_TYPE_FLOAT, "0.1", "" )
+		SHADER_PARAM( TREESWAYSPEED, SHADER_PARAM_TYPE_FLOAT, "1", "" )
+		SHADER_PARAM( TREESWAYSPEEDHIGHWINDMULTIPLIER, SHADER_PARAM_TYPE_FLOAT, "2", "" )
+		SHADER_PARAM( TREESWAYSTRENGTH, SHADER_PARAM_TYPE_FLOAT, "10", "" )
+		SHADER_PARAM( TREESWAYSCRUMBLESPEED, SHADER_PARAM_TYPE_FLOAT, "0.1", "" )
+		SHADER_PARAM( TREESWAYSCRUMBLESTRENGTH, SHADER_PARAM_TYPE_FLOAT, "0.1", "" )
+		SHADER_PARAM( TREESWAYSCRUMBLEFREQUENCY, SHADER_PARAM_TYPE_FLOAT, "0.1", "" )
+		SHADER_PARAM( TREESWAYFALLOFFEXP, SHADER_PARAM_TYPE_FLOAT, "1.5", "" )
+		SHADER_PARAM( TREESWAYSCRUMBLEFALLOFFEXP, SHADER_PARAM_TYPE_FLOAT, "1.0", "" )
+		SHADER_PARAM( TREESWAYSPEEDLERPSTART, SHADER_PARAM_TYPE_FLOAT, "3", "" )
+		SHADER_PARAM( TREESWAYSPEEDLERPEND, SHADER_PARAM_TYPE_FLOAT, "6", "" )
 	END_SHADER_PARAMS
 
 	void SetupVars( VertexLitGeneric_DX9_Vars_t& info )
@@ -145,6 +173,7 @@ BEGIN_VS_SHADER( VertexLitGeneric, "Help for VertexLitGeneric" )
 		info.m_nEnvmapSaturation = ENVMAPSATURATION;
 		info.m_nAlphaTestReference = ALPHATESTREFERENCE;
 		info.m_nFlashlightNoLambert = FLASHLIGHTNOLAMBERT;
+		//info.m_nLightmap = LIGHTMAP;
 
 		info.m_nFlashlightTexture = FLASHLIGHTTEXTURE;
 		info.m_nFlashlightTextureFrame = FLASHLIGHTTEXTUREFRAME;
@@ -160,12 +189,14 @@ BEGIN_VS_SHADER( VertexLitGeneric, "Help for VertexLitGeneric" )
 		info.m_nDiffuseWarpTexture = LIGHTWARPTEXTURE;
 		info.m_nPhongWarpTexture = PHONGWARPTEXTURE;
 		info.m_nPhongBoost = PHONGBOOST;
+		info.m_nPhongExponentFactor = PHONGEXPONENTFACTOR;
 		info.m_nPhongFresnelRanges = PHONGFRESNELRANGES;
 		info.m_nPhong = PHONG;
 		info.m_nBaseMapAlphaPhongMask = BASEMAPALPHAPHONGMASK;
 		info.m_nEnvmapFresnel = ENVMAPFRESNEL;
 		info.m_nDetailTextureCombineMode = DETAILBLENDMODE;
 		info.m_nDetailTextureBlendFactor = DETAILBLENDFACTOR;
+		info.m_nDetailTextureTransform = DETAILTEXTURETRANSFORM;
 
 		// Rim lighting parameters
 		info.m_nRimLight = RIMLIGHT;
@@ -188,6 +219,30 @@ BEGIN_VS_SHADER( VertexLitGeneric, "Help for VertexLitGeneric" )
 		info.m_nDepthBlendScale = DEPTHBLENDSCALE;
 
 		info.m_nSelfIllumMask = SELFILLUMMASK;
+	//	info.m_nSelfIllumMaskFrame = SELFILLUMMASKFRAME;
+		info.m_nBlendTintByBaseAlpha = BLENDTINTBYBASEALPHA;
+		info.m_nTintReplacesBaseColor = BLENDTINTCOLOROVERBASE;
+
+	/*	info.m_nSelfIllumTwoTexture = SELFILLUMTWOTEXTUREBLEND;
+		info.m_nSelfIllumTwoTexture_Amount = SELFILLUMTWOTEXTUREBLEND_AMOUNT;
+		info.m_nSelfIllumTwoTexture_Texture = SELFILLUMTWOTEXTUREBLEND_TEXTURE;*/
+		info.m_nTwoSidedLighting = TWOSIDEDLIGHTING;
+
+	/*	info.m_nTreeSway = TREESWAY;
+		info.m_nTreeSwayHeight = TREESWAYHEIGHT;
+		info.m_nTreeSwayStartHeight = TREESWAYSTARTHEIGHT;
+		info.m_nTreeSwayRadius = TREESWAYRADIUS;
+		info.m_nTreeSwayStartRadius = TREESWAYSTARTRADIUS;
+		info.m_nTreeSwaySpeed = TREESWAYSPEED;
+		info.m_nTreeSwaySpeedHighWindMultiplier = TREESWAYSPEEDHIGHWINDMULTIPLIER;
+		info.m_nTreeSwayStrength = TREESWAYSTRENGTH;
+		info.m_nTreeSwayScrumbleSpeed = TREESWAYSCRUMBLESPEED;
+		info.m_nTreeSwayScrumbleStrength = TREESWAYSCRUMBLESTRENGTH;
+		info.m_nTreeSwayScrumbleFrequency = TREESWAYSCRUMBLEFREQUENCY;
+		info.m_nTreeSwayFalloffExp = TREESWAYFALLOFFEXP;
+		info.m_nTreeSwayScrumbleFalloffExp = TREESWAYSCRUMBLEFALLOFFEXP;
+		info.m_nTreeSwaySpeedLerpStart = TREESWAYSPEEDLERPSTART;
+		info.m_nTreeSwaySpeedLerpEnd = TREESWAYSPEEDLERPEND;*/
 	}
 
 	// Cloak Pass
@@ -288,7 +343,7 @@ BEGIN_VS_SHADER( VertexLitGeneric, "Help for VertexLitGeneric" )
 			SetupVarsCloakBlendedPass( info );
 			InitParamsCloakBlendedPass( this, params, pMaterialName, info );
 		}
-
+				
 		// Emissive Scroll Pass
 		if ( !params[EMISSIVEBLENDENABLED]->IsDefined() )
 		{
@@ -341,7 +396,7 @@ BEGIN_VS_SHADER( VertexLitGeneric, "Help for VertexLitGeneric" )
 			SetupVarsCloakBlendedPass( info );
 			InitCloakBlendedPass( this, params, info );
 		}
-
+		
 		// Emissive Scroll Pass
 		if ( params[EMISSIVEBLENDENABLED]->GetIntValue() )
 		{

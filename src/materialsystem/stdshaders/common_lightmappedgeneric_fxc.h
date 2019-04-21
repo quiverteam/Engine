@@ -1,5 +1,7 @@
-void GetBaseTextureAndNormal( sampler base, sampler base2, sampler bump, bool bBase2, bool bBump, float3 coords, //float2 bumpcoords,
-							  float3 vWeights, out float4 vResultBase, out float4 vResultBase2, out float4 vResultBump )
+//========= Copyright Valve Corporation, All rights reserved. ============//
+
+void GetBaseTextureAndNormal( sampler base, sampler base2, sampler bump, bool bBase2, bool bBump, float3 coords, float3 vWeights,
+							 out float4 vResultBase, out float4 vResultBase2, out float4 vResultBump )
 {
 	vResultBase = 0;
 	vResultBase2 = 0;
@@ -52,7 +54,6 @@ void GetBaseTextureAndNormal( sampler base, sampler base2, sampler bump, bool bB
 	if ( bBump )
 	{
 		vResultBump  = tex2D( bump, coords.xy );
-		//vResultBump  = tex2D( bump, bumpcoords.xy );
 	}
 #endif
 
@@ -65,7 +66,7 @@ float3 LightMapSample( sampler LightmapSampler, float2 vTexCoord )
 {
 #	if ( !defined( _X360 ) || !defined( USE_32BIT_LIGHTMAPS_ON_360 ) )
 	{
-		float3 sample = tex2D( LightmapSampler, vTexCoord );
+		float3 sample = tex2D( LightmapSampler, vTexCoord ).xyz;
 
 		return sample;
 	}

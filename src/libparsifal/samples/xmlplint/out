@@ -1,1 +1,0 @@
-gcc -c curlread.c -o curlread.o -Wall -g

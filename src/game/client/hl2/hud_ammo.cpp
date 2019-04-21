@@ -14,7 +14,6 @@
 #include <vgui_controls/AnimationController.h>
 #include <vgui/ILocalize.h>
 #include <vgui/ISurface.h>
-#include "ihudlcd.h"
 
 // memdbgon must be the last include file in a .cpp file!!!
 #include "tier0/memdbgon.h"
@@ -61,11 +60,6 @@ DECLARE_HUDELEMENT( CHudAmmo );
 CHudAmmo::CHudAmmo( const char *pElementName ) : BaseClass(NULL, "HudAmmo"), CHudElement( pElementName )
 {
 	SetHiddenBits( HIDEHUD_HEALTH | HIDEHUD_PLAYERDEAD | HIDEHUD_NEEDSUIT | HIDEHUD_WEAPONSELECTION );
-
-	hudlcd->SetGlobalStat( "(ammo_primary)", "0" );
-	hudlcd->SetGlobalStat( "(ammo_secondary)", "0" );
-	hudlcd->SetGlobalStat( "(weapon_print_name)", "" );
-	hudlcd->SetGlobalStat( "(weapon_name)", "" );
 }
 
 //-----------------------------------------------------------------------------
@@ -121,14 +115,8 @@ void CHudAmmo::UpdatePlayerAmmo( C_BasePlayer *player )
 
 	C_BaseCombatWeapon *wpn = GetActiveWeapon();
 
-	hudlcd->SetGlobalStat( "(weapon_print_name)", wpn ? wpn->GetPrintName() : " " );
-	hudlcd->SetGlobalStat( "(weapon_name)", wpn ? wpn->GetName() : " " );
-
 	if ( !wpn || !player || !wpn->UsesPrimaryAmmo() )
 	{
-		hudlcd->SetGlobalStat( "(ammo_primary)", "n/a" );
-        hudlcd->SetGlobalStat( "(ammo_secondary)", "n/a" );
-
 		SetPaintEnabled(false);
 		SetPaintBackgroundEnabled(false);
 		return;
@@ -154,9 +142,6 @@ void CHudAmmo::UpdatePlayerAmmo( C_BasePlayer *player )
 		// we use clip ammo, so the second ammo is the total ammo
 		ammo2 = player->GetAmmoCount(wpn->GetPrimaryAmmoType());
 	}
-
-	hudlcd->SetGlobalStat( "(ammo_primary)", VarArgs( "%d", ammo1 ) );
-	hudlcd->SetGlobalStat( "(ammo_secondary)", VarArgs( "%d", ammo2 ) );
 
 	if (wpn == m_hCurrentActiveWeapon)
 	{

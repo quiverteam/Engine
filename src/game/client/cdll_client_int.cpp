@@ -82,8 +82,7 @@
 #include "appframework/IAppSystemGroup.h"
 #include "scenefilecache/ISceneFileCache.h"
 #include "tier3/tier3.h"
-#include "avi/iavi.h"
-#include "ihudlcd.h"
+#include "video/iavi.h"
 #include "toolframework_client.h"
 #include "hltvcamera.h"
 #include "ixboxsystem.h"
@@ -691,20 +690,12 @@ int CHLClient::Init( CreateInterfaceFn appSystemFactory, CreateInterfaceFn physi
 		return false;
 	if ( (inputsystem = (IInputSystem *)appSystemFactory(INPUTSYSTEM_INTERFACE_VERSION, NULL)) == NULL )
 		return false;
-	if ( IsPC() && (avi = (IAvi *)appSystemFactory(AVI_INTERFACE_VERSION, NULL)) == NULL )
-		return false;
-	if ( (bik = (IBik *)appSystemFactory(BIK_INTERFACE_VERSION, NULL)) == NULL )
+	if ( (avi = (IAvi *)appSystemFactory(AVI_INTERFACE_VERSION, NULL)) == NULL )
 		return false;
 	if ( (scenefilecache = (ISceneFileCache *)appSystemFactory( SCENE_FILE_CACHE_INTERFACE_VERSION, NULL )) == NULL )
 		return false;
-	if ( IsX360() && (xboxsystem = (IXboxSystem *)appSystemFactory( XBOXSYSTEM_INTERFACE_VERSION, NULL )) == NULL )
-		return false;
-	if ( IsX360() && (matchmaking = (IMatchmaking *)appSystemFactory( VENGINE_MATCHMAKING_VERSION, NULL )) == NULL )
-		return false;
-#ifndef _XBOX
 	if ( ( g_pClientGameStatsUploader = (IUploadGameStats *)appSystemFactory( INTERFACEVERSION_UPLOADGAMESTATS, NULL )) == NULL )
 		return false;
-#endif
 	if (!g_pMatSystemSurface)
 		return false;
 
@@ -915,9 +906,6 @@ void CHLClient::HudUpdate( bool bActive )
 
 	// run vgui animations
 	vgui::GetAnimationController()->UpdateAnimations( engine->Time() );
-
-	hudlcd->SetGlobalStat( "(time_int)", VarArgs( "%d", (int)gpGlobals->curtime ) );
-	hudlcd->SetGlobalStat( "(time_float)", VarArgs( "%.2f", gpGlobals->curtime ) );
 
 	// I don't think this is necessary any longer, but I will leave it until
 	// I can check into this further.
@@ -1176,8 +1164,6 @@ void CHLClient::LevelInitPreEntity( char const* pMapName )
 	// Tell mode manager that map is changing
 	modemanager->LevelInit( pMapName );
 	ParticleMgr()->LevelInit();
-
-	hudlcd->SetGlobalStat( "(mapname)", pMapName );
 
 	C_BaseTempEntity::ClearDynamicTempEnts();
 	clienteffects->Flush();

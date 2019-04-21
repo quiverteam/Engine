@@ -7,6 +7,11 @@
 #define SSEMATH_H
 
 #include <xmmintrin.h>
+#include <mmintrin.h>
+
+#ifdef _USE_AVX
+#include <immintrin.h>
+#endif
 
 #include <mathlib/vector.h>
 #include <mathlib/mathlib.h>
@@ -37,25 +42,17 @@ typedef union
 typedef fltx4 i32x4;
 typedef fltx4 u32x4;
 
-#elif ( defined( _X360 ) )
-
-typedef union
-{
-	// This union allows float/int access (which generally shouldn't be done in inner loops)
-	__vector4	vmx;
-	float		m128_f32[4];
-	uint32		m128_u32[4];
-} fltx4_union;
-
-typedef __vector4 fltx4;
-typedef __vector4 i32x4; // a VMX register; just a way of making it explicit that we're doing integer ops.
-typedef __vector4 u32x4; // a VMX register; just a way of making it explicit that we're doing unsigned integer ops.
-
 #else
 
 typedef __m128 fltx4;
 typedef __m128 i32x4;
 typedef __m128 u32x4;
+typedef __m128d fltdx4;
+
+typedef __m256 fltx8;
+typedef __m256 i32x8;
+typedef __m256 u32x8;
+typedef __m256d fltdx8;
 
 #endif
 
@@ -1525,21 +1522,6 @@ FORCEINLINE fltx4 FindHighestSIMD3( const fltx4 &a )
 // INTEGER SIMD OPERATIONS.
 // ------------------------------------
 
-
-#if 0				/* pc does not have these ops */
-// splat all components of a vector to a signed immediate int number.
-FORCEINLINE fltx4 IntSetImmediateSIMD(int to)
-{
-	//CHRISG: SSE2 has this, but not SSE1. What to do?
-	fltx4 retval;
-	SubInt( retval, 0 ) = to;
-	SubInt( retval, 1 ) = to;
-	SubInt( retval, 2 ) = to;
-	SubInt( retval, 3 ) = to;
-	return retval;
-}
-#endif
-
 // Load 4 aligned words into a SIMD register
 FORCEINLINE i32x4 LoadAlignedIntSIMD( const void * RESTRICT pSIMD)
 {
@@ -1630,6 +1612,8 @@ FORCEINLINE i32x4 IntShiftLeftWordSIMD(const i32x4 &vSrcA, const i32x4 &vSrcB)
 // like this.
 FORCEINLINE void ConvertStoreAsIntsSIMD(intx4 * RESTRICT pDest, const fltx4 &vSrc)
 {
+
+#ifndef WIN64
 	__m64 bottom = _mm_cvttps_pi32( vSrc );
 	__m64 top    = _mm_cvttps_pi32( _mm_movehl_ps(vSrc,vSrc) );
 
@@ -1637,6 +1621,16 @@ FORCEINLINE void ConvertStoreAsIntsSIMD(intx4 * RESTRICT pDest, const fltx4 &vSr
 	*reinterpret_cast<__m64 *>(&(*pDest)[2]) = top;
 
 	_mm_empty();
+#else
+	// TODO: Verify this implementation!!
+	// MSVC doesn't support MMX intrinsics in 64-bit because microsoft suks	REEEEEEEEEEEEEE
+
+	// Tested with disassembler: these generate cvttss2si instructions
+	* ((int*)pDest) = (int) * ((float*)& vSrc);
+	*((int*)pDest + 1) = (int) * ((float*)& vSrc + 1);
+	*((int*)pDest + 2) = (int) * ((float*)& vSrc + 2);
+	*((int*)pDest + 3) = (int) * ((float*)& vSrc + 3);
+#endif
 }
 
 
@@ -2259,6 +2253,102 @@ FORCEINLINE fltx4 BiasSIMD( const fltx4 &val, const fltx4 &precalc_param )
 	//!!speed!! use reciprocal est?
 	//!!speed!! could save one op by precalcing _2_ values
 	return DivSIMD( val, AddSIMD( MulSIMD( precalc_param, SubSIMD( Four_Ones, val ) ), Four_Ones ) );
+}
+
+/*
+
+Extra SSE functions with AVX
+
+*/
+
+//
+// Aligned Add of 8 packed floats using AVX instructions
+//
+FORCEINLINE fltx8 AddAVX(const fltx8& v1, const fltx8& v2)
+{
+#ifdef _USE_AVX
+	return _mm256_add_ps(v1, v2);
+#else
+	__m256 res;
+	*((__m128*) & res) = _mm_add_ps(*(__m128*) & v1, *(__m128*) & v2);
+	*((__m128*) & res + 1) = _mm_add_ps(*((__m128*) & v1 + 1), *((__m128*) & v2 + 1));
+	return res;
+#endif
+}
+
+//
+// Aligned sub of 8 packed floats using AVX
+//
+FORCEINLINE fltx8 SubAVX(const fltx8& v1, const fltx8& v2)
+{
+#ifdef _USE_AVX
+	return _mm256_sub_ps(v1, v2);
+#else
+	__m256 res;
+	*((__m128*) & res) = _mm_sub_ps(*(__m128*) & v1, *(__m128*) & v2);
+	*((__m128*) & res + 1) = _mm_sub_ps(*((__m128*) & v1 + 1), *((__m128*) & v2 + 1));
+	return res;
+#endif
+}
+
+//
+// Aligned mul of 8 packed floats using AVX
+//
+FORCEINLINE fltx8 MulAVX(const fltx8& v1, const fltx8& v2)
+{
+#ifdef _USE_AVX
+	return _mm256_mul_ps(v1, v2);
+#else
+	__m256 res;
+	*((__m128*) & res) = _mm_mul_ps(*(__m128*) & v1, *(__m128*) & v2);
+	*((__m128*) & res + 1) = _mm_mul_ps(*((__m128*) & v1 + 1), *((__m128*) & v2 + 1));
+	return res;
+#endif
+}
+
+//
+// Aligned div of 8 packed floats using AVX
+//
+FORCEINLINE fltx8 DivAVX(const fltx8& v1, const fltx8& v2)
+{
+#ifdef _USE_AVX
+	return _mm256_div_ps(v1, v2);
+#else
+	__m256 res;
+	*((__m128*) & res) = _mm_div_ps(*(__m128*) & v1, *(__m128*) & v2);
+	*((__m128*) & res + 1) = _mm_div_ps(*((__m128*) & v1 + 1), *((__m128*) & v2 + 1));
+	return res;
+#endif
+}
+
+//
+// Aligned sqrt of 8 packed floats using AVX
+//
+FORCEINLINE fltx8 SqrtAVX(const fltx8& v1)
+{
+#ifdef _USE_AVX
+	return _mm256_sqrt_ps(v1, v2);
+#else
+	__m256 res;
+	*((__m128*) & res) = _mm_sqrt_ps(*(__m128*) & v1);
+	*((__m128*) & res + 1) = _mm_sqrt_ps(*((__m128*) & v1 + 1));
+	return res;
+#endif
+}
+
+//
+// Aligned rsqrt of 8 packed floats using AVX
+//
+FORCEINLINE fltx8 RsqrtAVX(const fltx8& v1)
+{
+#ifdef _USE_AVX
+	return _mm256_rsqrt_ps(v1, v2);
+#else
+	__m256 res;
+	*((__m128*) & res) = _mm_rsqrt_ps(*(__m128*) & v1);
+	*((__m128*) & res + 1) = _mm_rsqrt_ps(*((__m128*) & v1 + 1));
+	return res;
+#endif
 }
 
 //-----------------------------------------------------------------------------

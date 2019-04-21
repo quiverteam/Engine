@@ -1835,7 +1835,7 @@ static const int s_DrawWorldListsToSortGroup[MAX_MAT_SORT_GROUPS] =
 	MAT_SORT_GROUP_WATERSURFACE,
 };
 
-static ConVar r_flashlightrendermodels(  "r_flashlightrendermodels", "1" );
+//static ConVar r_flashlightrendermodels(  "r_flashlightrendermodels", "1" );
 
 //-----------------------------------------------------------------------------
 // Performs the shadow depth texture fill

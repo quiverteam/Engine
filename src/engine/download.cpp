@@ -40,7 +40,7 @@
 #include "vgui_baseui_interface.h"
 #include "tier0/vcrmode.h"
 
-#include "../utils/bzip2/bzlib.h"
+#include "../thirdparty/bzip2/bzlib.h"
 
 #if defined( _X360 )
 #include "xbox/xbox_win32stubs.h"

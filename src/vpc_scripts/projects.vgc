@@ -10,1318 +10,1238 @@
 
 $Project "actbusy"
 {
-	"tools\actbusy\actbusy.vpc" [($WIN32||$WIN64)]
+	"tools\actbusy\actbusy.vpc" [$WINDOWS]
 }
 
 $Project "AdminServer"
 {
-	"Tracker\AdminServer\AdminServer.vpc" [($WIN32||$WIN64)]
+	//"Tracker\AdminServer\AdminServer.vpc" [$WINDOWS]
 }
 
 $Project "appframework"
 {
-	"appframework\appframework.vpc" 	[($WIN32||$WIN64)||$POSIX]
+	"appframework\appframework.vpc" 	[$WINDOWS||$POSIX]
 }
 
 $Project "autorun"
 {
-	"shell\autorun\autorun.vpc" [($WIN32||$WIN64)]
+	"shell\autorun\autorun.vpc" [$WINDOWS]
 }
 
 $Project "avitest"
 {
-	"unittests\avitest\avitest.vpc" [($WIN32||$WIN64)]
+	"unittests\avitest\avitest.vpc" [$WINDOWS]
 }
 
 $Project "bitmap"
 {
-	"bitmap\bitmap.vpc" [($WIN32||$WIN64)||$POSIX]
+	"bitmap\bitmap.vpc" [$WINDOWS||$POSIX]
 }
 
 $Project "Browser"
 {
-	"Tracker\Browser\Browser.vpc" [($WIN32||$WIN64)]
+	"Tracker\Browser\Browser.vpc" [$WINDOWS]
 }
 
 $Project "bsppack"
 {
-	"utils\bsppack\bsppack.vpc" [($WIN32||$WIN64)||$POSIX]
+	"utils\bsppack\bsppack.vpc" [$WINDOWS||$POSIX]
 }
 
 $Project "bspzip"
 {
-	"utils\bspzip\bspzip.vpc" [($WIN32||$WIN64)]
+	"utils\bspzip\bspzip.vpc" [$WINDOWS]
 }
 
 $Project "bugreporter"
 {
-	"utils\bugreporter\bugreporter.vpc" [($WIN32||$WIN64)]
+	"utils\bugreporter\bugreporter.vpc" [$WINDOWS]
 }
 
 $Project "bugreporter_public"
 {
-	"utils\bugreporter_public\bugreporter_public.vpc" [($WIN32||$WIN64)]
+	"utils\bugreporter_public\bugreporter_public.vpc" [$WINDOWS]
 }
 
 $Project "bugreporter_text"
 {
-	"utils\bugreporter_text\bugreporter_text.vpc" [($WIN32||$WIN64)]
+	"utils\bugreporter_text\bugreporter_text.vpc" [$WINDOWS]
 }
 
 $Project "bugreporter_filequeue"
 {
-	"utils\bugreporter_filequeue\bugreporter_filequeue.vpc" [($WIN32||$WIN64)]
+	"utils\bugreporter_filequeue\bugreporter_filequeue.vpc" [$WINDOWS]
 }
 
 $Project "bzip2"
 {
-	"utils\bzip2\bzip2.vpc" [($WIN32||$WIN64)||$POSIX]
+	"thirdparty\bzip2\bzip2.vpc" [$WINDOWS||$POSIX]
 }
 
 $Project "captioncompiler"
 {
-	"utils\captioncompiler\captioncompiler.vpc" [($WIN32||$WIN64)]
-}
-
-$Project "cardstats"
-{
-	"utils\videocardstats\cardstats.vpc" [($WIN32||$WIN64)]
+	"utils\captioncompiler\captioncompiler.vpc" [$WINDOWS]
 }
 
 $Project "choreoobjects"
 {
-	"choreoobjects\choreoobjects.vpc" [($WIN32||$WIN64)||$POSIX]
+	"choreoobjects\choreoobjects.vpc" [$WINDOWS||$POSIX]
 }
 
 $Project "classcheck"
 {
-	"utils\classcheck\classcheck.vpc" [($WIN32||$WIN64)]
+	"utils\classcheck\classcheck.vpc" [$WINDOWS]
 }
 
 $Project "client"
 {
-	"game\client\client_hl2.vpc"		[(($WIN32||$WIN64)||$POSIX) && $HL2]
-	"game\client\client_episodic.vpc"	[(($WIN32||$WIN64)||$POSIX) && $EPISODIC]
-	"game\client\client_hl2mp.vpc"		[(($WIN32||$WIN64)||$POSIX) && $HL2MP]
-	"game\client\client_hl2r.vpc"		[(($WIN32||$WIN64)||$POSIX) && $HL2R]
+	"game\client\client_hl2.vpc"		[($WINDOWS||$POSIX) && $HL2]
+	"game\client\client_episodic.vpc"	[($WINDOWS||$POSIX) && $EPISODIC]
+	"game\client\client_hl2mp.vpc"		[($WINDOWS||$POSIX) && $HL2MP]
+	"game\client\client_hl2r.vpc"		[($WINDOWS||$POSIX) && $HL2R]
 }
 
 $Project "client_sdk"
 {
-	"game\client\client_sdk.vpc" [($WIN32||$WIN64)]
+	"game\client\client_sdk.vpc" [$WINDOWS]
 }
 
 $Project "commedit"
 {
-	"tools\commedit\commedit.vpc" [($WIN32||$WIN64)]
+	"tools\commedit\commedit.vpc" [$WINDOWS]
 }
 
 $Project "cubelight"
 {
-	"utils\cubelight\cubelight.vpc" [($WIN32||$WIN64)]
+	"utils\cubelight\cubelight.vpc" [$WINDOWS]
 }
 
 $Project "datacache"
 {
-	"datacache\datacache.vpc" [($WIN32||$WIN64)||$POSIX]
+	"datacache\datacache.vpc" [$WINDOWS||$POSIX]
 }
 
 $Project "datamodel"
 {
-	"datamodel\datamodel.vpc" [($WIN32||$WIN64)]
+	"datamodel\datamodel.vpc" [$WINDOWS]
 }
 
 $Project "dbmon"
 {
-	"devtools\dbmon\dbmon.vpc" [($WIN32||$WIN64)]
+	"devtools\dbmon\dbmon.vpc" [$WINDOWS]
 }
 
 $Project "dedicated"
 {
-	"dedicated\dedicated.vpc" [($WIN32||$WIN64)]
+	"dedicated\dedicated.vpc" [$WINDOWS]
 }
 
 $Project "dedicated_main"
 {
-	"dedicated_main\dedicated_main.vpc" [($WIN32||$WIN64)]
+	"dedicated_main\dedicated_main.vpc" [$WINDOWS]
 }
 
 $Project "demoinfo"
 {
-	"utils\demoinfo\demoinfo.vpc" [($WIN32||$WIN64)]
+	"utils\demoinfo\demoinfo.vpc" [$WINDOWS]
 }
 
 $Project "depcheck"
 {
-	"utils\depcheck\depcheck.vpc" [($WIN32||$WIN64)]
+	"utils\depcheck\depcheck.vpc" [$WINDOWS]
 }
 
 $Project "dist2alpha"
 {
-	"utils\dist2alpha\dist2alpha.vpc" [($WIN32||$WIN64)]
+	"utils\dist2alpha\dist2alpha.vpc" [$WINDOWS]
 }
 
 $Project "dme_controls"
 {
-	"vgui2\dme_controls\dme_controls.vpc" [($WIN32||$WIN64)]
+	"vgui2\dme_controls\dme_controls.vpc" [$WINDOWS]
 }
 
 $Project "dmserializers"
 {
-	"dmserializers\dmserializers.vpc" [($WIN32||$WIN64)]
+	"dmserializers\dmserializers.vpc" [$WINDOWS]
 }
 
 $Project "dmxconvert"
 {
-	"utils\dmxconvert\dmxconvert.vpc" [($WIN32||$WIN64)]
+	"utils\dmxconvert\dmxconvert.vpc" [$WINDOWS]
 }
 
 $Project "dmxedit"
 {
-	"utils\dmxedit\dmxedit.vpc" [($WIN32||$WIN64)]
+	"utils\dmxedit\dmxedit.vpc" [$WINDOWS]
 }
 
 $Project "dmxloader"
 {
-	"dmxloader\dmxloader.vpc" [($WIN32||$WIN64)||$POSIX]
+	"dmxloader\dmxloader.vpc" [$WINDOWS||$POSIX]
 }
 
 $Project "dmxtest"
 {
-	"unittests\dmxtest\dmxtest.vpc" [($WIN32||$WIN64)]
+	"unittests\dmxtest\dmxtest.vpc" [$WINDOWS]
 }
 
 $Project "dumpmatsyshelp"
 {
-	"utils\dumpmatsyshelp\dumpmatsyshelp.vpc" [($WIN32||$WIN64)]
+	"utils\dumpmatsyshelp\dumpmatsyshelp.vpc" [$WINDOWS]
 }
 
 $Project "dumpobj"
 {
-	"utils\xbox\dumpobj\dumpobj.vpc" [($WIN32||$WIN64)]
+	"utils\xbox\dumpobj\dumpobj.vpc" [$WINDOWS]
 }
 
-$Include "utils\dx_proxy\dx_proxy_all.vgc"
+$Project "dx_proxy_dx9_v00_pc"
+{
+	"utils\dx_proxy\dx_proxy_dx9_v00_pc.vpc"
+}
+
+$Project "dx_proxy_dx9_v30_pc"
+{
+	"utils\dx_proxy\dx_proxy_dx9_v30_pc.vpc"
+}
+
+// has no use
+$Project "dx_proxy_dx10_v00_pc"
+{
+//	"utils\dx_proxy\dx_proxy_dx10_v00_pc.vpc"
+}
 
 $Project "elementviewer"
 {
-	"utils\elementviewer\elementviewer.vpc" [($WIN32||$WIN64)]
+	"utils\elementviewer\elementviewer.vpc" [$WINDOWS]
 }
 
 $Project "engine"
 {
-	"engine\engine.vpc" [($WIN32||$WIN64)||$POSIX]
+	"engine\engine.vpc" [$WINDOWS||$POSIX]
 }
 
 $Project "entcount"
 {
-	"utils\entcount\entcount.vpc" [($WIN32||$WIN64)]
+	"utils\entcount\entcount.vpc" [$WINDOWS]
 }
 
 $Project "ep2_deathmap"
 {
-	"devtools\ep2_deathmap\ep2_deathmap.vpc" [($WIN32||$WIN64)]
+	"devtools\ep2_deathmap\ep2_deathmap.vpc" [$WINDOWS]
 }
 
 
 $Project "fgdlib"
 {
-	"fgdlib\fgdlib.vpc" [($WIN32||$WIN64)]
+	"fgdlib\fgdlib.vpc" [$WINDOWS]
 }
 
 $Project "FileSystemOpenDialog"
 {
-	"utils\FileSystemOpenDialog\FileSystemOpenDialog.vpc" [($WIN32||$WIN64)]
+	"utils\FileSystemOpenDialog\FileSystemOpenDialog.vpc" [$WINDOWS]
 }
 
 $Project "filesystem_stdio"
 {
-    "filesystem\filesystem_stdio.vpc" [($WIN32||$WIN64)||$POSIX]
+    "filesystem\filesystem_stdio.vpc" [$WINDOWS||$POSIX]
 }
 
 $Project "filesystem_steam"
 {
-    "filesystem\filesystem_steam.vpc" [($WIN32||$WIN64)]
+    "filesystem\filesystem_steam.vpc" [$WINDOWS]
 }
 
 $Project "finddbgdll"
 {
-	"utils\finddbgdll\finddbgdll.vpc" [($WIN32||$WIN64)]
+	"utils\finddbgdll\finddbgdll.vpc" [$WINDOWS]
 }
 
 $Project "floatbm"
 {
-	"floatbm\floatbm.vpc" [($WIN32||$WIN64)]
+	"floatbm\floatbm.vpc" [$WINDOWS]
 }
 
 $Project "fontmaker"
 {
-	"utils\xbox\FontMaker\fontmaker.vpc" [($WIN32||$WIN64)]
+	"utils\xbox\FontMaker\fontmaker.vpc" [$WINDOWS]
 }
 
 $Project "foundry"
 {
-	"tools\foundry\foundry.vpc" [($WIN32||$WIN64)]
+	"tools\foundry\foundry.vpc" [$WINDOWS]
 }
 
 $Project "gamestats_reader"
 {
-	"utils\gamestats_reader\gamestats_reader.vpc" [($WIN32||$WIN64)]
+	"utils\gamestats_reader\gamestats_reader.vpc" [$WINDOWS]
 }
 
 $Project "GameUI"
 {
-	"gameui\GameUI.vpc" [($WIN32||$WIN64)||$POSIX]
+	"gameui\GameUI.vpc" [$WINDOWS||$POSIX]
 }
 
 $Project "gameui_client"
 {
-	"game\gameui\gameui_hl2.vpc"		[(($WIN32||$WIN64)||$POSIX) && $HL2]
-	"game\gameui\gameui_episodic.vpc"	[(($WIN32||$WIN64)||$POSIX) && $EPISODIC]
-	"game\gameui\gameui_hl2mp.vpc"		[(($WIN32||$WIN64)||$POSIX) && $HL2MP]
-	"game\gameui\gameui_hl2r.vpc"		[(($WIN32||$WIN64)||$POSIX) && $HL2R]
+	"game\gameui\gameui_hl2.vpc"		[($WINDOWS||$POSIX) && $HL2]
+	"game\gameui\gameui_episodic.vpc"	[($WINDOWS||$POSIX) && $EPISODIC]
+	"game\gameui\gameui_hl2mp.vpc"		[($WINDOWS||$POSIX) && $HL2MP]
+	"game\gameui\gameui_hl2r.vpc"		[($WINDOWS||$POSIX) && $HL2R]
 }
 
 $Project "game_shader_generic_advanced"
 {
-	"sdkshaders\advanced\game_shader_generic_advanced.vpc" [($WIN32||$WIN64)]
+	"sdkshaders\advanced\game_shader_generic_advanced.vpc" [$WINDOWS]
 }
 
 $Project "game_shader_generic_sample"
 {
-	"sdkshaders\game_shader_generic_sample.vpc" [($WIN32||$WIN64)]
+	"sdkshaders\game_shader_generic_sample.vpc" [$WINDOWS]
 }
 
 $Project "genrandomvectors"
 {
-	"utils\genrandomvectors\genrandomvectors.vpc" [($WIN32||$WIN64)]
+	"utils\genrandomvectors\genrandomvectors.vpc" [$WINDOWS]
 }
 
 $Project "getbugs"
 {
-	"utils\getbugs\getbugs.vpc" [($WIN32||$WIN64)]
+	"utils\getbugs\getbugs.vpc" [$WINDOWS]
 }
 
 $Project "getmirror"
 {
-	"devtools\getmirror\getmirror.vpc" [($WIN32||$WIN64)]
+	"devtools\getmirror\getmirror.vpc" [$WINDOWS]
 }
 
 $Project "glview"
 {
-	"utils\glview\glview.vpc" [($WIN32||$WIN64)]
+	"utils\glview\glview.vpc" [$WINDOWS]
 }
 
 $Project "hammer_dll"
 {
-	"hammer\hammer_dll.vpc" [($WIN32||$WIN64)]
+	"hammer\hammer_dll.vpc" [$WINDOWS]
 }
 
 $Project "hammer_launcher"
 {
-	"hammer_launcher\hammer_launcher.vpc" [($WIN32||$WIN64)]
+	"hammer_launcher\hammer_launcher.vpc" [$WINDOWS]
 }
 
 $Project "height2normal"
 {
-	"utils\height2normal\height2normal.vpc" [($WIN32||$WIN64)||$POSIX]
+	"utils\height2normal\height2normal.vpc" [$WINDOWS||$POSIX]
 }
 
 $Project "height2ssbump"
 {
-	"utils\height2ssbump\height2ssbump.vpc" [($WIN32||$WIN64)||$POSIX]
+	"utils\height2ssbump\height2ssbump.vpc" [$WINDOWS||$POSIX]
 }
 
 $Project "particles"
 {
-	"particles\particles.vpc" [($WIN32||$WIN64)||$POSIX]
+	"particles\particles.vpc" [$WINDOWS||$POSIX]
 }
 
 $Project "server"
 {
-	"game\server\server_hl2.vpc"		[(($WIN32||$WIN64)||$POSIX) && $HL2]
-	"game\server\server_episodic.vpc"	[(($WIN32||$WIN64)||$POSIX) && $EPISODIC]
-	"game\server\server_hl2mp.vpc"		[(($WIN32||$WIN64)||$POSIX) && $HL2MP]
-	"game\server\server_hl2r.vpc"		[(($WIN32||$WIN64)||$POSIX) && $HL2R]
+	"game\server\server_hl2.vpc"		[($WINDOWS||$POSIX) && $HL2]
+	"game\server\server_episodic.vpc"	[($WINDOWS||$POSIX) && $EPISODIC]
+	"game\server\server_hl2mp.vpc"		[($WINDOWS||$POSIX) && $HL2MP]
+	"game\server\server_hl2r.vpc"		[($WINDOWS||$POSIX) && $HL2R]
 }
 
 $Project "simdtest"
 {
-	"utils\simdtest\simdtest.vpc" [($WIN32||$WIN64)]
+	"utils\simdtest\simdtest.vpc" [$WINDOWS]
 }
 
 $Project "hlfaceposer"
 {
-	"utils\hlfaceposer\hlfaceposer.vpc" [($WIN32||$WIN64)]
+	"utils\hlfaceposer\hlfaceposer.vpc" [$WINDOWS]
 }
 
 $Project "hlmv"
 {
-	"utils\hlmv\hlmv.vpc" [($WIN32||$WIN64)]
+	"utils\hlmv\hlmv.vpc" [$WINDOWS]
 }
 
 $Project "hl_res_us"
 {
-	"shell\hl_res\hl_res_us\hl_res_us.vpc" [($WIN32||$WIN64)]
+	"shell\hl_res\hl_res_us\hl_res_us.vpc" [$WINDOWS]
 }
 
 $Project "ihvtest1"
 {
-	"unittests\ihvtest1\ihvtest1.vpc" [($WIN32||$WIN64)]
+	"unittests\ihvtest1\ihvtest1.vpc" [$WINDOWS]
 }
 
 $Project "inputsystem"
 {
-	"inputsystem\inputsystem.vpc" [($WIN32||$WIN64)||$POSIX]
+	"inputsystem\inputsystem.vpc" [$WINDOWS||$POSIX]
 }
 
 $Project "inputtest"
 {
-	"unittests\inputtest\inputtest.vpc" [($WIN32||$WIN64)]
+	"unittests\inputtest\inputtest.vpc" [$WINDOWS]
 }
 
 $Project "jpeglib"
 {
-	"utils\jpeglib\jpeglib.vpc" [($WIN32||$WIN64)]
+	"thirdparty\jpeglib\jpeglib.vpc" [$WINDOWS]
 }
 
 $Project "kvc"
 {
-	"utils\kvc\kvc.vpc" [($WIN32||$WIN64)]
+	"utils\kvc\kvc.vpc" [$WINDOWS]
 }
 
 $Project "launcher"
 {
-	"launcher\launcher.vpc" [($WIN32||$WIN64)||$POSIX]
+	"launcher\launcher.vpc" [$WINDOWS||$POSIX]
 }
 
 $Project "launcher_main"
 {
-	"launcher_main\launcher_main.vpc" [($WIN32||$WIN64)||$POSIX]
+	"launcher_main\launcher_main.vpc" [$WINDOWS||$POSIX]
 }
 
 $Project "LicenseViewed"
 {
-	"devtools\WiseInstallerHelpers\LicenseViewed.vpc" [($WIN32||$WIN64)]
+	"devtools\WiseInstallerHelpers\LicenseViewed.vpc" [$WINDOWS]
 }
 
 $Project "localization_check"
 {
-	"utils\localization_check\localization_check.vpc" [($WIN32||$WIN64)]
+	"utils\localization_check\localization_check.vpc" [$WINDOWS]
 }
 
 $Project "localresource"
 {
-	"shell\localresource\localresource.vpc" [($WIN32||$WIN64)]
+	"shell\localresource\localresource.vpc" [$WINDOWS]
 }
 
 $Project "lua"
 {
-	"lua\lua.vpc" [($WIN32||$WIN64)]
+	"lua\lua.vpc" [$WINDOWS]
 }
 
 $Project "lzma"
 {
-	"utils\lzma\lzma.vpc" [($WIN32||$WIN64)]
+	"thirdparty\lzma\lzma.vpc" [$WINDOWS]
 }
 
 $Project "materialsystem"
 {
-	"materialsystem\materialsystem.vpc" [($WIN32||$WIN64)||$POSIX]
+	"materialsystem\materialsystem.vpc" [$WINDOWS||$POSIX]
 }
 
 $Project "materialsystemtest"
 {
-	"unittests\materialsystemtest\materialsystemtest.vpc" [($WIN32||$WIN64)]
+	"unittests\materialsystemtest\materialsystemtest.vpc" [$WINDOWS]
 }
 
 $Project "mathlib"
 {
-	"mathlib\mathlib.vpc" [($WIN32||$WIN64)||$POSIX]
+	"mathlib\mathlib.vpc" [$WINDOWS||$POSIX]
 }
 
 $Project "matsys_controls"
 {
-	"vgui2\matsys_controls\matsys_controls.vpc" [($WIN32||$WIN64)||$POSIX]
+	"vgui2\matsys_controls\matsys_controls.vpc" [$WINDOWS||$POSIX]
 }
 
 $Project "matsys_regressiontest"
 {
-	"utils\matsys_regressiontest\matsys_regressiontest.vpc" [($WIN32||$WIN64)]
+	"utils\matsys_regressiontest\matsys_regressiontest.vpc" [$WINDOWS]
 }
 
 $Project "mdlcheck"
 {
-	"utils\mdlcheck\mdlcheck.vpc" [($WIN32||$WIN64)]
+	"utils\mdlcheck\mdlcheck.vpc" [$WINDOWS]
 }
 
 $Project "mdmpRipper"
 {
-	"utils\mdmpRipper\mdmpRipper.vpc" [($WIN32||$WIN64)]
+	"utils\mdmpRipper\mdmpRipper.vpc" [$WINDOWS]
 }
 
 $Project "mksheet"
 {
-	"utils\mksheet\mksheet.vpc" [($WIN32||$WIN64)]
+	"utils\mksheet\mksheet.vpc" [$WINDOWS]
 }
 
 $Project "modelbrowser"
 {
-	"utils\modelbrowser\modelbrowser.vpc" [($WIN32||$WIN64)]
+	"utils\modelbrowser\modelbrowser.vpc" [$WINDOWS]
 }
 
 $Project "modelcheckin"
 {
-	"utils\modelcheckin\modelcheckin.vpc" [($WIN32||$WIN64)]
+	"utils\modelcheckin\modelcheckin.vpc" [$WINDOWS]
 }
 
 $Project "motionmapper"
 {
-	"utils\motionmapper\motionmapper.vpc" [($WIN32||$WIN64)]
+	"utils\motionmapper\motionmapper.vpc" [$WINDOWS]
 }
 
 $Project "movieobjects"
 {
-	"movieobjects\movieobjects.vpc" [($WIN32||$WIN64)]
+	"movieobjects\movieobjects.vpc" [$WINDOWS]
 }
 
 $Project "mxtoolkitwin32"
 {
-	"utils\mxtk\mxtoolkitwin32.vpc" [($WIN32||$WIN64)]
+	"utils\mxtk\mxtoolkitwin32.vpc" [$WINDOWS]
 }
 
 $Project "mysql_wrapper"
 {
-	"utils\vmpi_private\mysql_wrapper\mysql_wrapper.vpc" [($WIN32||$WIN64)]
+	"utils\vmpi_private\mysql_wrapper\mysql_wrapper.vpc" [$WINDOWS]
 }
 
 $Project "networksystem"
 {
-	"networksystem\networksystem.vpc" [($WIN32||$WIN64)]
+	"networksystem\networksystem.vpc" [$WINDOWS]
 }
 
 $Project "networktest"
 {
-	"unittests\networktest\networktest.vpc" [($WIN32||$WIN64)]
+	"unittests\networktest\networktest.vpc" [$WINDOWS]
 }
 
 $Project "newdat"
 {
-	"utils\newdat\newdat.vpc" [($WIN32||$WIN64)]
+	"utils\newdat\newdat.vpc" [$WINDOWS]
 }
 
 $Project "normal2ssbump"
 {
-	"utils\normal2ssbump\normal2ssbump.vpc" [($WIN32||$WIN64)]
+	"utils\normal2ssbump\normal2ssbump.vpc" [$WINDOWS]
 }
 
 $Project "nvtristriplib"
 {
-	"utils\nvtristriplib\nvtristriplib.vpc" [($WIN32||$WIN64)]
+	"utils\nvtristriplib\nvtristriplib.vpc" [$WINDOWS]
 }
 
 $Project "mdllib"
 {
-	"mdllib\mdllib.vpc" [($WIN32||$WIN64)]
+	"mdllib\mdllib.vpc" [$WINDOWS]
 }
 
 $Project "paginate"
 {
-	"utils\paginate\paginate.vpc" [($WIN32||$WIN64)]
+	"utils\paginate\paginate.vpc" [$WINDOWS]
 }
 
 $Project "panel_zoo"
 {
-	"utils\vgui_panel_zoo\panel_zoo.vpc" [($WIN32||$WIN64)]
+	"utils\vgui_panel_zoo\panel_zoo.vpc" [$WINDOWS]
 }
 
 $Project "parsifal"
 {
-	"libparsifal\win32\vc6\parsifal.vpc" [($WIN32||$WIN64)]
+	"libparsifal\win32\vc6\parsifal.vpc" [$WINDOWS]
 }
 
 $Project "pcffix"
 {
-	"utils\pcffix\pcffix.vpc" [($WIN32||$WIN64)]
+	"utils\pcffix\pcffix.vpc" [$WINDOWS]
 }
 
 $Project "pet"
 {
-	"tools\pet\pet.vpc" [($WIN32||$WIN64)]
+	"tools\pet\pet.vpc" [$WINDOWS]
 }
 
 $Project "pfmcomp"
 {
-	"utils\pfmcomp\pfmcomp.vpc" [($WIN32||$WIN64)]
+	"utils\pfmcomp\pfmcomp.vpc" [$WINDOWS]
 }
 
 $Project "pfm2tgas"
 {
-	"utils\pfm2tgas\pfm2tgas.vpc" [($WIN32||$WIN64)]
+	"utils\pfm2tgas\pfm2tgas.vpc" [$WINDOWS]
 }
 
 $Project "phonemeextractor"
 {
-	"utils\phonemeextractor\phonemeextractor.vpc" [($WIN32||$WIN64)]
-}
-
-$Project "phonemeextractor_ims"
-{
-	"utils\phonemeextractor\phonemeextractor_ims.vpc" [($WIN32||$WIN64)]
+	"utils\phonemeextractor\phonemeextractor.vpc" [$WINDOWS]
 }
 
 $Project "printbones"
 {
-	"utils\printbones\printbones.vpc" [($WIN32||$WIN64)]
+	"utils\printbones\printbones.vpc" [$WINDOWS]
 }
 
 $Project "processgamestats"
 {
-	"devtools\processgamestats\processgamestats.vpc" [($WIN32||$WIN64)]
+	"devtools\processgamestats\processgamestats.vpc" [$WINDOWS]
 }
 
 $Project "psdinfo"
 {
-	"utils\psdinfo\psdinfo.vpc" [($WIN32||$WIN64)]
+	"utils\psdinfo\psdinfo.vpc" [$WINDOWS]
 }
 
 $Project "QCGenerator_Launcher"
 {
-	"utils\QCGenerator\QCGenerator_Launcher.vpc" [($WIN32||$WIN64)]
+	"utils\QCGenerator\QCGenerator_Launcher.vpc" [$WINDOWS]
 }
 
 $Project "QC_Eyes"
 {
-	"utils\QC_Eyes\QC_Eyes.vpc" [($WIN32||$WIN64)]
+	"utils\QC_Eyes\QC_Eyes.vpc" [$WINDOWS]
 }
 
 $Project "quantize"
 {
-	"quantize\quantize.vpc" [($WIN32||$WIN64)]
+	"quantize\quantize.vpc" [$WINDOWS]
 }
 
 $Project "raytrace"
 {
-	"raytrace\raytrace.vpc" [($WIN32||$WIN64)||$POSIX]
+	"raytrace\raytrace.vpc" [$WINDOWS||$POSIX]
 }
 
 $Project "res2c"
 {
-	"utils\tfstats\res2c\res2c.vpc" [($WIN32||$WIN64)]
+	"utils\tfstats\res2c\res2c.vpc" [$WINDOWS]
 }
 
 $Project "rpt"
 {
-	"utils\rpt\rpt.vpc" [($WIN32||$WIN64)]
+	"utils\rpt\rpt.vpc" [$WINDOWS]
 }
 
 $Project "rt_test"
 {
-	"unittests\rt_test\rt_test.vpc" [($WIN32||$WIN64)]
+	"unittests\rt_test\rt_test.vpc" [$WINDOWS]
 }
 
 $Project "runme"
 {
-	"utils\runme\runme.vpc" [($WIN32||$WIN64)]
+	"utils\runme\runme.vpc" [$WINDOWS]
 }
 
 $Project "sampletool"
 {
-	"tools\sampletool\sampletool.vpc" [($WIN32||$WIN64)]
+	"tools\sampletool\sampletool.vpc" [$WINDOWS]
 }
 
 $Project "scenefilecache"
 {
-	"scenefilecache\scenefilecache.vpc" [($WIN32||$WIN64)||$POSIX]
+	"scenefilecache\scenefilecache.vpc" [$WINDOWS||$POSIX]
 }
 
 $Project "scenemanager"
 {
-	"utils\scenemanager\scenemanager.vpc" [($WIN32||$WIN64)]
+	"utils\scenemanager\scenemanager.vpc" [$WINDOWS]
 }
 
 $Project "sceneviewer"
 {
-	"utils\sceneviewer\sceneviewer.vpc" [($WIN32||$WIN64)]
+	"utils\sceneviewer\sceneviewer.vpc" [$WINDOWS]
 }
+
 $Project "SDKLauncher"
 {
-	"sdklauncher\SDKLauncher.vpc" [($WIN32||$WIN64)]
+	"sdklauncher\SDKLauncher.vpc" [$WINDOWS]
 }
 
 $Project "ServerBrowser"
 {
-	"ServerBrowser\ServerBrowser.vpc" [($WIN32||$WIN64)||$X360]
+	"ServerBrowser\ServerBrowser.vpc" [$WINDOWS||$X360]
 }
 
 $Project "ServerMonitor"
 {
-	"Tracker\ServerMonitor\ServerMonitor.vpc" [($WIN32||$WIN64)]
+	"Tracker\ServerMonitor\ServerMonitor.vpc" [$WINDOWS]
 }
 
 $Project "serverplugin_empty"
 {
-	"utils\serverplugin_sample\serverplugin_empty.vpc" [($WIN32||$WIN64)||$POSIX]
+	"utils\serverplugin_sample\serverplugin_empty.vpc" [$WINDOWS||$POSIX]
 }
 
 $Project "sfmgen"
 {
-	"utils\sfmgen\sfmgen.vpc" [($WIN32||$WIN64)]
+	"utils\sfmgen\sfmgen.vpc" [$WINDOWS]
 }
 
 $Project "sfmobjects"
 {
-	"sfmobjects\sfmobjects.vpc" [($WIN32||$WIN64)]
+	"sfmobjects\sfmobjects.vpc" [$WINDOWS]
 }
 
 $Project "shadercompile_dll"
 {
-	"utils\shadercompile\shadercompile_dll.vpc" [($WIN32||$WIN64)]
+	"utils\shadercompile\shadercompile_dll.vpc" [$WINDOWS]
 }
 
 $Project "shadercompile_launcher"
 {
-	"utils\shadercompile_launcher\shadercompile_launcher.vpc" [($WIN32||$WIN64)]
+	"utils\shadercompile_launcher\shadercompile_launcher.vpc" [$WINDOWS]
 }
 
 $Project "shaderapidx9"
 {
-	"materialsystem\shaderapidx9\shaderapidx9.vpc" [($WIN32||$WIN64)||$POSIX]
+	"materialsystem\shaderapidx9\shaderapidx9.vpc" [$WINDOWS||$POSIX]
 }
 
 $Project "shaderapidx10"
 {
-	"materialsystem\shaderapidx9\shaderapidx10.vpc" [($WIN32||$WIN64)||$POSIX]
+	"materialsystem\shaderapidx9\shaderapidx10.vpc" [$WINDOWS||$POSIX]
 }
 
 $Project "shaderapiempty"
 {
-	"materialsystem\shaderapiempty\shaderapiempty.vpc" [($WIN32||$WIN64)]
+	"materialsystem\shaderapiempty\shaderapiempty.vpc" [$WINDOWS]
 }
 
 $Project "shaderapitest"
 {
-	"unittests\shaderapitest\shaderapitest.vpc" [($WIN32||$WIN64)]
+	"unittests\shaderapitest\shaderapitest.vpc" [$WINDOWS]
 }
 
 $Project "shaderinfo"
 {
-	"utils\shaderinfo\shaderinfo.vpc" [($WIN32||$WIN64)]
+	"utils\shaderinfo\shaderinfo.vpc" [$WINDOWS]
 }
 
 $Project "shaderlib"
 {
-	"materialsystem\shaderlib\shaderlib.vpc" [($WIN32||$WIN64)||$POSIX]
+	"materialsystem\shaderlib\shaderlib.vpc" [$WINDOWS||$POSIX]
 }
 
 $Project "shader_nvfx"
 {
-	"materialsystem\stdshaders\shader_nvfx.vpc" [($WIN32||$WIN64)]
+	"materialsystem\stdshaders\shader_nvfx.vpc" [$WINDOWS]
 }
 
 $Project "shader_test"
 {
-	"materialsystem\stdshaders\shader_test.vpc" [($WIN32||$WIN64)]
+	"materialsystem\stdshaders\shader_test.vpc" [$WINDOWS]
 }
 
 $Project "SMDExportMP"
 {
-	"utils\xsi\SMDExportMP\SMDExportMP.vpc" [($WIN32||$WIN64)]
+	"utils\xsi\SMDExportMP\SMDExportMP.vpc" [$WINDOWS]
 }
 
 $Project "smdlexp"
 {
-	"utils\smdlexp\smdlexp.vpc" [($WIN32||$WIN64)]
+	"utils\smdlexp\smdlexp.vpc" [$WINDOWS]
 }
 
 $Project "smp"
 {
-	"utils\smp\smp.vpc" [($WIN32||$WIN64)]
+	"utils\smp\smp.vpc" [$WINDOWS]
 }
 
 $Project "smtpmail"
 {
-	"devtools\smtpmail\smtpmail.vpc" [($WIN32||$WIN64)]
+	"devtools\smtpmail\smtpmail.vpc" [$WINDOWS]
 }
 
 $Project "socket_tests"
 {
-	"utils\socket_tests\socket_tests.vpc" [($WIN32||$WIN64)]
+	"utils\socket_tests\socket_tests.vpc" [$WINDOWS]
 }
 
 $Project "soundemittersystem"
 {
-	"soundemittersystem\soundemittersystem.vpc" [($WIN32||$WIN64)||$POSIX]
+	"soundemittersystem\soundemittersystem.vpc" [$WINDOWS||$POSIX]
 }
 
 $Project "soundsystem"
 {
-	"soundsystem\soundsystem.vpc" [($WIN32||$WIN64)]
+	"soundsystem\soundsystem.vpc" [$WINDOWS]
 }
 
 $Project "soundtest"
 {
-	"unittests\soundtest\soundtest.vpc" [($WIN32||$WIN64)]
-}
-
-$Project "speex"
-{
-	"engine\voice_codecs\speex\speex.vpc" [($WIN32||$WIN64)]
+	"unittests\soundtest\soundtest.vpc" [$WINDOWS]
 }
 
 $Project "splitskybox"
 {
-	"utils\splitskybox\splitskybox.vpc" [($WIN32||$WIN64)]
+	"utils\splitskybox\splitskybox.vpc" [$WINDOWS]
 }
 
 $Project "sqldb_mysql"
 {
-	"Tracker\sqldb_mysql\sqldb_mysql.vpc" [($WIN32||$WIN64)]
+	"Tracker\sqldb_mysql\sqldb_mysql.vpc" [$WINDOWS]
 }
 
 $Project "sqlwrapper"
 {
-	"utils\sqlwrapper\sqlwrapper.vpc" [($WIN32||$WIN64)]
+	"utils\sqlwrapper\sqlwrapper.vpc" [$WINDOWS]
 }
 
 $Project "standalonedatatabletest"
 {
-	"utils\standalonedatatabletest\standalonedatatabletest.vpc" [($WIN32||$WIN64)]
+	"utils\standalonedatatabletest\standalonedatatabletest.vpc" [$WINDOWS]
 }
 
 $Project "Status"
 {
-	"status\Status.vpc" [($WIN32||$WIN64)]
+	"status\Status.vpc" [$WINDOWS]
 }
 
-$Project "stdshader_dbg"
+$project "stdshader_dbg"
 {
-	"materialsystem\stdshaders\stdshader_dbg.vpc" [($WIN32||$WIN64)||$POSIX]
-}
-
-$Project "stdshader_dx6"
-{
-	"materialsystem\stdshaders\stdshader_dx6.vpc" [($WIN32||$WIN64)||$POSIX]
-}
-
-$Project "stdshader_dx7"
-{
-	"materialsystem\stdshaders\stdshader_dx7.vpc" [($WIN32||$WIN64)||$POSIX]
-}
-
-$Project "stdshader_dx8"
-{
-	"materialsystem\stdshaders\stdshader_dx8.vpc" [($WIN32||$WIN64)||$POSIX]
+	"materialsystem\stdshaders\stdshader_dbg.vpc" [$WINDOWS||$POSIX]
 }
 
 $Project "stdshader_dx9"
 {
-	"materialsystem\stdshaders\stdshader_dx9.vpc" [($WIN32||$WIN64)||$POSIX]
+	"materialsystem\stdshaders\stdshader_dx9.vpc" [$WINDOWS||$POSIX]
 }
 
 $Project "SteamDebugHelper"
 {
-	"utils\SteamDebugHelper\SteamDebugHelper.vpc" [($WIN32||$WIN64)]
+	"utils\SteamDebugHelper\SteamDebugHelper.vpc" [$WINDOWS]
 }
 
 $Project "studiomdl"
 {
-	"utils\studiomdl\studiomdl.vpc" [($WIN32||$WIN64)]
+	"utils\studiomdl\studiomdl.vpc" [$WINDOWS]
 }
 
 $Project "studiorender"
 {
-	"studiorender\studiorender.vpc" [($WIN32||$WIN64)||$POSIX]
+	"studiorender\studiorender.vpc" [$WINDOWS||$POSIX]
 }
 
 $Project "syncfrommirror"
 {
-	"devtools\syncfrommirror\syncfrommirror.vpc" [($WIN32||$WIN64)]
+	"devtools\syncfrommirror\syncfrommirror.vpc" [$WINDOWS]
 }
 
 $Project "tagbuild"
 {
-	"devtools\tagbuild\tagbuild.vpc" [($WIN32||$WIN64)]
+	"devtools\tagbuild\tagbuild.vpc" [$WINDOWS]
 }
 
 $Project "tagxzppreload"
 {
-	"utils\xbox\tagxzppreload\tagxzppreload.vpc" [($WIN32||$WIN64)]
+	"utils\xbox\tagxzppreload\tagxzppreload.vpc" [$WINDOWS]
 }
 
 $Project "test"
 {
-	"shell\uninstall\uninstalltester\test.vpc" [($WIN32||$WIN64)]
+	"shell\uninstall\uninstalltester\test.vpc" [$WINDOWS]
 }
 
 $Project "test_binaries"
 {
-	"devtools\test_binaries\test_binaries.vpc" [($WIN32||$WIN64)]
+	"devtools\test_binaries\test_binaries.vpc" [$WINDOWS]
 }
 
 $Project "testprocess"
 {
-	"unittests\testprocess\testprocess.vpc" [($WIN32||$WIN64)]
+	"unittests\testprocess\testprocess.vpc" [$WINDOWS]
 }
 
 $Project "texturecompile_dll"
 {
-	"utils\texturecompile\texturecompile_dll.vpc" [($WIN32||$WIN64)]
+	"utils\texturecompile\texturecompile_dll.vpc" [$WINDOWS]
 }
 
 $Project "texturecompile_launcher"
 {
-	"utils\texturecompile_launcher\texturecompile_launcher.vpc" [($WIN32||$WIN64)]
+	"utils\texturecompile_launcher\texturecompile_launcher.vpc" [$WINDOWS]
 }
 
 $Project "texturesynth"
 {
-	"utils\Texturesynth\texturesynth.vpc" [($WIN32||$WIN64)]
+	"utils\Texturesynth\texturesynth.vpc" [$WINDOWS]
 }
 
 $Project "tfstats"
 {
-	"utils\tfstats\tfstats.vpc" [($WIN32||$WIN64)]
+	"utils\tfstats\tfstats.vpc" [$WINDOWS]
 }
 
 $Project "tgadiff"
 {
-	"utils\tgadiff\tgadiff.vpc" [($WIN32||$WIN64)]
+	"utils\tgadiff\tgadiff.vpc" [$WINDOWS]
 }
 
 $Project "tgamse"
 {
-	"utils\tgamse\tgamse.vpc" [($WIN32||$WIN64)]
+	"utils\tgamse\tgamse.vpc" [$WINDOWS]
 }
 
 $Project "tier0"
 {
-	"tier0\tier0.vpc" 	[($WIN32||$WIN64)||$POSIX]
+	"tier0\tier0.vpc" 	[$WINDOWS||$POSIX]
 }
 
 $Project "tier1"
 {
-	"tier1\tier1.vpc" 	[($WIN32||$WIN64)||$POSIX]
+	"tier1\tier1.vpc" 	[$WINDOWS||$POSIX]
 }
 
 $Project "tier2"
 {
-	"tier2\tier2.vpc" 	[($WIN32||$WIN64)||$POSIX]
+	"tier2\tier2.vpc" 	[$WINDOWS||$POSIX]
 }
 
 $Project "tier3"
 {
-	"tier3\tier3.vpc" 	[($WIN32||$WIN64)||$POSIX]
+	"tier3\tier3.vpc" 	[$WINDOWS||$POSIX]
 }
 
 $Project "tier1test"
 {
-	"unittests\tier1test\tier1test.vpc" 	[($WIN32||$WIN64)]
+	"unittests\tier1test\tier1test.vpc" 	[$WINDOWS]
 }
 
 $Project "tier2test"
 {
-	"unittests\tier2test\tier2test.vpc" 	[($WIN32||$WIN64)]
+	"unittests\tier2test\tier2test.vpc" 	[$WINDOWS]
 }
 
 $Project "tier3test"
 {
-	"unittests\tier3test\tier3test.vpc" 	[($WIN32||$WIN64)]
+	"unittests\tier3test\tier3test.vpc" 	[$WINDOWS]
+}
+
+$Project "togl"
+{
+	"togl\togl.vpc" [$GL]
 }
 
 $Project "toolutils"
 {
-	"tools\toolutils\toolutils.vpc" [($WIN32||$WIN64)]
+	"tools\toolutils\toolutils.vpc" [$WINDOWS]
 }
 
 $Project "TrackerDBG"
 {
-	"Tracker\TrackerDBG\TrackerDBG.vpc" [($WIN32||$WIN64)]
+	"Tracker\TrackerDBG\TrackerDBG.vpc" [$WINDOWS]
 }
 
 $Project "TrackerNET"
 {
-	"Tracker\TrackerNET\TrackerNET.vpc" [($WIN32||$WIN64)]
+	"Tracker\TrackerNET\TrackerNET.vpc" [$WINDOWS]
 }
 
 $Project "TrackerServer"
 {
-	"Tracker\TrackerServer\TrackerServer.vpc" [($WIN32||$WIN64)]
+	"Tracker\TrackerServer\TrackerServer.vpc" [$WINDOWS]
 }
 
 $Project "TrackerSRV"
 {
-	"Tracker\TrackerSRV\TrackerSRV.vpc" [($WIN32||$WIN64)]
+	"Tracker\TrackerSRV\TrackerSRV.vpc" [$WINDOWS]
 }
 
 $Project "TrackerTest"
 {
-	"Tracker\TrackerTest\TrackerTest.vpc" [($WIN32||$WIN64)]
+	"Tracker\TrackerTest\TrackerTest.vpc" [$WINDOWS]
 }
 
 $Project "TrackerUI"
 {
-	"Tracker\TrackerUI\TrackerUI.vpc" [($WIN32||$WIN64)]
+	"Tracker\TrackerUI\TrackerUI.vpc" [$WINDOWS]
 }
 
 $Project "ui"
 {
-	"utils\tfstats\ui\ui.vpc" [($WIN32||$WIN64)]
+	"utils\tfstats\ui\ui.vpc" [$WINDOWS]
 }
 
 $Project "unicode"
 {
-	"unicode\unicode.vpc" [($WIN32||$WIN64)]
+	"unicode\unicode.vpc" [$WINDOWS]
 }
 
 $Project "uninstall"
 {
-	"shell\uninstall\uninstall.vpc" [($WIN32||$WIN64)]
+	"shell\uninstall\uninstall.vpc" [$WINDOWS]
 }
 
 $Project "unitlib"
 {
-	"unitlib\unitlib.vpc" [($WIN32||$WIN64)]
+	"unitlib\unitlib.vpc" [$WINDOWS]
 }
 
 $Project "unittest"
 {
-	"utils\unittest\unittest.vpc" [($WIN32||$WIN64)]
+	"utils\unittest\unittest.vpc" [$WINDOWS]
 }
 
 $Project "unusedcontent"
 {
-	"utils\unusedcontent\unusedcontent.vpc" [($WIN32||$WIN64)]
+	"utils\unusedcontent\unusedcontent.vpc" [$WINDOWS]
 }
 
 $Project "UpdateProgress"
 {
-	"devtools\WiseInstallerHelpers\UpdateProgress\UpdateProgress.vpc" [($WIN32||$WIN64)]
+	"devtools\WiseInstallerHelpers\UpdateProgress\UpdateProgress.vpc" [$WINDOWS]
 }
 
 $Project "valvelib"
 {
-	"utils\valvelib\valvelib.vpc" [($WIN32||$WIN64)]
+	"utils\valvelib\valvelib.vpc" [$WINDOWS]
 }
 
-$Project "valve_avi"
+$Project "qvideo"
 {
-	"avi\valve_avi.vpc" [($WIN32||$WIN64)]
-}
-
-$Project "valvemaya_maya7"
-{
-	"sdktools\maya\valveMaya\valveMaya_Maya7.vpc" [($WIN32||$WIN64)]
-}
-
-$Project "valvemaya_maya8"
-{
-	"sdktools\maya\valveMaya\valveMaya_Maya8.vpc" [($WIN32||$WIN64)]
+	"video\qvideo.vpc" [$WINDOWS]
 }
 
 $Project "vaudio_miles"
 {
-	"engine\voice_codecs\miles\vaudio_miles.vpc" [($WIN32||$WIN64)]
+	"engine\voice_codecs\miles\vaudio_miles.vpc" [$WINDOWS]
 }
 
 $Project "vaudio_speex"
 {
-	"engine\voice_codecs\speex\speex.vpc" [($WIN32||$WIN64)]
-}
-
-$Project "vaudio_speexfull"
-{
-	"engine\voice_codecs\speex\speex_full.vpc" [($WIN32||$WIN64)]
+	"engine\voice_codecs\speex\vaudio_speex.vpc" [$WINDOWS]
 }
 
 $Project "vbsp"
 {
-	"utils\vbsp\vbsp.vpc" [($WIN32||$WIN64)]
+	"utils\vbsp\vbsp.vpc" [$WINDOWS]
 }
 
 $Project "vbspinfo"
 {
-	"utils\vbspinfo\vbspinfo.vpc" [($WIN32||$WIN64)]
+	"utils\vbspinfo\vbspinfo.vpc" [$WINDOWS]
 }
 
 $Project "vcd_sound_check"
 {
-	"utils\vcd_sound_check\vcd_sound_check.vpc" [($WIN32||$WIN64)]
+	"utils\vcd_sound_check\vcd_sound_check.vpc" [$WINDOWS]
 }
 
 $Project "vcdblock"
 {
-	"tools\vcdblock\vcdblock.vpc" [($WIN32||$WIN64)]
+	"tools\vcdblock\vcdblock.vpc" [$WINDOWS]
 }
 
 $Project "vcdimport"
 {
-	"utils\vcdimport\vcdimport.vpc" [($WIN32||$WIN64)]
+	"utils\vcdimport\vcdimport.vpc" [$WINDOWS]
 }
 
 $Project "vcdupdate"
 {
-	"utils\vcdupdate\vcdupdate.vpc" [($WIN32||$WIN64)]
+	"utils\vcdupdate\vcdupdate.vpc" [$WINDOWS]
 }
 
 $Project "vconfig"
 {
-	"utils\vconfig\vconfig.vpc" [($WIN32||$WIN64)]
+	"utils\vconfig\vconfig.vpc" [$WINDOWS]
 }
 
 $Project "vcrtrace"
 {
-	"utils\vcrtrace\vcrtrace.vpc" [($WIN32||$WIN64)]
+	"utils\vcrtrace\vcrtrace.vpc" [$WINDOWS]
 }
 
 $Project "vguimatsurface"
 {
-	"vguimatsurface\vguimatsurface.vpc" [($WIN32||$WIN64)||$POSIX]
+	"vguimatsurface\vguimatsurface.vpc" [$WINDOWS||$POSIX]
 }
 
 $Project "vgui_controls"
 {
-	"vgui2\vgui_controls\vgui_controls.vpc" [($WIN32||$WIN64)||$POSIX]
+	"vgui2\vgui_controls\vgui_controls.vpc" [$WINDOWS||$POSIX]
 }
 
 $Project "vgui_dll"
 {
-	"vgui2\src\vgui_dll.vpc" [($WIN32||$WIN64)||$POSIX]
+	"vgui2\src\vgui_dll.vpc" [$WINDOWS||$POSIX]
 }
 
 $Project "vgui_surfacelib"
 {
-	"vgui2\vgui_surfacelib\vgui_surfacelib.vpc" [($WIN32||$WIN64)||$POSIX]
+	"vgui2\vgui_surfacelib\vgui_surfacelib.vpc" [$WINDOWS||$POSIX]
 }
 
 $Project "vice"
 {
-	"utils\vice\vice.vpc" [($WIN32||$WIN64)]
+	"utils\vice\vice.vpc" [$WINDOWS]
 }
 
 $Project "vkeyedit"
 {
-	"utils\vkeyedit\vkeyedit.vpc" [($WIN32||$WIN64)]
+	"utils\vkeyedit\vkeyedit.vpc" [$WINDOWS]
 }
 
 $Project "vlocalize"
 {
-	"vgui2\vlocalize\vlocalize.vpc" [($WIN32||$WIN64)]
+	"vgui2\vlocalize\vlocalize.vpc" [$WINDOWS]
 }
 
 $Project "vmf_tweak"
 {
-	"utils\vmf_tweak\vmf_tweak.vpc" [($WIN32||$WIN64)]
+	"utils\vmf_tweak\vmf_tweak.vpc" [$WINDOWS]
 }
 
 $Project "vmpi"
 {
-	"utils\vmpi\vmpi.vpc" [($WIN32||$WIN64)]
+	"utils\vmpi\vmpi.vpc" [$WINDOWS]
 }
 
 $Project "vmpi_job_search"
 {
-	"utils\vmpi\vmpi_job_search\vmpi_job_search.vpc" [($WIN32||$WIN64)]
+	"utils\vmpi\vmpi_job_search\vmpi_job_search.vpc" [$WINDOWS]
 }
 
 $Project "vmpi_job_watch"
 {
-	"utils\vmpi\vmpi_job_watch\vmpi_job_watch.vpc" [($WIN32||$WIN64)]
+	"utils\vmpi\vmpi_job_watch\vmpi_job_watch.vpc" [$WINDOWS]
 }
 
 $Project "vmpi_services_watch"
 {
-	"utils\vmpi\vmpi_services_watch\vmpi_services_watch.vpc" [($WIN32||$WIN64)]
+	"utils\vmpi\vmpi_services_watch\vmpi_services_watch.vpc" [$WINDOWS]
 }
 
 $Project "vmpi_service"
 {
-	"utils\vmpi\vmpi_service\vmpi_service.vpc" [($WIN32||$WIN64)]
+	"utils\vmpi\vmpi_service\vmpi_service.vpc" [$WINDOWS]
 }
 
 $Project "vmpi_transfer"
 {
-	"utils\vmpi\vmpi_transfer\vmpi_transfer.vpc" [($WIN32||$WIN64)]
+	"utils\vmpi\vmpi_transfer\vmpi_transfer.vpc" [$WINDOWS]
 }
 
 $Project "vmpi_service_install"
 {
-	"utils\vmpi\vmpi_service_install\vmpi_service_install.vpc" [($WIN32||$WIN64)]
+	"utils\vmpi\vmpi_service_install\vmpi_service_install.vpc" [$WINDOWS]
 }
 
 $Project "vmpi_service_ui"
 {
-	"utils\vmpi\vmpi_service_ui\vmpi_service_ui.vpc" [($WIN32||$WIN64)]
+	"utils\vmpi\vmpi_service_ui\vmpi_service_ui.vpc" [$WINDOWS]
 }
 
 $Project "vmt"
 {
-	"tools\vmt\vmt.vpc" [($WIN32||$WIN64)]
+	"tools\vmt\vmt.vpc" [$WINDOWS]
 }
 
 $Project "vmtcheck"
 {
-	"utils\vmtcheck\vmtcheck.vpc" [($WIN32||$WIN64)]
+	"utils\vmtcheck\vmtcheck.vpc" [$WINDOWS]
 }
 
 $Project "vmtedit"
 {
-	"utils\vmtedit\vmtedit.vpc" [($WIN32||$WIN64)]
+	"utils\vmtedit\vmtedit.vpc" [$WINDOWS]
 }
 
 $Project "voice_tweak"
 {
-	"utils\voice_tweak\voice_tweak.vpc" [($WIN32||$WIN64)]
+	"utils\voice_tweak\voice_tweak.vpc" [$WINDOWS]
+}
+
+$Project "vpc"
+{
+	"utils\vpc\vpc.vpc"	[$WINDOWS]
 }
 
 $Project "vphysics"
 {
-	"vphysics\vphysics.vpc"  [($WIN32||$WIN64)||$POSIX]
+	"vphysics\vphysics.vpc"  [$WINDOWS||$POSIX]
 }
 
 $Project "vprojtomake"
 {
-	"utils\vprojtomake\vprojtomake.vpc" [($WIN32||$WIN64)]
+	"utils\vprojtomake\vprojtomake.vpc" [$WINDOWS]
 }
 
 $Project "vrad_dll"
 {
-	"utils\vrad\vrad_dll.vpc" [($WIN32||$WIN64)]
+	"utils\vrad\vrad_dll.vpc" [$WINDOWS]
 }
 
 $Project "vrad_launcher"
 {
-	"utils\vrad_launcher\vrad_launcher.vpc" [($WIN32||$WIN64)]
-}
-
-$Project "vsdmxio_maya7"
-{
-	"sdktools\maya\vsdmxio\vsdmxio_Maya7.vpc" [($WIN32||$WIN64)]
-}
-
-$Project "vsdmxio_maya8"
-{
-	"sdktools\maya\vsdmxio\vsdmxio_Maya8.vpc" [($WIN32||$WIN64)]
-}
-
-$Project "vsmaster_maya7"
-{
-	"sdktools\maya\vsmaster\vsmaster_maya7.vpc"	[($WIN32||$WIN64)]
-}
-
-$Project "vsmaster_maya8"
-{
-	"sdktools\maya\vsmaster\vsmaster_maya8.vpc"	[($WIN32||$WIN64)]
-}
-
-$Project "vsmdlpreview_maya7"
-{
-	"sdktools\maya\vsmdlpreview\vsmdlpreview_maya7.vpc"	[($WIN32||$WIN64)]
-}
-
-$Project "vsmdlpreview_maya8"
-{
-	"sdktools\maya\vsmdlpreview\vsmdlpreview_maya8.vpc"	[($WIN32||$WIN64)]
-}
-
-$Project "vsskinner_maya7"
-{
-	"sdktools\maya\vsskinner\vsskinner_Maya7.vpc" [($WIN32||$WIN64)]
-}
-
-$Project "vsskinner_maya8"
-{
-	"sdktools\maya\vsskinner\vsskinner_Maya8.vpc" [($WIN32||$WIN64)]
+	"utils\vrad_launcher\vrad_launcher.vpc" [$WINDOWS]
 }
 
 $Project "vstdlib"
 {
-	"vstdlib\vstdlib.vpc"		[($WIN32||$WIN64)||$POSIX]
-}
-
-$Project "vstutils_maya7"
-{
-	"sdktools\maya\vstutils\vstutils_maya7.vpc"	[($WIN32||$WIN64)]
-}
-
-$Project "vstutils_maya8"
-{
-	"sdktools\maya\vstutils\vstutils_maya8.vpc"	[($WIN32||$WIN64)]
-}
-
-$Project "vsvmfio_maya7"
-{
-	"sdktools\maya\vsvmfio\vsvmfio_maya7.vpc"	[($WIN32||$WIN64)]
-}
-
-$Project "vsvmfio_maya8"
-{
-	"sdktools\maya\vsvmfio\vsvmfio_maya8.vpc"	[($WIN32||$WIN64)]
+	"vstdlib\vstdlib.vpc"		[$WINDOWS||$POSIX]
 }
 
 $Project "vtaexp"
 {
-	"utils\vtaexp\vtaexp.vpc" [($WIN32||$WIN64)]
+	"utils\vtaexp\vtaexp.vpc" [$WINDOWS]
 }
 
 $Project "vtex_dll"
 {
-	"utils\vtex\vtex_dll.vpc" [($WIN32||$WIN64)]
+	"utils\vtex\vtex_dll.vpc" [$WINDOWS]
 }
 
 $Project "vtex_launcher"
 {
-	"utils\vtex\vtex_launcher.vpc" [($WIN32||$WIN64)]
+	"utils\vtex\vtex_launcher.vpc" [$WINDOWS]
 }
 
 $Project "vtf"
 {
-	"vtf\vtf.vpc" [($WIN32||$WIN64)||$POSIX]
+	"vtf\vtf.vpc" [$WINDOWS||$POSIX]
 }
 
 $Project "vtf2tga"
 {
-	"utils\vtf2tga\vtf2tga.vpc" [($WIN32||$WIN64)]
+	"utils\vtf2tga\vtf2tga.vpc" [$WINDOWS]
 }
 
 $Project "vtfdiff"
 {
-	"utils\vtfdiff\vtfdiff.vpc" [($WIN32||$WIN64)]
+	"utils\vtfdiff\vtfdiff.vpc" [$WINDOWS]
 }
 
 $Project "vtfscrew"
 {
-	"utils\vtfscrew\vtfscrew.vpc" [($WIN32||$WIN64)]
+	"utils\vtfscrew\vtfscrew.vpc" [$WINDOWS]
 }
 
 $Project "vvis_dll"
 {
-	"utils\vvis\vvis_dll.vpc" [($WIN32||$WIN64)]
+	"utils\vvis\vvis_dll.vpc" [$WINDOWS]
 }
 
 $Project "vvis_launcher"
 {
-	"utils\vvis_launcher\vvis_launcher.vpc" [($WIN32||$WIN64)]
+	"utils\vvis_launcher\vvis_launcher.vpc" [$WINDOWS]
 }
 
 $Project "vweightexp"
 {
-	"utils\vweightexp\vweightexp.vpc" [($WIN32||$WIN64)]
+	"utils\vweightexp\vweightexp.vpc" [$WINDOWS]
 }
 
 $Project "WaitAndRestart"
 {
-	"utils\vmpi\WaitAndRestart\WaitAndRestart.vpc" [($WIN32||$WIN64)]
+	"utils\vmpi\WaitAndRestart\WaitAndRestart.vpc" [$WINDOWS]
 }
 
 $Project "xwad"
 {
-	"utils\xwad\xwad.vpc" [($WIN32||$WIN64)]
+	"utils\xwad\xwad.vpc" [$WINDOWS]
 }
 
 $Project "ZipAlign"
 {
-	"utils\zipalign\ZipAlign.vpc" [($WIN32||$WIN64)]
+	"utils\zipalign\ZipAlign.vpc" [$WINDOWS]
 }
 
 $Project "MathlibUnitTest"
