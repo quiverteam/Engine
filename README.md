@@ -15,7 +15,7 @@ Custom Source Engine branch based on Source Engine 2007, currently available on 
 
 4. Run src/materialsystem/stdshaders/buildallshaders.bat, then build stdshader projects.
 
-5. Edit game/make_dir_junction.bat with your HL2 install directory if needed and Run. This is needed because the VPK support is a bit different from Source 2013, so if you have too many and/or too long search paths, you will hit the a limit in V_AppendSlash. This will hopefully be fixed soon.
+5. Edit game/make_dir_junction.bat with your HL2 install directory if needed and Run. This is used so you don't add absolute paths into the gameinfo.txt file for loading assets.
 
 You can run the engine with run_mod_hl2.bat or run_hl2r.bat.
 
