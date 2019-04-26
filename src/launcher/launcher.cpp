@@ -674,7 +674,7 @@ bool CSourceAppSystemGroup::PreInit()
 	if ( FileSystem_MountContent( fsInfo ) != FS_OK )
 		return false;
 
-	fsInfo.m_pFileSystem->AddSearchPath( "platform", "PLATFORM" );
+	fsInfo.m_pFileSystem->AddSearchPath( "core", "CORE" );
 
 	// This will get called multiple times due to being here, but only the first one will do anything
 	reslistgenerator->Init( GetBaseDirectory(), CommandLine()->ParmValue( "-game", "mod_hl2" ) );

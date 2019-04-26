@@ -524,7 +524,7 @@ KeyValues *CShaderDeviceMgrBase::ReadDXSupportKeyValues()
 	if ( IsX360() && g_pFullFileSystem->GetDVDMode() == DVDMODE_STRICT )
 	{
 		// 360 dvd optimzation, expect it inside the platform zip
-		pPathID = "PLATFORM";
+		pPathID = "CORE";
 	}
 
 	// First try to read a game-specific config, if it exists
