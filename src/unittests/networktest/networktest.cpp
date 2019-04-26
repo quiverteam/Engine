@@ -205,12 +205,12 @@ bool CNetworkTestApp::SetupSearchPaths()
 
 	g_pFileSystem->AddSearchPath( steamInfo.m_GameInfoPath, "SKIN", PATH_ADD_TO_HEAD );
 
-	char platform[MAX_PATH];
-	Q_strncpy( platform, steamInfo.m_GameInfoPath, MAX_PATH );
-	Q_StripTrailingSlash( platform );
-	Q_strncat( platform, "/../platform", MAX_PATH, MAX_PATH );
+	char core[MAX_PATH];
+	Q_strncpy( core, steamInfo.m_GameInfoPath, MAX_PATH );
+	Q_StripTrailingSlash( core );
+	Q_strncat( core, "/../core", MAX_PATH, MAX_PATH );
 
-	g_pFileSystem->AddSearchPath( platform, "PLATFORM" );
+	g_pFileSystem->AddSearchPath( core, "CORE" );
 
 	return true;
 }

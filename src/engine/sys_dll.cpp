@@ -1248,10 +1248,9 @@ void LoadEntityDLLs( const char *szBaseDir )
 	// Load the game .dll
 	char szDllFilename[ MAX_PATH ];
 #ifdef _WIN32
-	// !!! THIS METHOD STINKS, JUST AUTO-ADD SUBDIRS TO THE GAMEBIN PATH
-	Q_snprintf( szDllFilename, sizeof( szDllFilename ), PLATFORM_SUBDIR "\\server.dll" );
+	Q_snprintf( szDllFilename, sizeof( szDllFilename ), "server.dll" );
 #elif _LINUX
-	Q_snprintf( szDllFilename, sizeof( szDllFilename ), PLATFORM_SUBDIR "server_i486.so" );
+	Q_snprintf( szDllFilename, sizeof( szDllFilename ), "server_i486.so" );
 #else
 #error "define server.dll type"
 #endif

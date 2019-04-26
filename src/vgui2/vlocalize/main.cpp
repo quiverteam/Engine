@@ -71,7 +71,7 @@ bool CVLocalizeApp::PreInit()
 		return false;
 	}
 
-	g_pFullFileSystem->AddSearchPath("../game/platform", "PLATFORM");
+	g_pFullFileSystem->AddSearchPath("../game/core", "CORE");
 	return true;
 }
 

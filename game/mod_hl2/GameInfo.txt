@@ -19,8 +19,7 @@
 			game				hl2/hl2_sound_misc.vpk
 			game				hl2/hl2_misc.vpk
 			game				hl2
-			platform			platform/platform_misc.vpk
-			platform			platform
+			core				core
 		}
 	}
 }

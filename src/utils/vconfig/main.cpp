@@ -579,7 +579,7 @@ bool CVConfigApp::PreInit()
 	g_pFullFileSystem->AddSearchPath( GetBaseDirectory(), VCONFIG_MAIN_PATH_ID );	
 
 	// the main platform dir
-	g_pFullFileSystem->AddSearchPath( "platform","PLATFORM", PATH_ADD_TO_HEAD );
+	g_pFullFileSystem->AddSearchPath( "core", "CORE", PATH_ADD_TO_HEAD );
 
 	return true;
 }

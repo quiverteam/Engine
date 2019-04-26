@@ -300,9 +300,9 @@ int InitializeVGui()
 	else
 	{
 		// we're not running steam, so just put the config dir under the platform
-		Q_strncpy( szConfigDir, "platform/config", sizeof(szConfigDir));
+		Q_strncpy( szConfigDir, "core/config", sizeof(szConfigDir));
 	}
-	g_pFullFileSystem->CreateDirHierarchy("config", "PLATFORM");
+	g_pFullFileSystem->CreateDirHierarchy("config", "CORE");
 	g_pFullFileSystem->AddSearchPath(szConfigDir, "CONFIG", PATH_ADD_TO_HEAD);
 
 	// initialize the user configuration file
@@ -608,7 +608,7 @@ bool CSDKLauncherApp::PreInit()
 	// the "base dir" so we can scan mod name
 	g_pFullFileSystem->AddSearchPath(GetSDKLauncherBaseDirectory(), SDKLAUNCHER_MAIN_PATH_ID);	
 	// the main platform dir
-	g_pFullFileSystem->AddSearchPath("platform","PLATFORM", PATH_ADD_TO_HEAD);
+	g_pFullFileSystem->AddSearchPath("core", "CORE", PATH_ADD_TO_HEAD);
 
 	return true;
 }

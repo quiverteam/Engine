@@ -114,7 +114,7 @@ bool FileSystem_Init_Normal( const char *pFilename, FSInitType_t initType, bool 
 		g_pFileSystem = g_pFullFileSystem = loadModuleInfo.m_pFileSystem;
 		g_pFullFileSystemModule = loadModuleInfo.m_pModule;
 
-		FileSystem_AddSearchPath_Platform( g_pFullFileSystem, loadModuleInfo.m_GameInfoPath );
+		FileSystem_AddSearchPath_Core( g_pFullFileSystem, loadModuleInfo.m_GameInfoPath );
 
 		FileSystem_SetupStandardDirectories( pFilename, loadModuleInfo.m_GameInfoPath );
 	}
@@ -133,7 +133,7 @@ bool FileSystem_Init_Normal( const char *pFilename, FSInitType_t initType, bool 
 			return false;
 
 		g_pFullFileSystem->RemoveAllSearchPaths();
-		g_pFullFileSystem->AddSearchPath( "../platform", "PLATFORM" );
+		g_pFullFileSystem->AddSearchPath( "../core", "CORE" );
 		g_pFullFileSystem->AddSearchPath( ".", "GAME" );
 
 		g_pFileSystem = g_pFullFileSystem;
