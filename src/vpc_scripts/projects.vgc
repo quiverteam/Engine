@@ -1268,3 +1268,8 @@ $Project "VStdlibUnitTest"
 {
 	"unittests\VStdlibTest\vstdlibtest.vpc"
 }
+
+$Project "appidlink"
+{
+	"utils\appidlink\appidlink.vpc"
+}

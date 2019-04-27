@@ -486,6 +486,9 @@ $Group "binaries"
 	"vvis_dll"
 	"vvis_launcher"
 	"testprocess"
+	
+	//Quiver's projects
+	"appidlink"
 }
 
 $Group "libraries" "core"
@@ -533,6 +536,9 @@ $Group "core"
 	"mysql_wrapper" // vmpi stuff i think
 	"dx_proxy_dx9_v00_pc"
 	"dx_proxy_dx9_v30_pc"
+	
+	//Quiver's projects
+	"appidlink"
 }
 
 $Group "unittests"
