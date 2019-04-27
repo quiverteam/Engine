@@ -1,9 +1,0 @@
-"Chess"
-{
-	"DisplayName"	"Chess"
-	"interface"	"SteamAddOnChess001"
-	"GameID"	"ValveChess"
-	"InviteUserMenu" "1"
-	"TrackerMainMenu" "0"
-	"SingleInvite"   "1"
-}
