@@ -133,7 +133,7 @@ bool CToolDictionary::Connect( CreateInterfaceFn factory )
 	enginetools = ( IEngineTool * )factory( VENGINETOOL_INTERFACE_VERSION, NULL );
 	debugoverlay = ( IVDebugOverlay * )factory( VDEBUG_OVERLAY_INTERFACE_VERSION, NULL );
 
-	if ( !enginevgui || !debugoverlay || !g_pCVar || !enginetools || !g_pFileSystem || !p4 )
+	if ( !enginevgui || !debugoverlay || !g_pCVar || !enginetools || !g_pFileSystem )
 		return false;
 
 	if ( !VGui_Startup( factory ) )

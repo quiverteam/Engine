@@ -125,7 +125,7 @@ bool CElementViewerApp::PreInit( )
 	if ( !BaseClass::PreInit() )
 		return false;
 
-	if ( !g_pFullFileSystem || !g_pMaterialSystem || !g_pVGui || !g_pVGuiSurface || !g_pDataModel || !g_pMatSystemSurface || !p4 )
+	if ( !g_pFullFileSystem || !g_pMaterialSystem || !g_pVGui || !g_pVGuiSurface || !g_pDataModel || !g_pMatSystemSurface )
 	{
 		Error( "Element viewer is missing required interfaces!\n" );
 		return false;

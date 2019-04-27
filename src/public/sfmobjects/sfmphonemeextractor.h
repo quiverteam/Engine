@@ -14,7 +14,6 @@
 #include "tier1/UtlString.h"
 #include "sentence.h"
 #include "dme_controls/logpreview.h"
-#include "tier2/p4helpers.h"
 
 //-----------------------------------------------------------------------------
 // Forward declarations
