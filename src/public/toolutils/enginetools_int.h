@@ -20,7 +20,6 @@ class IEngineVGui;
 class IServerTools;
 class IClientTools;
 class IFileSystem;
-class IP4;
 class IVDebugOverlay;
 class IDmSerializers;
 
@@ -33,7 +32,6 @@ extern IEngineVGui	*enginevgui;
 extern IServerTools	*servertools;
 extern IClientTools	*clienttools;
 extern IFileSystem	*g_pFileSystem;
-extern IP4			*p4;
 extern IVDebugOverlay *debugoverlay;
 extern IDmSerializers *dmserializers;
 

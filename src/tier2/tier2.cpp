@@ -33,7 +33,6 @@ IMaterialSystemHardwareConfig *g_pMaterialSystemHardwareConfig = 0;
 IDebugTextureInfo *g_pMaterialSystemDebugTextureInfo = 0;
 IVBAllocTracker *g_VBAllocTracker = 0;
 IColorCorrectionSystem *colorcorrection = 0;
-IP4 *p4 = 0;
 IMdlLib *mdllib = 0;
 IQueuedLoader *g_pQueuedLoader = 0;
 
@@ -104,7 +103,6 @@ void DisconnectTier2Libraries()
 	g_pInputSystem = 0;
 	g_pNetworkSystem = 0;
 	colorcorrection = 0;
-	p4 = 0;
 	mdllib = 0;
 	g_pQueuedLoader = 0;
 }
