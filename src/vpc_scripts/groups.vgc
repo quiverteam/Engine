@@ -485,6 +485,9 @@ $Group "binaries"
 	"vvis_dll"
 	"vvis_launcher"
 	"testprocess"
+	
+	//Quiver's projects
+	"appidlink"
 }
 
 $Group "libraries" "core"
@@ -530,6 +533,9 @@ $Group "core"
 	"filesystem_stdio"
 	"filesystem_steam"
 	"mysql_wrapper" // vmpi stuff i think
+	
+	//Quiver's projects
+	"appidlink"
 }
 
 $Group "unittests"
