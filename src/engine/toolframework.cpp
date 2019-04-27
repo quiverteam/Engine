@@ -576,23 +576,23 @@ void CToolFrameworkInternal::LoadTools()
 {
 	m_bInToolMode = true;
 
-	// Load rootdir/bin/enginetools.txt
 	KeyValues *kv = new KeyValues( "enginetools" );
 	Assert( kv );
-	if ( kv && kv->LoadFromFile( g_pFileSystem, "enginetools.txt", "EXECUTABLE_PATH" ) )
+	if ( kv && kv->LoadFromFile( g_pFileSystem, "enginetools.txt", "BASEBIN" ) )
 	{
 		for ( KeyValues *tool = kv->GetFirstSubKey();
 				tool != NULL;
 				tool = tool->GetNextKey() )
 		{
-#pragma message("Double-check loading tools with Platform Sub Directories.")
 			if ( !Q_stricmp( tool->GetName(),  "library" ) )
 			{
-				// CHECK both bin/platsubdir/tools and gamedir/bin/platsubdir/tools
-				char *newString = strcpy(newString, tool->GetString());
-				char *addString = "\\";
-				strncpy(newString, strcpy(addString, PLATFORM_SUBDIR), 0);
-				LoadToolsFromLibrary( tool->GetString() );
+				char str[MAX_PATH];
+				V_strcpy(str, PLATFORM_SUBDIR);
+				V_strcpy(str, tool->GetString());
+			//	char *addString = "\\";
+			//	V_strncpy(newString, strcpy(addString, PLATFORM_SUBDIR), 0);
+				LoadToolsFromLibrary( str );
+				Error(str);
 			}
 		}
 

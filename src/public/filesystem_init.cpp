@@ -549,13 +549,20 @@ FSReturnCode_t FileSystem_LoadSearchPaths( CFSSearchPathsInit &initInfo )
 	char gameBin[MAX_PATH];
 	sprintf(gameBin, "%s/bin/%s", initInfo.m_ModPath, PLATFORM_SUBDIR, DLL_EXT_STRING); // we should only do this when a gamebin is specified
 	FileSystem_AddLoadedSearchPath(initInfo, "gamebin", gameBin, bLowViolence);
+
 	char download[MAX_PATH];
-	V_strncpy(initInfo.m_ModPath, "/download", sizeof("/download"));
+	sprintf(download, "%s/download", initInfo.m_ModPath);
 	FileSystem_AddLoadedSearchPath(initInfo, "download", download, bLowViolence);
+
 	FileSystem_AddLoadedSearchPath(initInfo, "mod", initInfo.m_ModPath, bLowViolence);
 	FileSystem_AddLoadedSearchPath(initInfo, "default_write_path", initInfo.m_ModPath, bLowViolence);
 	FileSystem_AddLoadedSearchPath(initInfo, "game_write", initInfo.m_ModPath, bLowViolence);
 	FileSystem_AddLoadedSearchPath(initInfo, "mod_write", initInfo.m_ModPath, bLowViolence);
+
+	char baseBin[MAX_PATH];
+	FileSystem_GetBaseDir(baseBin, MAX_PATH);
+	V_strcat(baseBin, "/bin", sizeof("/bin"));
+	FileSystem_AddLoadedSearchPath(initInfo, "basebin", baseBin, bLowViolence);
 
 	for ( KeyValues *pCur=pSearchPaths->GetFirstValue(); pCur; pCur=pCur->GetNextValue() )
 	{

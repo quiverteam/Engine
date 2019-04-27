@@ -34,7 +34,7 @@ ipch
 *.mdmp
 
 # --------------------------------------------
-# Shader Files ,made during build
+# Shader Files made during build
 *.inc
 *.tmp
 *.vcs
@@ -105,7 +105,7 @@ lib/public/**/vgui_controls.*
 *.dx90.vtx
 
 # probably shouldn't remove
-#*.pcf
+*.pcf
 
 config.cfg
 gamestate.txt
@@ -120,6 +120,8 @@ modeswitchsave.tga
 *.hl2
 *.hl3
 *.sav
+
+*.lst
 
 # --------------------------------------------
 # Directory Junctions
