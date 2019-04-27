@@ -52,7 +52,7 @@ setlocal
 set arg_filename=%1
 set platform=win32
 set shadercompilecommand=shadercompile.exe
-set targetdir=..\..\..\game\platform\shaders
+set targetdir=..\..\..\game\core\shaders
 set SrcDirBase=..\..
 set shaderDir=shaders
 @REM your total thread count
@@ -252,8 +252,8 @@ REM This batch file may have been invoked standalone or slaved (master does fina
 REM ****************
 :DoXCopy
 if not "%dynamic_shaders%" == "1" (
-	if not exist "%ENGINEDIR%\platform\shaders" md "%ENGINEDIR%\platform\shaders"
-	xcopy "%cd%\shaders" "%cd%\%ENGINEDIR%\platform\shaders" /q /e /y	
+	if not exist "%ENGINEDIR%\core\shaders" md "%ENGINEDIR%\core\shaders"
+	xcopy "%cd%\shaders" "%cd%\%ENGINEDIR%\core\shaders" /q /e /y	
 )
 goto end
 

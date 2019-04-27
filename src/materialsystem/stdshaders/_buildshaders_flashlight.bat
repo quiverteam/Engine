@@ -32,7 +32,7 @@ rem ==  Set the Path to your mod's root source code ==
 rem This should already be correct, accepts relative paths only!
 set SOURCEDIR=..\..
 
-set "targetdir=..\..\..\game\platform\shaders"
+set "targetdir=..\..\..\game\core\shaders"
 
 set BUILD_SHADER=call _buildshaders.bat
 
