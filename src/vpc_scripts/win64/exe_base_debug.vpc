@@ -73,7 +73,6 @@ $Configuration "Debug"
 
 		// Code Generation
 		$EnableStringPooling					"Yes (/GF)"
-		$EnableMinimalRebuild					"Yes (/Gm)"
 		$EnableC++Exceptions					"No"
 		$SmallerTypeCheck
 		$BasicRuntimeChecks						"Both (/RTC1, equiv. to /RTCsu)"
