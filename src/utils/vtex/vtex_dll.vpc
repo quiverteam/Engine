@@ -9,21 +9,12 @@ $Macro OUTBINDIR	"$BINDEFAULT"
 
 $Include "$SRCDIR\vpc_scripts\source_dll_base.vpc"
 
-$Configuration
-{
-	$Compiler
-	{
-		$AdditionalIncludeDirectories		"$BASE,..\common"
-		$PreprocessorDefinitions			"$BASE;VTEX_DLL;VTEX_DLL_EXPORTS;PROTECTED_THINGS_DISABLE"
-	}
-}
-
 $Configuration	"Debug"
 {
 	$General
 	{
-		$OutputDirectory			".\Debug_dll"			[$WIN32]
-		$IntermediateDirectory		".\Debug_dll"			[$WIN32]
+		$OutputDirectory			".\Debug\$PLATSUBDIR\dll"
+		$IntermediateDirectory		".\Debug\$PLATSUBDIR\dll"
 	}
 }
 
@@ -31,8 +22,17 @@ $Configuration	"Release"
 {
 	$General
 	{
-		$OutputDirectory			".\Release_dll"			[$WIN32]
-		$IntermediateDirectory		".\Release_dll"			[$WIN32]
+		$OutputDirectory			".\Release\$PLATSUBDIR\dll"
+		$IntermediateDirectory		".\Release\$PLATSUBDIR\dll"
+	}
+}
+
+$Configuration
+{
+	$Compiler
+	{
+		$AdditionalIncludeDirectories		"$BASE,..\common"
+		$PreprocessorDefinitions			"$BASE;VTEX_DLL;VTEX_DLL_EXPORTS;PROTECTED_THINGS_DISABLE"
 	}
 }
 

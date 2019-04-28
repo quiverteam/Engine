@@ -9,6 +9,24 @@ $Macro OUTBINDIR	"$BINDEFAULT"
 
 $Include "$SRCDIR\vpc_scripts\source_dll_base.vpc"
 
+$Configuration	"Debug"
+{
+	$General
+	{
+		$OutputDirectory			".\Debug\$PLATSUBDIR\dx9"
+		$IntermediateDirectory		".\Debug\$PLATSUBDIR\dx9"
+	}
+}
+
+$Configuration	"Release"
+{
+	$General
+	{
+		$OutputDirectory			".\Release\$PLATSUBDIR\dx9"
+		$IntermediateDirectory		".\Release\$PLATSUBDIR\dx9"
+	}
+}
+
 // Common Configuration
 $Configuration
 {

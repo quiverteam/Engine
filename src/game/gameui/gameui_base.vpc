@@ -13,24 +13,6 @@ $Macro OUTBINDIR	"$SRCDIR\..\game\$GAMENAME\bin\$PLATSUBDIR"
 
 $include "$SRCDIR\vpc_scripts\source_dll_base.vpc"	[$WINDOWS||$LINUX]
 
-$Configuration	"Debug"
-{
-	$General
-	{
-		$OutputDirectory			".\Debug_$GAMENAME"
-		$IntermediateDirectory		".\Debug_$GAMENAME"
-	}
-}
-
-$Configuration	"Release"
-{
-	$General
-	{
-		$OutputDirectory			".\Release_$GAMENAME"
-		$IntermediateDirectory		".\Release_$GAMENAME"
-	}
-}
-
 $Configuration
 {
 	$Compiler
@@ -59,7 +41,7 @@ $Configuration
 	}
 }
 
-// TODO: Replace this with the UI from HL2R
+// TODO: Finish adding in new menu's
 $Project
 {
 	$Folder	"Source Files"

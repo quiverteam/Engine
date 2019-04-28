@@ -24,7 +24,6 @@ $Configuration
 
 	$Linker
 	{
-		$IgnoreImportLibrary			"TRUE"
 		$AdditionalDependencies			"winmm.lib;Shell32.lib;User32.lib"	[$WINDOWS]
 	}
 }
