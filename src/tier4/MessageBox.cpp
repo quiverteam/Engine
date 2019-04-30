@@ -5,7 +5,7 @@ MessageBox.h
 Platform independent message boxes
 
 */
-#include "tier4/MessageBox.h"
+#include "../public/tier4/MessageBox.h"
 
 #ifdef _POSIX
 #include <SDL2/SDL.h>
@@ -153,6 +153,12 @@ static const SDL_MessageBoxColorScheme SDLColorScheme = {
 	}
 };
 
+#endif
+
+#ifdef _WINDOWS
+
+// Basically just used for some simple quick translation of return values
+int returns[16];
 
 #endif
 
@@ -227,7 +233,76 @@ int Plat_ShowMessageBox(const char* pTitle, const char* pText, int type, int but
 
 	return usedBtn;
 
-#elif defined(_WINDOWS)
 
+
+#elif defined(_WINDOWS)
+	
+	// hehe butts
+	DWORD butts = 0;
+
+	switch(buttons)
+	{
+		case MB_BUTTONS_OKCANCEL:
+			butts = MB_OKCANCEL;
+			break;
+		case MB_BUTTONS_ABORTRETRYIGNORE:
+			butts = MB_ABORTRETRYIGNORE;
+			break;
+		case MB_BUTTONS_CANCELRETRYCONTINUE:
+			butts = MB_ABORTRETRYCONTINUE;
+			break;
+		case MB_BUTTONS_HELP:
+			butts = MB_HELP;
+			break;
+		case MB_BUTTONS_RETRYCANCEL:
+			butts = MB_RETRYCANCEL;
+			break;
+		case MB_BUTTONS_YESNO:
+			butts = MB_YESNO;
+			break;
+		case MB_BUTTONS_YESNOCANCEL:
+			butts = MB_YESNOCANCEL;
+			break;
+		default:
+			butts = MB_OK;
+			break;
+	}
+
+	DWORD icon = 0;
+
+	switch(type)
+	{
+		case MB_TYPE_WARN:
+			icon = MB_ICONWARNING;
+			break;
+		case MB_TYPE_ERROR:
+			icon = MB_ICONERROR;
+			break;
+		case MB_TYPE_FATAL:
+			icon = MB_ICONERROR;
+			break;
+		default:
+			icon = MB_ICONINFORMATION;
+			break;
+	}
+
+	DWORD ret = MessageBoxA(NULL, (LPCTSTR)pText, (LPCTSTR)pTitle, butts | type);
+
+	// Only used here because ID* defines are LESS than some absurd number
+	static const int Returns[16];
+	Returns[IDABORT] = MB_BUTTON_ABORT;
+	Returns[IDCANCEL] = MB_BUTTON_CANCEL;
+	Returns[IDCONTINUE] = MB_BUTTON_CONTINUE;
+	Returns[IDIGNORE] = MB_BUTTON_IGNORE;
+	Returns[IDNO] = MB_BUTTON_NO;
+	Returns[IDYES] = MB_BUTTON_YES;
+	Returns[IDOK] = MB_BUTTON_OK;
+	Returns[IDRETRY] = MB_BUTTON_RETRY;
+	Returns[IDTRYAGAIN] = MB_BUTTON_RETRY;
+
+	if(ret < 16 && ret >= 0)
+		return Returns[ret];
+	else
+		return ret;
 #endif
 }
