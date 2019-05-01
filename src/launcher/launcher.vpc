@@ -47,8 +47,8 @@ $Project "launcher"
 		$File	"$SRCDIR\public\filesystem_init.cpp"
 		$File 	"launcher.cpp"
 		$File 	"launcher.h"
-		$File	"launcher_win.cpp"		[$WINDOWS]
-		$File 	"launcher_posix.cpp"	[$POSIX]
+		//$File	"launcher_win.cpp"		[$WINDOWS]
+		//$File 	"launcher_posix.cpp"	[$POSIX]
 		$File	"reslistgenerator.cpp"
 	}
 
@@ -87,4 +87,5 @@ $Project "launcher"
 		$Lib	"$LIBPUBLIC\appframework"
 		$Lib	"$LIBPUBLIC\tier2"
 		$Lib	"$LIBPUBLIC\tier3"
+		$Lib	"$LIBPUBLIC\tier4"
 }
