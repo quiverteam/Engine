@@ -23,9 +23,9 @@
 #elif defined(_WIN64)
 #define BIN_DIR "bin/win64"
 #elif defined(_POSIX) && defined(PLATFORM_32BITS)
-#define BIN_DIR "bin/posix32"
+#define BIN_DIR "bin/linux32"
 #elif defined(_POSIX64)
-#define BIN_DIR "bin/posix64"
+#define BIN_DIR "bin/linux64"
 #endif
 
 typedef int (*LauncherMain_t)( void* hInstance, void* hPrevInstance, 
