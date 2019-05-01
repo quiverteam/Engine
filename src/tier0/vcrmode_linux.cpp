@@ -50,10 +50,6 @@ int			g_bVCREnabled = 0;
 static void VCR_Error( const char *pFormat, ... )
 {
         #ifdef _DEBUG
-                __asm
-                {
-                                int 3
-                }
         #endif
 
         char str[256];
