@@ -13,6 +13,11 @@
 #include <sys/time.h>
 #include <unistd.h>
 #include <dlfcn.h>
+#include <sys/ptrace.h>
+#include <sys/stat.h>
+#include <sys/statfs.h>
+#include <sys/resource.h>
+#include <sched.h>
 
 double Plat_FloatTime()
 {
@@ -155,4 +160,98 @@ PLATFORM_INTERFACE void* Plat_FindProc(void* module_handle, const char* sym_name
 	Assert(module_handle != NULL);
 	Assert(sym_name != NULL);
 	return dlsym(module_handle, sym_name);
+}
+
+//
+// Implementation of executable handling code
+//
+
+
+PLATFORM_INTERFACE bool Plat_CWD(char* outname, size_t outSize)
+{
+	return getcwd(outname, outSize) != 0;
+}
+
+PLATFORM_INTERFACE bool Plat_GetCurrentDirectory(char* outname, size_t outSize)
+{
+	return getcwd(outname, outSize) != 0;
+}
+
+PLATFORM_INTERFACE bool Plat_GetExecutablePath(char* outname, size_t len)
+{
+	Assert(outname);
+
+	// Full path to the directory, we will read from procfs
+	char pathbuf[128];
+	sprintf(pathbuf, "/proc/%i/exe", getpid());
+	int nlen = readlink(pathbuf, outname, len);
+
+	if(nlen == -1)
+		return false;
+
+	Assert(nlen <= len);
+
+	// Null terminate the string
+	if(nlen <= len)
+		outname[nlen] = '\0';
+	else
+		outname[len] = '\0';
+
+	return true;
+}
+
+PLATFORM_INTERFACE bool Plat_GetExecutableDirectory(char* outpath, size_t len)
+{
+	Assert(outpath);
+
+	// Full path to the directory, we will read from procfs
+	char pathbuf[128];
+	sprintf(pathbuf, "/proc/%i/exe", getpid());
+	int nlen = readlink(pathbuf, outpath, len);
+
+	if(nlen == -1)
+		return false;
+
+	Assert(nlen <= len);
+
+	// walk back until we hit a '/'
+	for(size_t i = nlen; i >= 0; i--)
+	{
+		if(pathbuf[i] == '/')
+		{
+			// dont want any seg faults!
+			if(i < nlen)
+				pathbuf[i+1] = '\0';
+			break;
+		}
+	}
+
+	return true;
+}
+
+PLATFORM_INTERFACE int Plat_GetPriority(int pid)
+{
+	return getpriority(PRIO_PROCESS, pid);
+}
+
+PLATFORM_INTERFACE void Plat_SetPriority(int priority, int pid)
+{
+	static const int MaxPriority = sched_get_priority_max(SCHED_OTHER);
+	static const int MinPriority = sched_get_priority_min(SCHED_OTHER);
+
+	switch(priority)
+	{
+		case PRIORITY_MAX:
+			priority = MaxPriority;
+			break;
+		case PRIORITY_MIN:
+			priority = MinPriority;
+			break;
+	}
+	setpriority(PRIO_PROCESS, pid, priority);
+}
+
+PLATFORM_INTERFACE int Plat_GetPID()
+{
+	return (int)getpid();
 }

@@ -1634,6 +1634,94 @@ PLATFORM_INTERFACE void* Plat_LoadLibrary(const char* path);
 PLATFORM_INTERFACE void Plat_UnloadLibrary(void* handle);
 PLATFORM_INTERFACE void* Plat_FindProc(void* module_handle, const char* sym_name);
 
+
+//
+// Functions for dealing with application dirs
+//
+
+/*
+Returns the path to the current working directory
+
+Params:
+	outname is a pointer to an output buffer, should NOT be null
+	outSize is the size of the buffer
+
+Returns:
+	true on success, false on failure. If returns false, outname is not modified.
+*/
+PLATFORM_INTERFACE bool Plat_CWD(char* outname, size_t len);
+
+/*
+Returns the path to the current working directory
+
+Params:
+	outname is a pointer to an output buffer, should NOT be null
+	outSize is the size of the buffer
+
+Returns:
+	true on success, false on failure. If returns false, outname is not modified.
+*/
+PLATFORM_INTERFACE bool Plat_GetCurrentDirectory(char* outname, size_t outSize);
+
+/*
+Returns the path to the executable itself
+
+Params:
+	outpath is a pointer to an output buffer, should NOT be null
+	len is the size of the buffer
+
+Returns:
+	true on success, false on failure. If returns false, outpath is not modified.
+
+*/
+PLATFORM_INTERFACE bool Plat_GetExecutablePath(char* outname, size_t len);
+
+/*
+Returns the path to the executable's directory
+
+Params:
+	outpath is a pointer to an output buffer, should NOT be null
+	len is the size of the buffer
+
+Returns:
+	true on success, false on failure. If returns false, outpath is not modified.
+*/
+PLATFORM_INTERFACE bool Plat_GetExecutableDirectory(char* outpath, size_t len);
+
+/*
+Returns the process ID of the current process
+
+Params:
+	None
+
+Returns:
+	The process ID of the calling process
+*/
+PLATFORM_INTERFACE int Plat_GetPID();
+
+/*
+Sets the priority of the specified process
+
+Params:
+	priority is the priority level of the process
+	pid is the process id of the target process
+*/
+PLATFORM_INTERFACE void Plat_SetPriority(int priority, int pid);
+
+/*
+Returns the priority of the specified process
+
+Params:
+	pid is the id of the target
+
+Returns: 
+	Priority of target process
+*/
+PLATFORM_INTERFACE int Plat_GetPriority(int pid);
+
+#define PRIORITY_MAX 2
+#define PRIORITY_MIN 1
+
 //-----------------------------------------------------------------------------
 
 #include "tier0/valve_on.h"

@@ -9,7 +9,7 @@
 #include "pch_tier0.h"
 #include "tier0/minidump.h"
 
-#if defined( _WIN32 ) && !defined( _X360 )
+#if defined( _WIN32 )
 #include "tier0/valve_off.h"
 #define WIN_32_LEAN_AND_MEAN
 #include <windows.h>				// Currently needed for IsBadReadPtr and IsBadWritePtr
@@ -18,7 +18,6 @@
 
 #include <assert.h>
 #include <malloc.h>
-#include <stdio.h>
 #include <string.h>
 #include <stdarg.h>
 #include <stdlib.h>
@@ -27,6 +26,7 @@
 #include "tier0/threadtools.h"
 #include "tier0/icommandline.h"
 #include <math.h>
+#include <stdio.h>
 
 #ifndef STEAM
 #define PvRealloc realloc
