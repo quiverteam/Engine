@@ -26,6 +26,7 @@
 #include "tier0/memalloc.h"
 #include "filesystem.h"
 #include "tier1/utlrbtree.h"
+#include "tier4/MessageBox.h"
 
 #ifdef _WIN32
 #include <direct.h>
@@ -55,6 +56,53 @@
 #include "tier0/memdbgon.h"
 
 #define DEFAULT_HL2_GAMEDIR	"hl2"
+
+// Quick fix, improve this later!
+#ifdef _WINDOWS
+#define DLLEXPORT __declspec(dllexport)
+#else
+#define DLLEXPORT __attribute__((dllexport))
+#endif
+
+SpewRetval_t LauncherDefaultSpewFunc( SpewType_t spewType, char const *pMsg )
+{
+	switch( spewType )
+	{
+	case SPEW_MESSAGE:
+	case SPEW_LOG:
+		return SPEW_CONTINUE;
+
+	case SPEW_WARNING:
+		if ( !stricmp( GetSpewOutputGroup(), "init" ) )
+		{
+			Plat_ShowMessageBox("Warning", pMsg, MB_TYPE_WARN, MB_BUTTON_OK);
+		}
+		return SPEW_CONTINUE;
+
+	case SPEW_ASSERT:
+		if ( !ShouldUseNewAssertDialog() )
+			Plat_ShowMessageBox("Assert", pMsg, MB_TYPE_ERROR, MB_BUTTON_OK);
+		return SPEW_DEBUGGER;
+	
+	case SPEW_ERROR:
+	default:
+		Plat_ShowMessageBox("Fatal Error!", pMsg, MB_TYPE_ERROR, MB_BUTTON_OK);
+		_exit( 1 );
+	}
+}
+
+bool GetExecutableName( char *out, int outSize )
+{
+#ifdef _WINDOWS
+	if ( !::GetModuleFileName( ( HINSTANCE )GetModuleHandle( NULL ), out, outSize ) )
+	{
+		return false;
+	}
+	return true;
+#elif defined(_POSIX)
+	return NULL; // TODO: Implement for linux
+#endif
+}
 
 //-----------------------------------------------------------------------------
 // Modules...
@@ -116,7 +164,9 @@ class CVCRHelpers : public IVCRHelpers
 public:
 	virtual void ErrorMessage( const char *pMsg )
 	{
+#ifndef _POSIX
 		NOVCR( ::MessageBox( NULL, pMsg, "VCR Error", MB_OK ) );
+#endif
 	}
 
 	virtual void* GetMainWindow()
@@ -194,14 +244,17 @@ void UTIL_ComputeBaseDir()
 	Q_FixSlashes( g_szBasedir );
 }
 
+#ifdef _WINDOWS
 BOOL WINAPI MyHandlerRoutine( DWORD dwCtrlType )
 {
 	TerminateProcess( GetCurrentProcess(), 2 );
 	return TRUE;
 }
+#endif
 
 void InitTextMode()
 {
+#ifdef _WINDOWS
 	AllocConsole();
 
 	SetConsoleCtrlHandler( MyHandlerRoutine, TRUE );
@@ -209,6 +262,7 @@ void InitTextMode()
 	freopen( "CONIN$", "rb", stdin );		// reopen stdin handle as console window input
 	freopen( "CONOUT$", "wb", stdout );		// reopen stout handle as console window output
 	freopen( "CONOUT$", "wb", stderr );		// reopen stderr handle as console window output
+#endif
 }
 
 void SortResList( char const *pchFileName, char const *pchSearchPath );
@@ -302,9 +356,9 @@ void CLogAllFiles::Init()
 		g_pFullFileSystem->RemoveFile( CFmtStr( "%s\\%s\\%s", m_sFullGamePath.String(), m_sResListDir.String(), ALL_RESLIST_FILE ), "GAME" );
 	}
 
-	::GetCurrentDirectory( sizeof(m_szCurrentDir), m_szCurrentDir );
+	Plat_GetCurrentDirectory(m_szCurrentDir, sizeof(m_szCurrentDir));
 	Q_strncat( m_szCurrentDir, "\\", sizeof(m_szCurrentDir), 1 );
-	_strlwr( m_szCurrentDir );
+	strlwr( m_szCurrentDir );
 }
 
 void CLogAllFiles::Shutdown()
@@ -435,6 +489,9 @@ static bool IsWin98OrOlder()
 //-----------------------------------------------------------------------------
 void TryToLoadSteamOverlayDLL()
 {
+	//TODO:!!!! MAKE THIS WORK FOR POSIX
+	// I have NO clue on the best way to load the steam overlay on linux. Will investigate later - JJL77
+#ifdef _WINDOWS 
 	// First, check if the module is already loaded, perhaps because we were run from Steam directly
 	HMODULE hMod = GetModuleHandle( "GameOverlayRenderer.dll" );
 	if ( hMod )
@@ -491,6 +548,7 @@ void TryToLoadSteamOverlayDLL()
 		// This could fail, but we can't fix it if it does so just ignore failures
 		LoadLibrary( rgchSteamPath );
 	}
+#endif
 }
 
 //-----------------------------------------------------------------------------
@@ -530,7 +588,9 @@ bool CSourceAppSystemGroup::Create()
 	IFileSystem *pFileSystem = (IFileSystem*)FindSystem( FILESYSTEM_INTERFACE_VERSION );
 	pFileSystem->InstallDirtyDiskReportFunc( ReportDirtyDiskNoMaterialSystem );
 
+#ifdef _WINDOWS
 	CoInitialize( NULL );
+#endif
 
 	// Are we running in edit mode?
 	m_bEditMode = CommandLine()->CheckParm( "-edit" );
@@ -690,7 +750,9 @@ void CSourceAppSystemGroup::Destroy()
 	g_pMaterialSystem = NULL;
 	g_pHammer = NULL;
 
+#ifdef _WINDOWS
 	CoUninitialize();
+#endif
 }
 
 
@@ -724,8 +786,9 @@ const char *CSourceAppSystemGroup::DetermineDefaultGame()
 HANDLE g_hMutex = NULL;
 bool GrabSourceMutex()
 {
-	if ( IsPC() )
+	if ( IsPC() && CommandLine()->FindParm("-multirun"))
 	{
+#ifdef _WINDOWS
 		// don't allow more than one instance to run
 		g_hMutex = ::CreateMutex(NULL, FALSE, TEXT("hl2_singleton_mutex"));
 
@@ -739,6 +802,13 @@ bool GrabSourceMutex()
 		::CloseHandle(g_hMutex);
 
       return false;
+#else
+		char* env = getenv("SOURCEENGINELOCK");
+		if(strcmp(env, "1") == 0)
+			return false;
+		setenv("SOURCEENGINELOCK", "1", 1);
+		return true;
+#endif
 	}
 	
 	return true;
@@ -746,11 +816,16 @@ bool GrabSourceMutex()
 
 void ReleaseSourceMutex()
 {
-	if ( IsPC() && g_hMutex )
+
+	if ( IsPC() && g_hMutex && CommandLine()->FindParm("-multirun"))
 	{
+#ifdef _WINDOWS
 		::ReleaseMutex( g_hMutex );
 		::CloseHandle( g_hMutex );
 		g_hMutex = NULL;
+#else
+		setenv("SOURCEENGINELOCK", "0", 1);
+#endif
 	}
 }
 
@@ -910,7 +985,7 @@ static const char *BuildCommand()
 //			nCmdShow - 
 // Output : int APIENTRY
 //-----------------------------------------------------------------------------
-extern "C" __declspec(dllexport) int LauncherMain( HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdShow )
+extern "C" DLLEXPORT int LauncherMain( HINSTANCE hInstance, HINSTANCE hPrevInstance, char* lpCmdLine, int nCmdShow )
 {
 	SetAppInstance( hInstance );
 
@@ -963,6 +1038,7 @@ extern "C" __declspec(dllexport) int LauncherMain( HINSTANCE hInstance, HINSTANC
 
 	if ( IsPC() )
 	{
+#ifdef _WINDOWS
 		// initialize winsock
 		WSAData wsaData;
 		int	nError = ::WSAStartup( MAKEWORD(2,0), &wsaData );
@@ -970,6 +1046,7 @@ extern "C" __declspec(dllexport) int LauncherMain( HINSTANCE hInstance, HINSTANC
 		{
 			Msg( "Warning! Failed to start Winsock via WSAStartup = 0x%x.\n", nError);
 		}
+#endif
 	}
 
 	// Run in text mode? (No graphics or sound).
@@ -982,7 +1059,7 @@ extern "C" __declspec(dllexport) int LauncherMain( HINSTANCE hInstance, HINSTANC
 	{
 		int retval = -1;
 		// Can only run one windowed source app at a time
-#ifdef NO_MULTIPLE_CLIENTS
+#if defined(NO_MULTIPLE_CLIENTS) && defined(_WINDOWS)
 		if ( !GrabSourceMutex() )
 		{
 			// We're going to hijack the existing session and load a new savegame into it. This will mainly occur when users click on links in Bugzilla that will automatically copy saves and load them
@@ -1033,11 +1110,11 @@ extern "C" __declspec(dllexport) int LauncherMain( HINSTANCE hInstance, HINSTANC
 	// Make low priority?
 	if ( CommandLine()->CheckParm( "-low" ) )
 	{
-		SetPriorityClass( GetCurrentProcess(), IDLE_PRIORITY_CLASS );
+		Plat_SetPriority(PRIORITY_MIN, Plat_GetPID());
 	}
 	else if ( CommandLine()->CheckParm( "-high" ) )
 	{
-		SetPriorityClass( GetCurrentProcess(), HIGH_PRIORITY_CLASS );
+		Plat_SetPriority(PRIORITY_MIN, Plat_GetPID());
 	}
 
 	// If game is not run from Steam then add -insecure in order to avoid client timeout message
@@ -1096,12 +1173,13 @@ extern "C" __declspec(dllexport) int LauncherMain( HINSTANCE hInstance, HINSTANC
 		}
 	}
 
-	// shutdown winsock
+	#ifdef _WINDOWS
 	int nError = ::WSACleanup();
 	if ( nError )
 	{
 		Msg( "Warning! Failed to complete WSACleanup = 0x%x.\n", nError );
 	}
+	#endif
 
 	// Allow other source apps to run
 	ReleaseSourceMutex();
