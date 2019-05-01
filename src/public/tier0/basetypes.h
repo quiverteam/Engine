@@ -69,6 +69,10 @@
 #define NULL 0
 #endif
 
+// Quick text conversion
+#ifndef TEXT
+#define TEXT(x) #x
+#endif
 
 #ifdef POSIX
 #include <stdint.h>
