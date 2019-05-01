@@ -992,12 +992,6 @@ extern "C" DLLEXPORT int LauncherMain( HINSTANCE hInstance, HINSTANCE hPrevInsta
 	// Hook the debug output stuff.
 	SpewOutputFunc( LauncherDefaultSpewFunc );
 
-	if ( 0 && IsWin98OrOlder() )
-	{
-		Error( "This build does not currently run under Windows 98/Me." );
-		return -1;
-	}
-
 	// Quickly check the hardware key, essentially a warning shot.  
 	if ( !Plat_VerifyHardwareKeyPrompt() )
 	{
@@ -1005,7 +999,8 @@ extern "C" DLLEXPORT int LauncherMain( HINSTANCE hInstance, HINSTANCE hPrevInsta
 	}
 
 	const char *filename;
-	CommandLine()->CreateCmdLine( VCRHook_GetCommandLine() );
+	// CommandLine()->CreateCmdLine( VCRHook_GetCommandLine() ); // What coes this do? Changing it anyways
+	CommandLine()->CreateCmdLine(lpCmdLine);
 
 	// Figure out the directory the executable is running from
 	UTIL_ComputeBaseDir();
