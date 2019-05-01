@@ -10,24 +10,17 @@
 #include <assert.h>
 #include <direct.h>
 #endif
-#if defined( _X360 )
-#define _XBOX
-#include <xtl.h>
-#include <xbdm.h>
-#include <stdio.h>
-#include <assert.h>
-#include "xbox\xbox_core.h"
-#include "xbox\xbox_launch.h"
-#endif
 
-typedef int (*LauncherMain_t)( HINSTANCE hInstance, HINSTANCE hPrevInstance, 
-							  LPSTR lpCmdLine, int nCmdShow );
+
+#include "tier0/platform.h"
+
+typedef int (*LauncherMain_t)( void* hInstance, void* hPrevInstance, 
+							  char* lpCmdLine, int nCmdShow );
 
 //-----------------------------------------------------------------------------
 // Purpose: Return the directory where this .exe is running from
 // Output : char
 //-----------------------------------------------------------------------------
-#if !defined( _X360 )
 static char *GetBaseDir( const char *pszBuffer )
 {
 	static char	basedir[ MAX_PATH ];
@@ -56,6 +49,12 @@ static char *GetBaseDir( const char *pszBuffer )
 	}
 
 	return basedir;
+}
+
+int main(int argc, char* argv)
+{
+
+	
 }
 
 int APIENTRY WinMain( HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdShow )
@@ -110,6 +109,4 @@ int APIENTRY WinMain( HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdL
 	LauncherMain_t main = (LauncherMain_t)GetProcAddress( launcher, "LauncherMain" );
 	return main( hInstance, hPrevInstance, lpCmdLine, nCmdShow );
 }
-#endif
-
 
