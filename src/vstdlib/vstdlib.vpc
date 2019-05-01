@@ -13,7 +13,7 @@ $Linux
 {
 	$BuildForLinux 1
 	-$File	"processutils.cpp"			[$WINDOWS]
-	-$file  "$SRCDIR\linux\vstdlib_i686.so"
+	-$File  "$SRCDIR\linux\vstdlib.so"
 }
 
 $Configuration
@@ -42,7 +42,7 @@ $Configuration	"Release"
 
 $Project
 {
-	$folder	"Link Libraries"
+	$Folder	"Link Libraries"
 	{
 		-$File	"$LIBPUBLIC\vstdlib.lib"
 	}
