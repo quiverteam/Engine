@@ -4,15 +4,29 @@
 //
 //=====================================================================================//
 
-#if defined( _WIN32 ) && !defined( _X360 )
+#if defined( _WIN32 )
 #include <windows.h>
 #include <stdio.h>
 #include <assert.h>
 #include <direct.h>
+#elif defined(_POSIX)
+#include <dlfcn.h>
+#include <unistd.h>
 #endif
 
-
 #include "tier0/platform.h"
+#include "tier4/MessageBox.h"
+
+// Move this to a common include?
+#ifdef _WIN32
+#define BIN_DIR "bin/win32"
+#elif defined(_WIN64)
+#define BIN_DIR "bin/win64"
+#elif defined(_POSIX) && defined(PLATFORM_32BITS)
+#define BIN_DIR "bin/posix32"
+#elif defined(_POSIX64)
+#define BIN_DIR "bin/posix64"
+#endif
 
 typedef int (*LauncherMain_t)( void* hInstance, void* hPrevInstance, 
 							  char* lpCmdLine, int nCmdShow );
@@ -51,12 +65,48 @@ static char *GetBaseDir( const char *pszBuffer )
 	return basedir;
 }
 
-int main(int argc, char* argv)
-{
+/*
 
-	
+Main entry point to the application
+
+*/
+int main(int argc, char** argv)
+{
+	// Load library
+	char sFullPath[MAX_PATH];
+	sprintf(sFullPath, "%s/launcher.%s", BIN_DIR, TEXT(_DLL_EXT));
+
+	void* pLib = Plat_LoadLibrary(sFullPath);
+
+	if(!pLib)
+	{
+		printf("Unable to load launcher dynamic library.\nYou're most likely missing binaries.\n");
+		Plat_ShowMessageBox("Fatal Error", "Unable to load launcher dynamic library!\n", MB_TYPE_ERROR, MB_BUTTONS_OK);
+		return 1;
+	}
+
+	LauncherMain_t pLauncherMain = (LauncherMain_t)Plat_FindProc(pLib, "LauncherMain");
+
+	if(!pLauncherMain)
+	{
+		printf("Unable to find the entry point in the launcher DLL.\nYou might be using an old version of the launcher or something isn't compiled right.\n");
+		Plat_ShowMessageBox("Fatal Error", "Unable to find entry point in launcher library!", MB_TYPE_ERROR, MB_BUTTONS_OK);
+		return 1;
+	}
+
+	// form commandline
+	char sCmdLine[1024];
+
+	for(int i = 0; i < argc; i++)
+		sprintf("%s %s", sCmdLine, argv[i]);
+
+	// NOTE: This may cause issues later on windows.
+	// We are passing NULL as hInstance and hPrevInstance. App framework seems want us to set the app instance before loading anything.
+	// I will investigate this later, but it could really cause some issues.
+	pLauncherMain(NULL, NULL, sCmdLine, argc);
 }
 
+#ifdef _WINDOWS 
 int APIENTRY WinMain( HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdShow )
 {
 	// Must add 'bin' to the path....
@@ -109,4 +159,4 @@ int APIENTRY WinMain( HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdL
 	LauncherMain_t main = (LauncherMain_t)GetProcAddress( launcher, "LauncherMain" );
 	return main( hInstance, hPrevInstance, lpCmdLine, nCmdShow );
 }
-
+#endif
