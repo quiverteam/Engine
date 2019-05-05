@@ -920,7 +920,7 @@ $Project "tier3test"
 
 $Project "togl"
 {
-	"togl\togl.vpc" [$GL]
+	"togl\togl.vpc" [$POSIX]
 }
 
 $Project "toolutils"
