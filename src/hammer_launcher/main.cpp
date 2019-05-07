@@ -202,7 +202,7 @@ bool CHammerApp::PreInit( )
 				return false;
 		}
 
-		FileSystem_AddSearchPath_Platform( fsInfo.m_pFileSystem, steamInfo.m_GameInfoPath );
+		FileSystem_AddSearchPath_Core( fsInfo.m_pFileSystem, steamInfo.m_GameInfoPath );
 
 	} while (!bDone);
 

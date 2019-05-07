@@ -1,21 +1,31 @@
 @echo off
+:: BatchGotAdmin
+::-------------------------------------
+REM  --> Check for permissions
+>nul 2>&1 "%SYSTEMROOT%\system32\cacls.exe" "%SYSTEMROOT%\system32\config\system"
 
-@REM replace this with your Half-Life 2 or Source 2013 directory
-set "HL2Dir=C:\Program Files (x86)\Steam\steamapps\common\Half-Life 2"
+REM --> If error flag set, we do not have admin.
+if '%errorlevel%' NEQ '0' (
+    echo Requesting administrative privileges...
+    goto UACPrompt
+) else ( goto gotAdmin )
 
-if not exist "%HL2Dir%\hl2" (
-	echo Unable to find the directory "%HL2Dir%"
-	echo If you've not done so already, please set the environment variable HL2Dir to your Source 2013 or Hl2 install directory.
-	pause
-	exit
-)
+:UACPrompt
+    echo Set UAC = CreateObject^("Shell.Application"^) > "%temp%\getadmin.vbs"
+    set params = %*:"="
+    echo UAC.ShellExecute "cmd.exe", "/c %~s0 %params%", "", "runas", 1 >> "%temp%\getadmin.vbs"
 
-mklink /J "%cd%\hl2" "%HL2Dir%\hl2"
-echo.
-mklink /J "%cd%\episodic" "%HL2Dir%\episodic"
-echo.
-mklink /J "%cd%\ep2" "%HL2Dir%\ep2"
-echo.
+    "%temp%\getadmin.vbs"
+    del "%temp%\getadmin.vbs"
+    exit /B
 
-pause
+:gotAdmin
+    pushd "%CD%"
+    CD /D "%~dp0"
+::--------------------------------------
 
+::ENTER YOUR CODE BELOW:
+start bin/win32/appidlink.exe %cd%\hl2 220 hl2
+start bin/win32/appidlink.exe %cd%\episodic 220 episodic
+start bin/win32/appidlink.exe %cd%\ep2 220 ep2
+exit

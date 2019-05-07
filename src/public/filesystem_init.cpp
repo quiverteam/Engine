@@ -543,6 +543,27 @@ FSReturnCode_t FileSystem_LoadSearchPaths( CFSSearchPathsInit &initInfo )
 	}
 
 	bool bLowViolence = initInfo.m_bLowViolence;
+
+	// TODO: only create these paths if they don't exist already in the gameinfo
+	// sounds like a job for Msal
+	char gameBin[MAX_PATH];
+	sprintf(gameBin, "%s/bin/%s", initInfo.m_ModPath, PLATFORM_SUBDIR, DLL_EXT_STRING); // we should only do this when a gamebin is specified
+	FileSystem_AddLoadedSearchPath(initInfo, "gamebin", gameBin, bLowViolence);
+
+	char download[MAX_PATH];
+	sprintf(download, "%s/download", initInfo.m_ModPath);
+	FileSystem_AddLoadedSearchPath(initInfo, "download", download, bLowViolence);
+
+	FileSystem_AddLoadedSearchPath(initInfo, "mod", initInfo.m_ModPath, bLowViolence);
+	FileSystem_AddLoadedSearchPath(initInfo, "default_write_path", initInfo.m_ModPath, bLowViolence);
+	FileSystem_AddLoadedSearchPath(initInfo, "game_write", initInfo.m_ModPath, bLowViolence);
+	FileSystem_AddLoadedSearchPath(initInfo, "mod_write", initInfo.m_ModPath, bLowViolence);
+
+	char baseBin[MAX_PATH];
+	FileSystem_GetBaseDir(baseBin, MAX_PATH);
+	V_strcat(baseBin, "/bin", sizeof("/bin"));
+	FileSystem_AddLoadedSearchPath(initInfo, "basebin", baseBin, bLowViolence);
+
 	for ( KeyValues *pCur=pSearchPaths->GetFirstValue(); pCur; pCur=pCur->GetNextValue() )
 	{
 		const char *pLocation = pCur->GetString();
@@ -1199,14 +1220,14 @@ void FileSystem_ClearSteamEnvVars()
 }
 
 //-----------------------------------------------------------------------------
-// Adds the platform folder to the search path.
+// Adds the core folder to the search path.
 //-----------------------------------------------------------------------------
-void FileSystem_AddSearchPath_Platform( IFileSystem *pFileSystem, const char *szGameInfoPath )
+void FileSystem_AddSearchPath_Core( IFileSystem *pFileSystem, const char *szGameInfoPath )
 {
-	char platform[MAX_PATH];
-	Q_strncpy( platform, szGameInfoPath, MAX_PATH );
-	Q_StripTrailingSlash( platform );
-	Q_strncat( platform, "/../platform", MAX_PATH, MAX_PATH );
+	char core[MAX_PATH];
+	Q_strncpy( core, szGameInfoPath, MAX_PATH );
+	Q_StripTrailingSlash( core );
+	Q_strncat( core, "/../core", MAX_PATH, MAX_PATH );
 
-	pFileSystem->AddSearchPath( platform, "PLATFORM" );
+	pFileSystem->AddSearchPath( core, "CORE" );
 }

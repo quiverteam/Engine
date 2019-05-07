@@ -116,7 +116,7 @@ private:
 	virtual void SetSecondaryProgressBar(float progress /* range [0..1] */);
 	virtual void SetSecondaryProgressBarText(const char *statusText);
 
-	bool FindPlatformDirectory(char *platformDir, int bufferSize);
+	bool FindCoreDirectory(char *coreDir, int bufferSize);
 	void GetUpdateVersion( char *pszProd, char *pszVer);
 	void ValidateCDKey();
 
@@ -136,7 +136,7 @@ private:
 	int m_iFriendsLoadPauseFrames;
 
 	char m_szPreviousStatusText[128];
-	char m_szPlatformDir[MAX_PATH];
+	char m_szCoreDir[MAX_PATH];
 
 	vgui::DHANDLE<class CCDKeyEntryDialog> m_hCDKeyEntryDialog;
 };

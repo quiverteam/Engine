@@ -69,7 +69,7 @@ $Group "stdshaders"
 }
 
 
-$Group "engine_tools"
+$Group "tools"
 {
 	"actbusy"
 	"commedit"
@@ -80,24 +80,38 @@ $Group "engine_tools"
 	"vmt"
 }
 
-$Group "tools"
+$Group "utils"
 {
-	"bsppack"
-	"bzip2"
-	"ep2_deathmap"
-	
 	"tier0"
 	"tier1"
-	"toolutils"
 	"tier2"
+	"tier3"
+	"vstdlib"
 	
+	"bsppack"
+	"bzip2"
+	
+	"ep2_deathmap"
+	
+	"toolutils"
+	
+	"dx_proxy_dx9_v00_pc"
+	"dx_proxy_dx9_v30_pc"
 	"shadercompile_dll"
 	"shadercompile_launcher"
+	"mysql_wrapper"
 	
-	"glview"
+// 	will eventually remove
+//	"glview"
 	
 	"hammer_dll"
 	"hammer_launcher"
+//	"filesystemopendialog"
+	"vbsp"
+	"vvis_dll"
+	"vvis_launcher"
+	"vrad_dll"
+	"vrad_launcher"
 	
 	"normal2ssbump"
 	"height2normal"
@@ -121,7 +135,7 @@ $Group "game"
 	"filesystem_stdio"
 	"filesystem_steam"
 	"gameui"
-//	"gameui_client"
+	"gameui_client"
 	"inputsystem"
 	"launcher"
 	"launcher_main"
@@ -150,6 +164,10 @@ $Group "game"
 	"vguimatsurface"
 	"vstdlib"
 	"vtf" 
+	"unicode"
+	
+	// why does the engine need this?
+	"vaudio_miles"
 }
 
 $Group "everything"
@@ -185,6 +203,8 @@ $Group "everything"
 	"dmxloader"
 	"dmxtest"
 	"dumpmatsyshelp"
+	"dx_proxy_dx9_v00_pc"
+	"dx_proxy_dx9_v30_pc"
 	"elementviewer"
 	"engine"
 	"ep2_deathmap"
@@ -207,14 +227,6 @@ $Group "everything"
 	"ihvtest1"
 	"inputsystem"
 	"inputtest"
-	"height2normal"
-	"height2ssbump"
-	"hlfaceposer"
-	"hlmv"
-	"ihvtest1"
-	"inputsystem"
-	"inputtest"
-	"jpeglib"
 	"kvc"
 	"launcher"
 	"launcher_main"
@@ -272,9 +284,6 @@ $Group "everything"
 	"soundsystem"
 	"splitskybox"
 	"stdshader_dbg"
-	//"stdshader_dx6"
-	//"stdshader_dx7"
-	//"stdshader_dx8"
 	"stdshader_dx9"
 	"studiomdl"
 	"studiorender"
@@ -336,7 +345,6 @@ $Group "everything"
 	"vvis_dll"
 	"vvis_launcher"
 	"testprocess"
-	"vpc"
 }
 
 $Group "binaries"
@@ -365,6 +373,8 @@ $Group "binaries"
 	"dmxedit"
 	"dmxtest"
 	"dumpmatsyshelp"
+	"dx_proxy_dx9_v00_pc"
+	"dx_proxy_dx9_v30_pc"
 	"elementviewer"
 	"engine"
 	"ep2_deathmap"
@@ -399,7 +409,6 @@ $Group "binaries"
 	"modelbrowser"
 	"motionmapper"
 	"mysql_wrapper"
-//	"newdat"
 	"networktest"
 	"normal2ssbump"
 	"paginate"
@@ -483,7 +492,9 @@ $Group "binaries"
 	"vvis_dll"
 	"vvis_launcher"
 	"testprocess"
-	"vpc"
+	
+	//Quiver's projects
+	"appidlink"
 }
 
 $Group "libraries" "core"
@@ -529,6 +540,11 @@ $Group "core"
 	"filesystem_stdio"
 	"filesystem_steam"
 	"mysql_wrapper" // vmpi stuff i think
+	"dx_proxy_dx9_v00_pc"
+	"dx_proxy_dx9_v30_pc"
+	
+	//Quiver's projects
+	"appidlink"
 }
 
 $Group "unittests"

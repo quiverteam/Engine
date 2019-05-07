@@ -427,14 +427,14 @@ void CGameUI::PlayGameStartupSound()
 void CGameUI::Start()
 {
 	// determine Steam location for configuration
-	if ( !FindPlatformDirectory( m_szPlatformDir, sizeof( m_szPlatformDir ) ) )
+	if ( !FindCoreDirectory(m_szCoreDir, sizeof(m_szCoreDir)))
 		return;
 
 	if ( IsPC() )
 	{
 		// setup config file directory
 		char szConfigDir[512];
-		Q_strncpy( szConfigDir, m_szPlatformDir, sizeof( szConfigDir ) );
+		Q_strncpy( szConfigDir, m_szCoreDir, sizeof( szConfigDir ) );
 		Q_strncat( szConfigDir, "config", sizeof( szConfigDir ), COPY_ALL_CHARACTERS );
 
 		Msg( "Steam config directory: %s\n", szConfigDir );
@@ -445,7 +445,7 @@ void CGameUI::Start()
 		// user dialog configuration
 		vgui::system()->SetUserConfigFile("InGameDialogConfig.vdf", "CONFIG");
 
-		g_pFullFileSystem->AddSearchPath( "platform", "PLATFORM" );
+		g_pFullFileSystem->AddSearchPath( "core", "CORE" );
 	}
 
 	// localization
@@ -516,25 +516,25 @@ void CGameUI::ValidateCDKey()
 }
 
 //-----------------------------------------------------------------------------
-// Purpose: Finds which directory the platform resides in
+// Purpose: Finds which directory the core resides in
 // Output : Returns true on success, false on failure.
 //-----------------------------------------------------------------------------
-bool CGameUI::FindPlatformDirectory(char *platformDir, int bufferSize)
+bool CGameUI::FindCoreDirectory(char *coreDir, int bufferSize)
 {
-	platformDir[0] = '\0';
+	coreDir[0] = '\0';
 
-	if ( platformDir[0] == '\0' )
+	if (coreDir[0] == '\0')
 	{
 		// we're not under steam, so setup using path relative to game
 		if ( IsPC() )
 		{
-			if ( ::GetModuleFileName( ( HINSTANCE )GetModuleHandle( NULL ), platformDir, bufferSize ) )
+			if ( ::GetModuleFileName( ( HINSTANCE )GetModuleHandle( NULL ), coreDir, bufferSize ) )
 			{
-				char *lastslash = strrchr(platformDir, '\\'); // this should be just before the filename
+				char *lastslash = strrchr(coreDir, '\\'); // this should be just before the filename
 				if ( lastslash )
 				{
 					*lastslash = 0;
-					Q_strncat(platformDir, "\\platform\\", bufferSize, COPY_ALL_CHARACTERS );
+					Q_strncat(coreDir, "\\..\\..\\core\\", bufferSize, COPY_ALL_CHARACTERS);
 					return true;
 				}
 			}
@@ -543,20 +543,20 @@ bool CGameUI::FindPlatformDirectory(char *platformDir, int bufferSize)
 		{
 			// xbox fetches the platform path from exisiting platform search path
 			// path to executeable is not correct for xbox remote configuration
-			if ( g_pFullFileSystem->GetSearchPath( "PLATFORM", false, platformDir, bufferSize ) )
+			if ( g_pFullFileSystem->GetSearchPath( "CORE", false, coreDir, bufferSize ) )
 			{
-				char *pSeperator = strchr( platformDir, ';' );
+				char *pSeperator = strchr(coreDir, ';');
 				if ( pSeperator )
 					*pSeperator = '\0';
 				return true;
 			}
 		}
 
-		Error( "Unable to determine platform directory\n" );
+		Error( "Unable to determine core directory\n" );
 		return false;
 	}
 
-	return (platformDir[0] != 0);
+	return (coreDir[0] != 0);
 }
 
 //-----------------------------------------------------------------------------

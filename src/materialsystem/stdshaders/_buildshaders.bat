@@ -6,7 +6,7 @@ if exist "%ProgramFiles(x86)%\Microsoft Visual Studio\Installer\vswhere.exe" (
 		if /i "%%i"=="installationPath" (
 			set VSDIR=%%j
 			call "!VSDIR!\Common7\Tools\VsDevCmd.bat" >nul
-			echo Using Visual Studio 2017 nmake
+			@REM echo Using Visual Studio 2017+ nmake
 			goto :start
 		)
 	)	
@@ -52,7 +52,7 @@ setlocal
 set arg_filename=%1
 set platform=win32
 set shadercompilecommand=shadercompile.exe
-set targetdir=..\..\..\game\platform\shaders
+set targetdir=..\..\..\game\core\shaders
 set SrcDirBase=..\..
 set shaderDir=shaders
 @REM your total thread count
@@ -174,7 +174,8 @@ REM ****************
 REM Run the makefile, generating minimal work/build list for fxc files, go ahead and compile vsh and psh files.
 REM ****************
 rem nmake /S /C -f makefile.%inputbase% clean > clean.txt 2>&1
-echo Building inc files, asm vcs files, and VMPI worklist for %inputbase%...
+@REM echo Building inc files, asm vcs files, and VMPI worklist for %inputbase%...
+echo Creating makefile for %inputbase%...
 nmake /S /C -f makefile.%inputbase%
 
 REM ****************
@@ -222,13 +223,14 @@ if exist "filelist.txt" if exist "uniquefilestocopy.txt" if not "%dynamic_shader
 	@REM checking if shader compile is running
 	call _kill_shadercompiler.bat
 	
-	echo Running distributed shader compilation...
+	echo Building shaders...
 	cd /D %EngineBinDir%
+	
 	@REM %shadercompilecommand% -mpi_MaxWorkers %shadercompileworkers% -shaderpath "%shader_path_cd:/=\%" -allowdebug
 	@REM -verbose -subprocess X
-	@REM -nointercept		Uses old slow technique - runs 'fxc.exe' / Uses new faster Vitaliy's implementation
+	@REM it now has commands for d3dcompiler settings, for now, it just uses the fastest setting, /Od, though it doesn't seem much faster tbh
 	echo.
-	%shadercompilecommand% -nompi -threads %threadcount% -shaderpath "%shader_path_cd:/=\%" -allowdebug
+	%shadercompilecommand% /Od -nompi -threads %threadcount% -shaderpath "%shader_path_cd:/=\%" -allowdebug
 	
 	echo.
 	cd /D %shader_path_cd%
@@ -250,8 +252,8 @@ REM This batch file may have been invoked standalone or slaved (master does fina
 REM ****************
 :DoXCopy
 if not "%dynamic_shaders%" == "1" (
-	if not exist "%ENGINEDIR%\platform\shaders" md "%ENGINEDIR%\platform\shaders"
-	xcopy "%cd%\shaders" "%cd%\%ENGINEDIR%\platform\shaders" /q /e /y	
+	if not exist "%ENGINEDIR%\core\shaders" md "%ENGINEDIR%\core\shaders"
+	xcopy "%cd%\shaders" "%cd%\%ENGINEDIR%\core\shaders" /q /e /y	
 )
 goto end
 
@@ -262,4 +264,3 @@ REM ****************
 
 
 %TTEXE% -diff %tt_start%
-echo.

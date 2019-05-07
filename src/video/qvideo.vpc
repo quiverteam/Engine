@@ -38,7 +38,6 @@ $Project "qvideo"
 	
 	$Folder	"Link Libraries"
 	{
-		$Lib	"$LIBCOMMON\binkw32"
 		$Lib	"$LIBPUBLIC\tier2"
 		$Lib	"$LIBPUBLIC\tier3"
 	}

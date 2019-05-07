@@ -25,7 +25,6 @@
 #include "filesystem.h"
 #include <vgui_controls/AnimationController.h>
 #include <vgui/iSurface.h>
-#include "hud_lcd.h"
 
 // memdbgon must be the last include file in a .cpp file!!!
 #include "tier0/memdbgon.h"
@@ -292,8 +291,6 @@ void CHud::Init( void )
 	// Create all the Hud elements
 	CHudElementHelper::CreateAllElements();
 
-	gLCD.Init();
-
 	// Initialize all created elements
 	for ( int i = 0; i < m_HudList.Size(); i++ )
 	{
@@ -384,8 +381,6 @@ void CHud::InitFonts()
 //-----------------------------------------------------------------------------
 void CHud::Shutdown( void )
 {
-	gLCD.Shutdown();
-
 	// Delete all the Hud elements
 	int iMax = m_HudList.Size();
 	for ( int i = iMax-1; i >= 0; i-- )
@@ -1060,8 +1055,6 @@ void CHud::UpdateHud( bool bActive )
 	gHUD.m_iKeyBits &= (~(IN_WEAPON1|IN_WEAPON2));
 
 	g_pClientMode->Update();
-
-	gLCD.Update();
 }
 
 //-----------------------------------------------------------------------------

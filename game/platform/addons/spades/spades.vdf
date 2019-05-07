@@ -1,9 +1,0 @@
-"Spades"
-{
-	"DisplayName"	"Spades"
-	"interface"	"SteamAddOnSpades001"
-	"GameID"	"ValveSpades"
-	"InviteUserMenu" "1"
-	"TrackerMainMenu" "0"
-	"SingleInvite"   "0"
-}

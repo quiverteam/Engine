@@ -18,10 +18,8 @@ $Configuration	"Debug"
 {
 	$General
 	{
-		$OutputDirectory		"Debug_Stdio"		[$WIN32||$LINUX]
-		$IntermediateDirectory	"Debug_Stdio"		[$WIN32||$LINUX]
-		$OutputDirectory		"Debug_Stdio_360"	[$X360]
-		$IntermediateDirectory	"Debug_Stdio_360"	[$X360]
+		$OutputDirectory		"Debug\$PLATSUBDIR\Stdio"
+		$IntermediateDirectory	"Debug\$PLATSUBDIR\Stdio"
 	}
 }
 
@@ -29,10 +27,8 @@ $Configuration	"Release"
 {
 	$General
 	{		
-		$OutputDirectory		"Release_Stdio"		[$WIN32||$LINUX]
-		$IntermediateDirectory	"Release_Stdio"		[$WIN32||$LINUX]
-		$OutputDirectory		"Release_Stdio_360"	[$X360]
-		$IntermediateDirectory	"Release_Stdio_360"	[$X360]
+		$OutputDirectory		"Release\$PLATSUBDIR\Stdio"
+		$IntermediateDirectory	"Release\$PLATSUBDIR\Stdio"
 	}
 }
 

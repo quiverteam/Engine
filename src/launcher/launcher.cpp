@@ -607,7 +607,7 @@ bool CSourceAppSystemGroup::Create()
 		{ "datacache.dll",			STUDIO_DATA_CACHE_INTERFACE_VERSION },
 		{ "studiorender.dll",		STUDIO_RENDER_INTERFACE_VERSION },
 		{ "vphysics.dll",			VPHYSICS_INTERFACE_VERSION },
-		{ "valve_avi.dll",				AVI_INTERFACE_VERSION },
+		{ "qvideo.dll",				AVI_INTERFACE_VERSION },
 		// NOTE: This has to occur before vgui2.dll so it replaces vgui2's surface implementation
 		{ "vguimatsurface.dll",		VGUI_SURFACE_INTERFACE_VERSION },
 		{ "vgui2.dll",				VGUI_IVGUI_INTERFACE_VERSION },
@@ -696,7 +696,7 @@ bool CSourceAppSystemGroup::PreInit()
 	if ( FileSystem_MountContent( fsInfo ) != FS_OK )
 		return false;
 
-	fsInfo.m_pFileSystem->AddSearchPath( "platform", "PLATFORM" );
+	fsInfo.m_pFileSystem->AddSearchPath( "core", "CORE" );
 
 	// This will get called multiple times due to being here, but only the first one will do anything
 	reslistgenerator->Init( GetBaseDirectory(), CommandLine()->ParmValue( "-game", "mod_hl2" ) );

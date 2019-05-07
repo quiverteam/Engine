@@ -21,7 +21,11 @@ class CDmeAnimationSet;
 //-----------------------------------------------------------------------------
 // Exports an .fac file
 //-----------------------------------------------------------------------------
-bool ExportFacialAnimation( const char *pFileName, CDmeFilmClip *pMovie, CDmeFilmClip *pShot, CDmeAnimationSet *pAnimationSet );
+bool ExportFacialAnimation(const char *pFileName, CDmeFilmClip *pMovie, CDmeFilmClip *pShot, CDmeAnimationSet *pAnimationSet)
+{
+	// STUB
+	return true;
+};
 
 
 #endif // EXPORTFACIALANIMATION_H

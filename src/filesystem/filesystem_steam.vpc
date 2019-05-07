@@ -18,6 +18,24 @@ $Configuration
 	}
 }
 
+$Configuration	"Debug"
+{
+	$General
+	{
+		$OutputDirectory		"Debug\$PLATSUBDIR\Steam"
+		$IntermediateDirectory	"Debug\$PLATSUBDIR\Steam"
+	}
+}
+
+$Configuration	"Release"
+{
+	$General
+	{		
+		$OutputDirectory		"Release\$PLATSUBDIR\Steam"
+		$IntermediateDirectory	"Release\$PLATSUBDIR\Steam"
+	}
+}
+
 $Project "FileSystem_Steam"
 {
 	$Folder	"Source Files"

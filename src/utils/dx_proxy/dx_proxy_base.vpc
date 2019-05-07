@@ -18,8 +18,8 @@ $Configuration	"Debug"
 {
 	$General
 	{
-		$OutputDirectory			".\Debug_$DX_SDK_VER"
-		$IntermediateDirectory		".\Debug_$DX_SDK_VER"
+		$OutputDirectory			".\Debug\$PLATSUBDIR\$DX_SDK_VER"
+		$IntermediateDirectory		".\Debug\$PLATSUBDIR\$DX_SDK_VER"
 	}
 }
 
@@ -27,8 +27,8 @@ $Configuration	"Release"
 {
 	$General
 	{
-		$OutputDirectory			".\Release_$DX_SDK_VER"
-		$IntermediateDirectory		".\Release_$DX_SDK_VER"
+		$OutputDirectory			".\Release\$PLATSUBDIR\$DX_SDK_VER"
+		$IntermediateDirectory		".\Release\$PLATSUBDIR\$DX_SDK_VER"
 	}
 
 	$Linker

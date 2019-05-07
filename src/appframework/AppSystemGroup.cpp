@@ -569,7 +569,7 @@ bool CSteamAppSystemGroup::SetupSearchPaths( const char *pStartingDir, bool bOnl
 	if ( FileSystem_LoadSearchPaths( searchPathsInit ) != FS_OK )
 		return false;
 
-	FileSystem_AddSearchPath_Platform( fsInfo.m_pFileSystem, steamInfo.m_GameInfoPath );
+	FileSystem_AddSearchPath_Core( fsInfo.m_pFileSystem, steamInfo.m_GameInfoPath );
 	Q_strncpy( m_pGameInfoPath, steamInfo.m_GameInfoPath, sizeof(m_pGameInfoPath) );
 	return true;
 }

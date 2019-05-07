@@ -13,8 +13,8 @@ $Configuration	"Debug"
 {
 	$General
 	{
-		$OutputDirectory			".\Debug_dx10"
-		$IntermediateDirectory		".\Debug_dx10"
+		$OutputDirectory			".\Debug\$PLATSUBDIR\dx10"
+		$IntermediateDirectory		".\Debug\$PLATSUBDIR\dx10"
 	}
 }
 
@@ -22,8 +22,8 @@ $Configuration	"Release"
 {
 	$General
 	{
-		$OutputDirectory			".\Release_dx10"
-		$IntermediateDirectory		".\Release_dx10"
+		$OutputDirectory			".\Release\$PLATSUBDIR\dx10"
+		$IntermediateDirectory		".\Release\$PLATSUBDIR\dx10"
 	}
 }
 

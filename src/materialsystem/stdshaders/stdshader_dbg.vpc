@@ -13,8 +13,8 @@ $Configuration	"Debug"
 {
 	$General
 	{
-		$OutputDirectory		"Debug_dbg"			[$WIN32]
-		$IntermediateDirectory	"Debug_dbg"			[$WIN32]
+		$OutputDirectory		"Debug\$PLATSUBDIR\dbg"
+		$IntermediateDirectory	"Debug\$PLATSUBDIR\dbg"
 	}
 }
 
@@ -22,8 +22,8 @@ $Configuration	"Release"
 {
 	$General
 	{
-		$OutputDirectory		"Release_dbg"		[$WIN32]
-		$IntermediateDirectory	"Release_dbg"		[$WIN32]
+		$OutputDirectory		"Release\$PLATSUBDIR\dbg"
+		$IntermediateDirectory	"Release\$PLATSUBDIR\dbg"
 	}
 }
 

@@ -1671,7 +1671,7 @@ bool CShaderManager::LoadAndCreateShaders_Dynamic( ShaderLookup_t &lookup, bool 
 FileHandle_t CShaderManager::OpenFileAndLoadHeader( const char *pFileName, ShaderHeader_t *pHeader )
 {
 	//FileHandle_t fp = g_pFullFileSystem->Open( pFileName, "rb", "GAME" );
-	FileHandle_t fp = g_pFullFileSystem->Open( pFileName, "rb", "PLATFORM" );
+	FileHandle_t fp = g_pFullFileSystem->Open( pFileName, "rb", "CORE" );
 	if ( fp == FILESYSTEM_INVALID_HANDLE )
 	{
 		return FILESYSTEM_INVALID_HANDLE;

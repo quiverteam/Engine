@@ -42,7 +42,6 @@
 #include "gameui/igameui.h"
 #include "matchmaking.h"
 #include "sv_main.h"
-#include "bink/bink.h"
 
 #if defined( _X360 )
 #include "xbox/xbox_win32stubs.h"
@@ -805,11 +804,7 @@ bool CGame::CreateGameWindow( void )
 		}
 	}
 
-#if !defined( _X360 )
 	WNDCLASSW wc;
-#else
-	WNDCLASS wc;
-#endif
 	memset( &wc, 0, sizeof( wc ) );
 
     wc.style         = CS_OWNDC | CS_DBLCLKS;
@@ -862,13 +857,9 @@ bool CGame::CreateGameWindow( void )
 
 	// Oops, we didn't clean up the class registration from last cycle which
 	// might mean that the wndproc pointer is bogus
-#ifndef _X360
 	unicode->UnregisterClassW( CLASSNAME, m_hInstance );
 	// Register it again
     unicode->RegisterClassW( &wc );
-#else
-	RegisterClass( &wc );
-#endif
 
 	// Note, it's hidden
 	DWORD style = WS_POPUP | WS_CLIPSIBLINGS;
@@ -897,15 +888,10 @@ bool CGame::CreateGameWindow( void )
 		exFlags |= WS_EX_TOOLWINDOW; // So it doesn't show up in the taskbar.
 	}
 
-#if !defined( _X360 )
 	HWND hwnd = unicode->CreateWindowExW( exFlags, CLASSNAME, uc, style, 
 		0, 0, w, h, NULL, NULL, m_hInstance, NULL );
 	// NOTE: On some cards, CreateWindowExW slams the FPU control word
 	SetupFPUControlWord();
-#else
-	HWND hwnd = CreateWindowEx( exFlags, CLASSNAME, windowName, style, 
-			0, 0, w, h, NULL, NULL, m_hInstance, NULL );
-#endif
 
 	if ( !hwnd )
 	{
@@ -940,12 +926,8 @@ void CGame::DestroyGameWindow()
 			m_hWindow = (HWND)0;
 		}
 
-#if !defined( _X360 )
 		unicode->UnregisterClassW( CLASSNAME, m_hInstance );
 		UnloadUnicode();
-#else
-		UnregisterClass( CLASSNAME, m_hInstance );
-#endif
 	}
 	else
 	{
@@ -1141,8 +1123,8 @@ void CGame::PlayStartupVideos( void )
 //-----------------------------------------------------------------------------
 void CGame::PlayVideoAndWait( const char *filename )
 {
-
-#if !defined(_X360) && defined(_WIN32)
+#pragma message("src/engine/sys_mainwnd.cpp, LN 1143: Replace Bink startup videos!")
+/*#if !defined(_X360) && defined(_WIN32)
 
 	if ( !filename || !filename[0] )
 		return;
@@ -1272,7 +1254,7 @@ void CGame::PlayVideoAndWait( const char *filename )
 	// Free this as well
 	FreeLibrary( hInst );
 
-#endif // _X360
+#endif // _X360*/
 }
 
 

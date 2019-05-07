@@ -13,8 +13,8 @@ $Configuration	"Debug"
 {
 	$General
 	{
-		$OutputDirectory		"Debug_dx9"			[$WIN32]
-		$IntermediateDirectory	"Debug_dx9"			[$WIN32]
+		$OutputDirectory		"Debug\$PLATSUBDIR\dx9"
+		$IntermediateDirectory	"Debug\$PLATSUBDIR\dx9"
 	}
 }
 
@@ -22,8 +22,8 @@ $Configuration	"Release"
 {
 	$General
 	{
-		$OutputDirectory		"Release_dx9"		[$WIN32]
-		$IntermediateDirectory	"Release_dx9"		[$WIN32]
+		$OutputDirectory		"Release\$PLATSUBDIR\dx9"
+		$IntermediateDirectory	"Release\$PLATSUBDIR\dx9"
 	}
 }
 

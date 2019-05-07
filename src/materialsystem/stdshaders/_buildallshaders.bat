@@ -69,4 +69,4 @@ echo.
 echo Press any key to rebuild stdshader projects and exit . . .
 pause >nul
 
-..\..\devtools\bin\vpc.exe /f +stdshaders
+..\..\devtools\bin\vpc.exe /f /define:VS2019 +stdshaders

@@ -35,8 +35,7 @@
 #include "sys_dll.h"
 #include "materialsystem/materialsystem_config.h"
 #include "server.h"
-#include "avi/iavi.h"
-#include "avi/ibik.h"
+#include "video/iavi.h"
 #include "datacache/idatacache.h"
 #include "vphysics_interface.h"
 #include "inputsystem/iinputsystem.h"
@@ -81,7 +80,6 @@ extern CreateInterfaceFn g_AppSystemFactory;
 IHammer *g_pHammer = NULL;
 IPhysics *g_pPhysics = NULL;
 IAvi *avi = NULL;
-IBik *bik = NULL;
 #ifndef SWDS
 extern CreateInterfaceFn g_ClientFactory;
 #endif
@@ -473,10 +471,6 @@ bool CEngineAPI::Connect( CreateInterfaceFn factory )
 		if ( !avi )
 			return false;
 	}
-
-	bik = (IBik*)factory( BIK_INTERFACE_VERSION, NULL );
-	if ( !bik )
-		return false;
 	
 	if ( !g_pStudioRender || !g_pDataCache || !g_pPhysics || !g_pMDLCache || !g_pMatSystemSurface || !g_pInputSystem )
 	{
@@ -952,7 +946,7 @@ bool CEngineAPI::ModInit( const char *pModName, const char *pGameDir )
 
 	// Create the game window now that we have a search path
 	// FIXME: Deal with initial window width + height better
-	if ( !videomode || !videomode->CreateGameWindow( g_pMaterialSystemConfig->m_VideoMode.m_Width, g_pMaterialSystemConfig->m_VideoMode.m_Height, g_pMaterialSystemConfig->Windowed() ) )
+	if ( !videomode || !videomode->CreateGameWindow( g_pMaterialSystemConfig->m_VideoMode.m_Width, g_pMaterialSystemConfig->m_VideoMode.m_Height, g_pMaterialSystemConfig->Windowed(), g_pMaterialSystemConfig->NoBorderWindow() ) )
 	{
 		return false;
 	}

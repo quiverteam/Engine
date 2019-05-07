@@ -17,25 +17,6 @@ $Linux
 	$File	"$SRCDIR\linux\steam_api_i486.so"
 }
 
-
-$Configuration	"Debug"
-{
-	$General
-	{
-		$OutputDirectory		".\Debug_$GAMENAME"			[$WINDOWS]
-		$IntermediateDirectory	".\Debug_$GAMENAME"			[$WINDOWS]
-	}
-}
-
-$Configuration	"Release"
-{
-	$General
-	{
-		$OutputDirectory		".\Release_$GAMENAME"		[$WINDOWS]
-		$IntermediateDirectory	".\Release_$GAMENAME"		[$WINDOWS]
-	}
-}
-
 $Configuration
 {
 	$Compiler

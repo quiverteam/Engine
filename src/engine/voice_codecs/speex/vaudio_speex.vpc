@@ -18,9 +18,7 @@ $Configuration
 
 	$Compiler
 	{
-		//$AdditionalIncludeDirectories		"$BASE;..\frame_encoder;$SRCDIR\public;$SRCDIR\public\tier1;$SRCDIR\public\tier0;..\..;$SRCDIR\common;.\source\libspeex;..\..\audio\public;$SRCDIR\engine"
-		$AdditionalIncludeDirectories		"$BASE;$SRCDIR\engine\voice_codecs\frame_encoder;$SRCDIR\public;$SRCDIR\public\tier1;$SRCDIR\public\tier0;$SRCDIR\common;$SRCDIR\thirdparty\libspeex;$SRCDIR\engine\audio\public;$SRCDIR\engine"
-		//$PreprocessorDefinitions			"$BASE;WIN32;NDEBUG;_WINDOWS;_USRDLL;SPEEX_EXPORTS"
+		$AdditionalIncludeDirectories		"$BASE;$SRCDIR\engine\voice_codecs\frame_encoder;$SRCDIR\public;$SRCDIR\public\tier1;$SRCDIR\public\tier0;$SRCDIR\common;$SRCDIR\thirdparty\libspeex\libspeex;$SRCDIR\engine\audio\public;$SRCDIR\engine"
 		$PreprocessorDefinitions			"$BASE;SPEEX_EXPORTS"
 		$Create/UsePrecompiledHeader		"Not Using Precompiled Headers"
 		$PrecompiledHeaderFile				"$(IntDir)/speex.pch"

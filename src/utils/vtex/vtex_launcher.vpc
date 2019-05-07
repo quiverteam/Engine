@@ -10,6 +10,24 @@ $Macro OUTBINNAME	"vtex"
 
 $Include "$SRCDIR\vpc_scripts\quiver_exe_con_base.vpc"
 
+$Configuration	"Debug"
+{
+	$General
+	{
+		$OutputDirectory			".\Debug\$PLATSUBDIR\launcher"
+		$IntermediateDirectory		".\Debug\$PLATSUBDIR\launcher"
+	}
+}
+
+$Configuration	"Release"
+{
+	$General
+	{
+		$OutputDirectory			".\Release\$PLATSUBDIR\launcher"
+		$IntermediateDirectory		".\Release\$PLATSUBDIR\launcher"
+	}
+}
+
 $Configuration
 {
 	$Compiler

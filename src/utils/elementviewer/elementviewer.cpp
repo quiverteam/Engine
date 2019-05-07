@@ -125,7 +125,7 @@ bool CElementViewerApp::PreInit( )
 	if ( !BaseClass::PreInit() )
 		return false;
 
-	if ( !g_pFullFileSystem || !g_pMaterialSystem || !g_pVGui || !g_pVGuiSurface || !g_pDataModel || !g_pMatSystemSurface || !p4 )
+	if ( !g_pFullFileSystem || !g_pMaterialSystem || !g_pVGui || !g_pVGuiSurface || !g_pDataModel || !g_pMatSystemSurface )
 	{
 		Error( "Element viewer is missing required interfaces!\n" );
 		return false;
@@ -289,7 +289,7 @@ int CElementViewerApp::Main()
 
 	// load the base localization file
 	g_pVGuiLocalize->AddFile( "Resource/valve_%language%.txt" );
-	g_pFullFileSystem->AddSearchPath( "platform", "PLATFORM" );
+	g_pFullFileSystem->AddSearchPath( "core", "CORE" );
 	g_pVGuiLocalize->AddFile( "Resource/vgui_%language%.txt");
 	g_pVGuiLocalize->AddFile( "Resource/dmecontrols_%language%.txt");
 

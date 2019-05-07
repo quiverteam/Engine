@@ -21,8 +21,7 @@
 #include "VGuiMatSurface/IMatSystemSurface.h"
 #include "vgui/ILocalize.h"
 #include "vgui/IScheme.h"
-#include "avi/iavi.h"
-#include "avi/ibik.h"
+#include "video/iavi.h"
 #include "tier3/tier3.h"
 
 
@@ -63,7 +62,6 @@ bool CAVITestApp::Create()
 	AppSystemInfo_t appSystems[] = 
 	{
 		{ "valve_avi.dll",				AVI_INTERFACE_VERSION },
-		{ "valve_avi.dll",				BIK_INTERFACE_VERSION },
 		{ "", "" }	// Required to terminate the list
 	};
 
@@ -164,7 +162,7 @@ int CAVITestApp::Main()
 
 	// load the base localization file
 	g_pVGuiLocalize->AddFile( "Resource/valve_%language%.txt" );
-	g_pFullFileSystem->AddSearchPath("platform", "PLATFORM");
+	g_pFullFileSystem->AddSearchPath("core", "CORE");
 	g_pVGuiLocalize->AddFile( "Resource/vgui_%language%.txt");
 
 	// start vgui

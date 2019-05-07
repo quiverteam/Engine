@@ -7,28 +7,23 @@ Custom Source Engine branch based on Source Engine 2007, currently available on 
 
 ### Windows
 
-1. Install [Perl](http://strawberryperl.com/).
+1. Install [Visual Studio 2019 Community](https://visualstudio.microsoft.com/downloads/), Make sure to go to Individual components and install `C++ MFC for v142 build tools (x86 and x64)`
 
-2. Open Perl Command Line and enter `cpan String::CRC32`
+2. Install [Perl](http://strawberryperl.com/), open Perl Command Line and enter `cpan String::CRC32`. This is needed for building shaders.
 
-3. Install [Python](https://www.python.org/) (Optional).
+3. Run src/createallprojects.bat and build the solution in Release, Debug is broken currently.
 
-4. Run createcoreprojects.bat and build the solution in Release.
+4. Run src/materialsystem/stdshaders/buildallshaders.bat, then build stdshader projects.
 
-5. Run src/materialsystem/stdshaders/buildallshaders.bat.
+5. Edit game/make_dir_junction.bat with your HL2 install directory if needed and Run. This is used so you don't add absolute paths into the gameinfo.txt file for loading assets.
 
-6. Run src/createallprojects.bat or src/createbinprojects.bat and build the solution in Release.
+You can run the engine with run_mod_hl2.bat or run_hl2r.bat.
 
-7. Edit game/make_dir_junction.bat with your HL2 install directory if needed and Run
+NOTE: not all projects build at the moment.
 
-You can run the engine with run_mod_hl2.bat, run_mod_episodic.bat, or run_hl2r.bat.
+### Linux and MacOS
 
-### Linux
-
-Linux support is unavailable at the moment, you can help. See Supporting Non-Windows Platforms.
-
-### macOS
-macOS support is unavailable at the moment, you can help. See Supporting Non-Windows Platforms.
+Linux and MacOS support is currently being worked on in the posix-support branch. If you want to help, See Supporting Non-Windows Platforms.
 
 ## How you can help
 
