@@ -103,9 +103,10 @@ $Group "utils"
 // 	will eventually remove
 //	"glview"
 	
+	"datamodel"
 	"hammer_dll"
 	"hammer_launcher"
-//	"filesystemopendialog"
+	"filesystemopendialog"
 	"vbsp"
 	"vvis_dll"
 	"vvis_launcher"
