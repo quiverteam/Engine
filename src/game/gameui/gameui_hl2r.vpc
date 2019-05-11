@@ -6,7 +6,7 @@
 
 $Macro GAMENAME 	"hl2r"
 
-$include "gameui_base.vpc"	[$WIN32]//[$WIN32||$LINUX]
+$include "gameui_base.vpc"	[$WINDOWS]//[$WINDOWS||$LINUX]
 
 $Project "GameUI (HL2R)"
 {

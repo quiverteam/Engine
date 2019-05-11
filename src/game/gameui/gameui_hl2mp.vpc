@@ -6,7 +6,7 @@
 
 $Macro GAMENAME 	"mod_hl2mp"
 
-$include "gameui_base.vpc"	[$WIN32]//[$WIN32||$LINUX]
+$include "gameui_base.vpc"	[$WINDOWS]//[$WINDOWS||$LINUX]
 
 $Project "GameUI (HL2MP)"
 {
