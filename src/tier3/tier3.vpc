@@ -12,7 +12,7 @@ $Linux
 		$BuildForLinux 1
 }
 
-$include "$SRCDIR\vpc_scripts\quiver_lib_base.vpc"
+$include "$SRCDIR\vpc_scripts\lib_base.vpc"
 
 $Project "tier3"
 {

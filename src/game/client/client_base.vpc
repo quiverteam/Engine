@@ -9,7 +9,7 @@ $Macro OUTBINDIR	"$SRCDIR\..\game\$GAMENAME\bin\$PLATSUBDIR"
 
 $MacroRequired "GAMENAME"
 
-$Include "$SRCDIR\vpc_scripts\quiver_dll_base.vpc"
+$Include "$SRCDIR\vpc_scripts\dll_base.vpc"
 
 $Configuration
 {
