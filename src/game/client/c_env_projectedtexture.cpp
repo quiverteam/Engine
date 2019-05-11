@@ -27,7 +27,7 @@ extern ConVar r_shadowmapresolution;
 
 static ConVar r_projtex_filtersize( "r_projtex_filtersize", "0.5", 0 );
 
-//static ConVar r_projtex_uberlight_enable( "r_projtex_uberlight_enable", "0", 0 );
+static ConVar r_projtex_uberlight_enable( "r_projtex_uberlight_enable", "0", 0 );
 
 /*static ConVar r_projtex_r( "r_projtex_r", "10", 0 );
 static ConVar r_projtex_g( "r_projtex_g", "10", 0 );
@@ -134,15 +134,11 @@ void C_EnvProjectedTexture::OnDataChanged( DataUpdateType_t updateType )
 {
 	if ( updateType == DATA_UPDATE_CREATED )
 	{
-		// TODO: allow this to work as a normal projected texture or an uberlight
-		m_SpotlightTexture.Init( 
-/*#ifdef UBERLIGHT
-		m_FlashlightState.m_bUberlight ? "white",	
-#endif*/
-		m_SpotlightTextureName, TEXTURE_GROUP_OTHER, true );
-
+		// still need to get uberlight working to test this
+		m_SpotlightTexture.Init( /*m_FlashlightState.m_bUberlight ? "white" : */m_SpotlightTextureName, TEXTURE_GROUP_OTHER, true );
 	}
 
+	m_bForceUpdate = true;
 	UpdateLight();
 	BaseClass::OnDataChanged( updateType );
 }
@@ -156,10 +152,6 @@ void C_EnvProjectedTexture::UpdateLight( void )
 	{
 		m_bForceUpdate = true;
 	}
-	/*else
-	{
-		return;
-	}*/
 
 	if ( !m_bForceUpdate )
 	{
@@ -168,97 +160,95 @@ void C_EnvProjectedTexture::UpdateLight( void )
 
 	if ( m_bState == false || !bVisible )
 	{
-		if ( m_LightHandle != CLIENTSHADOW_INVALID_HANDLE )
-		{
-			ShutDownLightHandle();
-		}
-
+		ShutDownLightHandle();
 		return;
 	}
 	
-	Vector vForward, vRight, vUp, vPos = GetAbsOrigin();
-	FlashlightState_t state;
-
-	if ( m_hTargetEntity != NULL )
+	if ( m_LightHandle == CLIENTSHADOW_INVALID_HANDLE || m_hTargetEntity != NULL || m_bForceUpdate )
 	{
-		if ( m_bCameraSpace )
+		Vector vForward, vRight, vUp, vPos = GetAbsOrigin();
+		FlashlightState_t state;
+
+		if ( m_hTargetEntity != NULL )
 		{
-			const QAngle &angles = GetLocalAngles();
-
-			C_BasePlayer *pPlayer = C_BasePlayer::GetLocalPlayer();
-			if( pPlayer )
+			if ( m_bCameraSpace )
 			{
-				const QAngle playerAngles = pPlayer->GetAbsAngles();
-				
-				Vector vPlayerForward, vPlayerRight, vPlayerUp;
-				AngleVectors( playerAngles, &vPlayerForward, &vPlayerRight, &vPlayerUp );
+				const QAngle& angles = GetLocalAngles();
 
-            	matrix3x4_t	mRotMatrix;
-				AngleMatrix( angles, mRotMatrix );
+				C_BasePlayer* pPlayer = C_BasePlayer::GetLocalPlayer();
+				if ( pPlayer )
+				{
+					const QAngle playerAngles = pPlayer->GetAbsAngles();
 
-				VectorITransform( vPlayerForward, mRotMatrix, vForward );
-				VectorITransform( vPlayerRight, mRotMatrix, vRight );
-				VectorITransform( vPlayerUp, mRotMatrix, vUp );
+					Vector vPlayerForward, vPlayerRight, vPlayerUp;
+					AngleVectors( playerAngles, &vPlayerForward, &vPlayerRight, &vPlayerUp );
 
-				float dist = (m_hTargetEntity->GetAbsOrigin() - GetAbsOrigin()).Length();
-				vPos = m_hTargetEntity->GetAbsOrigin() - vForward*dist;
+					matrix3x4_t	mRotMatrix;
+					AngleMatrix( angles, mRotMatrix );
 
+					VectorITransform( vPlayerForward, mRotMatrix, vForward );
+					VectorITransform( vPlayerRight, mRotMatrix, vRight );
+					VectorITransform( vPlayerUp, mRotMatrix, vUp );
+
+					float dist = ( m_hTargetEntity->GetAbsOrigin() - GetAbsOrigin() ).Length();
+					vPos = m_hTargetEntity->GetAbsOrigin() - vForward * dist;
+
+					VectorNormalize( vForward );
+					VectorNormalize( vRight );
+					VectorNormalize( vUp );
+				}
+			}
+			else
+			{
+				vForward = m_hTargetEntity->GetAbsOrigin() - GetAbsOrigin();
 				VectorNormalize( vForward );
-				VectorNormalize( vRight );
-				VectorNormalize( vUp );
+
+				// JasonM - unimplemented
+				Assert( 0 );
+
+				//Quaternion q = DirectionToOrientation( dir );
+
+
+				//
+				// JasonM - set up vRight, vUp
+				//
+
+	//			VectorNormalize( vRight );
+	//			VectorNormalize( vUp );
 			}
 		}
 		else
 		{
-			vForward = m_hTargetEntity->GetAbsOrigin() - GetAbsOrigin();
-			VectorNormalize( vForward );
-
-			// JasonM - unimplemented
-			Assert (0);
-
-			//Quaternion q = DirectionToOrientation( dir );
-
-
-			//
-			// JasonM - set up vRight, vUp
-			//
-
-//			VectorNormalize( vRight );
-//			VectorNormalize( vUp );
+			AngleVectors( GetAbsAngles(), &vForward, &vRight, &vUp );
 		}
-	}
-	else
-	{
-		AngleVectors( GetAbsAngles(), &vForward, &vRight, &vUp );
-	}
 
-	state.m_fHorizontalFOVDegrees = m_flLightFOV;
-	state.m_fVerticalFOVDegrees = m_flLightFOV;
+		state.m_fHorizontalFOVDegrees = m_flLightFOV;
+		state.m_fVerticalFOVDegrees = m_flLightFOV;
 
-	state.m_vecLightOrigin = vPos;
-	BasisToQuaternion( vForward, vRight, vUp, state.m_quatOrientation );
+		state.m_vecLightOrigin = vPos;
+		BasisToQuaternion( vForward, vRight, vUp, state.m_quatOrientation );
 
-	// quickly check the proposed light's bbox against the view frustum to determine whether we
+		// quickly check the proposed light's bbox against the view frustum to determine whether we
 		// should bother to create it, if it doesn't exist, or cull it, if it does.
 #pragma message("OPTIMIZATION: this should be made SIMD")
 		// get the half-widths of the near and far planes, 
 		// based on the FOV which is in degrees. Remember that
 		// on planet Valve, x is forward, y left, and z up. 
-		const float tanHalfAngle = tan( m_flLightFOV * ( M_PI/180.0f ) * 0.5f );
+		const float tanHalfAngle = tan( m_flLightFOV * ( M_PI / 180.0f ) * 0.5f );
 		const float halfWidthNear = tanHalfAngle * m_flNearZ;
 		const float halfWidthFar = tanHalfAngle * m_flFarZ;
 		// now we can build coordinates in local space: the near rectangle is eg 
 		// (0, -halfWidthNear, -halfWidthNear), (0,  halfWidthNear, -halfWidthNear), 
 		// (0,  halfWidthNear,  halfWidthNear), (0, -halfWidthNear,  halfWidthNear)
 
-		VectorAligned vNearRect[4] = { 
-			VectorAligned( m_flNearZ, -halfWidthNear, -halfWidthNear), VectorAligned( m_flNearZ,  halfWidthNear, -halfWidthNear),
-			VectorAligned( m_flNearZ,  halfWidthNear,  halfWidthNear), VectorAligned( m_flNearZ, -halfWidthNear,  halfWidthNear) 
+		VectorAligned vNearRect[ 4 ] = {
+			VectorAligned( m_flNearZ, -halfWidthNear, -halfWidthNear ), VectorAligned( m_flNearZ,  halfWidthNear, -halfWidthNear ),
+			VectorAligned( m_flNearZ,  halfWidthNear,  halfWidthNear ), VectorAligned( m_flNearZ, -halfWidthNear,  halfWidthNear )
 		};
 
-		VectorAligned vFarRect[4] = { 
-			VectorAligned( m_flFarZ, -halfWidthFar, -halfWidthFar), VectorAligned( m_flFarZ,  halfWidthFar, -halfWidthFar),
-			VectorAligned( m_flFarZ,  halfWidthFar,  halfWidthFar), VectorAligned( m_flFarZ, -halfWidthFar,  halfWidthFar) 
+		VectorAligned vFarRect[ 4 ] = {
+			VectorAligned( m_flFarZ, -halfWidthFar, -halfWidthFar ), VectorAligned( m_flFarZ,  halfWidthFar, -halfWidthFar ),
+			VectorAligned( m_flFarZ,  halfWidthFar,  halfWidthFar ), VectorAligned( m_flFarZ, -halfWidthFar,  halfWidthFar )
 		};
 
 		matrix3x4_t matOrientation( vForward, -vRight, vUp, vPos );
@@ -268,42 +258,42 @@ void C_EnvProjectedTexture::UpdateLight( void )
 			kNEAR = 0,
 			kFAR = 1,
 		};
-		VectorAligned vOutRects[2][4];
+		VectorAligned vOutRects[ 2 ][ 4 ];
 
-		for ( int i = 0 ; i < 4 ; ++i )
+		for ( int i = 0; i < 4; ++i )
 		{
-			VectorTransform( vNearRect[i].Base(), matOrientation, vOutRects[0][i].Base() );
+			VectorTransform( vNearRect[ i ].Base(), matOrientation, vOutRects[ 0 ][ i ].Base() );
 		}
-		for ( int i = 0 ; i < 4 ; ++i )
+		for ( int i = 0; i < 4; ++i )
 		{
-			VectorTransform( vFarRect[i].Base(), matOrientation, vOutRects[1][i].Base() );
+			VectorTransform( vFarRect[ i ].Base(), matOrientation, vOutRects[ 1 ][ i ].Base() );
 		}
 
 		// now take the min and max extents for the bbox, and see if it is visible.
-		Vector mins = **vOutRects; 
-		Vector maxs = **vOutRects; 
-		for ( int i = 1; i < 8 ; ++i )
+		Vector mins = **vOutRects;
+		Vector maxs = **vOutRects;
+		for ( int i = 1; i < 8; ++i )
 		{
-			VectorMin( mins, *(*vOutRects+i), mins );
-			VectorMax( maxs, *(*vOutRects+i), maxs );
+			VectorMin( mins, *( *vOutRects + i ), mins );
+			VectorMax( maxs, *( *vOutRects + i ), maxs );
 		}
 
 #if 0 //for debugging the visibility frustum we just calculated
-		NDebugOverlay::Triangle( vOutRects[0][0], vOutRects[0][1], vOutRects[0][2], 255, 0, 0, 100, true, 0.0f ); //first tri
-		NDebugOverlay::Triangle( vOutRects[0][2], vOutRects[0][1], vOutRects[0][0], 255, 0, 0, 100, true, 0.0f ); //make it double sided
-		NDebugOverlay::Triangle( vOutRects[0][2], vOutRects[0][3], vOutRects[0][0], 255, 0, 0, 100, true, 0.0f ); //second tri
-		NDebugOverlay::Triangle( vOutRects[0][0], vOutRects[0][3], vOutRects[0][2], 255, 0, 0, 100, true, 0.0f ); //make it double sided
+		NDebugOverlay::Triangle( vOutRects[ 0 ][ 0 ], vOutRects[ 0 ][ 1 ], vOutRects[ 0 ][ 2 ], 255, 0, 0, 100, true, 0.0f ); //first tri
+		NDebugOverlay::Triangle( vOutRects[ 0 ][ 2 ], vOutRects[ 0 ][ 1 ], vOutRects[ 0 ][ 0 ], 255, 0, 0, 100, true, 0.0f ); //make it double sided
+		NDebugOverlay::Triangle( vOutRects[ 0 ][ 2 ], vOutRects[ 0 ][ 3 ], vOutRects[ 0 ][ 0 ], 255, 0, 0, 100, true, 0.0f ); //second tri
+		NDebugOverlay::Triangle( vOutRects[ 0 ][ 0 ], vOutRects[ 0 ][ 3 ], vOutRects[ 0 ][ 2 ], 255, 0, 0, 100, true, 0.0f ); //make it double sided
 
-		NDebugOverlay::Triangle( vOutRects[1][0], vOutRects[1][1], vOutRects[1][2], 0, 0, 255, 100, true, 0.0f ); //first tri
-		NDebugOverlay::Triangle( vOutRects[1][2], vOutRects[1][1], vOutRects[1][0], 0, 0, 255, 100, true, 0.0f ); //make it double sided
-		NDebugOverlay::Triangle( vOutRects[1][2], vOutRects[1][3], vOutRects[1][0], 0, 0, 255, 100, true, 0.0f ); //second tri
-		NDebugOverlay::Triangle( vOutRects[1][0], vOutRects[1][3], vOutRects[1][2], 0, 0, 255, 100, true, 0.0f ); //make it double sided
+		NDebugOverlay::Triangle( vOutRects[ 1 ][ 0 ], vOutRects[ 1 ][ 1 ], vOutRects[ 1 ][ 2 ], 0, 0, 255, 100, true, 0.0f ); //first tri
+		NDebugOverlay::Triangle( vOutRects[ 1 ][ 2 ], vOutRects[ 1 ][ 1 ], vOutRects[ 1 ][ 0 ], 0, 0, 255, 100, true, 0.0f ); //make it double sided
+		NDebugOverlay::Triangle( vOutRects[ 1 ][ 2 ], vOutRects[ 1 ][ 3 ], vOutRects[ 1 ][ 0 ], 0, 0, 255, 100, true, 0.0f ); //second tri
+		NDebugOverlay::Triangle( vOutRects[ 1 ][ 0 ], vOutRects[ 1 ][ 3 ], vOutRects[ 1 ][ 2 ], 0, 0, 255, 100, true, 0.0f ); //make it double sided
 
 		NDebugOverlay::Box( vec3_origin, mins, maxs, 0, 255, 0, 100, 0.0f );
 #endif
-			
+
 		bVisible = IsBBoxVisible( mins, maxs );
-		if (!bVisible)
+		if ( !bVisible )
 		{
 			// Spotlight's extents aren't in view
 			if ( m_LightHandle != CLIENTSHADOW_INVALID_HANDLE )
@@ -314,102 +304,103 @@ void C_EnvProjectedTexture::UpdateLight( void )
 			return;
 		}
 
-	/*state.m_fQuadraticAtten = r_projtex_quadratic.GetInt(); //0
-	state.m_fLinearAtten = r_projtex_linear.GetInt(); //100
-	state.m_fConstantAtten = r_projtex_constant.GetInt(); //0*/
+		/*state.m_fQuadraticAtten = r_projtex_quadratic.GetInt(); //0
+		state.m_fLinearAtten = r_projtex_linear.GetInt(); //100
+		state.m_fConstantAtten = r_projtex_constant.GetInt(); //0*/
 
-	state.m_fQuadraticAtten = m_nLinear; //0
-	state.m_fLinearAtten = m_nQuadratic; //100
-	state.m_fConstantAtten = m_nConstant;
+		state.m_fQuadraticAtten = m_nQuadratic; //0
+		state.m_fLinearAtten = m_nLinear; //100
+		state.m_fConstantAtten = m_nConstant;
 
-	state.m_Color[0] = m_LinearFloatLightColor.x;
-	state.m_Color[1] = m_LinearFloatLightColor.y;
-	state.m_Color[2] = m_LinearFloatLightColor.z;
-	state.m_Color[3] = 0.0f; // fixme: need to make ambient work m_flAmbient;
-	state.m_NearZ = m_flNearZ;
-	state.m_FarZ = m_flFarZ;
-	//state.m_flShadowSlopeScaleDepthBias = mat_slopescaledepthbias_shadowmap.GetFloat();
-	state.m_flShadowSlopeScaleDepthBias = g_pMaterialSystemHardwareConfig->GetShadowSlopeScaleDepthBias();
-	//state.m_flShadowDepthBias = mat_depthbias_shadowmap.GetFloat();
-	state.m_flShadowDepthBias = g_pMaterialSystemHardwareConfig->GetShadowDepthBias();
-	state.m_bEnableShadows = m_bEnableShadows;
-	//state.m_pSpotlightTexture = materials->FindTexture( m_SpotlightTextureName, TEXTURE_GROUP_OTHER, false );
-	state.m_pSpotlightTexture = m_SpotlightTexture;
-	state.m_nSpotlightTextureFrame = m_nSpotlightTextureFrame;
+		state.m_Color[ 0 ] = m_LinearFloatLightColor.x;
+		state.m_Color[ 1 ] = m_LinearFloatLightColor.y;
+		state.m_Color[ 2 ] = m_LinearFloatLightColor.z;
+		state.m_Color[ 3 ] = 0.0f; // fixme: need to make ambient work m_flAmbient;
+		state.m_NearZ = m_flNearZ;
+		state.m_FarZ = m_flFarZ;
+		//state.m_flShadowSlopeScaleDepthBias = mat_slopescaledepthbias_shadowmap.GetFloat();
+		state.m_flShadowSlopeScaleDepthBias = g_pMaterialSystemHardwareConfig->GetShadowSlopeScaleDepthBias();
+		//state.m_flShadowDepthBias = mat_depthbias_shadowmap.GetFloat();
+		state.m_flShadowDepthBias = g_pMaterialSystemHardwareConfig->GetShadowDepthBias();
+		state.m_bEnableShadows = m_bEnableShadows;
+		//state.m_pSpotlightTexture = materials->FindTexture( m_SpotlightTextureName, TEXTURE_GROUP_OTHER, false );
+		state.m_pSpotlightTexture = m_SpotlightTexture;
+		state.m_nSpotlightTextureFrame = m_nSpotlightTextureFrame;
 
-	state.m_bUberlight = false; //r_projtex_uberlight_enable.GetBool();
-	m_UberlightState.m_bEnabled = false; //r_projtex_uberlight_enable.GetBool();
-	m_UberlightState.m_fNearEdge = m_fNearEdge;
-	m_UberlightState.m_fFarEdge = m_fFarEdge;
-	m_UberlightState.m_fCutOn = m_fCutOn;
-	m_UberlightState.m_fCutOff = m_fCutOff;
-	m_UberlightState.m_fShearx = m_fShearx;
-	m_UberlightState.m_fSheary = m_fSheary;
-	m_UberlightState.m_fWidth = m_fWidth;
-	m_UberlightState.m_fWedge = m_fWedge;
-	m_UberlightState.m_fHeight = m_fHeight;
-	m_UberlightState.m_fHedge = m_fHedge;
-	m_UberlightState.m_fRoundness = m_fRoundness;
+		state.m_bUberlight = r_projtex_uberlight_enable.GetBool();
+		m_UberlightState.m_bEnabled = r_projtex_uberlight_enable.GetBool();
+		m_UberlightState.m_fNearEdge = m_fNearEdge;
+		m_UberlightState.m_fFarEdge = m_fFarEdge;
+		m_UberlightState.m_fCutOn = m_fCutOn;
+		m_UberlightState.m_fCutOff = m_fCutOff;
+		m_UberlightState.m_fShearx = m_fShearx;
+		m_UberlightState.m_fSheary = m_fSheary;
+		m_UberlightState.m_fWidth = m_fWidth;
+		m_UberlightState.m_fWedge = m_fWedge;
+		m_UberlightState.m_fHeight = m_fHeight;
+		m_UberlightState.m_fHedge = m_fHedge;
+		m_UberlightState.m_fRoundness = m_fRoundness;
 
-	state.m_flShadowAtten = r_projtex_shadowatten.GetFloat();
-	state.m_nShadowQuality = m_nShadowQuality; // Allow entity to affect shadow quality
+		state.m_flShadowAtten = r_projtex_shadowatten.GetFloat();
+		state.m_nShadowQuality = m_nShadowQuality; // Allow entity to affect shadow quality
 
-	// NOTE: need to reload map when changing filtersize for this entity apparently, not for the flashlight though
-	// also the filtersize change only takes effect on map reload aaaa
-	// need to check to see if one of the values are changed, then set this to -1
-	// also this is all setup for DoShadowNvidiaPCF5x5Gaussian lol
-	if ( r_projtex_quality.GetInt() == 0 )
-	{
-		r_shadowmapresolution.SetValue( 512.0f );
-		r_projtex_filtersize.SetValue( 2.0f );
-	}
-	else if ( r_projtex_quality.GetInt() == 1 )
-	{
-		r_shadowmapresolution.SetValue( 1024.0f );
-		r_projtex_filtersize.SetValue( 1.0f );
-	}
-	else if ( r_projtex_quality.GetInt() == 2 )
-	{
-		r_shadowmapresolution.SetValue( 2048.0f );
-		r_projtex_filtersize.SetValue( 0.5f );
-	}
-	else if ( r_projtex_quality.GetInt() == 3 )
-	{
-		r_shadowmapresolution.SetValue( 4096.0f );
-		r_projtex_filtersize.SetValue( 0.25f );
-	}
-	else if ( r_projtex_quality.GetInt() == 4 )
-	{
-		r_shadowmapresolution.SetValue( 8192.0f );
-		r_projtex_filtersize.SetValue( 0.125f );
-	}
-	
-	state.m_flShadowFilterSize = r_projtex_filtersize.GetFloat();
-
-	if( m_LightHandle == CLIENTSHADOW_INVALID_HANDLE )
-	{
-		m_LightHandle = g_pClientShadowMgr->CreateFlashlight( state );
-
-		if ( m_LightHandle != CLIENTSHADOW_INVALID_HANDLE )
+		// NOTE: need to reload map when changing filtersize for this entity apparently, not for the flashlight though
+		// also the filtersize change only takes effect on map reload aaaa
+		// need to check to see if one of the values are changed, then set this to -1
+		// also this is all setup for DoShadowNvidiaPCF5x5Gaussian lol
+		if ( r_projtex_quality.GetInt() == 0 )
 		{
+			r_shadowmapresolution.SetValue( 512.0f );
+			r_projtex_filtersize.SetValue( 2.0f );
+		}
+		else if ( r_projtex_quality.GetInt() == 1 )
+		{
+			r_shadowmapresolution.SetValue( 1024.0f );
+			r_projtex_filtersize.SetValue( 1.0f );
+		}
+		else if ( r_projtex_quality.GetInt() == 2 )
+		{
+			r_shadowmapresolution.SetValue( 2048.0f );
+			r_projtex_filtersize.SetValue( 0.5f );
+		}
+		else if ( r_projtex_quality.GetInt() == 3 )
+		{
+			r_shadowmapresolution.SetValue( 4096.0f );
+			r_projtex_filtersize.SetValue( 0.25f );
+		}
+		else if ( r_projtex_quality.GetInt() == 4 )
+		{
+			r_shadowmapresolution.SetValue( 8192.0f );
+			r_projtex_filtersize.SetValue( 0.125f );
+		}
+
+		state.m_flShadowFilterSize = r_projtex_filtersize.GetFloat();
+
+		if ( m_LightHandle == CLIENTSHADOW_INVALID_HANDLE )
+		{
+			m_LightHandle = g_pClientShadowMgr->CreateFlashlight( state );
+
+			if ( m_LightHandle != CLIENTSHADOW_INVALID_HANDLE )
+			{
+				m_bForceUpdate = false;
+			}
+		}
+		else
+		{
+			if ( m_hTargetEntity != NULL || m_bForceUpdate == true )
+			{
+				g_pClientShadowMgr->UpdateFlashlightState( m_LightHandle, state );
+			}
+
+			//g_pClientShadowMgr->UpdateFlashlightState( m_LightHandle, state );
 			m_bForceUpdate = false;
 		}
+
+		g_pClientShadowMgr->GetFrustumExtents( m_LightHandle, m_vecExtentsMin, m_vecExtentsMax );
+
+		m_vecExtentsMin = m_vecExtentsMin - GetAbsOrigin();
+		m_vecExtentsMax = m_vecExtentsMax - GetAbsOrigin();
 	}
-	else
-	{
-		if ( m_hTargetEntity != NULL || m_bForceUpdate == true )
-		{
-			g_pClientShadowMgr->UpdateFlashlightState( m_LightHandle, state );
-		}
-
-		//g_pClientShadowMgr->UpdateFlashlightState( m_LightHandle, state );
-		m_bForceUpdate = false;
-	}
-
-	g_pClientShadowMgr->GetFrustumExtents( m_LightHandle, m_vecExtentsMin, m_vecExtentsMax );
-
-	m_vecExtentsMin = m_vecExtentsMin - GetAbsOrigin();
-	m_vecExtentsMax = m_vecExtentsMax - GetAbsOrigin();
 
 	if( m_bLightOnlyTarget )
 	{
