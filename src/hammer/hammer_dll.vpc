@@ -29,7 +29,7 @@ $Configuration	"Debug"
 {
 	$Compiler
 	{
-		$PrecompiledHeaderFile				"Hammer___Win32_Debug/hammer.pch"
+		$PrecompiledHeaderFile				"Debug/$PLATSUBDIR/hammer.pch"
 	}
 }
 
@@ -37,7 +37,7 @@ $Configuration	"Release"
 {
 	$Compiler
 	{
-		$PrecompiledHeaderFile				"Hammer___Win32_Release/hammer.pch"
+		$PrecompiledHeaderFile				"Release/$PLATSUBDIR/hammer.pch"
 	}
 }
 
@@ -699,13 +699,10 @@ $Project "hammer_dll"
 		$Lib	mathlib
 		$Lib	matsys_controls
 		$Lib	movieobjects
-		$Lib	sfmobjects
 		$Lib	raytrace
 		$Lib	tier2
 		$Lib	tier3
 		$Lib	vgui_controls
 		$Lib	dmxloader
 	}
-
-	$File	"whatsnew.txt"
 }
