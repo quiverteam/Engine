@@ -19,6 +19,21 @@ HOSTNAME := $(shell hostname)
 -include $(SRCROOT)/devtools/steam_def.mak
 -include $(SRCROOT)/devtools/sourcesdk_def.mak
 
+#
+#
+# Set these variables as you wish.
+#
+#
+ifeq ($(USE_AVX_MATH),"1")
+	SIMD_LEVEL = avx
+	TUNE_LEVEL = corei7-avx
+else
+	SIMD_LEVEL = ssse3
+	# CHANGE THIS IF YOU NEED TO
+	TUNE_LEVEL = core2
+endif
+
+
 # To build with clang, set the following in your environment:
 #   CC = clang
 #   CXX = clang++
@@ -38,7 +53,7 @@ ifeq ($(CFG), release)
 	OptimizerLevel_CompilerSpecific = -O2 -fno-strict-aliasing -ffast-math -fno-omit-frame-pointer -ftree-vectorize
 	ifeq ($(CLANG_BUILD),1)
 		# These aren't supported wit Clang 3.5. Need to remove when we update that.
-		OptimizerLevel_CompilerSpecific += -fpredictive-commoning -funswitch-loops
+		#OptimizerLevel_CompilerSpecific += -fpredictive-commoning -funswitch-loops
 	else
 		OptimizerLevel_CompilerSpecific += -fpredictive-commoning -funswitch-loops
 	endif
@@ -107,11 +122,8 @@ else
 	CRYPTOPPDIR=ubuntu12_32
 endif
 
-ifeq ($(TARGET_PLATFORM),linux64)
-	MARCH_TARGET = core2
-else
-	MARCH_TARGET = pentium4
-endif
+MARCH_TARGET = $(TUNE_LEVEL)
+
 
 ifeq ($(USE_VALVE_BINDIR),1)
 	# On dedicated servers, some plugins depend on global variable symbols in addition to functions.
@@ -125,21 +137,20 @@ endif
 ifeq ($(CLANG_BUILD),1)
 	# Clang does not support -mfpmath=sse because it uses whatever
 	# instruction set extensions are available by default.
-	SSE_GEN_FLAGS = -msse2
+	SSE_GEN_FLAGS = -m$(SIMD_LEVEL)
 else
-	SSE_GEN_FLAGS = -msse2 -mfpmath=sse
+	SSE_GEN_FLAGS = -m$(SIMD_LEVEL) -mfpmath=sse
 endif
 
 CCACHE := $(SRCROOT)/devtools/bin/linux/ccache
 
+ifeq ($(USE_OLD_GCC), 1)
+	CC = $(CCACHE) $(STEAM_RUNTIME_PATH)/bin/gcc$(GCC_VER)
+	CXX = $(CCACHE) $(STEAM_RUNTIME_PATH)/bin/g++$(GCC_VER)
+endif 
+
 ifeq ($(origin AR), default)
 	AR = $(STEAM_RUNTIME_PATH)/bin/ar crs
-endif
-ifeq ($(origin CC), default)
-	CC = $(CCACHE) $(STEAM_RUNTIME_PATH)/bin/gcc$(GCC_VER)	
-endif
-ifeq ($(origin CXX), default)
-	CXX = $(CCACHE) $(STEAM_RUNTIME_PATH)/bin/g++$(GCC_VER)
 endif
 
 # Support ccache with clang. Add -Qunused-arguments to avoid excessive warnings due to
@@ -163,7 +174,7 @@ endif
 
 ifeq ($(CLANG_BUILD),1)
 	# Clang specific flags
-else ifeq ($(GCC_VER),-4.8)
+else
 	WARN_FLAGS += -Wno-unused-local-typedefs
 	WARN_FLAGS += -Wno-unused-result
 	WARN_FLAGS += -Wno-narrowing
@@ -176,13 +187,13 @@ WARN_FLAGS += -fdiagnostics-show-option -Wformat -Wformat-security
 
 ifeq ($(TARGET_PLATFORM),linux64)
 	# nocona = pentium4 + 64bit + MMX, SSE, SSE2, SSE3 - no SSSE3 (that's three s's - added in core2)
-	ARCH_FLAGS += -march=$(MARCH_TARGET) -mtune=core2
+	ARCH_FLAGS += -march=$(MARCH_TARGET) -mtune=$(TUNE_LEVEL)
 	LD_SO = ld-linux-x86_64.so.2
 	LIBSTDCXX := $(shell $(CXX) -print-file-name=libstdc++.a)
 	LIBSTDCXXPIC := $(shell $(CXX) -print-file-name=libstdc++-pic.a)
 else
 	# pentium4 = MMX, SSE, SSE2 - no SSE3 (added in prescott) # -msse3 -mfpmath=sse
-	ARCH_FLAGS += -m32 -march=$(MARCH_TARGET) -mtune=core2 $(SSE_GEN_FLAGS)
+	ARCH_FLAGS += -m32 -march=$(MARCH_TARGET) -mtune=$(TUNE_LEVEL) $(SSE_GEN_FLAGS)
 	LD_SO = ld-linux.so.2
 	LIBSTDCXX := $(shell $(CXX) $(ARCH_FLAGS) -print-file-name=libstdc++.so)
 	LIBSTDCXXPIC := $(shell $(CXX) $(ARCH_FLAGS) -print-file-name=libstdc++.so)
