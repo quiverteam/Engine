@@ -290,7 +290,7 @@ $Project
 		$File	"$SRCDIR\public\SoundParametersInternal.cpp"
 		$File   "statgather.cpp"
 		$File	"splinepatch.cpp"
-		$File	"$SRCDIR\game\shared\sprite.cpp"
+		$File	"$SRCDIR\game\shared\Sprite.cpp"
 		$File	"spritemodel.cpp"
 		$File	"$SRCDIR\game\shared\SpriteTrail.cpp"
 		$File	"$SRCDIR\game\shared\studio_shared.cpp"
@@ -476,7 +476,7 @@ $Project
 			$File	"game_controls\SpectatorGUI.cpp"
 			$File	"game_controls\teammenu.cpp"
 			$File	"game_controls\vguitextwindow.cpp"
-			$File	"game_controls\iconpanel.cpp"
+			$File	"game_controls\IconPanel.cpp"
 		}
 	}
 
@@ -584,7 +584,7 @@ $Project
 		$File	"fx_staticline.h"
 		$File	"fx_trail.h"
 		$File	"fx_water.h"
-		$File	"$SRCDIR\game\shared\gameeventlistener.h"
+		$File	"$SRCDIR\game\shared\GameEventListener.h"
 		$File	"glow_overlay.h"
 		$File	"$SRCDIR\game\shared\hintmessage.h"
 		$File	"$SRCDIR\game\shared\hintsystem.h"
@@ -804,7 +804,7 @@ $Project
 		$File	"$SRCDIR\public\iservernetworkable.h"
 		$File	"$SRCDIR\public\iserverunknown.h"
 		$File	"$SRCDIR\public\engine\IShadowMgr.h"
-		$File	"$SRCDIR\public\soundemittersystem\isoundemittersystembase.h"
+		$File	"$SRCDIR\public\SoundEmitterSystem\isoundemittersystembase.h"
 		$File	"$SRCDIR\public\ISpatialPartition.h"
 		$File	"$SRCDIR\public\engine\IStaticPropMgr.h"
 		$File	"$SRCDIR\public\IStudioRender.h"
@@ -1009,7 +1009,7 @@ $Project
 		$File	"$SRCDIR\game\shared\singleplay_gamerules.h"
 		$File	"$SRCDIR\game\shared\solidsetdefaults.h"
 		$File	"$SRCDIR\game\shared\soundenvelope.h"
-		$File	"$SRCDIR\game\shared\sprite.h"
+		$File	"$SRCDIR\game\shared\Sprite.h"
 		$File	"$SRCDIR\game\shared\SpriteTrail.h"
 		$File	"$SRCDIR\game\shared\sun_shared.h"
 		$File	"$SRCDIR\game\shared\takedamageinfo.h"
@@ -1048,7 +1048,7 @@ $Project
 		$File	"game_controls\spectatorgui.h"
 		$File	"game_controls\teammenu.h"
 		$File	"game_controls\vguitextwindow.h"
-		$File	"game_controls\iconpanel.h"
+		$File	"game_controls\IconPanel.h"
 	}
 	
 	$Folder	"Link Libraries" [$WINDOWS]
