@@ -48,7 +48,7 @@ $Project "stdshader_dx9"
 	{
 		$File	"aftershock.cpp"
 		$File	"aftershock_helper.cpp"
-		$File	"accumbuff4sample.cpp"
+		$File	"AccumBuff4Sample.cpp"
 		$File	"accumbuff5sample.cpp"
 		$File	"BaseVSShader.cpp"
 		$File	"bik_dx90.cpp"
@@ -64,7 +64,7 @@ $Project "stdshader_dx9"
 		$File	"core_dx9.cpp"
 		$File	"debugmrttexture.cpp"
 		$File	"debugmorphaccumulator_dx9.cpp"					[$WIN32]
-		$File	"debugtextureview.cpp"
+		$File	"DebugTextureView.cpp"
 		$File	"DecalBaseTimesLightmapAlphaBlendSelfIllum_dx9.cpp"
 		$File	"DecalModulate_dx9.cpp"
 		$File	"depthwrite.cpp"
@@ -174,9 +174,9 @@ $Project "stdshader_dx9"
 		$File	"water_ps2x_helper.h"
 	}
 
-	$Folder	"Link Libraries" [$WIN32]
+	$Folder	"Link Libraries"
 	{
-		$Lib	"$SRCDIR\dx9sdk\lib\d3dx9"
+		$Lib	"$SRCDIR\dx9sdk\lib\d3dx9"	[$WIN32]
 		$Lib	mathlib
 		$Lib	shaderlib
 	}

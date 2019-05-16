@@ -99,7 +99,7 @@ $Project "StudioRender"
 		$File	"$SRCDIR\public\tier0\vprof.h"
 		$File	"$SRCDIR\public\vstdlib\vstdlib.h"
 		$File	"$SRCDIR\public\vtf\vtf.h"
-		$File	"$SRCDIR\public\tier1\utlstringmap.h"
+		$File	"$SRCDIR\public\tier1\UtlStringMap.h"
 	}
 
 	$folder "Link Libraries"
