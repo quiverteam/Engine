@@ -41,7 +41,7 @@ $Project
 		-$Lib	"$LIBPUBLIC\tier1"			[$WINDOWS]
 		-$Lib	"$LIBPUBLIC\vstdlib"		[$WINDOWS]
 		-$File	"$LIBPUBLIC\libvstdlib.so"	[$POSIX]
-		-$Lib	"$LIBPUBLIC\tier1"			[$POSIX]
+		$Lib	tier1						[$POSIX]
 	}
 }
 
