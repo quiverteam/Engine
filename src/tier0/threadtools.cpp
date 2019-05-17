@@ -67,14 +67,12 @@ struct ThreadProcInfo_t
 
 //---------------------------------------------------------
 
-
-static unsigned __stdcall ThreadProcConvert( void *pParam )
+static void* __stdcall ThreadProcConvert( void *pParam )
 {
 	ThreadProcInfo_t info = *((ThreadProcInfo_t *)pParam);
 	delete ((ThreadProcInfo_t *)pParam);
-	return (*info.pfnThread)(info.pParam);
+	return (void*)(*info.pfnThread)(info.pParam);
 }
-
 
 //---------------------------------------------------------
 
@@ -84,8 +82,12 @@ ThreadHandle_t CreateSimpleThread( ThreadFunc_t pfnThread, void *pParam, ThreadI
 	ThreadId_t idIgnored;
 	if ( !pID )
 		pID = &idIgnored;
-	return (ThreadHandle_t)VCRHook_CreateThread(NULL, stackSize, ThreadProcConvert, new ThreadProcInfo_t(pfnThread, pParam), 0, pID);
-#elif _LINUX
+	#ifdef PLATFORM_32BITS
+	return (ThreadHandle_t)VCRHook_CreateThread(NULL, stackSize, (unsigned)ThreadProcConvert, new ThreadProcInfo_t(pfnThread, pParam), 0, pID);
+	#else
+	return (ThreadHandle_t)VCRHook_CreateThread(NULL, stackSize, (unsigned long long)ThreadProcConvert, new ThreadProcInfo_t(pfnThread, pParam), 0, pID);
+	#endif
+#elif _POSIX
 	pthread_t tid;
 	pthread_create(&tid, NULL, ThreadProcConvert, new ThreadProcInfo_t( pfnThread, pParam ) );
 	if ( pID )
