@@ -148,7 +148,7 @@ $Project "MaterialSystem"
 		$File	"Wireframe.cpp"
 	}
 
-	$Folder	"Link Libraries" [$WIN32]
+	$Folder	"Link Libraries"
 	{
 		$Lib	bitmap
 		$Lib	mathlib
