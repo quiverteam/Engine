@@ -183,7 +183,7 @@ endif
 
 WARN_FLAGS += -Wno-unknown-pragmas -Wno-unused-parameter -Wno-unused-value -Wno-missing-field-initializers
 WARN_FLAGS += -Wno-sign-compare -Wno-reorder -Wno-invalid-offsetof -Wno-float-equal -Werror=return-type
-WARN_FLAGS += -fdiagnostics-show-option -Wformat -Wformat-security
+WARN_FLAGS += -fdiagnostics-show-option -Wformat -Wno-format-security -Wformat=0
 
 ifeq ($(TARGET_PLATFORM),linux64)
 	# nocona = pentium4 + 64bit + MMX, SSE, SSE2, SSE3 - no SSSE3 (that's three s's - added in core2)
@@ -431,9 +431,9 @@ $(SO_GameOutputFile): $(SO_File)
 	echo "---- COPYING TO $@ [$(CFG)] ----";\
 	echo "----" $(QUIET_ECHO_POSTFIX);
 	$(QUIET_PREFIX) -$(P4_EDIT_START) $(GAMEOUTPUTFILE) $(P4_EDIT_END);
-	$(QUIET_PREFIX) -mkdir -p `dirname $(GAMEOUTPUTFILE)` > /dev/null;
+	$(QUIET_PREFIX) -mkdir -p `dirname $(GAMEOUTPUTFILE)`;
 	$(QUIET_PREFIX) rm -f $(GAMEOUTPUTFILE) $(QUIET_ECHO_POSTFIX);
-	$(QUIET_PREFIX) cp -v $(OUTPUTFILE) $(GAMEOUTPUTFILE) $(QUIET_ECHO_POSTFIX);
+	$(QUIET_PREFIX) cp $(OUTPUTFILE) $(GAMEOUTPUTFILE) $(QUIET_ECHO_POSTFIX);
 	$(QUIET_PREFIX) -$(P4_EDIT_START) $(GAMEOUTPUTFILE)$(SYM_EXT) $(P4_EDIT_END);
 	$(QUIET_PREFIX) $(GEN_SYM) $(GAMEOUTPUTFILE); 
 	$(QUIET_PREFIX) -$(STRIP) $(GAMEOUTPUTFILE);
@@ -442,17 +442,20 @@ $(SO_GameOutputFile): $(SO_File)
 		echo "----" $(QUIET_ECHO_POSTFIX);\
 		echo "---- COPYING TO $(Srv_GAMEOUTPUTFILE) ----";\
 		echo "----" $(QUIET_ECHO_POSTFIX);\
-		cp -v $(GAMEOUTPUTFILE) $(Srv_GAMEOUTPUTFILE) $(QUIET_ECHO_POSTFIX);\
-		cp -v $(GAMEOUTPUTFILE)$(SYM_EXT) $(Srv_GAMEOUTPUTFILE)$(SYM_EXT) $(QUIET_ECHO_POSTFIX);\
+		cp $(GAMEOUTPUTFILE) $(Srv_GAMEOUTPUTFILE) $(QUIET_ECHO_POSTFIX);\
+		cp $(GAMEOUTPUTFILE)$(SYM_EXT) $(Srv_GAMEOUTPUTFILE)$(SYM_EXT) $(QUIET_ECHO_POSTFIX);\
 	fi;
 	$(QUIET_PREFIX) if [ "$(IMPORTLIBRARY)" != "" ]; then\
 		echo "----" $(QUIET_ECHO_POSTFIX);\
 		echo "---- COPYING TO IMPORT LIBRARY $(IMPORTLIBRARY) ----";\
 		echo "----" $(QUIET_ECHO_POSTFIX);\
 		$(P4_EDIT_START) $(IMPORTLIBRARY) $(P4_EDIT_END) && \
-		mkdir -p `dirname $(IMPORTLIBRARY)` > /dev/null && \
-		cp -v $(OUTPUTFILE) $(IMPORTLIBRARY); \
+		$(QUIET_PREFIX) mkdir -p `dirname $(IMPORTLIBRARY)` && \
+		$(QUIET_PREFIX) cp $(OUTPUTFILE) $(IMPORTLIBRARY); \
 	fi;
+	
+	$(QUIET_PREFIX) echo
+	$(QUIET_PREFIX) echo "---- FINISHED BUILDING $@ [$(CFG)] ----"
 
 
 $(SO_File): $(OTHER_DEPENDENCIES) $(OBJS) $(LIBFILENAMES)
@@ -462,7 +465,7 @@ $(SO_File): $(OTHER_DEPENDENCIES) $(OBJS) $(LIBFILENAMES)
 	echo "----" $(QUIET_ECHO_POSTFIX);\
 	\
 	$(LINK) $(LINK_MAP_FLAGS) $(SHLIBLDFLAGS) $(PROFILE_LINKER_FLAG) -o $(OUTPUTFILE) $(LIB_START_SHLIB) $(OBJS) $(LIBFILES) $(SystemLibraries) $(LIB_END_SHLIB);
-	$(VSIGN) -signvalve $(OUTPUTFILE);
+	$(QUIET_PREFIX)$(VSIGN) -signvalve $(OUTPUTFILE);
 
 
 $(EXE_File) : $(OTHER_DEPENDENCIES) $(OBJS) $(LIBFILENAMES)
