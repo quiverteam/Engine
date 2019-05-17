@@ -79,6 +79,15 @@ public:
 		other.Name = "";
 	}
 
+	CUnitTest& operator=(const CUnitTest& other)
+	{
+		this->bPassed = other.bPassed;
+		this->bCompleted = other.bCompleted;
+		this->Name = other.Name;
+		this->Message = other.Message;
+		return *this;
+	}
+
 	bool passed() const { return bPassed; };
 
 	void eval(bool b) 
@@ -376,6 +385,13 @@ public:
 		this->Name = other.Name;
 		other.Cycles = 0;
 		other.Name = "";
+	}
+
+	CPerfTest& operator=(const CPerfTest& other)
+	{
+		this->Cycles = other.Cycles;
+		this->Name = other.Name;
+		return *this;
 	}
 
 	void set_cycles(unsigned long long cycles)
