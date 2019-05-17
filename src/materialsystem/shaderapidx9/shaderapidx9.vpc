@@ -72,7 +72,7 @@ $Project "shaderapidx9"
 		$File	"textureheap.cpp"							[$X360]
 	}
 
-	$Folder	"DirectX Header Files" [$WIN32]
+	$Folder	"DirectX Header Files"
 	{
 		$File	"$SRCDIR\dx8sdk\include\d3d8.h"
 		$File	"$SRCDIR\dx8sdk\include\d3d8caps.h"
@@ -144,8 +144,9 @@ $Project "shaderapidx9"
 		$Lib	"$LIBPUBLIC\bitmap"
 		$Lib	"$LIBPUBLIC\mathlib"
 		$Lib	"$LIBPUBLIC\tier2"
-		$Lib	"$SRCDIR\dx9sdk\lib\d3d9"
-		$Lib	"$SRCDIR\dx9sdk\lib\d3dx9"
+		$Lib	"$SRCDIR\dx9sdk\lib\d3d9"	[$WIN32]
+		$Lib	"$SRCDIR\dx9sdk\lib\d3dx9"	[$WIN32]
+		$Lib	togl				[$POSIX]
 		$Lib	"$LIBCOMMON\bzip2"
 	}
 }
