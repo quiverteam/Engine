@@ -409,8 +409,8 @@ bool CThreadSyncObject::Wait( uint32 dwTimeout )
 	volatile int ret = 0;
 
 	do
-	{   
-	    ret = pthread_cond_timedwait( &m_Condition, &m_Mutex, &tm );
+	{
+	    ret = pthread_cond_timedwait( &m_Condition, &m_Mutex, const_cast<timespec*>(&tm) );
 	} 
 	while( ret == EINTR );
 
