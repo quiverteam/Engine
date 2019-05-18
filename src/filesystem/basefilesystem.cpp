@@ -1659,28 +1659,34 @@ bool CVPKFile::Prepare( int64 fileLen, int64 nFileOfs )
 		char readbuffer[2] = "";
 		ReadUntilNullOrBreak( extension, readbuffer )
 
-		UtlSymId_t i = m_Extensions.Find( extension );
-		if ( i == m_Extensions.InvalidIndex() )
-			m_Extensions[extension] = new CUtlStringMap<CUtlStringMap<CVPKFileEntry*>*>;
+		CUtlStringMap<CUtlStringMap<CVPKFileEntry*>*> *pExtensionEntry;
+		UtlSymId_t i = m_Entries.Find( extension );
+		if ( i != m_Entries.InvalidIndex() )
+			pExtensionEntry = m_Entries[i];
+		else
+			pExtensionEntry = m_Entries[extension] = new CUtlStringMap<CUtlStringMap<CVPKFileEntry*>*>;
 			
 		while ( true )
 		{	
 			ReadUntilNullOrBreak( path, readbuffer )
 
-			UtlSymId_t i = m_Extensions[extension]->Find( path );
-			if ( i == m_Extensions[extension]->InvalidIndex() )
-				m_Extensions[extension]->operator[](path) = new CUtlStringMap<CVPKFileEntry*>;
+			CUtlStringMap<CVPKFileEntry*>* pPathEntry;
+			i = pExtensionEntry->Find( path );
+			if ( i != pExtensionEntry->InvalidIndex() )
+				pPathEntry = pExtensionEntry->operator[]( i );
+			else
+				pPathEntry = pExtensionEntry->operator[]( path ) = new CUtlStringMap<CVPKFileEntry*>;
 
 			while ( true )
 			{
 				ReadUntilNullOrBreak( filename, readbuffer )
-				CVPKFileEntry *entry = new CVPKFileEntry;
+				CVPKFileEntry *pFileEntry = new CVPKFileEntry;
 				//Ok, so CVPKFileEntry is 20 bytes (because of aligment), but we do not want to read 2 extra bytes that are part of the next file name
-				m_fs->FS_fread( entry, 18, m_hPackFileHandle );
-				m_Extensions[extension]->operator[]( path )->operator[](filename) = entry;
-				if ( entry->PreloadBytes > 0 )
+				m_fs->FS_fread( pFileEntry, 18, m_hPackFileHandle );
+				pPathEntry->operator[](filename) = pFileEntry;
+				if ( pFileEntry->PreloadBytes > 0 )
 				{
-					m_fs->FS_fseek( m_hPackFileHandle, entry->PreloadBytes, FILESYSTEM_SEEK_CURRENT );
+					m_fs->FS_fseek( m_hPackFileHandle, pFileEntry->PreloadBytes, FILESYSTEM_SEEK_CURRENT );
 				}
 			}
 			continue;
@@ -1712,24 +1718,107 @@ bool CVPKFile::FindFile( const char *pFilename, int &nIndex, int64 &nOffset, int
 	strcpy( file, V_GetFileName( pFilename ) );
 	V_StripExtension( file, file, FILENAME_MAX );
 
-	UtlSymId_t i = m_Extensions.Find( extension );
-	if ( i == m_Extensions.InvalidIndex() )
+	CUtlStringMap<CUtlStringMap<CVPKFileEntry*>*>* pExtensionEntry;
+	UtlSymId_t i = m_Entries.Find( extension );
+	if ( i != m_Entries.InvalidIndex() )
+		pExtensionEntry = m_Entries[i];
+	else
 		return false;
-	i = m_Extensions[extension]->Find( path );
-	if ( i == m_Extensions[extension]->InvalidIndex() )
-		return false;
-	i = m_Extensions[extension]->operator[]( path )->Find( file );
 
-	if ( i != m_Extensions[extension]->operator[]( path )->InvalidIndex() )
+	CUtlStringMap<CVPKFileEntry*>* pPathEntry;
+	i = pExtensionEntry->Find( path );
+	if ( i != pExtensionEntry->InvalidIndex() )
+		pPathEntry = pExtensionEntry->operator[](i);
+	else
+		return false;
+
+	i = pPathEntry->Find( file );
+	if ( i != pPathEntry->InvalidIndex() )
 	{
-		CVPKFileEntry *entry = m_Extensions[extension]->operator[]( path )->operator[]( file );
+		CVPKFileEntry *pEntry = pPathEntry->operator[]( i );
 		nIndex = i;
-		nOffset = entry->EntryOffset;
-		nLength = entry->EntryLength;
-		m_pLastRequest = entry;
+		nOffset = pEntry->EntryOffset;
+		nLength = pEntry->EntryLength;
+		m_pLastRequest = pEntry;
 
 		return true;
 	}
+	return false;
+}
+
+bool CVPKFile::FindFirst( const char* pWildCard, WIN32_FIND_DATA* dat )
+{
+	//Extension
+	CUtlStringMap<CUtlStringMap<CVPKFileEntry*>*>* pExtensionEntry;
+	char extension[FILENAME_MAX];
+	Q_ExtractFileExtension( pWildCard, extension, sizeof(extension) );
+	if ( extension[0] == '\0' )
+		return false;
+
+	UtlSymId_t iCurrentExtension = m_Entries.Find( extension );
+	if ( iCurrentExtension != m_Entries.InvalidIndex() )
+		pExtensionEntry = m_Entries[iCurrentExtension];
+	else
+		return false;
+
+	//Path
+	CUtlStringMap<CVPKFileEntry*>* pPathEntry;
+	char path[MAX_FILEPATH];
+	strncpy( path, pWildCard, sizeof(path) );
+	V_FixSlashes( path, '/' );
+	if ( strtok( path, "*" ) != nullptr )
+	{
+		UtlSymId_t iCurrentPath = 0;
+		pPathEntry = pExtensionEntry->operator[]( iCurrentPath );
+		while ( pPathEntry )
+		{
+			if ( Q_strncmp( path, pExtensionEntry->String( iCurrentPath ), strlen(path) ) == 0 )
+			{
+				//File
+				UtlSymId_t iCurrentFile = 0;
+				CVPKFileEntry* pFileEntry = pPathEntry->operator[]( iCurrentFile );
+				while ( pFileEntry )
+				{
+					char fullpath[MAX_FILEPATH];
+					V_snprintf( fullpath, sizeof( fullpath ), "%s/%s.%s", pExtensionEntry->String( iCurrentPath ), pPathEntry->String( iCurrentFile ), m_Entries.String( iCurrentExtension ) );
+					V_FixSlashes( fullpath );
+					strncpy( dat->cFileName, fullpath, sizeof( dat->cFileName ) );
+					dat->dwFileAttributes &= ~FILE_ATTRIBUTE_DIRECTORY;
+					strncpy(m_pWildCard, path, sizeof(m_pWildCard));
+					m_iCurrentExtension = iCurrentExtension;
+					m_iCurrentPath = iCurrentPath;
+					m_iCurrentFile = iCurrentFile;
+					return true;
+				}
+			}
+			pPathEntry = pExtensionEntry->operator[]( iCurrentPath++ );
+		}
+	}
+
+	return false;
+}
+
+bool CVPKFile::FindNext( WIN32_FIND_DATA* dat )
+{
+	CUtlStringMap<CUtlStringMap<CVPKFileEntry*>*>* pExtensionEntry = m_Entries[m_iCurrentExtension];
+	for ( ; m_iCurrentPath < pExtensionEntry->GetNumStrings(); m_iCurrentPath++ )
+	{
+		CUtlStringMap<CVPKFileEntry*>* pPathEntry = pExtensionEntry->operator[]( m_iCurrentPath );
+		if ( Q_strncmp( m_pWildCard, pExtensionEntry->String( m_iCurrentPath ), strlen( m_pWildCard ) ) == 0 )
+		{
+			for ( m_iCurrentFile++; m_iCurrentFile < pPathEntry->GetNumStrings(); m_iCurrentFile++ )
+			{
+				char fullpath[MAX_FILEPATH];
+				V_snprintf( fullpath, sizeof( fullpath ), "%s/%s.%s", pExtensionEntry->String( m_iCurrentPath ), pPathEntry->String( m_iCurrentFile ), m_Entries.String(m_iCurrentExtension) );
+				V_FixSlashes( fullpath );
+				strncpy( dat->cFileName, fullpath, sizeof( dat->cFileName ) );
+				dat->dwFileAttributes &= ~FILE_ATTRIBUTE_DIRECTORY;
+				return true;
+			}
+			m_iCurrentFile = -1;
+		}
+	}
+	m_iCurrentPath = 0;
 	return false;
 }
 
@@ -4529,10 +4618,6 @@ const char *CBaseFileSystem::FindFirstHelper( const char *pWildCard, const char 
 		{
 			CSearchPath *pSearchPath = &m_SearchPaths[pFindData->currentSearchPathID];
 
-			// FIXME:  Should findfirst/next work with pak files?
-			if ( pSearchPath->GetPackFile() )
-				continue;
-
 			if ( FilterByPathID( pSearchPath, pFindData->m_FilterPathID ) )
 				continue;
 			
@@ -4540,35 +4625,40 @@ const char *CBaseFileSystem::FindFirstHelper( const char *pWildCard, const char 
 			if ( pFindData->m_VisitedSearchPaths.MarkVisit( *pSearchPath ) )
 				continue;
 
-			char pTmpFileName[ MAX_FILEPATH ];
-			Q_snprintf( pTmpFileName, sizeof( pTmpFileName ), "%s%s", pSearchPath->GetPathString(), pFindData->wildCardString.Base() );
-			Q_FixSlashes( pTmpFileName );
-			pFindData->findHandle = FS_FindFirstFile( pTmpFileName, &pFindData->findData );
-			pFindData->m_CurrentStoreID = pSearchPath->m_storeId;
-
-			if( pFindData->findHandle != INVALID_HANDLE_VALUE )
-				break;
+			if ( pSearchPath->GetPackFile() )
+			{
+				pFindData->m_CurrentStoreID = pSearchPath->m_storeId;
+				if ( pSearchPath->GetPackFile()->FindFirst( pFindData->wildCardString.Base(), &pFindData->findData ) )
+					goto FileFound;
+			}
+			else
+			{
+				char pTmpFileName[MAX_FILEPATH];
+				Q_snprintf( pTmpFileName, sizeof( pTmpFileName ), "%s%s", pSearchPath->GetPathString(), pFindData->wildCardString.Base() );
+				Q_FixSlashes( pTmpFileName );
+				pFindData->findHandle = FS_FindFirstFile( pTmpFileName, &pFindData->findData );
+				pFindData->m_CurrentStoreID = pSearchPath->m_storeId;
+				if ( pFindData->findHandle != INVALID_HANDLE_VALUE )
+					goto FileFound;
+			}
 		}
 	}
-
- 	if( pFindData->findHandle != INVALID_HANDLE_VALUE )
-	{
-		// Remember that we visited this file already.
-		pFindData->m_VisitedFiles.Insert( pFindData->findData.cFileName, 0 );
-
-		if ( pFoundStoreID )
-			*pFoundStoreID = pFindData->m_CurrentStoreID;
-
-		*pHandle = hTmpHandle;
-		return pFindData->findData.cFileName;
-	}
-
 	// Handle failure here
 	pFindData = 0;
 	m_FindData.Remove(hTmpHandle);
 	*pHandle = -1;
 
 	return NULL;
+
+FileFound:
+	// Remember that we visited this file already.
+	pFindData->m_VisitedFiles.Insert( pFindData->findData.cFileName, 0 );
+
+	if ( pFoundStoreID )
+		* pFoundStoreID = pFindData->m_CurrentStoreID;
+
+	*pHandle = hTmpHandle;
+	return pFindData->findData.cFileName;
 }
 
 const char *CBaseFileSystem::FindFirst( const char *pWildCard, FileFindHandle_t *pHandle )
@@ -4580,10 +4670,14 @@ const char *CBaseFileSystem::FindFirst( const char *pWildCard, FileFindHandle_t 
 // Get the next file, trucking through the path. . don't check for duplicates.
 bool CBaseFileSystem::FindNextFileHelper( FindData_t *pFindData, int *pFoundStoreID )
 {
-	// PAK files???
-
+	// Pack files
+	if ( m_SearchPaths[pFindData->currentSearchPathID].GetPackFile() )
+	{
+		if ( m_SearchPaths[pFindData->currentSearchPathID].GetPackFile()->FindNext( &pFindData->findData ) )
+			return true;
+	}
 	// Try the same search path that we were already searching on.
-	if( FS_FindNextFile( pFindData->findHandle, &pFindData->findData ) )
+	else if( FS_FindNextFile( pFindData->findHandle, &pFindData->findData ) )
 	{
 		if ( pFoundStoreID )
 			*pFoundStoreID = pFindData->m_CurrentStoreID;
@@ -4608,10 +4702,6 @@ bool CBaseFileSystem::FindNextFileHelper( FindData_t *pFindData, int *pFoundStor
 	{
 		CSearchPath *pSearchPath = &m_SearchPaths[pFindData->currentSearchPathID];
 
-		// FIXME: Should this work with PAK files?
-		if ( pSearchPath->GetPackFile() )
-			continue;
-
 		if ( FilterByPathID( pSearchPath, pFindData->m_FilterPathID ) )
 			continue;
 		
@@ -4619,17 +4709,26 @@ bool CBaseFileSystem::FindNextFileHelper( FindData_t *pFindData, int *pFoundStor
 		if ( pFindData->m_VisitedSearchPaths.MarkVisit( *pSearchPath ) )
 			continue;
 
-		char pTmpFileName[ MAX_FILEPATH ];
-		Q_snprintf( pTmpFileName, sizeof( pTmpFileName ), "%s%s", pSearchPath->GetPathString(), pFindData->wildCardString.Base() );
-		Q_FixSlashes( pTmpFileName );
-		pFindData->findHandle = FS_FindFirstFile( pTmpFileName, &pFindData->findData );
-		pFindData->m_CurrentStoreID = pSearchPath->m_storeId;
-		if( pFindData->findHandle != INVALID_HANDLE_VALUE )
+		if ( pSearchPath->GetPackFile() )
 		{
-			if ( pFoundStoreID )
-				*pFoundStoreID = pFindData->m_CurrentStoreID;
+			pFindData->m_CurrentStoreID = pSearchPath->m_storeId;
+			if ( pSearchPath->GetPackFile()->FindFirst( pFindData->wildCardString.Base(), &pFindData->findData ) )
+				return true;
+		}
+		else
+		{
+			char pTmpFileName[MAX_FILEPATH];
+			Q_snprintf( pTmpFileName, sizeof( pTmpFileName ), "%s%s", pSearchPath->GetPathString(), pFindData->wildCardString.Base() );
+			Q_FixSlashes( pTmpFileName );
+			pFindData->findHandle = FS_FindFirstFile( pTmpFileName, &pFindData->findData );
+			pFindData->m_CurrentStoreID = pSearchPath->m_storeId;
+			if ( pFindData->findHandle != INVALID_HANDLE_VALUE )
+			{
+				if ( pFoundStoreID )
+					* pFoundStoreID = pFindData->m_CurrentStoreID;
 
-			return true;
+				return true;
+			}
 		}
 	}
 	return false;

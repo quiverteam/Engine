@@ -214,6 +214,10 @@ public:
 	virtual bool Prepare( int64 fileLen = -1, int64 nFileOfs = 0 ) = 0;
 	virtual bool FindFile( const char *pFilename,  int &nIndex, int64 &nPosition, int &nLength ) = 0;
 
+	// Used by FindFirst and FindNext
+	virtual bool FindFirst( const char* pWildCard, WIN32_FIND_DATA* dat ) { return INVALID_HANDLE_VALUE; }
+	virtual bool FindNext( WIN32_FIND_DATA* dat ) { return false; }
+
 	// This is the core IO routine for reading anything from a pack file, everything should go through here at some point
 	virtual int ReadFromPack( int nIndex, void* buffer, int nDestBytes, int nBytes, int64 nOffset );
 	
@@ -371,6 +375,8 @@ public:
 	// Loads the pack file
 	virtual bool Prepare( int64 fileLen = -1, int64 nFileOfs = 0 );
 	virtual bool FindFile( const char *pFilename, int &nIndex, int64 &nOffset, int &nLength );
+	virtual bool FindFirst( const char* pWildCard, WIN32_FIND_DATA* dat );
+	virtual bool FindNext( WIN32_FIND_DATA* dat );
 	virtual int  ReadFromPack( int nIndex, void* buffer, int nDestBytes, int nBytes, int64 nOffset  );
 
 	int64 GetPackFileBaseOffset() { return m_nBaseOffset; }
@@ -379,17 +385,16 @@ public:
 
 	inline bool	UsesVolumes()	{ return m_bVolumes; }
 
-	CUtlStringMap<CUtlStringMap<CUtlStringMap<CVPKFileEntry*>*>*> m_Extensions;
 private:
 	bool m_bVolumes;
 	unsigned int m_nVersion;
 	CVPKFileEntry* m_pLastRequest;
+	char m_pWildCard[MAX_FILEPATH];
+	UtlSymId_t m_iCurrentExtension;
+	UtlSymId_t m_iCurrentPath;
+	UtlSymId_t m_iCurrentFile;
 protected:
-	//From VDC - https://developer.valvesoftware.com/wiki/VPK_File_Format#Tree
-
-	// Entries to the individual files stored inside the pack file.
-
-//	CVPKFileEntry m_VPKFiles;
+	CUtlStringMap<CUtlStringMap<CUtlStringMap<CVPKFileEntry*>*>*> m_Entries;
 
 };
 
