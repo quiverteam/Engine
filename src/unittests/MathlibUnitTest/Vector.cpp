@@ -9,6 +9,9 @@
 #include <stddef.h>
 #include <stdint.h>
 
+//#include "mathlib/ssemath.h"
+#include "mathlib/mathlib.h"
+#include "../mathlib/sse.h"
 
 #ifdef _WIN32
 #include <intrin.h>
@@ -31,6 +34,8 @@ void PrintVec(const Vector& v)
 
 void RunVectorTests()
 {
+	srand(time(0));
+
 	//
 	// Vector normalization test 1
 	//
@@ -64,5 +69,83 @@ void RunVectorTests()
 		TEST_ACCURACY(m, 1020.1f, 0.05);
 
 	END_UNIT_TEST(VectorTestSuite)
+
+	//
+	// Vector add
+	//
+	BEGIN_UNIT_TEST("Vector Add Test #1", VectorTestSuite)
+		Vector v1 = Vector(rand() / 1000.0f, rand() / 1000.0f, rand() / 1000.0f);
+		Vector v2 = Vector(rand() / 1000.0f, rand() / 1000.0f, rand() / 1000.0f);
+		Vector res = v1 + v2;
+
+		// result should be 
+
+		TEST_ACCURACY(res.x, v1.x + v2.x, 0.05f);
+		TEST_ACCURACY(res.y, v1.y + v2.y, 0.05f);
+		TEST_ACCURACY(res.z, v1.z + v2.z, 0.05f);
+
+	END_UNIT_TEST(VectorTestSuite)
+
+	//
+	// Vector sub
+	//
+	BEGIN_UNIT_TEST("Vector Sub Test #1", VectorTestSuite)
+		Vector v1 = Vector(rand() / 1000.0f, rand() / 1000.0f, rand() / 1000.0f);
+		Vector v2 = Vector(rand() / 1000.0f, rand() / 1000.0f, rand() / 1000.0f);
+		Vector res = v1 - v2;
+
+		// result should be 
+
+		TEST_ACCURACY(res.x, v1.x - v2.x, 0.05f);
+		TEST_ACCURACY(res.y, v1.y - v2.y, 0.05f);
+		TEST_ACCURACY(res.z, v1.z - v2.z, 0.05f);
+
+	END_UNIT_TEST(VectorTestSuite)
+
+	//
+	// Vector mul
+	//
+	BEGIN_UNIT_TEST("Vector Mul Test #1", VectorTestSuite)
+		Vector v1 = Vector(rand() / 1000.0f, rand() / 1000.0f, rand() / 1000.0f);
+		double c = rand() / 1000.0f;
+		Vector res = v1 * c;
+
+		// result should be 
+
+		TEST_ACCURACY(res.x, v1.x * c, 0.05f);
+		TEST_ACCURACY(res.y, v1.y * c, 0.05f);
+		TEST_ACCURACY(res.z, v1.z * c, 0.05f);
+
+	END_UNIT_TEST(VectorTestSuite)
+
+	//
+	// Vector mul
+	//
+	BEGIN_UNIT_TEST("Vector Div Test #1", VectorTestSuite)
+		Vector v1 = Vector(rand() / 1000.0f, rand() / 1000.0f, rand() / 1000.0f);
+		double c = rand() / 1000.0f;
+		Vector res = v1 / c;
+
+		// result should be 
+
+		TEST_ACCURACY(res.x, v1.x / c, 0.05f);
+		TEST_ACCURACY(res.y, v1.y / c, 0.05f);
+		TEST_ACCURACY(res.z, v1.z / c, 0.05f);
+
+	END_UNIT_TEST(VectorTestSuite)
+
+	//
+	// Sqrt test 
+	//
+	BEGIN_UNIT_TEST("Sqrt Test #1", VectorTestSuite)
+		float v = 1293.3202f;
+
+		// sqrt v = 35.96276129554014098995381727835384380016333734135153232355
+		TEST_ACCURACY(_SSE_Sqrt(v), 35.96276129554014098995381727835384380016333734135153232355, 0.05f);
+	END_UNIT_TEST(VectorTestSuite)
+
+	//
+	//
+	//
 
 }
