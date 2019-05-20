@@ -146,10 +146,6 @@ modeswitchsave.tga
 *.asi
 *.lnk
 
-/src/lib/public/tier0.lib
-/src/lib/public/tier1.lib
-/src/lib/public/vstdlib.lib
-
 \.vscode/
 *.code-workspace
 *.kdev4
@@ -162,5 +158,6 @@ GameConfig.txt
 
 # Annoying crap in game/bin
 game/bin/linux32/
+game/bin/linux64/
 
 
