@@ -102,7 +102,7 @@ $Project "shaderapidx9"
 
 	$Folder	"Public Header Files"
 	{
-		$File	"$SRCDIR\public\shaderapi\ishaderdevice.h"
+		$File	"$SRCDIR\public\shaderapi\IShaderDevice.h"
 		$File	"$SRCDIR\public\shaderapi\ishaderutil.h"
 		$File	"$SRCDIR\public\shaderapi\ishaderapi.h"
 		$File	"$SRCDIR\public\shaderapi\ishaderdynamic.h"

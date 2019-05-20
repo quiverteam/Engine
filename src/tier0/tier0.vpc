@@ -37,13 +37,11 @@ $Project
 
 	$Folder	"Link Libraries"
 	{
-		-$Lib	"$LIBPUBLIC\tier0" 			[$WINDOWS||$POSIX]
-		-$Lib	"$LIBPUBLIC\tier1"			[$WINDOWS||$POSIX]
-		-$Lib	"$LIBPUBLIC\vstdlib"		[$WINDOWS||$POSIX]
-		
-		-$file	"$SRCDIR\linux\tier0_i686.so"				\
-		-$Lib	"$LIBPUBLIC\tier1"	\
-		-$file	"$SRCDIR\linux\vstdlib_i686.so"	[$POSIX]
+		-$Lib	"$LIBPUBLIC\tier0" 			[$WINDOWS]
+		-$Lib	"$LIBPUBLIC\tier1"			[$WINDOWS]
+		-$Lib	"$LIBPUBLIC\vstdlib"		[$WINDOWS]
+		-$File	"$LIBPUBLIC\libvstdlib.so"	[$POSIX]
+		$Lib	tier1						[$POSIX]
 	}
 }
 
