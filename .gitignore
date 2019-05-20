@@ -157,3 +157,12 @@ GameConfig.txt
 
 # Devtools stuff
 !src/devtools/*.mak
+
+# Annoying crap in game/bin
+game/bin/linux32/
+
+# More annoying stuff, but not all of it.
+src/lib/public/linux32/tier1.a
+src/lib/public/linux32/tier2.a
+src/lib/public/linux32/tier3.a
+src/lib/public/linux32/mathlib.a
