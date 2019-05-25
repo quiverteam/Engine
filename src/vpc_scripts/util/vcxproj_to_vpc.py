@@ -518,7 +518,7 @@ def ConvertToVPCDictionary( vcxproj ):
     index = 0
     for item in ItemGroup:
         test_cpp = ItemGroup[index].findall( "ClCompile" )
-        test_h = ItemGroup[index].findall( "ClCompile" )
+        test_h = ItemGroup[index].findall( "ClInclude" )
 
         if test_cpp != []:
             include_list_cpp = test_cpp
