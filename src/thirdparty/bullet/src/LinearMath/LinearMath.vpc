@@ -1,0 +1,99 @@
+//---------------------------------------------------------------------------------------------
+// LinearMath
+// 
+// StaticLibrary Project Script
+//---------------------------------------------------------------------------------------------
+$Macro SRCDIR		    "..\..\..\.."
+$Macro OUTLIBDIR        "$LIBPUBLIC"
+
+$Include "$SRCDIR\vpc_scripts\source_lib_base.vpc"
+
+
+$Configuration "Debug"
+{
+    $Compiler
+    {
+        $PreprocessorDefinitions                "_DEBUG"
+    }
+}
+
+$Configuration "Release"
+{
+    $General
+    {
+        $WholeProgramOptimization                "Use Link Time Code Generation"
+    }
+
+    $Compiler
+    {
+        $PreprocessorDefinitions                "NDEBUG"
+        $AdditionalOptions                "/d2Zi+"
+    }
+}
+
+$Configuration
+{
+    $General
+    {
+        $ConfigurationType                "Static Library (.lib)"
+        $CharacterSet                "Use Multi-Byte Character Set"
+    }
+
+    $Compiler
+    {
+        $WarningLevel                "Level 3 (/W3)"
+        $AdditionalIncludeDirectories                "..\"
+        $PreprocessorDefinitions                "WIN32;_CRT_SECURE_NO_WARNINGS;_CRT_SECURE_NO_DEPRECATE;_SCL_SECURE_NO_WARNINGS"
+    }
+}
+
+
+$Project "LinearMath"
+{
+    $Folder "Source Files"
+    {
+        $File "btAlignedAllocator.cpp"
+        $File "btConvexHull.cpp"
+        $File "btConvexHullComputer.cpp"
+        $File "btDebug.cpp"
+        $File "btGeometryUtil.cpp"
+        $File "btPolarDecomposition.cpp"
+        $File "btQuickprof.cpp"
+        $File "btSerializer.cpp"
+        $File "btVector3.cpp"
+    }
+
+    $Folder "Header Files"
+    {
+        $File "btAabbUtil2.h"
+        $File "btAlignedAllocator.h"
+        $File "btAlignedObjectArray.h"
+        $File "btConvexHull.h"
+        $File "btConvexHullComputer.h"
+        $File "btDebug.h"
+        $File "btDefaultMotionState.h"
+        $File "btDefines.h"
+        $File "btGeometryUtil.h"
+        $File "btGrahamScan2dConvexHull.h"
+        $File "btHashMap.h"
+        $File "btIDebugDraw.h"
+        $File "btList.h"
+        $File "btMatrix3x3.h"
+        $File "btMatrixX.h"
+        $File "btMinMax.h"
+        $File "btMotionState.h"
+        $File "btPolarDecomposition.h"
+        $File "btPoolAllocator.h"
+        $File "btQuadWord.h"
+        $File "btQuaternion.h"
+        $File "btQuickprof.h"
+        $File "btRandom.h"
+        $File "btScalar.h"
+        $File "btSerializer.h"
+        $File "btStackAlloc.h"
+        $File "btTransform.h"
+        $File "btTransformUtil.h"
+        $File "btVector3.h"
+    }
+}
+

@@ -1,0 +1,84 @@
+//---------------------------------------------------------------------------------------------
+// BulletMultiThreaded
+// 
+// StaticLibrary Project Script
+//---------------------------------------------------------------------------------------------
+$Macro SRCDIR		    "..\..\..\.."
+$Macro OUTLIBDIR        "$LIBPUBLIC"
+
+$Include "$SRCDIR\vpc_scripts\source_lib_base.vpc"
+
+
+$Configuration "Debug"
+{
+    $Compiler
+    {
+        $PreprocessorDefinitions                "_DEBUG"
+    }
+}
+
+$Configuration "Release"
+{
+    $General
+    {
+        $WholeProgramOptimization                "Use Link Time Code Generation"
+    }
+
+    $Compiler
+    {
+        $PreprocessorDefinitions                "NDEBUG"
+        $AdditionalOptions                "/d2Zi+"
+    }
+}
+
+$Configuration
+{
+    $General
+    {
+        $ConfigurationType                "Static Library (.lib)"
+        $CharacterSet                "Use Multi-Byte Character Set"
+    }
+
+    $Compiler
+    {
+        $WarningLevel                "Level 3 (/W3)"
+        $AdditionalIncludeDirectories                "..\"
+        $PreprocessorDefinitions                "WIN32;_CRT_SECURE_NO_WARNINGS;_CRT_SECURE_NO_DEPRECATE;_SCL_SECURE_NO_WARNINGS"
+    }
+}
+
+
+$Project "BulletMultiThreaded"
+{
+    $Folder "Source Files"
+    {
+        $File "btGpu3DGridBroadphase.cpp"
+        $File "btParallelCollisionDispatcher.cpp"
+        $File "btParallelConstraintSolver.cpp"
+        $File "PosixThreading.cpp"
+        $File "btThreadPool.cpp"
+        $File "Win32Threading.cpp"
+    }
+
+    $Folder "Header Files"
+    {
+        $File "btGpu3DGridBroadphase.h"
+        $File "btGpu3DGridBroadphaseSharedCode.h"
+        $File "btGpu3DGridBroadphaseSharedDefs.h"
+        $File "btGpu3DGridBroadphaseSharedTypes.h"
+        $File "btGpuDefines.h"
+        $File "btGpuUtilsSharedCode.h"
+        $File "btGpuUtilsSharedDefs.h"
+        $File "btParallelCollisionDispatcher.h"
+        $File "btParallelConstraintSolver.h"
+        $File "PlatformDefinitions.h"
+        $File "btThreading.h"
+        $File "btThreadPool.h"
+    }
+
+    $Folder "Link Libraries"
+    {
+    }
+
+}
+

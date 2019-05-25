@@ -24,6 +24,19 @@ $Group "dx_proxy"
 	"dx_proxy_dx9_v30_pc"
 }
 
+// bullet vphysics
+$Group "physics"
+{
+	"vphysics"
+	
+	// libs
+	"BulletCollision"
+	"BulletDynamics"
+	"BulletMultiThreaded"
+	"BulletSoftBody"
+	"LinearMath"
+}
+
 $Group "hammer"
 {
 	"hammer_launcher"
@@ -103,10 +116,9 @@ $Group "utils"
 // 	will eventually remove
 //	"glview"
 	
-	"datamodel"
 	"hammer_dll"
 	"hammer_launcher"
-	"filesystemopendialog"
+//	"filesystemopendialog"
 	"vbsp"
 	"vvis_dll"
 	"vvis_launcher"
