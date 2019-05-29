@@ -1180,10 +1180,10 @@ inline void CVertexBuilder::FastVertexAVX(const ModelVertexDX7_t &vertex)
 	*v1 = _mm256_loadu_ps((float*)&vertex);
 	*v2 = _mm256_loadu_ps((float*)&vertex + 4);
 #else
-	__m128* v1 = (__m128*)&m_pCurrPosition;
-	__m128* v2 = ((__m128*)&m_pCurrPosition + 1);
-	__m128* v3 = ((__m128*)&m_pCurrPosition + 2);
-	__m128* v4 = ((__m128*)&m_pCurrPosition + 3);
+	__m128* v1 = (__m128*)m_pCurrPosition;
+	__m128* v2 = ((__m128*)m_pCurrPosition + 1);
+	__m128* v3 = ((__m128*)m_pCurrPosition + 2);
+	__m128* v4 = ((__m128*)m_pCurrPosition + 3);
 	*v1 = _mm_loadu_ps((float*)&vertex);
 	*v2 = _mm_loadu_ps((float*)&vertex + 4);
 	*v3 = _mm_loadu_ps((float*)&vertex + 8);
