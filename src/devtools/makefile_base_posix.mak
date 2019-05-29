@@ -74,7 +74,7 @@ CFLAGS = $(BASE_CFLAGS) $(ENV_CFLAGS)
 # In -std=gnu++0x mode we get lots of errors about "error: narrowing conversion". -fpermissive
 # turns these into warnings in gcc, and -Wno-c++11-narrowing suppresses them entirely in clang 3.1+.
 ifeq ($(CLANG_BUILD),1)
-	CXXFLAGS = $(BASE_CFLAGS) -std=gnu++0x -Wno-c++11-narrowing -Wno-dangling-else $(ENV_CXXFLAGS)
+	CXXFLAGS = $(BASE_CFLAGS) -std=gnu++0x -Wno-macro-redefined -fpermissive -Wno-c++11-narrowing -Wno-dangling-else $(ENV_CXXFLAGS)
 else
 	CXXFLAGS = $(BASE_CFLAGS) -std=gnu++0x -fpermissive $(ENV_CXXFLAGS)
 endif
@@ -168,18 +168,20 @@ else
 	WARN_FLAGS = -Wall -Wno-invalid-offsetof -Wno-multichar -Wno-overloaded-virtual
 	WARN_FLAGS += -Wno-write-strings
 	WARN_FLAGS += -Wno-unused-variable
-	WARN_FLAGS += -Wno-unused-but-set-variable
 	WARN_FLAGS += -Wno-unused-function
 endif
 
 ifeq ($(CLANG_BUILD),1)
-	# Clang specific flags
-else
-	WARN_FLAGS += -Wno-unused-local-typedefs
-	WARN_FLAGS += -Wno-unused-result
-	WARN_FLAGS += -Wno-narrowing
-	# WARN_FLAGS += -Wno-unused-function
+	WARN_FLAGS += -Wno-unused-private-field -Wno-unused-const-variable
 endif
+
+ifneq ($(CLANG_BUILD),1)
+	WARN_FLAGS += -Wno-unused-but-set-variable
+endif
+
+WARN_FLAGS += -Wno-unused-local-typedefs
+WARN_FLAGS += -Wno-unused-result
+WARN_FLAGS += -Wno-narrowing
 
 WARN_FLAGS += -Wno-unknown-pragmas -Wno-unused-parameter -Wno-unused-value -Wno-missing-field-initializers
 WARN_FLAGS += -Wno-sign-compare -Wno-reorder -Wno-invalid-offsetof -Wno-float-equal -Werror=return-type
