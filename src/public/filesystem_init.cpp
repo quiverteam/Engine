@@ -1226,8 +1226,8 @@ void FileSystem_AddSearchPath_Core( IFileSystem *pFileSystem, const char *szGame
 {
 	char core[MAX_PATH];
 	Q_strncpy( core, szGameInfoPath, MAX_PATH );
-	Q_StripTrailingSlash( core );
-	Q_strncat( core, "/../core", MAX_PATH, MAX_PATH );
+	V_StripFilename( core );
+	Q_strncat( core, "core", MAX_PATH, MAX_PATH );
 
 	pFileSystem->AddSearchPath( core, "CORE" );
 }
