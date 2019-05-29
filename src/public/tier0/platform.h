@@ -1686,6 +1686,11 @@ PLATFORM_INTERFACE int Plat_GetPriority(int pid);
 #define PRIORITY_MAX 2
 #define PRIORITY_MIN 1
 
+/*
+Returns the number of milliseconds since system start
+*/
+PLATFORM_INTERFACE unsigned int Plat_GetTickCount();
+
 //-----------------------------------------------------------------------------
 
 #include "tier0/valve_on.h"

@@ -17,6 +17,8 @@
 #include <sys/stat.h>
 #include <sys/statfs.h>
 #include <sys/resource.h>
+#include <sys/time.h>
+#include <sys/times.h>
 #include <sched.h>
 
 double Plat_FloatTime()
@@ -254,4 +256,23 @@ PLATFORM_INTERFACE void Plat_SetPriority(int priority, int pid)
 PLATFORM_INTERFACE int Plat_GetPID()
 {
 	return (int)getpid();
+}
+
+PLATFORM_INTERFACE unsigned int Plat_GetTickCount()
+{
+	FILE* fs = fopen("/proc/uptime", "r");
+	if(!fs)
+		return 0;
+	
+	char buf[64];
+	fgets(buf, 64, fs);
+	fclose(fs);
+
+	// we only need the first number (processor uptime)
+	char* uptime = strtok(buf, " ");
+
+	if(!uptime)
+		return 0;
+
+	return (unsigned)(atof(uptime) / 1000.0f);
 }

@@ -334,4 +334,9 @@ PLATFORM_INTERFACE int Plat_GetPID()
 	return (int)GetCurrentProcessId();
 }
 
+PLATFORM_INTERFACE unsigned int Plat_GetTickCount()
+{
+	return GetTickCount();
+}
+
 #endif // _LINUX
