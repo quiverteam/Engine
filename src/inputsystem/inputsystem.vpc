@@ -21,7 +21,9 @@ $Project "inputsystem"
 {
 	$Folder	"Source Files"
 	{
-		$File	"inputsystem.cpp"
+		$File	"inputsystem.cpp"	[$LEGACY_INPUTSYSTEM]
+		$File	"inputsystem2.cpp"	[!$LEGACY_INPUTSYSTEM]
+		$File	"SDLInputMapping.h"
 		$File	"inputsystem.h"
 		$File	"joystick.cpp"
 		$File	"key_translation.cpp"

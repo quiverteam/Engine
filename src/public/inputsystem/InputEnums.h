@@ -30,7 +30,7 @@ enum
 	MAX_NOVINT_DEVICES = 2,
 };
 
-#if defined( LINUX )
+#if defined( _POSIX )
 // Linux has a slightly different mapping order on the joystick axes
 enum JoystickAxis_t
 {
@@ -88,6 +88,29 @@ enum InputEventType_t
 	IE_FirstAppEvent = 2000,
 };
 
+/*
+
+Variations of this structure:
+
+struct ButtonInputEvent_t
+{
+	int m_nType;
+	int m_nTick;
+	ButtonCode_t m_nData;
+	int m_nData2;
+	int m_nData3;
+};
+
+struct AnalogInputEvent_t
+{
+	int m_nType;
+	int m_nTick;
+	AnalogCode_t m_nData1;
+	int m_nData2;
+	int m_nData3;
+};
+
+*/
 struct InputEvent_t
 {
 	int m_nType;				// Type of the event (see InputEventType_t)

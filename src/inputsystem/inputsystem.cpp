@@ -6,9 +6,10 @@
 
 #include "inputsystem.h"
 #include "key_translation.h"
-#include "inputsystem/buttoncode.h"
-#include "inputsystem/analogcode.h"
+#include "inputsystem/ButtonCode.h"
+#include "inputsystem/AnalogCode.h"
 #include "tier1/convar.h"
+#include "tier0/platform.h"
 
 ConVar joy_xcontroller_found( "joy_xcontroller_found", "1", FCVAR_NONE, "Automatically set to 1 if an xcontroller has been detected." );
 
@@ -19,7 +20,7 @@ static CInputSystem g_InputSystem;
 EXPOSE_SINGLE_INTERFACE_GLOBALVAR( CInputSystem, IInputSystem, 
 						INPUTSYSTEM_INTERFACE_VERSION, g_InputSystem );
 
-
+#ifdef USE_OLD_INPUTSYSTEM
 //-----------------------------------------------------------------------------
 // Constructor, destructor
 //-----------------------------------------------------------------------------
@@ -62,7 +63,7 @@ InitReturnVal_t CInputSystem::Init()
 	if ( nRetVal != INIT_OK )
 		return nRetVal;
 
-	m_StartupTimeTick = GetTickCount();
+	m_StartupTimeTick = Plat_GetTickCount();
 
 	if ( IsPC() )
 	{
@@ -949,3 +950,4 @@ LRESULT CInputSystem::WindowProc( HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lP
 
 	return ChainWindowMessage( hwnd, uMsg, wParam, lParam );
 }
+#endif //USE_OLD_INPUTSYSTEM
