@@ -307,7 +307,7 @@ CON_COMMAND(vprof_save_data, "Saves VProf output to a CSV file.")
 	Msg("Saving data...");
 
 	CUtlBuffer buf;
-	buf.PutString("Function Name,Time (ms),Time (us),Calls,L2 Misses,Budget Group");
+	buf.PutString("Function Name,Time (ms),Time (us),Calls,L2 Misses,Budget Group\n");
 
 	for(CVProfNode* node = g_VProfCurrentProfile.GetRoot(); node != NULL; node = node->GetChild())
 	{
