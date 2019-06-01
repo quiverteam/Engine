@@ -330,7 +330,7 @@ CON_COMMAND(vprof_save_data, "Saves VProf output to a CSV file.")
 	}
 
 	g_pFileSystem->WriteFile(fn, com_gamedir, buf);
-	Msg("Saved to %s", fn);
+	Msg("Saved to %s\n", fn);
 }
 
 DEFERRED_CON_COMMAND( vprof_cachemiss, "Toggle VProf cache miss checking" )
