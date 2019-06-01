@@ -1,4 +1,4 @@
-//===== Copyright © 1996-2005, Valve Corporation, All rights reserved. ======//
+//===== Copyright ï¿½ 1996-2005, Valve Corporation, All rights reserved. ======//
 //
 // Purpose: VProf engine integration
 //
@@ -26,6 +26,7 @@
 #include "filesystem_engine.h"
 #include "tier1/utlstring.h"
 #include "tier1/utlvector.h"
+#include "filesystem.h"
 
 // memdbgon must be the last include file in a .cpp file!!!
 #include "tier0/memdbgon.h"
@@ -291,6 +292,45 @@ CON_COMMAND( vprof_dump_groupnames, "Write the names of all of the vprof groups 
 	{
 		Msg( "group %d: \"%s\"\n", i, g_VProfCurrentProfile.GetBudgetGroupName( i ) );
 	}
+}
+
+CON_COMMAND(vprof_save_data, "Saves VProf output to a CSV file.")
+{
+	if(args.ArgC() < 1)
+	{
+		Warning("Please specify a filename.\n");
+		return;
+	}
+
+	const char* fn = args.ArgV[0];
+
+	Msg("Saving data...");
+
+	CUtlBuffer buf;
+	buf.PutString("Function Name,Time (ms),Time (us),Calls,L2 Misses,Budget Group");
+
+	for(CVProfNode* node = g_VProfCurrentProfile.GetRoot(); node != NULL; node = node->GetChild())
+	{
+		char output[256];
+
+		const char* grp = "";
+		if(int grpid = node->GetBudgetGroupID() > 0)
+		{
+			grp = g_VProfCurrentProfile.GetBudgetGroupName(grpid);
+			if(!grp) // if group isn't null terminated sprintf might cause some issues.
+				grp = "";
+		}
+		sprintf(output, "%s,%f,%f,%i,%i,%s\n", node->GetName(), node->GetTotalTime(), node->GetTotalTime() / 1000.0f, node->GetTotalCalls(), node->GetL2CacheMisses(), grp);
+		buf.PutString(output);
+	}
+	if(!com_gamedir)
+	{
+		Warning("Failed to write file, com_gamedir is NULL\n");
+		return;
+	}
+
+	g_pFileSystem->WriteFile(fn, com_gamedir, buf);
+	Msg("Saved to %s", fn);
 }
 
 DEFERRED_CON_COMMAND( vprof_cachemiss, "Toggle VProf cache miss checking" )
