@@ -103,7 +103,9 @@ private:
 /* For the new SDL2-based input system */
 #ifndef USE_OLD_INPUTSYSTEM
 	SDL_Window* pWindow;
-	unsigned char m_KeyboardState[BUTTON_CODE_LAST];
+	unsigned char m_KeyboardState[BUTTON_CODE_LAST]; // This uses nearly 0.5kb of memory, need to figure out a better way.
+	unsigned m_nMouseState;
+	CUtlVector<InputEvent_t> m_InputEvents;
 
 #endif
 

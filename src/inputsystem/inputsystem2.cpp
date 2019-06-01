@@ -7,6 +7,7 @@
 #include "inputsystem.h"
 #include "tier0/platform.h"
 #include "tier1/convar.h"
+#include "SDLInputMapping.h"
 
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_joystick.h>
@@ -137,17 +138,20 @@ int CInputSystem::GetAnalogDelta(AnalogCode_t code) const
 
 int CInputSystem::GetEventCount() const
 {
-
+	return m_InputEvents.Count();
 }
 
 const InputEvent_t* CInputSystem::GetEventData() const
 {
-
+	if(m_InputEvents.Count() > 0)
+	{
+		return &m_InputEvents.Tail();
+	}
 }
 
 void CInputSystem::PostUserEvent(const InputEvent_t &event)
 {
-
+	m_InputEvents.AddToTail(event);
 }
 
 int CInputSystem::GetJoystickCount() const
@@ -171,13 +175,15 @@ void CInputSystem::SampleDevices(void)
 	m_nLastPollTick = Plat_GetTickCount();
 	SDL_PumpEvents();
 
-	SDL_Event ev;
-	while(SDL_PollEvent(&ev))
+	SDL_Event ev[256];
+	for(int i = SDL_PeepEvents(ev, 1, SDL_PEEKEVENT, SDL_FIRSTEVENT, SDL_LASTEVENT), n = 0; n < i; n++)
 	{
-		switch(ev.type)
+		switch(ev[n].type)
 		{
 			case SDL_KEYUP:
 			{
+				SDL_KeyboardEvent event = ev[n].key;
+				
 				break;
 			}
 			case SDL_KEYDOWN:
