@@ -152,4 +152,7 @@ modeswitchsave.tga
 /game/bin/win32/*.vdf
 GameConfig.txt
 
+# For cmake shit
+CMakeFiles/
+
 *.code-workspace
