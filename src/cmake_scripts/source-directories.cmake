@@ -1,0 +1,19 @@
+#
+#
+# Common Directories for CMake
+#
+#
+set(LIBCOMMON		${ROOT_DIR}/lib/common/${PLATFORM_SUBDIR})
+set(LIBPUBLIC		${ROOT_DIR}/lib/public/${PLATFORM_DIR})
+
+set(PUBLIC_INCLUDE	${ROOT_DIR}/public/)
+set(TIER0_INCLUDE	${PUBLIC_INCLUDE}/tier0)
+set(TIER1_INCLUDE	${PUBLIC_INCLUDE}/tier1)
+set(TIER2_INCLUDE	${PUBLIC_INCLUDE}/tier2)
+set(TIER3_INCLUDE	${PUBLIC_INCLUDE}/tier3)
+set(TIER4_INCLUDE	${PUBLIC_INCLUDE}/tier4)
+set(APPSYSTEM_INCLUDE	${PUBLIC_INCLUDE}/appsystem)
+set(TOGL_INCLUDE	${PUBLIC_INCLUDE}/togl)
+
+link_directories(${LIBCOMMON} ${LIBPUBLIC})
+include_directories(${PUBLIC_INCLUDE})
