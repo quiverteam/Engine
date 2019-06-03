@@ -1016,12 +1016,12 @@ $Project "vaudio_speex"
 
 $Project "vbsp"
 {
-	"utils\vbsp\vbsp.vpc" [$WINDOWS]
+	"utils\vbsp\vbsp.vpc"
 }
 
 $Project "vbspinfo"
 {
-	"utils\vbspinfo\vbspinfo.vpc" [$WINDOWS]
+	"utils\vbspinfo\vbspinfo.vpc"
 }
 
 $Project "vcd_sound_check"
@@ -1171,12 +1171,12 @@ $Project "vprojtomake"
 
 $Project "vrad_dll"
 {
-	"utils\vrad\vrad_dll.vpc" [$WINDOWS]
+	"utils\vrad\vrad_dll.vpc"
 }
 
 $Project "vrad_launcher"
 {
-	"utils\vrad_launcher\vrad_launcher.vpc" [$WINDOWS]
+	"utils\vrad_launcher\vrad_launcher.vpc"
 }
 
 $Project "vstdlib"
@@ -1191,12 +1191,12 @@ $Project "vtaexp"
 
 $Project "vtex_dll"
 {
-	"utils\vtex\vtex_dll.vpc" [$WINDOWS]
+	"utils\vtex\vtex_dll.vpc"
 }
 
 $Project "vtex_launcher"
 {
-	"utils\vtex\vtex_launcher.vpc" [$WINDOWS]
+	"utils\vtex\vtex_launcher.vpc"
 }
 
 $Project "vtf"
@@ -1221,12 +1221,12 @@ $Project "vtfscrew"
 
 $Project "vvis_dll"
 {
-	"utils\vvis\vvis_dll.vpc" [$WINDOWS]
+	"utils\vvis\vvis_dll.vpc"
 }
 
 $Project "vvis_launcher"
 {
-	"utils\vvis_launcher\vvis_launcher.vpc" [$WINDOWS]
+	"utils\vvis_launcher\vvis_launcher.vpc"
 }
 
 $Project "vweightexp"
