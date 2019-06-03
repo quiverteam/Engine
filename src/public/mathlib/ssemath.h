@@ -61,7 +61,6 @@ typedef __m256d fltdx8;
 
 #endif //_USE_AVX
 
-#endif
 
 
 // The FLTX4 type is a fltx4 used as a parameter to a function.
