@@ -11,7 +11,7 @@ Custom Source Engine branch based on Source Engine 2007, currently available on 
 
 2. Install [Perl](http://strawberryperl.com/), open Perl Command Line and enter `cpan String::CRC32`. This is needed for building shaders.
 
-3. Run src/createallprojects.bat and build the solution in Release, Debug is broken currently.
+3. Run src/createallprojects.bat and build the solution in Release.
 
 4. Run src/materialsystem/stdshaders/buildallshaders.bat, then build stdshader projects.
 
