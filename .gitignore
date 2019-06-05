@@ -154,5 +154,6 @@ GameConfig.txt
 
 # For cmake shit
 CMakeFiles/
-
 *.code-workspace
+.idea/
+cmake-build-debug/
