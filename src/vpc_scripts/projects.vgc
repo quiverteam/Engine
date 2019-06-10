@@ -55,22 +55,22 @@ $Project "bspzip"
 
 $Project "bugreporter"
 {
-	"utils\bugreporter\bugreporter.vpc" [$WINDOWS]
+	"utils\bugreporter\bugreporter.vpc" [$WIN32]
 }
 
 $Project "bugreporter_public"
 {
-	"utils\bugreporter_public\bugreporter_public.vpc" [$WINDOWS]
+	"utils\bugreporter_public\bugreporter_public.vpc" [$WIN32]
 }
 
 $Project "bugreporter_text"
 {
-	"utils\bugreporter_text\bugreporter_text.vpc" [$WINDOWS]
+	"utils\bugreporter_text\bugreporter_text.vpc" [$WIN32]
 }
 
 $Project "bugreporter_filequeue"
 {
-	"utils\bugreporter_filequeue\bugreporter_filequeue.vpc" [$WINDOWS]
+	"utils\bugreporter_filequeue\bugreporter_filequeue.vpc" [$WIN32]
 }
 
 $Project "bzip2"
@@ -1001,7 +1001,7 @@ $Project "qvideo"
 
 $Project "vaudio_miles"
 {
-	"engine\voice_codecs\miles\vaudio_miles.vpc" [$WINDOWS]
+	"engine\voice_codecs\miles\vaudio_miles.vpc" [$WIN32]
 }
 
 $Project "vaudio_speex"
