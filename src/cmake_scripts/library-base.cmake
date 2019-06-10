@@ -4,12 +4,5 @@
 #
 #
 
-#================================================#
-# Vars that should be defined in including files
-# TARGET: the name of the target
-# 
-#================================================#
-
-# Include this just in case
-include(source-directories.cmake)
-include(source-base.cmake)
+set(THIS_IS_A_LIBRARY 1)
+include(project-base.cmake)
