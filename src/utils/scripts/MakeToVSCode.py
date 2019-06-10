@@ -96,9 +96,9 @@ def ConvertFile(file: str, dir: str, root: str):
 	doc = deepcopy(Workspace)
 	
 	for include in includes:
-		doc["folders"].append({"path": str(include)})
+		doc["folders"].append({"name": "Header Files", "path": str(include)})
 		
-	doc["folders"].append({"path": str(dirpath)})
+	doc["folders"].append({"name": "Source", "path": str(dirpath)})
 	doc["folders"].append({"name": "Source-Root", "path": str(root)})
 
 	with io.open(workspace, "w+") as stream:
