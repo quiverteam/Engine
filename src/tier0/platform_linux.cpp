@@ -1,4 +1,4 @@
-//========= Copyright © 1996-2005, Valve Corporation, All rights reserved. ============//
+//========= Copyright ï¿½ 1996-2005, Valve Corporation, All rights reserved. ============//
 //
 // Purpose: 
 //
@@ -7,11 +7,19 @@
 
 #include "tier0/platform.h"
 #include "tier0/vcrmode.h"
-#include "tier0/memalloc.h"
 #include "tier0/dbg.h"
+#include "tier0/memalloc.h"
 
 #include <sys/time.h>
 #include <unistd.h>
+#include <dlfcn.h>
+#include <sys/ptrace.h>
+#include <sys/stat.h>
+#include <sys/statfs.h>
+#include <sys/resource.h>
+#include <sys/time.h>
+#include <sys/times.h>
+#include <sched.h>
 
 double Plat_FloatTime()
 {
@@ -32,7 +40,7 @@ double Plat_FloatTime()
 	return VCRHook_Sys_FloatTime( ( tp.tv_sec - secbase ) + tp.tv_usec / 1000000.0 );
 }
 
-unsigned long Plat_MSTime()
+unsigned int Plat_MSTime()
 {
         struct timeval  tp;
         static int      secbase = 0;
@@ -53,6 +61,7 @@ unsigned long Plat_MSTime()
 
 bool vtune( bool resume )
 {
+	return false;
 }
 
 
@@ -69,6 +78,7 @@ Plat_AllocErrorFn g_AllocError = Plat_DefaultAllocErrorFn;
 
 PLATFORM_INTERFACE void* Plat_Alloc( unsigned long size )
 {
+#ifndef NO_MALLOC_OVERRIDE
 	void *pRet = g_pMemAlloc->Alloc( size );
 	if ( pRet )
 	{
@@ -79,11 +89,15 @@ PLATFORM_INTERFACE void* Plat_Alloc( unsigned long size )
 		g_AllocError( size );
 		return 0;
 	}
+#else
+	return malloc(size);
+#endif
 }
 
 
 PLATFORM_INTERFACE void* Plat_Realloc( void *ptr, unsigned long size )
 {
+#ifndef NO_MALLOC_OVERRIDE
 	void *pRet = g_pMemAlloc->Realloc( ptr, size );
 	if ( pRet )
 	{
@@ -94,12 +108,19 @@ PLATFORM_INTERFACE void* Plat_Realloc( void *ptr, unsigned long size )
 		g_AllocError( size );
 		return 0;
 	}
+#else
+	return realloc(ptr, size);
+#endif
 }
 
 
 PLATFORM_INTERFACE void Plat_Free( void *ptr )
 {
+#ifndef NO_MALLOC_OVERRIDE
 	g_pMemAlloc->Free( ptr );
+#else
+	free(ptr);
+#endif
 }
 
 
@@ -118,4 +139,140 @@ PLATFORM_INTERFACE void Plat_SetCommandLine( const char *cmdLine )
 PLATFORM_INTERFACE const tchar *Plat_GetCommandLine()
 {
 	return g_CmdLine;
+}
+
+//
+// Implementation of dynamic lib loading code for posix
+//
+PLATFORM_INTERFACE void* Plat_LoadLibrary(const char* path)
+{
+	Assert(path != NULL);
+	// Might change this to RTLD_NOW if it becomes an issue, but this should be fine
+	return dlopen(path, RTLD_LAZY);
+}
+
+PLATFORM_INTERFACE void Plat_UnloadLibrary(void* handle)
+{
+	Assert(handle != NULL);
+	dlclose(handle);
+}
+
+PLATFORM_INTERFACE void* Plat_FindProc(void* module_handle, const char* sym_name)
+{
+	Assert(module_handle != NULL);
+	Assert(sym_name != NULL);
+	return dlsym(module_handle, sym_name);
+}
+
+//
+// Implementation of executable handling code
+//
+
+
+PLATFORM_INTERFACE bool Plat_CWD(char* outname, size_t outSize)
+{
+	return getcwd(outname, outSize) != 0;
+}
+
+PLATFORM_INTERFACE bool Plat_GetCurrentDirectory(char* outname, size_t outSize)
+{
+	return getcwd(outname, outSize) != 0;
+}
+
+PLATFORM_INTERFACE bool Plat_GetExecutablePath(char* outname, size_t len)
+{
+	Assert(outname);
+
+	// Full path to the directory, we will read from procfs
+	char pathbuf[128];
+	sprintf(pathbuf, "/proc/%i/exe", getpid());
+	int nlen = readlink(pathbuf, outname, len);
+
+	if(nlen == -1)
+		return false;
+
+	Assert(nlen <= len);
+
+	// Null terminate the string
+	if(nlen <= len)
+		outname[nlen] = '\0';
+	else
+		outname[len] = '\0';
+
+	return true;
+}
+
+PLATFORM_INTERFACE bool Plat_GetExecutableDirectory(char* outpath, size_t len)
+{
+	Assert(outpath);
+
+	// Full path to the directory, we will read from procfs
+	char pathbuf[128];
+	sprintf(pathbuf, "/proc/%i/exe", getpid());
+	int nlen = readlink(pathbuf, outpath, len);
+
+	if(nlen == -1)
+		return false;
+
+	Assert(nlen <= len);
+
+	// walk back until we hit a '/'
+	for(size_t i = nlen; i >= 0; i--)
+	{
+		if(pathbuf[i] == '/')
+		{
+			// dont want any seg faults!
+			if(i < nlen)
+				pathbuf[i+1] = '\0';
+			break;
+		}
+	}
+
+	return true;
+}
+
+PLATFORM_INTERFACE int Plat_GetPriority(int pid)
+{
+	return getpriority(PRIO_PROCESS, pid);
+}
+
+PLATFORM_INTERFACE void Plat_SetPriority(int priority, int pid)
+{
+	static const int MaxPriority = sched_get_priority_max(SCHED_OTHER);
+	static const int MinPriority = sched_get_priority_min(SCHED_OTHER);
+
+	switch(priority)
+	{
+		case PRIORITY_MAX:
+			priority = MaxPriority;
+			break;
+		case PRIORITY_MIN:
+			priority = MinPriority;
+			break;
+	}
+	setpriority(PRIO_PROCESS, pid, priority);
+}
+
+PLATFORM_INTERFACE int Plat_GetPID()
+{
+	return (int)getpid();
+}
+
+PLATFORM_INTERFACE unsigned int Plat_GetTickCount()
+{
+	FILE* fs = fopen("/proc/uptime", "r");
+	if(!fs)
+		return 0;
+	
+	char buf[64];
+	fgets(buf, 64, fs);
+	fclose(fs);
+
+	// we only need the first number (processor uptime)
+	char* uptime = strtok(buf, " ");
+
+	if(!uptime)
+		return 0;
+
+	return (unsigned)(atof(uptime) / 1000.0f);
 }

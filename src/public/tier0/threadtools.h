@@ -19,6 +19,8 @@
 #include <intrin.h>
 #endif
 
+#include <xmmintrin.h>
+
 #ifdef POSIX
 #include <pthread.h>
 #include <errno.h>
@@ -65,7 +67,11 @@ const unsigned TT_INFINITE = 0xffffffff;
 
 #endif // NO_THREAD_LOCAL
 
+#ifndef PLATFORM_64BITS
 typedef unsigned long ThreadId_t;
+#else
+typedef unsigned long long ThreadId_t;
+#endif
 
 //-----------------------------------------------------------------------------
 //
@@ -234,17 +240,13 @@ inline void const *ThreadInterlockedCompareExchangePointerToConst( void const * 
 inline bool ThreadInterlockedAssignPointerToConstIf( void const * volatile *p, void const *value, void const *comperand )			{ return ThreadInterlockedAssignPointerIf( const_cast < void * volatile * > ( p ), const_cast < void * > ( value ), const_cast < void * > ( comperand ) ); }
 
 #if defined( PLATFORM_64BITS )
-#if defined (_WIN32) 
 typedef __m128i int128;
 inline int128 int128_zero()	{ return _mm_setzero_si128(); }
-#else
-typedef __int128_t int128;
-#define int128_zero() 0
-#endif
+
 
 PLATFORM_INTERFACE bool ThreadInterlockedAssignIf128( volatile int128 *pDest, const int128 &value, const int128 &comperand ) NOINLINE;
 
-#endif
+#endif //PLATFORM_64BITS
 
 PLATFORM_INTERFACE int64 ThreadInterlockedIncrement64( int64 volatile * ) NOINLINE;
 PLATFORM_INTERFACE int64 ThreadInterlockedDecrement64( int64 volatile * ) NOINLINE;
@@ -1196,7 +1198,7 @@ public:
 	// Access the thread handle directly
 	HANDLE GetThreadHandle();
 	uint GetThreadId();
-#elif defined( LINUX )
+#elif defined( _POSIX )
 	uint GetThreadId();
 #endif
 
@@ -1228,7 +1230,7 @@ public:
 	// wait for a thread to execute its SuspendCooperative call 
 	void BWaitForThreadSuspendCooperative();
 
-#ifndef LINUX
+#ifndef _POSIX
 	// forcefully Suspend a thread
 	unsigned int Suspend();
 
@@ -1281,6 +1283,12 @@ protected:
 	// "Virtual static" facility
 	typedef unsigned (__stdcall *ThreadProc_t)( void * );
 	virtual ThreadProc_t GetThreadProc();
+
+	// Posix thread proc
+	typedef void*(__stdcall *PosixThreadProc_t)(void*);
+	PosixThreadProc_t GetPosixThreadProc();
+	static void* __stdcall PosixThreadProc(void* param);
+
 	virtual bool IsThreadRunning();
 
 	CThreadMutex m_Lock;
@@ -1317,6 +1325,7 @@ private:
 	ThreadId_t m_threadId;
 #elif defined(POSIX)
 	pthread_t m_threadId;
+	bool m_bThreadRunning;
 #endif
 	CInterlockedInt m_nSuspendCount;
 	CThreadEvent m_SuspendEvent;
@@ -1411,8 +1420,8 @@ public:
 
 protected:
 #ifndef _WIN32
-#define __stdcall
-#endif
+//#define __stdcall
+#endif 
 	typedef uint32 (__stdcall *WaitFunc_t)( int nEvents, CThreadEvent * const *pEvents, int bWaitAll, uint32 timeout );
 	
 	int Call( unsigned, unsigned timeout, bool fBoost, WaitFunc_t = NULL, CFunctor *pParamFunctor = NULL );

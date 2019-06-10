@@ -12,6 +12,5 @@ int main()
 {
 	RunVectorTests();
 
-	while (true)
-		getchar();
+	VectorTestSuite->print_results();
 }

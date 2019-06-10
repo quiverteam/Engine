@@ -1,4 +1,4 @@
-//===== Copyright © 1996-2005, Valve Corporation, All rights reserved. ======//
+//===== Copyright ï¿½ 1996-2005, Valve Corporation, All rights reserved. ======//
 //
 // Purpose: 
 //
@@ -6,9 +6,10 @@
 
 #include "inputsystem.h"
 #include "key_translation.h"
-#include "inputsystem/buttoncode.h"
-#include "inputsystem/analogcode.h"
+#include "inputsystem/ButtonCode.h"
+#include "inputsystem/AnalogCode.h"
 #include "tier1/convar.h"
+#include "tier0/platform.h"
 
 ConVar joy_xcontroller_found( "joy_xcontroller_found", "1", FCVAR_NONE, "Automatically set to 1 if an xcontroller has been detected." );
 
@@ -19,7 +20,7 @@ static CInputSystem g_InputSystem;
 EXPOSE_SINGLE_INTERFACE_GLOBALVAR( CInputSystem, IInputSystem, 
 						INPUTSYSTEM_INTERFACE_VERSION, g_InputSystem );
 
-
+#ifdef USE_OLD_INPUTSYSTEM
 //-----------------------------------------------------------------------------
 // Constructor, destructor
 //-----------------------------------------------------------------------------
@@ -62,7 +63,7 @@ InitReturnVal_t CInputSystem::Init()
 	if ( nRetVal != INIT_OK )
 		return nRetVal;
 
-	m_StartupTimeTick = GetTickCount();
+	m_StartupTimeTick = Plat_GetTickCount();
 
 	if ( IsPC() )
 	{
@@ -308,12 +309,6 @@ void CInputSystem::PostButtonPressedEvent( InputEventType_t nType, int nTick, Bu
 
 		// Add this event to the app-visible event queue
 		PostEvent( nType, nTick, scanCode, virtualCode );
-
-		// FIXME: Remove! Fake a windows message for vguimatsurface's wndproc
-		if ( IsX360() && IsJoystickCode( scanCode ) )
-		{
-			ProcessEvent( WM_XCONTROLLER_KEY, scanCode, 1 );
-		}
 	}
 }
 
@@ -332,12 +327,6 @@ void CInputSystem::PostButtonReleasedEvent( InputEventType_t nType, int nTick, B
 
 		// Add this event to the app-visible event queue
 		PostEvent( nType, nTick, scanCode, virtualCode );
-
-		// FIXME: Remove! Fake a windows message for vguimatsurface's input handler
-		if ( IsX360() && IsJoystickCode( scanCode ) )
-		{
-			ProcessEvent( WM_XCONTROLLER_KEY, scanCode, 0 );
-		}
 	}
 }
 
@@ -502,11 +491,7 @@ void CInputSystem::SetPrimaryUserId( int userId )
 //-----------------------------------------------------------------------------
 void CInputSystem::SetRumble( float fLeftMotor, float fRightMotor, int userId )
 {
-	// TODO: send force feedback to rumble-enabled joysticks
-	if ( IsX360() )
-	{
-		SetXDeviceRumble( fLeftMotor, fRightMotor, userId );
-	}
+
 }
 
 
@@ -515,21 +500,7 @@ void CInputSystem::SetRumble( float fLeftMotor, float fRightMotor, int userId )
 //-----------------------------------------------------------------------------
 void CInputSystem::StopRumble( void )
 {
-	if ( IsX360() )
-	{
-		xdevice_t* pXDevice = &m_XDevices[0];
 
-		for ( int i = 0; i < XUSER_MAX_COUNT; ++i, ++pXDevice )
-		{
-			if ( pXDevice->active )
-			{
-				pXDevice->vibration.wLeftMotorSpeed = 0;
-				pXDevice->vibration.wRightMotorSpeed = 0;
-				pXDevice->pendingRumbleUpdate = true;
-				WriteToXDevice( pXDevice );
-			}
-		}
-	}
 }
 
 
@@ -979,3 +950,4 @@ LRESULT CInputSystem::WindowProc( HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lP
 
 	return ChainWindowMessage( hwnd, uMsg, wParam, lParam );
 }
+#endif //USE_OLD_INPUTSYSTEM

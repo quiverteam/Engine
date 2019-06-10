@@ -1,0 +1,14 @@
+//
+//
+// Base definitions for all x64 projects
+//
+//
+
+$Configuration
+{
+	$Compiler
+	{
+		$PreprocessorDefinitions		"$BASE;_X64_;_x64_;PLATFORM_64BITS;_x86_64_;_X86_64_"
+	}
+}
+	

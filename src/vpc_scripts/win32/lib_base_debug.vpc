@@ -16,7 +16,7 @@ $MacroRequiredAllowEmpty	"GAMENAME"
 $MacroRequiredAllowEmpty	"INTERMEDIATESUBDIR"
 $MacroRequiredAllowEmpty	"_UNITYSUBDIR"
 $MacroRequiredAllowEmpty	"_STATICSUBDIR"
-$Macro						"_SUBDIRSUFFIX"		"$INTERMEDIATESUBDIR$_STATICSUBDIR$PLATSUBDIR\$GAMENAME$_UNITYSUBDIR"
+$Macro						"_SUBDIRSUFFIX"		"$INTERMEDIATESUBDIR$_STATICSUBDIR$GAMENAME$PLATSUBDIR$_UNITYSUBDIR"
 
 $Configuration "Debug"
 {
@@ -24,7 +24,7 @@ $Configuration "Debug"
 	{
 		// General
 		$OutputDirectory					"$OUTLIBDIR"
-		$IntermediateDirectory				".\Debug\$_SUBDIRSUFFIX"
+		$IntermediateDirectory				".\Debug$_SUBDIRSUFFIX"
 		$ExtensionsToDeleteOnClean
 		$BuildLogFile
 		$InheritedProjectPropertySheets
@@ -81,6 +81,7 @@ $Configuration "Debug"
 
 		// Code Generation
 		$EnableStringPooling				"Yes (/GF)"
+		$EnableMinimalRebuild				"Yes (/Gm)" [!$VS2017]
 		$EnableC++Exceptions				"No"
 		$SmallerTypeCheck
 		$BasicRuntimeChecks					"Default"

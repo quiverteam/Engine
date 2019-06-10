@@ -7,7 +7,7 @@
 $macro SRCDIR		"..\.."
 $Macro OUTLIBDIR	"$LIBPUBLIC"
 
-$include "$SRCDIR\vpc_scripts\source_lib_base.vpc"
+$include "$SRCDIR\vpc_scripts\lib_base.vpc"
 
 $Linux
 {

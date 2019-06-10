@@ -1,4 +1,4 @@
-//===== Copyright © 1996-2005, Valve Corporation, All rights reserved. ======//
+//===== Copyright ï¿½ 1996-2005, Valve Corporation, All rights reserved. ======//
 //
 // Purpose: 
 //
@@ -264,5 +264,79 @@ PLATFORM_INTERFACE void Plat_SetAllocErrorFn( Plat_AllocErrorFn fn )
 #endif
 
 #endif
+
+PLATFORM_INTERFACE void* Plat_LoadLibrary(const char* path)
+{
+	Assert(path != NULL);
+	return (void*)LoadLibrary(path);
+}
+
+PLATFORM_INTERFACE void Plat_UnloadLibrary(void* handle)
+{
+	Assert(handle != NULL);
+	FreeLibrary(handle);
+}
+
+PLATFORM_INTERFACE void* Plat_FindProc(void* module_handle, const char* sym_name)
+{
+	Assert(module_handle != NULL);
+	Assert(sym_name != NULL);
+	return GetProcAddress(module_handle, sym_name);
+}
+
+PLATFORM_INTERFACE bool Plat_CWD(char* outname, size_t outSize)
+{
+	return ::GetCurrentDirectory(outSize, outname) != 0;
+}
+
+PLATFORM_INTERFACE bool Plat_GetCurrentDirectory(char* outname, size_t outSize)
+{
+	return ::GetCurrentDirectory(outSize, outname) != 0;
+}
+
+PLATFORM_INTERFACE bool Plat_GetExecutableDirectory(char* outpath, size_t len)
+{
+
+}
+
+PLATFORM_INTERFACE bool Plat_GetExecutablePath(char* outname, size_t len)
+{
+	
+}
+
+PLATFORM_INTERFACE int Plat_GetPriority(int pid)
+{
+	HANDLE hProc = OpenProcess(PROCESS_QUERY_LIMITED_INFORMATION, TRUE, (DWORD)pid);
+	int ret = (int)GetPriorityClass(hProc);
+	CloseHandle(hProc);
+	return ret;
+}
+
+PLATFORM_INTERFACE void Plat_SetPriority(int priority, int pid)
+{
+	DWORD prio = IDLE_PRIORITY_CLASS;
+	switch(priority)
+	{
+		case PRIORITY_MAX:
+			prio = HIGH_PRIORITY_CLASS;
+			break;
+		default:
+			break;
+	}
+
+	HANDLE hProc = OpenProcess(PROCESS_QUERY_LIMITED_INFORMATION, TRUE, (DWORD)pid);
+	SetPriorityClass(hProc, prio);
+	CloseHandle(hProc);
+}
+
+PLATFORM_INTERFACE int Plat_GetPID()
+{
+	return (int)GetCurrentProcessId();
+}
+
+PLATFORM_INTERFACE unsigned int Plat_GetTickCount()
+{
+	return GetTickCount();
+}
 
 #endif // _LINUX

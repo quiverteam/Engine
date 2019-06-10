@@ -7,7 +7,7 @@
 $Macro SRCDIR		"..\.."
 $Macro OUTBINDIR	"$SRCDIR\devtools\bin"
 
-$Include "$SRCDIR\vpc_scripts\source_exe_base.vpc"
+$Include "$SRCDIR\vpc_scripts\exe_base.vpc"
 
 $Project "Entcount"
 {

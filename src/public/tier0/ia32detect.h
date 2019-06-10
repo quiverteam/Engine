@@ -10,6 +10,8 @@
 
 #ifdef PLATFORM_WINDOWS_PC
 #include <intrin.h>
+#else
+#include <x86intrin.h>
 #endif
 
 /*

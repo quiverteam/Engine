@@ -8,7 +8,7 @@ $Macro SRCDIR		"..\.."
 $Macro OUTBINDIR	"$BINDEFAULT"
 $Macro OUTBINNAME	"texturecompile"
 
-$Include "$SRCDIR\vpc_scripts\source_exe_con_base.vpc"
+$Include "$SRCDIR\vpc_scripts\exe_con_base.vpc"
 
 $Project "Texturecompile_launcher"
 {

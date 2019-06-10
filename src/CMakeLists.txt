@@ -3,6 +3,10 @@
 # Base project scripts
 #
 #
+cmake_minimum_required(VERSION 3.14)
+
+set(CMAKE_CONFIGURATION_TYPES "Debug;Release" CACHE STRING "" FORCE)
+
 option(USE_DX9 "Enables DX9 builds" ON)
 option(USE_TOGL "Enables ToGL builds" OFF)
 option(USE_OPENGL "Build with OpenGL" OFF)
@@ -10,10 +14,10 @@ option(USE_LIBC_FOR_SIMD "Force use C standard library for SSE" OFF)
 option(USE_SSE "Enables the use of SSE all the way up to SSE3" ON)
 option(USE_AVX "Enables the use of AVX vectorization and intrinsics. Experiemental." OFF)
 option(UNIX_CROSS "Enables the use of Windows builds on Unix" OFF)
-option(CLANG_BUILD "Enables the use of Clang instead of MSVC/GCC" OFF)
+option(CLANG_BUILD "Enables the use of Clang instead of MSVC/GCC" ON)
 option(DEV_BUILD "Enables development builds" ON)
 option(SERVER_BUILD "Specifies this build as a server build" OFF)
-option(BUILD_64BIT "Specieis this build as 64-bit. Experiemental." OFF)
+option(BUILD_64BIT "Specifies this build as 64-bit. Experiemental." OFF)
 
 # Definitions that should always be enabled
 add_definitions(-DFRAME_POINTER_OMISSION_DISABLED)
@@ -22,6 +26,7 @@ add_definitions(-DFRAME_POINTER_OMISSION_DISABLED)
 if(CLANG_BUILD)
 	message(WARNING "Clang builds are experimental, use at your own risk!")
 	add_definitions(-DCLANG -DCOMPILER_CLANG)
+	set(CMAKE_GENERATOR_TOOLSET "llvm")
 else()
 	add_definitions(-DCOMPILER_MSVC)
 endif(CLANG_BUILD)
@@ -118,7 +123,7 @@ include(cmake_scripts/source-directories.cmake)
 include(cmake_scripts/source-base.cmake)
 
 add_subdirectory(tier0)
-add_subdirectory(tier1)
-add_subdirectory(tier2)
-add_subdirectory(tier3)
-add_subdirectory(tier4)
+#add_subdirectory(tier1)
+#add_subdirectory(tier2)
+#add_subdirectory(tier3)
+#add_subdirectory(tier4)

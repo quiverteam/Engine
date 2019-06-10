@@ -120,14 +120,6 @@ const __m128	f1 = _mm_set_ss(1.0f);
 const __m128	f3  = _mm_set_ss(3.0f);  // 3 as SSE value
 const __m128	f05 = _mm_set_ss(0.5f);  // 0.5 as SSE value
 const __m128	f0 = _mm_set_ss(0.0f);
-const __m128	fac2 = _mm_set_ss(2.0f);
-const __m128	fac3 = _mm_set_ss(6.0f);
-const __m128	fac4 = _mm_set_ss(24.0f);
-const __m128	fac5 = _mm_set_ss(120.0f);
-const __m128	fac6 = _mm_set_ss(720.0f);
-const __m128	fac7 = _mm_set_ss(5040.0f);
-const __m128	fac8 = _mm_set_ss(40320.0f);
-const __m128	fac9 = _mm_set_ss(362880.0f);
 
 // Intel / Kipps SSE RSqrt.  Significantly faster than above.
 float _SSE_RSqrtAccurate(float a)
@@ -235,6 +227,9 @@ void FASTCALL _SSE_VectorNormalizeFast (Vector& vec)
 	vec.z *= ool;
 }
 
+/*
+Inverse dot product
+*/
 float _SSE_InvRSquared(const float* v)
 {
 	float	inv_r2 = 1.f;
@@ -258,7 +253,7 @@ float _SSE_InvRSquared(const float* v)
 
 	res = _mm_add_ps(x, _mm_add_ps(y, z));
 
-	res = _mm_rcp_ps(_mm_max_ps(f0, res));
+	res = _mm_rcp_ps(_mm_max_ps(SSEConst::f1, res));
 
 	_mm_store_ss(&inv_r2, res);
 
@@ -318,16 +313,16 @@ void _SSE_SinCos(float x, float* s, float* c)
 
 	__m128 phase1 = val;
 	phase1 = _mm_mul_ps(phase1, squared); // x = x^3
-	_s = _mm_sub_ss(_s, _mm_div_ss(phase1, fac3));
+	_s = _mm_sub_ss(_s, _mm_mul_ss(phase1, SSEConst::inv_fac3));
 
 	phase1 = _mm_mul_ps(phase1, squared); // x = x^5
-	_s = _mm_add_ss(_s, _mm_div_ss(phase1, fac5));
+	_s = _mm_add_ss(_s, _mm_mul_ss(phase1, SSEConst::inv_fac5));
 
 	phase1 = _mm_mul_ps(phase1, squared); // x = x^7
-	_s = _mm_sub_ss(_s, _mm_div_ss(phase1, fac7));
+	_s = _mm_sub_ss(_s, _mm_mul_ss(phase1, SSEConst::inv_fac7));
 
 	phase1 = _mm_mul_ps(phase1, squared); // x = x^9
-	_s = _mm_add_ss(_s, _mm_div_ss(phase1, fac9));
+	_s = _mm_add_ss(_s, _mm_mul_ss(phase1, SSEConst::inv_fac9));
 
 	// Done with sine
 	_mm_store_ss(s, _s);
@@ -352,16 +347,16 @@ float _SSE_cos( float x )
 
 	__m128 r1 = val;
 	r1 = _mm_mul_ss(r1, r1);
-	_s = _mm_sub_ss(_s, _mm_div_ss(r1, fac2));
+	_s = _mm_sub_ss(_s, _mm_mul_ss(r1, SSEConst::inv_fac2));
 
 	r1 = _mm_mul_ss(r1, squared);
-	_s = _mm_add_ss(_s, _mm_div_ss(r1, fac4));
+	_s = _mm_add_ss(_s, _mm_mul_ss(r1, SSEConst::inv_fac4));
 
 	r1 = _mm_mul_ss(r1, squared);
-	_s = _mm_sub_ss(_s, _mm_div_ss(r1, fac6));
+	_s = _mm_sub_ss(_s, _mm_mul_ss(r1, SSEConst::inv_fac6));
 
 	r1 = _mm_mul_ss(r1, squared);
-	_s = _mm_add_ss(_s, _mm_div_ss(r1, fac8));
+	_s = _mm_add_ss(_s, _mm_mul_ss(r1, SSEConst::inv_fac8));
 
 	float ret = 0.0f;
 	_mm_store_ss(&ret, _s);
@@ -371,7 +366,6 @@ float _SSE_cos( float x )
 //-----------------------------------------------------------------------------
 // SSE2 implementations of optimized routines:
 //-----------------------------------------------------------------------------
-#if defined(_WIN32) || defined(WIN64)
 // Identical to SSE SinCos, no benefit from using SSE2 instructions
 void _SSE2_SinCos(float x, float* s, float* c)  // any x
 {
@@ -383,16 +377,16 @@ void _SSE2_SinCos(float x, float* s, float* c)  // any x
 
 	__m128 phase1 = val;
 	phase1 = _mm_mul_ps(phase1, squared); // x = x^3
-	_s = _mm_sub_ss(_s, _mm_div_ss(phase1, fac3));
+	_s = _mm_sub_ss(_s, _mm_mul_ss(phase1, SSEConst::inv_fac3));
 
 	phase1 = _mm_mul_ps(phase1, squared); // x = x^5
-	_s = _mm_add_ss(_s, _mm_div_ss(phase1, fac5));
+	_s = _mm_add_ss(_s, _mm_mul_ss(phase1, SSEConst::inv_fac5));
 
 	phase1 = _mm_mul_ps(phase1, squared); // x = x^7
-	_s = _mm_sub_ss(_s, _mm_div_ss(phase1, fac7));
+	_s = _mm_sub_ss(_s, _mm_mul_ss(phase1, SSEConst::inv_fac7));
 
 	phase1 = _mm_mul_ps(phase1, squared); // x = x^9
-	_s = _mm_add_ss(_s, _mm_div_ss(phase1, fac9));
+	_s = _mm_add_ss(_s, _mm_mul_ss(phase1, SSEConst::inv_fac9));
 
 	// Done with sine
 	_mm_store_ss(s, _s);
@@ -417,22 +411,21 @@ float _SSE2_cos(float x)
 
 	__m128 r1 = val;
 	r1 = _mm_mul_ss(r1, r1);
-	_s = _mm_sub_ss(_s, _mm_div_ss(r1, fac2));
+	_s = _mm_sub_ss(_s, _mm_mul_ss(r1, SSEConst::inv_fac2));
 
 	r1 = _mm_mul_ss(r1, squared);
-	_s = _mm_add_ss(_s, _mm_div_ss(r1, fac4));
+	_s = _mm_add_ss(_s, _mm_mul_ss(r1, SSEConst::inv_fac4));
 
 	r1 = _mm_mul_ss(r1, squared);
-	_s = _mm_sub_ss(_s, _mm_div_ss(r1, fac6));
+	_s = _mm_sub_ss(_s, _mm_mul_ss(r1, SSEConst::inv_fac6));
 
 	r1 = _mm_mul_ss(r1, squared);
-	_s = _mm_add_ss(_s, _mm_div_ss(r1, fac8));
+	_s = _mm_add_ss(_s, _mm_mul_ss(r1, SSEConst::inv_fac8));
 
 	float ret = 0.0f;
 	_mm_store_ss(&ret, _s);
 	return ret;
 }
-#endif
 
 #if 0
 // SSE Version of VectorTransform

@@ -7,7 +7,7 @@
 $Macro SRCDIR		"..\.."
 $Macro OUTLIBDIR	"$LIBCOMMON"
 
-$Include "$SRCDIR\vpc_scripts\source_lib_base.vpc"
+$Include "$SRCDIR\vpc_scripts\lib_base.vpc"
 
 $Configuration
 {

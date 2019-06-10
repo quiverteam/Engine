@@ -1,4 +1,4 @@
-//========= Copyright © 1996-2005, Valve Corporation, All rights reserved. ============//
+//========= Copyright ï¿½ 1996-2005, Valve Corporation, All rights reserved. ============//
 //
 // Purpose: determine CPU speed under linux
 //
@@ -19,7 +19,11 @@ class TimeVal
 {
 public:
 	TimeVal() {}
-	TimeVal& operator=(const TimeVal &val) { m_TimeVal = val.m_TimeVal; } 
+	TimeVal& operator=(const TimeVal &val) 
+	{ 
+		m_TimeVal = val.m_TimeVal;
+		return *this;
+	} 
 	inline double operator-(const TimeVal &left)
 	{
 	  uint64 left_us = (uint64) left.m_TimeVal.tv_sec * 1000000 + left.m_TimeVal.tv_usec;

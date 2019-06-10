@@ -7,7 +7,7 @@
 $Macro SRCDIR		".."
 $Macro OUTBINDIR	"$BINDEFAULT"
 
-$Include "$SRCDIR\vpc_scripts\source_dll_base.vpc"
+$Include "$SRCDIR\vpc_scripts\dll_base.vpc"
 
 $Configuration
 {
@@ -69,7 +69,6 @@ $Project "tier0"
 		$File	"memdbg.cpp"
 		$File	"memstd.cpp"
 		$File	"memvalidate.cpp"
-		$File	"dbg.cpp"
 		$File	"minidump.cpp"			
 		{
 			$Configuration
@@ -112,7 +111,7 @@ $Project "tier0"
 			{
 				$Compiler
 				{
-					$Create/UsePrecompiledHeader	"Create Precompiled Header (/Yc)"
+					$Create/UsePrecompiledHeader	"Create Precompiled Header (/Yc)" [$WINDOWS]
 				}
 			}
 		}

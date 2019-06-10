@@ -8,7 +8,7 @@ $Macro SRCDIR		".."
 $Macro OUTBINDIR	"$BINDEFAULT"
 $Macro OUTBINNAME	"quiver"
 
-$Include "$SRCDIR\vpc_scripts\source_exe_base.vpc"
+$Include "$SRCDIR\vpc_scripts\exe_base.vpc"
 
 $Configuration
 {
@@ -24,7 +24,7 @@ $Configuration
 		$AdditionalDependencies		"%(AdditionalDependencies)"
 	}
 
-	$PreBuildEvent
+	$PreBuildEvent [$WINDOWS]
 	{
 		$CommandLine		"if EXIST $OUTBINDIR\quiver.exe for /f $QUOTEdelims=$QUOTE %%A in ('attrib $QUOTE$OUTBINDIR\quiver.exe$QUOTE') do set valveTmpIsReadOnly=$QUOTE%%A$QUOTE" "\n" \
 							"set valveTmpIsReadOnlyLetter=%valveTmpIsReadOnly:~6,1%" "\n" \
@@ -45,6 +45,10 @@ $Project
 		-$File	"$LIBPUBLIC\tier0.lib" 			[$WINDOWS||$LINUX]	
 		-$File	"$LIBPUBLIC\tier1.lib"			[$WINDOWS||$LINUX]
 		-$File	"$LIBPUBLIC\vstdlib.lib"		[$WINDOWS||$LINUX]
+		$Lib	"$LIBPUBLIC\tier0"
+		$Lib	"$LIBPUBLIC\tier1"
+		$Lib	"$LIBPUBLIC\tier4"
+		$Lib	"$LIBPUBLIC\vstdlib"
 	}
 }
 

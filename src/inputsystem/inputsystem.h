@@ -1,4 +1,4 @@
-//===== Copyright © 1996-2005, Valve Corporation, All rights reserved. ======//
+//===== Copyright ï¿½ 1996-2005, Valve Corporation, All rights reserved. ======//
 //
 // Purpose: 
 //
@@ -11,27 +11,25 @@
 #pragma once
 #endif
 
-
-#if !defined( _X360 )
+#ifdef _WIN32
 #include <windows.h>
 #include <zmouse.h>
-#include "xbox/xboxstubs.h"
-#include "../../dx9sdk/include/XInput.h"
 #endif
 
 #include "inputsystem/iinputsystem.h"
 #include "tier2/tier2.h"
 
-#include "inputsystem/buttoncode.h"
-#include "inputsystem/analogcode.h"
+#include "inputsystem/ButtonCode.h"
+#include "inputsystem/AnalogCode.h"
 #include "bitvec.h"
 #include "tier1/utlvector.h"
 #include "tier1/utlflags.h"
 
-#if defined( _X360 )
-#include "xbox/xbox_win32stubs.h"
-#include "xbox/xbox_console.h"
+#ifndef USE_OLD_INPUTSYSTEM
+#include <SDL2/SDL.h>
+#include <SDL2/SDL_video.h>
 #endif
+
 
 //-----------------------------------------------------------------------------
 // Implementation of the input system
@@ -88,9 +86,30 @@ public:
 	virtual bool GetRawMouseAccumulators( int& accumX, int& accumY ) { return false; }
 	virtual void SetConsoleTextMode( bool bConsoleTextMode ) {}
 
+#ifdef _WIN32
 	// Windows proc
 	LRESULT WindowProc( HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam );
+#endif
 
+private:
+	bool m_bEnabled;
+	bool m_bPumpEnabled;
+	bool m_bIsPolling;
+	int m_nLastPollTick;
+	int m_nLastSampleTick;
+	int m_nPollCount;
+	unsigned int m_StartupTimeTick;
+
+/* For the new SDL2-based input system */
+#ifndef USE_OLD_INPUTSYSTEM
+	SDL_Window* pWindow;
+	unsigned char m_KeyboardState[BUTTON_CODE_LAST]; // This uses nearly 0.5kb of memory, need to figure out a better way.
+	unsigned m_nMouseState;
+	CUtlVector<InputEvent_t> m_InputEvents;
+
+#endif
+
+#ifdef USE_OLD_INPUTSYSTEM
 private:
 	enum
 	{
@@ -259,17 +278,12 @@ private:
 
 	WNDPROC m_ChainedWndProc;
 	HWND m_hAttachedHWnd;
-	bool m_bEnabled;
-	bool m_bPumpEnabled;
-	bool m_bIsPolling;
 
 	// Current button state
 	InputState_t m_InputState[INPUT_STATE_COUNT];
 
-	DWORD m_StartupTimeTick;
-	int m_nLastPollTick;
-	int m_nLastSampleTick;
-	int m_nPollCount;
+
+
 
 	// Mouse wheel hack
 	UINT m_uiMouseWheel;
@@ -289,6 +303,7 @@ private:
 	HANDLE m_hEvent;
 
 	CSysModule   *m_pXInputDLL;
+#endif //USE_OLD_INPUTSYSTEM
 };
 
 #endif // INPUTSYSTEM_H

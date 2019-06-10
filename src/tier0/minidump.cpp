@@ -1,4 +1,4 @@
-//========= Copyright © 1996-2005, Valve Corporation, All rights reserved. ============//
+//========= Copyright ï¿½ 1996-2005, Valve Corporation, All rights reserved. ============//
 //
 // Purpose: 
 //
@@ -269,10 +269,9 @@ PLATFORM_INTERFACE void WriteMiniDump()
 #else // !_WIN32
 #include "tier0/minidump.h"
 
-PLATFORM_INTERFACE void WriteMiniDump()
+PLATFORM_INTERFACE void WriteMiniDump( const char *pszFilenameSuffix)
 {
 }
-
 PLATFORM_INTERFACE void CatchAndWriteMiniDump( FnWMain pfn, int argc, tchar *argv[] )
 {
 	pfn( argc, argv );

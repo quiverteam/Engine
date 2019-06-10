@@ -10,7 +10,7 @@ $Macro OUTLIBDIR	"$LIBPUBLIC"
 $Macro GENERATED_PROTO_DIR	"generated_proto"
 $Macro PROTOBUF_LITE 0
 
-$Include "$SRCDIR\vpc_scripts\source_lib_base.vpc"
+$Include "$SRCDIR\vpc_scripts\lib_base.vpc"
 
 $Configuration
 {

@@ -9,7 +9,7 @@ $Include "$SRCDIR\vpc_scripts\version.vpc"
 $MacroRequired				"SRCDIR"
 $MacroRequired				"OUTBINNAME"	"$PROJECTNAME"
 $Macro IS_LIB_PROJECT		"1"
-$Include "$SRCDIR\vpc_scripts\source_posix_base.vpc"
+$Include "$SRCDIR\vpc_scripts\posix_base.vpc"
 
 $Include "$SRCDIR\vpc_scripts\loadaddress.vpc"
 
@@ -30,14 +30,15 @@ $Configuration
 
 	$Linker
 	{
-		$OutputFile						"$SRCDIR/../game/$OUTBINNAME"
+		$OutputFile						"$SRCDIR/../game/bin/linux32/$OUTBINNAME"	[$LINUXALL]
+		$OutputFile						"$SRCDIR/../game/bin/osx32/$OUTBINNAME"		[$OSX32]
 
 		// In order to get the Valve standard allocator memory alignment (16-byte
 		// alignment for objects that are a multiple of 16 bytes) we use tcmalloc.
 		// Using -l will ask the linker to use it, but if there are no references
 		// to malloc/free then it may not actually use it. Wrapping the flag in the
 		// as-needed controls forces it to be pulled in (from libtcmalloc_minimal.so).
-		$GCC_ExtraLinkerFlags			"-Wl,--no-as-needed -ltcmalloc_minimal -Wl,--as-needed" [$LINUXALL&&!$DEDICATED]
+		$GCC_ExtraLinkerFlags			"-Wl,--no-as-needed -Wl,--as-needed,-ltcmalloc_minimal" [$LINUXALL&&!$DEDICATED]
 	}
 }
 

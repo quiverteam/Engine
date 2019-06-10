@@ -8,10 +8,7 @@
 
 #include <xmmintrin.h>
 #include <mmintrin.h>
-
-#ifdef _USE_AVX
 #include <immintrin.h>
-#endif
 
 #include <mathlib/vector.h>
 #include <mathlib/mathlib.h>
@@ -39,8 +36,16 @@ typedef union
 	uint32 m128_u32[4];
 } fltx4;
 
+typedef union
+{
+	float m256_f32[8];
+	uint32 m256_i32[8];
+} fltx8;
+
 typedef fltx4 i32x4;
 typedef fltx4 u32x4;
+typedef fltx8 i32x8;
+typedef fltx8 u32x8;
 
 #else
 
@@ -54,7 +59,9 @@ typedef __m256 i32x8;
 typedef __m256 u32x8;
 typedef __m256d fltdx8;
 
-#endif
+#endif //_USE_AVX
+
+
 
 // The FLTX4 type is a fltx4 used as a parameter to a function.
 // On the 360, the best way to do this is pass-by-copy on the registers.
@@ -2272,7 +2279,7 @@ FORCEINLINE fltx8 AddAVX(const fltx8& v1, const fltx8& v2)
 	__m256 res;
 	*((__m128*) & res) = _mm_add_ps(*(__m128*) & v1, *(__m128*) & v2);
 	*((__m128*) & res + 1) = _mm_add_ps(*((__m128*) & v1 + 1), *((__m128*) & v2 + 1));
-	return res;
+	return *(fltx8*)&res;
 #endif
 }
 
@@ -2287,7 +2294,7 @@ FORCEINLINE fltx8 SubAVX(const fltx8& v1, const fltx8& v2)
 	__m256 res;
 	*((__m128*) & res) = _mm_sub_ps(*(__m128*) & v1, *(__m128*) & v2);
 	*((__m128*) & res + 1) = _mm_sub_ps(*((__m128*) & v1 + 1), *((__m128*) & v2 + 1));
-	return res;
+	return *(fltx8*)&res;
 #endif
 }
 
@@ -2302,7 +2309,7 @@ FORCEINLINE fltx8 MulAVX(const fltx8& v1, const fltx8& v2)
 	__m256 res;
 	*((__m128*) & res) = _mm_mul_ps(*(__m128*) & v1, *(__m128*) & v2);
 	*((__m128*) & res + 1) = _mm_mul_ps(*((__m128*) & v1 + 1), *((__m128*) & v2 + 1));
-	return res;
+	return *(fltx8*)&res;
 #endif
 }
 
@@ -2317,7 +2324,7 @@ FORCEINLINE fltx8 DivAVX(const fltx8& v1, const fltx8& v2)
 	__m256 res;
 	*((__m128*) & res) = _mm_div_ps(*(__m128*) & v1, *(__m128*) & v2);
 	*((__m128*) & res + 1) = _mm_div_ps(*((__m128*) & v1 + 1), *((__m128*) & v2 + 1));
-	return res;
+	return *(fltx8*)&res;
 #endif
 }
 
@@ -2332,7 +2339,7 @@ FORCEINLINE fltx8 SqrtAVX(const fltx8& v1)
 	__m256 res;
 	*((__m128*) & res) = _mm_sqrt_ps(*(__m128*) & v1);
 	*((__m128*) & res + 1) = _mm_sqrt_ps(*((__m128*) & v1 + 1));
-	return res;
+	return *(fltx8*)&res;
 #endif
 }
 
@@ -2347,7 +2354,7 @@ FORCEINLINE fltx8 RsqrtAVX(const fltx8& v1)
 	__m256 res;
 	*((__m128*) & res) = _mm_rsqrt_ps(*(__m128*) & v1);
 	*((__m128*) & res + 1) = _mm_rsqrt_ps(*((__m128*) & v1 + 1));
-	return res;
+	return *(fltx8*)&res;
 #endif
 }
 

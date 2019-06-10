@@ -1,4 +1,4 @@
-//===== Copyright © 1996-2005, Valve Corporation, All rights reserved. ======//
+//===== Copyright ï¿½ 1996-2005, Valve Corporation, All rights reserved. ======//
 //
 // Purpose: 
 //
@@ -10,8 +10,8 @@
 #pragma once
 #endif
 
-#include "inputsystem/buttoncode.h"
-#include "inputsystem/analogcode.h"
+#include "inputsystem/ButtonCode.h"
+#include "inputsystem/AnalogCode.h"
 
 // Call this to initialize the system
 void ButtonCode_InitKeyTranslationTable();

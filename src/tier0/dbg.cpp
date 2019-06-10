@@ -1,4 +1,4 @@
-//===== Copyright © 1996-2005, Valve Corporation, All rights reserved. ======//
+//===== Copyright ï¿½ 1996-2005, Valve Corporation, All rights reserved. ======//
 //
 // Purpose: 
 //
@@ -9,7 +9,7 @@
 #include "pch_tier0.h"
 #include "tier0/minidump.h"
 
-#if defined( _WIN32 ) && !defined( _X360 )
+#if defined( _WIN32 )
 #include "tier0/valve_off.h"
 #define WIN_32_LEAN_AND_MEAN
 #include <windows.h>				// Currently needed for IsBadReadPtr and IsBadWritePtr
@@ -18,7 +18,6 @@
 
 #include <assert.h>
 #include <malloc.h>
-#include <stdio.h>
 #include <string.h>
 #include <stdarg.h>
 #include <stdlib.h>
@@ -27,9 +26,7 @@
 #include "tier0/threadtools.h"
 #include "tier0/icommandline.h"
 #include <math.h>
-#if defined( _X360 )
-#include "xbox/xbox_console.h"
-#endif
+#include <stdio.h>
 
 #ifndef STEAM
 #define PvRealloc realloc
@@ -60,14 +57,6 @@ struct SpewGroup_t
 //-----------------------------------------------------------------------------
 SpewRetval_t DefaultSpewFunc( SpewType_t type, const tchar *pMsg )
 {
-#ifdef _X360
-	if ( XBX_IsConsoleConnected() )
-	{
-		// send to console
-		XBX_DebugString( XMAKECOLOR( 0,0,0 ), pMsg );
-	}
-	else
-#endif
 	{
 		_tprintf( _T("%s"), pMsg );
 #ifdef _WIN32

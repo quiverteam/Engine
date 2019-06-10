@@ -58,6 +58,7 @@ $Group "shaders_all"
 	"shaderlib"
 	"stdshader_dbg"
 	"stdshader_dx9"
+	"togl" [$POSIX]
 }
 
 // this is used post building shaders, do NOT remove this
@@ -155,6 +156,8 @@ $Group "game"
 	"tier1"
 	"tier2"
 	"tier3"
+	"tier4"
+	"togl" [$POSIX]
 	"qvideo"
 	"vgui_controls"
 	"vgui_dll"
@@ -295,6 +298,8 @@ $Group "everything"
 	"tier1"
 	"tier2"
 	"tier3"
+	"tier4"
+	"togl" [$POSIX]
 	"tier1test"
 	"tier2test"
 	"tier3test"
@@ -451,6 +456,7 @@ $Group "binaries"
 	"tier1test"
 	"tier2test"
 	"tier3test"
+	"togl" [$POSIX]
 	"unicode"
 	"unittest"
 	"unusedcontent"

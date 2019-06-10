@@ -7,7 +7,7 @@
 $macro SRCDIR		".."
 $Macro OUTBINDIR	"$BINDEFAULT"
 
-$include "$SRCDIR\vpc_scripts\source_dll_base.vpc"
+$include "$SRCDIR\vpc_scripts\dll_base.vpc"
 
 $Linux
 {
@@ -148,7 +148,7 @@ $Project "MaterialSystem"
 		$File	"Wireframe.cpp"
 	}
 
-	$Folder	"Link Libraries" [$WIN32]
+	$Folder	"Link Libraries"
 	{
 		$Lib	bitmap
 		$Lib	mathlib
