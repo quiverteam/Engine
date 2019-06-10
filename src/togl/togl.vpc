@@ -19,10 +19,10 @@ $Configuration
 {
 	$Compiler
 	{
-		$AdditionalIncludeDirectories  	"$BASE;..\"
+		$AdditionalIncludeDirectories  	"$BASE;..\;$TOGL_INCDIR;..\public\togl"
 		$PreprocessorDefinitions	"$BASE;TOGL_DLL_EXPORT;PROTECTED_THINGS_ENABLE;strncpy=use_Q_strncpy_instead;_snprintf=use_Q_snprintf_instead" [!$OSXALL]
 		$PreprocessorDefinitions	"$BASE;TOGL_DLL_EXPORT" [$OSXALL]
-
+		$ProprocessorDefinitions	"$BASE;DX_TO_GL_ABSTRACTION"
 	}
     
 	$Linker

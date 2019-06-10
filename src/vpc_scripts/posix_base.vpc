@@ -63,6 +63,7 @@ $Configuration
 		$PreprocessorDefinitions		"$BASE;_POSIX64;POSIX64"						[$POSIX64]
 		$PreprocessorDefinitions		"$BASE;_LINUX64;LINUX64"						[$LINUX64]
 		$PreprocessorDefinitions		"$BASE;_OSX64;OSX64"							[$OSX64]
+		$PreprocessorDefinitions		"$BASE;DX_TO_GL_ABSTRACTION;USE_SDL"					[$POSIX]
 
 		$Create/UsePCHThroughFile	"stdafx.h"
 	}
