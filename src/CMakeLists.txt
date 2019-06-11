@@ -3,7 +3,7 @@
 # Base project scripts
 #
 #
-cmake_minimum_required(VERSION 3.14)
+cmake_minimum_required(VERSION 3.5)
 
 set(CMAKE_CONFIGURATION_TYPES "Debug;Release" CACHE STRING "" FORCE)
 
@@ -27,8 +27,6 @@ if(CLANG_BUILD)
 	message(WARNING "Clang builds are experimental, use at your own risk!")
 	add_definitions(-DCLANG -DCOMPILER_CLANG)
 	set(CMAKE_GENERATOR_TOOLSET "llvm")
-else()
-	add_definitions(-DCOMPILER_MSVC)
 endif(CLANG_BUILD)
 
 # Set dedicated server vars
@@ -54,13 +52,20 @@ if(NOT BUILD_64BIT)
 	add_definitions(-DPLATFORM_32BITS -D_x86_ -D_X86_)
 else()
 	add_definitions(-DPLATFORM_64BITS -D_x64_ -D_X64_ -D_x86_64_) 
-endif(BUILD_64BIT)
+endif(NOT BUILD_64BIT)
 
 # SIMD
 if(USE_LIBC_FOR_SIMD)
 	add_definitions(-DUSE_STDC_FOR_SIMD)
 	message(WARNING "You're using LIBC for SIMD functions. You will experience a noticable slowdown.")
 endif(USE_LIBC_FOR_SIMD)
+
+#
+# WINDOWS
+#
+if(DEFINED CMAKE_HOST_WIN32 AND NOT UNIX_CROSS) 
+	add_definitions(-DCOMPILER_MSVC)
+endif(DEFINED CMAKE_HOST_WIN32 AND NOT UNIX_CROSS)
 
 #
 # WINDOWS VARS
@@ -123,7 +128,7 @@ include(cmake_scripts/source-directories.cmake)
 include(cmake_scripts/source-base.cmake)
 
 add_subdirectory(tier0)
-#add_subdirectory(tier1)
-#add_subdirectory(tier2)
-#add_subdirectory(tier3)
-#add_subdirectory(tier4)
+add_subdirectory(tier1)
+add_subdirectory(tier2)
+add_subdirectory(tier3)
+add_subdirectory(tier4)
