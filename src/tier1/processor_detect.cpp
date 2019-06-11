@@ -5,7 +5,7 @@
 // $Workfile:     $
 // $NoKeywords: $
 //=============================================================================//
-#if defined( _X360 ) || defined( WIN64 ) || defined(_WIN32)
+#ifdef _WIN32
 
 #if defined(_WIN32)
 #pragma warning(push)
