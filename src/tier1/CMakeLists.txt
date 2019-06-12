@@ -3,7 +3,7 @@
 # Project script for Tier1
 #
 #
-project(Tier1 C CXX)
+project(tier1 C CXX)
 
 # Platform specific sources 
 set(WINDOWS_SRCS	)
@@ -71,4 +71,4 @@ set(STATIC_LIB 1)
 # Include this to handle all the defines
 include(${CMAKESCRIPTS_DIR}/library-base.cmake)
 
-add_library(Tier1 SHARED ${SRCS})
+add_library(tier1 SHARED ${SRCS})
