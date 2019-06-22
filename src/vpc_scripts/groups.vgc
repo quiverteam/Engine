@@ -556,15 +556,6 @@ $Group "unittests"
 	"Tier1UnitTest"
 	"Tier0UnitTest"
 	"MathlibUnitTest"
-}
-
-$Group "unittests_all"
-{
-	"VStdlibUnitTest"
-	"Tier2UnitTest"
-	"Tier1UnitTest"
-	"Tier0UnitTest"
-	"MathlibUnitTest"
 	
 	"tier1test"
 	"tier2test"
