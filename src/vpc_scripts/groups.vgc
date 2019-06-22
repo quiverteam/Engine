@@ -119,6 +119,9 @@ $Group "utils"
 	
 	"vtex_dll"
 	"vtex_launcher"
+	
+	//Quiver's projects
+	"appidlink"
 }
 
 $Group "game"
@@ -341,6 +344,9 @@ $Group "everything"
 	"vvis_dll"
 	"vvis_launcher"
 	"testprocess"
+	
+	//Quiver's projects
+	"appidlink"
 }
 
 $Group "binaries"
