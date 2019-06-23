@@ -149,6 +149,7 @@ $Group "game"
 	"particles"
 	"scenefilecache"
 	"server"
+	"serverbrowser"
 	"shaderlib"
 	"shaderapidx9"
 	"soundemittersystem"
@@ -166,10 +167,8 @@ $Group "game"
 	"vguimatsurface"
 	"vstdlib"
 	"vtf" 
-	"unicode"
-	
-	// why does the engine need this?
 	"vaudio_miles"
+	"unicode"
 }
 
 $Group "everything"
