@@ -25,7 +25,7 @@ float C_EnvProjectedTexture::m_flVisibleBBoxMinHeight = -FLT_MAX;
 
 extern ConVar r_shadowmapresolution;
 
-static ConVar r_projtex_filtersize( "r_projtex_filtersize", "0.5", 0 );
+static ConVar r_projtex_filtersize( "r_projtex_filtersize", "1.0", 0 );
 
 static ConVar r_projtex_uberlight_enable( "r_projtex_uberlight_enable", "0", 0 );
 
