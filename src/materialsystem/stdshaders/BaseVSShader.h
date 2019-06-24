@@ -367,7 +367,8 @@ FORCEINLINE float ShadowAttenFromState( FlashlightState_t const &state )
 
 FORCEINLINE float ShadowFilterFromState( FlashlightState_t const &state )
 {
-	return state.m_flShadowFilterSize / state.m_flShadowMapResolution;
+	// We developed shadow maps at 1024, so we expect the penumbra size to have been tuned relative to that
+	return state.m_flShadowFilterSize / 1024.0f;
 }
 
 FORCEINLINE void SetupUberlightFromState( IShaderDynamicAPI *pShaderAPI, FlashlightState_t const &state )
