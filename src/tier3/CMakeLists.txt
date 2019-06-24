@@ -1,22 +1,22 @@
 #
 #
-# Project script for Tier1
+# Project script for Tier3
 #
 #
-project(tier1 C CXX)
+project(tier3 C CXX)
 
 # Platform specific sources 
 set(WINDOWS_SRCS	)
 set(POSIX_SRCS	)
 
 # We need to append damn lzma shit
-set(SRCS	${LZMA_SRCS}/C/LzmaDec.h ${LZMA_SRCS}/C/LzmaDec.c ${LZMA_SRCS}/CPP/Common/MyTypes.h)
+set(SRCS	)
 
 file(GLOB SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/ *.c *.cpp)
 list(APPEND SRCS ${SOURCES})
 
 # Preprocessor defs
-set(DEFINES	-DTIER1_STATIC_LIB=1)
+set(DEFINES	)
 
 # Platform-specific preprocessor defines
 set(WIN32_DEFINES	)	
@@ -48,7 +48,7 @@ set(POSIX32_LINK_LIBS	)
 set(POSIX64_LINK_LIBS	)
 
 # Generic include dirs
-set(INCLUDE_DIRS		${PUBLIC_INCLUDE}/tier1)
+set(INCLUDE_DIRS		${PUBLIC_INCLUDE}/tier3)
 
 # Platform specific includes
 set(WIN32_INCLUDE_DIRS	)
@@ -57,10 +57,10 @@ set(POSIX32_INCLUDE_DIRS	)
 set(POSIX64_INCLUDE_DIRS	)
 
 # Set the variable of target for stuff
-set(TARGET tier1)
+set(TARGET tier3)
 
 # Set the output file name
-set(OUTPUT_FILE_NAME tier1)
+set(OUTPUT_FILE_NAME tier3)
 
 # If this is a shared lib
 set(SHARED_LIB 0)
@@ -70,4 +70,3 @@ set(STATIC_LIB 1)
 
 # Include this to handle all the defines
 include(${CMAKESCRIPTS_DIR}/library-base.cmake)
-
