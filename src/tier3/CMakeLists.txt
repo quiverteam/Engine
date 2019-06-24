@@ -48,7 +48,7 @@ set(POSIX32_LINK_LIBS	)
 set(POSIX64_LINK_LIBS	)
 
 # Generic include dirs
-set(INCLUDE_DIRS		${PUBLIC_INCLUDE}/tier3)
+set(INCLUDE_DIRS		${PUBLIC_INCLUDE}/tier3 ${PUBLIC_INCLUDE}/tier1 ${PUBLIC_INCLUDE}/tier0)
 
 # Platform specific includes
 set(WIN32_INCLUDE_DIRS	)
