@@ -1271,6 +1271,7 @@ inline void CVertexBuilder::FastVertexSSE( const ModelVertexDX8_t &vertex )
 
 inline void CVertexBuilder::FastVertexAVX(const ModelVertexDX8_t &vertex)
 {
+#ifdef _AVX
 	Assert(m_CompressionType == VERTEX_COMPRESSION_NONE); // FIXME: support compressed verts if needed
 	Assert(m_nCurrentVertex < m_nMaxVertexCount);
 
