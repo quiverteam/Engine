@@ -165,3 +165,5 @@ game/bin/osx32/
 game/bin/osx64/
 
 src/build/
+
+build/

@@ -224,22 +224,20 @@ const float4 g_LuxelScale : register( c11 );
 
 
 // Calculate unified fog
-float CalcPixelFogFactorConst( float fPixelFogType, const float4 fogParams, const float3 vEyePos, const float3 vWorldPos, const float flProjPosZ )
+float CalcPixelFogFactorConst( float fPixelFogType, const float4 fogParams, const float flEyePosZ, const float flWorldPosZ, const float flProjPosZ )
 {
-	//float fRangeFog = CalcRangeFogFactorNonFixedFunction( vWorldPos, vEyePos, fogParams.z, fogParams.x, fogParams.w );
-	float fRangeFog = CalcRangeFog( vEyePos, fogParams.x, fogParams.z, fogParams.w );
-	float fHeightFog = CalcWaterFogAlpha( fogParams.y, vEyePos.z, vWorldPos.z, flProjPosZ, fogParams.w );
+	float fRangeFog = CalcRangeFog( flProjPosZ, fogParams.x, fogParams.z, fogParams.w );
+	float fHeightFog = CalcWaterFogAlpha( fogParams.y, flEyePosZ, flWorldPosZ, flProjPosZ, fogParams.w );
 	return lerp( fRangeFog, fHeightFog, fPixelFogType );
 }
 
 // Blend both types of Fog and lerp to get result
 float3 BlendPixelFogConst( const float3 vShaderColor, float pixelFogFactor, const float3 vFogColor, float fPixelFogType )
-{
-	//float3 fRangeResult = lerp( vShaderColor.rgb, vFogColor.rgb, pixelFogFactor * pixelFogFactor ); //squaring the factor will get the middle range mixing closer to hardware fog
-	//float3 fHeightResult = lerp( vShaderColor.rgb, vFogColor.rgb, saturate( pixelFogFactor ) );
-	//return lerp( fRangeResult, fHeightResult, fPixelFogType );
-	pixelFogFactor = lerp( pixelFogFactor*pixelFogFactor, pixelFogFactor, fPixelFogType );
-	return lerp( vShaderColor.rgb, vFogColor.rgb, pixelFogFactor );
+{	
+	pixelFogFactor = saturate( pixelFogFactor );
+	float3 fRangeResult = lerp( vShaderColor.rgb, vFogColor.rgb, pixelFogFactor * pixelFogFactor ); //squaring the factor will get the middle range mixing closer to hardware fog
+	float3 fHeightResult = lerp( vShaderColor.rgb, vFogColor.rgb, saturate( pixelFogFactor ) );
+	return lerp( fRangeResult, fHeightResult, fPixelFogType );
 }
 
 
@@ -553,15 +551,20 @@ float4 main( PS_INPUT i ) : COLOR
 #	endif
 
 #if defined( SHADER_MODEL_PS_2_0 )
-	float fogFactor = CalcPixelFogFactor( PIXELFOGTYPE, g_FogParams, g_EyePos.xyz, i.worldPos_projPosZ.xyz, i.projPos.z );
+
+	float fogFactor = CalcPixelFogFactor( PIXELFOGTYPE, g_FogParams, g_EyePos.z, i.worldPos_projPosZ.z, i.projPos.z );
 	#if (PIXELFOGTYPE == PIXEL_FOG_TYPE_HEIGHT)
 		alpha = lerp( alpha, fogFactor, g_fWriteWaterFogToDestAlpha );
 	#endif
 	return FinalOutput( float4( result.rgb, alpha ), fogFactor, PIXELFOGTYPE, TONEMAP_SCALE_LINEAR, false, i.projPos.z );
+	
 #else // 2b or higher
-	float fogFactor = CalcPixelFogFactorConst( g_fPixelFogType, g_FogParams, g_EyePos.xyz, i.worldPos_projPosZ.xyz, i.projPos.z );
-	alpha = lerp( alpha, fogFactor, g_fWriteWaterFogToDestAlpha ); // Use the fog factor if it's height fog
+
+	float fogFactor = CalcPixelFogFactorConst( g_fPixelFogType, g_FogParams, g_EyePos.z, i.worldPos_projPosZ.z, i.projPos.z );
+	//alpha = lerp( alpha, fogFactor, g_fWriteWaterFogToDestAlpha ); // Use the fog factor if it's height fog
+	alpha = lerp( alpha, fogFactor, g_fPixelFogType * g_fWriteWaterFogToDestAlpha ); // Use the fog factor if it's height fog
 	return FinalOutputConst( float4( result.rgb, alpha ), fogFactor, g_fPixelFogType, TONEMAP_SCALE_LINEAR, g_fWriteDepthToAlpha, i.projPos.z );
+	
 #endif
 
 #endif
