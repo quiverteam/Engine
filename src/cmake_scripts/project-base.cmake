@@ -171,10 +171,10 @@ set(ACTUAL_LIBS )
 
 # We can loop through all the libs and use find library to
 # find everything the user specified
-foreach(link_lib IN ${LINK_LIBS})
+foreach(link_lib IN LISTS LINK_LIBS)
 	find_library(lib_path NAMES ${link_lib} PATHS ${LINK_DIRS})
 	list(APPEND ACTUAL_LIBS ${lib_path})
-endforeach(link_lib IN ${LINK_LIBS})
+endforeach(link_lib IN LISTS LINK_LIBS)
 
 target_include_directories(${TARGET} PUBLIC ${INCLUDE_DIRS})
 target_link_libraries(${TARGET} ${ACTUAL_LIBS})

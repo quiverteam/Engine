@@ -17,6 +17,9 @@ if(DEFINED POSIX OR CLANG_BUILD)
 	set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -ffast-math -mcpu=core2 -msse3")
 endif()
 
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fpermissive")
+set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fpermissive")
+
 if(DEFINED POSIX)
 	set(CMAKE_LINK_FLAGS "${CMAKE_LINK_FLAGS} -lc")
 
