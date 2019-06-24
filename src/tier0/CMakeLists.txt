@@ -3,6 +3,7 @@
 # Project file for tier0
 #
 #
+project(tier0 C CXX)
 
 add_definitions(-DTIER0_DLL_EXPORT)
 set(TIER0_DEPS
@@ -99,7 +100,6 @@ set(TIER0_SOURCES
 	"mem_helpers.h"
 	)
 	
-project(tier0 C CXX ASM "")
 
 add_library(tier0 SHARED
 	${TIER0_SOURCES}

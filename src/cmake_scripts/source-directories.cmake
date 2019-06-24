@@ -5,6 +5,7 @@
 #
 set(LIBCOMMON		${ROOT_DIR}/lib/common/${PLATFORM_SUBDIR})
 set(LIBPUBLIC		${ROOT_DIR}/lib/public/${PLATFORM_DIR})
+set(THIRDPARTY_DIR 	${ROOT_DIR}/thirdparty)
 
 set(PUBLIC_INCLUDE	${ROOT_DIR}/public)
 set(COMMON_INCLDUE 	${ROOT_DIR}/common)

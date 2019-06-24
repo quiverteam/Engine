@@ -13,7 +13,7 @@ set(POSIX_SRCS	)
 set(SRCS	${LZMA_SRCS}/C/LzmaDec.h ${LZMA_SRCS}/C/LzmaDec.c ${LZMA_SRCS}/CPP/Common/MyTypes.h)
 
 file(GLOB SOURCES ./ *.c?)
-list(APPEND SRCS SOURCES)
+list(APPEND SRCS ${SOURCES})
 
 # Preprocessor defs
 set(DEFINES	-DTIER1_STATIC_LIB=1)

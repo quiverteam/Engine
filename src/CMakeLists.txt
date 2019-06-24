@@ -14,7 +14,7 @@ option(USE_LIBC_FOR_SIMD "Force use C standard library for SSE" OFF)
 option(USE_SSE "Enables the use of SSE all the way up to SSE3" ON)
 option(USE_AVX "Enables the use of AVX vectorization and intrinsics. Experiemental." OFF)
 option(UNIX_CROSS "Enables the use of Windows builds on Unix" OFF)
-option(CLANG_BUILD "Enables the use of Clang instead of MSVC/GCC" ON)
+option(CLANG_BUILD "Enables the use of Clang instead of MSVC/GCC" OFF)
 option(DEV_BUILD "Enables development builds" ON)
 option(SERVER_BUILD "Specifies this build as a server build" OFF)
 option(BUILD_64BIT "Specifies this build as 64-bit. Experiemental." OFF)
@@ -124,11 +124,16 @@ if(DEFINED CMAKE_HOST_UNIX AND NOT UNIX_CROSS)
 	endif(BUILD_64BIT)
 endif(DEFINED CMAKE_HOST_UNIX AND NOT UNIX_CROSS)
 
+set(CMAKESCRIPTS_DIR ${CMAKE_HOME_DIRECTORY}/cmake_scripts/)
+set(ROOT_DIR ${CMAKE_HOME_DIRECTORY})
+
 include(cmake_scripts/source-directories.cmake)
 include(cmake_scripts/source-base.cmake)
 
+
+
 add_subdirectory(tier0)
 add_subdirectory(tier1)
-add_subdirectory(tier2)
-add_subdirectory(tier3)
-add_subdirectory(tier4)
+#add_subdirectory(tier2)
+#add_subdirectory(tier3)
+#add_subdirectory(tier4)
