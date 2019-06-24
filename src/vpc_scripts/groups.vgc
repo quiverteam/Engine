@@ -120,6 +120,9 @@ $Group "utils"
 	
 	"vtex_dll"
 	"vtex_launcher"
+	
+	//Quiver's projects
+	"appidlink"
 }
 
 $Group "game"
@@ -140,12 +143,14 @@ $Group "game"
 	"inputsystem"
 	"launcher"
 	"launcher_main"
+	"jpeglib"
 	"materialsystem"
 	"mathlib"
 	"matsys_controls"
 	"particles"
 	"scenefilecache"
 	"server"
+	"serverbrowser"
 	"shaderlib"
 	"shaderapidx9"
 	"soundemittersystem"
@@ -165,10 +170,8 @@ $Group "game"
 	"vguimatsurface"
 	"vstdlib"
 	"vtf" 
-	"unicode"
-	
-	// why does the engine need this?
 	"vaudio_miles"
+	"unicode"
 }
 
 $Group "everything"
@@ -228,6 +231,7 @@ $Group "everything"
 	"ihvtest1"
 	"inputsystem"
 	"inputtest"
+	"jpeglib"
 	"kvc"
 	"launcher"
 	"launcher_main"
@@ -346,6 +350,9 @@ $Group "everything"
 	"vvis_dll"
 	"vvis_launcher"
 	"testprocess"
+	
+	//Quiver's projects
+	"appidlink"
 }
 
 $Group "binaries"
@@ -549,15 +556,6 @@ $Group "core"
 }
 
 $Group "unittests"
-{
-	"VStdlibUnitTest"
-	"Tier2UnitTest"
-	"Tier1UnitTest"
-	"Tier0UnitTest"
-	"MathlibUnitTest"
-}
-
-$Group "unittests_all"
 {
 	"VStdlibUnitTest"
 	"Tier2UnitTest"

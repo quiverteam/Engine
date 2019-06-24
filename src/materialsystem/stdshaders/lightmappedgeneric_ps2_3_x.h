@@ -346,14 +346,20 @@ float4 main( PS_INPUT i ) : COLOR
 		//float minb=modt.g-modt.r;
 		//float maxb=modt.g+modt.r;
 		//blendfactor=smoothstep(minb,maxb,blendfactor);
-		blendfactor=modt.g;
+		//blendfactor=modt.g;
+		float minb=modt.g-modt.r;
+		float maxb=modt.g+modt.r;
 #else
-		float minb=saturate(modt.g-modt.r);
-		float maxb=saturate(modt.g+modt.r);
+		float minb=max(0,modt.g-modt.r);
+		float maxb=min(1,modt.g+modt.r);
+		//float minb=saturate(modt.g-modt.r);
+		//float maxb=saturate(modt.g+modt.r);
+#endif
 		blendfactor=smoothstep(minb,maxb,blendfactor);
+//#endif
 #endif
-#endif
-		baseColor.rgb = lerp( baseColor.rgb, baseColor2.rgb, blendfactor );
+		//baseColor.rgb = lerp( baseColor.rgb, baseColor2.rgb, blendfactor );
+		baseColor.rgb = lerp( baseColor, baseColor2.rgb, blendfactor );
 		blendedAlpha = lerp( baseColor.a, baseColor2.a, blendfactor );
 	}
 
@@ -630,7 +636,8 @@ float4 main( PS_INPUT i ) : COLOR
 	bWriteDepthToAlpha = ( WRITE_DEPTH_TO_DESTALPHA != 0 ) && ( WRITEWATERFOGTODESTALPHA == 0 );
 #endif
 
-	float fogFactor = CalcPixelFogFactor( PIXELFOGTYPE, g_FogParams, g_EyePos.xyz, i.worldPos_projPosZ.xyz, i.worldPos_projPosZ.w );
+	//float fogFactor = CalcPixelFogFactor( PIXELFOGTYPE, g_FogParams, g_EyePos.xyz, i.worldPos_projPosZ.xyz, i.worldPos_projPosZ.w );
+	float fogFactor = CalcPixelFogFactor( PIXELFOGTYPE, g_FogParams, g_EyePos.z, i.worldPos_projPosZ.z, i.worldPos_projPosZ.w );
 
 #if WRITEWATERFOGTODESTALPHA && (PIXELFOGTYPE == PIXEL_FOG_TYPE_HEIGHT)
 	alpha = fogFactor;
