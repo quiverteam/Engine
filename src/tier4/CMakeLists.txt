@@ -5,47 +5,17 @@
 #
 project(tier4 C CXX)
 
-# Platform specific sources 
-set(WINDOWS_SRCS	)
-set(POSIX_SRCS	)
-
-# We need to append damn lzma shit
-set(SRCS	)
-
 file(GLOB SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/ *.c *.cpp)
 list(APPEND SRCS ${SOURCES})
 
 # Preprocessor defs
 set(DEFINES	-DTIER4_STATIC_LIB)
 
-# Platform-specific preprocessor defines
-set(WIN32_DEFINES	)	
-set(POSIX32_DEFINES	)
-set(WIN64_DEFINES	)
-set(POSIX64_DEFINES	)
-set(WINDOWS_DEFINES	)
-set(POSIX_DEFINES	)
-
-set(PLATFORM_64BIT_DEFINES	)
-set(PLATFORM_32BIT_DEFINES 	)
-
-# Links dirs to search for link libs in
-set(LINK_DIRS	)
-set(WINDOWS_LINK_DIRS	)
-set(POSIX_LINK_DIRS		)
-set(WIN32_LINK_DIRS		)
-set(WIN64_LINK_DIRS		)
-set(POSIX32_LINK_DIRS	)
-set(POSIX64_LINK_DIRS	)
-
 # Generic libs to link against
 set(LINK_LIBS			SDL2)
 
-# Platform specific link libs
+# Windows link libs
 set(WIN32_LINK_LIBS		)
-set(WIN64_LINK_LIBS		)
-set(POSIX32_LINK_LIBS	)
-set(POSIX64_LINK_LIBS	)
 
 # Generic include dirs
 set(INCLUDE_DIRS		${PUBLIC_INCLUDE}/tier4)
@@ -53,8 +23,6 @@ set(INCLUDE_DIRS		${PUBLIC_INCLUDE}/tier4)
 # Platform specific includes
 set(WIN32_INCLUDE_DIRS	)
 set(WIN64_INCLUDE_DIRS	)
-set(POSIX32_INCLUDE_DIRS	)
-set(POSIX64_INCLUDE_DIRS	)
 
 # Set the variable of target for stuff
 set(TARGET tier4)
