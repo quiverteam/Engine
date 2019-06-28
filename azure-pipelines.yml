@@ -1,0 +1,47 @@
+# Starter pipeline
+# Start with a minimal pipeline that you can customize to build and deploy your code.
+# Add steps that build, run tests, deploy, and more:
+# https://aka.ms/yaml
+
+schedules:
+  - cron: "20 03 * * *"
+    displayName: "Daily Build"
+    branches:
+      include: ["dev"]
+    always: "false" # Don't run unless changes happen
+
+
+pool:
+  vmImage: 'windows-2019'
+
+steps:
+
+# Generate the projects
+- task: CmdLine@2
+  displayName: Generate Projects
+  inputs:
+    workingDirectory: "$(Build.Repository.LocalPath)"
+    script: "
+      cd src/
+      createengineandtools.bat
+    "
+
+# Build for CMake on windows
+#- task: CmdLine@2
+#  displayName: Generate Projects
+#  inputs:
+#    workingDirectory: "$(Build.Repository.LocalPath)"
+#    # TODO: Add the actual CMake params to this
+#    script: "
+#      cd src/
+#      mkdir build/ 
+#      cd build/
+#      cmake ../
+#    "
+
+# Build everything
+- task: MSBuild@1
+  displayName: Build Projects
+  inputs:
+    solution: "**/*.sln"
+    configuration: "Release"
