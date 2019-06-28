@@ -22,7 +22,8 @@ steps:
   inputs:
     workingDirectory: "$(Build.Repository.LocalPath)"
     script: "
-      cd src/
+      cd src\
+      
       createengineandtools.bat
     "
 
