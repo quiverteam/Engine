@@ -1,6 +1,8 @@
 //-----------------------------------------------------------------------------
 //	APPIDLINK.VPC
 //
+//	Purpose: Create Directory Junctions from where a game is installed on steam to the output folder specified
+//
 //	Project Script
 //-----------------------------------------------------------------------------
 
