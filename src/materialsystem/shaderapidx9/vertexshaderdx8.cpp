@@ -46,13 +46,27 @@
 // NOTE: This has to be the last file included!
 #include "tier0/memdbgon.h"
 
+const bool IsUsingDynamicShaders(void)
+{
+	bool bIsUsingDynamicShaders;
+
+	char path[MAX_PATH];
+	g_pFullFileSystem->GetSearchPath("SHADER_SRC", false, path, MAX_PATH);
+	if (path != "")
+	{
+		bIsUsingDynamicShaders = true;
+	}
+
+	return bIsUsingDynamicShaders;
+}
+
 // uncomment to get dynamic compilation for HLSL shaders
 // i don't think this works atm, but im probably using this wrong
 // X360 NOTE: By default, the system looks for a shared folder named "stdshaders" on the host machine and is completely compatible with -dvd. Ensure that the share is writable if you plan on generating UPDB's.
-//#define DYNAMIC_SHADER_COMPILE
+#define DYNAMIC_SHADER_COMPILE
 
 // uncomment to get spew about what combos are being compiled.
-//#define DYNAMIC_SHADER_COMPILE_VERBOSE
+#define DYNAMIC_SHADER_COMPILE_VERBOSE
 
 // uncomment and fill in with a path to use a specific set of shader source files. Meant for network use.
 //		PC path format is of style "\\\\somemachine\\sourcetreeshare\\materialsystem\\stdshaders"
@@ -539,7 +553,6 @@ private:
 		}
 	};
 
-#ifdef DYNAMIC_SHADER_COMPILE
 	struct Combo_t
 	{
 		CUtlSymbol m_ComboName;
@@ -572,7 +585,6 @@ private:
 			return combos;
 		}
 	};
-#endif
 
 private:
 	void					CreateStaticShaders();
@@ -665,10 +677,8 @@ CShaderManager::CShaderManager() :
 {
 	m_bCreateShadersOnDemand = false;
 
-#ifdef DYNAMIC_SHADER_COMPILE
 	m_pShaderCompiler30 = 0;
 	m_ShaderCompileFileFunc30 = 0;
-#endif
 
 #ifdef _DEBUG
 	vshDebugIndex = 0;
@@ -690,7 +700,6 @@ void CShaderManager::Init()
 	// only used by pc to help tools reduce d3d footprint
 	m_bCreateShadersOnDemand = IsPC() && ( ShaderUtil()->InEditorMode() || CommandLine()->CheckParm( "-shadersondemand" ) );
 
-#ifdef DYNAMIC_SHADER_COMPILE
 #ifdef _DEBUG
 	m_pShaderCompiler30 = Sys_LoadModule( "d3dx9d_33.dll" );
 #endif
@@ -703,21 +712,18 @@ void CShaderManager::Init()
 	{
 		m_ShaderCompileFileFunc30 = (ShaderCompileFromFileFunc_t)GetProcAddress( (HMODULE)m_pShaderCompiler30, "D3DXCompileShaderFromFileA" );
 	}
-#endif
 
 	CreateStaticShaders();
 }
 
 void CShaderManager::Shutdown()
 {
-#ifdef DYNAMIC_SHADER_COMPILE
 	if ( m_pShaderCompiler30 )
 	{
 		Sys_UnloadModule( m_pShaderCompiler30 );
 		m_pShaderCompiler30 = 0;
 		m_ShaderCompileFileFunc30 = 0;
 	}
-#endif
 
 	DestroyAllShaders();
 	DestroyStaticShaders();
@@ -898,10 +904,12 @@ static const char *GetShaderSourcePath( void )
 			}
 #			else
 			{
-				Q_strncpy( shaderDir, __FILE__, MAX_PATH );
+			/*	Q_strncpy( shaderDir, __FILE__, MAX_PATH );
 				Q_StripFilename( shaderDir );
 				Q_StripLastDir( shaderDir, MAX_PATH );
-				Q_strncat( shaderDir, "stdshaders", MAX_PATH, COPY_ALL_CHARACTERS );
+				Q_strncat( shaderDir, "stdshaders", MAX_PATH, COPY_ALL_CHARACTERS );	*/
+
+				g_pFullFileSystem->GetSearchPath("SHADER_SRC", false, shaderDir, MAX_PATH);
 			}
 #			endif
 		}
@@ -921,7 +929,7 @@ const CShaderManager::ShaderCombos_t *CShaderManager::FindOrCreateShaderCombos( 
 	ShaderCombos_t &combos = m_ShaderNameToCombos[pShaderName];
 	char filename[MAX_PATH];
 	// try the vsh dir first.
-	Q_strncpy( filename, GetShaderSourcePath(), MAX_PATH );
+	/*Q_strncpy( filename, GetShaderSourcePath(), MAX_PATH );
 	Q_strncat( filename, "\\", MAX_PATH, COPY_ALL_CHARACTERS );
 	Q_strncat( filename, pShaderName, MAX_PATH, COPY_ALL_CHARACTERS );
 	Q_strncat( filename, ".vsh", MAX_PATH, COPY_ALL_CHARACTERS );
@@ -931,13 +939,15 @@ const CShaderManager::ShaderCombos_t *CShaderManager::FindOrCreateShaderCombos( 
 		NULL;
 	}
 	else
-	{
+	{*/
 		// try the fxc dir.
 		Q_strncpy( filename, GetShaderSourcePath(), MAX_PATH );
 		Q_strncat( filename, "\\", MAX_PATH, COPY_ALL_CHARACTERS );
 		Q_strncat( filename, pShaderName, MAX_PATH, COPY_ALL_CHARACTERS );
 		Q_strncat( filename, ".fxc", MAX_PATH, COPY_ALL_CHARACTERS );
-		bOpenResult = g_pFullFileSystem->ReadFile( filename, NULL, bffr );
+
+		CUtlInplaceBuffer bffr(0, 0, CUtlInplaceBuffer::TEXT_BUFFER);
+		bool bOpenResult = g_pFullFileSystem->ReadFile( filename, NULL, bffr );
 
 		if ( !bOpenResult )
 		{
@@ -995,7 +1005,7 @@ const CShaderManager::ShaderCombos_t *CShaderManager::FindOrCreateShaderCombos( 
 			Assert( 0 );
 			return NULL;
 		}
-	}
+//	}
 
 	while( char *line = bffr.InplaceGetLinePtr() )
 	{
@@ -2043,13 +2053,14 @@ bool CShaderManager::LoadAndCreateShaders( ShaderLookup_t &lookup, bool bVertexS
 
 		// try the vsh/psh dir first
 		char filename[MAX_PATH];
-		Q_snprintf( filename, MAX_PATH, "shaders\\%s\\%s" SHADER_FNAME_EXTENSION, bVertexShader ? "vsh" : "psh", pName );
+	//	Q_snprintf( filename, MAX_PATH, "%s\\%s\\%s", GetShaderSourcePath(), SHADER_FNAME_EXTENSION, bVertexShader ? "vsh" : "psh", pName );
+		Q_snprintf(filename, MAX_PATH, "%s%s", GetShaderSourcePath(), pName, SHADER_FNAME_EXTENSION);
 		hFile = OpenFileAndLoadHeader( filename, pHeader );
 		if ( hFile == FILESYSTEM_INVALID_HANDLE )
 		{
 #ifdef DYNAMIC_SHADER_COMPILE
 			// Dynamically compile if it's HLSL.
-			if ( LoadAndCreateShaders_Dynamic( lookup, bVertexShader ) )
+			if ( LoadAndCreateShaders_Dynamic( lookup, bVertexShader ) && CommandLine()->FindParm("-shadersondemand") )
 			{
 				lookup.m_Flags |= SHADER_DYNAMIC_COMPILE_IS_HLSL;
 				return true;
@@ -2370,53 +2381,55 @@ void CShaderManager::BindVertexShader( VertexShaderHandle_t hVertexShader )
 	SetVertexShaderState( hHardwareShader );
 }
 
-
 //-----------------------------------------------------------------------------
 // Sets a particular vertex shader as the current shader
 //-----------------------------------------------------------------------------
-void CShaderManager::SetVertexShader( VertexShader_t shader )
+void CShaderManager::SetVertexShader(VertexShader_t shader)
 {
 	// Determine which vertex shader to use...
-	if ( shader == INVALID_SHADER )
+	if (shader == INVALID_SHADER)
 	{
-		SetVertexShaderState( 0 );
+		SetVertexShaderState(0);
 		return;
 	}
 
 	int vshIndex = m_nVertexShaderIndex;
-	Assert( vshIndex >= 0 );
-	if( vshIndex < 0 )
+	Assert(vshIndex >= 0);
+	if (vshIndex < 0)
 	{
 		vshIndex = 0;
 	}
 
-//	VertexShaderLookup_t &lookup = m_VertexShaderDict[shader];
-//	Warning( "vsh: %s static: %d dynamic: %d\n", m_ShaderSymbolTable.String( lookup.m_Name ),
-//		lookup.m_nStaticIndex, m_nVertexShaderIndex );
+	//	VertexShaderLookup_t &lookup = m_VertexShaderDict[shader];
+	//	Warning( "vsh: %s static: %d dynamic: %d\n", m_ShaderSymbolTable.String( lookup.m_Name ),
+	//		lookup.m_nStaticIndex, m_nVertexShaderIndex );
 
-#ifdef DYNAMIC_SHADER_COMPILE
-	HardwareShader_t &dxshader = m_VertexShaderDict[shader].m_ShaderStaticCombos.m_pHardwareShaders[vshIndex];
-	if ( dxshader == INVALID_HARDWARE_SHADER )
+	if (IsUsingDynamicShaders())
 	{
-		// compile it since we haven't already!
-		ShaderLookup_t &vshLookup = m_VertexShaderDict[shader];
-		dxshader = CompileShader( m_ShaderSymbolTable.String( vshLookup.m_Name ), 
-			vshLookup.m_nStaticIndex, vshIndex, true );
-		Assert( dxshader != INVALID_HARDWARE_SHADER );
+		HardwareShader_t& dxshader = m_VertexShaderDict[shader].m_ShaderStaticCombos.m_pHardwareShaders[vshIndex];
+		if (dxshader == INVALID_HARDWARE_SHADER)
+		{
+			// compile it since we haven't already!
+			ShaderLookup_t& vshLookup = m_VertexShaderDict[shader];
+			dxshader = CompileShader(m_ShaderSymbolTable.String(vshLookup.m_Name),
+				vshLookup.m_nStaticIndex, vshIndex, true);
+			Assert(dxshader != INVALID_HARDWARE_SHADER);
+		}
 	}
-#else
-	ShaderLookup_t &lookup = m_VertexShaderDict[shader];
-	if ( lookup.m_Flags & SHADER_FAILED_LOAD )
+	else
 	{
-		Assert( 0 );
-		return;
-	}
+		ShaderLookup_t& lookup = m_VertexShaderDict[shader];
+		if (lookup.m_Flags & SHADER_FAILED_LOAD)
+		{
+			Assert(0);
+			return;
+		}
 #ifdef _DEBUG
-	vshDebugIndex = (vshDebugIndex + 1) % MAX_SHADER_HISTORY;
-	Q_strncpy( vshDebugName[vshDebugIndex], m_ShaderSymbolTable.String( lookup.m_Name ), sizeof( vshDebugName[0] ) );
+		vshDebugIndex = (vshDebugIndex + 1) % MAX_SHADER_HISTORY;
+		Q_strncpy(vshDebugName[vshDebugIndex], m_ShaderSymbolTable.String(lookup.m_Name), sizeof(vshDebugName[0]));
 #endif
-	HardwareShader_t dxshader = lookup.m_ShaderStaticCombos.m_pHardwareShaders[vshIndex];
-#endif
+		HardwareShader_t dxshader = lookup.m_ShaderStaticCombos.m_pHardwareShaders[vshIndex];
+	}
 
 	if ( IsPC() && ( dxshader == INVALID_HARDWARE_SHADER ) && m_bCreateShadersOnDemand )
 	{
@@ -2483,58 +2496,60 @@ void CShaderManager::SetPixelShader( PixelShader_t shader )
 //	PixelShaderLookup_t &lookup = m_PixelShaderDict[shader];
 //	Warning( "psh: %s static: %d dynamic: %d\n", m_ShaderSymbolTable.String( lookup.m_Name ),
 //		lookup.m_nStaticIndex, m_nPixelShaderIndex );
-#ifdef DYNAMIC_SHADER_COMPILE
-	HardwareShader_t &dxshader = m_PixelShaderDict[shader].m_ShaderStaticCombos.m_pHardwareShaders[pshIndex];
-	if ( dxshader == INVALID_HARDWARE_SHADER )
-	{
-		// compile it since we haven't already!
-		ShaderLookup_t &vshLookup = m_PixelShaderDict[shader];
-		dxshader = CompileShader( m_ShaderSymbolTable.String( vshLookup.m_Name ), 
-			vshLookup.m_nStaticIndex, pshIndex, false );
-//		Assert( dxshader != INVALID_HARDWARE_SHADER );
 
-		if( IsX360() )
+	HardwareShader_t& dxshader = m_PixelShaderDict[shader].m_ShaderStaticCombos.m_pHardwareShaders[pshIndex];
+	ShaderLookup_t& lookup = m_PixelShaderDict[shader];
+
+	if (IsUsingDynamicShaders())
+	{
+		dxshader = m_PixelShaderDict[shader].m_ShaderStaticCombos.m_pHardwareShaders[pshIndex];
+		if (dxshader == INVALID_HARDWARE_SHADER)
 		{
-			//360 does not respond well at all to bad shaders or Error() calls. So we're staying here until we get something that compiles
-			while( dxshader == INVALID_HARDWARE_SHADER )
-			{
-				Warning( "A dynamically compiled pixel shader has failed to build. Pausing for 5 seconds and attempting rebuild.\n" );
-				Sleep( 5000 );
-				dxshader = CompileShader( m_ShaderSymbolTable.String( vshLookup.m_Name ), 
-					vshLookup.m_nStaticIndex, pshIndex, false );
-			}
+			// compile it since we haven't already!
+			ShaderLookup_t& vshLookup = m_PixelShaderDict[shader];
+			dxshader = CompileShader(m_ShaderSymbolTable.String(vshLookup.m_Name),
+				vshLookup.m_nStaticIndex, pshIndex, false);
+			//		Assert( dxshader != INVALID_HARDWARE_SHADER );
 		}
 	}
-#else
-	ShaderLookup_t &lookup = m_PixelShaderDict[shader];
-	if ( lookup.m_Flags & SHADER_FAILED_LOAD )
+	else
 	{
-		Assert( 0 );
-		return;
-	}
+			lookup = m_PixelShaderDict[shader];
+			if (lookup.m_Flags & SHADER_FAILED_LOAD)
+			{
+				Assert(0);
+				return;
+			}
 #ifdef _DEBUG
-	pshDebugIndex = (pshDebugIndex + 1) % MAX_SHADER_HISTORY;
-	Q_strncpy( pshDebugName[pshDebugIndex], m_ShaderSymbolTable.String( lookup.m_Name ), sizeof( pshDebugName[0] ) );
+			pshDebugIndex = (pshDebugIndex + 1) % MAX_SHADER_HISTORY;
+			Q_strncpy(pshDebugName[pshDebugIndex], m_ShaderSymbolTable.String(lookup.m_Name), sizeof(pshDebugName[0]));
 #endif
-	HardwareShader_t dxshader = lookup.m_ShaderStaticCombos.m_pHardwareShaders[pshIndex];
-#endif
+			HardwareShader_t dxshader = lookup.m_ShaderStaticCombos.m_pHardwareShaders[pshIndex];
+	}
 
-	if ( IsPC() && ( dxshader == INVALID_HARDWARE_SHADER ) && m_bCreateShadersOnDemand )
+	if (IsPC() && (dxshader == INVALID_HARDWARE_SHADER) && m_bCreateShadersOnDemand)
 	{
-#ifdef DYNAMIC_SHADER_COMPILE
-		ShaderStaticCombos_t::ShaderCreationData_t *pCreationData = &m_PixelShaderDict[shader].m_ShaderStaticCombos.m_pCreationData[pshIndex];
-#else
-		ShaderStaticCombos_t::ShaderCreationData_t *pCreationData = &lookup.m_ShaderStaticCombos.m_pCreationData[pshIndex];
-#endif
+		ShaderStaticCombos_t::ShaderCreationData_t* pCreationData;
+		if (IsUsingDynamicShaders())
+		{
+			ShaderStaticCombos_t::ShaderCreationData_t* pCreationData = &m_PixelShaderDict[shader].m_ShaderStaticCombos.m_pCreationData[pshIndex];
+		}
+		else
+		{
+			ShaderStaticCombos_t::ShaderCreationData_t* pCreationData = &lookup.m_ShaderStaticCombos.m_pCreationData[pshIndex];
+		}
 
-		dxshader = CreateD3DPixelShader( ( DWORD * )pCreationData->ByteCode.Base(), pCreationData->iCentroidMask, pCreationData->ByteCode.Count() );
+		dxshader = CreateD3DPixelShader((DWORD*)pCreationData->ByteCode.Base(), pCreationData->iCentroidMask, pCreationData->ByteCode.Count());
 
-#ifdef DYNAMIC_SHADER_COMPILE 
-		// copy the compiled shader handle back to wherever it's supposed to be stored
-		m_PixelShaderDict[shader].m_ShaderStaticCombos.m_pHardwareShaders[pshIndex] = dxshader;
-#else
-		lookup.m_ShaderStaticCombos.m_pHardwareShaders[pshIndex] = dxshader;
-#endif
+		if (IsUsingDynamicShaders())
+		{	
+			// copy the compiled shader handle back to wherever it's supposed to be stored
+			m_PixelShaderDict[shader].m_ShaderStaticCombos.m_pHardwareShaders[pshIndex] = dxshader;
+		}
+		else
+		{
+			lookup.m_ShaderStaticCombos.m_pHardwareShaders[pshIndex] = dxshader;
+		}
 	}
 
 	AssertMsg( dxshader != INVALID_HARDWARE_SHADER, "Failed to set pixel shader." );
@@ -2737,7 +2752,6 @@ const char *CShaderManager::GetActivePixelShaderName()
 #endif
 }
 
-#ifdef DYNAMIC_SHADER_COMPILE
 void CShaderManager::FlushShaders( void )
 {
 	for( VertexShader_t shader = m_VertexShaderDict.Head(); 
@@ -2793,11 +2807,8 @@ void CShaderManager::FlushShaders( void )
 	// invalidate the file cache
 	m_ShaderFileCache.Purge();
 }
-#endif
 
-#ifdef DYNAMIC_SHADER_COMPILE
 CON_COMMAND( mat_flushshaders, "flush all hardware shaders when using DYNAMIC_SHADER_COMPILE" )
 {
 	( ( CShaderManager * )ShaderManager() )->FlushShaders();
 }
-#endif

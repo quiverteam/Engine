@@ -57,7 +57,6 @@ $Project "foundry"
 		$Lib	mathlib
 		$Lib	matsys_controls
 		$Lib	movieobjects
-		$Lib	sfmobjects
 		$Lib	tier2
 		$Lib	tier3
 		$Lib	toolutils
