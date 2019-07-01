@@ -16,7 +16,7 @@ rem ====== LAUNCH CONFIGURATIONS ======
 set "GAMEDIR=%cd%\..\..\..\game\mod_hl2"
 set "ENGINEDIR=..\..\..\game"
 set "SOURCEDIR=..\.."
-set "BUILD_SHADER=call _buildshaders.bat"
+set "BUILD_SHADER=call %cd%\_buildshaders.bat"
 
 @REM dynamic shaders only builds the required files (inc) to build stdshader_*.dll
 set dynamic_shaders=0
