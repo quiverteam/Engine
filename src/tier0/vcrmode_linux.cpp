@@ -5,6 +5,8 @@
 // $NoKeywords: $
 //
 //=============================================================================//
+#ifndef _VCRMODE_LINUX_CPP
+#define _VCRMODE_LINUX_CPP
 
 #include <time.h>
 #include <assert.h>
@@ -868,3 +870,4 @@ VCR_t g_VCR =
 VCR_t *g_pVCR = &g_VCR;
 
 
+#endif //VCRMODE_LINUX_CPP

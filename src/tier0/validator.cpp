@@ -1,10 +1,11 @@
-//========= Copyright © 1996-2005, Valve Corporation, All rights reserved. ============//
+//========= Copyright ï¿½ 1996-2005, Valve Corporation, All rights reserved. ============//
 //
 // Purpose:
 //
 // $NoKeywords: $
 //=============================================================================//
 
+#if 0
 
 #include "pch_tier0.h"
 
@@ -266,3 +267,5 @@ void CValidator::Validate( CValidator &validator, tchar *pchName )
 }
 
 #endif // DBGFLAG_VALIDATE
+
+#endif//0
