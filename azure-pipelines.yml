@@ -16,6 +16,29 @@ pool:
 
 steps:
 
+# idfk
+- task: CmdLine@2
+  displayName: Generate Projects
+  inputs:
+    workingDirectory: "$(Build.Repository.LocalPath)"
+    script: '
+      cd src\
+      setlocal enabledelayedexpansion
+
+      if exist "%ProgramFiles(x86)%\Microsoft Visual Studio\Installer\vswhere.exe" (
+        for /f "usebackq tokens=1* delims=: " %%i in (`"%ProgramFiles(x86)%\Microsoft Visual Studio\Installer\vswhere.exe" -latest -requires Microsoft.VisualStudio.Workload.NativeDesktop`) do (
+          if /i "%%i"=="installationPath" (
+            set VSDIR=%%j
+            call "!VSDIR!\Common7\Tools\VsDevCmd.bat" >nul
+            @REM echo Using Visual Studio 2017+ nmake
+            goto :start
+          )
+        )	
+      )
+
+      devenv core.sln /build Release
+    '
+
 # Generate the core projects
 - task: CmdLine@2
   displayName: Generate Projects
@@ -27,18 +50,18 @@ steps:
       devtools\bin\vpc.exe +core /define:VS2019 /mksln core.sln
     '
 
-- task: VSBuild@1
-  inputs:
-    solution: 'src\core.sln'
-    configuration: 'Release'
-    #clean: true
-    maximumCpuCount: true
+#- task: VSBuild@1
+#  inputs:
+#    solution: 'src\core.sln'
+#    configuration: 'Release'
+#    #clean: true
+#    maximumCpuCount: true
 
 # Build all the shaders
 # TODO: fix the _buildshaders.bat call
-#- task: BatchScript@1
-#  inputs:
-#    filename: 'src/materialsystem/stdshaders/_buildallshaders.bat'
+- task: BatchScript@1
+  inputs:
+    filename: 'src/materialsystem/stdshaders/_buildallshaders.bat'
 
 # Now generate the engine projects
 - task: CmdLine@2
