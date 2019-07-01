@@ -173,6 +173,10 @@ endif(DEFINED POSIX)
 #================================================#
 # Handle the include dirs
 #================================================#
+
+# For windows only
+list(APPEND INCLUDE_DIRS	${DX9SDK}/Include/)
+
 if(DEFINED WINDOWS)
 	list(APPEND INCLUDE_DIRS ${WINDOWS_INCLUDE_DIRS})
 	# WIN32 includes
@@ -209,6 +213,10 @@ list(APPEND POSIX_LINK_DIRS		/usr/lib/
 								/usr/lib32/)
 list(APPEND POSIX32_LINK_DIRS	/usr/lib/i386-linux-gnu/)
 list(APPEND POSIX64_LINK_DIRS	/usr/lib/x86_64-linux-gnu/)
+
+# For windows only
+list(APPEND WINDOWS_LINK_DIRS	${DX9SDK}/Lib/)
+
 if(DEFINED WINDOWS)
 	list(APPEND LINK_DIRS	${WINDOWS_LINK_DIRS})
 	# WIN32 includlinkes
