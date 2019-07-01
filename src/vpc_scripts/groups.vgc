@@ -550,8 +550,6 @@ $Group "core"
 $Group "unittests"
 {
 	"VStdlibUnitTest"
-	"Tier2UnitTest"
-	"Tier1UnitTest"
 	"Tier0UnitTest"
 	"MathlibUnitTest"
 	

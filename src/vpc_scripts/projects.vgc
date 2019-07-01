@@ -1249,16 +1249,6 @@ $Project "Tier0UnitTest"
 	"unittests\Tier0UnitTest\tier0test.vpc"
 }
 
-$Project "Tier1UnitTest"
-{
-	"unittests\Tier1UnitTest\tier1test.vpc"
-}
-
-$Project "Tier2UnitTest"
-{
-	"unittests\Tier2UnitTest\tier2test.vpc"
-}
-
 $Project "VStdlibUnitTest"
 {
 	"unittests\VStdlibTest\vstdlibtest.vpc"
