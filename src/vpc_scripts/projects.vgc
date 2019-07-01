@@ -28,11 +28,6 @@ $Project "autorun"
 	"shell\autorun\autorun.vpc" [$WINDOWS]
 }
 
-$Project "avitest"
-{
-	"unittests\avitest\avitest.vpc" [$WINDOWS]
-}
-
 $Project "bitmap"
 {
 	"bitmap\bitmap.vpc" [$WINDOWS||$POSIX]
