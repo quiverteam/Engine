@@ -16,29 +16,6 @@ pool:
 
 steps:
 
-# idfk
-- task: CmdLine@2
-  displayName: Generate Projects
-  inputs:
-    workingDirectory: "$(Build.Repository.LocalPath)"
-    script: '
-      cd src\
-      setlocal enabledelayedexpansion
-
-      if exist "%ProgramFiles(x86)%\Microsoft Visual Studio\Installer\vswhere.exe" (
-        for /f "usebackq tokens=1* delims=: " %%i in (`"%ProgramFiles(x86)%\Microsoft Visual Studio\Installer\vswhere.exe" -latest -requires Microsoft.VisualStudio.Workload.NativeDesktop`) do (
-          if /i "%%i"=="installationPath" (
-            set VSDIR=%%j
-            call "!VSDIR!\Common7\Tools\VsDevCmd.bat" >nul
-            @REM echo Using Visual Studio 2017+ nmake
-            goto :start
-          )
-        )	
-      )
-
-      devenv core.sln /build Release
-    '
-
 # Generate the core projects
 - task: CmdLine@2
   displayName: Generate Projects
@@ -49,6 +26,13 @@ steps:
       
       devtools\bin\vpc.exe +core /define:VS2019 /mksln core.sln
     '
+    
+- task: DevEnvBuild@2
+  inputs:
+    solution: 'src\core.sln'
+    buildCfg: 'Release'
+    vsVersion: 'latest'
+#    clean: true
 
 #- task: VSBuild@1
 #  inputs:
@@ -73,6 +57,8 @@ steps:
       
       devtools\bin\vpc.exe /allgames +game -stdshader_dbg -stdshader_dx9 /define:VS2019 /mksln engine.sln
     '
+
+
 
 # Build Engine Projects
 - task: VSBuild@1
