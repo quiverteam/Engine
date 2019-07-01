@@ -16,7 +16,30 @@ pool:
 
 steps:
 
-# Generate the projects
+# Generate the core projects
+- task: CmdLine@2
+  displayName: Generate Projects
+  inputs:
+    workingDirectory: "$(Build.Repository.LocalPath)"
+    script: '
+      cd src\
+      
+      devtools\bin\vpc.exe +core /define:VS2019 /mksln core.sln
+    '
+
+# Build Core Projects
+- task: MSBuild@1
+  displayName: Build Projects
+  inputs:
+    solution: "src/core.sln" #"**/*.sln"
+    configuration: "Release"
+
+# Build all the shaders
+- task: BatchScript@1
+  inputs:
+    filename: 'src/materialsystem/stdshaders/_buildallshaders.bat'
+
+# Now generate the engine projects
 - task: CmdLine@2
   displayName: Generate Projects
   inputs:
@@ -27,9 +50,9 @@ steps:
       devtools\bin\vpc.exe /allgames +game -stdshader_dbg -stdshader_dx9 /define:VS2019 /mksln engine.sln
     '
 
-# Build Core Projects
+# Build Engine Projects
 - task: MSBuild@1
   displayName: Build Projects
   inputs:
-    solution: "src/core.sln" #"**/*.sln"
+    solution: "src/engine.sln" #"**/*.sln"
     configuration: "Release"
