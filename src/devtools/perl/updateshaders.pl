@@ -47,15 +47,7 @@ sub GetShaderType
 {
 	my $shadername = shift;
 	my $shadertype;
-	if( $shadername =~ m/\.vsh/i )
-	{
-		$shadertype = "vsh";
-	}
-	elsif( $shadername =~ m/\.psh/i )
-	{
-		$shadertype = "psh";
-	}
-	elsif( $shadername =~ m/\.fxc/i )
+	if( $shadername =~ m/\.fxc/i )
 	{
 		$shadertype = "fxc";
 	}
@@ -123,8 +115,7 @@ sub DoAsmShader
 	}
 	else
 	{
-		# psh files don't need a rule at this point since they don't have inc files and we aren't compiling a vcs.
-		if( $shadertype eq "fxc" || $shadertype eq "vsh" )
+		if( $shadertype eq "fxc" )
 		{
 			&output_makefile_line( $incfile . ":  $shadername @dep\n") ;
 		}
@@ -137,21 +128,11 @@ sub DoAsmShader
 	{
 		$moreswitches .= "-novcs ";
 	}
-	if( $g_x360 )
-	{
-		$x360switch = "-x360";
-		
-		if( $bWillCompileVcs && ( $shaderbase =~ m/_ps20$/i ) )
-		{
-			$moreswitches .= "-novcs ";
-			$bWillCompileVcs = 0;
-		}
-	}
 
 	# if we are psh and we are compiling the vcs, we don't need this rule.
 	if( !( $shadertype eq "psh" && !$bWillCompileVcs ) )
 	{
-		&output_makefile_line( "\tperl $g_SourceDir\\devtools\\bin\\" . $shadertype . "_prep.pl $moreswitches $x360switch -source \"$g_SourceDir\" $argstring\n") ;
+		&output_makefile_line( "\tperl $g_SourceDir\\devtools\\perl\\" . $shadertype . "_prep.pl $moreswitches $x360switch -source \"$g_SourceDir\" $argstring\n") ;
 	}
 
 	if( $bWillCompileVcs )

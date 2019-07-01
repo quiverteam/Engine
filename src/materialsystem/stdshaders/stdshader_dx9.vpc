@@ -181,13 +181,11 @@ $Project "stdshader_dx9"
 		$Lib	shaderlib
 	}
 
-	$File	"$SRCDIR\devtools\bin\vsh_prep.pl"
-	$File	"$SRCDIR\devtools\bin\psh_prep.pl"
-	$File	"$SRCDIR\devtools\bin\fxc_prep.pl"
-	$File	"$SRCDIR\devtools\bin\updateshaders.pl"
-	$File	"$SRCDIR\devtools\bin\copyshaders.pl"
-	$File	"$SRCDIR\devtools\bin\valve_perl_helpers.pl"
-	$File	"$SRCDIR\devtools\bin\checkshaderchecksums.pl"
+	/*$File	"$SRCDIR\devtools\perl\fxc_prep.pl"
+	$File	"$SRCDIR\devtools\perl\updateshaders.pl"
+	$File	"$SRCDIR\devtools\perl\copyshaders.pl"
+	$File	"$SRCDIR\devtools\perl\valve_perl_helpers.pl"
+	$File	"$SRCDIR\devtools\perl\checkshaderchecksums.pl"
 	$File	"_buildallshaders.bat"
 	$File	"_buildshaders.bat"
 
@@ -195,5 +193,5 @@ $Project "stdshader_dx9"
 	$Shaders	"_shaderlist_dx9_30.txt"
 	//$Shaders	"_shaderlist_dx10.txt" // none yet
 	
-	$Shaders	"_shaderlist_flashlight_dx9_30.txt"
+	$Shaders	"_shaderlist_flashlight_dx9_30.txt"*/
 }

@@ -75,10 +75,10 @@ $Project "stdshader_dbg"
 		$Lib	shaderlib
 	}
 
-	$File	"$SRCDIR\devtools\bin\vsh_prep.pl"
-	$File	"$SRCDIR\devtools\bin\psh_prep.pl"
-	$File	"$SRCDIR\devtools\bin\fxc_prep.pl"
-	$File	"$SRCDIR\devtools\bin\updateshaders.pl"
+	/*File	"$SRCDIR\devtools\perl\vsh_prep.pl"
+	$File	"$SRCDIR\devtools\perl\psh_prep.pl"
+	$File	"$SRCDIR\devtools\perl\fxc_prep.pl"
+	$File	"$SRCDIR\devtools\perl\updateshaders.pl"
 
 	$File	"_buildallshaders.bat"
 	$File	"_buildshaders.bat"
@@ -88,5 +88,5 @@ $Project "stdshader_dbg"
 	//$Shaders	"_shaderlist_dx10.txt" // none yet
 	
 	//$Shaders	"stdshader_flashlight_dx9_20b.txt"
-	$Shaders	"_shaderlist_flashlight_dx9_30.txt"
+	$Shaders	"_shaderlist_flashlight_dx9_30.txt"*/
 }

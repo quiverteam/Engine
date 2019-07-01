@@ -2,13 +2,7 @@
 setlocal enabledelayedexpansion
 
 :start
-set TTEXE=..\..\devtools\bin\timeprecise.exe
-if not exist %TTEXE% goto no_ttexe
-goto no_ttexe_end
-
-:no_ttexe
 set TTEXE=time /t
-:no_ttexe_end
 
 rem ===================================
 rem ====== LAUNCH CONFIGURATIONS ======
@@ -27,9 +21,9 @@ rem ===================================
 echo ==============================================================================
 echo.
 echo Building All Shaders
+%TTEXE% -cur-Q
 echo.
 
-%TTEXE% -cur-Q
 set tt_all_start=%ERRORLEVEL%
 set tt_all_chkpt=%tt_start%
 
@@ -59,12 +53,11 @@ if not "%dynamic_shaders%" == "1" (
   echo Finished Building All Shaders - Dynamic %*
 )
 
+echo.
 %TTEXE% -diff %tt_all_start% -cur
 
 echo.
 echo ==============================================================================
-echo.
-%TTEXE% -diff %tt_all_start% -cur
 echo.
 echo Press any key to rebuild stdshader projects and exit . . .
 pause >nul
