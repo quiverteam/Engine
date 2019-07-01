@@ -27,22 +27,14 @@ steps:
       devtools\bin\vpc.exe /hl2 /hl2mp /episodic /hl2r +game +utils +tools -bsppack -bzip2 -ep2_deathmap -vtex_dll -vtex_launcher -normal2ssbump -height2normal -height2ssbump /define:VS2019 /mksln engine_and_tools.sln
     '
 
-# Build for CMake on windows
-#- task: CmdLine@2
-#  displayName: Generate Projects
-#  inputs:
-#    workingDirectory: "$(Build.Repository.LocalPath)"
-#    # TODO: Add the actual CMake params to this
-#    script: "
-#      cd src/
-#      mkdir build/ 
-#      cd build/
-#      cmake ../
-#    "
+# Run VPC Batch Script
+- task: BatchScript@1
+  inputs:
+    filename: 'src/_create_coreprojects.bat'
 
-# Build everything
+# Build Core Projects
 - task: MSBuild@1
   displayName: Build Projects
   inputs:
-    solution: "**/*.sln"
+    solution: "src/core.sln" #"**/*.sln"
     configuration: "Release"
