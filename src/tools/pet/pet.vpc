@@ -55,7 +55,6 @@ $Project "Pet"
 		$Lib	matsys_controls
 		$Lib	movieobjects
 		$Lib	particles
-		$Lib	sfmobjects
 		$Lib	tier2
 		$Lib	tier3
 		$Lib	toolutils
