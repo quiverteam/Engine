@@ -1,9 +1,9 @@
 #
 #
-# Project script for filesystem
+# Project script for launcher (DLL) 
 #
 #
-project(filesystem_stdio C CXX)
+project(launcher C CXX)
 
 # Platform specific sources 
 set(WINDOWS_SRCS	)
@@ -15,10 +15,8 @@ file(GLOB SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/ *.c *.cpp)
 list(APPEND SRCS ${SOURCES})
 
 # Preprocessor defs
-set(DEFINES			-DFILESYSTEM_STDIO_EXPORTS
-					-DDONT_PROTECT_FILEIO_FUNCTIONS
-					-DPROTECTED_THINGS_ENABLE
-					-D_USE_32BIT_TIME_T)
+set(DEFINES			-DLAUNCHERONLY
+					-DNO_MULTIPLE_CLIENTS)
 
 # Platform-specific preprocessor defines
 set(WIN32_DEFINES	)	
@@ -44,21 +42,24 @@ set(POSIX64_LINK_DIRS	)
 set(LINK_LIBS			)
 
 # Other projects this one depends on
-set(DEPENDENCIES vstdlib tier1 tier0)
+set(DEPENDENCIES vstdlib tier1 tier0 tier2 tier3 appframework)
 
 # Platform specific link libs
-set(WINDOWS_LINK_LIBS	)
+set(WINDOWS_LINK_LIBS	shlwapi.lib winmm.lib wsock32.lib odbc32.lib odbccp32.lib
+						dinput8.lib ddraw.lib)
+set(POSIX_LINK_LIBS		SDL2)
 set(WIN32_LINK_LIBS		)
 set(WIN64_LINK_LIBS		)
 set(POSIX32_LINK_LIBS	)
 set(POSIX64_LINK_LIBS	)
 
 # Generic include dirs
-set(INCLUDE_DIRS		${PUBLIC_INCLUDE}/tier1 
-						${PUBLIC_INCLUDE}/tier0
-						${PUBLIC_INCLUDE}/vstdlib
-						${PUBLIC_INCLUDE}/mathlib
-						${PUBLIC_INCLUDE}/filesystem)
+set(INCLUDE_DIRS		${PUBLIC_INCLUDE}/tier0 
+						${PUBLIC_INCLUDE}/tier1
+						${PUBLIC_INCLUDE}/tier2
+						${PUBLIC_INCLUDE}/tier3
+						${PUBLIC_INCLUDE}/tier4
+						${PUBLIC_INCLUDE}/appframework)
 
 # Platform specific includes
 set(WIN32_INCLUDE_DIRS	)
@@ -67,10 +68,10 @@ set(POSIX32_INCLUDE_DIRS	)
 set(POSIX64_INCLUDE_DIRS	)
 
 # Set the variable of target for stuff
-set(TARGET filesystem_stdio)
+set(TARGET launcher)
 
 # Set the output file name
-set(OUTPUT_FILE_NAME filesystem_stdio)
+set(OUTPUT_FILE_NAME launcher)
 
 # If this is a shared lib
 set(SHARED_LIB 1)
