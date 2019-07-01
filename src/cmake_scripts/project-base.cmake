@@ -246,9 +246,9 @@ endif(DEFINED POSIX)
 #================================================#
 # Add the target
 #================================================#
-if(NOT SHARED_LIB AND NOT STATIC_LIB)
-	message(ERROR "The project ${TARGET} must be declared as a static or shared lib.")
-endif(NOT SHARED_LIB AND NOT STATIC_LIB)
+if(NOT SHARED_LIB AND NOT STATIC_LIB AND THIS_IS_A_LIBRARY)
+	message("The project ${TARGET} must be declared as a static or shared lib.")
+endif(NOT SHARED_LIB AND NOT STATIC_LIB AND THIS_IS_A_LIBRARY)
 
 if(DEFINED THIS_IS_A_LIBRARY)
 	if(SHARED_LIB)
