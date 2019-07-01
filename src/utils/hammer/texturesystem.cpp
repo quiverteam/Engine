@@ -529,10 +529,10 @@ void HammerFileSystem_SetGame( const char *pExeDir, const char *pModDir )
 	Assert( !s_bOnce );
 	s_bOnce = true;
 
-	char buf[MAX_PATH];
+	/*char buf[MAX_PATH];
 
 	Q_snprintf( buf, MAX_PATH, "%s\\hl2", pExeDir );
-	g_pFullFileSystem->AddSearchPath( buf, "GAME", PATH_ADD_TO_HEAD );
+	g_pFullFileSystem->AddSearchPath( buf, "GAME", PATH_ADD_TO_HEAD );*/
 
 	if ( pModDir && *pModDir != '\0' )
 	{

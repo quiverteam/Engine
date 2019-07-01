@@ -27,7 +27,7 @@ $Project "Vbsp"
 {
 	$Folder	"Source Files"
 	{
-		$File	"$SRCDIR\hammer\boundbox.cpp"
+		$File	"..\hammer\boundbox.cpp"
 		$File	"brushbsp.cpp"
 		$File	"$SRCDIR\public\CollisionUtils.cpp"
 		$File	"csg.cpp"
@@ -87,7 +87,7 @@ $Project "Vbsp"
 
 	$Folder	"Header Files"
 	{
-		$File	"$SRCDIR\hammer\boundbox.h"
+		$File	"..\hammer\boundbox.h"
 		$File	"csg.h"
 		$File	"detail.h"
 		$File	"$SRCDIR\public\disp_powerinfo.h"

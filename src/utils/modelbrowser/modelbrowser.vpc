@@ -39,7 +39,7 @@ $Project "Modelbrowser"
 		$File	"$SRCDIR\Public\FileSystem.h"
 		$File	"$SRCDIR\utils\common\FileSystem_Tools.h"
 		$File	"$SRCDIR\Public\tier1\interface.h"
-		$File	"$SRCDIR\hammer\modelbrowser.h"
+		$File	"$SRCDIR\utils\hammer\modelbrowser.h"
 	}
 
 	$Folder	"Link Libraries"

@@ -323,12 +323,12 @@ $Project "glview"
 
 $Project "hammer_dll"
 {
-	"hammer\hammer_dll.vpc" [$WINDOWS]
+	"utils\hammer\hammer_dll.vpc" [$WINDOWS]
 }
 
 $Project "hammer_launcher"
 {
-	"hammer_launcher\hammer_launcher.vpc" [$WINDOWS]
+	"utils\hammer\hammer_launcher\hammer_launcher.vpc" [$WINDOWS]
 }
 
 $Project "height2normal"

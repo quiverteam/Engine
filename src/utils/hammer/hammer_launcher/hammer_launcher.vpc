@@ -4,7 +4,7 @@
 //	Project Script
 //-----------------------------------------------------------------------------
 
-$Macro SRCDIR		".."
+$Macro SRCDIR		"..\..\.."
 $Macro OUTBINDIR	"$BINDEFAULT"
 $Macro OUTBINNAME	"hammer"
 
