@@ -5,23 +5,75 @@
 # NOTE: Please add ALL of the base stuff into this
 # NOTE AGAIN: I might merge this with source-base.cmake
 #================================================#
-
+#
+# This is the place where all link libs are located, yes
+#
 #================================================#
 # Vars that should be defined in including files
 # TARGET: the name of the target
 # 
+#================================================#
+# CMake vars defined by source base:
+#	-	ROOT_DIR
+#	-	LIBCOMMON
+#	-	LIBPUBLIC
+#	-	PUBLIC_INCLUDE
+#	-	COMMON_INCLUDE
+#	-	THIS_IS_A_LIBRARY (for libs)
+#	-	THIS_IS_A_EXE (for exes)
+#	-	STATIC_LIB (1 for static libs)
+#	-	SHARED_LIB (1 for shared libs)
 #================================================#
 
 # Include this just in case
 include(${CMAKESCRIPTS_DIR}/source-directories.cmake)
 include(${CMAKESCRIPTS_DIR}/source-base.cmake)
 
+# If this is a library...
+if(THIS_IS_A_LIBRARY EQUAL 1)
+	if(STATIC_LIB EQUAL 1)
+		set(THIS_IS_A_STATIC_LIB 1)
+		list(APPEND DEFINES -D_LIB -DLIB)
+	else()
+		set(THIS_IS_A_SHARED_LIB 1)
+		list(APPEND DEFINES -D_USRDLL -D_SHAREDLIB -D_DLL_ -D_DLL)
+	endif(STATIC_LIB EQUAL 1)
+endif(THIS_IS_A_LIBRARY EQUAL 1)
+
 #================================================#
 # First we should handle the preprocessor defs
 #================================================#
+#
+# For All debug:
+#	-	_DEBUG, _CRT_SECURE_NO_DEPRECATE, _CRT_NONSTDC_NO_DEPRECATE
+#	-	_HAS_ITERATOR_DEBUGGING, DEBUG, _ALLOW_RUNTIME_LIBRARY_MISMATCH
+# For win debug:
+# 	-	_ALLOW_MSCC_VER_MISMATCH
+#
+#
+list(APPEND WINDOWS_DEFINES		-D_WIN32 -DWIN32 -DWINDOWS -D_ALLOW_MSC_VER_MISMATCH)
+
+list(APPEND WIN32_DEFINES		-DPLATFORM_WINDOWS_PC32)
+
+list(APPEND WIN64_DEFINES		-DPLATFORM_WINDOWS_PC64)
+
+list(APPEND DEFINES				-D_CRT_SECURE_NO_DEPRECATE
+								-D_CRT_NONSTDC_NO_DEPRECATE
+								-D_ALLOW_RUNTIME_LIBRARY_MISMATCH
+								-D_ALLOW_ITERATOR_DEBUG_LEVEL_MISMATCH
+								-D_HAS_ITERATOR_DEBUGGING=0)
+list(APPEND POSIX_DEFINES		-DUSE_SDL -DDX_TO_GL_ABSTRACTION)
+
+# For debug/release builds
+if(RELEASE)
+	list(APPEND DEFINES -DNDEBUG -D_NDEBUG -DRELEASEASSERTS)
+else()
+	list(APPEND DEFINES -DDEBUG -D_DEBUG)
+endif(RELEASE)
+
 if(DEFINED WINDOWS)
 	list(APPEND DEFINES ${WINDOWS_DEFINES})
-
+	# WIN32 BASE DEFINES (Common for everything windows)
 	# WIN32 defines
 	if(DEFINED PLATFORM_32BITS)
 		list(APPEND DEFINES ${WIN32_DEFINES})
@@ -49,6 +101,18 @@ if(DEFINED POSIX)
 
 endif(DEFINED POSIX)
 
+if(THIS_IS_A_LIBRARY EQUAL 1)
+	# Defines for shared libraries
+	if(SHARED_LIB EQUAL 1)
+	
+	endif(SHARED_LIB EQUAL 1)
+	
+	# Defines for static libraries
+	if(STATIC_LIB EQUAL 1)
+	
+	endif(STATIC_LIB EQUAL 1)
+endif(THIS_IS_A_LIBRARY EQUAL 1)
+
 #================================================#
 # Now handle the sources
 #================================================#
@@ -61,9 +125,25 @@ if(DEFINED POSIX)
 endif(DEFINED POSIX)
 
 #================================================#
-# Now handle the link libraries
+# Now handle the link libraries 
+# (at least the user defined ones)
 #================================================#
+
+# needed for dlls and exes on windows
+if(THIS_IS_A_EXE EQUAL 1 OR THIS_IS_A_SHARED_LIB EQUAL 1)
+	list(APPEND WINDOWS_LINK_LIBS	shell32.lib
+									user32.lib
+									advapi32.lib
+									gdi32.lib
+									comdlg32.lib
+									ole32.lib)
+endif(THIS_IS_A_EXE EQUAL 1 OR THIS_IS_A_SHARED_LIB EQUAL 1)
+list(APPEND POSIX_LINK_LIBS 		tcmalloc_minimal)
+
 if(DEFINED WINDOWS)
+	# Generic windows libs
+	list(APPEND LINK_LIBS ${WINDOWS_LINK_LIBS})
+	
 	# WIN32 libs
 	if(DEFINED PLATFORM_32BITS)
 		list(APPEND LINK_LIBS ${WIN32_LINK_LIBS})
@@ -76,6 +156,9 @@ if(DEFINED WINDOWS)
 endif(DEFINED WINDOWS)
 
 if(DEFINED POSIX)
+	# Generic posix libs
+	list(APPEND LINK_LIBS ${POSIX_LINK_LIBS})
+	
 	# POSIX32 libs
 	if(DEFINED PLATFORM_32BITS)
 		list(APPEND LINK_LIBS ${POSIX32_LINK_LIBS})
@@ -88,7 +171,7 @@ if(DEFINED POSIX)
 endif(DEFINED POSIX)
 
 #================================================#
-# Handle he include dirs
+# Handle the include dirs
 #================================================#
 if(DEFINED WINDOWS)
 	list(APPEND INCLUDE_DIRS ${WINDOWS_INCLUDE_DIRS})
@@ -116,10 +199,16 @@ if(DEFINED POSIX)
 	endif(DEFINED PLATFORM_64BITS)
 endif(DEFINED POSIX)
 
+include_directories(${ROOT_DIR})
+
 
 #================================================#
-# Handle he link directories
+# Handle the link directories
 #================================================#
+list(APPEND POSIX_LINK_DIRS		/usr/lib/
+								/usr/lib32/)
+list(APPEND POSIX32_LINK_DIRS	/usr/lib/i386-linux-gnu/)
+list(APPEND POSIX64_LINK_DIRS	/usr/lib/x86_64-linux-gnu/)
 if(DEFINED WINDOWS)
 	list(APPEND LINK_DIRS	${WINDOWS_LINK_DIRS})
 	# WIN32 includlinkes
@@ -159,11 +248,31 @@ if(DEFINED THIS_IS_A_LIBRARY)
 	else()
 		add_library(${TARGET} STATIC ${SRCS})
 	endif(SHARED_LIB)
+	set_target_properties(${TARGET} PROPERTIES ENABLE_EXPORTS 1)
 endif(DEFINED THIS_IS_A_LIBRARY)
 
 if(DEFINED THIS_IS_A_EXE)
 	add_executable(${TARGET} ${SRCS})
 endif(DEFINED THIS_IS_A_EXE)
+
+#================================================#
+# Handle all the link libraries
+#================================================#
+#
+# For Win32, we need to link against these by default:
+#	-	shell32.lib
+#	-	user32.lib
+#	-	advapi32.lib
+#	-	gdi32.lib
+#	-	comdlg32.lib
+#	-	ole32.lib
+#
+# For all projects, we need to link against these:
+# 	-	vstdlib
+# 	-	tier0
+# 	-	tier1
+#
+#
 
 
 # leave empty
@@ -172,10 +281,19 @@ set(ACTUAL_LIBS )
 # We can loop through all the libs and use find library to
 # find everything the user specified
 foreach(link_lib IN LISTS LINK_LIBS)
-	find_library(lib_path NAMES ${link_lib} PATHS ${LINK_DIRS})
-	list(APPEND ACTUAL_LIBS ${lib_path})
+	set(LIB_${link_lib} "lib_path-NOTFOUND")
+	find_library(LIB_${link_lib} NAMES ${link_lib} PATHS ${LINK_DIRS})
+	
+	# If libs are not found...
+	if(LIB_${link_lib} EQUAL "LIB_${link_lib}-NOTFOUND")
+		message(WARN "Unable to find library ${link_lib}!")
+	else()
+		list(APPEND ACTUAL_LIBS ${LIB_${link_lib}})
+	endif(LIB_${link_lib} EQUAL "LIB_${link_lib}-NOTFOUND")
+	
 endforeach(link_lib IN LISTS LINK_LIBS)
 
 target_include_directories(${TARGET} PUBLIC ${INCLUDE_DIRS})
 target_link_libraries(${TARGET} ${ACTUAL_LIBS})
+target_link_libraries(${TARGET} ${DEPENDENCIES})
 set_target_properties(${TARGET} PROPERTIES LINKER_LANGUAGE CXX)

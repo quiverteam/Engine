@@ -18,6 +18,7 @@ option(CLANG_BUILD "Enables the use of Clang instead of MSVC/GCC" OFF)
 option(DEV_BUILD "Enables development builds" ON)
 option(SERVER_BUILD "Specifies this build as a server build" OFF)
 option(BUILD_64BIT "Specifies this build as 64-bit. Experiemental." OFF)
+option(RELEASE "Enable this to build as a release build" OFF)
 
 # Definitions that should always be enabled
 add_definitions(-DFRAME_POINTER_OMISSION_DISABLED)

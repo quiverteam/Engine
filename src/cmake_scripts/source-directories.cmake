@@ -22,4 +22,4 @@ set(LZMA_INCLUDE	${COMMON_INCLUDE}/lzma)
 set(LZMA_SRCS		${THIRDPARTY_DIR}/lzma)
 
 link_directories(${LIBCOMMON} ${LIBPUBLIC})
-include_directories(${PUBLIC_INCLUDE} ${COMMON_INCLUDE})
+include_directories(${PUBLIC_INCLUDE} ${COMMON_INCLUDE} ${TIER1_INCLUDE} ${TIER0_INCLUDE})
