@@ -19,6 +19,12 @@ option(DEV_BUILD "Enables development builds" ON)
 option(SERVER_BUILD "Specifies this build as a server build" OFF)
 option(BUILD_64BIT "Specifies this build as 64-bit. Experiemental." OFF)
 option(RELEASE "Enable this to build as a release build" OFF)
+option(GAMES_ONLY "Build only the game projects and required utils" OFF)
+option(BUILD_EVERYTHING "Build everything" ON)
+option(HL2 "Build HL2 game stuff" ON)
+option(EP1 "Build HL2:EP1 game stuff" ON)
+option(HL2MP "Build HL2MP game stuff" ON)
+option(HL2R "Build HL2:Revamped game stuff" ON)
 
 # Definitions that should always be enabled
 add_definitions(-DFRAME_POINTER_OMISSION_DISABLED)
@@ -131,10 +137,15 @@ set(ROOT_DIR ${CMAKE_HOME_DIRECTORY})
 include(cmake_scripts/source-directories.cmake)
 include(cmake_scripts/source-base.cmake)
 
-
-
+add_subdirectory(mathlib)
 add_subdirectory(tier0)
 add_subdirectory(tier1)
 add_subdirectory(tier2)
 add_subdirectory(tier3)
 add_subdirectory(tier4)
+add_subdirectory(vstdlib)
+add_subdirectory(filesystem)
+add_subdirectory(appframework)
+add_subdirectory(launcher)
+add_subdirectory(launcher_main)
+
