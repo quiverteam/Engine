@@ -24,13 +24,8 @@ steps:
     script: '
       cd src\
       
-      devtools\bin\vpc.exe /hl2 /hl2mp /episodic /hl2r +game +utils +tools -bsppack -bzip2 -ep2_deathmap -vtex_dll -vtex_launcher -normal2ssbump -height2normal -height2ssbump /define:VS2019 /mksln engine_and_tools.sln
+      devtools\bin\vpc.exe /allgames +game -stdshader_dbg -stdshader_dx9 /define:VS2019 /mksln engine.sln
     '
-
-# Run VPC Batch Script
-- task: BatchScript@1
-  inputs:
-    filename: 'src/_create_coreprojects.bat'
 
 # Build Core Projects
 - task: MSBuild@1
