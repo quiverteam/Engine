@@ -167,3 +167,5 @@ game/bin/osx64/
 src/build/
 
 build/
+
+src/\.idea/
