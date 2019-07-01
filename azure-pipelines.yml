@@ -27,17 +27,18 @@ steps:
       devtools\bin\vpc.exe +core /define:VS2019 /mksln core.sln
     '
 
-# Build Core Projects
-- task: MSBuild@1
-  displayName: Build Projects
+- task: VSBuild@1
   inputs:
-    solution: "src/core.sln" #"**/*.sln"
-    configuration: "Release"
+    solution: 'src\core.sln'
+    configuration: 'Release'
+    #clean: true
+    maximumCpuCount: true
 
 # Build all the shaders
-- task: BatchScript@1
-  inputs:
-    filename: 'src/materialsystem/stdshaders/_buildallshaders.bat'
+# TODO: fix the _buildshaders.bat call
+#- task: BatchScript@1
+#  inputs:
+#    filename: 'src/materialsystem/stdshaders/_buildallshaders.bat'
 
 # Now generate the engine projects
 - task: CmdLine@2
@@ -51,8 +52,9 @@ steps:
     '
 
 # Build Engine Projects
-- task: MSBuild@1
-  displayName: Build Projects
+- task: VSBuild@1
   inputs:
-    solution: "src/engine.sln" #"**/*.sln"
-    configuration: "Release"
+    solution: 'src\engine.sln'
+    configuration: 'Release'
+    #clean: true
+    maximumCpuCount: true
