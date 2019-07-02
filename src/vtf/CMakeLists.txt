@@ -41,7 +41,7 @@ set(POSIX64_LINK_DIRS	)
 set(LINK_LIBS			)
 
 # Other projects this one depends on
-set(DEPENDENCIES vstdlib tier1)
+set(DEPENDENCIES 		)
 
 # Platform specific link libs
 set(WINDOWS_LINK_LIBS	)
