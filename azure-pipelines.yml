@@ -21,7 +21,8 @@ steps:
   inputs:
     workingDirectory: "$(Build.Repository.LocalPath)"
     script: '
-      cd src\
+      cd src/
+
       devtools\bin\vpc.exe +core /define:VS2019 /mksln core.sln
     '
     
@@ -38,7 +39,8 @@ steps:
   inputs:
     workingDirectory: "$(Build.Repository.LocalPath)"
     script: '
-      cd src\materialsystem\stdshaders\
+      cd src/materialsystem/stdshaders/
+
       call _buildallshaders.bat
     '
 
@@ -47,7 +49,7 @@ steps:
   inputs:
     workingDirectory: "$(Build.Repository.LocalPath)"
     script: '
-      cd src\
+      cd src/
       
       devtools\bin\vpc.exe /allgames +game /define:VS2019 /mksln engine.sln
     '
