@@ -1,17 +1,14 @@
-//===== Copyright © 1996-2005, Valve Corporation, All rights reserved. ======//
+//===== Copyright ï¿½ 1996-2005, Valve Corporation, All rights reserved. ======//
 //
 // Purpose: 
 //
 //===========================================================================//
 
 
-#if !defined( _X360 )
+#ifdef _WIN32
 #include <wtypes.h>
 #include <winuser.h>
 #include "xbox/xboxstubs.h"
-#else
-#include "xbox/xbox_win32stubs.h"
-#endif
 
 #include "key_translation.h"
 #include "tier1/convar.h"
@@ -725,3 +722,5 @@ CON_COMMAND( key_updatelayout, "Updates game keyboard layout to current windows 
 {
 	ButtonCode_UpdateScanCodeLayout();
 }
+
+#endif //_WIN32

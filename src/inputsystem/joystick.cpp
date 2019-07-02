@@ -1,4 +1,4 @@
-//===== Copyright © 1996-2005, Valve Corporation, All rights reserved. ======//
+//===== Copyright ï¿½ 1996-2005, Valve Corporation, All rights reserved. ======//
 //
 // Purpose: PC Joystick implementation for inputsystem.dll
 //
@@ -17,6 +17,8 @@
 
 ConVar joy_wwhack1( "joy_wingmanwarrior_centerhack", "0", FCVAR_ARCHIVE, "Wingman warrior centering hack." );
 ConVar joy_axisbutton_threshold( "joy_axisbutton_threshold", "0.3", FCVAR_ARCHIVE, "Analog axis range before a button press is registered." );
+
+#ifdef USE_OLD_INPUTSYSTEM
 
 //-----------------------------------------------------------------------------
 // Initialize all joysticks 
@@ -363,3 +365,5 @@ void CInputSystem::PollJoystick( void )
 		UpdateJoystickPOVControl( i );
 	}
 }
+
+#endif //USE_OLD_INPUTSYSTEM
