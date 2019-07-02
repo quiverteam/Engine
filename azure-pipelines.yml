@@ -28,22 +28,16 @@ steps:
     '
     
 - task: DevEnvBuild@2
+  displayName: Build the core projects
   inputs:
     solution: 'src\core.sln'
     buildCfg: 'Release'
     vsVersion: 'latest'
-#    clean: true
-
-#- task: VSBuild@1
-#  inputs:
-#    solution: 'src\core.sln'
-#    configuration: 'Release'
-#    #clean: true
-#    maximumCpuCount: true
 
 # Build all the shaders
 # TODO: fix the _buildshaders.bat call
 - task: BatchScript@1
+  displayName: Build shaders
   inputs:
     filename: 'src/materialsystem/stdshaders/_buildallshaders.bat'
 
@@ -58,12 +52,9 @@ steps:
       devtools\bin\vpc.exe /allgames +game -stdshader_dbg -stdshader_dx9 /define:VS2019 /mksln engine.sln
     '
 
-
-
-# Build Engine Projects
-- task: VSBuild@1
+- task: DevEnvBuild@2
+  displayName: Build the engine
   inputs:
     solution: 'src\engine.sln'
-    configuration: 'Release'
-    #clean: true
-    maximumCpuCount: true
+    buildCfg: 'Release'
+    vsVersion: 'latest'
