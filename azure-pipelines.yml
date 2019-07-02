@@ -23,13 +23,44 @@ steps:
     script: '
       cd src/
 
-      devtools\bin\vpc.exe +core /define:VS2019 /mksln core.sln
+      devtools\bin\vpc_patched.exe +core /define:VS2019 /mksln core.sln
     '
     
+
+- task: PythonScript@0
+  displayName: Running a dirty hack to fix the fucked sln file from patched VPC
+  inputs:
+    scriptSource: 'inline'
+    script: 'import sys
+
+      def FindArgument( search ):
+          if search in sys.argv:
+              index = 0
+              for arg in sys.argv:
+                  if search == sys.argv[ index ]:
+                      return sys.argv[ index + 1 ]
+                  index += 1
+          else:
+              return False
+
+      broken_sln_path = FindArgument( "-sln" )
+
+      broken_sln = open( broken_sln_path, "r", encoding = "utf-8" )
+      sln_lines = broken_sln.readlines()
+      broken_sln.close()
+
+      with open( broken_sln_path.rsplit( ".sln", 1 )[0] + "_fixed.sln", mode = "w", encoding = "utf-8" ) as fixed_sln:
+          for line in sln_lines:
+              if line.startswith( "Project(\"\")" ):
+                  line = "Project(\"!\")" + line.split( "Project(\"\")", 1 )[1]
+              fixed_sln.write( line )'
+    arguments: '-sln "%cd%\src\core.sln"'
+
+
 - task: DevEnvBuild@2
   displayName: Build the core projects
   inputs:
-    solution: 'src\core.sln'
+    solution: 'src\core_fixed.sln'
     buildCfg: 'Release'
     vsVersion: 'latest'
     clean: true
@@ -51,16 +82,44 @@ steps:
     script: '
       cd src/
       
-      devtools\bin\vpc.exe /allgames +game /define:VS2019 /mksln engine.sln
+      devtools\bin\vpc_patched.exe /allgames +game /define:VS2019 /mksln engine.sln
     '
+
+- task: PythonScript@0
+  displayName: Running a dirty hack to fix the fucked sln file from patched VPC
+  inputs:
+    scriptSource: 'inline'
+    script: 'import sys
+
+      def FindArgument( search ):
+          if search in sys.argv:
+              index = 0
+              for arg in sys.argv:
+                  if search == sys.argv[ index ]:
+                      return sys.argv[ index + 1 ]
+                  index += 1
+          else:
+              return False
+
+      broken_sln_path = FindArgument( "-sln" )
+
+      broken_sln = open( broken_sln_path, "r", encoding = "utf-8" )
+      sln_lines = broken_sln.readlines()
+      broken_sln.close()
+
+      with open( broken_sln_path.rsplit( ".sln", 1 )[0] + "_fixed.sln", mode = "w", encoding = "utf-8" ) as fixed_sln:
+          for line in sln_lines:
+              if line.startswith( "Project(\"\")" ):
+                  line = "Project(\"!\")" + line.split( "Project(\"\")", 1 )[1]
+              fixed_sln.write( line )'
+    arguments: '-sln "%cd%\src\engine.sln"'
 
 - task: DevEnvBuild@2
   displayName: Build the engine
   inputs:
-    solution: 'src\engine.sln'
+    solution: 'src\engine_fixed.sln'
     buildCfg: 'Release'
     vsVersion: 'latest'
     clean: true
-    # i really don't want to use "clean: true", but otherwise it just kills itself if i don't
 
 
