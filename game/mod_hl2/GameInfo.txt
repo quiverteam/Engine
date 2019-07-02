@@ -20,7 +20,7 @@
 			game				hl2/hl2_misc.vpk
 			game				hl2
 			core				core
-		//	shader_src			|gameinfo_path|../../src/materialsystem/stdshaders [$DEV]
+			shader_src			|gameinfo_path|../../src/materialsystem/stdshaders [$DEV]
 		}
 	}
 }
