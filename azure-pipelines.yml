@@ -16,14 +16,12 @@ pool:
 
 steps:
 
-# Generate the core projects
 - task: CmdLine@2
-  displayName: Generate Projects
+  displayName: Generate Core Projects
   inputs:
     workingDirectory: "$(Build.Repository.LocalPath)"
     script: '
       cd src\
-      
       devtools\bin\vpc.exe +core /define:VS2019 /mksln core.sln
     '
     
@@ -35,22 +33,23 @@ steps:
     vsVersion: 'latest'
     clean: true
 
-# Build all the shaders
-# TODO: fix the _buildshaders.bat call
-- task: BatchScript@1
-  displayName: Build shaders
-  inputs:
-    filename: 'src/materialsystem/stdshaders/_buildallshaders.bat'
-
-# Now generate the engine projects
 - task: CmdLine@2
-  displayName: Generate Projects
+  displayName: Build All Shaders
+  inputs:
+    workingDirectory: "$(Build.Repository.LocalPath)"
+    script: '
+      cd src\materialsystem\stdshaders\
+      call _buildallshaders.bat
+    '
+
+- task: CmdLine@2
+  displayName: Generate Engine Projects
   inputs:
     workingDirectory: "$(Build.Repository.LocalPath)"
     script: '
       cd src\
       
-      devtools\bin\vpc.exe /allgames +game -stdshader_dbg -stdshader_dx9 /define:VS2019 /mksln engine.sln
+      devtools\bin\vpc.exe /allgames +game /define:VS2019 /mksln engine.sln
     '
 
 - task: DevEnvBuild@2
@@ -60,3 +59,6 @@ steps:
     buildCfg: 'Release'
     vsVersion: 'latest'
     clean: true
+    # i really don't want to use "clean: true", but otherwise it just kills itself if i don't
+
+
