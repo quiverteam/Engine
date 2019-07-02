@@ -33,6 +33,7 @@ steps:
     solution: 'src\core.sln'
     buildCfg: 'Release'
     vsVersion: 'latest'
+    clean: true
 
 # Build all the shaders
 # TODO: fix the _buildshaders.bat call
@@ -58,3 +59,4 @@ steps:
     solution: 'src\engine.sln'
     buildCfg: 'Release'
     vsVersion: 'latest'
+    clean: true
