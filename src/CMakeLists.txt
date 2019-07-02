@@ -148,4 +148,5 @@ add_subdirectory(filesystem)
 add_subdirectory(appframework)
 add_subdirectory(launcher)
 add_subdirectory(launcher_main)
-
+add_subdirectory(inputsystem)
+#add_subdirectory(togl)
