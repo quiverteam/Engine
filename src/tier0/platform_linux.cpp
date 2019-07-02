@@ -276,3 +276,8 @@ PLATFORM_INTERFACE unsigned int Plat_GetTickCount()
 
 	return (unsigned)(atof(uptime) / 1000.0f);
 }
+
+bool Plat_IsInDebugSession()
+{
+	return false; /* None of dat shit */
+}
