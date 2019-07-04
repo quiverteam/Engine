@@ -1007,7 +1007,6 @@ bool CThreadMutex::TryLock()
 //
 //-----------------------------------------------------------------------------
 
-#ifndef _LINUX
 void CThreadFastMutex::Lock( const uint32 threadId, unsigned nSpinSleepTime ) volatile 
 {
 	int i;
@@ -1069,7 +1068,6 @@ void CThreadFastMutex::Lock( const uint32 threadId, unsigned nSpinSleepTime ) vo
 		}
 	}
 }
-#endif // !linux
 
 //-----------------------------------------------------------------------------
 //

@@ -1,1 +1,0 @@
-python3 createprojects.py -p windows -p posix

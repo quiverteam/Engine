@@ -1,11 +1,14 @@
-//========= Copyright © 1996-2005, Valve Corporation, All rights reserved. ====
+//========= Copyright ï¿½ 1996-2005, Valve Corporation, All rights reserved. ====
 //
 //=============================================================================
 
+#ifdef _WIN32
 #include <windows.h>
+#endif //_WIN32
+
 #include <tier0/dbg.h>
 #include <io.h>
-#include <WorldSize.h>
+#include <worldsize.h>
 #include "fgdlib/GameData.h"
 #include "fgdlib/HelperInfo.h"
 #include "KeyValues.h"

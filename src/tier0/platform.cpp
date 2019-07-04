@@ -8,10 +8,8 @@
 #include "pch_tier0.h"
 #include <time.h>
 
-#ifdef _LINUX
-#include "platform_linux.cpp"
-#else
-#if defined(_WIN32) && !defined(_X360)
+#ifdef _WIN32
+#if defined(_WIN32)
 #define WINDOWS_LEAN_AND_MEAN
 #define _WIN32_WINNT 0x0502
 #include <windows.h>

@@ -113,8 +113,9 @@ int CInputSystem::GetAnalogValue(AnalogCode_t code) const
 			int x = 0, y = 0;
 			SDL_GetRelativeMouseState(&x, &y);
 			return x;
+			break;
 		case MOUSE_Y:
-			int x = 0, y = 0;
+			x = 0, y = 0;
 			SDL_GetRelativeMouseState(&x, &y);
 			return y;
 			break;

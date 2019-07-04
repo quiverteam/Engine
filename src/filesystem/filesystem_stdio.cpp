@@ -1,13 +1,11 @@
-//====== Copyright © 1996-2005, Valve Corporation, All rights reserved. =======//
+//====== Copyright ï¿½ 1996-2005, Valve Corporation, All rights reserved. =======//
 //
 // Purpose: 
 //
 // $NoKeywords: $
 //=============================================================================//
 
-#ifdef _LINUX
-#include "linux_support.cpp"
-#endif
+#ifdef _WIN32
 #ifdef _WIN32
 #include <io.h>
 #include <fcntl.h>
@@ -1335,3 +1333,4 @@ char *CWin32ReadOnlyFile::FS_fgets( char *dest, int destSize )
 
 
 #endif
+#endif //_WIN32

@@ -5,6 +5,7 @@
 // $Workfile:     $
 // $NoKeywords: $
 //=============================================================================//
+#ifdef _POSIX
 
 #ifdef _LINUX64
 #define cpuid(in,a,b,c,d)	\
@@ -55,3 +56,4 @@ bool Check3DNowTechnology(void)
     }
     return false;
 }
+#endif
