@@ -25,6 +25,7 @@ option(HL2 "Build HL2 game stuff" ON)
 option(EP1 "Build HL2:EP1 game stuff" ON)
 option(HL2MP "Build HL2MP game stuff" ON)
 option(HL2R "Build HL2:Revamped game stuff" ON)
+option(POSIX_UNSUPPORT "Enable project generation for things not quite ported to posix yet" OFF)
 
 # Definitions that should always be enabled
 add_definitions(-DFRAME_POINTER_OMISSION_DISABLED)
@@ -152,6 +153,23 @@ add_subdirectory(inputsystem)
 add_subdirectory(vtf)
 add_subdirectory(bitmap)
 add_subdirectory(choreoobjects)
-#add_subdirectory(fgdlib)
+add_subdirectory(studiorender)
 add_subdirectory(utils/bsppack)
+add_subdirectory(materialsystem/shaderlib)
+add_subdirectory(materialsystem)
+add_subdirectory(materialsystem/shaderapiempty)
+add_subdirectory(materialsystem/shaderapivk)
+add_subdirectory(materialsystem/shaderapigl)
+
+# rip togl
 #add_subdirectory(togl)
+
+if(WINDOWS_BUILD EQUAL 1 OR UNIX_CROSS)
+	add_subdirectory(materialsystem/shaderapidx9)
+endif(WINDOWS_BUILD EQUAL 1 OR UNIX_CROSS)
+
+if(POSIX_UNSUPPORT OR WINDOWS_BUILD EQUAL 1)
+	add_subdirectory(vgui2/vgui_surfacelib)
+	add_subdirectory(vgui2/vgui_controls)
+	add_subdirectory(vgui2/src)
+endif(POSIX_UNSUPPORT OR WINDOWS_BUILD EQUAL 1)
