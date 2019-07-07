@@ -1,8 +1,10 @@
-//========= Copyright © 1996-2005, Valve Corporation, All rights reserved. ============//
+//========= Copyright ï¿½ 1996-2005, Valve Corporation, All rights reserved. ============//
 //
 // Purpose: 
 //
 //=====================================================================================//
+
+#ifdef _WIN32
 
 #pragma warning( disable : 4244 ) // conversion from 'double' to 'float', possible loss of data
 
@@ -610,3 +612,5 @@ bool CWin32Font::ExtendedABCWidthsCacheLessFunc(const abc_cache_t &lhs, const ab
 {
 	return lhs.wch < rhs.wch;
 }
+
+#endif //_WIN32

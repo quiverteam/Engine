@@ -1,10 +1,12 @@
-//========= Copyright © 1996-2005, Valve Corporation, All rights reserved. ============//
+//========= Copyright ï¿½ 1996-2005, Valve Corporation, All rights reserved. ============//
 //
 // Purpose: Xbox 360 support for TrueType Fonts. The only cuurent solution is to use XUI
 // to mount the TTF, and rasterize glyph into a render target. XUI does not support
 // rasterization directly to a system memory region.
 //
 //=====================================================================================//
+
+#ifdef _X360
 
 #include <stdio.h>
 #include <string.h>
@@ -312,3 +314,5 @@ void CWin32Font::CloseResource()
 	FontManager().MaterialSystem()->CloseTrueTypeFont( m_hFont );
 	m_hFont = NULL;
 }
+
+#endif
