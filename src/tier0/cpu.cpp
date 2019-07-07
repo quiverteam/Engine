@@ -1,13 +1,9 @@
-//========= Copyright © 1996-2005, Valve Corporation, All rights reserved. ============//
+//========= Copyright ï¿½ 1996-2005, Valve Corporation, All rights reserved. ============//
 //
 // Purpose: 
 //
 // $NoKeywords: $
 //=============================================================================//
-
-#ifdef _LINUX
-#include "cpu_linux.cpp"
-#endif
 
 #include "pch_tier0.h"
 
@@ -340,4 +336,3 @@ const CPUInformation* GetCPUInformation()
 
 	return &pi;
 }
-

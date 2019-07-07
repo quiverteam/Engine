@@ -1,4 +1,4 @@
-//===== Copyright © 1996-2005, Valve Corporation, All rights reserved. ======//
+//===== Copyright ï¿½ 1996-2005, Valve Corporation, All rights reserved. ======//
 //
 // Purpose: 
 //
@@ -8,9 +8,7 @@
 
 #include "pch_tier0.h"
 
-#ifdef _LINUX
-#include "vcrmode_linux.cpp"
-#else
+#ifdef _WIN32
 
 #ifdef _WIN32
 #define WIN_32_LEAN_AND_MEAN

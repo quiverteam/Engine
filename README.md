@@ -21,9 +21,24 @@ You can run the engine with run_mod_hl2.bat or run_hl2r.bat.
 
 NOTE: not all projects build at the moment.
 
-### Linux and MacOS
+### Linux
 
-Linux and MacOS support is currently being worked on in the posix-support branch. If you want to help, See Supporting Non-Windows Platforms.
+Currently, Linux support is incomplete, but regardless, if you wish to build under Linux, you'll need tcmalloc, SDL2 and CMake.
+Installing these on Debian is pretty straight forward:
+```sh
+sudo apt install libsdl2-dev:i386 libgoogle-perftools-dev:i386 cmake
+```
+If you'd like to build Quiver for x64, you will need to install the 64-bit versions of those packages too.
+
+Now to build Quiver:
+```
+mkdir build && cd build
+cmake ../ <your options here> && make
+```
+To see a list of the available build options, do `cmake --help` in the root directory.
+
+### MacOS
+Currently no support for MacOS is planned. Apple doesn't make it easy to support Macs anymore.
 
 ## How you can help
 

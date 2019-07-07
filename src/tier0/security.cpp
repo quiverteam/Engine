@@ -1,4 +1,4 @@
-//========= Copyright © 1996-2005, Valve Corporation, All rights reserved. ============//
+//========= Copyright ï¿½ 1996-2005, Valve Corporation, All rights reserved. ============//
 //
 // Purpose: Platform level security functions.
 //
@@ -6,6 +6,8 @@
 
 // Uncomment the following line to require the prescence of a hardware key.
 //#define REQUIRE_HARDWARE_KEY
+
+#ifdef _WIN32
 
 #include "pch_tier0.h"
 #if defined( _WIN32 ) && !defined( _X360 )
@@ -108,4 +110,6 @@ bool Plat_FastVerifyHardwareKey()
 	return true;
 #endif
 }
+
+#endif //_WIN32
 

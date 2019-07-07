@@ -1,9 +1,11 @@
-//===== Copyright © 1996-2005, Valve Corporation, All rights reserved. ======//
+//===== Copyright ï¿½ 1996-2005, Valve Corporation, All rights reserved. ======//
 //
 // Purpose: 
 //
 // $NoKeywords: $
 //===========================================================================//
+
+#ifdef _WIN32
 
 #define WIN32_LEAN_AND_MEAN
 #define OEMRESOURCE
@@ -4046,3 +4048,5 @@ static LRESULT CALLBACK staticProc(HWND hwnd,UINT msg,WPARAM wparam,LPARAM lpara
 	}
 	return TRUE;
 }
+
+#endif //_WIN32

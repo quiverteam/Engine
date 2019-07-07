@@ -152,13 +152,20 @@ modeswitchsave.tga
 /game/bin/win32/*.vdf
 GameConfig.txt
 
-
-# Devtools stuff
-!src/devtools/*.mak
+CMakeFiles/
+cmake-build-debug/
+cmake-build-release/
+src/out/
+CMakeSettings.json
 
 # Annoying crap in game/bin
 game/bin/linux32/
 game/bin/linux64/
+game/bin/osx32/
+game/bin/osx64/
 
+src/build/
 
 build/
+
+src/\.idea/

@@ -1,12 +1,12 @@
-//===== Copyright © 1996-2005, Valve Corporation, All rights reserved. ======//
+//===== Copyright ï¿½ 1996-2005, Valve Corporation, All rights reserved. ======//
 //
 // Purpose: 
 //
 //===========================================================================//
 
-#if !defined( _X360 )
+#ifdef _WIN32
+
 #include <windows.h>
-#endif
 #include "vstdlib/iprocessutils.h"
 #include "tier1/utllinkedlist.h"
 #include "tier1/utlstring.h"
@@ -468,6 +468,8 @@ void CProcessUtils::WaitUntilProcessCompletes( ProcessHandle_t hProcess )
 
 	m_hCurrentProcess = PROCESS_HANDLE_INVALID;
 }
+
+#endif //_WIN32
 
 
 

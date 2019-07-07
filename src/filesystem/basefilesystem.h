@@ -1,4 +1,4 @@
-//===== Copyright © 1996-2005, Valve Corporation, All rights reserved. ======//
+//===== Copyright ï¿½ 1996-2005, Valve Corporation, All rights reserved. ======//
 //
 // Purpose: 
 //
@@ -35,7 +35,7 @@
 #elif defined(_LINUX)
 	#include <unistd.h> // unlink
 	#include "linux_support.h"
-	#define HANDLE int
+	//#define HANDLE int
 	#define INVALID_HANDLE_VALUE -1
 
 	// undo the prepended "_" 's

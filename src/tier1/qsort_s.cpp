@@ -29,6 +29,8 @@
 **  swap nbytes between a and b
 */
 
+#ifdef _POSIX
+
 static void swap_bytes(char *a, char *b, size_t nbytes)
 {
    char tmp;
@@ -109,4 +111,4 @@ extern "C" void qsort_s(void *basep, size_t nelems, size_t size,
    }
 }
 
-
+#endif
