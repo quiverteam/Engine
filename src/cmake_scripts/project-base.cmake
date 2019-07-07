@@ -244,6 +244,43 @@ if(DEFINED POSIX)
 endif(DEFINED POSIX)
 
 #================================================#
+# Handle special cases
+#================================================#
+set(ACTUAL_LIBS	)
+# Find vulkan
+if(USE_VULKAN EQUAL 1)
+	find_package(Vulkan REQUIRED)
+	if(NOT Vulkan_FOUND)
+		message(FATAL_ERROR "Unable to find vulkan!")
+	else()
+		list(APPEND ACTUAL_LIBS ${Vulkan_LIBRARIES})
+		list(APPEND INCLUDE_DIRS ${Vulkan_INCLUDE_DIRS})
+	endif(NOT Vulkan_FOUND)
+endif(USE_VULKAN EQUAL 1)
+
+# Find OpenGL
+if(USE_OPENGL EQUAL 1)
+	find_package(OpenGL REQUIRED)
+	if(NOT OpenGL_FOUND)
+		message(FATAL_ERROR "Unable to find OpenGL!")
+	else()
+		list(APPEND ACTUAL_LIBS ${OpenGL_LIBRARIES})
+		list(APPEND INCLUDE_DIRS ${OpenGL_INCLUDE_DIRS})
+	endif(NOT OpenGL_FOUND)
+endif(USE_OPENGL EQUAL 1)
+
+# For needed packages
+foreach(package IN LISTS PACKAGES)
+	find_package(${package} REQUIRED)
+	if(NOT ${package}_FOUND)
+		message(FATAL_ERROR "Unable to find package ${package}!")
+	else()
+		list(APPEND ACTUAL_LIBS ${${package}_LIBRARIES})
+		list(APPEND INCLUDE_DIRS ${${package}_INCLUDE_DIRS})
+	endif(NOT ${package}_FOUND)
+endforeach(package IN LISTS PACKAGES)
+
+#================================================#
 # Add the target
 #================================================#
 if(NOT SHARED_LIB AND NOT STATIC_LIB AND THIS_IS_A_LIBRARY)
@@ -281,10 +318,6 @@ endif(DEFINED THIS_IS_A_EXE)
 # 	-	tier1
 #
 #
-
-
-# leave empty
-set(ACTUAL_LIBS )
 
 # We can loop through all the libs and use find library to
 # find everything the user specified
