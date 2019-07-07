@@ -1,4 +1,4 @@
-//========= Copyright © 1996-2005, Valve Corporation, All rights reserved. ============//
+//========= Copyright ï¿½ 1996-2005, Valve Corporation, All rights reserved. ============//
 //
 // Purpose: 
 //
@@ -466,7 +466,7 @@ public:
 	// This here should be the major item looked at when checking for compat
 	// from anywhere other than the material system	shaders
 	virtual int	 GetDXSupportLevel() const			{ return 90; }
-	virtual const char *GetShaderDLLName() const	{ return false; }
+	virtual const char *GetShaderDLLName() const	{ return 0; }
 
 	virtual bool ReadPixelsFromFrontBuffer() const	{ return false; }
 

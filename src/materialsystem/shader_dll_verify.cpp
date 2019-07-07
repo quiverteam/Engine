@@ -1,8 +1,10 @@
-//====== Copyright © 1996-2005, Valve Corporation, All rights reserved. =======
+//====== Copyright ï¿½ 1996-2005, Valve Corporation, All rights reserved. =======
 //
 // Purpose: 
 //
 //=============================================================================
+
+#ifdef _WIN32
 
 #include <windows.h>
 #include "shader_dll_verify.h"
@@ -94,3 +96,5 @@ CRC32_t CShaderDLLVerification::Function5()
 {
 	return 32423;
 }
+
+#endif
