@@ -37,6 +37,11 @@ cmake ../ <your options here> && make
 ```
 To see a list of the available build options, do `cmake --help` in the root directory.
 
+If you want to build the Vulkan Shader API, you'll need to install the LunarG Vulkan SDK, as detailed [here](https://vulkan.lunarg.com/doc/sdk/1.1.108.0/linux/getting_started_ubuntu.html). You will also need to install the following package:
+```
+sudo apt install libvulkan1:i386
+```
+
 ### MacOS
 Currently no support for MacOS is planned. Apple doesn't make it easy to support Macs anymore.
 
