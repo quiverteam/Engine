@@ -41,7 +41,7 @@ mxTreeView::mxTreeView (mxWindow *parent, int x, int y, int w, int h, int id)
 				(HMENU) id, (HINSTANCE) GetModuleHandle (NULL), NULL);
 	
 	SendMessage (d_this->d_hwnd, WM_SETFONT, (WPARAM) (HFONT) GetStockObject (ANSI_VAR_FONT), MAKELPARAM (TRUE, 0));
-	SetWindowLongPtr (d_this->d_hwnd, GWLP_USERDATA, (LONG) this);
+	SetWindowLongPtr (d_this->d_hwnd, GWLP_USERDATA, (LONG_PTR) this);
 
 	setHandle ((void *) d_this->d_hwnd);
 	setType (MX_TREEVIEW);
@@ -342,7 +342,7 @@ void mxTreeView::sortTree( mxTreeViewItem *parent, bool recurse,
 
 	cb.hParent = (HTREEITEM)parent;
 	cb.lParam = parameter;
-	cb.lpfnCompare = (int (__stdcall *)(long,long,long)) func;
+	cb.lpfnCompare = (int (__stdcall *)( LPARAM, LPARAM, LPARAM )) func;
 
 	TreeView_SortChildrenCB( d_this->d_hwnd, &cb, recurse );
 }
