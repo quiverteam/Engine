@@ -67,7 +67,7 @@ private:
 	};
 
 	// When the commandline contains @name, it reads the parameters from that file
-	void LoadParametersFromFile( const char *&pSrc, char *&pDst, int maxDestLen, bool bInQuotes );
+	void LoadParametersFromFile( const char *&pSrc, char *&pDst, size_t maxDestLen, bool bInQuotes );
 
 	// Parse command line...
 	void ParseCommandLine();
@@ -119,7 +119,7 @@ CCommandLine::~CCommandLine( void )
 //-----------------------------------------------------------------------------
 // Read commandline from file instead...
 //-----------------------------------------------------------------------------
-void CCommandLine::LoadParametersFromFile( const char *&pSrc, char *&pDst, int maxDestLen, bool bInQuotes )
+void CCommandLine::LoadParametersFromFile( const char *&pSrc, char *&pDst, size_t maxDestLen, bool bInQuotes )
 {
 	// Suck out the file name
 	char szFileName[ _MAX_PATH ];
@@ -166,7 +166,7 @@ void CCommandLine::LoadParametersFromFile( const char *&pSrc, char *&pDst, int m
 			*pDst++ = c;
 			
 			// Don't go past the end, and allow for our terminating space character AND a terminating null character.
-			if ( (pDst - pDestStart) >= (maxDestLen-2) )
+			if ( (pDst - pDestStart) >= (signed)(maxDestLen-2) )
 				break;
 
 			// Get the next character, if there are more
@@ -255,7 +255,7 @@ void CCommandLine::CreateCmdLine( const char *commandline )
 
 	*pDst = '\0';
 
-	int len = strlen( szFull ) + 1;
+	size_t len = strlen( szFull ) + 1;
 	m_pszCmdLine = new char[len];
 	memcpy( m_pszCmdLine, szFull, len );
 
@@ -322,8 +322,8 @@ void CCommandLine::RemoveParm( const char *pszParm )
 	// Search for first occurrence of pszParm
 	char *p, *found;
 	char *pnextparam;
-	int n;
-	int curlen;
+	size_t n;
+	size_t curlen;
 
 	p = m_pszCmdLine;
 	while ( *p )
@@ -367,7 +367,7 @@ void CCommandLine::RemoveParm( const char *pszParm )
 	// Strip and trailing ' ' characters left over.
 	while ( 1 )
 	{
-		int len = strlen( m_pszCmdLine );
+		size_t len = strlen( m_pszCmdLine );
 		if ( len == 0 || m_pszCmdLine[ len - 1 ] != ' ' )
 			break;
 
@@ -385,7 +385,7 @@ void CCommandLine::RemoveParm( const char *pszParm )
 //-----------------------------------------------------------------------------
 void CCommandLine::AppendParm( const char *pszParm, const char *pszValues )
 {
-	int nNewLength = 0;
+	size_t nNewLength = 0;
 	char *pCmdString;
 
 	nNewLength = strlen( pszParm );            // Parameter.
@@ -486,7 +486,7 @@ void CCommandLine::AddArgument( const char *pFirst, const char *pLast )
 	if ( m_nParmCount >= MAX_PARAMETERS )
 		Error( "CCommandLine::AddArgument: exceeded %d parameters", MAX_PARAMETERS );
 
-	int nLen = (int)pLast - (int)pFirst + 1;
+	size_t nLen = pLast - pFirst + 1;
 	m_ppParms[m_nParmCount] = new char[nLen];
 	memcpy( m_ppParms[m_nParmCount], pFirst, nLen - 1 );
 	m_ppParms[m_nParmCount][nLen - 1] = 0;
@@ -647,7 +647,7 @@ void CCommandLine::SetParm( int nIndex, char const *pNewParm )
 	if ( nIndex >= MAX_PARAMETERS )
 		Error( "CCommandLine::SetParm: invalid parameter index %d", nIndex );
 
-	int nLen = strlen( pNewParm );
+	size_t nLen = strlen( pNewParm );
 	m_ppParms[nIndex] = new char[nLen];
 	memcpy( m_ppParms[nIndex], pNewParm, nLen - 1 );
 	m_ppParms[nIndex][nLen - 1] = 0;
