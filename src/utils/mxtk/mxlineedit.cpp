@@ -41,7 +41,7 @@ static LRESULT CALLBACK EditWndProc (HWND hwnd, UINT uMessage, WPARAM wParam, LP
 
 		// Post the message directly to all windows in the hierarchy until
 		// someone responds
-		mxLineEdit *lineEdit = (mxLineEdit *) GetWindowLong (hwnd, GWL_USERDATA);
+		mxLineEdit *lineEdit = (mxLineEdit *) GetWindowLongPtr (hwnd, GWLP_USERDATA);
 		mxEvent event;
 		event.event = mxEvent::KeyDown;
 		event.action = lineEdit->getId();
@@ -100,7 +100,7 @@ mxLineEdit::mxLineEdit (mxWindow *parent, int x, int y, int w, int h, const char
 	
 	SendMessage ((HWND) handle, WM_SETFONT, (WPARAM) (HFONT) GetStockObject (ANSI_VAR_FONT), MAKELPARAM (TRUE, 0));
 	SendMessage ((HWND) getHandle (), EM_LIMITTEXT, (WPARAM) 256, 0L);
-	SetWindowLong ((HWND) handle, GWL_USERDATA, (LONG) this);
+	SetWindowLongPtr ((HWND) handle, GWLP_USERDATA, (LONG) this);
 
 	setHandle (handle);
 	setType (MX_LINEEDIT);

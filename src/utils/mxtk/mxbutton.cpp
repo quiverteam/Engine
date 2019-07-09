@@ -38,7 +38,7 @@ mxButton::mxButton (mxWindow *parent, int x, int y, int w, int h, const char *la
 				(HMENU) id, (HINSTANCE) GetModuleHandle (NULL), NULL);
 	
 	SendMessage ((HWND) handle, WM_SETFONT, (WPARAM) (HFONT) GetStockObject (ANSI_VAR_FONT), MAKELPARAM (TRUE, 0));
-	SetWindowLong ((HWND) handle, GWL_USERDATA, (LONG) this);
+	SetWindowLongPtr ((HWND) handle, GWLP_USERDATA, (LONG) this);
 
 	setType (MX_BUTTON);
 	setHandle (handle);
