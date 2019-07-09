@@ -13,7 +13,7 @@ $Configuration
 {
 	$Compiler
 	{
-		$PreprocessorDefinitions			"$BASE;SERVERBROWSER_EXPORTS;GAME_SRC;_USE_32BIT_TIME_T"
+		$PreprocessorDefinitions			"$BASE;SERVERBROWSER_EXPORTS;GAME_SRC"
 	}
 
 	$Linker
