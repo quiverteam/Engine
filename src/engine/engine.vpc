@@ -1195,7 +1195,8 @@ $Project "engine"
 		$Lib	"$LIBPUBLIC\tier3"
 		$Lib	"$LIBPUBLIC\vtf"
 		$Lib	"$LIBPUBLIC\vgui_controls"
-		$Lib	"$LIBPUBLIC\steam_api"
+		$Lib	"$LIBPUBLIC\steam_api" [$WIN32]
+		$Lib	"$LIBPUBLIC\steam_api64" [$WIN64]
 		
 		$Lib	"$LIBCOMMON\bzip2"
 		$Lib	"$LIBCOMMON\jpeglib"
