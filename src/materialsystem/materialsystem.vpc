@@ -138,7 +138,7 @@ $Project "MaterialSystem"
 		$File	"ITextureInternal.h"
 		$File	"MaterialSystem_Global.h"
 		$File	"OcclusionQueryMgr.h"
-		$File	"shader_dll_verify.h"		[$WIN32]
+		$File	"shader_dll_verify.h"
 		$File	"ShaderSystem.h"
 		$File	"TextureManager.h"
 	}
@@ -148,7 +148,7 @@ $Project "MaterialSystem"
 		$File	"Wireframe.cpp"
 	}
 
-	$Folder	"Link Libraries" [$WIN32]
+	$Folder	"Link Libraries"
 	{
 		$Lib	bitmap
 		$Lib	mathlib

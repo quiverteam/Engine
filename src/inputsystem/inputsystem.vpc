@@ -11,7 +11,7 @@ $include "$SRCDIR\vpc_scripts\source_dll_base.vpc"
 
 $Configuration
 {
-	$Linker [$WIN32]
+	$Linker [$WIN32||$WIN64]
 	{
 		$AdditionalDependencies			"Winmm.lib;%(AdditionalDependencies)"
 	}
