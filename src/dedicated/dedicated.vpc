@@ -147,7 +147,8 @@ $Project "Dedicated"
 
 	$Folder	"Link Libraries"
 	{
-		$Lib	steam_api
+		$Lib	steam_api	[$WIN32]
+		$Lib	steam_api64	[$WIN64]
 		$Lib	appframework
 		$Lib	mathlib
 		$Lib	tier2
