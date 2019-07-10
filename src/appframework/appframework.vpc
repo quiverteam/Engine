@@ -23,7 +23,7 @@ $Project "appframework"
 	{
 		$File	"AppSystemGroup.cpp"
 		$File	"$SRCDIR\public\filesystem_init.cpp"
-		$File	"VguiMatSysApp.cpp"	[$WIN32 || $WIN64]
+		$File	"VguiMatSysApp.cpp"	[$WINDOWS]
 		$File	"WinApp.cpp"
 	}
 
