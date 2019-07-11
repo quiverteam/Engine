@@ -18,7 +18,7 @@ $Configuration
 {
 	$Compiler
 	{
-		$AdditionalIncludeDirectories	"$BASE;$SRCDIR\dx9sdk\include"			[$WIN32]
+		$AdditionalIncludeDirectories	"$BASE;$SRCDIR\dx9sdk\include"			[$WINDOWS]
 	}
 }
 
@@ -31,7 +31,7 @@ $Project "bitmap"
 		$File	"float_bm.cpp"
 		$File	"float_bm2.cpp"
 		$File	"float_bm3.cpp"
-		$File	"float_bm4.cpp"					[$WIN32]
+		$File	"float_bm4.cpp"					[$WINDOWS]
 		$File	"float_bm_bilateral_filter.cpp"
 		$File	"float_cube.cpp"
 		$File	"imageformat.cpp"
@@ -51,9 +51,9 @@ $Project "bitmap"
 		$File	"$SRCDIR\public\bitmap\tgawriter.h"
 	}
 
-	$Folder "Link Libraries" [$WIN32]
+	$Folder "Link Libraries"
 	{
 		$File	"$LIBPUBLIC\nvtc.lib"
-		$File	"$LIBPUBLIC\ATI_Compress_MT_VC8.lib"
+		$File	"$LIBPUBLIC\ATI_Compress_MT_VC8.lib" [$WIN32]
 	}
 }
