@@ -35,7 +35,7 @@ $Project "vguimatsurface"
 		$File	"FontTextureCache.cpp"
 		$File	"Input.cpp"
 		$File	"MatSystemSurface.cpp"
-		$File	"memorybitmap.cpp"						[$WIN32]
+		$File	"memorybitmap.cpp"						[$WINDOWS]
 		$File	"TextureDictionary.cpp"
 		$File	"$SRCDIR\vgui2\src\vgui_key_translation.cpp"
 		$File	"$SRCDIR\public\vgui_controls\vgui_controls.cpp"
@@ -46,7 +46,7 @@ $Project "vguimatsurface"
 		$File	"Clip2D.h"
 		$File	"Cursor.h"
 		$File	"Input.h"
-		$File	"memorybitmap.h"						[$WIN32]
+		$File	"memorybitmap.h"						[$WINDOWS]
 		$File	"TextureDictionary.h"
 		$File	"vguimatsurface.h"
 		$File	"MatSystemSurface.h"
@@ -64,7 +64,7 @@ $Project "vguimatsurface"
 		$File	"$SRCDIR\public\filesystem_helpers.h"
 		$File	"$SRCDIR\common\vgui_surfacelib\FontAmalgam.h"
 		$File	"$SRCDIR\common\vgui_surfacelib\FontManager.h"
-		$File	"$SRCDIR\common\vgui\HtmlWindow.h"				[$WIN32]
+		$File	"$SRCDIR\common\vgui\HtmlWindow.h"				[$WINDOWS]
 		$File	"$SRCDIR\public\appframework\IAppSystem.h"
 //		$File	"$SRCDIR\public\imageloader.h"
 		$File	"$SRCDIR\public\materialsystem\imaterial.h"

@@ -19,7 +19,7 @@ $Configuration
 //		$TreatWchar_tAsBuiltinType		"No"
 	}
 
-	$Linker [$WIN32]
+	$Linker [$WINDOWS]
 	{
 		$AdditionalDependencies			"$BASE Imm32.lib Shlwapi.lib odbc32.lib odbccp32.lib winmm.lib"
 	}
@@ -40,7 +40,7 @@ $Project "vgui2"
 		$File	"Memorybitmap.h"
 		$File	"MessageListener.cpp"
 		$File	"Scheme.cpp"
-		$File	"Surface.cpp"					[$WIN32]
+		$File	"Surface.cpp"					[$WINDOWS]
 		$File	"System.cpp"
 		$File	"$SRCDIR\public\UnicodeFileHelpers.cpp"
 		$File	"vgui.cpp"
