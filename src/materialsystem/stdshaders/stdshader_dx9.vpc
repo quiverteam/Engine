@@ -32,13 +32,13 @@ $Configuration
 {
 	$Compiler
 	{
-		$AdditionalIncludeDirectories	"$BASE;fxctmp9;vshtmp9;..\..\dx9sdk\include"	[$WIN32]
+		$AdditionalIncludeDirectories	"$BASE;fxctmp9;vshtmp9;..\..\dx9sdk\include"	[$WINDOWS]
 		$PreprocessorDefinitions		"$BASE;STDSHADER_DX9_DLL_EXPORT;FAST_MATERIALVAR_ACCESS"
 	}
 
 	$Linker
 	{
-		$AdditionalDependencies			"$BASE version.lib winmm.lib"	[$WIN32]
+		$AdditionalDependencies			"$BASE version.lib winmm.lib"	[$WINDOWS]
 	}
 }
 
@@ -63,7 +63,7 @@ $Project "stdshader_dx9"
 		$File	"colorcorrection.cpp"
 		$File	"core_dx9.cpp"
 		$File	"debugmrttexture.cpp"
-		$File	"debugmorphaccumulator_dx9.cpp"					[$WIN32]
+		$File	"debugmorphaccumulator_dx9.cpp"					[$WINDOWS]
 		$File	"DebugTextureView.cpp"
 		$File	"DecalBaseTimesLightmapAlphaBlendSelfIllum_dx9.cpp"
 		$File	"DecalModulate_dx9.cpp"
@@ -93,8 +93,8 @@ $Project "stdshader_dx9"
 		$File	"lightmappedreflective.cpp"
 		$File	"modulate_dx9.cpp"
 		$File	"MonitorScreen_dx9.cpp"
-		$File	"morphaccumulate_dx9.cpp"					[$WIN32]
-		$File	"morphweight_dx9.cpp"						[$WIN32]
+		$File	"morphaccumulate_dx9.cpp"					[$WINDOWS]
+		$File	"morphweight_dx9.cpp"						[$WINDOWS]
 		$File	"motion_blur_dx9.cpp"
 		$File	"occlusion_dx9.cpp"
 		$File	"particlelitgeneric_dx9.cpp"
@@ -177,6 +177,7 @@ $Project "stdshader_dx9"
 	$Folder	"Link Libraries"
 	{
 		$Lib	"$SRCDIR\dx9sdk\lib\d3dx9"	[$WIN32]
+		$Lib	"$SRCDIR\dx9sdk\lib\x64\d3dx9"	[$WIN64]
 		$Lib	mathlib
 		$Lib	shaderlib
 	}
