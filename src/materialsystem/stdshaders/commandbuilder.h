@@ -60,6 +60,11 @@ public:
 		Put( nValue );
 	}
 
+	FORCEINLINE void PutIntp( intp nValue )
+	{
+		Put( nValue );
+	}
+
 	FORCEINLINE void PutFloat( float nValue )
 	{
 		Put( nValue );
@@ -331,7 +336,7 @@ public:
 	{
 		m_Storage.PutInt( CBCMD_BIND_SHADERAPI_TEXTURE_HANDLE );
 		m_Storage.PutInt( nSampler );
-		m_Storage.PutInt( hTexture );
+		m_Storage.PutIntp( hTexture );
 	}
 
 	FORCEINLINE void BindTexture( CBaseVSShader *pShader, Sampler_t nSampler, int nTextureVar, int nFrameVar )
