@@ -107,8 +107,10 @@ public:
 	KeyValues( const char *setName, const char *firstKey, const char *firstValue );
 	KeyValues( const char *setName, const char *firstKey, const wchar_t *firstValue );
 	KeyValues( const char *setName, const char *firstKey, int firstValue );
+	KeyValues( const char* setName, const char* firstKey, float firstValue );
 	KeyValues( const char *setName, const char *firstKey, const char *firstValue, const char *secondKey, const char *secondValue );
 	KeyValues( const char *setName, const char *firstKey, int firstValue, const char *secondKey, int secondValue );
+	KeyValues( const char* setName, const char* firstKey, uint64 firstValue, const char* secondKey, uint64 secondValue );
 
 	// Section name
 	const char *GetName() const;
