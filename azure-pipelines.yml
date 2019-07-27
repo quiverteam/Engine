@@ -21,7 +21,7 @@ steps:
   inputs:
     scriptSource: 'filePath'
     scriptPath: 'src/devtools/pyqpc/PyQPC.py'
-    arguments: '+core /vs2019 /mksln core'
+    arguments: '/basefile "../../vpc_scripts/default.vgc" +core /vs2019 /mksln core'
 
 - task: DevEnvBuild@2
   displayName: Build the core projects
@@ -45,7 +45,7 @@ steps:
   inputs:
     scriptSource: 'filePath'
     scriptPath: 'src/devtools/pyqpc/PyQPC.py'
-    arguments: '/hl2 /hl2mp /episodic +game -core /vs2019 /mksln engine'
+    arguments: '/basefile "../../vpc_scripts/default.vgc" /hl2 /hl2mp /episodic +game -core /vs2019 /mksln engine'
     
 - task: DevEnvBuild@2
   displayName: Build the engine
