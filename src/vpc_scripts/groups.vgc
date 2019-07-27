@@ -8,13 +8,28 @@
 // Group definitions //
 ///////////////////////
 
-$Group "gamedlls"
+$Group "gamedlls" "game" "binaries" "everything"
 {
-	"client"
-	"server"
+	$Folder "Game"
+	{
+		$Folder "Client"
+		{
+			"client"
+		}
+		$Folder "Server"
+		{
+			"server"
+		}
+		$Folder "GameUI"
+		{
+			"gameui_client"
+		}
+	}
 	
-	"gameui_client"
-	"vgui_controls"
+	$Folder "Libraries"
+	{
+		"vgui_controls"
+	}
 }
 
 $Group "dx_proxy"
@@ -126,47 +141,61 @@ $Group "utils"
 
 $Group "game"
 {
-	"appframework"
-	"bitmap"
+	$Folder "Libraries"
+	{
+		$Folder "Tiers"
+		{
+			"tier0"
+			"tier1"
+			"tier2"
+			"tier3"
+		}
+		
+		"appframework"
+		"mathlib"
+		"matsys_controls"
+		"jpeglib"
+		"shaderlib"
+		"bitmap"
+		"bzip2"
+		"choreoobjects"
+		"dmxloader"
+		"particles"
+		"vtf" 
+		
+		"vgui_controls"
+		"vgui_surfacelib"
+	}
+	
+	$Folder "VGUI"
+	{
+		"vgui_dll"
+		"vguimatsurface"
+		"gameui"
+	}
+	
+	$Folder "Shaders"
+	{
+		"materialsystem"
+		"shaderapidx9"
+		"stdshader_dbg"
+		"stdshader_dx9"
+	}
+	
 	"bsppack"
-	"bzip2"
-	"choreoobjects"
-	"client"
 	"datacache"
-	"dmxloader"
 	"engine"
 	"filesystem_stdio"
 	"filesystem_steam"
-	"gameui"
-	"gameui_client"
 	"inputsystem"
 	"launcher"
 	"launcher_main"
-	"jpeglib"
-	"materialsystem"
-	"mathlib"
-	"matsys_controls"
-	"particles"
 	"scenefilecache"
-	"server"
 	"serverbrowser"
-	"shaderlib"
-	"shaderapidx9"
 	"soundemittersystem"
-	"stdshader_dbg"
-	"stdshader_dx9"
 	"studiorender"
-	"tier0"
-	"tier1"
-	"tier2"
-	"tier3"
 	"qvideo"
-	"vgui_controls"
-	"vgui_dll"
-	"vgui_surfacelib"
-	"vguimatsurface"
 	"vstdlib"
-	"vtf" 
 	"vaudio_miles"
 	"unicode"
 }
@@ -499,7 +528,7 @@ $Group "binaries"
 	"appidlink"
 }
 
-$Group "libraries" "core"
+$Group "libraries" "core" "unittests"
 {
 	// Static Libraries
 	"tier0"

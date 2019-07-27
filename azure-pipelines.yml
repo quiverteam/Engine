@@ -16,30 +16,19 @@ pool:
 
 steps:
 
-- task: CmdLine@2
+- task: PythonScript@0
   displayName: Generate Core Projects
   inputs:
-    workingDirectory: "$(Build.Repository.LocalPath)"
-    script: '
-      cd src/
-
-      devtools\bin\vpc_patched.exe +core /define:VS2019 /mksln core.sln
-    '
-
-- task: PythonScript@0
-  displayName: Running a dirty hack to fix the fucked sln file from patched VPC
-  inputs:
     scriptSource: 'filePath'
-    scriptPath: 'src/devtools/vpc_fucking_sucks.py'
-    arguments: '-sln "src\core.sln"'
+    scriptPath: 'src/devtools/pyqpc/PyQPC.py'
+    arguments: '+core /vs2019 /mksln core'
 
 - task: DevEnvBuild@2
   displayName: Build the core projects
   inputs:
-    solution: 'src\core_fixed.sln'
+    solution: 'src\core.sln'
     buildCfg: 'Release'
     vsVersion: 'latest'
-    clean: true
 
 - task: CmdLine@2
   displayName: Build All Shaders
@@ -51,29 +40,18 @@ steps:
       call _buildallshaders.bat
     '
 
-- task: CmdLine@2
+- task: PythonScript@0
   displayName: Generate Engine Projects
   inputs:
-    workingDirectory: "$(Build.Repository.LocalPath)"
-    script: '
-      cd src/
-      
-      devtools\bin\vpc_patched.exe /allgames +game /define:VS2019 /mksln engine.sln
-    '
-
-- task: PythonScript@0
-  displayName: Running a dirty hack to fix the fucked sln file from patched VPC
-  inputs:
     scriptSource: 'filePath'
-    scriptPath: 'src/devtools/vpc_fucking_sucks.py'
-    arguments: '-sln "src\engine.sln"'
-
+    scriptPath: 'src/devtools/pyqpc/PyQPC.py'
+    arguments: '/hl2 /hl2mp /episodic +game -core /vs2019 /mksln engine'
+    
 - task: DevEnvBuild@2
   displayName: Build the engine
   inputs:
-    solution: 'src\engine_fixed.sln'
+    solution: 'src\engine.sln'
     buildCfg: 'Release'
     vsVersion: 'latest'
-    clean: true
 
 
