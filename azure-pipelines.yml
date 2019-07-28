@@ -66,6 +66,16 @@ steps:
     configuration: 'Release'
     maximumCpuCount: true
 
+# idk if i need to compress it
+- task: ArchiveFiles@2
+  displayName: Compress game folder with 7z
+  inputs:
+    rootFolderOrFile: '$(Build.ArtifactStagingDirectory)/game'
+    includeRootFolder: true
+    archiveType: '7z'
+    archiveFile: '$(Build.ArtifactStagingDirectory)/QuiverSource_$(Build.BuildId).7z'
+    replaceExistingArchive: true
+
 - task: GitHubRelease@0
   displayName: Release to github
   inputs:
@@ -75,6 +85,6 @@ steps:
     target: '$(Build.SourceVersion)'
     tagSource: 'manual'
     tag: '$(Build.BuildNumber)'
-    title: 'build test'
+    title: 'Auto Build - $(Build.BuildNumber)'
+    assets: '$(Build.ArtifactStagingDirectory)/QuiverSource_$(Build.BuildId).7z'
     isDraft: true
-
