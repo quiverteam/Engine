@@ -15,54 +15,34 @@ pool:
   vmImage: 'windows-2019'
 
 steps:
-
-# this probably won't work still, just putting it first to test quickly
-- task: CmdLine@2
-  displayName: Try downloading String::CRC32
-  inputs:
-    # workingDirectory: "$(Build.Repository.LocalPath)"
-    script: |
-      cpan App-cpanminus
-      
-      cpanm String::CRC32
-
-
-#- task: PythonScript@0
-#  displayName: Generate Core Projects
-#  inputs:
-#    scriptSource: 'filePath'
-#    scriptPath: 'src/devtools/pyqpc/PyQPC.py'
-#    arguments: '/basefile "../../vpc_scripts/default.vgc" +libraries /vs2019 /mksln core'
-#    # change back to +core later when i try getting shaders to build here
-
-# no difference from MSBuild@1?
-#- task: VSBuild@1
-#  displayName: Build the core projects
-#  inputs:
-#    solution: 'src\core.sln'
-#    platform: 'win32'
-#    configuration: 'Release'
-#    maximumCpuCount: true
-
 - task: PythonScript@0
   # displayName: Generate Engine Dependencies
-  displayName: Generate Library Projects
+  displayName: Generate Core Projects
   inputs:
     scriptSource: 'filePath'
     scriptPath: 'src/devtools/pyqpc/PyQPC.py'
     # oof
     # arguments: '/basefile "../../vpc_scripts/default.vgc" +tier0 +tier1 +tier2 +tier3 +vstdlib +appframework +mathlib +matsys_controls +jpeglib +shaderlib +bitmap +bzip2 +choreoobjects +dmxloader +particles +vtf +vgui_controls +vgui_surfacelib /vs2019 /mksln deps'
-    arguments: '/basefile "../../vpc_scripts/default.vgc" +libraries /vs2019 /mksln deps'
+    arguments: '/basefile "../../vpc_scripts/default.vgc" +core -toolutils -fgdlib -filesystem_steam /vs2019 /mksln deps'
     
 # no difference from MSBuild@1?
 - task: VSBuild@1
   # displayName: Build Engine Dependencies
-  displayName: Build Libraries
+  displayName: Build Core Projects
   inputs:
     solution: 'src\deps.sln'
     platform: 'win32'
     configuration: 'Release'
     maximumCpuCount: true
+
+- task: CmdLine@2
+  displayName: Build All Shaders
+  inputs:
+    workingDirectory: "$(Build.Repository.LocalPath)"
+    script: '
+      cd src/materialsystem/stdshaders/
+      call _buildallshaders_force.bat
+      '
 
 - task: PythonScript@0
   displayName: Generate Engine and Util Projects
@@ -70,11 +50,11 @@ steps:
     scriptSource: 'filePath'
     scriptPath: 'src/devtools/pyqpc/PyQPC.py'
     # arguments: '/basefile "../../vpc_scripts/default.vgc" /episodic +game -libraries -stdshader_dbg -stdshader_dx9 -filesystem_steam -gameui_client /vs2019 /mksln engine'
-    arguments: '/basefile "../../vpc_scripts/default.vgc" /episodic +game +utils -libraries -stdshader_dbg -stdshader_dx9 -filesystem_steam -gameui_client -bsppack -bzip2 -ep2_deathmap -vtex_dll -vtex_launcher -normal2ssbump -height2normal -height2ssbump -hammer_dll -hammer_launcher /vs2019 /mksln engine'
+    arguments: '/basefile "../../vpc_scripts/default.vgc" /episodic +game +utils -core -gameui_client -bsppack -bzip2 -ep2_deathmap -vtex_dll -vtex_launcher -normal2ssbump -height2normal -height2ssbump -hammer_dll -hammer_launcher /vs2019 /mksln engine'
     
 # no difference from MSBuild@1?
 - task: VSBuild@1
-  displayName: Build the Engine projects
+  displayName: Build the Engine and Utils
   inputs:
     solution: 'src\engine.sln'
     platform: 'win32'
@@ -91,6 +71,7 @@ steps:
     archiveFile: 'QuiverSource_$(Build.BuildId).7z'
     replaceExistingArchive: true
 
+# maybe add more assets for source code and shaders?
 - task: GitHubRelease@0
   displayName: Release to github
   inputs:
@@ -100,6 +81,6 @@ steps:
     target: '$(Build.SourceVersion)'
     tagSource: 'manual'
     tag: '$(Build.BuildNumber)'
-    title: 'Auto Build - $(Build.BuildNumber)'
+    title: 'Auto Build $(Build.BuildId) - $(Build.BuildNumber)'
     assets: 'QuiverSource_$(Build.BuildId).7z'
     isDraft: true

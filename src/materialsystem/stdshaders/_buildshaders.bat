@@ -68,8 +68,8 @@ set inputbase=%1
 set DIRECTX_SDK_VER=pc09.00
 set DIRECTX_SDK_BIN_DIR=dx_proxy\dx9_00\%platform%
 
-if /i "%7" == "-dx9_30" goto dx_sdk_dx9_30
-if /i "%7" == "-dx10" goto dx_sdk_dx10
+if /i "%8" == "-dx9_30" goto dx_sdk_dx9_30
+if /i "%8" == "-dx10" goto dx_sdk_dx10
 goto dx_sdk_end
 :dx_sdk_dx9_30
 			set DIRECTX_SDK_VER=pc09.30
@@ -90,6 +90,7 @@ goto set_force_end
 
 if /i "%2" == "-game" goto set_mod_args
 if /i "%6" == "1" set dynamic_shaders=1
+if /i "%7" == "1" set force_compile=1
 goto build_shaders
 
 REM ****************
@@ -167,15 +168,18 @@ if exist makefile.%inputbase% del /f /q makefile.%inputbase%
 REM ****************
 REM Generate a makefile for the shader project
 REM ****************
+echo Creating makefile for %inputbase%...
 perl "%SrcDirBase%\devtools\bin\updateshaders.pl" -source "%SrcDirBase%" %inputbase%
 
+
+pause
 
 REM ****************
 REM Run the makefile, generating minimal work/build list for fxc files, go ahead and compile vsh and psh files.
 REM ****************
 rem nmake /S /C -f makefile.%inputbase% clean > clean.txt 2>&1
 @REM echo Building inc files, asm vcs files, and VMPI worklist for %inputbase%...
-echo Creating makefile for %inputbase%...
+echo Building makefile...
 nmake /S /C -f makefile.%inputbase%
 
 REM ****************
