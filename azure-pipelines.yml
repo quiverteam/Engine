@@ -23,13 +23,6 @@ steps:
     scriptPath: 'src/devtools/pyqpc/PyQPC.py'
     arguments: '/basefile "../../vpc_scripts/default.vgc" +core /vs2019 /mksln core'
 
-# this probably won't work tbh
-- task: CmdLine@2
-  displayName: Try downloading String::CRC32
-  inputs:
-    workingDirectory: "$(Build.Repository.LocalPath)"
-    script: 'cpan String::CRC32'
-
 # no difference from MSBuild@1?
 - task: VSBuild@1
   displayName: Build the core projects
@@ -39,23 +32,12 @@ steps:
     configuration: 'Release'
     maximumCpuCount: true
 
-# doesn't work yet
-- task: CmdLine@2
-  displayName: Build All Shaders
-  inputs:
-    workingDirectory: "$(Build.Repository.LocalPath)"
-    script: '
-      cd src/materialsystem/stdshaders/
-
-      call _buildallshaders.bat
-    '
-
 - task: PythonScript@0
   displayName: Generate Engine Projects
   inputs:
     scriptSource: 'filePath'
     scriptPath: 'src/devtools/pyqpc/PyQPC.py'
-    arguments: '/basefile "../../vpc_scripts/default.vgc" /hl2 /hl2mp /episodic +game -core /vs2019 /mksln engine'
+    arguments: '/basefile "../../vpc_scripts/default.vgc" /hl2 /hl2mp /episodic +game -core -stdshader_dbg -stdshader_dx9 /vs2019 /mksln engine'
     
 # no difference from MSBuild@1?
 - task: VSBuild@1
