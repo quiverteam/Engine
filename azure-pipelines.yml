@@ -51,8 +51,9 @@ steps:
 - task: GitHubRelease@0
   displayName: Release to github
   inputs:
-    gitHubConnection: 'quiverteam'
+    gitHubConnection: 'github test'
     repositoryName: '$(Build.Repository.Name)'
     action: 'create'
     target: '$(Build.SourceVersion)'
     tagSource: 'auto'
+
