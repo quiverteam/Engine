@@ -70,10 +70,10 @@ steps:
 - task: ArchiveFiles@2
   displayName: Compress game folder with 7z
   inputs:
-    rootFolderOrFile: '$(Build.ArtifactStagingDirectory)/game'
+    rootFolderOrFile: 'game/'
     includeRootFolder: true
     archiveType: '7z'
-    archiveFile: '$(Build.ArtifactStagingDirectory)/QuiverSource_$(Build.BuildId).7z'
+    archiveFile: 'QuiverSource_$(Build.BuildId).7z'
     replaceExistingArchive: true
 
 - task: GitHubRelease@0
@@ -86,5 +86,5 @@ steps:
     tagSource: 'manual'
     tag: '$(Build.BuildNumber)'
     title: 'Auto Build - $(Build.BuildNumber)'
-    assets: '$(Build.ArtifactStagingDirectory)/QuiverSource_$(Build.BuildId).7z'
+    assets: 'QuiverSource_$(Build.BuildId).7z'
     isDraft: true
