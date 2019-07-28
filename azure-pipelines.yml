@@ -34,15 +34,32 @@ steps:
 #    maximumCpuCount: true
 
 - task: PythonScript@0
+  displayName: Generate Engine Dependencies
+  inputs:
+    scriptSource: 'filePath'
+    scriptPath: 'src/devtools/pyqpc/PyQPC.py'
+    # oof
+    arguments: '/basefile "../../vpc_scripts/default.vgc" +tier0 +tier1 +tier2 +tier3 +vstdlib +appframework +mathlib +jpeglib +shaderlib +bitmap +bzip2 +choreoobjects +dmxloader +particles +vtf +vgui_controls +vgui_surfacelib /vs2019 /mksln deps'
+    
+# no difference from MSBuild@1?
+- task: VSBuild@1
+  displayName: Build Engine Dependencies
+  inputs:
+    solution: 'src\deps.sln'
+    platform: 'win32'
+    configuration: 'Release'
+    maximumCpuCount: true
+
+- task: PythonScript@0
   displayName: Generate Engine Projects
   inputs:
     scriptSource: 'filePath'
     scriptPath: 'src/devtools/pyqpc/PyQPC.py'
-    arguments: '/basefile "../../vpc_scripts/default.vgc" /episodic +game -stdshader_dbg -stdshader_dx9 -filesystem_steam -gameui_client /vs2019 /mksln engine'
+    arguments: '/basefile "../../vpc_scripts/default.vgc" /episodic +game -libraries -stdshader_dbg -stdshader_dx9 -filesystem_steam -gameui_client /vs2019 /mksln engine'
     
 # no difference from MSBuild@1?
 - task: VSBuild@1
-  displayName: Build the engine projects
+  displayName: Build the Engine projects
   inputs:
     solution: 'src\engine.sln'
     platform: 'win32'
