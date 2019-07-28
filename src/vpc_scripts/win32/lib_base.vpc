@@ -44,15 +44,16 @@ $Configuration
 	
 	$PreBuildEvent
 	{
-		$CommandLine		"if EXIST $OUTLIBDIR\$(TargetName).lib ( for /f $QUOTEdelims=$QUOTE %%A in ('attrib $QUOTE$OUTLIBDIR\$(TargetName).lib$QUOTE') do set valveTmpIsReadOnly=$QUOTE%%A$QUOTE" "\n" \
+		$CommandLine		"if EXIST $OUTLIBDIR\$(TargetName).lib ( for /f \"delims=\" %%A in ('attrib \"$OUTLIBDIR\$(TargetName).lib\"') do set valveTmpIsReadOnly=\"%%A\"" "\n" \
 							") else ( if not EXIST $OUTLIBDIR mkdir $OUTLIBDIR )" "\n" \
 							"set valveTmpIsReadOnlyLetter=%valveTmpIsReadOnly:~6,1%" "\n" \
-							"if $QUOTE%valveTmpIsReadOnlyLetter%$QUOTE==$QUOTER$QUOTE (" "\n" \
+							"if \"%valveTmpIsReadOnlyLetter%\"==\"R\" (" "\n" \
 							"    attrib -r $OUTLIBDIR\$(TargetName).lib" "\n" \
-							"    $SRCDIR\devtools\bin\gnu\touch.exe -d $QUOTE1999-01-01$QUOTE $OUTLIBDIR\$(TargetName).lib" "\n" \
+							"    $SRCDIR\devtools\bin\gnu\touch.exe -d \"1999-01-01\" $OUTLIBDIR\$(TargetName).lib" "\n" \
 							"    attrib +r $OUTLIBDIR\$(TargetName).lib" "\n" \
 							")" "\n" \
-							"$CRCCHECK" "\n" 
+							"$CRCCHECK" "\n" 		
+		$ExcludedFromBuild	"Yes"	
 	}
 	
 	$Librarian
