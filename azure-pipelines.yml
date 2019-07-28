@@ -16,6 +16,17 @@ pool:
 
 steps:
 
+# this probably won't work still, just putting it first to test quickly
+- task: CmdLine@2
+  displayName: Try downloading String::CRC32
+  inputs:
+    # workingDirectory: "$(Build.Repository.LocalPath)"
+    script: |
+      cpan CPAN::Author
+      
+      cpan String::CRC32
+
+
 #- task: PythonScript@0
 #  displayName: Generate Core Projects
 #  inputs:
@@ -34,16 +45,19 @@ steps:
 #    maximumCpuCount: true
 
 - task: PythonScript@0
-  displayName: Generate Engine Dependencies
+  # displayName: Generate Engine Dependencies
+  displayName: Generate Library Projects
   inputs:
     scriptSource: 'filePath'
     scriptPath: 'src/devtools/pyqpc/PyQPC.py'
     # oof
-    arguments: '/basefile "../../vpc_scripts/default.vgc" +tier0 +tier1 +tier2 +tier3 +vstdlib +appframework +mathlib +matsys_controls +jpeglib +shaderlib +bitmap +bzip2 +choreoobjects +dmxloader +particles +vtf +vgui_controls +vgui_surfacelib /vs2019 /mksln deps'
+    # arguments: '/basefile "../../vpc_scripts/default.vgc" +tier0 +tier1 +tier2 +tier3 +vstdlib +appframework +mathlib +matsys_controls +jpeglib +shaderlib +bitmap +bzip2 +choreoobjects +dmxloader +particles +vtf +vgui_controls +vgui_surfacelib /vs2019 /mksln deps'
+    arguments: '/basefile "../../vpc_scripts/default.vgc" +libraries /vs2019 /mksln deps'
     
 # no difference from MSBuild@1?
 - task: VSBuild@1
-  displayName: Build Engine Dependencies
+  # displayName: Build Engine Dependencies
+  displayName: Build Libraries
   inputs:
     solution: 'src\deps.sln'
     platform: 'win32'
@@ -51,11 +65,12 @@ steps:
     maximumCpuCount: true
 
 - task: PythonScript@0
-  displayName: Generate Engine Projects
+  displayName: Generate Engine and Util Projects
   inputs:
     scriptSource: 'filePath'
     scriptPath: 'src/devtools/pyqpc/PyQPC.py'
-    arguments: '/basefile "../../vpc_scripts/default.vgc" /episodic +game -libraries -stdshader_dbg -stdshader_dx9 -filesystem_steam -gameui_client /vs2019 /mksln engine'
+    # arguments: '/basefile "../../vpc_scripts/default.vgc" /episodic +game -libraries -stdshader_dbg -stdshader_dx9 -filesystem_steam -gameui_client /vs2019 /mksln engine'
+    arguments: '/basefile "../../vpc_scripts/default.vgc" /episodic +game +utils -libraries -stdshader_dbg -stdshader_dx9 -filesystem_steam -gameui_client -bsppack -bzip2 -ep2_deathmap -vtex_dll -vtex_launcher -normal2ssbump -height2normal -height2ssbump -hammer_dll -hammer_launcher /vs2019 /mksln engine'
     
 # no difference from MSBuild@1?
 - task: VSBuild@1
@@ -71,7 +86,7 @@ steps:
   displayName: Compress game folder with 7z
   inputs:
     rootFolderOrFile: 'game/'
-    includeRootFolder: true
+    includeRootFolder: false
     archiveType: '7z'
     archiveFile: 'QuiverSource_$(Build.BuildId).7z'
     replaceExistingArchive: true
