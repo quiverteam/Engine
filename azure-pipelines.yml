@@ -16,28 +16,29 @@ pool:
 
 steps:
 
-- task: PythonScript@0
-  displayName: Generate Core Projects
-  inputs:
-    scriptSource: 'filePath'
-    scriptPath: 'src/devtools/pyqpc/PyQPC.py'
-    arguments: '/basefile "../../vpc_scripts/default.vgc" +core /vs2019 /mksln core'
+#- task: PythonScript@0
+#  displayName: Generate Core Projects
+#  inputs:
+#    scriptSource: 'filePath'
+#    scriptPath: 'src/devtools/pyqpc/PyQPC.py'
+#    arguments: '/basefile "../../vpc_scripts/default.vgc" +libraries /vs2019 /mksln core'
+#    # change back to +core later when i try getting shaders to build here
 
 # no difference from MSBuild@1?
-- task: VSBuild@1
-  displayName: Build the core projects
-  inputs:
-    solution: 'src\core.sln'
-    platform: 'win32'
-    configuration: 'Release'
-    maximumCpuCount: true
+#- task: VSBuild@1
+#  displayName: Build the core projects
+#  inputs:
+#    solution: 'src\core.sln'
+#    platform: 'win32'
+#    configuration: 'Release'
+#    maximumCpuCount: true
 
 - task: PythonScript@0
   displayName: Generate Engine Projects
   inputs:
     scriptSource: 'filePath'
     scriptPath: 'src/devtools/pyqpc/PyQPC.py'
-    arguments: '/basefile "../../vpc_scripts/default.vgc" /hl2 /hl2mp /episodic +game -core -stdshader_dbg -stdshader_dx9 /vs2019 /mksln engine'
+    arguments: '/basefile "../../vpc_scripts/default.vgc" /episodic +game -stdshader_dbg -stdshader_dx9 -filesystem_steam -gameui_client /vs2019 /mksln engine'
     
 # no difference from MSBuild@1?
 - task: VSBuild@1
@@ -55,5 +56,8 @@ steps:
     repositoryName: '$(Build.Repository.Name)'
     action: 'create'
     target: '$(Build.SourceVersion)'
-    tagSource: 'auto'
+    tagSource: 'manual'
+    tag: '$(Build.BuildNumber)'
+    title: 'build test'
+    isDraft: true
 
