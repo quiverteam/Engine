@@ -39,7 +39,7 @@ steps:
     scriptSource: 'filePath'
     scriptPath: 'src/devtools/pyqpc/PyQPC.py'
     # oof
-    arguments: '/basefile "../../vpc_scripts/default.vgc" +tier0 +tier1 +tier2 +tier3 +vstdlib +appframework +mathlib +jpeglib +shaderlib +bitmap +bzip2 +choreoobjects +dmxloader +particles +vtf +vgui_controls +vgui_surfacelib /vs2019 /mksln deps'
+    arguments: '/basefile "../../vpc_scripts/default.vgc" +tier0 +tier1 +tier2 +tier3 +vstdlib +appframework +mathlib +matsys_controls +jpeglib +shaderlib +bitmap +bzip2 +choreoobjects +dmxloader +particles +vtf +vgui_controls +vgui_surfacelib /vs2019 /mksln deps'
     
 # no difference from MSBuild@1?
 - task: VSBuild@1
