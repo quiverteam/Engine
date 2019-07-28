@@ -48,5 +48,11 @@ steps:
     configuration: 'Release'
     maximumCpuCount: true
 
-
-
+- task: GitHubRelease@0
+  displayName: Release to github
+  inputs:
+    gitHubConnection: 'quiverteam'
+    repositoryName: '$(Build.Repository.Name)'
+    action: 'create'
+    target: '$(Build.SourceVersion)'
+    tagSource: 'auto'
