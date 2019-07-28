@@ -22,9 +22,9 @@ steps:
   inputs:
     # workingDirectory: "$(Build.Repository.LocalPath)"
     script: |
-      cpan CPAN::Author
+      cpan App-cpanminus
       
-      cpan String::CRC32
+      cpanm String::CRC32
 
 
 #- task: PythonScript@0
