@@ -35,11 +35,13 @@ steps:
     configuration: 'Release'
     maximumCpuCount: true
 
-- task: BatchScript@1
+- task: CmdLine@2
+  displayName: Build All Shaders
   inputs:
-    workingFolder: 'src/materialsystem/stdshaders/'
-    filename: '_buildallshaders_force.bat'
-    modifyEnvironment: true
+    workingDirectory: "$(Build.Repository.LocalPath)/src/materialsystem/stdshaders/"
+    script: '
+      _buildallshaders_force.bat
+      '
 
 - task: PythonScript@0
   displayName: Generate Engine and Util Projects

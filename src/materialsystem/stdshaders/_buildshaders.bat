@@ -170,9 +170,10 @@ REM ****************
 REM Generate a makefile for the shader project
 REM ****************
 echo Creating makefile for %inputbase%...
+if %force_compile%==1 (
+	echo Force Compiling Shaders, skipping crc check
+)
 perl "%SrcDirBase%\devtools\bin\updateshaders.pl" -source "%SrcDirBase%" %inputbase%
-
-pause
 
 REM ****************
 REM Run the makefile, generating minimal work/build list for fxc files, go ahead and compile vsh and psh files.
