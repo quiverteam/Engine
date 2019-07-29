@@ -38,9 +38,8 @@ steps:
 - task: CmdLine@2
   displayName: Build All Shaders
   inputs:
-    workingDirectory: "$(Build.Repository.LocalPath)"
+    workingDirectory: "$(Build.Repository.LocalPath)/src/materialsystem/stdshaders/"
     script: '
-      cd src/materialsystem/stdshaders/
       call _buildallshaders_force.bat
       '
 
