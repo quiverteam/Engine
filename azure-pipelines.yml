@@ -15,6 +15,17 @@ pool:
   vmImage: 'windows-2019'
 
 steps:
+
+# untouched version of source code
+- task: ArchiveFiles@2
+  displayName: Compress source code folder with 7z
+  inputs:
+    rootFolderOrFile: 'SourceVersion/'
+    includeRootFolder: false
+    archiveType: '7z'
+    archiveFile: 'QuiverSource_$(Build.BuildId)_source_code.7z'
+    replaceExistingArchive: true
+
 - task: PythonScript@0
   displayName: Generate Engine and Util Projects
   inputs:
@@ -46,12 +57,15 @@ steps:
 - task: GitHubRelease@0
   displayName: Release to github
   inputs:
-    gitHubConnection: 'github test'
+    gitHubConnection: 'quiverteam'
     repositoryName: '$(Build.Repository.Name)'
     action: 'create'
     target: '$(Build.SourceVersion)'
     tagSource: 'manual'
     tag: '$(Build.BuildNumber)'
     title: 'Auto Build $(Build.BuildId) - $(Build.BuildNumber)'
-    assets: 'QuiverSource_$(Build.BuildId).7z'
+    assets: |
+      QuiverSource_$(Build.BuildId).7z
+      QuiverSource_$(Build.BuildId)_source_code.7z
     isDraft: true
+
