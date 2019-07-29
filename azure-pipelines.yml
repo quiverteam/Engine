@@ -17,6 +17,9 @@ pool:
 steps:
 
 # untouched version of source code
+# maybe copy this to another folder, then copy the built libs into this,
+# and then copy the libs into the untouched code, and compress that?
+# might be pointless though
 - task: ArchiveFiles@2
   displayName: Compress source code folder with 7z
   inputs:
@@ -32,7 +35,7 @@ steps:
     scriptSource: 'filePath'
     scriptPath: 'src/devtools/pyqpc/PyQPC.py'
     # arguments: '/basefile "../../vpc_scripts/default.vgc" /episodic +game -libraries -stdshader_dbg -stdshader_dx9 -filesystem_steam -gameui_client /vs2019 /mksln engine'
-    arguments: '/basefile "../../vpc_scripts/default.vgc" /episodic +game +lzma +vmpi +raytrace +fgdlib +utils -gameui_client -bsppack -ep2_deathmap -vtex_dll -vtex_launcher -normal2ssbump -height2normal -height2ssbump -hammer_dll -hammer_launcher -stdshader_dbg -stdshader_dx9 /vs2019 /mksln engine'
+    arguments: '/basefile "../../vpc_scripts/default.vgc" /episodic +game +lzma +vmpi +raytrace +fgdlib +utils -gameui_client -bsppack -ep2_deathmap -vtex_dll -vtex_launcher -normal2ssbump -height2normal -height2ssbump -hammer_dll -hammer_launcher /vs2019 /mksln engine'
     
 # no difference from MSBuild@1?
 - task: VSBuild@1
