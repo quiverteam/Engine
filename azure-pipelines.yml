@@ -16,40 +16,12 @@ pool:
 
 steps:
 - task: PythonScript@0
-  # displayName: Generate Engine Dependencies
-  displayName: Generate Core Projects
-  inputs:
-    scriptSource: 'filePath'
-    scriptPath: 'src/devtools/pyqpc/PyQPC.py'
-    # oof
-    # arguments: '/basefile "../../vpc_scripts/default.vgc" +tier0 +tier1 +tier2 +tier3 +vstdlib +appframework +mathlib +matsys_controls +jpeglib +shaderlib +bitmap +bzip2 +choreoobjects +dmxloader +particles +vtf +vgui_controls +vgui_surfacelib /vs2019 /mksln deps'
-    arguments: '/basefile "../../vpc_scripts/default.vgc" +core -toolutils -fgdlib -filesystem_steam /vs2019 /mksln deps'
-    
-# no difference from MSBuild@1?
-- task: VSBuild@1
-  # displayName: Build Engine Dependencies
-  displayName: Build Core Projects
-  inputs:
-    solution: 'src\deps.sln'
-    platform: 'win32'
-    configuration: 'Release'
-    maximumCpuCount: true
-
-- task: CmdLine@2
-  displayName: Build All Shaders
-  inputs:
-    workingDirectory: "$(Build.Repository.LocalPath)/src/materialsystem/stdshaders/"
-    script: '
-      _buildallshaders_force.bat
-      '
-
-- task: PythonScript@0
   displayName: Generate Engine and Util Projects
   inputs:
     scriptSource: 'filePath'
     scriptPath: 'src/devtools/pyqpc/PyQPC.py'
     # arguments: '/basefile "../../vpc_scripts/default.vgc" /episodic +game -libraries -stdshader_dbg -stdshader_dx9 -filesystem_steam -gameui_client /vs2019 /mksln engine'
-    arguments: '/basefile "../../vpc_scripts/default.vgc" /episodic +game +utils -core -gameui_client -bsppack -bzip2 -ep2_deathmap -vtex_dll -vtex_launcher -normal2ssbump -height2normal -height2ssbump -hammer_dll -hammer_launcher /vs2019 /mksln engine'
+    arguments: '/basefile "../../vpc_scripts/default.vgc" /episodic +game +utils -gameui_client -bsppack -bzip2 -ep2_deathmap -vtex_dll -vtex_launcher -normal2ssbump -height2normal -height2ssbump -hammer_dll -hammer_launcher -stdshader_dbg -stdshader_dx9 /vs2019 /mksln engine'
     
 # no difference from MSBuild@1?
 - task: VSBuild@1
