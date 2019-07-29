@@ -37,8 +37,9 @@ steps:
 
 - task: BatchScript@1
   inputs:
-    workingFolder: '$(Build.Repository.LocalPath)/src/materialsystem/stdshaders/'
+    workingFolder: 'src/materialsystem/stdshaders/'
     filename: '_buildallshaders_force.bat'
+    modifyEnvironment: true
 
 - task: PythonScript@0
   displayName: Generate Engine and Util Projects
