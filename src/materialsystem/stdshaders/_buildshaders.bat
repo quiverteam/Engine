@@ -58,6 +58,7 @@ set shaderDir=shaders
 @REM your total thread count
 set /A threadcount=%NUMBER_OF_PROCESSORS%
 @REM this increases performance greatly
+set force_compile=0
 
 @REM should be removed, idk
 set EngineBinDir=../../../game/bin/%platform%
@@ -88,9 +89,9 @@ goto set_force_end
 			goto set_force_end
 :set_force_end
 
+if /i "%7" == "1" set force_compile=1
 if /i "%2" == "-game" goto set_mod_args
 if /i "%6" == "1" set dynamic_shaders=1
-if /i "%7" == "1" set force_compile=1
 goto build_shaders
 
 REM ****************
@@ -170,7 +171,6 @@ REM Generate a makefile for the shader project
 REM ****************
 echo Creating makefile for %inputbase%...
 perl "%SrcDirBase%\devtools\bin\updateshaders.pl" -source "%SrcDirBase%" %inputbase%
-
 
 pause
 
