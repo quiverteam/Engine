@@ -57,7 +57,7 @@ steps:
 - task: GitHubRelease@0
   displayName: Release to github
   inputs:
-    gitHubConnection: 'quiverteam_write'
+    gitHubConnection: 'quiverteam'
     repositoryName: '$(Build.Repository.Name)'
     action: 'create'
     target: '$(Build.SourceVersion)'
