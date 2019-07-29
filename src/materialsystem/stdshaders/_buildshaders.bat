@@ -172,8 +172,10 @@ REM ****************
 echo Creating makefile for %inputbase%...
 if %force_compile%==1 (
 	echo Force Compiling Shaders, skipping crc check
+	perl "%SrcDirBase%\devtools\bin\updateshaders_force.pl" -source "%SrcDirBase%" %inputbase%
+) else (
+	perl "%SrcDirBase%\devtools\bin\updateshaders.pl" -source "%SrcDirBase%" %inputbase%
 )
-perl "%SrcDirBase%\devtools\bin\updateshaders.pl" -source "%SrcDirBase%" %inputbase%
 
 REM ****************
 REM Run the makefile, generating minimal work/build list for fxc files, go ahead and compile vsh and psh files.
