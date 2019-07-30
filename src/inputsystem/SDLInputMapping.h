@@ -14,6 +14,12 @@ Note: this is only temporary, need to define this to ensure that Source doesnt b
 #include <SDL2/SDL_keyboard.h>
 #include <SDL2/SDL_scancode.h>
 
-int SourceKeycodeToSDL(int src);
+/*
+Convert Source keycode to SDL2 scancode
+*/
+SDL_Scancode SourceKeycodeToSDL(ButtonCode_t src);
 
-int SDLKeycodeToSource(int sdl);
+/*
+Convert SDL scancode to source button code
+*/
+ButtonCode_t SDLKeycodeToButtonCode(SDL_Scancode sdl);
