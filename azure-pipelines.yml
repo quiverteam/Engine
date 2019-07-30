@@ -1,8 +1,3 @@
-# Starter pipeline
-# Start with a minimal pipeline that you can customize to build and deploy your code.
-# Add steps that build, run tests, deploy, and more:
-# https://aka.ms/yaml
-
 schedules:
   - cron: "20 03 * * *"
     displayName: "Daily Build"
@@ -14,13 +9,13 @@ schedules:
 pool:
   vmImage: 'windows-2019'
 
+
 steps:
 - task: PythonScript@0
   displayName: Generate Engine and Util Projects
   inputs:
     scriptSource: 'filePath'
     scriptPath: 'src/devtools/pyqpc/PyQPC.py'
-    # arguments: '/basefile "../../vpc_scripts/default.vgc" /episodic +game -libraries -stdshader_dbg -stdshader_dx9 -filesystem_steam -gameui_client /vs2019 /mksln engine'
     arguments: '/basefile "../../vpc_scripts/default.vgc" /episodic +game +lzma +vmpi +raytrace +fgdlib +utils -gameui_client -bsppack -ep2_deathmap -vtex_dll -vtex_launcher -normal2ssbump -height2normal -height2ssbump -hammer_dll -hammer_launcher /vs2019 /mksln engine'
     
 # no difference from MSBuild@1?
@@ -32,7 +27,6 @@ steps:
     configuration: 'Release'
     maximumCpuCount: true
 
-# idk if i need to compress it
 - task: ArchiveFiles@2
   displayName: Compress game folder with 7z
   inputs:
@@ -42,7 +36,6 @@ steps:
     archiveFile: 'QuiverSource_$(Build.BuildId).7z'
     replaceExistingArchive: true
 
-# maybe add more assets for source code and shaders?
 - task: GitHubRelease@0
   displayName: Release to GitHub
   inputs:
@@ -51,12 +44,10 @@ steps:
     action: 'create'
     target: '$(Build.SourceVersion)'
     tagSource: 'manual'
-    tag: '$(Build.BuildNumber)'
+    tag: 'Auto Builds'
     releaseNotesSource: 'input'
     releaseNotes: 'Need to build shaders manually since source''s shader setup is bad'
     title: 'Auto Build - $(Build.BuildId) - $(Build.BuildNumber)'
     assets: |
       QuiverSource_$(Build.BuildId).7z
-      QuiverSource_$(Build.BuildId)_src.7z
-    # isDraft: true
 
