@@ -15,20 +15,6 @@ pool:
   vmImage: 'windows-2019'
 
 steps:
-
-# untouched version of source code
-# maybe copy this to another folder, then copy the built libs into this,
-# and then copy the libs into the untouched code, and compress that?
-# might be pointless though
-- task: ArchiveFiles@2
-  displayName: Compress source code folder with 7z
-  inputs:
-    rootFolderOrFile: 'src/'
-    includeRootFolder: false
-    archiveType: '7z'
-    archiveFile: 'QuiverSource_$(Build.BuildId)_src.7z'
-    replaceExistingArchive: true
-
 - task: PythonScript@0
   displayName: Generate Engine and Util Projects
   inputs:
@@ -58,7 +44,7 @@ steps:
 
 # maybe add more assets for source code and shaders?
 - task: GitHubRelease@0
-  displayName: Release to github
+  displayName: Release to GitHub
   inputs:
     gitHubConnection: 'quiverteam'
     repositoryName: '$(Build.Repository.Name)'
@@ -66,9 +52,11 @@ steps:
     target: '$(Build.SourceVersion)'
     tagSource: 'manual'
     tag: '$(Build.BuildNumber)'
+    releaseNotesSource: 'input'
+    releaseNotes: 'Need to build shaders manually since source''s shader setup is bad'
     title: 'Auto Build - $(Build.BuildId) - $(Build.BuildNumber)'
     assets: |
       QuiverSource_$(Build.BuildId).7z
       QuiverSource_$(Build.BuildId)_src.7z
-    isDraft: true
+    # isDraft: true
 
