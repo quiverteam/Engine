@@ -33,7 +33,7 @@ steps:
     rootFolderOrFile: 'game/'
     includeRootFolder: false
     archiveType: '7z'
-    archiveFile: 'QuiverSource_$(Build.BuildId).7z'
+    archiveFile: 'QuiverSource_$(Build.BuildId)_$(Build.BuildNumber).7z'
     replaceExistingArchive: true
 
 - task: GitHubRelease@0
@@ -44,10 +44,10 @@ steps:
     action: 'create'
     target: '$(Build.SourceVersion)'
     tagSource: 'manual'
-    tag: 'Auto Builds'
+    tag: 'auto_builds'
     releaseNotesSource: 'input'
     releaseNotes: 'Need to build shaders manually since source''s shader setup is bad'
     title: 'Auto Build - $(Build.BuildId) - $(Build.BuildNumber)'
     assets: |
-      QuiverSource_$(Build.BuildId).7z
+      QuiverSource_$(Build.BuildId)_$(Build.BuildNumber).7z
 
