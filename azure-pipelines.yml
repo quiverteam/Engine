@@ -44,7 +44,7 @@ steps:
     action: 'create'
     target: '$(Build.SourceVersion)'
     tagSource: 'manual'
-    tag: 'auto_builds'
+    tag: 'auto_build_$(Build.BuildId)_$(Build.BuildNumber)'
     releaseNotesSource: 'input'
     releaseNotes: 'Need to build shaders manually since source''s shader setup is bad'
     title: 'Auto Build - $(Build.BuildId) - $(Build.BuildNumber)'
