@@ -1,4 +1,4 @@
-//===== Copyright © 1996-2005, Valve Corporation, All rights reserved. ======//
+//===== Copyright ï¿½ 1996-2005, Valve Corporation, All rights reserved. ======//
 //
 // Purpose: 
 //
@@ -484,7 +484,7 @@ public:
 	virtual bool			EndOfFile( FileHandle_t file ) = 0;
 
 	virtual char			*ReadLine( char *pOutput, int maxChars, FileHandle_t file ) = 0;
-	virtual int				FPrintf( FileHandle_t file, char *pFormat, ... ) = 0;
+	virtual int				FPrintf( FileHandle_t file, const char *pFormat, ... ) = 0;
 
 	//--------------------------------------------------------
 	// Dynamic library operations
