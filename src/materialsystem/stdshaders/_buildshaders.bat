@@ -90,6 +90,14 @@ goto set_force_end
 :set_force_end
 
 if /i "%7" == "1" set force_compile=1
+
+if %force_compile%==1 (
+	@REM force compile, azure pipelines perl is broken on windows-2019, so this is a work around
+	set perl=C:\Strawberry\perl\bin\perl
+) else (
+	set perl=perl
+)
+
 if /i "%2" == "-game" goto set_mod_args
 if /i "%6" == "1" set dynamic_shaders=1
 goto build_shaders
@@ -170,11 +178,12 @@ REM ****************
 REM Generate a makefile for the shader project
 REM ****************
 echo Creating makefile for %inputbase%...
+@REM should just have it setup to install String::CRC32 now
 if %force_compile%==1 (
 	echo Force Compiling Shaders, skipping crc check
-	perl "%SrcDirBase%\devtools\bin\updateshaders_force.pl" -source "%SrcDirBase%" %inputbase%
+	%perl% "%SrcDirBase%\devtools\bin\updateshaders_force.pl" -source "%SrcDirBase%" %inputbase%
 ) else (
-	perl "%SrcDirBase%\devtools\bin\updateshaders.pl" -source "%SrcDirBase%" %inputbase%
+	%perl% "%SrcDirBase%\devtools\bin\updateshaders.pl" -source "%SrcDirBase%" %inputbase%
 )
 
 REM ****************
@@ -190,7 +199,7 @@ REM Copy the inc files to their target
 REM ****************
 if exist "inclist.txt" (
 	echo Publishing shader inc files to target...
-	perl %SrcDirBase%\devtools\bin\copyshaderincfiles.pl inclist.txt
+	%perl% %SrcDirBase%\devtools\bin\copyshaderincfiles.pl inclist.txt
 )
 
 REM ****************
@@ -216,7 +225,7 @@ echo %EngineBinDir%\tier0.dll >> filestocopy.txt
 REM ****************
 REM Cull duplicate entries in work/build list
 REM ****************
-if exist filestocopy.txt type filestocopy.txt | perl "%SrcDirBase%\devtools\bin\uniqifylist.pl" > uniquefilestocopy.txt
+if exist filestocopy.txt type filestocopy.txt | %perl% "%SrcDirBase%\devtools\bin\uniqifylist.pl" > uniquefilestocopy.txt
 if exist filelistgen.txt if not "%dynamic_shaders%" == "1" (
     echo Generating action list...
     copy filelistgen.txt filelist.txt >nul
