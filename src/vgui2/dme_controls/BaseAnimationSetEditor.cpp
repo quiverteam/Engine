@@ -21,8 +21,6 @@
 #include "dme_controls/dmecontrols_utils.h"
 #include "dme_controls/dmepicker.h"
 
-#include "sfmobjects/exportfacialanimation.h"
-
 #include "movieobjects/dmechannel.h"
 #include "movieobjects/dmeanimationset.h"
 #include "movieobjects/dmeclip.h"
@@ -885,8 +883,7 @@ bool CBaseAnimationSetEditor::OnWriteFileToDisk( const char *pFileName, const ch
 	// Recompute relative paths for each source now that we know the file name
 	// NOTE: This also updates the name of the fileID in the datamodel system
 	CDisableUndoScopeGuard guard;
-	bool bOk = ExportFacialAnimation( pFileName, GetRootClip(), GetAnimationSetClip(), m_AnimSet ); 
-	return bOk;
+	return true;
 }
 
 
