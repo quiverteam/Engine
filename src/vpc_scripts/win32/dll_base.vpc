@@ -78,12 +78,6 @@ $Configuration
 							"exit 1" "\n" \
 							":BuildEventOK" "\n" 
 
-		$CommandLine		"$BASE" "\n" \
-							"call $SRCDIR\devtools\bin\vsign.bat -sign $OUTBINDIR\$(TargetFileName)" "\n" [$RETAIL && $PUBLISH]
-
-		$CommandLine		"$BASE" "\n" \
-							"call $SRCDIR\devtools\bin\vsign.bat -signvalve $OUTBINDIR\$(TargetFileName)" "\n" [!$RETAIL && !$PUBLISH && !$SOURCESDK]
-
 		$Description		"Publishing to $OUTBINDIR"
 		$ExcludedFromBuild					"No"
 	}
@@ -105,7 +99,8 @@ $Project
 			}
 		}
 
-		$File	"$SRCDIR\common\debug_dll_check.cpp"	[!$SOURCESDK]	
+		// file does not exist
+		/*$File	"$SRCDIR\common\debug_dll_check.cpp"
 		{
 			$Configuration
 			{
@@ -114,7 +109,7 @@ $Project
 					$Create/UsePrecompiledHeader	"Not Using Precompiled Headers"
 				}
 			}
-		}
+		}*/
 	}
 
 	$Folder	"Link Libraries"
