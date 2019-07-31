@@ -13,7 +13,7 @@ $Configuration
 {
 	$Compiler
 	{
-		$AdditionalIncludeDirectories		"$BASE,$SRCDIR\game\server,$SRCDIR\game\shared"
+		$AdditionalIncludeDirectories		"$BASE;$SRCDIR\game\server;$SRCDIR\game\shared"
 		$PreprocessorDefinitions			"$BASE;serverplugin_emptyONLY;_MBCS"
 	}
 

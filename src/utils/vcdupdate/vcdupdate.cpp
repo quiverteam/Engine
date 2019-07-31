@@ -19,7 +19,6 @@
 #include "materialsystem/imaterialsystem.h"
 #include "istudiorender.h"
 #include "mathlib/mathlib.h"
-#include "sfmobjects/sfmsession.h"
 #include "datacache/idatacache.h"
 #include "datacache/imdlcache.h"
 #include "vphysics_interface.h"

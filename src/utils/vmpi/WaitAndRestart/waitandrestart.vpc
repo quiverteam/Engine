@@ -14,7 +14,7 @@ $Configuration
 {
 	$Compiler
 	{
-		$AdditionalIncludeDirectories		"$BASE,..\"
+		$AdditionalIncludeDirectories		"$BASE;..\"
 		$PreprocessorDefinitions			"$BASE;PROTECTED_THINGS_DISABLE"
 	}
 }
@@ -28,7 +28,7 @@ $Project "WaitAndRestart"
 
 	$Folder	"Header Files"
 	{
-		// missing, need to recreate this
+		// missing; need to recreate this
 		//$File	"WaitAndRestart.h"
 	}
 }

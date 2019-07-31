@@ -13,7 +13,7 @@ $Configuration
 {
 	$Compiler
 	{
-		$AdditionalIncludeDirectories		"$BASE,$SRCDIR\utils\hlfaceposer,$SRCDIR\hlfaceposer,..\common,..\hlmv,$SRCDIR\game\shared,..\SAPI51\Include,.\lipsinc;..\common\shaderdll"
+		$AdditionalIncludeDirectories		"$BASE;$SRCDIR\utils\hlfaceposer;$SRCDIR\hlfaceposer;..\common;..\hlmv;$SRCDIR\game\shared;..\SAPI51\Include;.\lipsinc;..\common\shaderdll"
 		$PreprocessorDefinitions			"$BASE;PROTECTED_THINGS_DISABLE"
 	}
 

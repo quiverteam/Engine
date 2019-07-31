@@ -13,7 +13,7 @@ $Configuration
 {
 	$Compiler
 	{
-		$AdditionalIncludeDirectories		"$BASE,..\common,$SRCDIR\game\shared"
+		$AdditionalIncludeDirectories		"$BASE;..\common;$SRCDIR\game\shared"
 		$PreprocessorDefinitions			"$BASE;PROTECTED_THINGS_DISABLE"
 		$Create/UsePrecompiledHeader		"Use Precompiled Header (/Yu)"
 		$Create/UsePCHThroughFile			"cbase.h"

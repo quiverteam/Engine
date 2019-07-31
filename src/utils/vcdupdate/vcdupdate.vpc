@@ -13,7 +13,7 @@ $Configuration
 {
 	$Compiler
 	{
-		$AdditionalIncludeDirectories		"$BASE,$SRCDIR\game\shared"
+		$AdditionalIncludeDirectories		"$BASE;$SRCDIR\game\shared"
 	}	
 	
 	$Linker

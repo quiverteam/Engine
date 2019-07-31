@@ -14,7 +14,7 @@ $Configuration
 {
 	$Compiler
 	{
-		$AdditionalIncludeDirectories		"$BASE,..\..\public"
+		$AdditionalIncludeDirectories		"$BASE;..\..\public"
 		$PreprocessorDefinitions		"$BASE;_CRT_SECURE_NO_DEPRECATE"
 	}
 }

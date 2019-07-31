@@ -13,7 +13,7 @@ $Configuration
 {
 	$Compiler
 	{
-		$AdditionalIncludeDirectories		"$BASE,$SRCDIR\utils\common"
+		$AdditionalIncludeDirectories		"$BASE;$SRCDIR\utils\common"
 	}
 
 	$Linker

@@ -13,7 +13,7 @@ $Configuration
 {
 	$Compiler
 	{
-		$AdditionalIncludeDirectories		"$BASE,$SRCDIR\vgui2\include,$SRCDIR\vgui2\controls,..\common"
+		$AdditionalIncludeDirectories		"$BASE;$SRCDIR\vgui2\include;$SRCDIR\vgui2\controls;..\common"
 	}
 
 	$Linker

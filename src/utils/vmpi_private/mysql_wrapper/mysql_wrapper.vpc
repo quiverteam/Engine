@@ -13,7 +13,7 @@ $Configuration
 {
 	$Compiler
 	{
-		$AdditionalIncludeDirectories		"$BASE,..,..\mysql\include,..\..\vmpi"
+		$AdditionalIncludeDirectories		"$BASE;..;..\mysql\include;..\..\vmpi"
 		$PreprocessorDefinitions			"$BASE;MYSQL_WRAPPER_EXPORTS"
 	}
 }

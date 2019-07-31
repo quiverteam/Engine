@@ -14,7 +14,7 @@ $Configuration
 {
 	$Compiler
 	{
-		$AdditionalIncludeDirectories		"$BASE,..\,..\mysql\include"
+		$AdditionalIncludeDirectories		"$BASE;..\;..\mysql\include"
 		$PreprocessorDefinitions			"$BASE;PROTECTED_THINGS_DISABLE;WINVER=0x400"
 		$Create/UsePrecompiledHeader		"Use Precompiled Header (/Yu)"
 		$PrecompiledHeaderFile				"Debug/vmpi_browser_job_search.pch"

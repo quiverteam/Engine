@@ -10,16 +10,20 @@ $Macro OUTBINNAME	"vmpi_service_install"
 
 $Include "$SRCDIR\vpc_scripts\source_exe_base.vpc"
 
-$Configuration "Debug"
+$Configuration
 {
 	$Compiler
 	{
-		$AdditionalIncludeDirectories		"$BASE,.\,..\,..\..\common,..\..\..\public"
-		$PreprocessorDefinitions			"$BASE;PROTECTED_THINGS_DISABLE;WINVER=0x400"
+		$AdditionalIncludeDirectories		"$BASE;.\;..\;..\..\common;..\..\..\public"
+		//$PreprocessorDefinitions			"$BASE;PROTECTED_THINGS_DISABLE;WINVER=0x400"
+		$PreprocessorDefinitions			"$BASE;PROTECTED_THINGS_DISABLE"
 		$Create/UsePrecompiledHeader		"Use Precompiled Header (/Yu)"
 		$Create/UsePCHThroughFile			"stdafx.h"
 	}
+}
 	
+$Configuration "Debug"
+{
 	$Linker
 	{
 		$AdditionalDependencies				"nafxcwd.lib"
@@ -28,15 +32,7 @@ $Configuration "Debug"
 }
 
 $Configuration "Release"
-{
-	$Compiler
-	{
-		$AdditionalIncludeDirectories		"$BASE,.\,..\,..\..\common,..\..\..\public"
-		$PreprocessorDefinitions			"$BASE;PROTECTED_THINGS_DISABLE;WINVER=0x400"
-		$Create/UsePrecompiledHeader		"Use Precompiled Header (/Yu)"
-		$Create/UsePCHThroughFile			"stdafx.h"
-	}
-	
+{	
 	$Linker
 	{
 		$AdditionalDependencies				"nafxcw.lib libcmt.lib"

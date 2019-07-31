@@ -13,7 +13,7 @@ $Configuration
 {
 	$Compiler
 	{
-		$AdditionalIncludeDirectories		"$BASE;../common,../hlfaceposer,$SRCDIR/thirdparty/sapi51/include"
+		$AdditionalIncludeDirectories		"$BASE;../common;../hlfaceposer;$SRCDIR/thirdparty/sapi51/include"
 		$PreprocessorDefinitions			"$BASE;PHONEMEEXTRACTOR_EXPORTS"
 
 		// The project has some trouble with the deprecated string function warnings, so turn those off.

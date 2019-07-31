@@ -13,7 +13,7 @@ $Configuration
 {
 	$Compiler
 	{
-		$AdditionalIncludeDirectories		"$BASE,.\,..\.."
+		$AdditionalIncludeDirectories		"$BASE;.\;..\.."
 	}
 
 	$Linker

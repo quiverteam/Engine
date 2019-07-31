@@ -13,7 +13,7 @@ $Configuration
 {
 	$Compiler
 	{
-		$AdditionalIncludeDirectories		"$BASE;$SRCDIR\common\shaderdll,$SRCDIR\common\iostream;$SRCDIR\game\shared;$SRCDIR\utils\common"
+		$AdditionalIncludeDirectories		"$BASE;$SRCDIR\common\shaderdll;$SRCDIR\common\iostream;$SRCDIR\game\shared;$SRCDIR\utils\common"
 		$PreprocessorDefinitions			"$BASE;VALVE;PROTECTED_THINGS_DISABLE"
 		$Create/UsePrecompiledHeader		"Use Precompiled Header (/Yu)"
 		$AdditionalOptions					"/EHa"
