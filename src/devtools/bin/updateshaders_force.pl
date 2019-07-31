@@ -150,7 +150,8 @@ sub DoAsmShader
 	# if we are psh and we are compiling the vcs, we don't need this rule.
 	if( !( $shadertype eq "psh" && !$bWillCompileVcs ) )
 	{
-		&output_makefile_line( "\tperl $g_SourceDir\\devtools\\bin\\" . $shadertype . "_prep.pl $moreswitches $x360switch -source \"$g_SourceDir\" $argstring\n") ;
+		# another fix for azure pipelines
+		&output_makefile_line( "\tC:\\Strawberry\\perl\\bin\\perl $g_SourceDir\\devtools\\bin\\" . $shadertype . "_prep.pl $moreswitches $x360switch -source \"$g_SourceDir\" $argstring\n") ;
 	}
 
 	if( $bWillCompileVcs )
