@@ -26,8 +26,8 @@ $Configuration "Debug"
 {
 	$Linker
 	{
-		$AdditionalDependencies				"nafxcwd.lib"
-		$IgnoreSpecificLibrary				"nafxcw.lib libcmt.lib  libcmtd.lib"
+		$AdditionalDependencies				"nafxcwd.lib libcmtd.lib"
+		$IgnoreSpecificLibrary				"nafxcw.lib libcmt.lib "
 	}
 }
 
