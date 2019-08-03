@@ -64,6 +64,13 @@ list(APPEND DEFINES				-D_CRT_SECURE_NO_DEPRECATE
 								-D_HAS_ITERATOR_DEBUGGING=0)
 list(APPEND POSIX_DEFINES		-DUSE_SDL -DDX_TO_GL_ABSTRACTION)
 
+# Some IDEs like to have header files added to their projects
+# Luckily headers dont actually compile in a CMake project, so it's safe to recurse the whole
+# repo in search of header files.
+FILE(GLOB_RECURSE headers ${ROOT_DIR} *.h *.hxx *.hpp *.hh)
+
+list(APPEND SRCS ${headers})
+
 # For debug/release builds
 if(RELEASE)
 	list(APPEND DEFINES -DNDEBUG -D_NDEBUG -DRELEASEASSERTS)

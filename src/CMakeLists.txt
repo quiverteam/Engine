@@ -45,7 +45,7 @@ endif(SERVER_BUILD)
 # Make sure the things are good
 if(DEFINED CMAKE_HOST_UNIX)
 	if(NOT USE_TOGL OR NOT USE_OPENGL AND NOT UNIX_CROSS)
-		message(WARNING "ToGL or OpenGL is not enabled and you're building for Unix. ToGL is enabled by default now")
+		#message(WARNING "ToGL or OpenGL is not enabled and you're building for Unix. ToGL is enabled by default now")
 		set(USE_TOGL ON)
 	endif(NOT USE_TOGL OR NOT USE_OPENGL AND NOT UNIX_CROSS)
 endif(DEFINED CMAKE_HOST_UNIX)
@@ -131,6 +131,14 @@ if(DEFINED CMAKE_HOST_UNIX AND NOT UNIX_CROSS)
 		set(PLATFORM_SUBDIR posix32)
 	endif(BUILD_64BIT)
 endif(DEFINED CMAKE_HOST_UNIX AND NOT UNIX_CROSS)
+
+#
+# Important fixes
+#
+if(NOT USE_AVX)
+	add_definitions(-DSDL_DISABLE_IMMINTRIN_H)
+endif(NOT USE_AVX)
+
 
 set(CMAKESCRIPTS_DIR ${CMAKE_HOME_DIRECTORY}/cmake_scripts/)
 set(ROOT_DIR ${CMAKE_HOME_DIRECTORY})

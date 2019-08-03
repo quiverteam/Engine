@@ -8,7 +8,6 @@
 
 #include <xmmintrin.h>
 #include <mmintrin.h>
-#include <immintrin.h>
 
 #include <mathlib/vector.h>
 #include <mathlib/mathlib.h>
@@ -27,6 +26,25 @@
 // but decided against it because (a) the nature of SIMD code which includes comparisons is to blur
 // the relationship between packed floats and packed integer types and (b) not sure that the
 // compiler would handle generating good code for the intrinsics.
+
+#ifdef _USE_AVX
+#include <immintrin.h>
+#else
+
+/* These are thrown in because immintrin introduces a bunch of ABI changes we don't want when not using AVX2 */
+typedef union
+{
+	float f32[8];
+	uint32 u32[8];
+} __m256;
+
+typedef union
+{
+	double f64[4];
+	uint64 u64[4];
+} __m256d;
+
+#endif //_USE_AVX
 
 #if USE_STDC_FOR_SIMD
 
@@ -59,7 +77,7 @@ typedef __m256 i32x8;
 typedef __m256 u32x8;
 typedef __m256d fltdx8;
 
-#endif //_USE_AVX
+#endif //USE_STDC_FOR_SIMD
 
 
 
