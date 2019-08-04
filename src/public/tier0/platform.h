@@ -1688,8 +1688,108 @@ PLATFORM_INTERFACE int Plat_GetPriority(int pid);
 
 /*
 Returns the number of milliseconds since system start
+
+Params:
+	None
+	
+Returns:
+	Number of millis since the system start
 */
 PLATFORM_INTERFACE unsigned int Plat_GetTickCount();
+
+//
+// Functions for dealing with directories and files.
+// These are more abstracted than the preprocessor defines earlier in the file
+//
+
+/*
+Changes the current working directory to the specified dir
+
+Params:
+	dir is the directory to change to
+	
+Returns:
+	None
+*/
+PLATFORM_INTERFACE void Plat_Chdir(const char* dir);
+
+/*
+Checks if a directory exists
+
+Params:
+	dir is the target directory
+	
+Returns:
+	Returns 0 if dir does not exist, 1 if dir exists
+*/
+PLATFORM_INTERFACE int Plat_DirExists(const char* dir);
+
+/*
+Checks if a file exists
+
+Params:
+	file is the file to check for
+	
+Returns:
+	Returns 0 if file does not exist, 1 if exists
+*/
+PLATFORM_INTERFACE int Plat_FileExists(const char* file);
+
+//-----------------------------------------------------------------------------
+//
+// Improved process info API!
+// Allows you to query stuff about a process easily
+//
+//-----------------------------------------------------------------------------
+
+typedef struct 
+{
+	/* Current working dir */
+	const char* cwd;
+	/* (Linux only) contains the root directory (such as /) */
+	const char* root;
+	/* Base dir that the app runs from */
+	const char* basedir;
+	/* Exe name */
+	const char* exename;
+	/* full path to exe */
+	const char* exepath;
+	/* Used mem in bytes */
+	size_t usedmem;
+	/* Shared mem in bytes (usually for linux only) */
+	size_t sharedmem;
+	/* process id */
+	int pid;
+	/* number of child threads this has */
+	int threads;
+	/* the cpus this can use. This is an ORed thingy. So bit 0 means CPU-0 can be used */
+	uint32 cpus;
+	/* the total cpus this can use */
+	int numcpus;
+} ProcInfo_t;
+
+PLATFORM_INTERFACE ProcInfo_t Plat_QueryProcInfo(int pid);
+
+/*
+Holds info about an OS
+TODO: Make this less bad? Adding memory management here would be bad though.
+*/
+typedef struct OSInfo
+{
+	/* os name */
+	char osname[65];
+	/* os version */
+	char osver[65];
+	/* kernel name */
+	char kname[65];
+	/* kernel version */
+	char kver[65];
+	/* Os platform, e.g. x86 */
+	char plat[33];
+} OSInfo_t;
+
+PLATFORM_INTERFACE OSInfo_t Plat_QueryOSInfo();
+
 
 //-----------------------------------------------------------------------------
 

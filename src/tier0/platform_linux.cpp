@@ -19,7 +19,9 @@
 #include <sys/resource.h>
 #include <sys/time.h>
 #include <sys/times.h>
+#include <sys/utsname.h>
 #include <sched.h>
+#include <dirent.h>
 
 double Plat_FloatTime()
 {
@@ -188,16 +190,11 @@ PLATFORM_INTERFACE bool Plat_GetExecutablePath(char* outname, size_t len)
 	sprintf(pathbuf, "/proc/%i/exe", getpid());
 	int nlen = readlink(pathbuf, outname, len);
 
-	if(nlen == -1)
-		return false;
-
+	Assert(nlen != -1);
 	Assert(nlen <= len);
 
 	// Null terminate the string
-	if(nlen <= len)
-		outname[nlen] = '\0';
-	else
-		outname[len] = '\0';
+	outname[nlen] = '\0';
 
 	return true;
 }
@@ -207,10 +204,11 @@ PLATFORM_INTERFACE bool Plat_GetExecutableDirectory(char* outpath, size_t len)
 	Assert(outpath);
 
 	// Full path to the directory, we will read from procfs
-	char pathbuf[128];
+	char pathbuf[32];
 	sprintf(pathbuf, "/proc/%i/exe", getpid());
 	int nlen = readlink(pathbuf, outpath, len);
-
+	Assert(nlen <= len);
+	
 	if(nlen == -1)
 		return false;
 
@@ -221,13 +219,10 @@ PLATFORM_INTERFACE bool Plat_GetExecutableDirectory(char* outpath, size_t len)
 	{
 		if(pathbuf[i] == '/')
 		{
-			// dont want any seg faults!
-			if(i < nlen)
-				pathbuf[i+1] = '\0';
+			pathbuf[i] = '\0';
 			break;
 		}
 	}
-
 	return true;
 }
 
@@ -280,4 +275,45 @@ PLATFORM_INTERFACE unsigned int Plat_GetTickCount()
 bool Plat_IsInDebugSession()
 {
 	return false; /* None of dat shit */
+}
+
+PLATFORM_INTERFACE ProcInfo_t Plat_QueryProcInfo(int pid)
+{
+	ProcInfo_t pinfo;
+	return pinfo;
+}
+
+PLATFORM_INTERFACE OSInfo_t Plat_QueryOSInfo()
+{
+	OSInfo_t osinfo;
+	utsname info;
+	uname(&info);
+	memcpy(osinfo.osname, info.sysname, strlen(info.sysname));
+	memcpy(osinfo.osver, info.version, strlen(info.version));
+	memcpy(osinfo.kver, info.release, strlen(info.release));
+	memcpy(osinfo.kname, "Linux", strlen("Linux")); //TODO: lol
+	return osinfo;
+}
+
+
+PLATFORM_INTERFACE void Plat_Chdir(const char* dir)
+{
+	chdir(dir);
+}
+
+PLATFORM_INTERFACE int Plat_DirExists(const char* dir)
+{
+	DIR* pdir = opendir(dir);
+	if(pdir)
+	{
+		closedir(pdir);
+		return 1;
+	}
+	else
+		return 0;
+}
+
+PLATFORM_INTERFACE int Plat_FileExists(const char* file)
+{
+	return access(file, F_OK) != -1;
 }
