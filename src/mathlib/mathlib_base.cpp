@@ -2516,7 +2516,9 @@ void Hermite_SplineBasis( float t, float basis[4] )
 //-----------------------------------------------------------------------------
 
 // BUG: the VectorSubtract()'s calls go away if the global optimizer is enabled
+#ifdef _WIN32
 #pragma optimize( "g", off )
+#endif
 
 void Hermite_Spline( const Vector &p0, const Vector &p1, const Vector &p2, float t, Vector& output )
 {
@@ -2526,7 +2528,9 @@ void Hermite_Spline( const Vector &p0, const Vector &p1, const Vector &p2, float
 	Hermite_Spline( p1, p2, e10, e21, t, output );
 }
 
+#ifdef _WIN32
 #pragma optimize( "", on )
+#endif
 
 float Hermite_Spline( float p0, float p1, float p2,	float t )
 {
@@ -3292,13 +3296,17 @@ bool CalcLineToLineIntersectionSegment(
    return true;
 }
 
+#ifdef _WIN32
 #pragma optimize( "", off )
+#endif //_WIN32
 
 #ifndef EXCEPTION_EXECUTE_HANDLER
 #define EXCEPTION_EXECUTE_HANDLER       1
 #endif
 
+#ifdef _WIN32
 #pragma optimize( "", on )
+#endif //_WIN32
 
 static bool s_b3DNowEnabled = false;
 static bool s_bMMXEnabled = false;
