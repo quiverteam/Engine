@@ -14,6 +14,7 @@
 #endif
 
 #if defined(__GCC__) || defined(__GNUC__)
+#undef COMPILER_GCC
 #define COMPILER_GCC 1
 #endif
 
