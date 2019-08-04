@@ -168,6 +168,7 @@ add_subdirectory(materialsystem)
 add_subdirectory(materialsystem/shaderapiempty)
 add_subdirectory(materialsystem/shaderapivk)
 add_subdirectory(materialsystem/shaderapigl)
+add_subdirectory(game)
 
 # rip togl
 #add_subdirectory(togl)
