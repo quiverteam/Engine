@@ -16,7 +16,7 @@ steps:
   inputs:
     scriptSource: 'filePath'
     scriptPath: 'src/devtools/pyqpc/PyQPC.py'
-    arguments: '/basefile "../../vpc_scripts/default.vgc" +core -toolutils -filesystem_steam /vs2019 /mksln core'
+    arguments: '/basefile "../../vpc_scripts/default.vgc" +core -toolutils -filesystem_steam -appidlink /vs2019 /mksln core'
     
 # no difference from MSBuild@1?
 - task: VSBuild@1
@@ -26,6 +26,14 @@ steps:
     platform: 'win32'
     configuration: 'Release'
     maximumCpuCount: true
+
+- task: CmdLine@2
+  displayName: TEMP - check if needed files exist
+  inputs:
+    workingDirectory: "$(Build.Repository.LocalPath)/src/materialsystem/stdshaders/"
+    script: '
+      _check_files.bat
+      '
     
 - task: CmdLine@2
   displayName: Build All Shaders
