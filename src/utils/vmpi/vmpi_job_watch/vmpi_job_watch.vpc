@@ -14,7 +14,7 @@ $Configuration "Debug"
 {
 	$Compiler
 	{
-		$AdditionalIncludeDirectories		"$BASE,.\,..\,..\..\common,..\mysql\include"
+		$AdditionalIncludeDirectories		"$BASE;.\;..\;..\..\common;..\mysql\include"
 		$PreprocessorDefinitions			"$BASE;PROTECTED_THINGS_DISABLE;WINVER=0x400"
 	}
 	
@@ -29,7 +29,7 @@ $Configuration "Release"
 {
 	$Compiler
 	{
-		$AdditionalIncludeDirectories		"$BASE,.\,..\,..\..\common,..\mysql\include"
+		$AdditionalIncludeDirectories		"$BASE;.\;..\;..\..\common;..\mysql\include"
 		$PreprocessorDefinitions			"$BASE;PROTECTED_THINGS_DISABLE;WINVER=0x400"
 		$EnableC++Exceptions				"Yes (/EHsc)"
 	}

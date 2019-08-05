@@ -13,7 +13,7 @@ $Configuration
 {
 	$Compiler
 	{
-		$AdditionalIncludeDirectories		"$BASE,..\..\common,..\,..\vmpi_service"
+		$AdditionalIncludeDirectories		"$BASE;..\..\common;..\;..\vmpi_service"
 		$PreprocessorDefinitions			"$BASE;PROTECTED_THINGS_DISABLE"
 	}
 

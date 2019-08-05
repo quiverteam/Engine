@@ -13,7 +13,7 @@ $Configuration
 {
 	$Compiler
 	{
-		$AdditionalIncludeDirectories		"$BASE,..\common"
+		$AdditionalIncludeDirectories		"$BASE;..\common"
 		$PreprocessorDefinitions			"$BASE;WINVER=0x502"
 		$Create/UsePrecompiledHeader		"Use Precompiled Header (/Yu)"
 		$PrecompiledHeaderFile				"Debug/FileSystemOpenDialog.pch"

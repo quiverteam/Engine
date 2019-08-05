@@ -13,7 +13,7 @@ $Configuration
 {
 	$Compiler
 	{
-		$AdditionalIncludeDirectories		"$BASE,$SRCDIR\utils\vcd_sound_check,$SRCDIR\game\shared,..\common"
+		$AdditionalIncludeDirectories		"$BASE;$SRCDIR\utils\vcd_sound_check;$SRCDIR\game\shared;..\common"
 		$Create/UsePrecompiledHeader		"Use Precompiled Header (/Yu)"
 		$Create/UsePCHThroughFile			"cbase.h"
 		$PrecompiledHeaderFile				"Debug/vcd_sound_check.pch"

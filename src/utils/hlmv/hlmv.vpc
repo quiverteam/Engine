@@ -13,7 +13,7 @@ $Configuration
 {
 	$Compiler
 	{
-		$AdditionalIncludeDirectories		"$BASE,..\common"
+		$AdditionalIncludeDirectories		"$BASE;..\common"
 		$PreprocessorDefinitions			"$BASE;VECTOR;PROTECTED_THINGS_DISABLE"
 	}
 

@@ -30,16 +30,10 @@ if exist "%ProgramFiles(x86)%\Microsoft Visual Studio\Installer\vswhere.exe" (
 )
 
 :start
-set TTEXE=..\..\devtools\bin\timeprecise.exe
-if not exist %TTEXE% goto no_ttexe
-goto no_ttexe_end
-
-:no_ttexe
 set TTEXE=time /t
-:no_ttexe_end
 
 rem echo ==================== buildshaders %* ==================
-%TTEXE% -cur-Q
+@REM %TTEXE% -cur-Q
 set tt_start=%ERRORLEVEL%
 set tt_chkpt=%tt_start%
 
@@ -167,7 +161,7 @@ if exist makefile.%inputbase% del /f /q makefile.%inputbase%
 REM ****************
 REM Generate a makefile for the shader project
 REM ****************
-perl "%SrcDirBase%\devtools\bin\updateshaders.pl" -source "%SrcDirBase%" %inputbase%
+perl "%SrcDirBase%\devtools\perl\updateshaders.pl" -source "%SrcDirBase%" %inputbase%
 
 
 REM ****************
@@ -183,7 +177,7 @@ REM Copy the inc files to their target
 REM ****************
 if exist "inclist.txt" (
 	echo Publishing shader inc files to target...
-	perl %SrcDirBase%\devtools\bin\copyshaderincfiles.pl inclist.txt
+	perl %SrcDirBase%\devtools\perl\copyshaderincfiles.pl inclist.txt
 )
 
 REM ****************
@@ -209,7 +203,7 @@ echo %EngineBinDir%\tier0.dll >> filestocopy.txt
 REM ****************
 REM Cull duplicate entries in work/build list
 REM ****************
-if exist filestocopy.txt type filestocopy.txt | perl "%SrcDirBase%\devtools\bin\uniqifylist.pl" > uniquefilestocopy.txt
+if exist filestocopy.txt type filestocopy.txt | perl "%SrcDirBase%\devtools\perl\uniqifylist.pl" > uniquefilestocopy.txt
 if exist filelistgen.txt if not "%dynamic_shaders%" == "1" (
     echo Generating action list...
     copy filelistgen.txt filelist.txt >nul

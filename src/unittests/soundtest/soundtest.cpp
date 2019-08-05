@@ -221,7 +221,7 @@ bool CSoundTestApp::SetupSearchPaths()
 
 	g_pFileSystem->AddSearchPath( steamInfo.m_GameInfoPath, "SKIN", PATH_ADD_TO_HEAD );
 
-	FileSystem_AddSearchPath_Platform( g_pFileSystem, steamInfo.m_GameInfoPath );
+	FileSystem_AddSearchPath_Core( g_pFileSystem, steamInfo.m_GameInfoPath );
 
 	// and now add episodic to the GAME searchpath
 	char shorts[MAX_PATH];

@@ -33,7 +33,7 @@ $Project "Fgdlib"
 	{
 		$File	"$SRCDIR\public\fgdlib\fgdlib.h"
 		$File	"$SRCDIR\public\fgdlib\gamedata.h"
-		$File	"$SRCDIR\hammer\gamepalette.h"
+		$File	"$SRCDIR\utils\hammer\gamepalette.h"
 		$File	"$SRCDIR\public\fgdlib\gdclass.h"
 		$File	"$SRCDIR\public\fgdlib\gdvar.h"
 		$File	"$SRCDIR\public\fgdlib\helperinfo.h"

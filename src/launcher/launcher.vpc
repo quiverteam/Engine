@@ -82,4 +82,5 @@ $Project "launcher"
 		$Lib	"$LIBPUBLIC\appframework"
 		$Lib	"$LIBPUBLIC\tier2"
 		$Lib	"$LIBPUBLIC\tier3"
+	}
 }

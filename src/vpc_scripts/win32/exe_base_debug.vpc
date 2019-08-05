@@ -241,7 +241,6 @@ $Configuration "Debug"
 		$UseFAT32WorkAround
 
 		// Input And Output
-		$AdditionalManifestFiles			"$SRCDIR\public\windows_default.manifest" [!$SOURCESDK]
 		$InputResourceManifests
 		$EmbedManifest
 		$OutputManifestFile

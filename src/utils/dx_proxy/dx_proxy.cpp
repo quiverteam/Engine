@@ -66,51 +66,6 @@ const char * WINAPI GetDllVersion( void );
 
 #endif // #ifdef DX9_V30_PC
 
-
-//
-// DX10_V00_PC
-//
-// 1. D3DX static import library
-// 2. resource dynamic library d3dx10.dll
-//
-// MSFT file version: 9.16.843.0000
-// Distribution: Dec 2006 DirectX SDK
-//
-// Implementation note: need to delayload d3dx10
-// because the module should be extracted from resources first.
-// Make sure "/DELAYLOAD:d3dx10.dll" is passed to linker.
-//
-#ifdef DX10_V00_PC
-
-#ifdef DX_PROXY_INC_CONFIG
-#	error "DX10_V00_PC: Multiple DX_PROXY configurations disallowed!"
-#endif
-#define DX_PROXY_INC_CONFIG
-#pragma message ( "Compiling DX_PROXY for DX10_V00_PC" )
-
-#pragma comment( lib, "delayimp" )
-
-#pragma comment ( lib, "../../dx10sdk/lib/d3dx10" )
-#include "../../dx10sdk/include/d3dx10.h"
-
-typedef D3D10_SHADER_MACRO D3DXMACRO;
-typedef LPD3D10INCLUDE LPD3DXINCLUDE;
-typedef ID3D10Include ID3DXInclude;
-typedef D3D10_INCLUDE_TYPE D3DXINCLUDE_TYPE;
-typedef ID3D10Blob* LPD3DXBUFFER;
-typedef void* LPD3DXCONSTANTTABLE;
-
-#endif // #ifdef DX10_V00_PC
-
-
-//
-// No DX configuration
-#ifndef DX_PROXY_INC_CONFIG
-# error "DX9_PC must be defined!"
-#endif // #ifndef DX_PROXY_INC_CONFIG
-
-
-
 //
 // ExtractDependencies
 //
@@ -227,14 +182,6 @@ const char * WINAPI GetDllVersionLong( void )
 #if defined( DX9_V30_PC ) && defined( NDEBUG )
 	return "{DX_PROXY for DX9_V30_PC RELEASE}";
 #endif
-
-#if defined( DX10_V00_PC ) && defined( _DEBUG )
-	return "{DX_PROXY for DX10_V00_PC DEBUG}";
-#endif
-
-#if defined( DX10_V00_PC ) && defined( NDEBUG )
-	return "{DX_PROXY for DX10_V00_PC RELEASE}";
-#endif
 }
 
 
@@ -255,14 +202,6 @@ const char * WINAPI GetDllVersion( void )
 
 #if defined( DX9_V30_PC ) && defined( NDEBUG )
 	return "DXPRX_DX9_V30_PC_r";
-#endif
-
-#if defined( DX10_V00_PC ) && defined( _DEBUG )
-	return "DXPRX_DX10_V00_PC_d";
-#endif
-
-#if defined( DX10_V00_PC ) && defined( NDEBUG )
-	return "DXPRX_DX10_V00_PC_r";
 #endif
 }
 

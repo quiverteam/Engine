@@ -14,7 +14,7 @@ $Configuration
 {
 	$Compiler
 	{
-		$AdditionalIncludeDirectories		"$BASE,..\..\common,.."
+		$AdditionalIncludeDirectories		"$BASE;..\..\common;.."
 		$PreprocessorDefinitions			"$BASE;MPI;PROTECTED_THINGS_DISABLE"
 	}
 

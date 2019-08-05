@@ -18,8 +18,6 @@
 #include "icommandline.h"
 #include "mathlib/mathlib.h"
 #include "vstdlib/vstdlib.h"
-#include "tier2/p4helpers.h"
-#include "p4lib/ip4.h"
 #include "tier1/utlbuffer.h"
 #include "tier1/utlstringmap.h"
 #include "datamodel/dmelement.h"
@@ -80,7 +78,6 @@ bool CPCFFixApp::Create()
 
 	AppSystemInfo_t appSystems[] = 
 	{
-		{ "p4lib.dll",				P4_INTERFACE_VERSION },
 		{ "", "" }	// Required to terminate the list
 	};
 
@@ -482,14 +479,6 @@ int CPCFFixApp::Main()
 		return 0;
 	}
 
-	// Do Perforce Stuff
-	if ( CommandLine()->FindParm( "-nop4" ) )
-	{
-		g_p4factory->SetDummyMode( true );
-	}
-
-	g_p4factory->SetOpenFileChangeList( "Fixed PCF files" );
-
 	const char *pPCFFile = CommandLine()->ParmValue( "-i" );
 	if ( !pPCFFile )
 	{
@@ -506,7 +495,6 @@ int CPCFFixApp::Main()
 
 	FixupPCFFile( pRoot );
 
-	CP4AutoEditFile checkout( pPCFFile );
 	const char *pOutEncoding = g_pDataModel->GetDefaultEncoding( "pcf" );
 	if ( !g_pDataModel->SaveToFile( pPCFFile, NULL, pOutEncoding, "pcf", pRoot ) )
 	{

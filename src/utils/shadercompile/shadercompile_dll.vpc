@@ -13,7 +13,7 @@ $Configuration
 {
 	$Compiler
 	{
-		$AdditionalIncludeDirectories		"$BASE,..\common;..\vmpi;$SRCDIR\dx9sdk\include"
+		$AdditionalIncludeDirectories		"$BASE;..\common;..\vmpi;$SRCDIR\dx9sdk\include"
 		$PreprocessorDefinitions			"$BASE;SHADERCOMPILE_EXPORTS;MPI"
 	}
 

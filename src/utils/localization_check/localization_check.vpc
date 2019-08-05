@@ -13,7 +13,7 @@ $Configuration
 {
 	$Compiler
 	{
-		$AdditionalIncludeDirectories		"$BASE,$SRCDIR\utils\localization_check,$SRCDIR\game\shared,..\common,..\hlfaceposer"
+		$AdditionalIncludeDirectories		"$BASE;$SRCDIR\utils\localization_check;$SRCDIR\game\shared;..\common;..\hlfaceposer"
 	}
 
 	$Linker
