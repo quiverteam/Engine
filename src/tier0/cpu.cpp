@@ -7,17 +7,19 @@
 
 #include "pch_tier0.h"
 
-#if defined(_WIN32) || defined(WIN64)
+#ifdef _WINDOWS
 #define WINDOWS_LEAN_AND_MEAN
 #include <windows.h>
 #include <intrin.h>
 #elif defined(_LINUX)
-#include <stdio.h>
+#include <x86intrin.h>
 #endif
 
-static bool cpuid(unsigned long function, unsigned long& out_eax, unsigned long& out_ebx, unsigned long& out_ecx, unsigned long& out_edx)
+#include <stdio.h>
+
+static bool cpuid(unsigned int function, unsigned int& out_eax, unsigned int& out_ebx, unsigned int& out_ecx, unsigned int& out_edx)
 {
-#if defined(_LINUX) || defined(POSIX)
+#ifdef _POSIX
 	asm("movl %4, %%eax\n\t"
 		"cpuid\n\t"
 		"movl %%eax, %0\n\t"
@@ -40,15 +42,11 @@ static bool cpuid(unsigned long function, unsigned long& out_eax, unsigned long&
 
 bool CheckMMXTechnology(void)
 {
-#ifdef _LINUX
-	return true;
-#else
-    unsigned long eax,ebx,edx,unused;
+    unsigned int eax,ebx,edx,unused;
     if ( !cpuid(1,eax,ebx,unused,edx) )
 		return false;
 
     return ( edx & 0x800000 ) != 0;
-#endif
 }
 
 //-----------------------------------------------------------------------------
@@ -57,52 +55,14 @@ bool CheckMMXTechnology(void)
 //-----------------------------------------------------------------------------
 static bool IsWin98OrOlder()
 {
-#if defined(_WIN32) || defined(WIN64)
-	bool retval = false;
-
-	OSVERSIONINFOEX osvi;
-	ZeroMemory(&osvi, sizeof(OSVERSIONINFOEX));
-	osvi.dwOSVersionInfoSize = sizeof(OSVERSIONINFOEX);
-	
-	BOOL bOsVersionInfoEx = GetVersionEx ((OSVERSIONINFO *) &osvi);
-	if( !bOsVersionInfoEx )
-	{
-		// If OSVERSIONINFOEX doesn't work, try OSVERSIONINFO.
-		
-		osvi.dwOSVersionInfoSize = sizeof (OSVERSIONINFO);
-		if ( !GetVersionEx ( (OSVERSIONINFO *) &osvi) )
-		{
-			Error( _T("IsWin98OrOlder:  Unable to get OS version information") );
-		}
-	}
-
-	switch (osvi.dwPlatformId)
-	{
-	case VER_PLATFORM_WIN32_NT:
-		// NT, XP, Win2K, etc. all OK for SSE
-		break;
-	case VER_PLATFORM_WIN32_WINDOWS:
-		// Win95, 98, Me can't do SSE
-		retval = true;
-		break;
-	case VER_PLATFORM_WIN32s:
-		// Can't really run this way I don't think...
-		retval = true;
-		break;
-	default:
-		break;
-	}
-
-	return retval;
-#else
 	return false;
-#endif
 }
 
 
+/* Checks if SSE is supported */
 bool CheckSSETechnology(void)
 {
-    unsigned long eax,ebx,edx,unused;
+    unsigned int eax,ebx,edx,unused;
     if ( !cpuid(1,eax,ebx,unused,edx) )
 	{
 		return false;
@@ -111,47 +71,78 @@ bool CheckSSETechnology(void)
     return ( edx & 0x2000000L ) != 0;
 }
 
+/* Checks if SSE2 is supported */
 bool CheckSSE2Technology(void)
 {
-	unsigned long eax,ebx,edx,unused;
+	unsigned int eax,ebx,edx,unused;
     if ( !cpuid(1,eax,ebx,unused,edx) )
 		return false;
 
     return ( edx & 0x04000000 ) != 0;
 }
 
-bool Check3DNowTechnology(void)
+/* Checks for SSE3 */
+bool CheckSSE3Technology(void)
 {
-	unsigned long eax, unused;
-    if ( !cpuid(0x80000000,eax,unused,unused,unused) )
+	unsigned int eax, ebx, edx, ecx;
+	if(!cpuid(1,eax,ebx,ecx,edx))
 		return false;
-
-    if ( eax > 0x80000000L )
-    {
-     	if ( !cpuid(0x80000001,unused,unused,unused,eax) )
-			return false;
-
-		return ( eax & 1<<31 ) != 0;
-    }
-    return false;
+	return (ecx & 1) == 1;
 }
 
+/* Check for SSE4.1 */
+bool CheckSSE41(void)
+{
+	unsigned int eax, ebx, edx, ecx;
+	if(!cpuid(1,eax,ebx,ecx,edx))
+		return false;
+	return (ecx & (1<<19) >> 19) == 1;
+}
+
+bool CheckSSE42(void)
+{
+	unsigned int eax, ebx, edx, ecx;
+	if(!cpuid(1,eax,ebx,ecx,edx))
+		return false;
+	return (ecx & (1<<20) >> 20) == 1;
+}
+
+bool CheckAVX(void)
+{
+	unsigned int eax, ebx, edx, ecx;
+	if(!cpuid(1,eax,ebx,ecx,edx))
+		return false;
+	return (ecx & (1<<28) >> 28) == 1;
+}
+
+bool CheckAVX2(void)
+{
+	unsigned int eax, ebx, edx, ecx;
+	if(!cpuid(7,eax,ebx,ecx,edx))
+		return false;
+	return (ecx & (1<<5) >> 5) == 1;
+}
+
+/* Checks for 3DNow */
+/* Leave this as false, since 3dnow is gone */
+bool Check3DNowTechnology(void)
+{
+	return false;
+}
+
+/* CHeck for CMov */
 bool CheckCMOVTechnology()
 {
-#ifdef _LINUX
-    return false;
-#else
-	unsigned long eax,ebx,edx,unused;
+	unsigned int eax,ebx,edx,unused;
     if ( !cpuid(1,eax,ebx,unused,edx) )
 		return false;
 
     return ( edx & (1<<15) ) != 0;
-#endif
 }
 
 bool CheckFCMOVTechnology(void)
 {
-    unsigned long eax,ebx,edx,unused;
+    unsigned int eax,ebx,edx,unused;
     if ( !cpuid(1,eax,ebx,unused,edx) )
 		return false;
 
@@ -160,7 +151,7 @@ bool CheckFCMOVTechnology(void)
 
 bool CheckRDTSCTechnology(void)
 {
-	unsigned long eax,ebx,edx,unused;
+	unsigned int eax,ebx,edx,unused;
     if ( !cpuid(1,eax,ebx,unused,edx) )
 		return false;
 
@@ -170,7 +161,7 @@ bool CheckRDTSCTechnology(void)
 // Return the Processor's vendor identification string, or "Generic_x86" if it doesn't exist on this CPU
 const tchar* GetProcessorVendorId()
 {
-	unsigned long unused, VendorIDRegisters[3];
+	unsigned int unused, VendorIDRegisters[3];
 
 	static tchar VendorID[13];
 	
@@ -205,7 +196,7 @@ static bool HTSupported(void)
 	const unsigned int EXT_FAMILY_ID = 0x0f00000;	// EAX[23:20] - Bit 23 thru 20 contains extended family  processor id
 	const unsigned int PENTIUM4_ID   = 0x0f00;		// Pentium 4 family processor id
 
-	unsigned long unused,
+	unsigned int unused,
 				  reg_eax = 0, 
 				  reg_edx = 0,
 				  vendor_id[3] = {0, 0, 0};
@@ -229,7 +220,7 @@ static uint8 LogicalProcessorsPerPackage(void)
 	// EBX[23:16] indicate number of logical processors per package
 	const unsigned NUM_LOGICAL_BITS = 0x00FF0000;
 
-    unsigned long unused, reg_ebx = 0;
+    unsigned int unused, reg_ebx = 0;
 
 	if ( !HTSupported() ) 
 		return 1; 
@@ -324,15 +315,20 @@ const CPUInformation* GetCPUInformation()
 #endif
 
 	// Determine Processor Features:
-	pi.m_bRDTSC        = CheckRDTSCTechnology();
-	pi.m_bCMOV         = CheckCMOVTechnology();
-	pi.m_bFCMOV        = CheckFCMOVTechnology();
-	pi.m_bMMX          = CheckMMXTechnology();
-	pi.m_bSSE          = CheckSSETechnology();
-	pi.m_bSSE2         = CheckSSE2Technology();
-	pi.m_b3DNow        = Check3DNowTechnology();
-	pi.m_szProcessorID = (tchar*)GetProcessorVendorId();
-	pi.m_bHT		   = HTSupported();
-
+	pi.m_bRDTSC			= CheckRDTSCTechnology();
+	pi.m_bCMOV			= CheckCMOVTechnology();
+	pi.m_bFCMOV			= CheckFCMOVTechnology();
+	pi.m_bMMX			= CheckMMXTechnology();
+	pi.m_bSSE			= CheckSSETechnology();
+	pi.m_bSSE2			= CheckSSE2Technology();
+	pi.m_b3DNow			= Check3DNowTechnology();
+	pi.m_szProcessorID	= (tchar*)GetProcessorVendorId();
+	pi.m_bHT			= HTSupported();
+	pi.m_bSSE3			= CheckSSE3Technology();
+	pi.m_bAVX2			= CheckAVX2();
+	pi.m_bAVX			= CheckAVX();
+	pi.m_bSSE41			= CheckSSE41();
+	pi.m_bSSE42			= CheckSSE42();
+	
 	return &pi;
 }
