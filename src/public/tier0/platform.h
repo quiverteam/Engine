@@ -1177,7 +1177,9 @@ struct CPUInformation
 		 m_bSSSE3 : 1,
 		 m_bSSE4a : 1,
 		 m_bSSE41 : 1,
-		 m_bSSE42 : 1;	
+		 m_bSSE42 : 1,
+		 m_bAVX   : 1,
+		 m_bAVX2  : 1;	
 
 	int64 m_Speed;						// In cycles per second.
 
@@ -1670,6 +1672,9 @@ Sets the priority of the specified process
 Params:
 	priority is the priority level of the process
 	pid is the process id of the target process
+
+Returns:
+	None
 */
 PLATFORM_INTERFACE void Plat_SetPriority(int priority, int pid);
 
