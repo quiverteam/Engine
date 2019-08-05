@@ -1,4 +1,6 @@
 @echo off
-devtools\bin\vpc.exe /hl2r /hl2 /hl2mp /episodic +core /define:VS2019 /mksln core.sln
-@REM devtools\bin\vpc.exe /hl2r /hl2 /hl2mp /episodic +core /define:VS2019 /mksln core_x64.sln
+
+set pyqpc=py devtools\pyqpc\PyQPC.py /basefile "../../vpc_scripts/default.vgc"
+%pyqpc% /hl2 /hl2mp /episodic +core /vs2019 /mksln core
+
 pause

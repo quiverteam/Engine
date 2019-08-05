@@ -85,58 +85,81 @@ $Group "stdshaders"
 
 $Group "tools"
 {
-	"actbusy"
-	"commedit"
-	"foundry"
-	"pet"
-//	"sampletool"
-	"vcdblock"
-	"vmt"
+	$Folder "Engine Tools"
+	{
+		"actbusy"
+		"commedit"
+		"foundry"
+		"pet"
+	//	"sampletool"
+		"vcdblock"
+		"vmt"
+		
+		"toolutils"
+	}
 }
 
 $Group "utils"
 {
-	"tier0"
-	"tier1"
-	"tier2"
-	"tier3"
+	$Folder "Libraries"
+	{
+		$Folder "Tiers"
+		{
+			"tier0"
+			"tier1"
+			"tier2"
+			"tier3"
+		}
+	}
+	
+	$Folder "Utils"
+	{
+		"bsppack"
+		"bzip2"
+		
+		"ep2_deathmap"
+		
+		$Folder "shadercompile"
+		{
+			"dx_proxy_dx9_v00_pc"
+			"dx_proxy_dx9_v30_pc"
+			"shadercompile_dll"
+			"shadercompile_launcher"
+			"mysql_wrapper"
+		}
+		
+	// 	will eventually remove
+	//	"glview"
+	
+		$Folder "Hammer Editor"
+		{
+			"datamodel"
+			"hammer_dll"
+			"hammer_launcher"
+			"filesystemopendialog"
+		}
+			
+		$Folder "Map Compilers"
+		{
+			"vbsp"
+			"vvis_dll"
+			"vvis_launcher"
+			"vrad_dll"
+			"vrad_launcher"
+		}
+		
+		"normal2ssbump"
+		"height2normal"
+		"height2ssbump"
+		
+		"vtex_dll"
+		"vtex_launcher"
+		
+		//Quiver's projects
+		"appidlink"
+	}
+		
 	"vstdlib"
-	
-	"bsppack"
-	"bzip2"
-	
-	"ep2_deathmap"
-	
-	"toolutils"
-	
-	"dx_proxy_dx9_v00_pc"
-	"dx_proxy_dx9_v30_pc"
-	"shadercompile_dll"
-	"shadercompile_launcher"
-	"mysql_wrapper"
-	
-// 	will eventually remove
-//	"glview"
-	
-	"datamodel"
-	"hammer_dll"
-	"hammer_launcher"
-	"filesystemopendialog"
-	"vbsp"
-	"vvis_dll"
-	"vvis_launcher"
-	"vrad_dll"
-	"vrad_launcher"
-	
-	"normal2ssbump"
-	"height2normal"
-	"height2ssbump"
-	
-	"vtex_dll"
-	"vtex_launcher"
-	
-	//Quiver's projects
-	"appidlink"
 }
 
 $Group "game"
@@ -182,22 +205,25 @@ $Group "game"
 		"stdshader_dx9"
 	}
 	
-	"bsppack"
-	"datacache"
-	"engine"
-	"filesystem_stdio"
-	"filesystem_steam"
-	"inputsystem"
-	"launcher"
-	"launcher_main"
-	"scenefilecache"
-	"serverbrowser"
-	"soundemittersystem"
-	"studiorender"
-	"qvideo"
-	"vstdlib"
-	"vaudio_miles"
-	"unicode"
+	$Folder "Game"
+	{
+		"bsppack"
+		"datacache"
+		"engine"
+		"filesystem_stdio"
+		"filesystem_steam"
+		"inputsystem"
+		"launcher"
+		"launcher_main"
+		"scenefilecache"
+		"serverbrowser"
+		"soundemittersystem"
+		"studiorender"
+		"qvideo"
+		"vstdlib"
+		"vaudio_miles"
+		"unicode"
+	}
 }
 
 $Group "everything"
