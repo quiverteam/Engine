@@ -111,6 +111,205 @@ inline bool CShader_IsFlag2Set( IMaterialVar **params, MaterialVarFlags2_t _flag
 #define IS_FLAG2_SET( _flag )	CShader_IsFlag2Set( params, _flag )
 #define IS_FLAG2_DEFINED( _flag ) ((params[FLAGS_DEFINED2]->GetIntValue() & (_flag) ) != 0)
 
+namespace ShaderAPI
+{
+	typedef CBaseVSShader CBaseClass;
+	char* s_HelpString;
+	char* s_Name;
+	int s_nFlags;
+	class CShaderParam;
+	static CUtlVector<CShaderParam*> s_ShaderParams;
+	static CShaderParam* s_pShaderParamOverrides[NUM_SHADER_MATERIAL_VARS];
+
+	class CShader : public CBaseVSShader
+	{
+	public:
+		CShader(const char* shaderVDF)
+		{
+			KeyValues* vdf = new KeyValues("shaderVDF");
+			if (vdf->LoadFromFile(g_pFullFileSystem, shaderVDF, "GAME"))
+			{
+				const char* vsh = vdf->FindKey("vsh")->GetString();
+				const char* psh = vdf->FindKey("psh")->GetString();
+				s_Name = const_cast<char*>(vdf->GetName());
+
+				int flags = vdf->FindKey("flags")->GetInt();
+				s_nFlags = flags != NULL ? flags : NULL;
+
+				KeyValues* params = vdf->FindKey("params");
+				for (KeyValues* sub = params->GetFirstSubKey(); sub != NULL; sub = sub->GetNextKey())
+				{
+					CShaderParam* param = new CShaderParam(sub->GetName(), /* need to get kv2 type */, sub->GetString());
+					s_ShaderParams.AddToTail(param);
+				}
+			}
+			vdf->deleteThis();
+		}
+
+
+		char const* GetName() const
+		{
+			return s_Name;
+		}
+
+		int GetFlags() const
+		{
+			return s_nFlags;
+		}
+
+		int GetNumParams() const
+		{
+			return CBaseClass::GetNumParams() + s_ShaderParams.Count();
+		}
+
+		char const* GetParamName(int param) const
+		{
+			int nBaseClassParamCount = CBaseClass::GetNumParams();
+			if (param < nBaseClassParamCount)
+				return CBaseClass::GetParamName(param);
+			else
+				return s_ShaderParams[param - nBaseClassParamCount]->GetName();
+		}
+
+		char const* GetParamHelp(int param) const
+		{
+			int nBaseClassParamCount = CBaseClass::GetNumParams();
+			if (param < nBaseClassParamCount)
+			{
+				if (!s_pShaderParamOverrides[param])
+				{
+					return CBaseClass::GetParamHelp(param);
+				}
+				else
+				{
+					return s_pShaderParamOverrides[param]->GetHelp();
+				}
+			}
+			else
+			{
+				return s_ShaderParams[param - nBaseClassParamCount]->GetHelp();
+			}
+		}
+
+		ShaderParamType_t GetParamType(int param) const
+		{
+			int nBaseClassParamCount = CBaseClass::GetNumParams();
+			if (param < nBaseClassParamCount)
+			{
+				return CBaseClass::GetParamType(param);
+			}
+			else
+			{
+				return s_ShaderParams[param - nBaseClassParamCount]->GetType();
+			}
+		}
+
+		char const* GetParamDefault(int param) const
+		{
+			int nBaseClassParamCount = CBaseClass::GetNumParams();
+			if (param < nBaseClassParamCount)
+			{
+				if (!s_pShaderParamOverrides[param])
+				{
+					return CBaseClass::GetParamDefault(param);
+				}
+				else
+				{
+					return s_pShaderParamOverrides[param]->GetDefault();
+				}
+			}
+			else
+			{
+				return s_ShaderParams[param - nBaseClassParamCount]->GetDefault();
+			}
+		}
+
+		int GetParamFlags(int param) const
+		{
+			int nBaseClassParamCount = CBaseClass::GetNumParams();
+			if (param < nBaseClassParamCount)
+			{
+				if (!s_pShaderParamOverrides[param])
+					return CBaseClass::GetParamFlags(param);
+				else
+					return s_pShaderParamOverrides[param]->GetFlags();
+			}
+			else
+				return s_ShaderParams[param - nBaseClassParamCount]->GetFlags();
+		}
+
+		void OnInitShaderInstance(IMaterialVar** params, IShaderInit* pShaderInit, const char* pMaterialName)
+		{
+
+		}
+
+		void OnDrawElements(IMaterialVar** params, IShaderShadow* pShaderShadow, IShaderDynamicAPI* pShaderAPI, VertexCompressionType_t vertexCompression, CBasePerMaterialContextData** pContextDataPtr)
+		{
+
+		}
+	};
+
+	class CShaderParam
+	{
+	public:
+		CShaderParam(ShaderMaterialVars_t var, ShaderParamType_t type, const char* pDefaultParam, const char* pHelp, int nFlags)
+		{
+			m_Info.m_pName = "override";
+			m_Info.m_Type = type;
+			m_Info.m_pDefaultValue = pDefaultParam;
+			m_Info.m_pHelp = pHelp;
+			m_Info.m_nFlags = nFlags;
+			AssertMsg(!s_pShaderParamOverrides[var], ("Shader parameter override duplicately defined!"));
+			s_pShaderParamOverrides[var] = this;
+			m_Index = var;
+		}
+
+		CShaderParam(const char* pName, ShaderParamType_t type, const char* pDefaultParam, const char* pHelp, int nFlags)
+		{
+			m_Info.m_pName = pName;
+			m_Info.m_Type = type;
+			m_Info.m_pDefaultValue = pDefaultParam;
+			m_Info.m_pHelp = pHelp;
+			m_Info.m_nFlags = nFlags;
+			m_Index = NUM_SHADER_MATERIAL_VARS + s_ShaderParams.Count();
+			s_ShaderParams.AddToTail(this);
+		}
+
+		operator int()
+		{
+			return m_Index;
+		}
+
+		const char* GetName()
+		{
+			return m_Info.m_pName;
+		}
+
+		ShaderParamType_t GetType()
+		{
+			return m_Info.m_Type;
+		}
+
+		const char* GetDefault()
+		{
+			return m_Info.m_pDefaultValue;
+		}
+
+		int GetFlags() const
+		{
+			return m_Info.m_nFlags;
+		}
+
+		const char* GetHelp()
+		{
+			return m_Info.m_pHelp;
+		}
+	private:
+		ShaderParamInfo_t m_Info;
+		int m_Index;
+	};
+}
+
 #define __BEGIN_SHADER_INTERNAL(_baseclass, name, help, flags) \
 	namespace name \
 	{\
