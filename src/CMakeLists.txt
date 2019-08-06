@@ -136,6 +136,7 @@ endif(DEFINED CMAKE_HOST_UNIX AND NOT UNIX_CROSS)
 # Important fixes
 #
 if(NOT USE_AVX)
+	# SDL2 will forcefully include AVX headers unless told not to.
 	add_definitions(-DSDL_DISABLE_IMMINTRIN_H)
 endif(NOT USE_AVX)
 
@@ -146,6 +147,7 @@ set(ROOT_DIR ${CMAKE_HOME_DIRECTORY})
 include(cmake_scripts/source-directories.cmake)
 include(cmake_scripts/source-base.cmake)
 
+# All the project dirs!
 add_subdirectory(mathlib)
 add_subdirectory(tier0)
 add_subdirectory(tier1)
@@ -169,9 +171,7 @@ add_subdirectory(materialsystem/shaderapiempty)
 add_subdirectory(materialsystem/shaderapivk)
 add_subdirectory(materialsystem/shaderapigl)
 add_subdirectory(game)
-
-# rip togl
-#add_subdirectory(togl)
+add_subdirectory(engine)
 
 if(WINDOWS_BUILD EQUAL 1 OR UNIX_CROSS)
 	add_subdirectory(materialsystem/shaderapidx9)
