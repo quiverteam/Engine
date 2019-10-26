@@ -13,17 +13,23 @@
 #ifdef _WIN32
 #include <process.h>
 #include <intrin.h>
-#elif _LINUX
+#elif _POSIX
+
 typedef int (*PTHREAD_START_ROUTINE)(
     void *lpThreadParameter
     );
 typedef PTHREAD_START_ROUTINE LPTHREAD_START_ROUTINE;
+
 #include <sched.h>
 #include <exception>
 #include <errno.h>
 #include <signal.h>
 #include <pthread.h>
 #include <sys/time.h>
+#include <semaphore.h>
+#include <fcntl.h>
+#include <sys/stat.h>
+
 #define GetLastError() errno
 typedef void *LPVOID;
 #define max(a,b)  (((a) > (b)) ? (a) : (b))
@@ -512,42 +518,81 @@ bool CThreadEvent::Wait( uint32 dwTimeout )
 	return CThreadSyncObject::Wait( dwTimeout );
 }
 
-#ifdef _WIN32
 //-----------------------------------------------------------------------------
 //
 // CThreadSemaphore
 //
-// To get linux implementation, try http://www-128.ibm.com/developerworks/eserver/library/es-win32linux-sem.html
-//
 //-----------------------------------------------------------------------------
 
-CThreadSemaphore::CThreadSemaphore( long initialValue, long maxValue )
+CThreadSemaphore::CThreadSemaphore(const char* name, long max)
 {
-	if ( maxValue )
-	{
-		AssertMsg( maxValue > 0, "Invalid max value for semaphore" );
-		AssertMsg( initialValue >= 0 && initialValue <= maxValue, "Invalid initial value for semaphore" );
-
-		m_hSyncObject = CreateSemaphore( NULL, initialValue, maxValue, NULL );
-
-		AssertMsg1(m_hSyncObject, "Failed to create semaphore (error 0x%x)", GetLastError());
-	}
-	else
-	{
-		m_hSyncObject = NULL;
-	}
-}
-
-//---------------------------------------------------------
-
-bool CThreadSemaphore::Release( long releaseCount, long *pPreviousCount )
-{
-#ifdef THRDTOOL_DEBUG
-   AssertUseable();
+	Assert(name != NULL);
+#ifdef _POSIX
+	this->m_pName = name;
+	this->m_pSem = sem_open(name, O_CREAT, S_IRWXU, max);
+#else
+#error CThreadSemaphore::CThreadSemaphore(): Not implemented for Win32
 #endif
-   return ( ReleaseSemaphore( m_hSyncObject, releaseCount, pPreviousCount ) != 0 );
 }
 
+CThreadSemaphore::~CThreadSemaphore()
+{
+#ifdef _POSIX
+	if(m_pSem)
+		sem_unlink(this->m_pName);
+#else
+#error CThreadSemaphore::~CThreadSemaphore(): Not implemented for Win32
+#endif
+}
+
+bool CThreadSemaphore::Release()
+{
+#ifdef _POSIX
+	Assert(m_pSem);
+	return sem_post(this->m_pSem) == 0;
+#else
+#error CThreadSemaphore::Release(): Not implemented for Win32
+#endif
+}
+
+bool CThreadSemaphore::Lock()
+{
+#ifdef _POSIX
+	Assert(m_pSem);
+	return sem_trywait(m_pSem) == 0;
+#else 
+#error CThreadSemaphore::Lock(): Not implemented for Win32
+#endif
+}
+
+bool CThreadSemaphore::LockTimeout(double sec)
+{
+#ifdef _POSIX
+	Assert(m_pSem);
+	timespec tm;
+	tm.tv_nsec = (long)(sec/1000000000.0);
+	tm.tv_sec = 0;
+	return sem_timedwait(m_pSem, &tm) == 0;
+#else
+#error CThreadSemaphore::LockTimeout: Not implemented for Win32
+#endif
+}
+
+int CThreadSemaphore::GetValue()
+{
+#ifdef _POSIX
+	Assert(m_pSem);
+	int res = 0;
+	sem_getvalue(m_pSem, &res);
+	return res;
+#else
+#error CThreadSemaphore::GetValue(): Not implemented for Win32
+#endif
+}
+
+//-----------------------------------------------------------------------------
+
+#ifdef _WIN32
 //-----------------------------------------------------------------------------
 //
 //-----------------------------------------------------------------------------
@@ -568,7 +613,6 @@ bool CThreadFullMutex::Release()
 #endif
    return ( ReleaseMutex( m_hSyncObject ) != 0 );
 }
-
 #endif
 
 //-----------------------------------------------------------------------------

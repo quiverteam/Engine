@@ -24,6 +24,8 @@
 #ifdef POSIX
 #include <pthread.h>
 #include <errno.h>
+#include <fcntl.h>
+#include <semaphore.h>
 #define WAIT_OBJECT_0 0
 #define WAIT_TIMEOUT 0x00000102
 #define WAIT_FAILED -1
@@ -973,7 +975,7 @@ private:
 //
 //-----------------------------------------------------------------------------
 
-#if defined( _WIN32 )
+
 
 //-----------------------------------------------------------------------------
 //
@@ -983,20 +985,42 @@ private:
 
 class PLATFORM_CLASS CThreadSemaphore : public CThreadSyncObject
 {
-public:
-	CThreadSemaphore(long initialValue, long maxValue);
+private:
+#ifdef _POSIX
+	sem_t* m_pSem;
+	const char* m_pName;
+#elif defined(_WIN32)
 
-	//-----------------------------------------------------
-	// Increases the count of the semaphore object by a specified
-	// amount.  Wait() decreases the count by one on return.
-	//-----------------------------------------------------
-	bool Release(long releaseCount = 1, long * pPreviousCount = NULL );
+#endif
+public:
+	CThreadSemaphore(const char* name, long initVal);
+
+	~CThreadSemaphore();
+
+	/* Create a new semaphore */
+	static CThreadSemaphore* Create(const char* name, long initVal) { return new CThreadSemaphore(name, initVal); };
+	
+	/* Destroy this semaphore */
+	void Destroy();
+
+	/* Releases the semaphore */
+	bool Release();
+
+	/* Tries to lock semaphore, but returns immediately if the lock cannot happen */
+	bool Lock();
+
+	/* Try to lock the semaphore with the specified timeout */
+	bool LockTimeout(double sec);
+
+	/* Return the current value of the semaphore */
+	int GetValue();
 
 private:
 	CThreadSemaphore(const CThreadSemaphore &);
 	CThreadSemaphore &operator=(const CThreadSemaphore &);
 };
 
+#if defined( _WIN32 )
 
 //-----------------------------------------------------------------------------
 //

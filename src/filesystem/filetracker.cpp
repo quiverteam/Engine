@@ -70,7 +70,7 @@ void CFileTracker::NoteFileLoadedFromDisk( const char *pFilename, const char *pP
 
 	if ( m_pFileSystem->m_WhitelistSpewFlags & WHITELIST_SPEW_WHILE_LOADING )
 	{
-		Warning( " - %lu\n", pInfo->m_CRC );
+		Warning( " - %lu\n", (unsigned long)pInfo->m_CRC );
 	}
 }
 

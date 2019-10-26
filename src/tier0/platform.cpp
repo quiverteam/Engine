@@ -299,12 +299,16 @@ PLATFORM_INTERFACE bool Plat_GetCurrentDirectory(char* outname, size_t outSize)
 
 PLATFORM_INTERFACE bool Plat_GetExecutableDirectory(char* outpath, size_t len)
 {
-
+	Assert(outpath);
+	::GetModuleFileName(NULL, outpath, len);
+#ifdef _DEBUG
+	Assert(GetLastError() == ERROR_SUCCESS);
+#endif
 }
 
 PLATFORM_INTERFACE bool Plat_GetExecutablePath(char* outname, size_t len)
 {
-	
+	Assert(outname);
 }
 
 PLATFORM_INTERFACE int Plat_GetPriority(int pid)
@@ -340,6 +344,34 @@ PLATFORM_INTERFACE int Plat_GetPID()
 PLATFORM_INTERFACE unsigned int Plat_GetTickCount()
 {
 	return GetTickCount();
+}
+
+PLATFORM_INTERFACFE ProcInfo_t Plat_QueryProcInfo(int pid)
+{
+#error Need to implement Plat_QueryProcInfo for Win32
+}
+
+PLATFORM_INTERFACE OSInfo_t Plat_QueryOSInfo()
+{
+	OSInfo_t osinfo;
+	memcpy(osinfo.kname, "Windows", strlen("Windows")); //TODO: lol
+#error Need to implement Plat_QueryOSInfo for Win32
+	return osinfo;
+}
+
+PLATFORM_INTERFACE void Plat_Chdir(const char* dir)
+{
+	_chdir(dir);
+}
+
+PLATFORM_INTERFACE int Plat_DirExists(const char* dir)
+{
+	return PathFileExistsA(dir) == TRUE;
+}
+
+PLATFORM_INTERFACE int Plat_FileExists(const char* file)
+{
+	return PathFileExistsA(dir) == TRUE;
 }
 
 #endif // _LINUX
