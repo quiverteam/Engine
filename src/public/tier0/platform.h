@@ -9,7 +9,7 @@
 #ifndef PLATFORM_H
 #define PLATFORM_H
 
-#if defined(__x86_64__) || defined(_WIN64)
+#if defined(_x64_)
 #define PLATFORM_64BITS 1
 #endif
 
@@ -543,7 +543,7 @@ typedef void * HINSTANCE;
 
 	#define DLL_LOCAL
 
-#elif defined GNUC
+#elif defined __GNUC__
 // Used for dll exporting and importing
 #define  DLL_EXPORT   extern "C" __attribute__ ((visibility("default")))
 #define  DLL_IMPORT   extern "C"
@@ -1105,6 +1105,7 @@ PLATFORM_INTERFACE char *			Plat_ctime( const time_t *timep, char *buf, size_t b
 PLATFORM_INTERFACE struct tm *		Plat_gmtime( const time_t *timep, struct tm *result );
 PLATFORM_INTERFACE time_t			Plat_timegm( struct tm *timeptr );
 PLATFORM_INTERFACE struct tm *		Plat_localtime( const time_t *timep, struct tm *result );
+PLATFORM_INTERFACE unsigned long long Plat_ValveTime();
 
 #if defined( _WIN32 ) && defined( _MSC_VER ) && ( _MSC_VER >= 1400 )
 	extern "C" unsigned __int64 __rdtsc();
