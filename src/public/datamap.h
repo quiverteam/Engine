@@ -1,4 +1,4 @@
-//========= Copyright © 1996-2005, Valve Corporation, All rights reserved. ============//
+//========= Copyright ï¿½ 1996-2005, Valve Corporation, All rights reserved. ============//
 //
 // Purpose: 
 //
@@ -121,6 +121,9 @@ DECLARE_FIELD_SIZE( FIELD_MATERIALINDEX,	sizeof(int) )
 
 
 #if !defined(offsetof) || defined(_LINUX)
+#ifdef offsetof
+#undef offsetof
+#endif
 #define offsetof(s,m)	(size_t)&(((s *)0)->m)
 #endif
 

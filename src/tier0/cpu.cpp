@@ -208,7 +208,8 @@ static bool HTSupported(void)
 
 	//  Check to see if this is a Pentium 4 or later processor
 	if (((reg_eax & FAMILY_ID) ==  PENTIUM4_ID) || (reg_eax & EXT_FAMILY_ID))
-		if (vendor_id[0] == 'uneG' && vendor_id[1] == 'Ieni' && vendor_id[2] == 'letn')
+		/* Converted multichar constants to hex constants to get the compiler to be quiet */
+		if(vendor_id[0] == 0x756E6547 && vendor_id[1] == 0x49656E69 && vendor_id[2] == 0x6C65746E)
 			return (reg_edx & HT_BIT) != 0;	// Genuine Intel Processor with Hyper-Threading Technology
 
 	return false;  // This is not a genuine Intel processor. :/
