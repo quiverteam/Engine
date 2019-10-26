@@ -5,11 +5,14 @@
 // $NoKeywords: $
 //
 //===========================================================================//
-#ifndef INPUTSYSTEM_H
-#define INPUTSYSTEM_H
-#ifdef _WIN32
+// Name: inputsystem.h
+// Purpose: Main header for inputsystem, originally written by Valve, rewritten
+// for Quiver as of 7/29/2019
+// Authors: JJl77
+// Notes:
+//		-	None
+//===========================================================================//
 #pragma once
-#endif
 
 #ifdef _WIN32
 #include <windows.h>
@@ -306,4 +309,3 @@ private:
 #endif //USE_OLD_INPUTSYSTEM
 };
 
-#endif // INPUTSYSTEM_H
