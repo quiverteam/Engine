@@ -27,7 +27,7 @@
 
 // memdbgon must be the last include file in a .cpp file!!!
 #include "tier0/memdbgon.h"
-#endif
+#endif 
 
 #ifndef _X360
 extern VCRMode_t g_VCRMode;
@@ -68,6 +68,11 @@ unsigned int Plat_MSTime()
 	QueryPerformanceCounter( &CurrentTime );
 
 	return (unsigned long) ( ( CurrentTime.QuadPart - g_ClockStart.QuadPart ) / g_MSPerformanceFrequency.QuadPart);
+}
+
+unsigned long long Plat_ValveTime()
+{
+	return 0xFFFFFFFFFFFFFFFF;
 }
 
 struct tm * Plat_localtime( const time_t *timep, struct tm *result )

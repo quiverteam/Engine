@@ -1,7 +1,8 @@
-//====== Copyright 1996-2005, Valve Corporation, All rights reserved. =======//
-//
-// Purpose: New input system using SDL2
-//
+//===========================================================================//
+// Name: inputsystem2.cpp
+// Purpose: Version 2 of source inputsystem
+// Date Created: July 16, 2019
+// Authors: JJL77 jeremy.lorelli.1337@gmail.com
 //===========================================================================//
 
 #include "inputsystem.h"
@@ -105,17 +106,23 @@ int CInputSystem::GetButtonReleasedTick(ButtonCode_t code) const
 
 }
 
+/*
+
+Returns an analog value that corresponds to the position of some type of input
+This is a RAW analog value, so if you need a relative value (such as a delta)
+use GetAnalogDelta
+
+*/
 int CInputSystem::GetAnalogValue(AnalogCode_t code) const
 {
+	int x = 0, y = 0;
 	switch(code)
 	{
 		case MOUSE_X:
-			int x = 0, y = 0;
 			SDL_GetRelativeMouseState(&x, &y);
 			return x;
 			break;
 		case MOUSE_Y:
-			x = 0, y = 0;
 			SDL_GetRelativeMouseState(&x, &y);
 			return y;
 			break;
@@ -132,16 +139,33 @@ int CInputSystem::GetAnalogValue(AnalogCode_t code) const
 	}
 }
 
+/*
+
+Return an analog delta for the given analog input.
+Delta means change, so if you're querying MOUSE_X, you should get the amount the mouse has moved
+on the X axis over the last frame. Use GetAnalogValue if you want a raw value instead of this.
+
+*/
 int CInputSystem::GetAnalogDelta(AnalogCode_t code) const
 {
 
 }
 
+/*
+
+Return the number of events
+
+*/
 int CInputSystem::GetEventCount() const
 {
 	return m_InputEvents.Count();
 }
 
+/*
+
+Return the last bit of event data
+
+*/
 const InputEvent_t* CInputSystem::GetEventData() const
 {
 	if(m_InputEvents.Count() > 0)
@@ -150,27 +174,47 @@ const InputEvent_t* CInputSystem::GetEventData() const
 	}
 }
 
+/*
+
+Insert a user event into the input event queue
+
+*/
 void CInputSystem::PostUserEvent(const InputEvent_t &event)
 {
 	m_InputEvents.AddToTail(event);
 }
 
+/*
+
+Return the number of joysticks
+
+*/
 int CInputSystem::GetJoystickCount() const
 {
 	return SDL_NumJoysticks();
 }
 
+/*
+
+Enable joystick input from the specified joystick
+
+*/
 void CInputSystem::EnableJoystickInput(int nJoystick, bool bEnable)
 {
 
 }
 
+/*
+
+Enable joystick diagonal pov
+
+*/
 void CInputSystem::EnableJoystickDiagonalPOV(int nJoystick, bool bEnable)
 {
 
 }
 
-/* Sample for unregistered input events and place them into the even queue */
+/* Sample for unregistered input events and place them into the event queue */
 void CInputSystem::SampleDevices(void)
 {
 	m_nLastPollTick = Plat_GetTickCount();

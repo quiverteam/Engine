@@ -67,7 +67,7 @@ list(APPEND POSIX_DEFINES		-DUSE_SDL -DDX_TO_GL_ABSTRACTION)
 # Some IDEs like to have header files added to their projects
 # Luckily headers dont actually compile in a CMake project, so it's safe to recurse the whole
 # repo in search of header files.
-FILE(GLOB_RECURSE headers ${ROOT_DIR} *.h *.hxx *.hpp *.hh)
+FILE(GLOB_RECURSE headers ${CMAKE_HOME_DIRECTORY}/ *.h *.hxx *.hpp *.hh)
 
 list(APPEND SRCS ${headers})
 
@@ -216,10 +216,8 @@ include_directories(${ROOT_DIR})
 #================================================#
 # Handle the link directories
 #================================================#
-list(APPEND POSIX_LINK_DIRS		/usr/lib/
-								/usr/lib32/)
-list(APPEND POSIX32_LINK_DIRS	/usr/lib/i386-linux-gnu/)
-list(APPEND POSIX64_LINK_DIRS	/usr/lib/x86_64-linux-gnu/)
+set(POSIX32_LINK_DIRS "${POSIX32_LINK_DIRS} /usr/lib/i386-linux-gnu/ /usr/lib32")
+set(POSIX64_LINK_DIRS "${POSIX64_LINK_DIRS} /usr/lib/x86_64-linux-gnu/ /usr/lib")
 
 # For windows only
 list(APPEND WINDOWS_LINK_DIRS	${DX9SDK}/Lib/)
@@ -242,11 +240,13 @@ if(DEFINED POSIX)
 	# POSIX32 link
 	if(DEFINED PLATFORM_32BITS)
 		list(APPEND LINK_DIRS		${POSIX32_LINK_DIRS})
+		set(CMAKE_IGNORE_PATH 		"${CMAKE_IGNORE_PATH} ${POSIX64_LINK_DIRS}")
 	endif(DEFINED PLATFORM_32BITS)
 
 	# POSIX64 link
 	if(DEFINED PLATFORM_64BITS)
 		list(APPEND LINK_DIRS		${POSIX64_LINK_DIRS})
+		set(CMAKE_IGNORE_PATH 		"${CMAKE_IGNORE_PATH} ${POSIX32_LINK_DIRS}")
 	endif(DEFINED PLATFORM_64BITS)
 endif(DEFINED POSIX)
 

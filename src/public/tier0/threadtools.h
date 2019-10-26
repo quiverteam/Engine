@@ -115,7 +115,7 @@ inline void ThreadPause()
 #if defined( PLATFORM_WINDOWS_PC )
 	// Intrinsic for __asm pause; from <intrin.h>
 	_mm_pause();
-#elif POSIX
+#elif _POSIX
 	__asm __volatile( "pause" );
 #elif defined( _X360 )
 #else
@@ -178,7 +178,7 @@ inline int ThreadWaitForObject( HANDLE handle, bool bWaitAll = true, unsigned ti
 		#pragma intrinsic(_ReadWriteBarrier)
 	#endif
 	#define ThreadMemoryBarrier() _ReadWriteBarrier()
-#elif defined(GNUC)
+#elif defined(__GNUC__)
 	// Prevent compiler reordering across this barrier. This is
 	// sufficient for most purposes on x86/x64.
 	// http://preshing.com/20120625/memory-ordering-at-compile-time
@@ -447,7 +447,7 @@ template <typename T>
 class CInterlockedIntT
 {
 public:
-	CInterlockedIntT() : m_value( 0 ) 				{ COMPILE_TIME_ASSERT( sizeof(T) == sizeof(long) ); }
+	CInterlockedIntT() : m_value( 0 ) 				{}
 	CInterlockedIntT( T value ) : m_value( value ) 	{}
 
 	T GetRaw() const				{ return m_value; }

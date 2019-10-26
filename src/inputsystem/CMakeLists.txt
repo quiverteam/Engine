@@ -11,7 +11,7 @@ set(POSIX_SRCS	)
 
 set(SRCS	)
 
-file(GLOB SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/ *.c *.cpp *.cc)
+file(GLOB SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/ *.c *.cpp *.cc *.h)
 list(APPEND SRCS ${SOURCES})
 
 # Preprocessor defs

@@ -97,6 +97,17 @@ PLATFORM_INTERFACE void* Plat_Alloc( unsigned long size )
 }
 
 
+PLATFORM_INTERFACE struct tm* Plat_localtime(const time_t* timep, struct tm* result) 
+{
+	result = localtime(timep);
+	return result;
+}
+
+PLATFORM_INTERFACE unsigned long long Plat_ValveTime()
+{
+	return 0xFFFFFFFFFFFFFFFF;
+}
+
 PLATFORM_INTERFACE void* Plat_Realloc( void *ptr, unsigned long size )
 {
 #ifndef NO_MALLOC_OVERRIDE
