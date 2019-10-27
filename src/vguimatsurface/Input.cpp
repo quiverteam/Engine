@@ -302,7 +302,7 @@ void EnableInput( bool bEnable )
 void InputAttachToWindow(void *hwnd)
 {
 	s_ChainedWindowProc = (WNDPROC)GetWindowLongPtr( (HWND)hwnd, GWLP_WNDPROC );
-	SetWindowLongPtr( (HWND)hwnd, GWLP_WNDPROC, (LONG)MatSurfaceWindowProc );
+	SetWindowLongPtr( (HWND)hwnd, GWLP_WNDPROC, (LONG_PTR)MatSurfaceWindowProc );
 }
 
 void InputDetachFromWindow(void *hwnd)
@@ -311,7 +311,7 @@ void InputDetachFromWindow(void *hwnd)
 		return;
 	if ( s_ChainedWindowProc )
 	{
-		SetWindowLongPtr( (HWND)hwnd, GWLP_WNDPROC, (LONG)s_ChainedWindowProc );
+		SetWindowLongPtr( (HWND)hwnd, GWLP_WNDPROC, (LONG_PTR)s_ChainedWindowProc );
 		s_ChainedWindowProc = NULL;
 	}
 }

@@ -309,7 +309,8 @@ CSmallBlockHeap::CSmallBlockHeap()
 	byte *pCurBase = m_pBase;
 	CSmallBlockPool *pCurPool = NULL;
 	int iCurPool = 0;
-	
+
+#ifndef PLATFORM_64BITS //64 bits begins can not begin with 8
 	// Blocks sized 0 - 128 are in pools in increments of 8
 	for ( ; i < 32; i++ )
 	{
@@ -327,6 +328,7 @@ CSmallBlockHeap::CSmallBlockHeap()
 			m_PoolLookup[i] = pCurPool;
 		}
 	}
+#endif
 
 	// Blocks sized 129 - 256 are in pools in increments of 16
 	for ( ; i < 64; i++ )

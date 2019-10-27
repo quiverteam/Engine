@@ -776,9 +776,9 @@ bool ThreadInterlockedAssignPointerIf( void * volatile *pDest, void *value, void
 #ifdef WIN64
 bool ThreadInterlockedAssignIf128(volatile int128 *pDest, const int128 &value, const int128 &comperand) NOINLINE
 {
-	Assert((size_t)pDest % 8 == 0); // Alignment check
+	Assert((size_t)pDest % 16 == 0); // Alignment check
 	int128 comp = comperand;
-	return (bool)_InterlockedCompareExchange128((int64*)pDest, *(int64*)&value, *(int64*)(&value + 1), (int64*)&comp);
+	return (bool)_InterlockedCompareExchange128((int64*)pDest, *(int64*)( &value + 1 ), *(int64*)&value, (int64*)&comp);
 }
 #endif
 

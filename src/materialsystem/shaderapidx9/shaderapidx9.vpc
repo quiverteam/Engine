@@ -52,12 +52,12 @@ $Project "shaderapidx9"
 	$Folder	"Source Files"
 	{
 		$File	"ColorFormatDX8.cpp"
-		$File	"d3d_async.cpp"								[$WIN32]
+		$File	"d3d_async.cpp"								[$WINDOWS]
 		$File	"$SRCDIR\public\filesystem_helpers.cpp"
 		$File	"HardwareConfig.cpp"
 		$File	"meshbase.cpp"
 		$File	"MeshDX8.cpp"
-		$File	"Recording.cpp"								[$WIN32]
+		$File	"Recording.cpp"								[$WINDOWS]
 		$File	"ShaderAPIDX8.cpp"
 		$File	"ShaderDeviceBase.cpp"
 		$File	"ShaderAPIBase.cpp"
@@ -68,11 +68,11 @@ $Project "shaderapidx9"
 		$File	"cvballoctracker.cpp"
 		$File	"vertexdecl.cpp"
 		$File	"VertexShaderDX8.cpp"
-		$File	"wmi.cpp"									[$WIN32]
+		$File	"wmi.cpp"									[$WINDOWS]
 		$File	"textureheap.cpp"							[$X360]
 	}
 
-	$Folder	"DirectX Header Files"
+	$Folder	"DirectX Header Files" [$WINDOWS]
 	{
 		$File	"$SRCDIR\dx8sdk\include\d3d8.h"
 		$File	"$SRCDIR\dx8sdk\include\d3d8caps.h"
@@ -118,7 +118,7 @@ $Project "shaderapidx9"
 		$File	"vertexdecl.h"
 //		$File	"..\CMaterialSystemStats.h"
 		$File	"ColorFormatDX8.h"
-		$File	"d3d_async.h"					[$WIN32]
+		$File	"d3d_async.h"					[$WINDOWS]
 		$File	"dynamicib.h"
 		$File	"dynamicvb.h"
 		$File	"HardwareConfig.h"
@@ -135,7 +135,7 @@ $Project "shaderapidx9"
 		$File	"stubd3ddevice.h"
 		$File	"TextureDX8.h"
 		$File	"VertexShaderDX8.h"
-		$File	"wmi.h"							[$WIN32]
+		$File	"wmi.h"							[$WINDOWS]
 		$File	"textureheap.h"					[$X360]
 	}
 
@@ -144,9 +144,8 @@ $Project "shaderapidx9"
 		$Lib	"$LIBPUBLIC\bitmap"
 		$Lib	"$LIBPUBLIC\mathlib"
 		$Lib	"$LIBPUBLIC\tier2"
-		$Lib	"$SRCDIR\dx9sdk\lib\d3d9"	[$WIN32]
-		$Lib	"$SRCDIR\dx9sdk\lib\d3dx9"	[$WIN32]
-		$Lib	togl				[$POSIX]
+		$Lib	"$SRCDIR\dx9sdk\lib\d3d9"
+		$Lib	"$SRCDIR\dx9sdk\lib\d3dx9"
 		$Lib	"$LIBCOMMON\bzip2"
 	}
 }

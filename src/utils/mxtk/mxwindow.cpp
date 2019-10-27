@@ -53,7 +53,7 @@ mxWindow::mxWindow (mxWindow *parent, int x, int y, int w, int h, const char *la
 					x, y, w, h, (HWND) parentHandle,
 					(HMENU) NULL, (HINSTANCE) GetModuleHandle (NULL), NULL);
 
-	SetWindowLong ((HWND) handle, GWL_USERDATA, reinterpret_cast< LONG >( this ) );
+	SetWindowLongPtr ((HWND) handle, GWLP_USERDATA, reinterpret_cast< LONG_PTR >( this ) );
 
 	setHandle (handle);
 	setType (MX_WINDOW);
@@ -69,7 +69,7 @@ mxWindow::mxWindow (mxWindow *parent, int x, int y, int w, int h, const char *la
 
 mxWindow::~mxWindow ()
 {
-	SetWindowLong ((HWND) (HWND) getHandle(), GWL_USERDATA, (LONG) 0 );
+	SetWindowLongPtr ((HWND) (HWND) getHandle(), GWLP_USERDATA, (LONG) 0 );
 	delete d_this;
 }
 

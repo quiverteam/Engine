@@ -68,7 +68,7 @@ $Configuration "Debug"
 		$WholeProgramOptimization
 
 		// Preprocessor
-		$PreprocessorDefinitions			"_WIN64;WIN64;_DEBUG;DEBUG;_LIB;_CRT_SECURE_NO_DEPRECATE;_CRT_NONSTDC_NO_DEPRECATE;PLATFORM_WINDOWS_PC64"
+		$PreprocessorDefinitions			"WIN32;_WIN32;_DEBUG;DEBUG;_LIB;_CRT_SECURE_NO_DEPRECATE;_CRT_NONSTDC_NO_DEPRECATE;PLATFORM_WINDOWS_PC64"
 		$IgnoreStandardIncludePath
 		$GeneratePreprocessedFile
 		$KeepComments
