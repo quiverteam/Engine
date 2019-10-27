@@ -1742,6 +1742,7 @@ Returns:
 */
 PLATFORM_INTERFACE int Plat_FileExists(const char* file);
 
+PLATFORM_INTERFACE unsigned long long Plat_ValveTime();
 //-----------------------------------------------------------------------------
 //
 // Improved process info API!

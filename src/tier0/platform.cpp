@@ -374,4 +374,9 @@ PLATFORM_INTERFACE int Plat_FileExists(const char* file)
 	return PathFileExistsA(dir) == TRUE;
 }
 
+PLATFORM_INTERFACE unsigned long long Plat_ValveTime()
+{
+	return 0xFFFFFFFFFFFFFFFF;
+}
+
 #endif // _LINUX
