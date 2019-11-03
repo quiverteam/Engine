@@ -379,4 +379,125 @@ PLATFORM_INTERFACE unsigned long long Plat_ValveTime()
 	return 0xFFFFFFFFFFFFFFFF;
 }
 
+
+/*
+Allocates memory in the virtual memory space of this program, very similar to VirtualAlloc.
+
+Params:
+	-	Starting addr of the region to allocate
+	-	Size of the region
+*/
+PLATFORM_INTERFACE void* Plat_PageAlloc(void* start, size_t regsz)
+{
+	if(start) Assert(start % m_nPageSize == 0); /* Alignment check! */
+	Assert(regsz != 0);
+	return VirtualAlloc(start, (SIZE_T)regsz, MEM_COMMIT, PAGE_READWRITE);
+}
+
+/*
+Frees memory in the virtual memory space of this program, very similar to VirtualFree
+
+Params:
+	-	The block to free
+Returns:
+	-	None
+*/
+PLATFORM_INTERFACE int Plat_PageFree(void* blk, size_t sz)
+{
+	Assert(blk);
+	Assert(blk % m_nPageSize == 0); /* Alignment check */
+	return VirtualFree(blk, (SIZE_T)sz, MEM_DECOMMIT) == 0 ? -1 : 0;
+}
+
+/*
+Locks a page into the process memory, which guarantees that a page fault will not be triggered when the memory
+is next accessed.
+
+Params:
+	-	The block to lock into memory
+Returns:
+	-	None
+*/
+PLATFORM_INTERFACE int Plat_PageLock(void* blk, size_t sz)
+{
+	Assert(blk % m_nPageSize == 0); /* Alignment check */
+	Assert(blk);
+	return VirtualLock(blk, sz) == 0 ? -1 : 0;
+}
+
+/*
+Remaps the specified page to a new address, can also resize it.
+
+Params:
+	-	the block of memory (page aligned)
+	-	old size
+	-	flags
+*/
+PLATFORM_INTERFACE void* Plat_PageResize(void* blk, size_t pgsz)
+{
+	Assert(blk % m_nPageSize == 0);
+	Assert(pgsz > 0);
+	return VirtualAlloc(blk, pgsz, MEM_COMMIT, PAGE_READWRITE);
+}
+
+/*
+Unlocks a page from the process memory, the next access to it will trigger a page fault
+
+Params:
+	-	The block of memory (page aligned)
+Returns:
+	-	0 for OK, other for errors
+*/
+PLATFORM_INTERFACE int Plat_PageUnlock(void* blk, size_t sz)
+{
+	Assert(blk);
+	Assert(blk % m_nPageSize == 0);
+	return VirtualUnlock(blk, sz) == 0 ? -1 : 0;
+}
+
+/*
+Changes protection flags on the given region of memory
+
+Params:
+	-	The start of the page block
+	-	The flags to apply
+Returns:
+	-	0 for OK, other for errors
+*/
+PLATFORM_INTERFACE int Plat_PageProtect(void* blk, size_t sz, int flags)
+{
+	Assert(blk);
+	Assert(blk % m_nPageSize);
+	int realflags = 0;
+	if(flags & PAGE_PROT_EXEC && flags & PAGE_PROT_READ && flags & PAGE_PROT_WRITE)
+		realflags |= PAGE_EXECUTE_READWRITE;
+	else if(flags & PAGE_PROT_EXEC && flags & PAGE_PROT_READ)
+		realflags |= PAGE_EXECUTE_READ;
+	else if(flags & PAGE_PROT_READ && flags & PAGE_PROT_WRITE)
+		realflags |= PAGE_READWRITE;
+	else if(flags & PAGE_PROT_READ)
+		realflags |= PAGE_READONLY;
+	else
+		realflags |= PAGE_NOACCESS;
+	DWORD fuck = 0;
+	return VirtualProtect(blk, sz, realflags &fuck) == 0 ? -1 : 0;
+}
+
+/*
+Gives advice on the page. This is based on the madvise syscall on Linux
+May not be implemented for Windows, but can be useful on Linux/FreeBSD
+
+Params:
+	-	The block
+	-	Advice to give
+Returns:
+	-	0 for OK, other for errors
+*/
+PLATFORM_INTERFACE int Plat_PageAdvise(void* blk, size_t sz, int advice)
+{
+	Assert(blk);
+	Assert(blk % m_nPageSize == 0);
+	return 0;
+}
+
 #endif // _LINUX

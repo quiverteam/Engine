@@ -1,4 +1,4 @@
-//========= Copyright © 1996-2005, Valve Corporation, All rights reserved. ============//
+//========= Copyright ï¿½ 1996-2005, Valve Corporation, All rights reserved. ============//
 //
 // Purpose: Memory allocation!
 //
@@ -83,7 +83,6 @@ IMemAlloc *g_pMemAlloc = &s_StdMemAlloc;
 #else
 IMemAlloc *g_pActualAlloc = &s_StdMemAlloc;
 #endif
-
 #ifdef _WIN32
 //-----------------------------------------------------------------------------
 // Small block heap (multi-pool)
@@ -120,7 +119,8 @@ void CSmallBlockPool::Init( unsigned nBlockSize, byte *pBase, unsigned initialCo
 	if ( initialCommit )
 	{
 		initialCommit = MemAlign( initialCommit, PAGE_SIZE );
-		if ( !VirtualAlloc( m_pCommitLimit, initialCommit, VA_COMMIT_FLAGS, PAGE_READWRITE ) )
+		/* if ( !VirtualAlloc( m_pCommitLimit, initialCommit, VA_COMMIT_FLAGS, PAGE_READWRITE ) ) */
+		if(!Plat_PageAlloc(m_pCommitLimit, initialCommit))
 		{
 			Assert( 0 );
 			return;
@@ -166,7 +166,8 @@ void *CSmallBlockPool::Alloc()
 				{
 					if ( pCommitLimit + COMMIT_SIZE <= m_pAllocLimit )
 					{
-						if ( !VirtualAlloc( pCommitLimit, COMMIT_SIZE, VA_COMMIT_FLAGS, PAGE_READWRITE ) )
+						/* if ( !VirtualAlloc( pCommitLimit, COMMIT_SIZE, VA_COMMIT_FLAGS, PAGE_READWRITE ) ) */
+						if(!Plat_PageResize(pCommitLimit, COMMIT_SIZE))
 						{
 							Assert( 0 );
 							return NULL;
@@ -263,7 +264,8 @@ int CSmallBlockPool::Compact()
 			if ( pNewCommitLimit < m_pCommitLimit )
 			{
 				nBytesFreed = m_pCommitLimit - pNewCommitLimit;
-				VirtualFree( pNewCommitLimit, nBytesFreed, MEM_DECOMMIT );
+				/* VirtualFree( pNewCommitLimit, nBytesFreed, MEM_DECOMMIT ); */
+				Plat_PageFree(pNewCommitLimit, nBytesFreed);
 				m_pCommitLimit = pNewCommitLimit;
 			}
 		}
@@ -299,7 +301,9 @@ CSmallBlockHeap::CSmallBlockHeap()
 		return;
 	}
 
-	m_pBase = (byte *)VirtualAlloc( NULL, NUM_POOLS * MAX_POOL_REGION, VA_RESERVE_FLAGS, PAGE_NOACCESS );
+	/* m_pBase = (byte *)VirtualAlloc( NULL, NUM_POOLS * MAX_POOL_REGION, VA_RESERVE_FLAGS, PAGE_NOACCESS ); */
+	m_pBase = (byte*)Plat_PageAlloc(NULL, NUM_POOLS * MAX_POOL_REGION);
+	Plat_PageProtect(m_pBase, NUM_POOLS * MAX_POOL_REGION, PAGE_PROT_NONE);
 	m_pLimit = m_pBase + NUM_POOLS * MAX_POOL_REGION;
 
 	// Build a lookup table used to find the correct pool based on size
@@ -586,9 +590,7 @@ CSmallBlockPool *CSmallBlockHeap::FindPool( void *p )
 	return &m_Pools[i];
 }
 
-
-#endif
-
+#endif //WIN32
 #if USE_PHYSICAL_SMALL_BLOCK_HEAP
 
 CX360SmallBlockPool *CX360SmallBlockPool::gm_AddressToPool[BYTES_X360_SBH/PAGESIZE_X360_SBH];

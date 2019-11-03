@@ -14,6 +14,7 @@
 #include <unistd.h>
 #include <dlfcn.h>
 #include <sys/ptrace.h>
+#include <sys/mman.h>
 #include <sys/stat.h>
 #include <sys/statfs.h>
 #include <sys/resource.h>
@@ -22,6 +23,10 @@
 #include <sys/utsname.h>
 #include <sched.h>
 #include <dirent.h>
+#include <errno.h>
+
+/* Standard includes */
+#include <memory>
 
 double Plat_FloatTime()
 {
@@ -329,13 +334,204 @@ PLATFORM_INTERFACE int Plat_FileExists(const char* file)
 	return access(file, F_OK) != -1;
 }
 
-PLATFORM_INTERFACE struct tm* Plat_localtime(const time_t *timep, struct tm *result)
+/*
+
+Page allocation API
+
+*/
+
+PLATFORM_INTERFACE size_t Plat_GetPageSize()
 {
-	result = localtime( timep );
-	return result;
+	return getpagesize();
 }
 
-PLATFORM_INTERFACE unsigned long long Plat_ValveTime()
+const static size_t m_nPageSize = Plat_GetPageSize();
+
+/* Need a quick descriptor to hold some stuff */
+/* This will simply hold some info about a page region */
+struct linux_page_region
 {
-	return 0xFFFFFFFFFFFFFFFF;
+	void* start;
+	size_t length;
+};
+
+/* Note: This doesn't mean the max allocated pages, just the regions */
+/* Each time you call PageAlloc an entry is created, but generally you SHOULD be resizing your pages instead of allocating more regions */
+/* May change this in the future */
+#define MAX_ALLOCATED_PAGES	64
+
+static linux_page_region g_AllocatedPages[MAX_ALLOCATED_PAGES];
+
+/* Added to ease changes later */
+linux_page_region* find_page_region(void* blk)
+{
+	for(int i = 0; i < MAX_ALLOCATED_PAGES; i++)
+	{
+		if(blk == g_AllocatedPages[i].start)
+			return &g_AllocatedPages[i];
+	}
+	return nullptr;
+}
+
+/*
+Allocates memory in the virtual memory space of this program, very similar to VirtualAlloc.
+
+Params:
+	-	Starting addr of the region to allocate
+	-	Size of the region
+*/
+PLATFORM_INTERFACE void* Plat_PageAlloc(void* start, size_t regsz)
+{
+	if(start) Assert(start % m_nPageSize == 0); /* Alignment check! */
+	Assert(regsz != 0);
+	linux_page_region* page = find_page_region(0);
+	if(page)
+	{
+		/* Map a portion of memory, last two args are ignored with MAP_ANON */
+		void* ret = mmap(start, regsz, PROT_WRITE | PROT_READ, MAP_ANONYMOUS, 0, 0);
+		if(ret == MAP_FAILED)
+		{
+			AssertMsg(ret != MAP_FAILED, "Failed to allocate page. Errno=%u", errno);
+			return nullptr;	
+		}
+		page->start = ret;
+		page->length = regsz;
+		return ret;
+	}
+	AssertMsg(0, "Plat_PageAlloc: Internal error while allocating page region: Internal page descriptor pool full");
+	return nullptr;
+}
+
+/*
+Frees memory in the virtual memory space of this program, very similar to VirtualFree
+
+Params:
+	-	The block to free
+Returns:
+	-	None
+*/
+PLATFORM_INTERFACE int Plat_PageFree(void* blk, size_t sz)
+{
+	Assert(blk);
+	Assert(blk % m_nPageSize == 0); /* Alignment check */
+	return munmap(blk, sz);
+}
+
+/*
+Locks a page into the process memory, which guarantees that a page fault will not be triggered when the memory
+is next accessed.
+
+Params:
+	-	The block to lock into memory
+Returns:
+	-	None
+*/
+PLATFORM_INTERFACE int Plat_PageLock(void* blk, size_t sz)
+{
+	Assert(blk % m_nPageSize == 0); /* Alignment check */
+	Assert(blk);
+	return mlock(blk, sz);
+}
+
+/*
+Remaps the specified page to a new address, can also resize it.
+
+Params:
+	-	the block of memory (page aligned)
+	-	old size
+	-	flags
+*/
+PLATFORM_INTERFACE void* Plat_PageResize(void* blk, size_t pgsz)
+{
+	Assert(blk % m_nPageSize == 0);
+	Assert(pgsz > 0);
+	linux_page_region* page = find_page_region(blk);
+	if(!page)
+	{
+		AssertMsg(page, "Plat_PageResize: Invalid page. blk=%llu", blk);
+		return nullptr;
+	}
+	void* ret = mremap(page->start, page->length, pgsz, MREMAP_MAYMOVE);
+	if(ret == MAP_FAILED)
+	{
+		/* EAGAIN is returned if there is not enough memory to do a swap with the region locked in */
+		if(errno == EAGAIN)
+		{
+			munlock(page->start, page->length);
+			return Plat_PageResize(blk, pgsz);
+		}
+		AssertMsg(ret != MAP_FAILED, "Plat_PageResize: Unknown error. errno=%u blk=%llu new page size=%u", errno, blk, pgsz);
+		return nullptr;
+	}
+	page->length = pgsz;
+	page->start = ret;
+	return ret;
+}
+
+/*
+Unlocks a page from the process memory, the next access to it will trigger a page fault
+
+Params:
+	-	The block of memory (page aligned)
+Returns:
+	-	0 for OK, other for errors
+*/
+PLATFORM_INTERFACE int Plat_PageUnlock(void* blk, size_t sz)
+{
+	Assert(blk);
+	Assert(blk % m_nPageSize == 0);
+	return munlock(blk, sz);
+}
+
+/*
+Changes protection flags on the given region of memory
+
+Params:
+	-	The start of the page block
+	-	The flags to apply
+Returns:
+	-	0 for OK, other for errors
+*/
+PLATFORM_INTERFACE int Plat_PageProtect(void* blk, size_t sz, int flags)
+{
+	Assert(blk);
+	Assert(blk % m_nPageSize);
+	int realflags = 0;
+	if(flags & PAGE_PROT_EXEC)
+		realflags |= PROT_EXEC;
+	if(flags & PAGE_PROT_READ)
+		realflags |= PROT_READ;
+	if(flags & PAGE_PROT_WRITE)
+		realflags |= PROT_WRITE;
+	if(flags & PAGE_PROT_NONE)
+		realflags = 0;
+	return mprotect(blk, sz, realflags);
+}
+
+/*
+Gives advice on the page. This is based on the madvise syscall on Linux
+May not be implemented for Windows, but can be useful on Linux/FreeBSD
+
+Params:
+	-	The block
+	-	Advice to give
+Returns:
+	-	0 for OK, other for errors
+*/
+PLATFORM_INTERFACE int Plat_PageAdvise(void* blk, size_t sz, int advice)
+{
+	Assert(blk);
+	Assert(blk % m_nPageSize == 0);
+	int realflags = 0;
+	if(advice & PAGE_ADVICE_NEED)
+		realflags |= MADV_WILLNEED;
+	if(advice & PAGE_ADVICE_DONTNEED)
+		realflags |= MADV_DONTNEED;
+	if(advice & PAGE_ADVICE_RANDOM)
+		realflags |= MADV_RANDOM;
+	if(advice & PAGE_ADVICE_SEQ)
+		realflags |= MADV_SEQUENTIAL;
+	if(advice & PAGE_ADVICE_NORMAL)
+		realflags |= MADV_NORMAL;
+	return madvise(blk, sz, realflags);
 }

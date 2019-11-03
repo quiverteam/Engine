@@ -9,6 +9,7 @@
 #ifndef PLATFORM_H
 #define PLATFORM_H
 
+
 #if defined(_x64_)
 #define PLATFORM_64BITS 1
 #endif
@@ -182,6 +183,7 @@ typedef signed char int8;
 	typedef unsigned int			uint32;
 	typedef long long				int64;
 	typedef unsigned long long		uint64;
+	typedef void* HANDLE;
 	#ifdef PLATFORM_64BITS
 		typedef long long			intp;
 		typedef unsigned long long	uintp;
@@ -385,10 +387,10 @@ typedef void * HINSTANCE;
 #define ALIGN_VALUE( val, alignment ) ( ( val + alignment - 1 ) & ~( alignment - 1 ) ) //  need macro for constant expression
 
 // Used to step into the debugger
-#if defined( _WIN32 ) && !defined( _X360 )
+#if defined( _WIN32 )
 #define DebuggerBreak()  __debugbreak()
-#elif defined( _X360 )
-#define DebuggerBreak() DebugBreak()
+#elif defined(_POSIX)
+#define DebuggerBreak() asm("int3\n\t");
 #else
 	// On OSX, SIGTRAP doesn't really stop the thread cold when debugging.
 	// So if being debugged, use INT3 which is precise.
@@ -1742,7 +1744,106 @@ Returns:
 */
 PLATFORM_INTERFACE int Plat_FileExists(const char* file);
 
+/*
+Returns the page size of the current operating system
+
+Params:
+	-	None
+Returns:
+	-	The page size
+*/
+PLATFORM_INTERFACE size_t Plat_GetPageSize();
+
+/*
+Allocates memory in the virtual memory space of this program, very similar to VirtualAlloc.
+
+Params:
+	-	Starting addr of the regious to allocate
+	-	Size of the region
+Returns:
+	-	Pointer to the memory region
+*/
+PLATFORM_INTERFACE void* Plat_PageAlloc(void* start, size_t regsz);
+
+/*
+Frees memory in the virtual memory space of this program, very similar to VirtualFree
+
+Params:
+	-	The block to free
+Returns:
+	-	None
+*/
+PLATFORM_INTERFACE int Plat_PageFree(void* blk, size_t sz);
+
+/*
+Locks a page into the process memory, which guarantees that a page fault will not be triggered when the memory
+is next accessed.
+
+Params:
+	-	The block to lock into memory
+Returns:
+	-	None
+*/
+PLATFORM_INTERFACE int Plat_PageLock(void* blk, size_t sz);
+
+/*
+Remaps the specified page to a new address, can also resize it.
+
+Params:
+	-	the block of memory (page aligned)
+	-	old size
+	-	flags
+Returns:
+	-	New address of the memory region
+*/
+PLATFORM_INTERFACE void* Plat_PageResize(void* blk, size_t pgsz);
+
+/*
+Unlocks a page from the process memory, the next access to it will trigger a page fault
+
+Params:
+	-	The block of memory (page aligned)
+Returns:
+	-	0 for OK, other for errors
+*/
+PLATFORM_INTERFACE int Plat_PageUnlock(void* blk, size_t sz);
+
+/*
+Changes protection flags on the given region of memory
+
+Params:
+	-	The start of the page block
+	-	The flags to apply
+Returns:
+	-	0 for OK, other for errors
+*/
+PLATFORM_INTERFACE int Plat_PageProtect(void* blk, size_t sz, int flags);
+
+#define PAGE_PROT_EXEC		1
+#define PAGE_PROT_READ		2
+#define PAGE_PROT_WRITE		4
+#define PAGE_PROT_NONE		8
+
+/*
+Gives advice on the page. This is based on the madvise syscall on Linux
+May not be implemented for Windows, but can be useful on Linux/FreeBSD
+
+Params:
+	-	The block
+	-	Advice to give
+Returns:
+	-	0 for OK, other for errors
+*/
+PLATFORM_INTERFACE int Plat_PageAdvise(void* blk, size_t sz, int advice);
+
+#define PAGE_ADVICE_NORMAL		1
+#define PAGE_ADVICE_RANDOM		2
+#define PAGE_ADVICE_SEQ			4
+#define PAGE_ADVICE_NEED		8
+#define PAGE_ADVICE_DONTNEED	16
+
 PLATFORM_INTERFACE unsigned long long Plat_ValveTime();
+
 //-----------------------------------------------------------------------------
 //
 // Improved process info API!
