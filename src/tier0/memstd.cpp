@@ -25,6 +25,7 @@
 #include "tier0/dbg.h"
 #include "tier0/memalloc.h"
 #include "tier0/threadtools.h"
+#include "tier0/platform.h"
 #include "mem_helpers.h"
 #include "memstd.h"
 
@@ -83,7 +84,7 @@ IMemAlloc *g_pMemAlloc = &s_StdMemAlloc;
 #else
 IMemAlloc *g_pActualAlloc = &s_StdMemAlloc;
 #endif
-#ifdef _WIN32
+//#ifdef _WIN32
 //-----------------------------------------------------------------------------
 // Small block heap (multi-pool)
 //-----------------------------------------------------------------------------
@@ -511,7 +512,7 @@ void *CSmallBlockHeap::Realloc( void *p, size_t nBytes )
 
 	if ( pNewBlock )
 	{
-		int nBytesCopy = min( nBytes, pOldPool->GetBlockSize() );
+		int nBytesCopy = std::min( nBytes, pOldPool->GetBlockSize() );
 		memcpy( pNewBlock, p, nBytesCopy );
 	}
 
@@ -590,7 +591,8 @@ CSmallBlockPool *CSmallBlockHeap::FindPool( void *p )
 	return &m_Pools[i];
 }
 
-#endif //WIN32
+//#endif //WIN32
+
 #if USE_PHYSICAL_SMALL_BLOCK_HEAP
 
 CX360SmallBlockPool *CX360SmallBlockPool::gm_AddressToPool[BYTES_X360_SBH/PAGESIZE_X360_SBH];
@@ -1129,6 +1131,7 @@ size_t CStdMemAlloc::GetSize( void *pMem )
 	}
 #elif _LINUX
 	Assert( "GetSize() not implemented");
+	return 0; /* To avoid warnings */
 #endif
 }
 
