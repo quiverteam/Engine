@@ -5,7 +5,7 @@
 #
 project(engine C CXX)
 
-# Platform specific sources 
+# Platform specific sources
 set(WINDOWS_SRCS	)
 set(POSIX_SRCS		)
 
@@ -24,7 +24,7 @@ set(DEFINES			-DUSE_CONVARS
 					-DPROTECTED_THINGS_ENABLE)
 
 # Platform-specific preprocessor defines
-set(WIN32_DEFINES	)	
+set(WIN32_DEFINES	)
 set(POSIX32_DEFINES	)
 set(WIN64_DEFINES	)
 set(POSIX64_DEFINES	)
@@ -47,13 +47,13 @@ set(POSIX64_LINK_DIRS	)
 set(LINK_LIBS			)
 
 # Other projects this one depends on
-set(DEPENDENCIES 		vstdlib 
-						tier0 
-						tier1 
+set(DEPENDENCIES 		vstdlib
+						tier0
+						tier1
 						tier2
 						tier3
-						bitmap 
-						vgui_controls 
+						bitmap
+						vgui_controls
 						vtf
 						binkw32
 						matsys_controls
@@ -64,12 +64,12 @@ set(DEPENDENCIES 		vstdlib
 						Dmxloader)
 
 # Platform specific link libs
-set(WINDOWS_LINK_LIBS	dinput8.lib 
-						winmm.lib 
-						wsock32.lib 
-						ws2_32.lib 
-						wininet.lib 
-						vfw32.lib 
+set(WINDOWS_LINK_LIBS	dinput8.lib
+						winmm.lib
+						wsock32.lib
+						ws2_32.lib
+						wininet.lib
+						vfw32.lib
 						Rpcrt4.lib
 						dsound.lib
 						dxguid.lib)
@@ -81,14 +81,15 @@ set(POSIX32_LINK_LIBS	)
 set(POSIX64_LINK_LIBS	)
 
 # Generic include dirs
-set(INCLUDE_DIRS		${PUBLIC_INCLUDE}/tier1 
+set(INCLUDE_DIRS		${PUBLIC_INCLUDE}/tier1
 						${PUBLIC_INCLUDE}/tier0
 						${PUBLIC_INCLUDE}/vstdlib
 						${PUBLIC_INCLUDE}/tier2
 						${ROOT_DIR}/vgui2/include
 						${ROOT_DIR}/vgui2/controls/
 						${CMAKE_CURRENT_SOURCE_DIR}/audio/
-						${CMAKE_CURRENT_SOURCE_DIR}/audio/private)
+						${CMAKE_CURRENT_SOURCE_DIR}/audio/private
+						${CMAKE_CURRENT_SOURCE_DIR}/audio/public)
 
 # Platform specific includes
 set(WIN32_INCLUDE_DIRS	)
