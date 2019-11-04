@@ -33,18 +33,18 @@ public:
 		if ( !BaseClass::Connect( factory ) )
 			return false;
 
-		if ( IsPrimaryAppSystem() )
+		if ( IInterface::IsPrimaryAppSystem() )
 		{
-			ConnectTier3Libraries( &factory, 1 );
+			IInterface::ConnectTier3Libraries( &factory, 1 );
 		}
 		return true;
 	}
 
 	virtual void Disconnect() 
 	{
-		if ( IsPrimaryAppSystem() )
+		if ( IInterface::IsPrimaryAppSystem() )
 		{
-			DisconnectTier3Libraries();
+			IInterface::DisconnectTier3Libraries();
 		}
 		BaseClass::Disconnect();
 	}
