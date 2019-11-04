@@ -1,13 +1,16 @@
-//===== Copyright © 1996-2005, Valve Corporation, All rights reserved. ======//
+//===== Copyright ï¿½ 1996-2005, Valve Corporation, All rights reserved. ======//
 //
 // Purpose: 
 //
 //===========================================================================//
 
-#include <winsock.h>
 #include "udp_socket.h"
-#include "tier1/UtlBuffer.h"
+#include "tier1/utlbuffer.h"
 #include "tier1/strtools.h"
+
+#ifdef _WIN32
+#include <winsock.h>
+#endif
 
 class CUDPSocket::CImpl	
 {

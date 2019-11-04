@@ -1,18 +1,23 @@
-//===== Copyright © 1996-2005, Valve Corporation, All rights reserved. ======//
+//===== Copyright ï¿½ 1996-2005, Valve Corporation, All rights reserved. ======//
 //
 // Purpose: 
 //
 //===========================================================================//
 
 #include "networkclient.h"
-#include "UDP_Socket.h"
-#include "NetChannel.h"
-#include "UDP_Process.h"
-#include <winsock.h>
+#include "udp_socket.h"
+#include "netchannel.h"
+#include "udp_process.h"
 #include "tier1/bitbuf.h"
 #include "networksystem.h"
 #include "sm_protocol.h"
 
+#ifdef _WIN32
+#include <winsock.h>
+#elif defined(POSIX)
+#include <sys/socket.h>
+#include <arpa/inet.h>
+#endif
 
 //-----------------------------------------------------------------------------
 // Construction/Destruction

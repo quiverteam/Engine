@@ -1,4 +1,4 @@
-//===== Copyright © 1996-2006, Valve Corporation, All rights reserved. ======//
+//===== Copyright ï¿½ 1996-2006, Valve Corporation, All rights reserved. ======//
 //
 // Purpose: 
 //
@@ -6,17 +6,22 @@
 
 #include "networksystem.h"
 #include "filesystem.h"
-#include "UDP_Socket.h"
+#include "udp_socket.h"
 #include "sm_protocol.h"
-#include "NetChannel.h"
-#include "UDP_Process.h"
-#include <winsock.h>
+#include "netchannel.h"
+#include "udp_process.h"
 #include "networkclient.h"
 #include "networkserver.h"
 #include "networksystem/inetworkmessage.h"
 #include "mathlib/mathlib.h"
 #include "tier2/tier2.h"
 
+#ifdef _WIN32
+#include <winsock.h>
+#elif defined(POSIX)
+#include <sys/socket.h>
+#include <arpa/inet.h>
+#endif
 
 //-----------------------------------------------------------------------------
 // Singleton instance

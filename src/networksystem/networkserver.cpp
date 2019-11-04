@@ -1,4 +1,4 @@
-//===== Copyright © 1996-2005, Valve Corporation, All rights reserved. ======//
+//===== Copyright ï¿½ 1996-2005, Valve Corporation, All rights reserved. ======//
 //
 // Purpose: 
 //
@@ -8,14 +8,15 @@
 #include "networksystem.h"
 #include "icvar.h"
 #include "filesystem.h"
-#include "UDP_Socket.h"
+#include "udp_socket.h"
 #include "sm_protocol.h"
-#include "NetChannel.h"
-#include "UDP_Process.h"
-#include <winsock.h>
+#include "netchannel.h"
+#include "udp_process.h"
 #include "networkclient.h"
 
-
+#ifdef _WIN32
+#include <winsock.h>
+#endif
 
 //-----------------------------------------------------------------------------
 //

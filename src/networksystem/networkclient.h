@@ -1,4 +1,4 @@
-//===== Copyright © 1996-2005, Valve Corporation, All rights reserved. ======//
+//===== Copyright ï¿½ 1996-2005, Valve Corporation, All rights reserved. ======//
 //
 // Purpose: 
 //
@@ -10,7 +10,7 @@
 #pragma once
 #endif
 
-#include "NetChannel.h"
+#include "netchannel.h"
 
 class CNetworkClient : public IConnectionlessPacketHandler, public INetworkMessageHandler, public ILookupChannel
 {

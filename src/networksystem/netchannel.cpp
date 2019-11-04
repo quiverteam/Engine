@@ -1,12 +1,12 @@
-//===== Copyright © 1996-2006, Valve Corporation, All rights reserved. ======//
+//===== Copyright ï¿½ 1996-2006, Valve Corporation, All rights reserved. ======//
 //
 // Purpose: 
 //
 //===========================================================================//
 
-#include "NetChannel.h"
-#include "UDP_Socket.h"
-#include "tier1/UtlBuffer.h"
+#include "netchannel.h"
+#include "udp_socket.h"
+#include "tier1/utlbuffer.h"
 #include "networksystem/inetworkmessage.h"
 #include "networksystem.h"
 
