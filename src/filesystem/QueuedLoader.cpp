@@ -1,4 +1,4 @@
-//===== Copyright © 1996-2005, Valve Corporation, All rights reserved. ======//
+//===== Copyright ï¿½ 1996-2005, Valve Corporation, All rights reserved. ======//
 //
 // Queued Loading of map resources. !!!!Specifically!!! designed for the map loading process.
 //
@@ -167,8 +167,8 @@ private:
 	};
 	typedef CUtlSortVector< FileNameHandle_t, CResourceNameLessFunc > ResourceList_t;
 
-	static void							CQueuedLoader::BuildResources( IResourcePreload *pLoader, ResourceList_t *pList, float *pBuildTime );
-	static void							CQueuedLoader::BuildMaterialResources( IResourcePreload *pLoader, ResourceList_t *pList, float *pBuildTime );
+	static void							BuildResources( IResourcePreload *pLoader, ResourceList_t *pList, float *pBuildTime );
+	static void							BuildMaterialResources( IResourcePreload *pLoader, ResourceList_t *pList, float *pBuildTime );
 
 	void								PurgeQueue();
 	void								CleanQueue();

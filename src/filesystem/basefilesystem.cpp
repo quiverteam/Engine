@@ -1,4 +1,4 @@
-//===== Copyright © 1996-2005, Valve Corporation, All rights reserved. ======//
+//===== Copyright ï¿½ 1996-2005, Valve Corporation, All rights reserved. ======//
 //
 // Purpose: 
 //
@@ -22,9 +22,6 @@
 #include "tier2/tier2.h"
 #include "tier1/lzmaDecoder.h"
 #include "zip_utils.h"
-#ifdef _X360
-#include "xbox/xbox_launch.h"
-#endif
 
 #ifndef DEDICATED
 #include "keyvaluescompiler.h"
@@ -35,11 +32,6 @@
 // Needed for getting file type string
 #define WIN32_LEAN_AND_MEAN
 #include <shellapi.h>
-#endif
-
-#if defined( _X360 )
-#include "xbox\xbox_win32stubs.h"
-#undef GetCurrentDirectory
 #endif
 
 // memdbgon must be the last include file in a .cpp file!!!
@@ -3770,7 +3762,7 @@ int CBaseFileSystem::Write( void const* pInput, int size, FileHandle_t file )
 //-----------------------------------------------------------------------------
 // Purpose: 
 //-----------------------------------------------------------------------------
-int CBaseFileSystem::FPrintf( FileHandle_t file, char *pFormat, ... )
+int CBaseFileSystem::FPrintf( FileHandle_t file, const char *pFormat, ... )
 {
 	va_list args;
 	va_start( args, pFormat );
@@ -4602,7 +4594,7 @@ const char *CBaseFileSystem::FindFirstHelper( const char *pWildCard, const char 
 	pFindData->wildCardString.AddMultipleToTail( maxlen );
 	Q_strncpy( pFindData->wildCardString.Base(), pWildCard, maxlen );
 	Q_FixSlashes( pFindData->wildCardString.Base() );
-	pFindData->findHandle = INVALID_HANDLE_VALUE;
+	pFindData->findHandle = (HANDLE)INVALID_HANDLE_VALUE;
 
 	if ( Q_IsAbsolutePath( pWildCard ) )
 	{
@@ -4638,7 +4630,7 @@ const char *CBaseFileSystem::FindFirstHelper( const char *pWildCard, const char 
 				Q_FixSlashes( pTmpFileName );
 				pFindData->findHandle = FS_FindFirstFile( pTmpFileName, &pFindData->findData );
 				pFindData->m_CurrentStoreID = pSearchPath->m_storeId;
-				if ( pFindData->findHandle != INVALID_HANDLE_VALUE )
+				if ( pFindData->findHandle != (HANDLE)INVALID_HANDLE_VALUE )
 					goto FileFound;
 			}
 		}
@@ -4691,11 +4683,11 @@ bool CBaseFileSystem::FindNextFileHelper( FindData_t *pFindData, int *pFoundStor
 
 	pFindData->currentSearchPathID++;
 
-	if ( pFindData->findHandle != INVALID_HANDLE_VALUE )
+	if ( pFindData->findHandle != (HANDLE)INVALID_HANDLE_VALUE )
 	{
 		FS_FindClose( pFindData->findHandle );
 	}
-	pFindData->findHandle = INVALID_HANDLE_VALUE;
+	pFindData->findHandle = (HANDLE)INVALID_HANDLE_VALUE;
 
 	int c = m_SearchPaths.Count();
 	for( ; pFindData->currentSearchPathID < c; ++pFindData->currentSearchPathID ) 
@@ -4722,7 +4714,7 @@ bool CBaseFileSystem::FindNextFileHelper( FindData_t *pFindData, int *pFoundStor
 			Q_FixSlashes( pTmpFileName );
 			pFindData->findHandle = FS_FindFirstFile( pTmpFileName, &pFindData->findData );
 			pFindData->m_CurrentStoreID = pSearchPath->m_storeId;
-			if ( pFindData->findHandle != INVALID_HANDLE_VALUE )
+			if ( pFindData->findHandle != (HANDLE)INVALID_HANDLE_VALUE )
 			{
 				if ( pFoundStoreID )
 					* pFoundStoreID = pFindData->m_CurrentStoreID;
@@ -4784,11 +4776,11 @@ void CBaseFileSystem::FindClose( FileFindHandle_t handle )
 	FindData_t *pFindData = &m_FindData[handle];
 	Assert(pFindData);
 
-	if ( pFindData->findHandle != INVALID_HANDLE_VALUE)
+	if ( pFindData->findHandle != (HANDLE)INVALID_HANDLE_VALUE)
 	{
 		FS_FindClose( pFindData->findHandle );
 	}
-	pFindData->findHandle = INVALID_HANDLE_VALUE;
+	pFindData->findHandle = (HANDLE)INVALID_HANDLE_VALUE;
 
 	pFindData->wildCardString.Purge();
 	m_FindData.Remove( handle );

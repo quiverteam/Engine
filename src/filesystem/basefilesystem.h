@@ -498,7 +498,7 @@ public:
 	virtual int					ReadEx( void* pOutput, int sizeDest, int size, FileHandle_t file );
 	virtual int					Write( void const* pInput, int size, FileHandle_t file );
 	virtual char				*ReadLine( char *pOutput, int maxChars, FileHandle_t file );
-	virtual int					FPrintf( FileHandle_t file, char *pFormat, ... );
+	virtual int					FPrintf( FileHandle_t file, const char *pFormat, ... );
 
 	// Reads/writes files to utlbuffers
 	virtual bool				ReadFile( const char *pFileName, const char *pPath, CUtlBuffer &buf, int nMaxBytes, int nStartingByte, FSAllocFunc_t pfnAlloc = NULL );

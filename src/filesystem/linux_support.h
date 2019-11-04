@@ -1,4 +1,4 @@
-//========= Copyright © 1996-2005, Valve Corporation, All rights reserved. ============//
+//========= Copyright ï¿½ 1996-2005, Valve Corporation, All rights reserved. ============//
 //
 // Purpose:
 // 
@@ -16,6 +16,8 @@
 #include <stdlib.h>
 #include <stdio.h>
 
+#include "tier0/platform.h"
+
 #define FILE_ATTRIBUTE_DIRECTORY S_IFDIR
 
 typedef struct 
@@ -30,13 +32,14 @@ typedef struct
 
 #define WIN32_FIND_DATA FIND_DATA
 
+#undef MAX_PATH
 #define MAX_PATH PATH_MAX
 
 #define __stdcall
 
-int FindFirstFile(char *findName, FIND_DATA *dat);
-bool FindNextFile(int handle, FIND_DATA *dat);
-bool FindClose(int handle);
+HANDLE FindFirstFile(const char *findName, FIND_DATA *dat);
+bool FindNextFile(HANDLE handle, FIND_DATA *dat);
+bool FindClose(HANDLE handle);
 const char *findFileInDirCaseInsensitive(const char *file);
 
 #endif // LINUX_SUPPORT_H

@@ -1,4 +1,4 @@
-//========= Copyright © 1996-2005, Valve Corporation, All rights reserved. ============//
+//========= Copyright ï¿½ 1996-2005, Valve Corporation, All rights reserved. ============//
 //
 // Purpose:
 //
@@ -93,7 +93,7 @@ int FillDataStruct(FIND_DATA *dat)
 }
 
 
-int FindFirstFile(char *fileName, FIND_DATA *dat)
+HANDLE FindFirstFile(const char *fileName, FIND_DATA *dat)
 {
 	char nameStore[PATH_MAX];
 	char *dir=NULL;
@@ -124,7 +124,7 @@ int FindFirstFile(char *fileName, FIND_DATA *dat)
 	else
 	{
 		// couldn't find a dir seperator...
-		return -1;
+		return (void*)-1;
 	}
 
 	if( strlen(dir)>0 )
@@ -149,10 +149,10 @@ int FindFirstFile(char *fileName, FIND_DATA *dat)
 	}
 
 //	printf("Returning: %i \n",iret);
-	return iret;
+	return (void*)iret;
 }
 
-bool FindNextFile(int handle, FIND_DATA *dat)
+bool FindNextFile(HANDLE handle, FIND_DATA *dat)
 {
 	if(dat->numMatches<0)
 	{	
@@ -164,7 +164,7 @@ bool FindNextFile(int handle, FIND_DATA *dat)
 	return true;
 }
 
-bool FindClose(int handle)
+bool FindClose(HANDLE handle)
 {
 	return true;
 }

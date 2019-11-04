@@ -6,7 +6,6 @@
 //=============================================================================//
 
 #ifdef _WIN32
-#ifdef _WIN32
 #include <io.h>
 #include <fcntl.h>
 #endif
@@ -22,6 +21,7 @@
 #include "tier0/vprof.h"
 #include "tier1/fmtstr.h"
 #include "tier1/utlrbtree.h"
+#include "tier0/platform.h"
 
 #ifdef _X360
 #undef WaitForSingleObject
@@ -84,7 +84,7 @@ protected:
 private:
 	bool CanAsync() const
 	{
-		m_bCanAsync;
+		return m_bCanAsync;
 	}
 
 	bool m_bMounted;
@@ -192,6 +192,7 @@ private:
 // singleton
 //-----------------------------------------------------------------------------
 CFileSystem_Stdio g_FileSystem_Stdio;
+
 #if defined(_WIN32) && defined(DEDICATED)
 CBaseFileSystem *BaseFileSystem_Stdio( void )
 {
@@ -293,16 +294,7 @@ bool CFileSystem_Stdio::GetOptimalIOConstraints( FileHandle_t hFile, unsigned *p
 	}
 
 	if ( pBufferAlign )
-	{
-		if ( IsX360() )
-		{
-			*pBufferAlign = 4;
-		}
-		else
-		{
-			*pBufferAlign = sectorSize;
-		}
-	}
+		*pBufferAlign = sectorSize;
 
 	return ( sectorSize > 1 );
 }
@@ -344,15 +336,8 @@ void *CFileSystem_Stdio::AllocOptimalReadBuffer( FileHandle_t hFile, unsigned nS
 	bool bOffsetIsAligned = ( nOffset % sectorSize == 0 );
 	unsigned nAllocSize = ( bOffsetIsAligned ) ? AlignValue( nSize, sectorSize ) : nSize;
 
-	if ( IsX360() )
-	{
-		return malloc( nAllocSize );
-	}
-	else
-	{
-		unsigned nAllocAlignment = ( bOffsetIsAligned ) ? sectorSize : 4;
-		return _aligned_malloc( nAllocSize, nAllocAlignment );
-	}
+	unsigned nAllocAlignment = ( bOffsetIsAligned ) ? sectorSize : 4;
+	return _aligned_malloc( nAllocSize, nAllocAlignment );
 }
 
 
@@ -367,16 +352,7 @@ void CFileSystem_Stdio::FreeOptimalReadBuffer( void *p )
 	}
 
 	if ( p )
-	{
-		if ( IsX360() )
-		{
-			free( p );
-		}
-		else
-		{
-			 _aligned_free( p );
-		}
-	}
+		_aligned_free( p );
 }
 
 //-----------------------------------------------------------------------------
@@ -891,12 +867,6 @@ int GetSectorSize( const char *pszFilename )
 		return 0;
 	}
 
-	if ( IsX360() )
-	{
-		// purposely dvd centric, which is also the worst case
-		return XBOX_DVD_SECTORSIZE;
-	}
-
 #if defined( _WIN32 ) && !defined( FILESYSTEM_STEAM ) && !defined( _X360 )
 	char szAbsoluteFilename[MAX_FILEPATH];
 	if ( pszFilename[1] != ':' )
@@ -1333,4 +1303,3 @@ char *CWin32ReadOnlyFile::FS_fgets( char *dest, int destSize )
 
 
 #endif
-#endif //_WIN32

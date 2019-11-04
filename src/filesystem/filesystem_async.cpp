@@ -1,4 +1,4 @@
-//========== Copyright © 2005, Valve Corporation, All rights reserved. ========
+//========== Copyright ï¿½ 2005, Valve Corporation, All rights reserved. ========
 //
 // Purpose: CBaseFileSystem Async Operation
 //
@@ -15,7 +15,7 @@
 //=============================================================================
 
 #include <limits.h>
-#if defined( _WIN32 ) && !defined( _X360 )
+#if defined( _WIN32 )
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
 #endif
@@ -1077,6 +1077,7 @@ void CBaseFileSystem::AsyncRelease( FSAsyncControl_t hControl )
 //-----------------------------------------------------------------------------
 static void *GetDest( const FileAsyncRequest_t &request, bool bTryUnbuffered, unsigned *pBytesBuffer, unsigned *pBytesRead )
 {
+	return nullptr;
 }
 
 //-----------------------------------------------------------------------------
