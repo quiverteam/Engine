@@ -1,4 +1,4 @@
-//===== Copyright � 1996-2005, Valve Corporation, All rights reserved. ======//
+//===== Copyright (C) 1996-2005, Valve Corporation, All rights reserved. ======//
 //
 // Purpose: 
 //
@@ -14,6 +14,7 @@
 //===========================================================================//
 #pragma once
 
+#include "InputEnums.h"
 #ifdef _WIN32
 #include <windows.h>
 #include <zmouse.h>
@@ -32,7 +33,6 @@
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_video.h>
 #endif
-
 
 //-----------------------------------------------------------------------------
 // Implementation of the input system
@@ -307,5 +307,83 @@ private:
 
 	CSysModule   *m_pXInputDLL;
 #endif //USE_OLD_INPUTSYSTEM
+};
+
+//-----------------------------------------------------------------------------
+// Implementation of the input system
+//-----------------------------------------------------------------------------
+class CInputSystem2 : public CTier2AppSystem<IInputSystem>
+{
+protected:
+	typedef CTier2AppSystem<IInputSystem> BaseClass;
+	unsigned joystick_count;
+	unsigned enabled_joystick;
+	unsigned last_poll;
+	unsigned last_tick;
+	SDL_Window* pWindow;
+	bool enable_input;
+	unsigned* joystick_map; /* Map of source joystick indicies to sdl joystick numbers */
+	SDL_Joystick* active_joystick;
+	unsigned poll_count;
+	struct SInputState_t
+	{
+		bool keys[ButtonCode_t::BUTTON_CODE_COUNT];
+		unsigned pressed_tick[ButtonCode_t::BUTTON_CODE_COUNT];
+		unsigned released_tick[ButtonCode_t::BUTTON_CODE_COUNT];
+		unsigned axis[AnalogCode_t::ANALOG_CODE_LAST];
+		unsigned mouse_buttons;
+		unsigned mouse_x, mouse_y;
+	} prev_input, curr_input;
+
+	CUtlVector<InputEvent_t> events;
+
+public:
+	// Constructor, destructor
+	CInputSystem2();
+	virtual ~CInputSystem2();
+
+	// Inherited from IAppSystem
+	virtual	InitReturnVal_t Init();
+	virtual void Shutdown();
+
+	// Inherited from IInputSystem
+	virtual void AttachToWindow( void* hWnd );
+	virtual void DetachFromWindow( );
+	virtual void EnableInput( bool bEnable );
+	virtual void EnableMessagePump( bool bEnable );
+	virtual int GetPollTick() const;
+	virtual void PollInputState();
+	virtual bool IsButtonDown( ButtonCode_t code ) const;
+	virtual int GetButtonPressedTick( ButtonCode_t code ) const;
+	virtual int GetButtonReleasedTick( ButtonCode_t code ) const;
+	virtual int GetAnalogValue( AnalogCode_t code ) const;
+	virtual int GetAnalogDelta( AnalogCode_t code ) const;
+	virtual int GetEventCount() const;
+	virtual const InputEvent_t* GetEventData( ) const;
+	virtual void PostUserEvent( const InputEvent_t &event );
+	virtual int GetJoystickCount() const;
+	virtual void EnableJoystickInput( int nJoystick, bool bEnable );
+	virtual void EnableJoystickDiagonalPOV( int nJoystick, bool bEnable );
+	virtual void SampleDevices( void );
+	virtual void SetRumble( float fLeftMotor, float fRightMotor, int userId );
+	virtual void StopRumble( void );
+	virtual void ResetInputState( void );
+	virtual void SetPrimaryUserId( int userId );
+	virtual const char *ButtonCodeToString( ButtonCode_t code ) const;
+	virtual const char *AnalogCodeToString( AnalogCode_t code ) const;
+	virtual ButtonCode_t StringToButtonCode( const char *pString ) const;
+	virtual AnalogCode_t StringToAnalogCode( const char *pString ) const;
+	virtual ButtonCode_t VirtualKeyToButtonCode( int nVirtualKey ) const;
+	virtual int ButtonCodeToVirtualKey( ButtonCode_t code ) const;
+	virtual ButtonCode_t ScanCodeToButtonCode( int lParam ) const;
+	virtual void SleepUntilInput( int nMaxSleepTimeMS );
+	virtual int GetPollCount() const;
+	virtual void SetCursorPosition( int x, int y );
+
+	virtual void *GetHapticsInterfaceAddress() const { return NULL; }
+	virtual void SetNovintPure( bool bPure ) {}
+	virtual bool GetRawMouseAccumulators( int& accumX, int& accumY ) { return false; }
+	virtual void SetConsoleTextMode( bool bConsoleTextMode ) {}
+
 };
 

@@ -15,59 +15,78 @@
 #include <SDL2/SDL_mouse.h>
 #include <SDL2/SDL_keyboard.h>
 #include <SDL2/SDL_gamecontroller.h>
+#include <ctime>
+#include <time.h>
 
 //-----------------------------------------------------------------------------
 // Singleton instance
 //-----------------------------------------------------------------------------
-static CInputSystem g_InputSystem;
+static CInputSystem2 g_InputSystem2;
 EXPOSE_SINGLE_INTERFACE_GLOBALVAR(CInputSystem, IInputSystem,
-								  INPUTSYSTEM_INTERFACE_VERSION, g_InputSystem);
+								  INPUTSYSTEM_INTERFACE_VERSION, g_InputSystem2);
 
 // Constructor, destructor
-CInputSystem::CInputSystem()
+CInputSystem2::CInputSystem2()
 {
-
+	this->last_tick = 0;
+	this->last_poll = 0;
+	this->poll_count = 0;
+	this->joystick_count = 0;
+	this->enabled_joystick = 0;
+	this->active_joystick = nullptr;
 }
 
-CInputSystem::~CInputSystem()
+CInputSystem2::~CInputSystem2()
 {
 
 }
 
 // Inherited from IAppSystem
-InitReturnVal_t Init()
+InitReturnVal_t CInputSystem2::Init()
 {
 	DevWarning("WARNING: Inputsystem2 is currently loaded. This is experimental.");
-	SDL_InitSubSystem(SDL_INIT_EVENTS);
-	SDL_InitSubSystem(SDL_INIT_JOYSTICK);
-	SDL_InitSubSystem(SDL_INIT_GAMECONTROLLER);
+	int flags = SDL_WasInit(0);
+	if(!(flags & SDL_INIT_JOYSTICK))
+		SDL_InitSubSystem(SDL_INIT_JOYSTICK);
+	if(!(flags & SDL_INIT_EVENTS))
+		SDL_InitSubSystem(SDL_INIT_EVENTS);
+	if(!(flags & SDL_INIT_GAMECONTROLLER))
+		SDL_InitSubSystem(SDL_INIT_GAMECONTROLLER);
+	
+	/* Find all joysticks */
+	int numjoy = SDL_NumJoysticks();
+	this->joystick_count = numjoy;
+
+	memset(&this->prev_input, 0, sizeof(SInputState_t));
+	memset(&this->curr_input, 0, sizeof(SInputState_t));
+
+	return InitReturnVal_t::INIT_OK;
 }
-void CInputSystem::Shutdown()
+void CInputSystem2::Shutdown()
 {
 	SDL_QuitSubSystem(SDL_INIT_EVENTS);
 	SDL_QuitSubSystem(SDL_INIT_JOYSTICK);
 	SDL_QuitSubSystem(SDL_INIT_GAMECONTROLLER);
 }
 
-void CInputSystem::AttachToWindow(void* hWnd)
+void CInputSystem2::AttachToWindow(void* hWnd)
 {
 	// BIG NOTE: This requires using SDL deeper in the engine.
 	Assert(hWnd);
 	pWindow = (SDL_Window*)hWnd;
 }
 
-void CInputSystem::DetachFromWindow()
+void CInputSystem2::DetachFromWindow()
 {
 	pWindow = NULL;
 }
 
-void CInputSystem::EnableInput(bool bEnable)
+void CInputSystem2::EnableInput(bool bEnable)
 {
 	if(bEnable)
 	{
 		SDL_CaptureMouse(SDL_TRUE);
 		SDL_SetRelativeMouseMode(SDL_TRUE);
-
 	}
 	else
 	{
@@ -75,35 +94,35 @@ void CInputSystem::EnableInput(bool bEnable)
 	}
 }
 
-void CInputSystem::EnableMessagePump(bool bEnable)
+void CInputSystem2::EnableMessagePump(bool bEnable)
 {
-	m_bPumpEnabled = bEnable;
+	enable_input = bEnable;
 }
 
 /* Returns the last poll tick */
-int CInputSystem::GetPollTick() const
+int CInputSystem2::GetPollTick() const
+{
+	return this->last_poll;
+}
+
+void CInputSystem2::PollInputState()
 {
 
 }
 
-void CInputSystem::PollInputState()
+bool CInputSystem2::IsButtonDown(ButtonCode_t code) const
 {
-
+	return this->curr_input.keys[code];
 }
 
-bool CInputSystem::IsButtonDown(ButtonCode_t code) const
+int CInputSystem2::GetButtonPressedTick(ButtonCode_t code) const
 {
-
+	return this->curr_input.pressed_tick[code];
 }
 
-int CInputSystem::GetButtonPressedTick(ButtonCode_t code) const
+int CInputSystem2::GetButtonReleasedTick(ButtonCode_t code) const
 {
-
-}
-
-int CInputSystem::GetButtonReleasedTick(ButtonCode_t code) const
-{
-
+	return this->curr_input.released_tick[code];
 }
 
 /*
@@ -113,30 +132,9 @@ This is a RAW analog value, so if you need a relative value (such as a delta)
 use GetAnalogDelta
 
 */
-int CInputSystem::GetAnalogValue(AnalogCode_t code) const
+int CInputSystem2::GetAnalogValue(AnalogCode_t code) const
 {
-	int x = 0, y = 0;
-	switch(code)
-	{
-		case MOUSE_X:
-			SDL_GetRelativeMouseState(&x, &y);
-			return x;
-			break;
-		case MOUSE_Y:
-			SDL_GetRelativeMouseState(&x, &y);
-			return y;
-			break;
-		case MOUSE_XY:
-			break;
-		case MOUSE_WHEEL:
-			break;
-		case JOYSTICK_FIRST_AXIS:
-			break;
-		case JOYSTICK_LAST_AXIS:
-			break;
-		default:
-			return 0;
-	}
+	return curr_input.axis[code];
 }
 
 /*
@@ -146,9 +144,9 @@ Delta means change, so if you're querying MOUSE_X, you should get the amount the
 on the X axis over the last frame. Use GetAnalogValue if you want a raw value instead of this.
 
 */
-int CInputSystem::GetAnalogDelta(AnalogCode_t code) const
+int CInputSystem2::GetAnalogDelta(AnalogCode_t code) const
 {
-
+	return curr_input.axis[code] - prev_input.axis[code];
 }
 
 /*
@@ -156,9 +154,9 @@ int CInputSystem::GetAnalogDelta(AnalogCode_t code) const
 Return the number of events
 
 */
-int CInputSystem::GetEventCount() const
+int CInputSystem2::GetEventCount() const
 {
-	return m_InputEvents.Count();
+	return events.Count();
 }
 
 /*
@@ -166,12 +164,13 @@ int CInputSystem::GetEventCount() const
 Return the last bit of event data
 
 */
-const InputEvent_t* CInputSystem::GetEventData() const
+const InputEvent_t* CInputSystem2::GetEventData() const
 {
-	if(m_InputEvents.Count() > 0)
+	if(events.Count() > 0)
 	{
-		return &m_InputEvents.Tail();
+		return &this->events.Tail();
 	}
+	return nullptr;
 }
 
 /*
@@ -179,9 +178,9 @@ const InputEvent_t* CInputSystem::GetEventData() const
 Insert a user event into the input event queue
 
 */
-void CInputSystem::PostUserEvent(const InputEvent_t &event)
+void CInputSystem2::PostUserEvent(const InputEvent_t &event)
 {
-	m_InputEvents.AddToTail(event);
+	this->events.AddToTail(event);
 }
 
 /*
@@ -189,9 +188,9 @@ void CInputSystem::PostUserEvent(const InputEvent_t &event)
 Return the number of joysticks
 
 */
-int CInputSystem::GetJoystickCount() const
+int CInputSystem2::GetJoystickCount() const
 {
-	return SDL_NumJoysticks();
+	return this->joystick_count;
 }
 
 /*
@@ -199,9 +198,26 @@ int CInputSystem::GetJoystickCount() const
 Enable joystick input from the specified joystick
 
 */
-void CInputSystem::EnableJoystickInput(int nJoystick, bool bEnable)
+void CInputSystem2::EnableJoystickInput(int nJoystick, bool bEnable)
 {
+	/* Can only disable active joystick */
+	if(!bEnable && this->enabled_joystick == nJoystick && this->active_joystick)
+	{
+		SDL_JoystickClose(this->active_joystick);
+		this->active_joystick = nullptr;
+		return;
+	}
 
+	if(nJoystick < this->joystick_count)
+	{
+		if(!bEnable) return;
+		if(this->active_joystick)
+			SDL_JoystickClose(this->active_joystick);
+		this->enabled_joystick = nJoystick;
+		this->active_joystick = SDL_JoystickOpen(nJoystick);
+		if(!this->active_joystick)
+			Error("[Inputsystem2] Failed to open joystick. SDL_Error=%s", SDL_GetError());
+	}
 }
 
 /*
@@ -209,15 +225,15 @@ void CInputSystem::EnableJoystickInput(int nJoystick, bool bEnable)
 Enable joystick diagonal pov
 
 */
-void CInputSystem::EnableJoystickDiagonalPOV(int nJoystick, bool bEnable)
+void CInputSystem2::EnableJoystickDiagonalPOV(int nJoystick, bool bEnable)
 {
 
 }
 
 /* Sample for unregistered input events and place them into the event queue */
-void CInputSystem::SampleDevices(void)
+void CInputSystem2::SampleDevices(void)
 {
-	m_nLastPollTick = Plat_GetTickCount();
+	last_tick = (clock() / CLOCKS_PER_SEC) * 1000;
 	SDL_PumpEvents();
 
 	SDL_Event ev[256];
@@ -256,72 +272,73 @@ void CInputSystem::SampleDevices(void)
 
 }
 
-void CInputSystem::SetRumble(float fLeftMotor, float fRightMotor, int userId)
+void CInputSystem2::SetRumble(float fLeftMotor, float fRightMotor, int userId)
 {
 	/* Nothing to be done, x360 only */
 }
 
-void CInputSystem::StopRumble(void)
+void CInputSystem2::StopRumble(void)
 {
 	/* Nothing to be done, x360 only */
 }
 
-void CInputSystem::ResetInputState(void)
+void CInputSystem2::ResetInputState(void)
+{
+	memset(&this->curr_input, 0, sizeof(SInputState_t));
+	memset(&this->prev_input, 0, sizeof(SInputState_t));
+}
+
+void CInputSystem2::SetPrimaryUserId(int userId)
 {
 
 }
 
-void CInputSystem::SetPrimaryUserId(int userId)
+const char* CInputSystem2::ButtonCodeToString(ButtonCode_t code) const
 {
 
 }
 
-const char* CInputSystem::ButtonCodeToString(ButtonCode_t code) const
+const char* CInputSystem2::AnalogCodeToString(AnalogCode_t code) const
 {
 
 }
 
-const char* CInputSystem::AnalogCodeToString(AnalogCode_t code) const
+ButtonCode_t CInputSystem2::StringToButtonCode(const char *pString) const
 {
 
 }
 
-ButtonCode_t CInputSystem::StringToButtonCode(const char *pString) const
+AnalogCode_t CInputSystem2::StringToAnalogCode(const char *pString) const
 {
 
 }
 
-AnalogCode_t CInputSystem::StringToAnalogCode(const char *pString) const
+ButtonCode_t CInputSystem2::VirtualKeyToButtonCode(int nVirtualKey) const
 {
 
 }
 
-ButtonCode_t CInputSystem::VirtualKeyToButtonCode(int nVirtualKey) const
+int CInputSystem2::ButtonCodeToVirtualKey(ButtonCode_t code) const
 {
 
 }
 
-int CInputSystem::ButtonCodeToVirtualKey(ButtonCode_t code) const
+ButtonCode_t CInputSystem2::ScanCodeToButtonCode(int lParam) const
 {
 
 }
 
-ButtonCode_t CInputSystem::ScanCodeToButtonCode(int lParam) const
+void CInputSystem2::SleepUntilInput(int nMaxSleepTimeMS)
 {
 
 }
 
-void CInputSystem::SleepUntilInput(int nMaxSleepTimeMS)
+int CInputSystem2::GetPollCount() const
 {
-
+	return poll_count;
 }
 
-int CInputSystem::GetPollCount() const
-{
-	return m_nPollCount;
-}
-
-void CInputSystem::SetCursorPosition(int x, int y)
+void CInputSystem2::SetCursorPosition(int x, int y)
 {
 	Assert(pWindow);
 	SDL_WarpMouseInWindow(pWindow, x, y);

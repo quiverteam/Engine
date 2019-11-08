@@ -1,4 +1,4 @@
-//===== Copyright © 2005-2005, Valve Corporation, All rights reserved. ======//
+//===== Copyright (C) 2005-2005, Valve Corporation, All rights reserved. ======//
 //
 // Purpose: A higher level link library for general use in the game and tools.
 //
@@ -89,7 +89,7 @@ public:
 		if ( !BaseClass::Connect( factory ) )
 			return false;
 
-		if ( IsPrimaryAppSystem() )
+		if ( IInterface::IsPrimaryAppSystem() )
 		{
 			ConnectTier2Libraries( &factory, 1 );
 		}
@@ -113,7 +113,7 @@ public:
 
 	virtual void Disconnect() 
 	{
-		if ( IsPrimaryAppSystem() )
+		if ( IInterface::IsPrimaryAppSystem() )
 		{
 			DisconnectTier2Libraries();
 		}

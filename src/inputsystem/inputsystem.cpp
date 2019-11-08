@@ -16,9 +16,11 @@ ConVar joy_xcontroller_found( "joy_xcontroller_found", "1", FCVAR_NONE, "Automat
 //-----------------------------------------------------------------------------
 // Singleton instance
 //-----------------------------------------------------------------------------
+#ifdef USE_OLD_INPUTSYSTEM 
 static CInputSystem g_InputSystem;
 EXPOSE_SINGLE_INTERFACE_GLOBALVAR( CInputSystem, IInputSystem, 
 						INPUTSYSTEM_INTERFACE_VERSION, g_InputSystem );
+#endif
 
 #ifdef _WIN32
 //-----------------------------------------------------------------------------
