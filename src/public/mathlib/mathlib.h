@@ -1246,13 +1246,14 @@ FORCEINLINE unsigned long RoundFloatToUnsignedLong(float f)
 #else // PLATFORM_WINDOWS_PC64
 	unsigned char nResult[8];
 
-	#if defined( _WIN32 )
+	#if defined(_MSC_VER)
 		__asm
 		{
 			fld f
 			fistp       qword ptr nResult
 		}
-	#elif POSIX
+
+	#elif defined(__GNUC__) || POSIX
 		__asm __volatile__ (
 			"fistpl %0;": "=m" (nResult): "t" (f) : "st"
 		);
@@ -2147,7 +2148,7 @@ inline bool CloseEnough( const Vector &a, const Vector &b, float epsilon = EQUAL
 // Fast compare
 // maxUlps is the maximum error in terms of Units in the Last Place. This 
 // specifies how big an error we are willing to accept in terms of the value
-// of the least significant digit of the floating point number’s 
+// of the least significant digit of the floating point numberï¿½s 
 // representation. maxUlps can also be interpreted in terms of how many 
 // representable floats we are willing to accept between A and B. 
 // This function will allow maxUlps-1 floats between A and B.

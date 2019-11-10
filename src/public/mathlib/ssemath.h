@@ -31,6 +31,8 @@
 #include <immintrin.h>
 #else
 
+/* Disabled for mingw since mingw's headers will automatically include avx shit */
+#if !defined(_WIN32) && !defined(__GNUC__)
 /* These are thrown in because immintrin introduces a bunch of ABI changes we don't want when not using AVX2 */
 typedef union
 {
@@ -43,6 +45,7 @@ typedef union
 	double f64[4];
 	uint64 u64[4];
 } __m256d;
+#endif
 
 #endif //_USE_AVX
 
@@ -1058,20 +1061,12 @@ FORCEINLINE fltx4 ReplicateX4( float flValue )
 FORCEINLINE float SubFloat( const fltx4 & a, int idx )
 {
 	// NOTE: if the output goes into a register, this causes a Load-Hit-Store stall (don't mix fpu/vpu math!)
-#ifndef POSIX
-	return a.m128_f32[ idx ];
-#else
 	return (reinterpret_cast<float const *>(&a))[idx];
-#endif
 }
 
 FORCEINLINE float & SubFloat( fltx4 & a, int idx )
 {
-#ifndef POSIX
-	return a.m128_f32[ idx ];
-#else
 	return (reinterpret_cast<float *>(&a))[idx];
-#endif
 }
 
 FORCEINLINE uint32 SubFloatConvertToInt( const fltx4 & a, int idx )
@@ -1081,20 +1076,12 @@ FORCEINLINE uint32 SubFloatConvertToInt( const fltx4 & a, int idx )
 
 FORCEINLINE uint32 SubInt( const fltx4 & a, int idx )
 {
-#ifndef POSIX
-	return a.m128_u32[idx];
-#else
 	return (reinterpret_cast<uint32 const *>(&a))[idx];
-#endif
 }
 
 FORCEINLINE uint32 & SubInt( fltx4 & a, int idx )
 {
-#ifndef POSIX
-	return a.m128_u32[idx];
-#else
 	return (reinterpret_cast<uint32 *>(&a))[idx];
-#endif
 }
 
 // Return one in the fastest way -- on the x360, faster even than loading.
