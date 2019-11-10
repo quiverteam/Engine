@@ -1,4 +1,4 @@
-//====== Copyright © 1996-2005, Valve Corporation, All rights reserved. =======//
+//====== Copyright ï¿½ 1996-2005, Valve Corporation, All rights reserved. =======//
 //
 // Purpose: An application framework 
 //
@@ -14,6 +14,7 @@
 #include "appframework/IAppSystemGroup.h"
 #include "filesystem_init.h"
 
+#ifndef _WIN32
 
 //-----------------------------------------------------------------------------
 // Globals...
@@ -198,3 +199,4 @@ void CSteamApplication::Shutdown()
 	BaseClass::Shutdown();
 }
 
+#endif //_WIN32

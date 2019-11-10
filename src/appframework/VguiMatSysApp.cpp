@@ -8,20 +8,20 @@
 //=============================================================================
 #ifdef _WIN32
 
-#include "appframework/vguimatsysapp.h"
-#if defined( _WIN32 ) && !defined( _X360 )
+#include "appframework/VguiMatSysApp.h"
+#if defined( _WIN32 )
 #include <windows.h>
 #endif
-#include "FileSystem.h"
-#include "materialsystem/IMaterialSystem.h"
+#include "filesystem.h"
+#include "materialsystem/imaterialsystem.h"
 #include "vgui/IVGui.h"
 #include "vgui/ISurface.h"
-#include "vgui_controls/controls.h"
+#include "vgui_controls/Controls.h"
 #include "vgui/IScheme.h"
 #include "vgui/ILocalize.h"
 #include "tier0/dbg.h"
 #include "tier0/icommandline.h"
-#include "materialsystem/MaterialSystem_Config.h"
+#include "materialsystem/materialsystem_config.h"
 #include "filesystem_init.h"
 #include "VGuiMatSurface/IMatSystemSurface.h"
 #include "inputsystem/iinputsystem.h"

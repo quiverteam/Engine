@@ -1,4 +1,4 @@
-//====== Copyright © 1996-2005, Valve Corporation, All rights reserved. =======//
+//====== Copyright ï¿½ 1996-2005, Valve Corporation, All rights reserved. =======//
 //
 // Purpose: An application framework 
 //
@@ -10,12 +10,12 @@
 #if defined( _WIN32 ) && !defined( _X360 )
 #include <windows.h>
 #endif
-#include "appframework/appframework.h"
+#include "appframework/AppFramework.h"
 #include "tier0/dbg.h"
 #include "tier0/icommandline.h"
 #include "interface.h"
 #include "filesystem.h"
-#include "appframework/iappsystemgroup.h"
+#include "appframework/IAppSystemGroup.h"
 #include "filesystem_init.h"
 #include "vstdlib/cvar.h"
 
