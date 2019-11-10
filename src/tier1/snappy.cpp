@@ -901,7 +901,7 @@ size_t Compress(Source* reader, Sink* writer) {
     size_t fragment_size;
     const char* fragment = reader->Peek(&fragment_size);
     assert(fragment_size != 0);  // premature end of input
-    const size_t num_to_read = min(N, kBlockSize);
+    const size_t num_to_read = std::min(N, kBlockSize);
     size_t bytes_read = fragment_size;
 
     size_t pending_advance = 0;
