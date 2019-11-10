@@ -1,4 +1,4 @@
-//===== Copyright © 1996-2005, Valve Corporation, All rights reserved. ======//
+//===== Copyright ï¿½ 1996-2005, Valve Corporation, All rights reserved. ======//
 //
 // Purpose: Launcher for hammer, which is sitting in its own DLL
 //
@@ -7,7 +7,7 @@
 #include <windows.h>
 #include <eh.h>
 #include "appframework/AppFramework.h"
-#include "ihammer.h"
+#include "IHammer.h"
 #include "tier0/dbg.h"
 #include "vstdlib/cvar.h"
 #include "filesystem.h"
@@ -17,11 +17,11 @@
 #include "datacache/idatacache.h"
 #include "datacache/imdlcache.h"
 #include "vphysics_interface.h"
-#include "vgui/ivgui.h"
-#include "vgui/isurface.h"
+#include "vgui/IVGui.h"
+#include "vgui/ISurface.h"
 #include "inputsystem/iinputsystem.h"
 #include "tier0/icommandline.h"
-#include "SteamWriteMinidump.h"
+#include "SteamWriteMiniDump.h"
 
 //-----------------------------------------------------------------------------
 // Global systems
