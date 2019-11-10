@@ -7,7 +7,7 @@ project(tier0 C CXX)
 
 # Platform specific sources 
 set(WINDOWS_SRCS	DESKey/ALGO.H
-					DESKey/ALGO32.H
+					#DESKey/ALGO32.H
 					DESKey/DK2WIN32.H
 	)
 set(POSIX_SRCS	)
@@ -18,7 +18,7 @@ file(GLOB SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/ *.c *.cpp)
 list(APPEND SRCS ${SOURCES})
 
 # Preprocessor defs
-set(DEFINES			-DTIER0_DLL_EXPORT)
+set(DEFINES			"-DTIER0_DLL_EXPORT")
 
 # Platform-specific preprocessor defines
 set(WIN32_DEFINES	)	
@@ -44,10 +44,10 @@ set(POSIX64_LINK_DIRS	)
 set(LINK_LIBS			)
 
 # Other projects this one depends on
-set(DEPENDENCIES vstdlib tier1)
+set(DEPENDENCIES		tier1)
 
 # Platform specific link libs
-set(WINDOWS_LINK_LIBS	ws2_32.lib DK2WIN32.LIB)
+set(WINDOWS_LINK_LIBS	shlwapi ws2_32)
 set(WIN32_LINK_LIBS		)
 set(WIN64_LINK_LIBS		)
 set(POSIX32_LINK_LIBS	)

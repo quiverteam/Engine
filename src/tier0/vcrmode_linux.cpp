@@ -7,6 +7,7 @@
 //=============================================================================//
 #ifndef _VCRMODE_LINUX_CPP
 #define _VCRMODE_LINUX_CPP
+#ifndef _WIN32
 
 #include <time.h>
 #include <assert.h>
@@ -869,5 +870,5 @@ VCR_t g_VCR =
 
 VCR_t *g_pVCR = &g_VCR;
 
-
+#endif //_WIN32
 #endif //VCRMODE_LINUX_CPP

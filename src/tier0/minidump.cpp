@@ -8,7 +8,7 @@
 
 #include "tier0/minidump.h"
 #include "tier0/platform.h"
-#if defined( _WIN32 ) && !defined( _X360 )
+#if defined( _WIN32 )
 
 #if _MSC_VER >= 1300
 #include "tier0/valve_off.h"
@@ -250,7 +250,7 @@ void CatchAndWriteMiniDump( FnWMain pfn, int argc, tchar *argv[] )
 
 #else
 
-PLATFORM_INTERFACE void WriteMiniDump()
+PLATFORM_INTERFACE void WriteMiniDump(const char* suffix)
 {
 }
 

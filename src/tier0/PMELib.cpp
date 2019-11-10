@@ -1,4 +1,4 @@
-//========= Copyright © 1996-2005, Valve Corporation, All rights reserved. ============//
+//========= Copyright ï¿½ 1996-2005, Valve Corporation, All rights reserved. ============//
 //
 // Purpose: 
 //
@@ -189,7 +189,7 @@ HRESULT PME::SelectP5P6PerformanceEvent(uint32 dw_event, uint32 dw_counter,
             // top 32bits of cesr are not valid so ignore them
             i64_cesr &= ((dw_counter == 0)?0xffff0000:0x0000ffff); 
             WriteMSR(0x11,i64_cesr); 				// stop the counter
-            WriteMSR((dw_counter==0)?0x12:0x13,0ui64);	// clear the p.counter
+            WriteMSR((dw_counter==0)?0x12:0x13,0llu);	// clear the p.counter
 
             // set the user and kernel mode bits
             i64_cesr |= ( b_user?(1<<7):0 ) | ( b_kernel?(1<<6):0 );
@@ -438,8 +438,7 @@ double PME::GetCPUClockSpeedSlow(void)
     while (start_ms <= GetTickCount());
 
     // read timestamp (you could use QueryPerformanceCounter in hires mode if you want)
-
-#ifndef WIN64
+#if 0
     __asm
     {
         rdtsc
@@ -454,7 +453,7 @@ double PME::GetCPUClockSpeedSlow(void)
     stop_ms = start_ms + 1000; // longer wait gives better resolution
     while (stop_ms > GetTickCount());
 
-#ifndef WIN64
+#if 0
     // read timestamp (you could use QueryPerformanceCounter in hires mode if you want)
     __asm
     {

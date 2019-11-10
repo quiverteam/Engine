@@ -131,12 +131,24 @@ public:
 
 		for (uint32 i = 1; i <= m; i++)
 		{
+			uint32 *t = d + (i - 1) * 4;
 #ifdef COMPILER_MSVC64
 			__cpuid((int *) (d + (i-1) * 4), i);
 
+#elif defined(__GNUC__)
+			asm volatile (
+				"movl %0, %%eax\n\t"
+				"movl %1, %%esi\n\t"
+				"cpuid\n\t"
+				"movl %%eax, (%%esi)\n\t"
+				"movl %%ebx, 0x4(%%esi)\n\t"
+				"movl %%ecx, 0x8(%%esi)\n\t"
+				"movl %%edx, 0xC(%%esi)"
+				: /* No output params */
+				: "m"(i), "m"(t)
+				: "eax", "ebx", "ecx", "edx", "esi"
+			);
 #else
-			uint32 *t = d + (i - 1) * 4;
-
 			__asm
 			{
 				mov	eax, i;
@@ -287,6 +299,19 @@ private:
 		{
 #ifdef COMPILER_MSVC64
 			__cpuid((int *) d, 2);
+#elif defined(__GNUC__)
+			asm volatile(
+				"movl $2, %%eax\n\t"
+				"movl %0, %%esi\n\t"
+				"cpuid\n\t"
+				"movl %%eax, (%%esi)\n\t"
+				"movl %%ebx, 0x4(%%esi)\n\t"
+				"movl %%ecx, 0x8(%%esi)\n\t"
+				"movl %%edx, 0xC(%%esi)\n\t"
+				:
+				: "r"(d)
+				: "eax", "ebx", "ecx", "edx", "esi", "memory"
+			);
 #else
 			__asm
 			{
@@ -334,6 +359,15 @@ private:
 		int data[4];
 		__cpuid(data, 0x80000000);
 		m = data[0];
+#elif defined(__GNUC__)
+		asm volatile(
+			"movl $0x80000000, %%eax\n\t"
+			"cpuid\n\t"
+			"movl %%eax, %0\n\t"
+			: "=r"(m)
+			:
+			: "eax", "ebx", "ecx", "edx"
+		);
 #else
 		__asm
 		{
@@ -353,6 +387,19 @@ private:
 
 #ifdef COMPILER_MSVC64
 				__cpuid((int *) (d + (i - 0x80000001) * 4), i);
+#elif defined(__GNUC__)
+				asm volatile (
+					"movl %0, %%eax\n\t"
+					"movl %1, %%esi\n\t"
+					"cpuid\n\t"
+					"movl %%eax, (%%esi)\n\t"
+					"movl %%ebx, 0x4(%%esi)\n\t"
+					"movl %%ecx, 0x8(%%esi)\n\t"
+					"movl %%edx, 0xC(%%esi)\n\t"
+					: /* No output params */
+					: "m"(i), "m"(t)
+					: "eax", "ebx", "ecx", "edx", "esi", "memory"
+				);
 #else
 				__asm
 				{

@@ -431,10 +431,9 @@ typedef void * HINSTANCE;
 #endif  // __i386__
 
 // decls for aligning data
-#ifdef _WIN32
+#ifdef _MSC_VER
         #define DECL_ALIGN(x) __declspec(align(x))
-
-#elif GNUC
+#elif __GNU__
 	#define DECL_ALIGN(x) __attribute__((aligned(x)))
 #else
         #define DECL_ALIGN(x) /* */
@@ -453,7 +452,7 @@ typedef void * HINSTANCE;
 #define ALIGN16_POST
 #define ALIGN32_POST
 #define ALIGN128_POST
-#elif defined( GNUC )
+#elif defined( GNUC ) || defined(__GNUC__)
 // gnuc has the align decoration at the end
 #define ALIGN4
 #define ALIGN8 
@@ -1124,6 +1123,10 @@ inline uint64 Plat_Rdtsc()
 #elif defined( _WIN32 )
   #if defined( _MSC_VER ) && ( _MSC_VER >= 1400 )
 	return ( uint64 )__rdtsc();
+  #elif defined(__GNUC__)
+	uint64 val;
+	__asm__ __volatile__ ( "rdtsc" : "=A" (val) );
+	return val;
   #else
     __asm rdtsc;
 	__asm ret;

@@ -15,7 +15,7 @@
 
 #include "tier0/platform.h"
 #include "tier0/vprof.h"
-#include "tier0/pmelib.h"
+#include "tier0/PMELib.h"
 #include "tier0/l2cache.h"
 #include "tier0/dbg.h"
 

@@ -196,7 +196,7 @@ public:
 
     void ClearCounter()
     {
-        pme->WriteMSR( counterPort, 0ui64 ); // clear
+        pme->WriteMSR( counterPort, 0llu ); // clear
     }
 
     void WriteCounter( int64 value )

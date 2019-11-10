@@ -1,8 +1,10 @@
-//========= Copyright © 1996-2005, Valve Corporation, All rights reserved. ============//
+//========= Copyright ï¿½ 1996-2005, Valve Corporation, All rights reserved. ============//
 //
 // Purpose: 
 //
 //=============================================================================//
+
+#ifndef _WIN32
 
 #include "tier0/platform.h"
 #include "tier0/vprof.h"
@@ -49,3 +51,5 @@ void CL2Cache::Start( void )
 void CL2Cache::End( void )
 {
 }
+
+#endif //_WIN32

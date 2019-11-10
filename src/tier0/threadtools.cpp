@@ -264,7 +264,7 @@ bool ThreadJoin( ThreadHandle_t hThread, unsigned timeout )
 
 void ThreadSetDebugName( ThreadId_t id, const char *pszName )
 {
-#ifdef _WIN32
+#if defined(_WIN32) && defined(_MSC_VER)
 	if ( Plat_IsInDebugSession() )
 	{
 #define MS_VC_EXCEPTION 0x406d1388
@@ -531,7 +531,8 @@ CThreadSemaphore::CThreadSemaphore(const char* name, long max)
 	this->m_pName = name;
 	this->m_pSem = sem_open(name, O_CREAT, S_IRWXU, max);
 #else
-#error CThreadSemaphore::CThreadSemaphore(): Not implemented for Win32
+	this->m_pName = name;
+	this->m_pSem = CreateSemaphore(NULL, 0, max, name);
 #endif
 }
 
@@ -541,52 +542,55 @@ CThreadSemaphore::~CThreadSemaphore()
 	if(m_pSem)
 		sem_unlink(this->m_pName);
 #else
-#error CThreadSemaphore::~CThreadSemaphore(): Not implemented for Win32
+	if(m_pSem) 
+		CloseHandle(this->m_pSem);
 #endif
 }
 
 bool CThreadSemaphore::Release()
-{
-#ifdef _POSIX
+{	
 	Assert(m_pSem);
+#ifdef _POSIX
 	return sem_post(this->m_pSem) == 0;
 #else
-#error CThreadSemaphore::Release(): Not implemented for Win32
+	ReleaseSemaphore(this->m_pSem, 1, NULL);
 #endif
 }
 
 bool CThreadSemaphore::Lock()
-{
-#ifdef _POSIX
+{	
 	Assert(m_pSem);
+#ifdef _POSIX
 	return sem_trywait(m_pSem) == 0;
 #else 
-#error CThreadSemaphore::Lock(): Not implemented for Win32
+	WaitForSingleObject(this->m_pSem, 0);
 #endif
 }
 
 bool CThreadSemaphore::LockTimeout(double sec)
 {
-#ifdef _POSIX
 	Assert(m_pSem);
+#ifdef _POSIX
 	timespec tm;
 	tm.tv_nsec = (long)(sec/1000000000.0);
 	tm.tv_sec = 0;
 	return sem_timedwait(m_pSem, &tm) == 0;
 #else
-#error CThreadSemaphore::LockTimeout: Not implemented for Win32
+	WaitForSingleObject(this->m_pSem, (DWORD)(sec / 1000.0f));
 #endif
 }
 
 int CThreadSemaphore::GetValue()
-{
-#ifdef _POSIX
+{	
 	Assert(m_pSem);
+#ifdef _POSIX
 	int res = 0;
 	sem_getvalue(m_pSem, &res);
 	return res;
 #else
-#error CThreadSemaphore::GetValue(): Not implemented for Win32
+	LONG rel = 0;
+	ReleaseSemaphore(this->m_pSem, 0, &rel);
+	return (int)rel;
 #endif
 }
 
@@ -724,7 +728,8 @@ bool ThreadInterlockedAssignIf( long volatile *pDest, long value, long comperand
 {
 	Assert( (size_t)pDest % 4 == 0 );
 
-#if !(defined(_WIN64) || defined (_X360))
+#if !defined(_WIN64)
+#ifdef _MSC_VER
 	__asm 
 	{
 		mov	eax,comperand
@@ -734,6 +739,21 @@ bool ThreadInterlockedAssignIf( long volatile *pDest, long value, long comperand
 		mov eax,0
 		setz al
 	}
+#else
+	bool ret = 0;
+	asm volatile(
+		"movl %1, %%eax\n\t"
+		"movl %2, %%ecx\n\t"
+		"movl %3, %%edx\n\t"
+		"lock cmpxchg %%edx,(%%ecx)\n\t"
+		"movl $0, %%eax\n\t"
+		"setz %0\n\t"
+		: "=r"(ret)
+		: "m"(comperand), "m"(pDest), "m"(value)
+		: "eax", "ecx", "edx"
+	);
+	return ret;
+#endif //_MSC_VER
 #else
 	return ( InterlockedCompareExchange( TO_INTERLOCK_PARAM(pDest), value, comperand ) == comperand );
 #endif
@@ -757,7 +777,8 @@ void *ThreadInterlockedCompareExchangePointer( void * volatile *pDest, void *val
 bool ThreadInterlockedAssignPointerIf( void * volatile *pDest, void *value, void *comperand )
 {
 	Assert( (size_t)pDest % 4 == 0 );
-#if !(defined(_WIN64) || defined (_X360))
+#if !defined(_WIN64)
+#ifdef _MSC_VER
 	__asm 
 	{
 		mov	eax,comperand
@@ -767,6 +788,22 @@ bool ThreadInterlockedAssignPointerIf( void * volatile *pDest, void *value, void
 		mov eax,0
 		setz al
 	}
+#else
+	bool ret = 0;
+	asm volatile(
+		"movl %1, %%eax\n\t"
+		"movl %2, %%ecx\n\t"
+		"movl %3, %%edx\n\t"
+		"lock cmpxchg %%edx,(%%ecx)\n\t"
+		"movl $0, %%eax\n\t"
+		"setz %0\n\t"
+		: "=r"(ret)
+		: "m"(comperand), "m"(pDest), "m"(value)
+		: "eax", "ecx", "edx"
+	);
+	return ret;
+#endif //_MSC_VER
+
 #else
 	return ( InterlockedCompareExchangePointer( TO_INTERLOCK_PTR_PARAM(pDest), value, comperand ) == comperand );
 #endif
@@ -785,10 +822,10 @@ bool ThreadInterlockedAssignIf128(volatile int128 *pDest, const int128 &value, c
 int64 ThreadInterlockedCompareExchange64( int64 volatile *pDest, int64 value, int64 comperand )
 {
 	Assert( (size_t)pDest % 8 == 0 );
-
-#if defined(_WIN64) || defined (_X360)
+#if defined(_WIN64)
 	return InterlockedCompareExchange64( pDest, value, comperand );
 #else
+#ifdef _MSC_VER
 	__asm 
 	{
 		lea esi,comperand;
@@ -801,6 +838,25 @@ int64 ThreadInterlockedCompareExchange64( int64 volatile *pDest, int64 value, in
 		mov esi,pDest;
 		lock CMPXCHG8B [esi];			
 	}
+#elif defined(__GNUC__)
+	uint32_t ret[2];
+	asm volatile (
+		"leal %2, %%esi\n\t"
+		"leal %3, %%edi\n\t"
+		"movl (%%esi), %%eax\n\t"
+		"movl 4(%%esi), %%edx\n\t"
+		"movl (%%edi), %%ebx\n\t"
+		"movl 4(%%edi), %%ecx\n\t"
+		"movl %4, %%esi\n\t"
+		"lock CMPXCHG8B (%%esi)\n\t"
+		"movl %%eax, %0\n\t"
+		"movl %%edx, %1\n\t"
+		: "=m"(ret[0]), "=m"(ret[1])
+		: "m"(comperand), "m"(value), "m"(pDest)
+		: "eax", "ebx", "ecx", "edx", "edi", "esi"
+	);
+	return (int64)ret;
+#endif //_MSC_VER
 #endif
 }
 
@@ -809,6 +865,7 @@ bool ThreadInterlockedAssignIf64(volatile int64 *pDest, int64 value, int64 compe
 	Assert( (size_t)pDest % 8 == 0 );
 
 #if defined(_WIN32) && !defined(WIN64)
+#ifdef _MSC_VER
 	__asm
 	{
 		lea esi,comperand;
@@ -823,6 +880,25 @@ bool ThreadInterlockedAssignIf64(volatile int64 *pDest, int64 value, int64 compe
 		mov eax,0;
 		setz al;
 	}
+#elif defined(__GNUC__)
+	bool ret = 0;
+	asm volatile(
+		"leal %1, %%esi\n\t"
+		"leal %2, %%edi\n\t"
+		"movl (%%esi), %%eax\n\t"
+		"movl 4(%%esi), %%edx\n\t"
+		"movl (%%edi), %%ebx\n\t"
+		"movl 4(%%edi), %%ecx\n\t"
+		"movl %3, %%esi\n\t"
+		"lock CMPXCHG8B (%%esi)\n\t"
+		"movl $0, %%eax\n\t"
+		"setz %0\n\t"
+		: "=m"(ret)
+		: "m"(comperand), "m"(value), "m"(pDest)
+		: "eax", "ebx", "ecx", "edx", "esi", "edi"
+	);
+	return ret;
+#endif //_MSC_VER
 #else
 	return ( ThreadInterlockedCompareExchange64( pDest, value, comperand ) == comperand ); 
 #endif
@@ -1336,8 +1412,10 @@ CThread::CThread()
 	m_hThread( NULL ),
 #endif
 	m_threadId( 0 ),
-	m_result( 0 ),
-	m_bThreadRunning(false)
+	m_result( 0 )
+#ifdef POSIX
+	,m_bThreadRunning(false)
+#endif
 {
 	m_szName[0] = 0;
 }

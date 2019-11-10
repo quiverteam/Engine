@@ -5,6 +5,8 @@
 // $NoKeywords: $
 //=============================================================================//
 
+#ifndef _WIN32
+
 #include "tier0/platform.h"
 #include "tier0/vcrmode.h"
 #include "tier0/dbg.h"
@@ -535,3 +537,5 @@ PLATFORM_INTERFACE int Plat_PageAdvise(void* blk, size_t sz, int advice)
 		realflags |= MADV_NORMAL;
 	return madvise(blk, sz, realflags);
 }
+
+#endif //_WIN32

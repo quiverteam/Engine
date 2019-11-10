@@ -1,4 +1,4 @@
-//========= Copyright © 1996-2005, Valve Corporation, All rights reserved. ============//
+//========= Copyright ï¿½ 1996-2005, Valve Corporation, All rights reserved. ============//
 //
 // Purpose: Platform level security functions.
 //
@@ -9,6 +9,7 @@
 //#define REQUIRE_HARDWARE_KEY
 // NOTE - this DOESN'T work under linux!!!!
 
+#ifndef _WIN32
 
 #include "tier0/platform.h"
 #include "tier0/vcrmode.h"
@@ -123,3 +124,4 @@ bool Plat_FastVerifyHardwareKey()
 	#endif
 }
 
+#endif //_WIN32

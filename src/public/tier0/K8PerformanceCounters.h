@@ -200,7 +200,7 @@ public:
         
         int counterPort = MSR_K8_PERFCTR0 + eventSelectNum;
 
-        pme->WriteMSR(counterPort, 0ui64 ); // clear
+        pme->WriteMSR(counterPort, 0llu ); // clear
     }
 
     void WriteCounter(int64 value)
@@ -237,6 +237,16 @@ public:
         // we need to copy this into a temp for some reason
 #ifdef COMPILER_MSVC64
 	return __readpmc((unsigned long) eventSelectNum);
+#elif defined(__GNUC__)
+		int ret = 0;
+		asm(
+			"movl %1, %%ecx\n\t"
+			"rdpmc\n\t"
+			: "=r"(ret)
+			: "r"(eventSelectNum)
+			: "eax", "ecx"
+		);
+		return ret;
 #else
         int temp = eventSelectNum;
         _asm 

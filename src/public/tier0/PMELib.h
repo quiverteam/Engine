@@ -8,7 +8,7 @@
 #ifndef PMELIB_H
 #define PMELIB_H
 
-#include "Windows.h"
+#include "windows.h"
 #include "tier0/platform.h"
 
 // Get rid of a bunch of STL warnings!

@@ -13,12 +13,12 @@
 #define WINDOWS_LEAN_AND_MEAN
 #define _WIN32_WINNT 0x0502
 #include <windows.h>
+#include <shlwapi.h>
+#include <direct.h>
+#include <versionhelpers.h>
 #endif
 #include <assert.h>
 #include "tier0/platform.h"
-#ifdef _X360
-#include "xbox/xbox_console.h"
-#endif // _X360
 #ifndef _X360
 #include "tier0/vcrmode.h"
 #endif // _X360
@@ -277,14 +277,14 @@ PLATFORM_INTERFACE void* Plat_LoadLibrary(const char* path)
 PLATFORM_INTERFACE void Plat_UnloadLibrary(void* handle)
 {
 	Assert(handle != NULL);
-	FreeLibrary(handle);
+	FreeLibrary((HMODULE)handle);
 }
 
 PLATFORM_INTERFACE void* Plat_FindProc(void* module_handle, const char* sym_name)
 {
 	Assert(module_handle != NULL);
 	Assert(sym_name != NULL);
-	return GetProcAddress(module_handle, sym_name);
+	return GetProcAddress((HMODULE)module_handle, sym_name);
 }
 
 PLATFORM_INTERFACE bool Plat_CWD(char* outname, size_t outSize)
@@ -346,17 +346,60 @@ PLATFORM_INTERFACE unsigned int Plat_GetTickCount()
 	return GetTickCount();
 }
 
-PLATFORM_INTERFACFE ProcInfo_t Plat_QueryProcInfo(int pid)
+PLATFORM_INTERFACE ProcInfo_t Plat_QueryProcInfo(int pid)
 {
-#error Need to implement Plat_QueryProcInfo for Win32
+	ProcInfo_t ret;
+	SYSTEM_INFO info;
+	GetSystemInfo(&info);
+	ret.cpus = info.dwNumberOfProcessors;
+	return ret;
+	// AM lazy, do it later	
 }
 
 PLATFORM_INTERFACE OSInfo_t Plat_QueryOSInfo()
 {
-	OSInfo_t osinfo;
-	memcpy(osinfo.kname, "Windows", strlen("Windows")); //TODO: lol
-#error Need to implement Plat_QueryOSInfo for Win32
-	return osinfo;
+	static OSInfo_t info;
+	static bool init = false;
+	if(!init)
+	{
+		memcpy(info.kname, "NT", strlen("NT"));
+		memcpy(info.kver, "Unknown", strlen("Unknown"));
+		memcpy(info.osname, "Windows", strlen("Windows"));
+		SYSTEM_INFO sysinfo;
+		GetSystemInfo(&sysinfo);
+		switch(sysinfo.wProcessorArchitecture)
+		{
+			case PROCESSOR_ARCHITECTURE_AMD64:
+				memcpy(info.plat, "x86_64", strlen("x86_64"));
+				break;
+			case PROCESSOR_ARCHITECTURE_ARM:
+				memcpy(info.plat, "ARM", 4);
+				break;
+			case 12:
+				memcpy(info.plat, "ARM64", 6);
+				break;
+			case PROCESSOR_ARCHITECTURE_IA64:
+				memcpy(info.plat, "IA64", 5);
+				break;
+			default:
+				memcpy(info.plat, "x86", 4);
+				break;
+		}
+		if(IsWindows10OrGreater())
+			memcpy(info.osver, "10", 3);
+		else if(IsWindows8OrGreater())
+			memcpy(info.osver, "8", 2);
+		else if(IsWindows7OrGreater())
+			memcpy(info.osver, "7", 2);
+		else if(IsWindowsVistaOrGreater())
+			memcpy(info.osver, "Vista", strlen("Vista"));
+		else if(IsWindowsXPOrGreater())
+			memcpy(info.osver, "XP", 3);
+		else
+			memcpy(info.osver, "Fucking Ancient!", strlen("Fucking Ancient!"));
+		init = true;
+	}
+	return info;
 }
 
 PLATFORM_INTERFACE void Plat_Chdir(const char* dir)
@@ -371,14 +414,8 @@ PLATFORM_INTERFACE int Plat_DirExists(const char* dir)
 
 PLATFORM_INTERFACE int Plat_FileExists(const char* file)
 {
-	return PathFileExistsA(dir) == TRUE;
+	return PathFileExistsA(file) == TRUE;
 }
-
-PLATFORM_INTERFACE unsigned long long Plat_ValveTime()
-{
-	return 0xFFFFFFFFFFFFFFFF;
-}
-
 
 /*
 Allocates memory in the virtual memory space of this program, very similar to VirtualAlloc.
@@ -480,7 +517,7 @@ PLATFORM_INTERFACE int Plat_PageProtect(void* blk, size_t sz, int flags)
 	else
 		realflags |= PAGE_NOACCESS;
 	DWORD fuck = 0;
-	return VirtualProtect(blk, sz, realflags &fuck) == 0 ? -1 : 0;
+	return VirtualProtect(blk, sz, realflags, &fuck) == 0 ? -1 : 0;
 }
 
 /*

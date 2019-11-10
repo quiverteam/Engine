@@ -18,7 +18,7 @@
 #pragma warning( disable : 4700 )
 #endif
 
-#if defined( USE_NATIVE_SLIST ) && !defined( _X360 )
+#if defined( USE_NATIVE_SLIST )
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
 #endif
@@ -48,7 +48,7 @@ inline bool ThreadInterlockedAssignIf64x128( volatile int64 *pDest, const int64 
 #define TSLIST_NODE_ALIGN DECL_ALIGN(TSLIST_NODE_ALIGNMENT)
 #define TSLIST_HEAD_ALIGN_POST
 #define TSLIST_NODE_ALIGN_POST
-#elif defined( GNUC )
+#elif defined( __GNUC__ )
 #define TSLIST_HEAD_ALIGN 
 #define TSLIST_NODE_ALIGN 
 #define TSLIST_HEAD_ALIGN_POST DECL_ALIGN(TSLIST_HEAD_ALIGNMENT)

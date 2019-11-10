@@ -4,6 +4,7 @@
 //
 // $NoKeywords: $
 //=============================================================================//
+#ifndef _WIN32
 #include <stdio.h>
 #include <stdlib.h>
 #include <sys/types.h>
@@ -131,3 +132,4 @@ uint64 CalculateCPUFreq()
 	return period;
 }
 
+#endif //_WIN32
