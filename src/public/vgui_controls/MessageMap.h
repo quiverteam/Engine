@@ -41,7 +41,7 @@ enum DataType_t
 	DATATYPE_HANDLE,  // It's an int, really
 };
 
-#ifdef WIN32
+#ifdef _MSC_VER
 class __virtual_inheritance Panel;
 #else
 class Panel;

@@ -1,4 +1,4 @@
-//===== Copyright © 1996-2005, Valve Corporation, All rights reserved. ======//
+//===== Copyright ï¿½ 1996-2005, Valve Corporation, All rights reserved. ======//
 //
 // Purpose: 
 //
@@ -22,6 +22,11 @@ enum NormalDecodeMode_t
 
 // Forward declaration
 #ifdef _WIN32
+#ifdef __GNUC__
+/* oh please god forgive me */
+#include <windows.h>
+#include <d3d9types.h>
+#endif
 typedef enum _D3DFORMAT D3DFORMAT;
 #endif
 

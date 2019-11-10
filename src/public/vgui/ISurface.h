@@ -8,9 +8,7 @@
 #ifndef ISURFACE_H
 #define ISURFACE_H
 
-#ifdef _WIN32
 #pragma once
-#endif
 
 #include <vgui/VGUI.h>
 #include <vgui/IHTML.h> // CreateHTML, PaintHTML 

@@ -12,7 +12,7 @@ list(APPEND SRCS ${SOURCES})
 set(DEFINES	-DTIER4_STATIC_LIB)
 
 # Generic libs to link against
-set(LINK_LIBS			SDL2)
+set(POSIX_LINK_LIBS			SDL2)
 
 # Windows link libs
 set(WIN32_LINK_LIBS		)
