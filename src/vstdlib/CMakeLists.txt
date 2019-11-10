@@ -9,7 +9,7 @@ project(vstdlib C CXX)
 set(WINDOWS_SRCS	)
 set(POSIX_SRCS	)
 
-set(SRCS	)
+set(SRCS			)
 
 file(GLOB SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/ *.c *.cpp)
 list(APPEND SRCS ${SOURCES})
@@ -36,6 +36,9 @@ set(WIN32_LINK_DIRS		)
 set(WIN64_LINK_DIRS		)
 set(POSIX32_LINK_DIRS	)
 set(POSIX64_LINK_DIRS	)
+
+# Projects this depends on
+set(DEPENDENCIES		tier1 tier0)
 
 # Generic libs to link against
 set(LINK_LIBS	)
