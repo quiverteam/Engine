@@ -51,18 +51,14 @@ endif(THIS_IS_A_LIBRARY EQUAL 1)
 # 	-	_ALLOW_MSCC_VER_MISMATCH
 #
 #
-list(APPEND WINDOWS_DEFINES		-D_WIN32 -DWIN32 -DWINDOWS -D_ALLOW_MSC_VER_MISMATCH)
+set(WINDOWS_DEFINES		"${WINDOWS_DEFINES} -D_WIN32 -DWIN32 -DWINDOWS -D_ALLOW_MSC_VER_MISMATCH")
 
-list(APPEND WIN32_DEFINES		-DPLATFORM_WINDOWS_PC32)
+set(WIN32_DEFINES		"${WIN32_DEFINES} -DPLATFORM_WINDOWS_PC32")
 
-list(APPEND WIN64_DEFINES		-DPLATFORM_WINDOWS_PC64)
+set(WIN64_DEFINES		"${WIN32_DEFINES} -DPLATFORM_WINDOWS_PC64")
 
-list(APPEND DEFINES				-D_CRT_SECURE_NO_DEPRECATE
-								-D_CRT_NONSTDC_NO_DEPRECATE
-								-D_ALLOW_RUNTIME_LIBRARY_MISMATCH
-								-D_ALLOW_ITERATOR_DEBUG_LEVEL_MISMATCH
-								-D_HAS_ITERATOR_DEBUGGING=0)
-list(APPEND POSIX_DEFINES		-DUSE_SDL -DDX_TO_GL_ABSTRACTION)
+set(DEFINES				"${DEFINES} -D_CRT_SECURE_NO_DEPRECATE -D_CRT_NONSTDC_NO_DEPRECATE -D_ALLOW_RUNTIME_LIBRARY_MISMATCH -D_ALLOW_ITERATOR_DEBUG_LEVEL_MISMATCH -D_HAS_ITERATOR_DEBUGGING=0")
+set(POSIX_DEFINES		"${POSIX_DEFINES} -DUSE_SDL -DDX_TO_GL_ABSTRACTION")
 
 # Some IDEs like to have header files added to their projects
 # Luckily headers dont actually compile in a CMake project, so it's safe to recurse the whole
@@ -73,37 +69,36 @@ list(APPEND SRCS ${headers})
 
 # For debug/release builds
 if(RELEASE)
-	list(APPEND DEFINES -DNDEBUG -D_NDEBUG -DRELEASEASSERTS)
+	set(DEFINES "${DEFINES} -DNDEBUG -D_NDEBUG -DRELEASEASSERTS")
 else()
-	list(APPEND DEFINES -DDEBUG -D_DEBUG)
+	set(DEFINES "${DEFINES} -DDEBUG -D_DEBUG")
 endif(RELEASE)
 
-if(DEFINED WINDOWS)
-	list(APPEND DEFINES ${WINDOWS_DEFINES})
+if(DEFINED WINDOWS OR UNIX_CROSS)
+	set(DEFINES "${DEFINES} ${WINDOWS_DEFINES}")
 	# WIN32 BASE DEFINES (Common for everything windows)
 	# WIN32 defines
 	if(DEFINED PLATFORM_32BITS)
-		list(APPEND DEFINES ${WIN32_DEFINES})
+		set(DEFINES "${DEFINES} ${WIN32_DEFINES}")
 	endif(DEFINED PLATFORM_32BITS)
 
 	# WIN64 defines
 	if(DEFINED PLATFORM_64BITS)
-		list(APPEND DEFINES ${WIN64_DEFINES})
+		set(DEFINES "${DEFINES} ${WIN32_DEFINES}")
 	endif(DEFINED PLATFORM_64BITS)
 
-endif(DEFINED WINDOWS)
+endif(DEFINED WINDOWS OR UNIX_CROSS)
 
 if(DEFINED POSIX)
-	list(APPEND DEFINES ${POSIX_DEFINES})
-
+	set(DEFINES "${DEFINES} ${POSIX_DEFINES}")
 	# POSIX32 defines
 	if(DEFINED PLATFORM_32BITS)
-		list(APPEND DEFINES ${POSIX32_DEFINES})
+		set(DEFINES "${DEFINES} ${POSIX32_DEFINES}")
 	endif(DEFINED PLATFORM_32BITS)
 
 	# POSIX64 defines
 	if(DEFINED PLATFORM_64BITS)
-		list(APPEND DEFINES ${POSIX64_DEFINES})
+		set(DEFINES "${DEFINES} ${POSIX64_DEFINES}")
 	endif(DEFINED PLATFORM_64BITS)
 
 endif(DEFINED POSIX)
@@ -329,19 +324,24 @@ endif(DEFINED THIS_IS_A_EXE)
 # We can loop through all the libs and use find library to
 # find everything the user specified
 foreach(link_lib IN LISTS LINK_LIBS)
-	set(LIB_${link_lib} "lib_path-NOTFOUND")
-	find_library(LIB_${link_lib} NAMES ${link_lib} PATHS ${LINK_DIRS})
-	
-	# If libs are not found...
-	if(LIB_${link_lib} EQUAL "LIB_${link_lib}-NOTFOUND")
-		message(WARN "Unable to find library ${link_lib}!")
-	else()
-		list(APPEND ACTUAL_LIBS ${LIB_${link_lib}})
-	endif(LIB_${link_lib} EQUAL "LIB_${link_lib}-NOTFOUND")
-	
+	if(NOT DEFINED WINDOWS)
+		set(LIB_${link_lib} "lib_path-NOTFOUND")
+		find_library(LIB_${link_lib} NAMES ${link_lib} PATHS ${LINK_DIRS})
+		
+		# If libs are not found...
+		if(LIB_${link_lib} EQUAL "LIB_${link_lib}-NOTFOUND")
+			message(WARN "Unable to find library ${link_lib}!")
+		else()
+			list(APPEND ACTUAL_LIBS ${LIB_${link_lib}})
+		endif(LIB_${link_lib} EQUAL "LIB_${link_lib}-NOTFOUND")
+	endif(NOT DEFINED WINDOWS)
 endforeach(link_lib IN LISTS LINK_LIBS)
 
 target_include_directories(${TARGET} PUBLIC ${INCLUDE_DIRS})
 target_link_libraries(${TARGET} ${ACTUAL_LIBS})
 target_link_libraries(${TARGET} ${DEPENDENCIES})
+if(DEFINED WINDOWS)
+	target_link_libraries(${TARGET} ${LINK_LIBS})
+endif(DEFINED WINDOWS)
+target_compile_definitions(${TARGET} PUBLIC ${DEFINES})
 set_target_properties(${TARGET} PROPERTIES LINKER_LANGUAGE CXX)
