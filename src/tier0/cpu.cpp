@@ -20,14 +20,20 @@
 static bool cpuid(unsigned int function, unsigned int& out_eax, unsigned int& out_ebx, unsigned int& out_ecx, unsigned int& out_edx)
 {
 #ifdef _POSIX
+	unsigned int tmp1, tmp2, tmp3, tmp4;
 	asm("movl %4, %%eax\n\t"
 		"cpuid\n\t"
 		"movl %%eax, %0\n\t"
 		"movl %%ebx, %1\n\t"
 		"movl %%ecx, %2\n\t"
 		"movl %%edx, %3\n\t"
-		:	"=m"(out_eax), "=m"(out_ebx), "=m"(out_ecx), "=m"(out_edx)
-		: "m"(function));
+		:	"=m"(tmp1), "=m"(tmp2), "=m"(tmp3), "=m"(tmp4)
+		: "m"(function)
+		: "eax", "ebx", "ecx", "edx");
+		out_eax = tmp1;
+		out_ebx = tmp2;
+		out_ecx = tmp3;
+		out_edx = tmp4;
 	return true;
 #else
 	int ret[4];
