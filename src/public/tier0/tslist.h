@@ -30,15 +30,22 @@
 
 //-----------------------------------------------------------------------------
 
-#if defined( PLATFORM_64BITS )
-
+#if defined(PLATFORM_64BITS) || defined(TSLIST_FORCE_16BYTE_ALIGN)
 #define TSLIST_HEAD_ALIGNMENT 16
 #define TSLIST_NODE_ALIGNMENT 16
-inline bool ThreadInterlockedAssignIf64x128( volatile int128 *pDest, const int128 &value, const int128 &comperand )
-	{ return ThreadInterlockedAssignIf128( pDest, value, comperand ); }
+#elif defined(TSLIST_SOURCE_COMPAT) || defined(_POSIX)
+#define TSLIST_HEAD_ALIGNMENT 4
+#define TSLIST_NODE_ALIGNMENT 4
 #else
 #define TSLIST_HEAD_ALIGNMENT 8
 #define TSLIST_NODE_ALIGNMENT 8
+#endif
+
+#if defined( PLATFORM_64BITS )
+
+inline bool ThreadInterlockedAssignIf64x128( volatile int128 *pDest, const int128 &value, const int128 &comperand )
+	{ return ThreadInterlockedAssignIf128( pDest, value, comperand ); }
+#else
 inline bool ThreadInterlockedAssignIf64x128( volatile int64 *pDest, const int64 value, const int64 comperand )
 	{ return ThreadInterlockedAssignIf64( pDest, value, comperand ); }
 #endif
@@ -161,7 +168,7 @@ public:
 	{
 		if ( ((size_t)&m_Head) % TSLIST_HEAD_ALIGNMENT != 0 )
 		{
-			Error( "CTSListBase: Misaligned list\n" );
+			Error( "CTSListBase: Misaligned list: expected %u\n", TSLIST_HEAD_ALIGNMENT);
 			DebuggerBreak();
 		}
 
