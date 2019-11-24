@@ -1048,6 +1048,16 @@ bool ThreadInterlockedAssignIf64(volatile int64 *pDest, int64 value, int64 compe
 	return ( ThreadInterlockedCompareExchange64( pDest, value, comperand ) == comperand ); 
 }
 
+bool ThreadInterlockedAssignPointerIf( void * volatile *pDest, void *value, void *comperand )
+{
+#ifdef PLATFORM_64BITS
+	Assert((size_t)pDest % 8);
+#else
+	Assert((size_t)pDest % 4);
+#endif
+	return (ThreadInterlockedCompareExchangePointer(pDest, value, comperand));
+}
+
 bool ThreadInterlockedAssignIf( long volatile *pDest, long value, long comperand )
 {
 	Assert( (size_t)pDest % 4 == 0 );
