@@ -1218,8 +1218,8 @@ struct mstudio_modelvertexdata_t
 	mutable uint32		pVertexData;
 #ifdef PLATFORM_64BITS
 	// we are going to use pVertexData to store the index to the actual pointer here
-	inline void			SetVertexData( const mstudiovertex_t* p ) { intp* test = ( intp* )(this + pVertexData ); *test = ( intp )p; };
-	inline mstudiovertex_t*		VertexData( void ) const { intp* test = ( intp* )(this + pVertexData ); return ( mstudiovertex_t* )( *test ); };
+	inline void			SetVertexData( const mstudiovertex_t* p ) { intp* ptr = ( intp* )( ( ( byte* )this ) + pVertexData ); *ptr = ( intp )p; };
+	inline mstudiovertex_t*		VertexData( void ) const { intp* ptr = ( intp* )( ( ( byte* )this ) + pVertexData ); return ( mstudiovertex_t* )( *ptr ); };
 #else
 	inline void			SetVertexData( void* p ) { pVertexData = ( uint32 )p; };
 	inline void*		VertexData( void ) const { return ( void* )pVertexData; };
@@ -1227,8 +1227,8 @@ struct mstudio_modelvertexdata_t
 	mutable uint32		pTangentData;
 #ifdef PLATFORM_64BITS
 	// we are going to use pTangentData to store the index to the actual pointer here
-	inline void			SetTangentData( const Vector4D* p ) { intp* test = ( intp* )(this + pTangentData ); *test = ( intp )p; };
-	inline Vector4D*		TangentData( void ) const { intp* test = ( intp* )(this + pVertexData ); return ( Vector4D* )( *test ); };
+	inline void			SetTangentData( const Vector4D* p ) { intp* ptr = ( intp* )( ( ( byte* )this ) + pTangentData ); *ptr = ( intp )p; };
+	inline Vector4D*		TangentData( void ) const { intp* ptr = ( intp* )( ( ( byte* )this ) + pTangentData ); return ( Vector4D* )( *ptr ); };
 #else
 	inline void			SetTangentData( void* p ) { pTangentData = ( uint32 )p; };
 	inline void*		TangentData( void ) const { return ( void* )pTangentData; };
@@ -1252,8 +1252,8 @@ struct mstudio_meshvertexdata_t
 	mutable uint32		modelvertexdata;
 #ifdef PLATFORM_64BITS
 	// we are going to use modelvertexdata to store the index to the actual pointer here
-	inline void			SetModelVertexData( mstudio_modelvertexdata_t* p ) { intp* pointer = (intp*)(this + modelvertexdata); *pointer = (intp)p; };
-	inline mstudio_modelvertexdata_t* ModelVertexData( void ) const { intp* test = ( intp* )(this + modelvertexdata ); return ( mstudio_modelvertexdata_t* )( *test ); };
+	inline void			SetModelVertexData( mstudio_modelvertexdata_t* p ) { intp* ptr = ( intp* )( ( ( byte* )this ) + modelvertexdata ); *ptr = ( intp )p; };
+	inline mstudio_modelvertexdata_t* ModelVertexData( void ) const { intp* ptr = ( intp* )( ( ( byte* )this ) + modelvertexdata ); return ( mstudio_modelvertexdata_t* )( *ptr ); };
 #else
 	inline void			SetModelVertexData( void* p ) { modelvertexdata = ( uint32 )p; };
 	inline mstudio_modelvertexdata_t*		ModelVertexData( void ) const { return ( mstudio_modelvertexdata_t* )modelvertexdata; };
@@ -2189,8 +2189,8 @@ struct studiohdr_t
 	mutable uint32		virtualModel;
 #ifdef PLATFORM_64BITS
 	// we are going to use virtualModel to store the index to the actual pointer here
-	inline void			SetVirtualModel( MDLHandle_t p ) { MDLHandle_t* test = ( MDLHandle_t* )( ((byte*)this) + virtualModel ); *test = p; };
-	inline MDLHandle_t		VirtualModel( void ) const { MDLHandle_t* test = ( MDLHandle_t* )( (( byte* )this) + virtualModel ); return ( MDLHandle_t )( *test ); };
+	inline void			SetVirtualModel( MDLHandle_t p ) { MDLHandle_t* ptr = ( MDLHandle_t* )( ( ( byte* )this ) + virtualModel ); *ptr = p; };
+	inline MDLHandle_t		VirtualModel( void ) const { MDLHandle_t* ptr = ( MDLHandle_t* )( ( ( byte* )this ) + virtualModel ); return ( MDLHandle_t )( *ptr ); };
 #else
 	inline void			SetVirtualModel( void *p ) { virtualModel = ( uint32 )p; };
 	inline void*		VirtualModel( void ) { return ( void* )virtualModel; };
@@ -2207,8 +2207,8 @@ struct studiohdr_t
 
 	mutable uint32		animblockModel;
 #ifdef PLATFORM_64BITS
-	inline void			SetAnimBlockModel( void* p ) { intp* test = ( intp* )( this + animblockModel ); *test = ( intp )p; };
-	inline void*		AnimBlockModel( void ) const { intp* test = ( intp* )( this + animblockModel ); return ( void* )( *test ); };
+	inline void			SetAnimBlockModel( void* p ) { intp* ptr = ( intp* )( ( ( byte* )this ) + animblockModel ); *ptr = ( intp )p; };
+	inline void*		AnimBlockModel( void ) const { intp* ptr = ( intp* )( ( ( byte* )this ) + animblockModel ); return ( void* )( *ptr ); };
 #else
 	inline void			SetAnimBlockModel( void* p ) { animblockModel = ( uint32 )p; };
 	inline void*		AnimBlockModel( void ) { return ( void* )animblockModel; };

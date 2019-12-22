@@ -27,17 +27,17 @@ const studiohdr_t *studiohdr_t::FindModel( void **cache, char const *pModelName 
 
 virtualmodel_t *studiohdr_t::GetVirtualModel( void ) const
 {
-	return g_pMDLCache->GetVirtualModel( (MDLHandle_t)virtualModel );
+	return g_pMDLCache->GetVirtualModel( VirtualModel() );
 }
 
 byte *studiohdr_t::GetAnimBlock( int i ) const
 {
-	return g_pMDLCache->GetAnimBlock( (MDLHandle_t)virtualModel, i );
+	return g_pMDLCache->GetAnimBlock( VirtualModel(), i );
 }
 
 int studiohdr_t::GetAutoplayList( unsigned short **pOut ) const
 {
-	return g_pMDLCache->GetAutoplayList( (MDLHandle_t)virtualModel, pOut );
+	return g_pMDLCache->GetAutoplayList( VirtualModel(), pOut );
 }
 
 const studiohdr_t *virtualgroup_t::GetStudioHdr( void ) const

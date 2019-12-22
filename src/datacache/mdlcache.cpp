@@ -3620,7 +3620,7 @@ virtualmodel_t *studiohdr_t::GetVirtualModel( void ) const
 		return NULL;
 
 #ifdef PLATFORM_64BITS
-	return g_MDLCache.GetVirtualModelFast( this, ( MDLHandle_t )( (byte*)this + virtualModel ) );
+	return g_MDLCache.GetVirtualModelFast( this, VirtualModel() );
 #else
 	return g_MDLCache.GetVirtualModelFast( this, ( MDLHandle_t )virtualModel );
 #endif
@@ -3629,7 +3629,7 @@ virtualmodel_t *studiohdr_t::GetVirtualModel( void ) const
 byte *studiohdr_t::GetAnimBlock( int i ) const
 {
 #ifdef PLATFORM_64BITS
-	return g_MDLCache.GetAnimBlock( ( MDLHandle_t )( ( byte* )this + virtualModel ), i );
+	return g_MDLCache.GetAnimBlock( VirtualModel(), i );
 #else
 	return g_MDLCache.GetAnimBlock( ( MDLHandle_t )virtualModel, i );
 #endif
@@ -3637,7 +3637,7 @@ byte *studiohdr_t::GetAnimBlock( int i ) const
 
 int studiohdr_t::GetAutoplayList( unsigned short **pOut ) const
 {
-	return g_MDLCache.GetAutoplayList( (MDLHandle_t)virtualModel, pOut );
+	return g_MDLCache.GetAutoplayList( VirtualModel(), pOut );
 }
 
 const studiohdr_t *virtualgroup_t::GetStudioHdr( void ) const
