@@ -1847,6 +1847,31 @@ PLATFORM_INTERFACE int Plat_PageAdvise(void* blk, size_t sz, int advice);
 
 PLATFORM_INTERFACE unsigned long long Plat_ValveTime();
 
+/*
+Returns the path to the system temp directory
+
+Params:
+	-	The length of the buffer
+	-	The buffer
+Returns:
+	-   Number of chars written into the buffer
+*/
+PLATFORM_INTERFACE size_t Plat_GetTmpDirectory(size_t buflen, char* buf);
+
+/*
+Returns a new temp file path
+
+Params:
+	-   Directory path for the temp file
+	-	Prefix string
+    -   Random number generator seed
+    -   Pointer to a buffer that will hold the temp file name. Make it at least MAX_PATH chars
+Returns:
+	-   The unique number used in the random number generator
+*/
+PLATFORM_INTERFACE uint Plat_GetTmpFileName(const char* dir, const char* prefix, uint seed, char* buf);
+
+
 //-----------------------------------------------------------------------------
 //
 // Improved process info API!
@@ -1901,6 +1926,7 @@ typedef struct OSInfo
 } OSInfo_t;
 
 PLATFORM_INTERFACE OSInfo_t Plat_QueryOSInfo();
+
 
 
 //-----------------------------------------------------------------------------

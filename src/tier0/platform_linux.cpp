@@ -1,4 +1,4 @@
-//========= Copyright � 1996-2005, Valve Corporation, All rights reserved. ============//
+//========= Copyright (C) 1996-2005, Valve Corporation, All rights reserved. ============//
 //
 // Purpose: 
 //
@@ -536,6 +536,56 @@ PLATFORM_INTERFACE int Plat_PageAdvise(void* blk, size_t sz, int advice)
 	if(advice & PAGE_ADVICE_NORMAL)
 		realflags |= MADV_NORMAL;
 	return madvise(blk, sz, realflags);
+}
+
+/*
+Returns the path to the system temp directory
+
+Params:
+	-	The length of the buffer
+	-	The buffer
+Returns:
+	-   Number of chars written into the buffer
+*/
+PLATFORM_INTERFACE size_t Plat_GetTmpDirectory(size_t buflen, char* buf)
+{
+	Assert(buf != NULL);
+
+	static const char* tmppath = "/tmp/";
+	static size_t tmppath_len = strlen(tmppath);
+	for(int i = 0; i < buflen; i++)
+		buf[i] = tmppath[i];
+	return tmppath_len;
+}
+
+/*
+Returns a new temp file path
+
+Params:
+	-   Directory path for the temp file
+	-	Prefix string
+    -   Random number generator seed
+    -   Pointer to a buffer that will hold the temp file name. Make it at least MAX_PATH chars
+Returns:
+	-   The unique number used in the random number generator
+*/
+PLATFORM_INTERFACE uint Plat_GetTmpFileName(const char* dir, const char* prefix, uint seed, char* buf)
+{
+	Assert(buf != NULL);
+	size_t dirlen = strlen(dir);
+	size_t preflen = strlen(prefix);
+	Assert(dirlen < MAX_PATH-14);
+
+	/* Just going to ignore the seed for now */
+	/* Write dir into buffer */
+	int i;
+	for(i = 0; i < dirlen; i++)
+		buf[i] = dir[i];
+	for(int g = 0; g < preflen; i++,g++)
+		buf[i] = prefix[g];
+	for(int g = 0; i < MAX_PATH && g < 20; i++, g++)
+		buf[i] = static_cast<char>(0x61 + (rand() % 26));
+	return (seed == 0 ? 32943 : seed);
 }
 
 #endif //_WIN32
