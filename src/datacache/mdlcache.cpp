@@ -1978,7 +1978,7 @@ bool CMDLCache::ReadMDLFile( MDLHandle_t handle, const char *pMDLFileName, CUtlB
 		}
 	}
 #endif
-	Msg( "handle:%d", handle );
+
 	// critical! store a back link to our data
 	// this is fetched when re-establishing dependent cached data (vtx/vvd)
 	pStudioHdr->SetVirtualModel(handle);
