@@ -334,7 +334,7 @@ public:
 	void AddToRayStream(RayStream &s,
 						Vector const &start,Vector const &end,RayTracingSingleResult *rslt_out);
 
-	inline void RayTracingEnvironment::FlushStreamEntry(RayStream &s,int msk);
+	inline void FlushStreamEntry(RayStream &s,int msk);
 
 	/// call this when you are done. handles all cleanup. After this is called, all rslt ptrs
 	/// previously passed to AddToRaySteam will have been filled in.
