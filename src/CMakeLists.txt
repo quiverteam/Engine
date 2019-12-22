@@ -33,6 +33,7 @@ option(CLANG "Enables the use of the clang toolchain instead of the default GNU 
 # Definitions that should always be enabled
 add_definitions(-DFRAME_POINTER_OMISSION_DISABLED)
 
+
 set(MINGW32_TOOLCHAIN "${CMAKE_HOME_DIRECTORY}/cmake_scripts/toolchain-win32-mingw.cmake")
 set(MINGW64_TOOLCHAIN "${CMAKE_HOME_DIRECTORY}/cmake_scripts/toolchain-win64-mingw.cmake")
 
@@ -175,9 +176,16 @@ endif(NOT USE_AVX)
 
 set(CMAKESCRIPTS_DIR ${CMAKE_HOME_DIRECTORY}/cmake_scripts/)
 set(ROOT_DIR ${CMAKE_HOME_DIRECTORY})
-
+set(PUBLIC ${ROOT_DIR}/public)
+set(ROOT ${ROOT_DIR})
+set(TOP ${ROOT_DIR})
+set(UTILS_COMMON ${ROOT_DIR}/utils/common)
+set(UTILS ${ROOT}/utils)
 include(cmake_scripts/source-directories.cmake)
 include(cmake_scripts/source-base.cmake)
+
+# Choose the correct opengl library
+set(OpenGL_GL_PREFERENCE "GLVND")
 
 # All the project dirs!
 add_subdirectory(mathlib)
@@ -204,6 +212,8 @@ add_subdirectory(materialsystem/shaderapigl)
 add_subdirectory(game)
 add_subdirectory(engine)
 add_subdirectory(networksystem)
+add_subdirectory(utils/vrad)
+add_subdirectory(utils/vrad_launcher)
 
 if(VULKAN)
 	add_subdirectory(materialsystem/shaderapivk)
