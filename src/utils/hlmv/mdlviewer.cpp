@@ -908,7 +908,9 @@ bool CHLModelViewerApp::Create()
 	{
 		{ "materialsystem.dll",		MATERIAL_SYSTEM_INTERFACE_VERSION },
 		{ "studiorender.dll",		STUDIO_RENDER_INTERFACE_VERSION },
+#ifndef PLATFORM_64BITS
 		{ "vphysics.dll",			VPHYSICS_INTERFACE_VERSION },
+#endif
 		{ "datacache.dll",			DATACACHE_INTERFACE_VERSION },
 		{ "datacache.dll",			MDLCACHE_INTERFACE_VERSION },
 		{ "datacache.dll",			STUDIO_DATA_CACHE_INTERFACE_VERSION },
@@ -933,7 +935,11 @@ bool CHLModelViewerApp::Create()
 	g_pSoundEmitterBase = (ISoundEmitterSystemBase *)FindSystem( SOUNDEMITTERSYSTEM_INTERFACE_VERSION );
 	g_pSoundSystem = (ISoundSystem *)FindSystem( SOUNDSYSTEM_INTERFACE_VERSION );
 
+#ifdef PLATFORM_64BITS
+	if ( !g_pFileSystem || !g_pMaterialSystem || !g_pStudioRender || !g_pMDLCache || !g_pDataCache )
+#else
 	if ( !g_pFileSystem || !physprop || !physcollision || !g_pMaterialSystem || !g_pStudioRender || !g_pMDLCache || !g_pDataCache )
+#endif
 	{
 		Error("Unable to load required library interface!\n");
 	}

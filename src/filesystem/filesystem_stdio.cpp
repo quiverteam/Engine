@@ -1158,14 +1158,14 @@ size_t CWin32ReadOnlyFile::FS_fread( void *dest, size_t destSize, size_t size )
 
 	byte tempBuffer[READ_TEMP_BUFFER];
 	HANDLE hReadFile = m_hFileBuffered;
-	int nBytesToRead = size;
+	size_t nBytesToRead = size;
 	byte *pDest = (byte *)dest;
 	int64 offset = m_ReadPos;
 
 	if ( m_hFileUnbuffered != INVALID_HANDLE_VALUE )
 	{
 		const int destBaseAlign = ( IsX360() ) ? 4 : m_SectorSize;
-		bool bDestBaseIsAligned = ( (DWORD)dest % destBaseAlign == 0 );
+		bool bDestBaseIsAligned = ( (DWORD_PTR)dest % destBaseAlign == 0 );
 		bool bCanReadUnbufferedDirect = ( bDestBaseIsAligned && ( destSize % m_SectorSize == 0 ) && ( m_ReadPos % m_SectorSize == 0 ) );
 
 		if ( bCanReadUnbufferedDirect )
@@ -1179,7 +1179,7 @@ size_t CWin32ReadOnlyFile::FS_fread( void *dest, size_t destSize, size_t size )
 			// not properly aligned, snap to alignments
 			// attempt to perform single unbuffered operation using stack buffer
 			int64 alignedOffset = AlignValue( ( m_ReadPos - m_SectorSize ) + 1, m_SectorSize );
-			unsigned int alignedBytesToRead = AlignValue( ( m_ReadPos - alignedOffset ) + size, m_SectorSize );
+			size_t alignedBytesToRead = AlignValue( ( m_ReadPos - alignedOffset ) + size, m_SectorSize );
 			if ( alignedBytesToRead <= sizeof( tempBuffer ) - destBaseAlign )
 			{
 				// read operation can be performed as unbuffered follwed by a post fixup

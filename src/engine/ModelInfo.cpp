@@ -283,7 +283,7 @@ const studiohdr_t *CModelInfo::FindModel( void *cache ) const
 //-----------------------------------------------------------------------------
 virtualmodel_t *CModelInfo::GetVirtualModel( const studiohdr_t *pStudioHdr ) const
 {
-	MDLHandle_t handle = (MDLHandle_t)pStudioHdr->virtualModel;
+	MDLHandle_t handle = pStudioHdr->VirtualModel();
 	return g_pMDLCache->GetVirtualModelFast( pStudioHdr, handle );
 }
 
@@ -292,13 +292,13 @@ virtualmodel_t *CModelInfo::GetVirtualModel( const studiohdr_t *pStudioHdr ) con
 //-----------------------------------------------------------------------------
 byte *CModelInfo::GetAnimBlock( const studiohdr_t *pStudioHdr, int nBlock ) const
 {
-	MDLHandle_t handle = (MDLHandle_t)pStudioHdr->virtualModel;
+	MDLHandle_t handle = pStudioHdr->VirtualModel();
 	return g_pMDLCache->GetAnimBlock( handle, nBlock );
 }
 
 int CModelInfo::GetAutoplayList( const studiohdr_t *pStudioHdr, unsigned short **pAutoplayList ) const
 {
-	MDLHandle_t handle = (MDLHandle_t)pStudioHdr->virtualModel;
+	MDLHandle_t handle = pStudioHdr->VirtualModel();
 	return g_pMDLCache->GetAutoplayList( handle, pAutoplayList );
 }
 

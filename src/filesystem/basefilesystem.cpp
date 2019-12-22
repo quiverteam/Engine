@@ -651,7 +651,7 @@ void CBaseFileSystem::Trace_FClose( FILE *fp )
 }
 
 
-void CBaseFileSystem::Trace_FRead( int size, FILE* fp )
+void CBaseFileSystem::Trace_FRead( size_t size, FILE* fp )
 {
 	if ( !fp || m_fwLevel < FILESYSTEM_WARNING_REPORTALLACCESSES_READ )
 		return;
@@ -835,7 +835,7 @@ int CPackFileHandle::Seek( int nOffset, int nWhence )
 // Offsets all reads by the base of the pack file as needed.
 // Return bytes read.
 //-----------------------------------------------------------------------------
-int CPackFile::ReadFromPack( int nIndex, void* buffer, int nDestBytes, int nBytes, int64 nOffset )
+size_t CPackFile::ReadFromPack( int nIndex, void* buffer, int nDestBytes, int nBytes, int64 nOffset )
 {
 	m_mutex.Lock();
 
@@ -849,7 +849,7 @@ int CPackFile::ReadFromPack( int nIndex, void* buffer, int nDestBytes, int nByte
 
 	// Seek to the start of the read area and perform the read: TODO: CHANGE THIS INTO A CFileHandle
 	m_fs->FS_fseek( m_hPackFileHandle, m_nBaseOffset + nOffset, SEEK_SET );
-	int nBytesRead = m_fs->FS_fread( buffer, nDestBytes, nBytes, m_hPackFileHandle );
+	size_t nBytesRead = m_fs->FS_fread( buffer, nDestBytes, nBytes, m_hPackFileHandle );
 
 	m_mutex.Unlock();
 
@@ -920,7 +920,7 @@ ZIP_PreloadDirectoryEntry* CZipPackFile::GetPreloadEntry( int nEntryIndex )
 //-----------------------------------------------------------------------------
 //	Read a file from the pack
 //-----------------------------------------------------------------------------
-int CZipPackFile::ReadFromPack( int nEntryIndex, void* pBuffer, int nDestBytes, int nBytes, int64 nOffset )
+size_t CZipPackFile::ReadFromPack( int nEntryIndex, void* pBuffer, int nDestBytes, int nBytes, int64 nOffset )
 {
 	if ( nEntryIndex >= 0 )
 	{
@@ -1138,7 +1138,7 @@ bool CZipPackFile::Prepare( int64 fileLen, int64 nFileOfs )
 		// single i/o operation, scanning forward
 		char *pTemp = (char *)_alloca( fileLen - offset );
 		ReadFromPack( -1, pTemp, -1, fileLen - offset, offset );
-		while ( offset <= fileLen - sizeof( ZIP_EndOfCentralDirRecord ) )
+		while ( offset <= fileLen - (signed)sizeof( ZIP_EndOfCentralDirRecord ) )
 		{
 			memcpy( &rec, pTemp, sizeof( ZIP_EndOfCentralDirRecord ) );
 			m_swap.SwapFieldsToTargetEndian( &rec );
@@ -1822,7 +1822,7 @@ bool CVPKFile::FindNext( WIN32_FIND_DATA* dat )
 	return false;
 }
 
-int CVPKFile::ReadFromPack( int nIndex, void* buffer, int nDestBytes, int nBytes, int64 nOffset )
+size_t CVPKFile::ReadFromPack( int nIndex, void* buffer, int nDestBytes, int nBytes, int64 nOffset )
 {
 	m_mutex.Lock();
 

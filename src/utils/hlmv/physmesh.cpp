@@ -142,9 +142,9 @@ void DestroyPhysics( IStudioPhysics *pStudioPhysics )
 void CStudioPhysics::Load( MDLHandle_t mdlHandle )
 {
 	m_MDLHandle = mdlHandle;
-
+#ifndef PLATFORM_64BITS
 	LoadPhysicsProperties();
-
+#endif
 	vcollide_t *pVCollide = GetVCollide( );
 	if ( !pVCollide )
 	{

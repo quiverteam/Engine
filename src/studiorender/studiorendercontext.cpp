@@ -593,7 +593,8 @@ template <VertexCompressionType_t T> bool CStudioRenderContext::R_AddVertexToMes
 	bool bOK = true;
 	int idx = pVertex->origMeshVertID;
 
-	mstudiovertex_t &vert = *vertData->Vertex( idx );
+	int index = vertData->GetModelVertexIndex( idx );
+	mstudiovertex_t& vert = *vertData->ModelVertexData()->Vertex( index );
 
 	// FIXME: if this ever becomes perf-critical... these writes are not in memory-ascending order,
 	//        which hurts since VBs are in write-combined memory (See WriteCombineOrdering_t)

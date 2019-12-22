@@ -367,7 +367,7 @@ ColorCorrectionHandle_t CColorCorrectionSystem::GetLookupHandle( const char *pNa
 {	
 	// case and slash insensitive
 	FileNameHandle_t hName = g_pFullFileSystem->FindOrAddFileName( pName );
-	COMPILE_TIME_ASSERT( sizeof( FileNameHandle_t ) == sizeof( ColorCorrectionHandle_t ) );
+//	COMPILE_TIME_ASSERT( sizeof( FileNameHandle_t ) == sizeof( ColorCorrectionHandle_t ) );
 
 	return (ColorCorrectionHandle_t)hName;
 }

@@ -219,7 +219,7 @@ public:
 	virtual bool FindNext( WIN32_FIND_DATA* dat ) { return false; }
 
 	// This is the core IO routine for reading anything from a pack file, everything should go through here at some point
-	virtual int ReadFromPack( int nIndex, void* buffer, int nDestBytes, int nBytes, int64 nOffset );
+	virtual size_t ReadFromPack( int nIndex, void* buffer, int nDestBytes, int nBytes, int64 nOffset );
 	
 	// Returns the filename for a given file in the pack. Returns true if a filename is found, otherwise buffer is filled with "unknown"
 	virtual bool IndexToFilename( int nIndex, char* buffer, int nBufferSize ) = 0;
@@ -271,7 +271,7 @@ public:
 	// Loads the pack file
 	virtual bool Prepare( int64 fileLen = -1, int64 nFileOfs = 0 );
 	virtual bool FindFile( const char *pFilename, int &nIndex, int64 &nOffset, int &nLength );
-	virtual int  ReadFromPack( int nIndex, void* buffer, int nDestBytes, int nBytes, int64 nOffset  );
+	virtual size_t	ReadFromPack( int nIndex, void* buffer, int nDestBytes, int nBytes, int64 nOffset  );
 
 	int64 GetPackFileBaseOffset() { return m_nBaseOffset; }
 
@@ -377,7 +377,7 @@ public:
 	virtual bool FindFile( const char *pFilename, int &nIndex, int64 &nOffset, int &nLength );
 	virtual bool FindFirst( const char* pWildCard, WIN32_FIND_DATA* dat );
 	virtual bool FindNext( WIN32_FIND_DATA* dat );
-	virtual int  ReadFromPack( int nIndex, void* buffer, int nDestBytes, int nBytes, int64 nOffset  );
+	virtual size_t  ReadFromPack( int nIndex, void* buffer, int nDestBytes, int nBytes, int64 nOffset  );
 
 	int64 GetPackFileBaseOffset() { return m_nBaseOffset; }
 
@@ -955,7 +955,7 @@ protected:
 
 	FILE						*Trace_FOpen( const char *filename, const char *options, unsigned flags, int64 *size, CFileLoadInfo *pInfo=NULL );
 	void						Trace_FClose( FILE *fp );
-	void						Trace_FRead( int size, FILE* file );
+	void						Trace_FRead( size_t size, FILE* file );
 	void						Trace_FWrite( int size, FILE* file );
 
 	void						Trace_DumpUnclosedFiles( void );

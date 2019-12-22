@@ -200,7 +200,9 @@ bool CModelBrowserApp::Create()
 	{
 		{ "vstdlib.dll",			PROCESS_UTILS_INTERFACE_VERSION },
 		{ "studiorender.dll",		STUDIO_RENDER_INTERFACE_VERSION },
+#ifndef PLATFORM_64BITS
 		{ "vphysics.dll",			VPHYSICS_INTERFACE_VERSION },
+#endif
 		{ "datacache.dll",			DATACACHE_INTERFACE_VERSION },
 		{ "datacache.dll",			MDLCACHE_INTERFACE_VERSION },
 

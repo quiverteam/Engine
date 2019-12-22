@@ -56,6 +56,8 @@ struct virtualmodel_t;
 struct vertexFileHeader_t;
 struct thinModelVertices_t;
 
+typedef unsigned short MDLHandle_t;
+
 namespace OptimizedModel
 {
 	struct StripHeader_t;
@@ -1121,8 +1123,8 @@ struct mstudiotexture_t
 	int						flags;
 	int						used;
     int						unused1;
-	mutable IMaterial		*material;  // fixme: this needs to go away . .isn't used by the engine, but is used by studiomdl
-	mutable void			*clientmaterial;	// gary, replace with client material pointer if used
+	mutable uint32			material;  // fixme: this needs to go away . .isn't used by the engine, but is used by studiomdl
+	mutable uint32			clientmaterial;	// gary, replace with client material pointer if used
 	
 	int						unused[10];
 };
@@ -1213,8 +1215,24 @@ struct mstudio_modelvertexdata_t
 	int					GetGlobalTangentIndex( int i ) const;
 
 	// base of external vertex data stores
-	const void			*pVertexData;
-	const void			*pTangentData;
+	mutable uint32		pVertexData;
+#ifdef PLATFORM_64BITS
+	// we are going to use pVertexData to store the index to the actual pointer here
+	inline void			SetVertexData( const mstudiovertex_t* p ) { intp* test = ( intp* )(this + pVertexData ); *test = ( intp )p; };
+	inline mstudiovertex_t*		VertexData( void ) const { intp* test = ( intp* )(this + pVertexData ); return ( mstudiovertex_t* )( *test ); };
+#else
+	inline void			SetVertexData( void* p ) { pVertexData = ( uint32 )p; };
+	inline void*		VertexData( void ) const { return ( void* )pVertexData; };
+#endif
+	mutable uint32		pTangentData;
+#ifdef PLATFORM_64BITS
+	// we are going to use pTangentData to store the index to the actual pointer here
+	inline void			SetTangentData( const Vector4D* p ) { intp* test = ( intp* )(this + pTangentData ); *test = ( intp )p; };
+	inline Vector4D*		TangentData( void ) const { intp* test = ( intp* )(this + pVertexData ); return ( Vector4D* )( *test ); };
+#else
+	inline void			SetTangentData( void* p ) { pTangentData = ( uint32 )p; };
+	inline void*		TangentData( void ) const { return ( void* )pTangentData; };
+#endif
 };
 
 struct mstudio_meshvertexdata_t
@@ -1231,8 +1249,15 @@ struct mstudio_meshvertexdata_t
 	int					GetGlobalVertexIndex( int i ) const;
 
 	// indirection to this mesh's model's vertex data
-	const mstudio_modelvertexdata_t	*modelvertexdata;
-
+	mutable uint32		modelvertexdata;
+#ifdef PLATFORM_64BITS
+	// we are going to use modelvertexdata to store the index to the actual pointer here
+	inline void			SetModelVertexData( mstudio_modelvertexdata_t* p ) { intp* pointer = (intp*)(this + modelvertexdata); *pointer = (intp)p; };
+	inline mstudio_modelvertexdata_t* ModelVertexData( void ) const { intp* test = ( intp* )(this + modelvertexdata ); return ( mstudio_modelvertexdata_t* )( *test ); };
+#else
+	inline void			SetModelVertexData( void* p ) { modelvertexdata = ( uint32 )p; };
+	inline mstudio_modelvertexdata_t*		ModelVertexData( void ) const { return ( mstudio_modelvertexdata_t* )modelvertexdata; };
+#endif
 	// used for fixup calcs when culling top level lods
 	// expected number of mesh verts at desired lod
 	int					numLODVertexes[MAX_NUM_LODS];
@@ -1317,7 +1342,7 @@ struct mstudiomodel_t
 
 inline bool mstudio_modelvertexdata_t::HasTangentData( void ) const 
 {
-	return (pTangentData != NULL);
+	return (TangentData() != NULL);
 }
 
 inline int mstudio_modelvertexdata_t::GetGlobalVertexIndex( int i ) const
@@ -1336,7 +1361,7 @@ inline int mstudio_modelvertexdata_t::GetGlobalTangentIndex( int i ) const
 
 inline mstudiovertex_t *mstudio_modelvertexdata_t::Vertex( int i ) const 
 {
-	return (mstudiovertex_t *)pVertexData + GetGlobalVertexIndex( i );
+	return (mstudiovertex_t *)VertexData() + GetGlobalVertexIndex( i );
 }
 
 inline Vector *mstudio_modelvertexdata_t::Position( int i ) const 
@@ -1354,7 +1379,7 @@ inline Vector4D *mstudio_modelvertexdata_t::TangentS( int i ) const
 	// NOTE: The tangents vector is 16-bytes in a separate array
 	// because it only exists on the high end, and if I leave it out
 	// of the mstudiovertex_t, the vertex is 64-bytes (good for low end)
-	return (Vector4D *)pTangentData + GetGlobalTangentIndex( i );
+	return (Vector4D *)TangentData() + GetGlobalTangentIndex( i );
 }
 
 inline Vector2D *mstudio_modelvertexdata_t::Texcoord( int i ) const 
@@ -1374,7 +1399,7 @@ inline mstudiomodel_t *mstudiomesh_t::pModel() const
 
 inline bool mstudio_meshvertexdata_t::HasTangentData( void ) const
 {
-	return modelvertexdata->HasTangentData();
+	return ModelVertexData()->HasTangentData();
 }
 
 inline const mstudio_meshvertexdata_t *mstudiomesh_t::GetVertexData( void *pModelData )
@@ -1382,9 +1407,10 @@ inline const mstudio_meshvertexdata_t *mstudiomesh_t::GetVertexData( void *pMode
 	// get this mesh's model's vertex data (allow for mstudiomodel_t::GetVertexData
 	// returning NULL if the data has been converted to 'thin' vertices)
 	this->pModel()->GetVertexData( pModelData );
-	vertexdata.modelvertexdata = &( this->pModel()->vertexdata );
 
-	if ( !vertexdata.modelvertexdata->pVertexData )
+	vertexdata.SetModelVertexData( &(this->pModel()->vertexdata) );
+
+	if ( !vertexdata.ModelVertexData()->VertexData() )
 		return NULL;
 
 	return &vertexdata;
@@ -1404,37 +1430,37 @@ inline int mstudio_meshvertexdata_t::GetModelVertexIndex( int i ) const
 
 inline int mstudio_meshvertexdata_t::GetGlobalVertexIndex( int i ) const
 {
-	return modelvertexdata->GetGlobalVertexIndex( GetModelVertexIndex( i ) );
+	return ModelVertexData()->GetGlobalVertexIndex( GetModelVertexIndex( i ) );
 }
 
 inline Vector *mstudio_meshvertexdata_t::Position( int i ) const 
 {
-	return modelvertexdata->Position( GetModelVertexIndex( i ) ); 
+	return ModelVertexData()->Position( GetModelVertexIndex( i ) ); 
 };
 
 inline Vector *mstudio_meshvertexdata_t::Normal( int i ) const 
 {
-	return modelvertexdata->Normal( GetModelVertexIndex( i ) ); 
+	return ModelVertexData()->Normal( GetModelVertexIndex( i ) ); 
 };
 
 inline Vector4D *mstudio_meshvertexdata_t::TangentS( int i ) const
 {
-	return modelvertexdata->TangentS( GetModelVertexIndex( i ) );
+	return ModelVertexData()->TangentS( GetModelVertexIndex( i ) );
 }
 
 inline Vector2D *mstudio_meshvertexdata_t::Texcoord( int i ) const 
 {
-	return modelvertexdata->Texcoord( GetModelVertexIndex( i ) ); 
+	return ModelVertexData()->Texcoord( GetModelVertexIndex( i ) ); 
 };
 
 inline mstudioboneweight_t *mstudio_meshvertexdata_t::BoneWeights( int i ) const 
 {
-	return modelvertexdata->BoneWeights( GetModelVertexIndex( i ) ); 
+	return ModelVertexData()->BoneWeights( GetModelVertexIndex( i ) ); 
 };
 
 inline mstudiovertex_t *mstudio_meshvertexdata_t::Vertex( int i ) const
 {
-	return modelvertexdata->Vertex( GetModelVertexIndex( i ) );
+	return ModelVertexData()->Vertex( GetModelVertexIndex( i ) );
 }
 
 // a group of studio model data
@@ -1842,11 +1868,10 @@ inline const mstudio_modelvertexdata_t * mstudiomodel_t::GetVertexData( void *pM
 	const vertexFileHeader_t * pVertexHdr = CacheVertexData( pModelData );
 	if ( !pVertexHdr )
 		return NULL;
+	vertexdata.SetVertexData( pVertexHdr->GetVertexData() ); 
+	vertexdata.SetTangentData( pVertexHdr->GetTangentData() );
 
-	vertexdata.pVertexData  = pVertexHdr->GetVertexData();
-	vertexdata.pTangentData = pVertexHdr->GetTangentData();
-
-	if ( !vertexdata.pVertexData )
+	if ( !vertexdata.VertexData() )
 		return NULL;
 
 	return &vertexdata;
@@ -2031,11 +2056,11 @@ struct studiohdr_t
 //private:
 	int					numlocalanim;			// animations/poses
 	int					localanimindex;		// animation descriptions
-  	inline mstudioanimdesc_t *pLocalAnimdesc( int i ) const { if (i < 0 || i >= numlocalanim) i = 0; return (mstudioanimdesc_t *)(((byte *)this) + localanimindex) + i; };
+	inline mstudioanimdesc_t* pLocalAnimdesc( int i ) const { if ( i < 0 || i >= numlocalanim ) i = 0; return (mstudioanimdesc_t* )( ( (byte* )this ) + localanimindex ) + i; };
 
 	int					numlocalseq;				// sequences
 	int					localseqindex;
-  	inline mstudioseqdesc_t *pLocalSeqdesc( int i ) const { if (i < 0 || i >= numlocalseq) i = 0; return (mstudioseqdesc_t *)(((byte *)this) + localseqindex) + i; };
+	inline mstudioseqdesc_t* pLocalSeqdesc( int i ) const { if ( i < 0 || i >= numlocalseq ) i = 0; return (mstudioseqdesc_t* )( ( (byte* )this ) + localseqindex ) + i; };
 
 //public:
 	bool				SequencesAvailable() const;
@@ -2059,13 +2084,12 @@ struct studiohdr_t
 	// raw textures
 	int					numtextures;
 	int					textureindex;
-	inline mstudiotexture_t *pTexture( int i ) const { Assert( i >= 0 && i < numtextures ); return (mstudiotexture_t *)(((byte *)this) + textureindex) + i; }; 
-
+	inline mstudiotexture_t* pTexture( int i ) const { Assert( i >= 0 && i < numtextures ); return (mstudiotexture_t* )( ( (byte* )this ) + textureindex ) + i; };
 
 	// raw textures search paths
 	int					numcdtextures;
 	int					cdtextureindex;
-	inline char			*pCdtexture( int i ) const { return (((char *)this) + *((int *)(((byte *)this) + cdtextureindex) + i)); };
+	inline char* pCdtexture( int i ) const { return ( ( (char* )this ) + *( (int* )( ( (byte* )this ) + cdtextureindex ) + i ) ); };
 
 	// replaceable textures tables
 	int					numskinref;
@@ -2075,7 +2099,7 @@ struct studiohdr_t
 
 	int					numbodyparts;		
 	int					bodypartindex;
-	inline mstudiobodyparts_t	*pBodypart( int i ) const { return (mstudiobodyparts_t *)(((byte *)this) + bodypartindex) + i; };
+	inline mstudiobodyparts_t	*pBodypart( int i ) const { return (mstudiobodyparts_t *)(((byte *)this) + bodypartindex ) + i; };
 
 	// queryable attachable points
 //private:
@@ -2162,16 +2186,33 @@ struct studiohdr_t
 	const studiohdr_t	*FindModel( void **cache, char const *modelname ) const;
 
 	// implementation specific back pointer to virtual data
-	mutable void		*virtualModel;
+	mutable uint32		virtualModel;
+#ifdef PLATFORM_64BITS
+	// we are going to use virtualModel to store the index to the actual pointer here
+	inline void			SetVirtualModel( MDLHandle_t p ) { MDLHandle_t* test = ( MDLHandle_t* )( ((byte*)this) + virtualModel ); *test = p; };
+	inline MDLHandle_t		VirtualModel( void ) const { MDLHandle_t* test = ( MDLHandle_t* )( (( byte* )this) + virtualModel ); return ( MDLHandle_t )( *test ); };
+#else
+	inline void			SetVirtualModel( void *p ) { virtualModel = ( uint32 )p; };
+	inline void*		VirtualModel( void ) { return ( void* )virtualModel; };
+#endif
 	virtualmodel_t		*GetVirtualModel( void ) const;
 
 	// for demand loaded animation blocks
 	int					szanimblocknameindex;	
-	inline char * const pszAnimBlockName( void ) const { return ((char *)this) + szanimblocknameindex; }
+	inline char* const pszAnimBlockName( void ) const { return ( (char* )this ) + szanimblocknameindex; }
+
 	int					numanimblocks;
 	int					animblockindex;
-	inline mstudioanimblock_t *pAnimBlock( int i ) const { Assert( i > 0 && i < numanimblocks); return (mstudioanimblock_t *)(((byte *)this) + animblockindex) + i; };
-	mutable void		*animblockModel;
+	inline mstudioanimblock_t* pAnimBlock( int i ) const { Assert( i > 0 && i < numanimblocks ); return (mstudioanimblock_t* )( ( (byte* )this ) + animblockindex ) + i; };
+
+	mutable uint32		animblockModel;
+#ifdef PLATFORM_64BITS
+	inline void			SetAnimBlockModel( void* p ) { intp* test = ( intp* )( this + animblockModel ); *test = ( intp )p; };
+	inline void*		AnimBlockModel( void ) const { intp* test = ( intp* )( this + animblockModel ); return ( void* )( *test ); };
+#else
+	inline void			SetAnimBlockModel( void* p ) { animblockModel = ( uint32 )p; };
+	inline void*		AnimBlockModel( void ) { return ( void* )animblockModel; };
+#endif
 	byte *				GetAnimBlock( int i ) const;
 
 	int					bonetablebynameindex;
@@ -2179,8 +2220,8 @@ struct studiohdr_t
 
 	// used by tools only that don't cache, but persist mdl's peer data
 	// engine uses virtualModel to back link to cache pointers
-	void				*pVertexBase;
-	void				*pIndexBase;
+	uint32				pVertexBase;
+	uint32				pIndexBase;
 
 	// if STUDIOHDR_FLAGS_CONSTANT_DIRECTIONAL_LIGHT_DOT is set,
 	// this value is used to calculate directional components of lighting 

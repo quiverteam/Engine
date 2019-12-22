@@ -1835,7 +1835,7 @@ studiohdr_t *CMDLCache::UnserializeMDL( MDLHandle_t handle, void *pData, int nDa
 		}
 	}
 
-	studiohdr_t	*pStudioHdrIn = (studiohdr_t *)pData;
+	studiohdr_t* pStudioHdrIn = (studiohdr_t* )pData;
 
 	if ( r_rootlod.GetInt() > 0 )
 	{
@@ -1845,7 +1845,7 @@ studiohdr_t *CMDLCache::UnserializeMDL( MDLHandle_t handle, void *pData, int nDa
 
 	// critical! store a back link to our data
 	// this is fetched when re-establishing dependent cached data (vtx/vvd)
-	pStudioHdrIn->virtualModel = (void *)handle;
+	pStudioHdrIn->SetVirtualModel(handle);
 
 	MdlCacheMsg( "MDLCache: Alloc studiohdr %s\n", GetModelName( handle ) );
 
@@ -1942,9 +1942,46 @@ bool CMDLCache::ReadMDLFile( MDLHandle_t handle, const char *pMDLFileName, CUtlB
 		return false;
 	}
 
+#ifdef PLATFORM_64BITS
+	pStudioHdr->length += 24;
+	buf.EnsureCapacity( buf.Size() + 24 );
+	void* null = NULL;
+	buf.Put( &null, 8 );
+	buf.Put( &null, 8 );
+	buf.Put( &null, 8 );
+	pStudioHdr->virtualModel = pStudioHdr->length - 16;
+	pStudioHdr->animblockModel = pStudioHdr->length - 18;
+
+	for ( int i = 0; i < pStudioHdr->numbodyparts; i++ )
+	{
+		mstudiobodyparts_t* pBodyPart = pStudioHdr->pBodypart( i );
+
+		for ( int j = 0; j < pBodyPart->nummodels; ++j )
+		{
+			mstudiomodel_t* pModel = pBodyPart->pModel( j );
+
+			for ( int k = 0; k < pModel->nummeshes; ++k )
+			{
+				mstudiomesh_t* pMesh = pModel->pMesh( k );
+
+				pStudioHdr->length += 24;
+				buf.EnsureCapacity( buf.Size() + 24 );
+				void* null = NULL;
+				buf.Put( &null, 8 );
+				buf.Put( &null, 8 );
+				buf.Put( &null, 8 );
+				pMesh->vertexdata.modelvertexdata = pStudioHdr->length - 24;
+				
+				pMesh->pModel()->vertexdata.pVertexData = pStudioHdr->length - 16;
+				pMesh->pModel()->vertexdata.pTangentData = pStudioHdr->length - 8;
+			}
+		}
+	}
+#endif
+	Msg( "handle:%d", handle );
 	// critical! store a back link to our data
 	// this is fetched when re-establishing dependent cached data (vtx/vvd)
-	pStudioHdr->virtualModel = (void*)handle;
+	pStudioHdr->SetVirtualModel(handle);
 
 	// Make sure all dependent files are valid
 	if ( !VerifyHeaders( pStudioHdr ) )
@@ -2506,7 +2543,7 @@ vertexFileHeader_t *CMDLCache::CacheVertexData( studiohdr_t *pStudioHdr )
 
 	Assert( pStudioHdr );
 
-	handle = (MDLHandle_t)pStudioHdr->virtualModel;
+	handle = pStudioHdr->VirtualModel();
 	Assert( handle != MDLHANDLE_INVALID );
 
 	pVvdHdr = (vertexFileHeader_t *)CheckData( m_MDLDict[handle]->m_VertexCache, MDLCACHE_VERTEXES );
@@ -3108,7 +3145,7 @@ bool CMDLCache::SetAsyncLoad( MDLCacheDataType_t type, bool bAsync )
 //-----------------------------------------------------------------------------
 vertexFileHeader_t *CMDLCache::BuildAndCacheVertexData( studiohdr_t *pStudioHdr, vertexFileHeader_t *pRawVvdHdr  )
 {
-	MDLHandle_t	handle = (MDLHandle_t)pStudioHdr->virtualModel;
+	MDLHandle_t	handle = (MDLHandle_t)pStudioHdr->VirtualModel();
 	vertexFileHeader_t *pVvdHdr;
 
 	MdlCacheMsg( "MDLCache: Load VVD for %s\n", pStudioHdr->pszName() );
@@ -3197,7 +3234,7 @@ vertexFileHeader_t *CMDLCache::LoadVertexData( studiohdr_t *pStudioHdr )
 	MDLHandle_t			handle;
 
 	Assert( pStudioHdr );
-	handle = (MDLHandle_t)pStudioHdr->virtualModel;
+	handle = (MDLHandle_t)pStudioHdr->VirtualModel();
 	Assert( !m_MDLDict[handle]->m_VertexCache );
 
 	studiodata_t *pStudioData = m_MDLDict[handle];
@@ -3582,12 +3619,20 @@ virtualmodel_t *studiohdr_t::GetVirtualModel( void ) const
 	if (numincludemodels == 0)
 		return NULL;
 
-	return g_MDLCache.GetVirtualModelFast( this, (MDLHandle_t)virtualModel );
+#ifdef PLATFORM_64BITS
+	return g_MDLCache.GetVirtualModelFast( this, ( MDLHandle_t )( (byte*)this + virtualModel ) );
+#else
+	return g_MDLCache.GetVirtualModelFast( this, ( MDLHandle_t )virtualModel );
+#endif
 }
 
 byte *studiohdr_t::GetAnimBlock( int i ) const
 {
-	return g_MDLCache.GetAnimBlock( (MDLHandle_t)virtualModel, i );
+#ifdef PLATFORM_64BITS
+	return g_MDLCache.GetAnimBlock( ( MDLHandle_t )( ( byte* )this + virtualModel ), i );
+#else
+	return g_MDLCache.GetAnimBlock( ( MDLHandle_t )virtualModel, i );
+#endif
 }
 
 int studiohdr_t::GetAutoplayList( unsigned short **pOut ) const

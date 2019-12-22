@@ -57,10 +57,16 @@ extern ISoundEmitterSystemBase *g_pSoundEmitterBase;
 
 static void ReadPhysicsMaterials( mxChoice *plist )
 {
+#ifndef PLATFORM_64BITS
 	LoadPhysicsProperties();
+#endif
 	plist->removeAll();
 
+#ifdef PLATFORM_64BITS
+	if( true )
+#else
 	if ( !physprop || !physprop->SurfacePropCount() )
+#endif
 	{
 		plist->add("default");
 		plist->select(0);
