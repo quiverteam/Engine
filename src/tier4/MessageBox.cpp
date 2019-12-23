@@ -9,8 +9,8 @@ Platform independent message boxes
 
 #ifdef _POSIX
 #include <SDL2/SDL.h>
-#elif defined(_WINDOWS)
-#include <Windows.h>
+#elif defined(_WIN32)
+#include <windows.h>
 #endif
 
 
@@ -235,7 +235,7 @@ int Plat_ShowMessageBox(const char* pTitle, const char* pText, int type, int but
 
 
 
-#elif defined(_WINDOWS)
+#elif defined(_WIN32)
 	
 	// hehe butts
 	DWORD butts = 0;
@@ -249,7 +249,7 @@ int Plat_ShowMessageBox(const char* pTitle, const char* pText, int type, int but
 			butts = MB_ABORTRETRYIGNORE;
 			break;
 		case MB_BUTTONS_CANCELRETRYCONTINUE:
-			butts = MB_ABORTRETRYCONTINUE;
+			butts = MB_ABORTRETRYIGNORE;
 			break;
 		case MB_BUTTONS_HELP:
 			butts = MB_HELP;
@@ -289,7 +289,7 @@ int Plat_ShowMessageBox(const char* pTitle, const char* pText, int type, int but
 	DWORD ret = MessageBoxA(NULL, (LPCTSTR)pText, (LPCTSTR)pTitle, butts | type);
 
 	// Only used here because ID* defines are LESS than some absurd number
-	static const int Returns[16];
+	static int Returns[16];
 	Returns[IDABORT] = MB_BUTTON_ABORT;
 	Returns[IDCANCEL] = MB_BUTTON_CANCEL;
 	Returns[IDCONTINUE] = MB_BUTTON_CONTINUE;
