@@ -1,4 +1,4 @@
-//========= Copyright © 1996-2005, Valve Corporation, All rights reserved. ============//
+//========= Copyright ï¿½ 1996-2005, Valve Corporation, All rights reserved. ============//
 //
 // Purpose: loads additional command line options from a config file
 //
@@ -7,7 +7,7 @@
 
 #include "KeyValues.h"
 #include "tier1/strtools.h"
-#include "FileSystem_Tools.h"
+#include "filesystem_tools.h"
 #include "tier1/utlstring.h"
 
 // So we know whether or not we own argv's memory
