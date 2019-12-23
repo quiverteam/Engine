@@ -5,13 +5,14 @@
 //=============================================================================//
 #ifndef CL2CACHE_H
 #define CL2CACHE_H
-#ifdef _WIN32
+
 #pragma once
-#endif
+
+#include "tier0/platform.h"
 
 class P4Event_BSQ_cache_reference;
 
-class CL2Cache
+class DLL_CLASS_EXPORT CL2Cache
 {
 public:
 
