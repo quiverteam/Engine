@@ -32,7 +32,7 @@
 #else
 
 /* Disabled for mingw since mingw's headers will automatically include avx shit */
-#if !defined(_WIN32) && !defined(__GNUC__)
+#if (!defined(__GNUC__) && defined(_WIN32)) || defined(_POSIX)
 /* These are thrown in because immintrin introduces a bunch of ABI changes we don't want when not using AVX2 */
 typedef union
 {
@@ -45,7 +45,7 @@ typedef union
 	double f64[4];
 	uint64 u64[4];
 } __m256d;
-#endif
+#endif //_WIN32 && __GNUC__
 
 #endif //_USE_AVX
 
