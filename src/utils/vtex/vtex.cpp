@@ -1,4 +1,4 @@
-//====== Copyright © 1996-2007, Valve Corporation, All rights reserved. =======//
+//====== Copyright ï¿½ 1996-2007, Valve Corporation, All rights reserved. =======//
 //
 // Purpose: 
 //
@@ -12,7 +12,7 @@
 #include "tier1/strtools.h"
 #include <sys/stat.h>
 #include "bitmap/bitmap.h"
-#include "bitmap/TGALoader.h"
+#include "bitmap/tgaloader.h"
 #include "bitmap/psd.h"
 #include "bitmap/float_bm.h"
 #include "bitmap/imageformat.h"
@@ -21,7 +21,7 @@
 #include <direct.h>
 #include <io.h>
 #include "vtf/vtf.h"
-#include "UtlBuffer.h"
+#include "utlbuffer.h"
 #include "tier0/dbg.h"
 #include "cmdlib.h"
 #include "tier0/icommandline.h"
