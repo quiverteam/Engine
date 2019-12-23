@@ -1,4 +1,4 @@
-//====== Copyright © 1996-2005, Valve Corporation, All rights reserved. =======
+//====== Copyright ï¿½ 1996-2005, Valve Corporation, All rights reserved. =======
 //
 // Purpose: Core Movie Maker UI API
 //
@@ -11,9 +11,9 @@
 #pragma once
 #endif
 
-#include "vgui_controls/menubutton.h"
+#include "vgui_controls/MenuButton.h"
 #include "tier1/utldict.h"
-#include "tier1/UtlSymbol.h"
+#include "tier1/utlsymbol.h"
 
 
 //-----------------------------------------------------------------------------

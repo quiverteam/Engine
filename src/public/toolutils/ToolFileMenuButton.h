@@ -1,4 +1,4 @@
-//====== Copyright © 1996-2005, Valve Corporation, All rights reserved. =======
+//====== Copyright ï¿½ 1996-2005, Valve Corporation, All rights reserved. =======
 //
 // Standard file menu
 //
@@ -12,7 +12,7 @@
 #pragma once
 #endif
 
-#include "toolutils/toolmenubutton.h"
+#include "toolutils/ToolMenuButton.h"
 
 //-----------------------------------------------------------------------------
 // forward declarations
