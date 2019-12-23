@@ -1,4 +1,4 @@
-//========= Copyright © 1996-2005, Valve Corporation, All rights reserved. ============//
+//========= Copyright ï¿½ 1996-2005, Valve Corporation, All rights reserved. ============//
 //
 // Purpose: 
 //
@@ -6,16 +6,16 @@
 //=============================================================================//
 
 #include "vrad.h"
-#include "UtlVector.h"
+#include "utlvector.h"
 #include "cmodel.h"
-#include "BSPTreeData.h"
-#include "VRAD_DispColl.h"
-#include "CollisionUtils.h"
+#include "bsptreedata.h"
+#include "vrad_dispcoll.h"
+#include "collisionutils.h"
 #include "lightmap.h"
-#include "Radial.h"
-#include "CollisionUtils.h"
+#include "radial.h"
+#include "collisionutils.h"
 #include "mathlib/bumpvects.h"
-#include "UtlRBTree.h"
+#include "utlrbtree.h"
 #include "tier0/fasttimer.h"
 #include "disp_vrad.h"
 

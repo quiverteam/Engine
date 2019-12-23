@@ -1,4 +1,4 @@
-//========= Copyright © 1996-2005, Valve Corporation, All rights reserved. ============//
+//========= Copyright ï¿½ 1996-2005, Valve Corporation, All rights reserved. ============//
 //
 // Purpose: 
 //
@@ -2532,8 +2532,9 @@ static void GatherSampleLightAt4Points( SSE_SampleInfo_t& info, int sampleIdx, i
 		{
 			if (info.m_WarnFace != info.m_FaceNum)
 			{
-				Warning ("\nWARNING: Too many light styles on a face at (%f, %f, %f)\n",
-					info.m_Points.x.m128_f32[0], info.m_Points.y.m128_f32[0], info.m_Points.z.m128_f32[0] );
+				/* WTF? Why is this using x.m128_f32?? This should not have worked with windows or posix! */
+				//Warning ("\nWARNING: Too many light styles on a face at (%f, %f, %f)\n",
+				//	info.m_Points.x.m128_f32[0], info.m_Points.y.m128_f32[0], info.m_Points.z.m128_f32[0] );
 				info.m_WarnFace = info.m_FaceNum;
 			}
 			continue;

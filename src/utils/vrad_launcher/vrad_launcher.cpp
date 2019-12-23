@@ -1,4 +1,4 @@
-//========= Copyright © 1996-2005, Valve Corporation, All rights reserved. ============//
+//========= Copyright ï¿½ 1996-2005, Valve Corporation, All rights reserved. ============//
 //
 // Purpose: 
 //
@@ -9,7 +9,9 @@
 //
 
 #include "stdafx.h"
+#ifdef _WIN32
 #include <direct.h>
+#endif
 #include "tier1/strtools.h"
 #include "tier0/icommandline.h"
 
@@ -17,7 +19,7 @@
 char* GetLastErrorString()
 {
 	static char err[2048];
-	
+#ifdef _WIN32
 	LPVOID lpMsgBuf;
 	FormatMessage( 
 		FORMAT_MESSAGE_ALLOCATE_BUFFER | 
@@ -35,7 +37,7 @@ char* GetLastErrorString()
 	LocalFree( lpMsgBuf );
 
 	err[ sizeof( err ) - 1 ] = 0;
-
+#endif
 	return err;
 }
 

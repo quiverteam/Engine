@@ -1,4 +1,4 @@
-//========= Copyright © 1996-2005, Valve Corporation, All rights reserved. ============//
+//========= Copyright ï¿½ 1996-2005, Valve Corporation, All rights reserved. ============//
 //
 // Purpose: 
 //
@@ -58,9 +58,11 @@ public:
 
 
 public:
-
+#ifdef _WIN32
 	CRITICAL_SECTION	m_CS;
-
+#else
+	pthread_mutex_t m_CS;
+#endif
 	// This is the light for which m_LightFaces was built.
 	dworldlight_t	m_Light;
 

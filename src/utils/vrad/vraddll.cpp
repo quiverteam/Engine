@@ -1,4 +1,4 @@
-//========= Copyright © 1996-2005, Valve Corporation, All rights reserved. ============//
+//========= Copyright (C) 1996-2005, Valve Corporation, All rights reserved. ============//
 //
 // Purpose: 
 //
@@ -170,8 +170,8 @@ void CVRadDLL::GetBSPInfo( CBSPInfo *pInfo )
 bool CVRadDLL::DoIncrementalLight( char const *pVMFFile )
 {
 	char tempPath[MAX_PATH], tempFilename[MAX_PATH];
-	GetTempPath( sizeof( tempPath ), tempPath );
-	GetTempFileName( tempPath, "vmf_entities_", 0, tempFilename );
+	Plat_GetTmpDirectory( sizeof( tempPath ), tempPath );
+	Plat_GetTmpFileName( tempPath, "vmf_entities_", 0, tempFilename );
 
 	FileHandle_t fp = g_pFileSystem->Open( tempFilename, "wb" );
 	if( !fp )

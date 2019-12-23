@@ -1,4 +1,4 @@
-//========= Copyright © 1996-2005, Valve Corporation, All rights reserved. ============//
+//========= Copyright ï¿½ 1996-2005, Valve Corporation, All rights reserved. ============//
 //
 // Purpose: 
 //
@@ -24,10 +24,10 @@
 #include "polylib.h"
 #include "threads.h"
 #include "builddisp.h"
-#include "VRAD_DispColl.h"
-#include "UtlMemory.h"
-#include "UtlHash.h"
-#include "UtlVector.h"
+#include "vrad_dispcoll.h"
+#include "utlmemory.h"
+#include "utlhash.h"
+#include "utlvector.h"
 #include "iincremental.h"
 #include "raytrace.h"
 
@@ -40,11 +40,13 @@
 #include <sys/stat.h>
 
 #pragma warning(disable: 4142 4028)
-#include <io.h>
+//#include <io.h>
 #pragma warning(default: 4142 4028)
 
 #include <fcntl.h>
+#ifdef _WIN32
 #include <direct.h>
+#endif
 #include <ctype.h>
 
 
@@ -336,7 +338,7 @@ extern dface_t *g_pFaces;
 extern bool g_bMPIProps;
 
 extern	byte	nodehit[MAX_MAP_NODES];
-extern  float	gamma;
+extern  float	_gamma;
 extern	float	indirect_sun;
 extern	float	smoothing_threshold;
 extern	int		dlight_map;

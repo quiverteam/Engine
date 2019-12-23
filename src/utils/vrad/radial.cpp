@@ -1,4 +1,4 @@
-//========= Copyright © 1996-2005, Valve Corporation, All rights reserved. ============//
+//========= Copyright ï¿½ 1996-2005, Valve Corporation, All rights reserved. ============//
 //
 // Purpose: 
 //
@@ -10,8 +10,8 @@
 #include "lightmap.h"
 #include "radial.h"
 #include "mathlib/bumpvects.h"
-#include "UtlRBTree.h"
-#include "mathlib/VMatrix.h"
+#include "utlrbtree.h"
+#include "mathlib/vmatrix.h"
 #include "macro_texture.h"
 
 

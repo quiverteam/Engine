@@ -1,4 +1,4 @@
-//========= Copyright © 1996-2005, Valve Corporation, All rights reserved. ============//
+//========= Copyright (C) 1996-2005, Valve Corporation, All rights reserved. ============//
 //
 // Purpose: 
 //
@@ -12,6 +12,13 @@
 
 static bool g_bFileError = false;
 
+/* FIXME: Use tier0 stuff instead! */
+#ifdef _POSIX
+#define InitializeCriticalSection(x) pthread_mutex_init(x, NULL)
+#define DeleteCriticalSection(x) pthread_mutex_destroy(x)
+#define EnterCriticalSection(x) pthread_mutex_lock(x)
+#define LeaveCriticalSection(x) pthread_mutex_unlock(x)
+#endif
 
 // -------------------------------------------------------------------------------- //
 // Static helpers.

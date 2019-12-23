@@ -1,4 +1,4 @@
-//===== Copyright © 1996-2005, Valve Corporation, All rights reserved. ======//
+//===== Copyright ï¿½ 1996-2005, Valve Corporation, All rights reserved. ======//
 //
 // Purpose: 
 //
@@ -11,9 +11,10 @@
 
 #include "vrad.h"
 #include "trace.h"
-#include "Cmodel.h"
+#include "cmodel.h"
 #include "mathlib/vmatrix.h"
 
+#define FLT_TO_ARR(x) reinterpret_cast<float*>(&x)
 
 //=============================================================================
 
@@ -133,7 +134,8 @@ public:
 			addedCoverage[s] = 0.0f;
 			if ( ( sign >> s) & 0x1 )
 			{
-				addedCoverage[s] = ComputeCoverageFromTexture( b0->m128_f32[s], b1->m128_f32[s], b2->m128_f32[s], hitID );
+				addedCoverage[s] = ComputeCoverageFromTexture(FLT_TO_ARR(b0)[s], FLT_TO_ARR(b1)[s], FLT_TO_ARR(b2)[s], hitID);
+				//addedCoverage[s] = ComputeCoverageFromTexture( b0->m128_f32[s], b1->m128_f32[s], b2->m128_f32[s], hitID );
 			}
 		}
 		m_coverage = AddSIMD( m_coverage, LoadUnalignedSIMD( addedCoverage ) );
@@ -168,8 +170,8 @@ void TestLine( const FourVectors& start, const FourVectors& stop,
 	for ( int i = 0; i < 4; i++ )
 	{
 		visibility[i] = 1.0f;
-		if ( ( rt_result.HitIds[i] != -1 ) &&
-		     ( rt_result.HitDistance.m128_f32[i] < len.m128_f32[i] ) )
+		if ((rt_result.HitIds[i] != -1) &&
+				(FLT_TO_ARR(rt_result.HitDistance)[i] < FLT_TO_ARR(len)[i]))
 		{
 			visibility[i] = 0.0f;
 		}
@@ -373,7 +375,7 @@ void TestLine_DoesHitSky( FourVectors const& start, FourVectors const& stop,
 	{
 		aOcclusion[i] = 0.0f;
 		if ( ( rt_result.HitIds[i] != -1 ) &&
-		     ( rt_result.HitDistance.m128_f32[i] < len.m128_f32[i] ) )
+				(FLT_TO_ARR(rt_result.HitDistance)[i] < FLT_TO_ARR(len)[i]))
 		{
 			int id = g_RtEnv.OptimizedTriangleList[rt_result.HitIds[i]].m_Data.m_IntersectData.m_nTriangleID;
 			if ( !( id & TRACE_ID_SKY ) )

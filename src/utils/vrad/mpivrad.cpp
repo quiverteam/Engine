@@ -1,4 +1,4 @@
-//========= Copyright © 1996-2005, Valve Corporation, All rights reserved. ============//
+//========= Copyright ï¿½ 1996-2005, Valve Corporation, All rights reserved. ============//
 //
 // Purpose: 
 //
@@ -9,8 +9,10 @@
 // mpivrad.cpp
 //
 
+#ifdef _WIN32
 #include <windows.h>
 #include <conio.h>
+#endif
 #include "vrad.h"
 #include "physdll.h"
 #include "lightmap.h"
