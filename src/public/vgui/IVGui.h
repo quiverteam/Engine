@@ -17,6 +17,10 @@
 
 #include "appframework/IAppSystem.h"
 
+#if defined(_WIN32) && defined(__GNUC__)
+#undef PostMessage
+#endif 
+
 class KeyValues;
 
 namespace vgui

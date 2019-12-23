@@ -12,6 +12,10 @@
 
 #include <vgui/VGUI.h>
 #include <vgui_controls/Frame.h>
+#include <vgui_controls/Controls.h>
+#include <vgui_controls/PropertySheet.h>
+
+#include <mingw_off.h>
 
 namespace vgui
 {

@@ -21,6 +21,10 @@
 // memdbgon must be the last include file in a .cpp file!!!
 #include <tier0/memdbgon.h>
 
+#if defined(_WIN32) && defined(__GNUC__)
+#undef PostMessage
+#endif
+
 using namespace vgui;
 
 //-----------------------------------------------------------------------------

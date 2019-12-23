@@ -50,7 +50,7 @@ set(POSIX64_LINK_LIBS	    )
 
 # Generic include dirs
 set(INCLUDE_DIRS		${PUBLIC_INCLUDE}/tier3 ${PUBLIC_INCLUDE}/tier2 ${PUBLIC_INCLUDE}/vgui ${PUBLIC_INCLUDE}/tier1 ${PUBLIC_INCLUDE}/mathlib ${COMMON_INCLUDE}/vgui_surfacelib
-                        ${PUBLIC_INCLUDE}/tier0 ${PUBLIC_INCLUDE}/vstdlib ${PUBLIC_INCLUDE}/appframework    ./generated_proto)
+                        ${PUBLIC_INCLUDE}/tier0 ${PUBLIC_INCLUDE}/vstdlib ${PUBLIC_INCLUDE}/appframework ${PUBLIC_INCLUDE}/toolutils ./generated_proto)
 
 # Platform specific includes
 set(WIN32_INCLUDE_DIRS	    )

@@ -27,6 +27,11 @@
 #include <vgui_controls/PropertyPage.h>
 #include "vgui_controls/AnimationController.h"
 
+#if defined(_WIN32) && defined(__GNUC__)
+#undef SendMessage
+#undef PostMessage
+#endif
+
 // memdbgon must be the last include file in a .cpp file!!!
 #include <tier0/memdbgon.h>
 

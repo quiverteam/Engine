@@ -39,6 +39,10 @@
 #include "filesystem.h"
 #include "fmtstr.h"
 
+#if defined(_WIN32) && defined(__GNUC__)
+#undef SendMessage
+#endif
+
 // memdbgon must be the last include file in a .cpp file!!!
 #include <tier0/memdbgon.h>
 

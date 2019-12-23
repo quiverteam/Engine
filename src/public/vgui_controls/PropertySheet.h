@@ -8,14 +8,14 @@
 #ifndef PROPERTYSHEET_H
 #define PROPERTYSHEET_H
 
-#ifdef _WIN32
 #pragma once
-#endif
 
 #include "vgui/VGUI.h"
 #include "vgui_controls/EditablePanel.h"
 #include "vgui_controls/PHandle.h"
 #include "utlvector.h"
+
+#include <mingw_off.h>
 
 namespace vgui
 {

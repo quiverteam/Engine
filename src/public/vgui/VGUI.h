@@ -11,6 +11,9 @@
 #include <stddef.h>
 #include <stdint.h>
 
+/* Undefine some mingw structures */
+#include <mingw_off.h>
+
 #ifdef _WIN32
 #pragma once
 #endif
