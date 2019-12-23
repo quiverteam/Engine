@@ -13,19 +13,36 @@ if(DEFINED POSIX OR CLANG_BUILD)
 		set(CMAKE_LINK_FLAGS "${CMAKE_LINK_FLAGS} -m32")
 	endif(NOT BUILD_64BIT)
 	
-	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -ffast-math -march=i686 -msse3")
-	set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -ffast-math -march=i686 -msse3")
+	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -ffast-math -march=i686 -msse3 -g")
+	set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -ffast-math -march=i686 -msse3 -g")
 endif()
 
-if(DEFINED UNIX_CROSS)
-	# Why the FUCK does valve insist on casting const char to char??????
-	set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wno-attributes -Wno-write-strings")
-	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-attributes -Wno-write-strings")
+if(UNIX_CROSS)
+	set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wno-attributes -Wno-write-strings -Wno-conversion-null")
+	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-attributes -Wno-write-strings -Wno-conversion-null")
+	set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -ffast-math")
+	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -ffast-math")
+
 	# Clean up the prefixes
 	set(CMAKE_STATIC_LIBRARY_PREFIX "")
 	set(CMAKE_SHARED_LIBRARY_PREFIX "")
 	set(CMAKE_IMPORT_LIBRARY_PREFIX "")
-endif(DEFINED UNIX_CROSS)
+endif(UNIX_CROSS)
+
+# TODO: Make this work for windows
+if(USE_SSE)
+	if(DEFINED UNIX_CROSS OR DEFINED POSIX OR DEFINED CLANG_BUILD)
+		set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -msse3")
+		set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -msse3")
+	endif(DEFINED UNIX_CROSS OR DEFINED POSIX OR DEFINED CLANG_BUILD)
+endif(USE_SSE)
+
+if(USE_AVX)
+	if(DEFINED UNIX_CROSS OR DEFINED POSIX OR DEFINED CLANG_BUILD)
+		set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -mavx")
+		set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -mavx")
+	endif(DEFINED UNIX_CROSS OR DEFINED POSIX OR DEFINED CLANG_BUILD)
+endif(USE_AVX)
 
 if(DEFINED POSIX OR UNIX_CROSS)
 	set(CMAKE_LINK_FLAGS "${CMAKE_LINK_FLAGS} -lc")
