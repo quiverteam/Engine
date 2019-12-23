@@ -1,10 +1,10 @@
-//===== Copyright � 1996-2005, Valve Corporation, All rights reserved. ======//
+//===== Copyright (C) 1996-2005, Valve Corporation, All rights reserved. ======//
 //
-// Purpose: Empty template shader api
+// Purpose: Shaderapi for OpenGL
 //
 // $NoKeywords: $
 //
 //===========================================================================//
-#include "ShaderAPIEmpty.h"
+#include "ShaderAPIGL.h"
 
 IShaderUtil* g_pShaderUtil;

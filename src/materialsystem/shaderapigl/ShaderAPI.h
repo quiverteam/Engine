@@ -1,4 +1,4 @@
-//===== Copyright � 1996-2005, Valve Corporation, All rights reserved. ======//
+//===== Copyright (C) 1996-2005, Valve Corporation, All rights reserved. ======//
 //
 // Purpose: Defines the shader API
 //
@@ -21,12 +21,12 @@
 // From this project
 #include "Mesh.h"
 
-class CShaderAPI : public IShaderAPI, public IHardwareConfigInternal, public IDebugTextureInfo
+class CShaderAPIGL : public IShaderAPI, public IHardwareConfigInternal, public IDebugTextureInfo
 {
 public:
 	// constructor, destructor
-	CShaderAPI( );
-	virtual ~CShaderAPI();
+	CShaderAPIGL( );
+	virtual ~CShaderAPIGL();
 
 	// IDebugTextureInfo implementation.
 public:

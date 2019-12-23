@@ -1,7 +1,6 @@
-//===== Copyright � 1996-2005, Valve Corporation, All rights reserved. ======//
+//===== Copyright (C) 1996-2005, Valve Corporation, All rights reserved. ======//
 //
-// Purpose: Empty template shaderapi
-// 			Replace this when creating a new shaderapi
+// Purpose: Shaderapi for OpenGL
 //
 // $NoKeywords: $
 //
@@ -17,60 +16,60 @@
 //-----------------------------------------------------------------------------
 // The empty mesh
 //-----------------------------------------------------------------------------
-class CEmptyMesh : public CMesh {};
+class CGLMesh : public CMesh {};
 
 //-----------------------------------------------------------------------------
 // The empty shader shadow
 //-----------------------------------------------------------------------------
-class CShaderShadowEmpty : public CShaderShadow {};
+class CGLShaderShadow : public CShaderShadow {};
 
 //-----------------------------------------------------------------------------
 // The DX8 implementation of the shader device
 //-----------------------------------------------------------------------------
-class CShaderDeviceEmpty : public CShaderDevice {};
+class CGLShaderDevice : public CShaderDevice {};
 
-static CShaderDeviceEmpty s_ShaderDeviceEmpty;
+static CShaderDeviceEmpty s_GLShaderDevice;
 
 // FIXME: Remove; it's for backward compat with the materialsystem only for now
-EXPOSE_SINGLE_INTERFACE_GLOBALVAR( CShaderDeviceEmpty, IShaderDevice, 
-								  SHADER_DEVICE_INTERFACE_VERSION, s_ShaderDeviceEmpty )
+EXPOSE_SINGLE_INTERFACE_GLOBALVAR( COpenGLShaderDevice, IShaderDevice, 
+								  SHADER_DEVICE_INTERFACE_VERSION, s_GLShaderDevice )
 
 
 //-----------------------------------------------------------------------------
 // The DX8 implementation of the shader device
 //-----------------------------------------------------------------------------
-class CShaderDeviceMgrEmpty : public CShaderDeviceManager {};
+class CGLShaderDeviceMgr : public CShaderDeviceManager {};
 
-static CShaderDeviceMgrEmpty s_ShaderDeviceMgrEmpty;
+static CGLShaderDeviceMgr s_GLShaderDeviceMgr;
 
 EXPOSE_SINGLE_INTERFACE_GLOBALVAR( CShaderDeviceMgrEmpty, IShaderDeviceMgr, 
-								  SHADER_DEVICE_MGR_INTERFACE_VERSION, s_ShaderDeviceMgrEmpty )
+								  SHADER_DEVICE_MGR_INTERFACE_VERSION, s_GLShaderDeviceMgr )
 
 
 //-----------------------------------------------------------------------------
 // The DX8 implementation of the shader API
 //-----------------------------------------------------------------------------
-class CShaderAPIEmpty : public CShaderAPI {};
+class CGLShaderAPI : public CShaderAPIGL {};
 
 //-----------------------------------------------------------------------------
 // Class Factory
 //-----------------------------------------------------------------------------
 
-static CShaderAPI g_ShaderAPIEmpty;
-static CShaderShadowEmpty g_ShaderShadow;
+static CShaderAPIGL g_ShaderAPIGL;
+static CGLShaderShadow g_ShaderShadow;
 
 // FIXME: Remove; it's for backward compat with the materialsystem only for now
 EXPOSE_SINGLE_INTERFACE_GLOBALVAR( CShaderAPIEmpty, IShaderAPI, 
-									SHADERAPI_INTERFACE_VERSION, g_ShaderAPIEmpty )
+									SHADERAPI_INTERFACE_VERSION, g_ShaderAPIGL )
 
 EXPOSE_SINGLE_INTERFACE_GLOBALVAR( CShaderShadowEmpty, IShaderShadow, 
 								SHADERSHADOW_INTERFACE_VERSION, g_ShaderShadow )
 
 EXPOSE_SINGLE_INTERFACE_GLOBALVAR( CShaderAPIEmpty, IMaterialSystemHardwareConfig, 
-				MATERIALSYSTEM_HARDWARECONFIG_INTERFACE_VERSION, g_ShaderAPIEmpty )
+				MATERIALSYSTEM_HARDWARECONFIG_INTERFACE_VERSION, g_ShaderAPIGL )
 
 EXPOSE_SINGLE_INTERFACE_GLOBALVAR( CShaderAPIEmpty, IDebugTextureInfo, 
-				DEBUG_TEXTURE_INFO_VERSION, g_ShaderAPIEmpty )
+				DEBUG_TEXTURE_INFO_VERSION, g_ShaderAPIGL )
 
 
 //-----------------------------------------------------------------------------

@@ -1,4 +1,4 @@
-//===== Copyright � 1996-2005, Valve Corporation, All rights reserved. ======//
+//===== Copyright (C) 1996-2005, Valve Corporation, All rights reserved. ======//
 //
 // Purpose: Defines the shader device 
 //
@@ -7,7 +7,7 @@
 //===========================================================================//
 #include "DeviceManager.h"
 #include "ShaderAPI.h"
-#include "ShaderAPIEmpty.h"
+#include "ShaderAPIGL.h"
 
 #include "shaderapi/ishaderutil.h"
 
