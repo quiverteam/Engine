@@ -1,4 +1,4 @@
-//===== Copyright © 1996-2005, Valve Corporation, All rights reserved. ======//
+//===== Copyright ï¿½ 1996-2005, Valve Corporation, All rights reserved. ======//
 //
 // Purpose: 
 //
@@ -9,7 +9,7 @@
 #ifndef SHADERAPIDX8_H
 #define SHADERAPIDX8_H
 
-#include "shaderAPIbase.h"
+#include "shaderapibase.h"
 #include "shaderapi/ishadershadow.h"
 #include "locald3dtypes.h"
 

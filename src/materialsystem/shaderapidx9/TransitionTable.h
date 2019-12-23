@@ -1,4 +1,4 @@
-//========= Copyright © 1996-2005, Valve Corporation, All rights reserved. ============//
+//========= Copyright ï¿½ 1996-2005, Valve Corporation, All rights reserved. ============//
 //
 // Purpose: 
 //
@@ -15,7 +15,7 @@
 
 #include "utlvector.h"
 #include "shadershadowdx8.h"
-#include "utlsortvector.h"
+#include "UtlSortVector.h"
 #include "checksum_crc.h"
 #include "shaderapi/ishaderapi.h"
 

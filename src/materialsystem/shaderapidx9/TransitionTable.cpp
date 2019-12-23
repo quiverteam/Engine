@@ -1,4 +1,4 @@
-//===== Copyright © 1996-2005, Valve Corporation, All rights reserved. ======//
+//===== Copyright ï¿½ 1996-2005, Valve Corporation, All rights reserved. ======//
 //
 // Purpose: 
 //
@@ -9,12 +9,12 @@
 #if defined( _WIN32 ) && !defined( _X360 )
 #include <windows.h>	    
 #endif
-#include "transitiontable.h"
+#include "TransitionTable.h"
 #include "recording.h"
 #include "shaderapidx8.h"
-#include "shaderapi/IShaderUtil.h"
+#include "shaderapi/ishaderutil.h"
 #include "tier1/convar.h"
-#include "materialsystem/IMaterialSystemHardwareConfig.h"
+#include "materialsystem/imaterialsystemhardwareconfig.h"
 #include "vertexshaderdx8.h"
 #include "tier0/vprof.h"
 #include "shaderdevicedx8.h"
