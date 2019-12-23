@@ -1,10 +1,10 @@
-//========= Copyright © 1996-2005, Valve Corporation, All rights reserved. ============//
+//========= Copyright ï¿½ 1996-2005, Valve Corporation, All rights reserved. ============//
 //
 // Purpose: 
 //
 // $NoKeywords: $
 //=============================================================================//
-
+#ifdef _WIN32
 // Nasty headers!
 #include "MySqlDatabase.h"
 #include "tier1/strtools.h"
@@ -837,3 +837,4 @@ unsigned long VMPI_Stats_GetJobWorkerID()
 {
 	return g_JobWorkerID;
 }
+#endif //_WIN32
