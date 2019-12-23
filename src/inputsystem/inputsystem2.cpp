@@ -52,6 +52,7 @@ InitReturnVal_t CInputSystem2::Init()
 		SDL_InitSubSystem(SDL_INIT_EVENTS);
 	if(!(flags & SDL_INIT_GAMECONTROLLER))
 		SDL_InitSubSystem(SDL_INIT_GAMECONTROLLER);
+	Msg("[Inputsystem2] Loaded OK...\n");
 	
 	/* Find all joysticks */
 	int numjoy = SDL_NumJoysticks();
@@ -105,11 +106,6 @@ int CInputSystem2::GetPollTick() const
 	return this->last_poll;
 }
 
-void CInputSystem2::PollInputState()
-{
-
-}
-
 bool CInputSystem2::IsButtonDown(ButtonCode_t code) const
 {
 	return this->curr_input.keys[code];
@@ -134,7 +130,7 @@ use GetAnalogDelta
 */
 int CInputSystem2::GetAnalogValue(AnalogCode_t code) const
 {
-	return curr_input.axis[code];
+	return (int)curr_input.axis[code];
 }
 
 /*
@@ -146,7 +142,7 @@ on the X axis over the last frame. Use GetAnalogValue if you want a raw value in
 */
 int CInputSystem2::GetAnalogDelta(AnalogCode_t code) const
 {
-	return curr_input.axis[code] - prev_input.axis[code];
+	return (int)(curr_input.axis[code] - prev_input.axis[code]);
 }
 
 /*
@@ -190,7 +186,7 @@ Return the number of joysticks
 */
 int CInputSystem2::GetJoystickCount() const
 {
-	return this->joystick_count;
+	return (int)this->joystick_count;
 }
 
 /*
@@ -230,46 +226,109 @@ void CInputSystem2::EnableJoystickDiagonalPOV(int nJoystick, bool bEnable)
 
 }
 
-/* Sample for unregistered input events and place them into the event queue */
-void CInputSystem2::SampleDevices(void)
+/* Polls input state an updates internal buffers */
+/* This SHOULD empty out the event queue */
+void CInputSystem2::PollInputState()
 {
-	last_tick = (clock() / CLOCKS_PER_SEC) * 1000;
+	this->last_poll = (clock() / CLOCKS_PER_SEC) * 1000;
+	this->poll_count++;
+	this->polling = true;
+	/* Swap current and former input state */
+	memcpy(&this->prev_input, &this->curr_input, sizeof(SInputState_t));
+	SampleDevices(); /* Sample joysticks */
 	SDL_PumpEvents();
-
-	SDL_Event ev[256];
-	for(int i = SDL_PeepEvents(ev, 1, SDL_PEEKEVENT, SDL_FIRSTEVENT, SDL_LASTEVENT), n = 0; n < i; n++)
+	SDL_Event ev;
+	while(SDL_PollEvent(&ev))
 	{
-		switch(ev[n].type)
+		switch(ev.type)
 		{
+			case SDL_KEYDOWN:
 			case SDL_KEYUP:
 			{
-				SDL_KeyboardEvent event = ev[n].key;
-				
-				break;
-			}
-			case SDL_KEYDOWN:
-			{
+				int key = SDLKeycodeToButtonCode(ev.key.keysym.scancode);
+				this->curr_input.keys[key] = (ev.type != SDL_KEYUP);
+				if(ev.type == SDL_KEYDOWN)
+					this->curr_input.pressed_tick[key] = ev.key.timestamp;
+				else
+					this->curr_input.released_tick[key] = ev.key.timestamp;
 				break;
 			}
 			case SDL_MOUSEMOTION:
 			{
+				this->curr_input.mouse_x = ev.motion.x;
+				this->curr_input.mouse_y = ev.motion.y;
 				break;
 			}
 			case SDL_MOUSEBUTTONDOWN:
-			{
-				break;
-			}
 			case SDL_MOUSEBUTTONUP:
 			{
+				static int map[SDL_BUTTON_X2+1] = {
+						ButtonCode_t::MOUSE_LEFT-ButtonCode_t::MOUSE_FIRST,
+						ButtonCode_t::MOUSE_MIDDLE-ButtonCode_t::MOUSE_FIRST,
+						ButtonCode_t::MOUSE_RIGHT-ButtonCode_t::MOUSE_FIRST,
+						ButtonCode_t::MOUSE_4-ButtonCode_t::MOUSE_FIRST,
+						ButtonCode_t::MOUSE_5-ButtonCode_t::MOUSE_FIRST
+				};
+				this->curr_input.mouse[map[ev.button.button]] = (ev.type != SDL_MOUSEBUTTONUP);
 				break;
 			}
 			case SDL_MOUSEWHEEL:
 			{
+				if(ev.wheel.y > 0)
+					this->curr_input.mouse[ButtonCode_t::MOUSE_WHEEL_UP-ButtonCode_t::MOUSE_FIRST] = true;
+				else if(ev.wheel.y < 0)
+					this->curr_input.mouse[ButtonCode_t::MOUSE_WHEEL_DOWN-ButtonCode_t::MOUSE_FIRST] = true;
+				else
+				{
+					this->curr_input.mouse[ButtonCode_t::MOUSE_WHEEL_DOWN-ButtonCode_t::MOUSE_FIRST] = false;
+					this->curr_input.mouse[ButtonCode_t::MOUSE_WHEEL_UP-ButtonCode_t::MOUSE_FIRST] = false;
+				}
 				break;
 			}
+			default: break;
 		}
 	}
+	/* Grab all posted user events */
+	for(auto x : this->events)
+	{
+		switch(x.m_nType)
+		{
+			case IE_ButtonPressed:
+			case IE_ButtonReleased:
+			{
+				curr_input.keys[x.m_nData] = (IE_ButtonPressed == x.m_nType);
+				break;
+			}
+			default: break;
+		}
+	}
+	this->events.Purge();
+	this->polling = false;
+}
 
+
+/* Sample for unregistered input events and place them into the event queue */
+/* Should only be done for joysticks/controllers */
+void CInputSystem2::SampleDevices(void)
+{
+	last_tick = (clock() / CLOCKS_PER_SEC) * 1000;
+	SDL_PumpEvents();
+	SDL_Event ev;
+	while(SDL_PollEvent(&ev))
+	{
+		switch(ev.type)
+		{
+			case SDL_JOYAXISMOTION:
+			{
+				if(ev.jaxis.which == this->enabled_joystick)
+					this->curr_input.axis[ev.jaxis.axis] = ev.jaxis.value;
+			}
+			case SDL_JOYBALLMOTION: break; /* what even is this lol */
+			case SDL_JOYBUTTONUP: /* Joystick buttons are not yet supported for this version of inputsystem (thanks vavel) */
+			case SDL_JOYBUTTONDOWN:
+			default: break;
+		}
+	}
 }
 
 void CInputSystem2::SetRumble(float fLeftMotor, float fRightMotor, int userId)

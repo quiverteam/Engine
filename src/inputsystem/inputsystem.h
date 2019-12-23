@@ -317,7 +317,7 @@ class CInputSystem2 : public CTier2AppSystem<IInputSystem>
 protected:
 	typedef CTier2AppSystem<IInputSystem> BaseClass;
 	unsigned joystick_count;
-	unsigned enabled_joystick;
+	unsigned enabled_joystick; /* Index of the enabled joystick */
 	unsigned last_poll;
 	unsigned last_tick;
 	SDL_Window* pWindow;
@@ -325,13 +325,14 @@ protected:
 	unsigned* joystick_map; /* Map of source joystick indicies to sdl joystick numbers */
 	SDL_Joystick* active_joystick;
 	unsigned poll_count;
+	bool polling; /* Should be set while this is polling, this really should be an atomic bool, but the original inputsystem doesn't use atomics */
 	struct SInputState_t
 	{
 		bool keys[ButtonCode_t::BUTTON_CODE_COUNT];
+		bool mouse[ButtonCode_t::MOUSE_COUNT];
 		unsigned pressed_tick[ButtonCode_t::BUTTON_CODE_COUNT];
 		unsigned released_tick[ButtonCode_t::BUTTON_CODE_COUNT];
 		unsigned axis[AnalogCode_t::ANALOG_CODE_LAST];
-		unsigned mouse_buttons;
 		unsigned mouse_x, mouse_y;
 	} prev_input, curr_input;
 
