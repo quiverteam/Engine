@@ -133,12 +133,12 @@ endif(DEFINED POSIX)
 
 # needed for dlls and exes on windows
 if(THIS_IS_A_EXE EQUAL 1 OR THIS_IS_A_SHARED_LIB EQUAL 1)
-	list(APPEND WINDOWS_LINK_LIBS	shell32.lib
-									user32.lib
-									advapi32.lib
-									gdi32.lib
-									comdlg32.lib
-									ole32.lib)
+	list(APPEND WINDOWS_LINK_LIBS	shell32
+									user32
+									advapi32
+									gdi32
+									comdlg32
+									ole32)
 endif(THIS_IS_A_EXE EQUAL 1 OR THIS_IS_A_SHARED_LIB EQUAL 1)
 list(APPEND POSIX_LINK_LIBS 		tcmalloc_minimal)
 
