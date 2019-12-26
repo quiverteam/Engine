@@ -1129,6 +1129,52 @@ bool CThreadMutex::TryLock()
 #endif
 }
 
+void CThreadMutex::Unlock()
+{
+#ifdef _WIN32
+	#ifdef THREAD_MUTEX_TRACING_ENABLED
+		AssertMsg( m_lockCount >= 1, "Invalid unlock of thread lock" );
+		m_lockCount--;
+		if (m_lockCount == 0)
+		{
+			if ( m_bTrace )
+			Msg( "Thread %u releasing lock %p\n", m_currentOwnerID, (CRITICAL_SECTION *)&m_CriticalSection );
+			m_currentOwnerID = 0;
+		}
+	#endif
+	LeaveCriticalSection((CRITICAL_SECTION *)&m_CriticalSection);
+#else
+	pthread_mutex_unlock( &m_Mutex );
+#endif
+}
+
+inline void CThreadMutex::Lock()
+{
+#ifdef _WIN32
+	#ifdef THREAD_MUTEX_TRACING_ENABLED
+		uint thisThreadID = ThreadGetCurrentId();
+		if ( m_bTrace && m_currentOwnerID && ( m_currentOwnerID != thisThreadID ) )
+		Msg( "Thread %u about to wait for lock %p owned by %u\n", ThreadGetCurrentId(), (CRITICAL_SECTION *)&m_CriticalSection, m_currentOwnerID );
+	#endif
+
+	VCRHook_EnterCriticalSection((CRITICAL_SECTION *)&m_CriticalSection);
+
+	#ifdef THREAD_MUTEX_TRACING_ENABLED
+		if (m_lockCount == 0)
+		{
+			// we now own it for the first time.  Set owner information
+			m_currentOwnerID = thisThreadID;
+			if ( m_bTrace )
+			Msg( "Thread %u now owns lock %p\n", m_currentOwnerID, (CRITICAL_SECTION *)&m_CriticalSection );
+		}
+		m_lockCount++;
+	#endif
+#else
+	pthread_mutex_lock( &m_Mutex );
+#endif
+}
+
+
 //-----------------------------------------------------------------------------
 //
 // CThreadFastMutex
@@ -1245,6 +1291,29 @@ void CThreadRWLock::UnlockWrite()
 		}
 	}
 	else
+	{
+		m_CanWrite.Set();
+	}
+	m_mutex.Unlock();
+}
+
+
+void CThreadRWLock::LockForRead()
+{
+	m_mutex.Lock();
+	if ( m_nWriters)
+	{
+		WaitForRead();
+	}
+	m_nActiveReaders++;
+	m_mutex.Unlock();
+}
+
+void CThreadRWLock::UnlockRead()
+{
+	m_mutex.Lock();
+	m_nActiveReaders--;
+	if ( m_nActiveReaders == 0 && m_nWriters != 0 )
 	{
 		m_CanWrite.Set();
 	}
@@ -1402,6 +1471,75 @@ void CThreadSpinRWLock::UnlockWrite()
 	m_nWriters--;
 }
 
+
+bool CThreadSpinRWLock::TryLockForWrite( const uint32 threadId )
+{
+	// In order to grab a write lock, there can be no readers and no owners of the write lock
+	if ( m_lockInfo.m_nReaders > 0 || ( m_lockInfo.m_writerId && m_lockInfo.m_writerId != threadId ) )
+	{
+		return false;
+	}
+
+	static const LockInfo_t oldValue = { 0, 0 };
+	LockInfo_t newValue = { threadId, 0 };
+	const bool bSuccess = AssignIf( newValue, oldValue );
+#if defined(_X360)
+	if ( bSuccess )
+	{
+		// X360TBD: Serious perf implications. Not Yet. __sync();
+	}
+#endif
+	return bSuccess;
+}
+
+bool CThreadSpinRWLock::TryLockForWrite()
+{
+	m_nWriters++;
+	if ( !TryLockForWrite( ThreadGetCurrentId() ) )
+	{
+		m_nWriters--;
+		return false;
+	}
+	return true;
+}
+
+bool CThreadSpinRWLock::TryLockForRead()
+{
+	if ( m_nWriters != 0 )
+	{
+		return false;
+	}
+	// In order to grab a write lock, the number of readers must not change and no thread can own the write
+	LockInfo_t oldValue;
+	LockInfo_t newValue;
+
+		oldValue.m_nReaders = m_lockInfo.m_nReaders;
+		oldValue.m_writerId = 0;
+		newValue.m_nReaders = oldValue.m_nReaders + 1;
+		newValue.m_writerId = 0;
+
+	const bool bSuccess = AssignIf( newValue, oldValue );
+#if defined(_X360)
+	if ( bSuccess )
+	{
+		// X360TBD: Serious perf implications. Not Yet. __sync();
+	}
+#endif
+	return bSuccess;
+}
+
+void CThreadSpinRWLock::LockForWrite()
+{
+	const uint32 threadId = ThreadGetCurrentId();
+
+	m_nWriters++;
+
+	if ( !TryLockForWrite( threadId ) )
+	{
+		ThreadPause();
+		SpinLockForWrite( threadId );
+	}
+}
 
 
 //-----------------------------------------------------------------------------
