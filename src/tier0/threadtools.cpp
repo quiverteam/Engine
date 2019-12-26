@@ -1,8 +1,8 @@
-//========== Copyright � 2005, Valve Corporation, All rights reserved. ========
+//========== Copyright (C) 2005, Valve Corporation, All rights reserved. ========
 //
-// Purpose:
+// Purpose: Platform abstracted threading tools
 //
-//=============================================================================
+//===============================================================================
 
 #include "pch_tier0.h"
 #include "tier1/strtools.h"
@@ -553,7 +553,7 @@ bool CThreadSemaphore::Release()
 #ifdef _POSIX
 	return sem_post(this->m_pSem) == 0;
 #else
-	ReleaseSemaphore(this->m_pSem, 1, NULL);
+	return (bool)ReleaseSemaphore(this->m_pSem, 1, NULL);
 #endif
 }
 
@@ -563,7 +563,8 @@ bool CThreadSemaphore::Lock()
 #ifdef _POSIX
 	return sem_trywait(m_pSem) == 0;
 #else 
-	WaitForSingleObject(this->m_pSem, 0);
+	DWORD res = WaitForSingleObject(this->m_pSem, 0);
+	return (res != WAIT_FAILED && res != WAIT_TIMEOUT);
 #endif
 }
 
@@ -576,7 +577,8 @@ bool CThreadSemaphore::LockTimeout(double sec)
 	tm.tv_sec = 0;
 	return sem_timedwait(m_pSem, &tm) == 0;
 #else
-	WaitForSingleObject(this->m_pSem, (DWORD)(sec / 1000.0f));
+	DWORD res = WaitForSingleObject(this->m_pSem, (DWORD)(sec / 1000.0f));
+	return (res != WAIT_FAILED && res != WAIT_TIMEOUT);
 #endif
 }
 
@@ -855,7 +857,7 @@ int64 ThreadInterlockedCompareExchange64( int64 volatile *pDest, int64 value, in
 		: "m"(comperand), "m"(value), "m"(pDest)
 		: "eax", "ebx", "ecx", "edx", "edi", "esi"
 	);
-	return (int64)ret;
+	return *(int64*)ret;
 #endif //_MSC_VER
 #endif
 }
