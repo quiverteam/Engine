@@ -15,7 +15,7 @@
 #include "inputsystem/InputEnums.h"
 #include "mathlib/mathlib.h"
 
-#ifndef USE_OLD_INPUTSYSTEM
+#if defined(USE_NEW_INPUTSYSTEM) && !defined(USE_OLD_INPUTSYSTEM)
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_scancode.h>
 
