@@ -31,20 +31,24 @@
 #include <immintrin.h>
 #else
 
-/* Disabled for mingw since mingw's headers will automatically include avx shit */
-#if (!defined(__GNUC__) && defined(_WIN32)) || defined(_POSIX)
 /* These are thrown in because immintrin introduces a bunch of ABI changes we don't want when not using AVX2 */
 typedef union
 {
 	float f32[8];
 	uint32 u32[8];
-} __m256;
+} __m256_t;
 
 typedef union
 {
 	double f64[4];
 	uint64 u64[4];
-} __m256d;
+} __m256d_t;
+
+/* Disabled for mingw since mingw's headers will automatically include avx shit */
+#if (!defined(__GNUC__) && defined(_WIN32)) || defined(_POSIX)
+/* These are thrown in because immintrin introduces a bunch of ABI changes we don't want when not using AVX2 */
+typedef __m256_t __m256;
+typedef __m256d_t __m256d;
 #endif //_WIN32 && __GNUC__
 
 #endif //_USE_AVX
@@ -75,10 +79,17 @@ typedef __m128 i32x4;
 typedef __m128 u32x4;
 typedef __m128d fltdx4;
 
+#ifdef USE_AVX
 typedef __m256 fltx8;
 typedef __m256 i32x8;
 typedef __m256 u32x8;
 typedef __m256d fltdx8;
+#else
+typedef __m256_t fltx8;
+typedef __m256_t i32x8;
+typedef __m256_t u32x8;
+typedef __m256d_t fltdx8;
+#endif
 
 #endif //USE_STDC_FOR_SIMD
 
