@@ -44,7 +44,7 @@ set(DEPENDENCIES		tier1 tier0)
 set(LINK_LIBS	)
 
 # Platform specific link libs
-set(WINDOWS_LINK_LIBS	odbc32.lib odbccp32.lib)
+set(WINDOWS_LINK_LIBS	odbc32 odbccp32)
 set(WIN32_LINK_LIBS		)
 set(WIN64_LINK_LIBS		)
 set(POSIX32_LINK_LIBS	)
