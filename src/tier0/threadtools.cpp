@@ -1836,7 +1836,7 @@ unsigned __stdcall CThread::ThreadProc(LPVOID pv)
 #ifdef _LINUX
   ThreadInit_t *pInit = (ThreadInit_t *)pv;
 #else
-	std::auto_ptr<ThreadInit_t> pInit((ThreadInit_t *)pv);
+	std::unique_ptr<ThreadInit_t> pInit((ThreadInit_t *)pv);
 #endif
 
 	CThread *pThread = pInit->pThread;
