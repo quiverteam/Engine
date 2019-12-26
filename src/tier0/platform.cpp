@@ -36,6 +36,11 @@ static LARGE_INTEGER g_PerformanceFrequency;
 static LARGE_INTEGER g_MSPerformanceFrequency;
 static LARGE_INTEGER g_ClockStart;
 
+/* Mingw does not have this */
+#if defined(__GNUC__) && defined(_WIN32)
+#define IsWindows10OrGreater() false
+#endif
+
 static void InitTime()
 {
 	if( !g_PerformanceFrequency.QuadPart )
@@ -284,7 +289,7 @@ PLATFORM_INTERFACE void* Plat_FindProc(void* module_handle, const char* sym_name
 {
 	Assert(module_handle != NULL);
 	Assert(sym_name != NULL);
-	return GetProcAddress((HMODULE)module_handle, sym_name);
+	return (void*)GetProcAddress((HMODULE)module_handle, sym_name);
 }
 
 PLATFORM_INTERFACE bool Plat_CWD(char* outname, size_t outSize)
