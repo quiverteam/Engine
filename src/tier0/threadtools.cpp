@@ -88,11 +88,7 @@ ThreadHandle_t CreateSimpleThread( ThreadFunc_t pfnThread, void *pParam, ThreadI
 	ThreadId_t idIgnored;
 	if ( !pID )
 		pID = &idIgnored;
-	#ifdef PLATFORM_32BITS
-	return (ThreadHandle_t)VCRHook_CreateThread(NULL, stackSize, (unsigned)ThreadProcConvert, new ThreadProcInfo_t(pfnThread, pParam), 0, pID);
-	#else
-	return (ThreadHandle_t)VCRHook_CreateThread(NULL, stackSize, (unsigned long long)ThreadProcConvert, new ThreadProcInfo_t(pfnThread, pParam), 0, pID);
-	#endif
+	return (ThreadHandle_t)VCRHook_CreateThread(NULL, stackSize, (void*)ThreadProcConvert, new ThreadProcInfo_t(pfnThread, pParam), 0, pID);
 #elif _POSIX
 	pthread_t tid;
 	pthread_create(&tid, NULL, ThreadProcConvert, new ThreadProcInfo_t( pfnThread, pParam ) );
@@ -1504,7 +1500,7 @@ bool CThread::Start( unsigned nBytesStack )
 	ThreadInit_t init = { this, &createComplete, &bInitSuccess };
 	m_hThread = hThread = (HANDLE)VCRHook_CreateThread( NULL,
 														nBytesStack,
-														GetThreadProc(),
+														(void*)GetThreadProc(),
 														new ThreadInit_t(init),
 														0,
 														&m_threadId );
