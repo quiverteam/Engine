@@ -5,14 +5,16 @@
 #
 project(engine C CXX)
 
+include(EngineFiles.cmake)
+
 # Platform specific sources
 set(WINDOWS_SRCS	)
 set(POSIX_SRCS		)
 
-set(SRCS			)
+set(SRCS			${ENGINE_SRCS})
 
-file(GLOB SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/ *.c *.cpp)
-list(APPEND SRCS ${SOURCES})
+#file(GLOB SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/ *.c *.cpp)
+#list(APPEND SRCS ${SOURCES})
 
 # Preprocessor defs
 set(DEFINES			-DUSE_CONVARS
@@ -64,15 +66,15 @@ set(DEPENDENCIES 		vstdlib
 						Dmxloader)
 
 # Platform specific link libs
-set(WINDOWS_LINK_LIBS	dinput8.lib
-						winmm.lib
-						wsock32.lib
-						ws2_32.lib
-						wininet.lib
-						vfw32.lib
-						Rpcrt4.lib
-						dsound.lib
-						dxguid.lib)
+set(WINDOWS_LINK_LIBS	dinput8
+						winmm
+						wsock32
+						ws2_32
+						wininet
+						vfw32
+						rpcrt4
+						dsound
+						dxguid)
 
 set(WIN32_LINK_LIBS		)
 set(WIN64_LINK_LIBS		)
