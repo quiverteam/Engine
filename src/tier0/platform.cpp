@@ -305,15 +305,24 @@ PLATFORM_INTERFACE bool Plat_GetCurrentDirectory(char* outname, size_t outSize)
 PLATFORM_INTERFACE bool Plat_GetExecutableDirectory(char* outpath, size_t len)
 {
 	Assert(outpath);
-	::GetModuleFileName(NULL, outpath, len);
+	DWORD chars = ::GetModuleFileName(NULL, outpath, len);
+	for(; chars >= 0; chars--){
+		if(outpath[chars] == '\\' || outpath[chars] == '/'){
+			outpath[chars] = '\0';
+			break;
+		}
+	}
 #ifdef _DEBUG
 	Assert(GetLastError() == ERROR_SUCCESS);
 #endif
+	return true;
 }
 
 PLATFORM_INTERFACE bool Plat_GetExecutablePath(char* outname, size_t len)
 {
 	Assert(outname);
+	::GetModuleFileName(NULL, (LPSTR)outname, (DWORD)len);
+	return true;
 }
 
 PLATFORM_INTERFACE int Plat_GetPriority(int pid)
