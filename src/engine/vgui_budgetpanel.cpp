@@ -1,4 +1,4 @@
-//===== Copyright © 1996-2005, Valve Corporation, All rights reserved. ======//
+//===== Copyright ï¿½ 1996-2005, Valve Corporation, All rights reserved. ======//
 //
 // Purpose: Does anyone ever read this?
 //
@@ -6,23 +6,23 @@
 
 #include "client_pch.h"
 
-#include "vgui_BudgetPanel.h"
-#include "vgui_controls/label.h"
+#include "vgui_budgetpanel.h"
+#include "vgui_controls/Label.h"
 #include "vgui_baseui_interface.h"
 #include "tier0/vprof.h"
 #include "tier0/fasttimer.h"
 #include "materialsystem/imaterialsystem.h"
-#include "vguimatsurface/imatsystemsurface.h"
-#include "vgui/ischeme.h"
+#include "VGuiMatSurface/IMatSystemSurface.h"
+#include "vgui/IScheme.h"
 #include "convar.h"
-#include "IVRenderView.h"
+#include "ivrenderview.h"
 #include "engine/ivmodelinfo.h"
 #include "mathlib/mathlib.h"
 #include "gl_cvars.h"
 #include "gl_matsysiface.h"
 #include "materialsystem/imaterialsystemhardwareconfig.h"
 #include "cmd.h"
-#include "vgui/ivgui.h"
+#include "vgui/IVGui.h"
 #include "vprof_engine.h"
 #include "ivprofexport.h"
 #include "vprof_record.h"

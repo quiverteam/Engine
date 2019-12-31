@@ -1,4 +1,4 @@
-//===== Copyright © 1996-2005, Valve Corporation, All rights reserved. ======//
+//===== Copyright ï¿½ 1996-2005, Valve Corporation, All rights reserved. ======//
 //
 // Purpose: 
 //
@@ -114,6 +114,8 @@
 #include "xbox/xbox_win32stubs.h"
 #include "audio_pch.h"
 #endif
+
+#undef AddJob
 
 
 #include "ixboxsystem.h"

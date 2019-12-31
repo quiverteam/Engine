@@ -1,4 +1,4 @@
-//====== Copyright © 1996-2005, Valve Corporation, All rights reserved. =======
+//====== Copyright ï¿½ 1996-2005, Valve Corporation, All rights reserved. =======
 //
 // Purpose: Core Movie Maker UI API
 //
@@ -19,7 +19,7 @@
 #include "toolutils/recentfilelist.h"
 #include "vgui/keycode.h"
 #include "vgui_controls/fileopenstatemachine.h"
-
+#include "mingw_off.h"
 
 // #defines
 #define TOGGLE_WINDOWED_KEY_CODE    KEY_F11

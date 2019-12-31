@@ -1,4 +1,4 @@
-//===== Copyright © 1996-2005, Valve Corporation, All rights reserved. ======//
+//===== Copyright ï¿½ 1996-2005, Valve Corporation, All rights reserved. ======//
 //
 // Purpose: 
 //
@@ -6,9 +6,9 @@
 
 #include "client_pch.h"
 
-#include "vgui_TextureBudgetPanel.h"
-#include "vgui_controls/label.h"
-#include "vguimatsurface/imatsystemsurface.h"
+#include "vgui_texturebudgetpanel.h"
+#include "vgui_controls/Label.h"
+#include "VGuiMatSurface/IMatSystemSurface.h"
 #include "vgui_baseui_interface.h"
 #include "ivideomode.h"
 

@@ -1,10 +1,10 @@
-//========= Copyright © 1996-2005, Valve Corporation, All rights reserved. ============//
+//========= Copyright (C) 1996-2005, Valve Corporation, All rights reserved. ============//
 //
 // Purpose: 
 //
 // $NoKeywords: $
 //
-//=============================================================================//
+//=======================================================================================//
 
 
 #if defined(_WIN32) && !defined(_X360)
@@ -409,6 +409,8 @@ void Sys_Error(const char *error, ...)
 	if ( !Plat_IsInDebugSession() && !CommandLine()->FindParm( "-nominidumps") )
 	{
 #ifndef NO_STEAM
+
+#ifndef __GNUC__
 		// MiniDumpWrite() has problems capturing the calling thread's context 
 		// unless it is called with an exception context.  So fake an exception.
 		__try
@@ -431,6 +433,8 @@ void Sys_Error(const char *error, ...)
 			
 			// We always get here because the above filter evaluates to EXCEPTION_EXECUTE_HANDLER
 		}
+#endif //__GNUC__
+
 #endif
 	}
 #endif

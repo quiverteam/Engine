@@ -302,7 +302,7 @@ CON_COMMAND(vprof_save_data, "Saves VProf output to a CSV file.")
 		return;
 	}
 
-	const char* fn = args.ArgV[0];
+	const char* fn = args.ArgV()[0];
 
 	Msg("Saving data...");
 

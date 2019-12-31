@@ -1,4 +1,4 @@
-//========= Copyright © 1996-2005, Valve Corporation, All rights reserved. ============//
+//========= Copyright ï¿½ 1996-2005, Valve Corporation, All rights reserved. ============//
 //
 // Purpose: 
 //
@@ -1334,7 +1334,7 @@ ICollideable *CEngineTraceClient::GetWorldCollideable()
 ICollideable *CEngineTraceServer::GetWorldCollideable()
 {
 	if (!sv.edicts)
-		return false;
+		return NULL;
 	return sv.edicts->GetCollideable();
 }
 

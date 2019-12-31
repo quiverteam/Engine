@@ -1,4 +1,4 @@
-//===== Copyright © 1996-2005, Valve Corporation, All rights reserved. ======//
+//===== Copyright ï¿½ 1996-2005, Valve Corporation, All rights reserved. ======//
 //
 // Purpose: 
 //
@@ -42,7 +42,7 @@
 #include "appframework/IAppSystemGroup.h"
 #include "tier0/systeminformation.h"
 #ifdef _WIN32
-#include "vguimatsurface/imatsystemsurface.h"
+#include "VGuiMatSurface/IMatSystemSurface.h"
 #endif
 
 // This is here just for legacy support of older .dlls!!!
@@ -51,9 +51,9 @@
 
 #ifndef SWDS
 #include "sys_mainwind.h"
-#include "vgui/isystem.h"
-#include "vgui_controls/controls.h"
-#include "igameuifuncs.h"
+#include "vgui/ISystem.h"
+#include "vgui_controls/Controls.h"
+#include "IGameUIFuncs.h"
 #include "cl_steamauth.h"
 
 #endif // SWDS
@@ -550,10 +550,14 @@ InitReturnVal_t CEngineAPI::Init()
 
 	// Initialize the FPU control word
 #if !defined( SWDS ) && ( !PLATFORM_64BITS )
+#ifdef __GNUC__
+	asm("fninit\n\t");
+#elif defined(_MSC_VER)
 	_asm
 	{
 		fninit
 	}
+#endif
 #endif
 
 	SetupFPUControlWord();

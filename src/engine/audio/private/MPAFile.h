@@ -1,4 +1,4 @@
-//====== Copyright © 1996-2005, Valve Corporation, All rights reserved. =======
+//====== Copyright ï¿½ 1996-2005, Valve Corporation, All rights reserved. =======
 //
 // Purpose: Uses mp3 code from:  http://www.codeproject.com/audio/MPEGAudioInfo.asp
 //
@@ -35,9 +35,9 @@ statically linked.
 
 #pragma once
 
-#include "vbrheader.h"
-#include "mpaheader.h"
-#include "FileSystem.h"
+#include "VBRHeader.h"
+#include "MPAHeader.h"
+#include "filesystem.h"
 
 // exception class
 class CMPAException

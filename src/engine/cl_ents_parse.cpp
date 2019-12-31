@@ -1,4 +1,4 @@
-//========= Copyright © 1996-2005, Valve Corporation, All rights reserved. ============//
+//========= Copyright ï¿½ 1996-2005, Valve Corporation, All rights reserved. ============//
 //
 // Purpose: Parsing of entity network packets.
 //
@@ -165,7 +165,7 @@ IClientNetworkable* CL_CreateDLLEntity( int iEnt, int iClass, int iSerialNum )
 	}
 
 	Assert(false);
-	return false;
+	return NULL;
 }
 
 void	SpewBitStream( unsigned char* pMem, int bit, int lastbit )
@@ -600,7 +600,8 @@ bool CL_ProcessPacketEntities ( SVC_PacketEntities *entmsg )
 		cl.CopyEntityBaseline( entmsg->m_nBaseline, nUpdateBaseline );
 
 		// send new baseline acknowledgement(as reliable)
-		cl.m_NetChannel->SendNetMsg( CLC_BaselineAck( cl.GetServerTickCount(), entmsg->m_nBaseline ), true );
+		auto msg = CLC_BaselineAck( cl.GetServerTickCount(), entmsg->m_nBaseline );
+		cl.m_NetChannel->SendNetMsg( msg, true );
 		
 	}
 

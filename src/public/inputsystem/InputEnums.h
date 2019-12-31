@@ -6,9 +6,7 @@
 
 #ifndef INPUTENUMS_H
 #define INPUTENUMS_H
-#ifdef _WIN32
 #pragma once
-#endif
 
 // Standard maximum +/- value of a joystick axis
 #define MAX_BUTTONSAMPLE			32768
@@ -92,6 +90,7 @@ enum InputEventType_t
 
 Variations of this structure:
 
+FOR ALL: IE_ButtonPressed, IE_ButtonReleased, IE_ButtonDoubleClicked
 struct ButtonInputEvent_t
 {
 	int m_nType;
@@ -101,12 +100,13 @@ struct ButtonInputEvent_t
 	int m_nData3;
 };
 
+FOR ALL: IE_AnalogValueChanged
 struct AnalogInputEvent_t
 {
 	int m_nType;
 	int m_nTick;
-	AnalogCode_t m_nData1;
-	int m_nData2;
+	AnalogCode_t m_nData1; <-- The controller/axis that changed
+	int m_nData2; <-- This is the new value
 	int m_nData3;
 };
 

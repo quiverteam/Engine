@@ -1,12 +1,12 @@
-//====== Copyright © 1996-2005, Valve Corporation, All rights reserved. =======
+//====== Copyright ï¿½ 1996-2005, Valve Corporation, All rights reserved. =======
 //
 // Purpose: 
 //
 //=============================================================================
 
 #include "winlite.h"
-#include "mpafile.h"
-#include "tier1/UtlRBTree.h"
+#include "MPAFile.h"
+#include "tier1/utlrbtree.h"
 
 extern IFileSystem *g_pFullFileSystem;
 

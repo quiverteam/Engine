@@ -1,8 +1,8 @@
-//====== Copyright © 1996-2004, Valve Corporation, All rights reserved. =======
+//====== Copyright (C) 1996-2004, Valve Corporation, All rights reserved. =======
 //
 // Purpose: 
 //
-//=============================================================================
+//===============================================================================
 
 #ifndef DMELEMENT_H
 #define DMELEMENT_H

@@ -1,4 +1,4 @@
-//========= Copyright © 1996-2005, Valve Corporation, All rights reserved. ============//
+//========= Copyright ï¿½ 1996-2005, Valve Corporation, All rights reserved. ============//
 //
 // Purpose: 
 //
@@ -23,7 +23,7 @@
 
 #if !defined( _X360 )
 #include "winlite.h"
-#include <WinInet.h>
+#include <wininet.h>
 #endif
 
 #include <assert.h>

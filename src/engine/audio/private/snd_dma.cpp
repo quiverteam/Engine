@@ -1,4 +1,4 @@
-//===== Copyright © 1996-2005, Valve Corporation, All rights reserved. ======//
+//===== Copyright ï¿½ 1996-2005, Valve Corporation, All rights reserved. ======//
 //
 // Purpose: Main control for any streaming sound output device.
 //
@@ -21,7 +21,7 @@
 #include "vaudio/ivaudio.h"
 #include "../../client.h"
 #include "../../cl_main.h"
-#include "UtlDict.h"
+#include "utldict.h"
 #include "mempool.h"
 #include "../../enginetrace.h"			// for traceline
 #include "../../public/bspflags.h"		// for traceline

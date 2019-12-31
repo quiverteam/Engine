@@ -1,4 +1,4 @@
-//===== Copyright © 1996-2005, Valve Corporation, All rights reserved. ======//
+//===== Copyright ï¿½ 1996-2005, Valve Corporation, All rights reserved. ======//
 //
 // Purpose:  implementation of the rcon client
 //
@@ -32,7 +32,7 @@
 #include "proto_oob.h" // PORT_RCON define
 #include "cmd.h"
 #include "tier2/fileutils.h"
-#include "zip/xunzip.h"
+#include "zip/XUnzip.h"
 
 
 #if defined( _X360 )

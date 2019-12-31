@@ -1,4 +1,4 @@
-//========= Copyright © 1996-2005, Valve Corporation, All rights reserved. ============//
+//========= Copyright ï¿½ 1996-2005, Valve Corporation, All rights reserved. ============//
 //
 // Purpose: 
 //
@@ -7,11 +7,11 @@
 #include "client_pch.h"
 
 #include "vgui_helpers.h"
-#include <vgui_controls/treeview.h>
-#include <vgui_controls/listpanel.h>
-#include <vgui/ilocalize.h>
-#include <vgui/isystem.h>
-#include "keyvalues.h"
+#include <vgui_controls/TreeView.h>
+#include <vgui_controls/ListPanel.h>
+#include <vgui/ILocalize.h>
+#include <vgui/ISystem.h>
+#include "KeyValues.h"
 #include "convar.h"
 
 // memdbgon must be the last include file in a .cpp file!!!

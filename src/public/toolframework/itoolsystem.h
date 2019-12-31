@@ -1,4 +1,4 @@
-//====== Copyright © 1996-2005, Valve Corporation, All rights reserved. =======
+//====== Copyright ï¿½ 1996-2005, Valve Corporation, All rights reserved. =======
 //
 // Purpose: 
 //
@@ -14,6 +14,7 @@
 #include "interface.h"
 #include "materialsystem/imaterialproxy.h"
 #include "inputsystem/iinputsystem.h"
+#include "mingw_off.h"
 
 class KeyValues;
 struct SpatializationInfo_t;

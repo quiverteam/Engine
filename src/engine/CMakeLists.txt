@@ -89,6 +89,7 @@ set(INCLUDE_DIRS		${PUBLIC_INCLUDE}/tier1
 						${PUBLIC_INCLUDE}/tier2
 						${ROOT_DIR}/vgui2/include
 						${ROOT_DIR}/vgui2/controls/
+						${ROOT_DIR}/engine/
 						${CMAKE_CURRENT_SOURCE_DIR}/audio/
 						${CMAKE_CURRENT_SOURCE_DIR}/audio/private
 						${CMAKE_CURRENT_SOURCE_DIR}/audio/public)

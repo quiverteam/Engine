@@ -1,11 +1,11 @@
-//====== Copyright © 1996-2005, Valve Corporation, All rights reserved. =======
+//====== Copyright ï¿½ 1996-2005, Valve Corporation, All rights reserved. =======
 //
 // Purpose: 
 //
 //=============================================================================
 
 #include "audio_pch.h"
-#include "mpafile.h"	// also includes vbrheader.h
+#include "MPAFile.h"	// also includes vbrheader.h
 #include "tier0/dbg.h"
 
 #ifndef MAKEFOURCC

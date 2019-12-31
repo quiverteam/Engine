@@ -1,4 +1,4 @@
-//========= Copyright © 1996-2005, Valve Corporation, All rights reserved. ============//
+//========= Copyright ï¿½ 1996-2005, Valve Corporation, All rights reserved. ============//
 //
 // Purpose: 
 //
@@ -16,13 +16,12 @@
 
 #include <time.h>
 #include <direct.h>
-
 #include "client.h"
 #include <vgui_controls/Frame.h>
 #include <vgui/ISystem.h>
 #include <vgui/ISurface.h>
 #include <vgui/IInput.h>
-#include <vgui/IVgui.h>
+#include <vgui/IVGui.h>
 #include <KeyValues.h>
 #include <vgui_controls/BuildGroup.h>
 #include <vgui_controls/Tooltip.h>
@@ -44,7 +43,7 @@
 #include "cl_main.h"
 #include "gl_model_private.h"
 #include "tier2/tier2.h"
-#include "tier1/UtlString.h"
+#include "tier1/utlstring.h"
 #include "tier1/callqueue.h"
 #include "vstdlib/jobthread.h"
 
@@ -60,13 +59,18 @@
 #include "net.h"
 #include "host_phonehome.h"
 #include "tier0/icommandline.h"
+//------------------------------------------------------------------//
+// TODO: This is horrible. Thanks valve
+#undef min
+#undef max
 #include "stdstring.h"
+//------------------------------------------------------------------//
 #include "sv_main.h"
 #include "server.h"
 #include "eiface.h"
 #include "gl_matsysiface.h"
 #include "materialsystem/imaterialsystemhardwareconfig.h"
-#include "steam.h"
+#include "Steam.h"
 #include "FindSteamServers.h"
 #include "vstdlib/random.h"
 #ifndef SWDS

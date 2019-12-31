@@ -1,4 +1,4 @@
-//====== Copyright © 1996-2004, Valve Corporation, All rights reserved. =======
+//====== Copyright ï¿½ 1996-2004, Valve Corporation, All rights reserved. =======
 //
 // Purpose: 
 //
@@ -19,6 +19,7 @@
 #include "mathlib/vector.h"
 #include "mathlib/vector4d.h"
 #include "mathlib/vmatrix.h"
+#include "datamodel/dmattribute.h"
 #include "datamodel/dmelement.h"
 
 template< class C, bool D > class CDmeHandle;
@@ -434,19 +435,19 @@ public:
 #define DECLARE_ATTRIBUTE_ARRAY_REFERENCE( _className, _elementType )	\
 	public:																\
 		_className() {}													\
-		_className( CDmAttribute* pAttribute ) { Init( pAttribute ); }	\
-		_className( CDmElement *pElement, const char *pAttributeName, bool bAddAttribute = false ) { Init( pElement, pAttributeName, bAddAttribute ); } \
-		_className( CDmaArray<_className>& var ) { Init( var.GetAttribute() ); } \
-		_className( CDmrArray<_className>& var ) { Init( var.GetAttribute() ); }
+		_className( CDmAttribute* pAttribute ) { _className::Init( pAttribute ); }	\
+		_className( CDmElement *pElement, const char *pAttributeName, bool bAddAttribute = false ) { _className::Init( pElement, pAttributeName, bAddAttribute ); } \
+		_className( CDmaArray<_className>& var ) { _className::Init( var.GetAttribute() ); } \
+		_className( CDmrArray<_className>& var ) { _className::Init( var.GetAttribute() ); }
 
 #define DECLARE_ATTRIBUTE_ARRAY_CONST_REFERENCE( _className, _elementType )	\
 	public:																	\
 		_className() {}														\
-		_className( const CDmAttribute* pAttribute ) { Init( pAttribute ); } \
-		_className( const CDmElement *pElement, const char *pAttributeName ) { Init( pElement, pAttributeName ); } \
-		_className( const CDmaArray<_className>& var ) { Init( var.GetAttribute() ); } \
-		_className( const CDmrArrayConst<_className>& var ) { Init( var.GetAttribute() ); } \
-		_className( const CDmrArray<_className>& var ) { Init( var.GetAttribute() ); }
+		_className( const CDmAttribute* pAttribute ) { _className::Init( pAttribute ); } \
+		_className( const CDmElement *pElement, const char *pAttributeName ) { _className::Init( pElement, pAttributeName ); } \
+		_className( const CDmaArray<_className>& var ) { _className::Init( var.GetAttribute() ); } \
+		_className( const CDmrArrayConst<_className>& var ) { _className::Init( var.GetAttribute() ); } \
+		_className( const CDmrArray<_className>& var ) { _className::Init( var.GetAttribute() ); }
 
 template<class T> class CDmrArray;
 template<class T> class CDmrArrayConst;
@@ -649,7 +650,7 @@ public:
 		else
 		{
 			this->m_pAttribute = NULL;
-			Attach( NULL );
+			E::Attach( NULL );
 		}
 	}
 
@@ -708,7 +709,7 @@ public:
 		else
 		{
 			this->m_pAttribute = NULL;
-			Attach( NULL );
+			T::Attach( NULL );
 		}
 	}
 
@@ -1154,7 +1155,7 @@ inline void CDmaElement<T>::Init( CDmElement *pOwner, const char *pAttributeName
 template <class T>
 inline UtlSymId_t CDmaElement<T>::GetElementType() const
 {
-	return Data().m_ElementType;
+	return T::Data().m_ElementType;
 }
 
 template <class T>
@@ -1199,55 +1200,55 @@ inline bool CDmaElement<T>::operator!() const
 template< class T, class B >
 inline const CUtlVector<T>& CDmaArrayConstBase<T,B>::Get() const
 {
-	return Value();
+	return T::Value();
 }
 
 template< class T, class B >
 inline const T *CDmaArrayConstBase<T,B>::Base() const
 {
-	return Value().Base();
+	return B::Value().Base();
 }
 
 template< class T, class B >
 inline const T& CDmaArrayConstBase<T,B>::operator[]( int i ) const
 {
-	return Value()[ i ];
+	return T::Value()[ i ];
 }
 
 template< class T, class B >
 const T& CDmaArrayConstBase<T,B>::Element( int i ) const
 {
-	return Value()[ i ];
+	return T::Value()[ i ];
 }
 
 template< class T, class B >
 inline const T& CDmaArrayConstBase<T,B>::Get( int i ) const
 {
-	return Value()[ i ];
+	return T::Value()[ i ];
 }
 
 template< class T, class B >
 const void* CDmaArrayConstBase<T,B>::GetUntyped( int i ) const
 {
-	return &( Value()[ i ] );
+	return &( T::Value()[ i ] );
 }
 
 template< class T, class B >
 inline int CDmaArrayConstBase<T,B>::Count() const
 {
-	return Value().Count();
+	return B::Value().Count();
 }
 
 template< class T, class B >
 inline bool CDmaArrayConstBase<T,B>::IsValidIndex( int i ) const
 {
-	return Value().IsValidIndex( i );
+	return T::Value().IsValidIndex( i );
 }
 
 template< class T, class B >
 inline int CDmaArrayConstBase<T,B>::InvalidIndex( void ) const
 {
-	return Value().InvalidIndex();
+	return T::Value().InvalidIndex();
 }
 
 template< class T, class B >
@@ -1293,32 +1294,32 @@ inline const CDmAttribute *CDmaArrayBase<T,B>::GetAttribute() const
 template< class B >
 inline const char *CDmaStringArrayConstBase<B>::operator[]( int i ) const
 {
-	return Value()[ i ].Get();
+	return B::Value()[ i ].Get();
 }
 
 template< class B >
 inline const char *CDmaStringArrayConstBase<B>::Element( int i ) const
 {
-	return Value()[ i ].Get();
+	return B::Value()[ i ].Get();
 }
 
 template< class B >
 inline const char *CDmaStringArrayConstBase<B>::Get( int i ) const
 {
-	return Value()[ i ].Get();
+	return B::Value()[ i ].Get();
 }
 
 template< class B >
 inline const CUtlVector< CUtlString > &CDmaStringArrayConstBase<B>::Get() const
 {
-	return Value();
+	return B::Value();
 }
 
 // Returns strlen of element i
 template< class B >
 inline int CDmaStringArrayConstBase<B>::Length( int i ) const
 {
-	return Value()[i].Length();
+	return B::Value()[i].Length();
 }
 
 template< class B >
@@ -1352,37 +1353,37 @@ inline int CDmaStringArrayBase<B>::InsertBefore( int elem, const char *pValue )
 template< class E, class B > 
 inline UtlSymId_t CDmaElementArrayConstBase<E,B>::GetElementType() const
 {
-	return Data().m_ElementType;
+	return E::Data().m_ElementType;
 }
 
 template< class E, class B >
 inline E *CDmaElementArrayConstBase<E,B>::operator[]( int i ) const
 {
-	return GetElement<E>( Value()[i] );
+	return B::GetElement( E::Value()[i] );
 }
 
 template< class E, class B >
 inline E *CDmaElementArrayConstBase<E,B>::Element( int i ) const
 {
-	return GetElement<E>( Value()[i] );
+	return B::GetElement( E::Value()[i] );
 }
 
 template< class E, class B >
 inline E *CDmaElementArrayConstBase<E,B>::Get( int i ) const
 {
-	return GetElement<E>( Value()[i] );
+	return B::GetElement( E::Value()[i] );
 }
 
 template< class E, class B >
 inline const DmElementHandle_t& CDmaElementArrayConstBase<E,B>::GetHandle( int i ) const
 {
-	return Value()[i];
+	return E::Value()[i];
 }
 
 template< class E, class B >
 inline const CUtlVector< DmElementHandle_t > &CDmaElementArrayConstBase<E,B>::Get() const
 {
-	return Value();
+	return E::Value();
 }
 
 // Search

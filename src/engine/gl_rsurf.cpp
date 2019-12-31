@@ -1,4 +1,4 @@
-//===== Copyright © 1996-2007, Valve Corporation, All rights reserved. ======//
+//===== Copyright ï¿½ 1996-2007, Valve Corporation, All rights reserved. ======//
 //
 // Purpose: 
 //
@@ -48,7 +48,7 @@
 #include "coordsize.h"
 #include "mempool.h"
 #ifndef SWDS
-#include "overlay.h"
+#include "Overlay.h"
 #endif
 
 // memdbgon must be the last include file in a .cpp file!!!

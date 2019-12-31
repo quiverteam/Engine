@@ -1,11 +1,11 @@
-//===== Copyright © 1996-2005, Valve Corporation, All rights reserved. ======//
+//===== Copyright (C) 1996-2005, Valve Corporation, All rights reserved. ======//
 //
 // Purpose: 
 //
 // $Workfile:     $
 // $Date:         $
 // $NoKeywords: $
-//===========================================================================//
+//=============================================================================//
 
 // wrapper for the material system for the engine.
 
@@ -32,7 +32,6 @@
 #include "vgui/ISystem.h"
 #include <vgui_controls/Controls.h>
 
-
 extern ConVar developer;
 #ifdef _WIN32
 #include <crtdbg.h>
@@ -40,6 +39,7 @@ extern ConVar developer;
 
 // memdbgon must be the last include file in a .cpp file!!!
 #include "tier0/memdbgon.h"
+#include "mingw_off.h" //actually....mingw_off.h must be the last include
 
 #ifndef SWDS
 extern IMaterialSystem *materials;

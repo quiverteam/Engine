@@ -1,4 +1,4 @@
-//========= Copyright © 1996-2005, Valve Corporation, All rights reserved. ============//
+//========= Copyright ï¿½ 1996-2005, Valve Corporation, All rights reserved. ============//
 //
 // Purpose: 
 //
@@ -306,7 +306,8 @@ bool CClientState::SetSignonState ( int state, int count )
 	if ( state >= SIGNONSTATE_CONNECTED )
 	{
 		// tell server that we entered now that state
-		m_NetChannel->SendNetMsg( NET_SignonState( state, count) );
+		auto msg = NET_SignonState( state, count);
+		m_NetChannel->SendNetMsg( msg );
 	}
 
 	return true;
@@ -1660,7 +1661,8 @@ void CClientState::FinishSignonState_New()
 	CL_SetSteamCrashComment();
 
 	// tell server that we entered now that state
-	m_NetChannel->SendNetMsg( NET_SignonState( m_nSignonState, m_nServerCount ) );
+	auto msg = NET_SignonState( m_nSignonState, m_nServerCount );
+	m_NetChannel->SendNetMsg( msg );
 }
 
 

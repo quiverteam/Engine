@@ -1,4 +1,4 @@
-//========= Copyright © 1996-2005, Valve Corporation, All rights reserved. ============//
+//========= Copyright (C) 1996-2005, Valve Corporation, All rights reserved. ============//
 //
 // Purpose: 
 //
@@ -76,6 +76,10 @@ BEGIN_BYTESWAP_DATADESC( ZIP_PreloadDirectoryEntry )
 	DEFINE_FIELD( Length, FIELD_INTEGER ),
 	DEFINE_FIELD( DataOffset, FIELD_INTEGER ),
 END_BYTESWAP_DATADESC()
+
+#ifndef INVALID_HANDLE_VALUE
+#define INVALID_HANDLE_VALUE (void*)-1
+#endif
 
 //-----------------------------------------------------------------------------
 // For >2 GB File Support

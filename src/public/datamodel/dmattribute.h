@@ -1,4 +1,4 @@
-//====== Copyright © 1996-2004, Valve Corporation, All rights reserved. =======
+//====== Copyright ï¿½ 1996-2004, Valve Corporation, All rights reserved. =======
 //
 // Purpose: 
 //
@@ -6,15 +6,14 @@
 
 #ifndef DMATTRIBUTE_H
 #define DMATTRIBUTE_H
-#ifdef _WIN32
 #pragma once
-#endif
 
 #include "datamodel/attributeflags.h"
 #include "datamodel/idatamodel.h"
 #include "datamodel/dmattributetypes.h"
 #include "datamodel/dmvar.h"
 #include "tier1/utlhash.h"
+#include "datamodel/dmelement.h"
 
 //-----------------------------------------------------------------------------
 // Forward declarations
@@ -292,7 +291,7 @@ inline E* CDmAttribute::GetValueElement() const
 {
 	Assert( GetType() == AT_ELEMENT );
 	if ( GetType() == AT_ELEMENT )
-		return GetElement<E>( this->GetValue<DmElementHandle_t>( ) );
+		return E::GetElement( this->GetValue<DmElementHandle_t>( ) );
 	return NULL;
 }
 #endif

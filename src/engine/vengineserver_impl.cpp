@@ -1,4 +1,4 @@
-//===== Copyright © 1996-2005, Valve Corporation, All rights reserved. ======//
+//===== Copyright ï¿½ 1996-2005, Valve Corporation, All rights reserved. ======//
 //
 // Purpose: 
 //
@@ -6,7 +6,6 @@
 // $NoKeywords: $
 //===========================================================================//
 #include "server_pch.h"
-#include <algorithm>
 #include "vengineserver_impl.h"
 #include "vox.h"
 #include "sound.h"
@@ -42,6 +41,10 @@
 #include "host_phonehome.h"
 #include "matchmaking.h"
 #include "sv_plugin.h"
+
+#undef min
+#undef max
+#include <algorithm>
 
 // memdbgon must be the last include file in a .cpp file!!!
 #include "tier0/memdbgon.h"

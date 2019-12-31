@@ -1,4 +1,4 @@
-//===== Copyright © 1996-2005, Valve Corporation, All rights reserved. ======//
+//===== Copyright ï¿½ 1996-2005, Valve Corporation, All rights reserved. ======//
 //
 // Purpose: Implements all the functions exported by the GameUI dll
 //
@@ -83,7 +83,7 @@
 #include <vgui_controls/Menu.h>
 #include <vgui_controls/PHandle.h>
 
-#include "ivguimodule.h"
+#include "IVguiModule.h"
 #include "vgui_baseui_interface.h"
 #include "vgui_DebugSystemPanel.h"
 #include "toolframework/itoolframework.h"

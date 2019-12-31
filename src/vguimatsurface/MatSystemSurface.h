@@ -1,4 +1,4 @@
-//===== Copyright © 1996-2005, Valve Corporation, All rights reserved. ======//
+//===== Copyright ï¿½ 1996-2005, Valve Corporation, All rights reserved. ======//
 //
 // Purpose: 
 //
@@ -19,14 +19,14 @@
 #include <vgui/IInput.h>
 #include <vgui_controls/Controls.h>
 #include <vgui/Point.h>
-#include "materialsystem/IMaterialSystem.h"
+#include "materialsystem/imaterialsystem.h"
 #include "VGuiMatSurface/IMatSystemSurface.h"
-#include "materialsystem/IMesh.h"
-#include "materialsystem/IMaterial.h"
-#include "UtlVector.h"
-#include "UtlSymbol.h"
-#include "materialsystem/materialsystemutil.h"
-#include "tier1/UtlDict.h"
+#include "materialsystem/imesh.h"
+#include "materialsystem/imaterial.h"
+#include "utlvector.h"
+#include "utlsymbol.h"
+#include "materialsystem/MaterialSystemUtil.h"
+#include "tier1/utldict.h"
 #include "tier3/tier3.h"
 
 

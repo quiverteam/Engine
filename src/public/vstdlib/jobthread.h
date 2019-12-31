@@ -55,9 +55,9 @@
 #define JOB_CLASS		DLL_CLASS_IMPORT
 #endif
 
-#if defined( _WIN32 )
 #pragma once
-#endif
+
+#undef Yield
 
 //-----------------------------------------------------------------------------
 // 

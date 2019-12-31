@@ -1,4 +1,4 @@
-//========= Copyright © 1996-2005, Valve Corporation, All rights reserved. ============//
+//========= Copyright ï¿½ 1996-2005, Valve Corporation, All rights reserved. ============//
 //
 // Purpose: 
 //
@@ -7,7 +7,7 @@
 //=============================================================================//
 
 #include "audio_pch.h"
-#include "CircularBuffer.h"
+#include "circularbuffer.h"
 #include "voice.h"
 #include "voice_wavefile.h"
 #include "r_efx.h"
@@ -18,8 +18,8 @@
 #include "ivoicerecord.h"
 #include "ivoicecodec.h"
 #include "filesystem.h"
-#include "../../FileSystem_Engine.h"
-#include "tier1/UtlBuffer.h"
+#include "../../filesystem_engine.h"
+#include "tier1/utlbuffer.h"
 #if defined( _X360 )
 #include "xauddefs.h"
 #endif

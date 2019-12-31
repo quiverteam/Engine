@@ -1,4 +1,4 @@
-//===== Copyright © 1996-2005, Valve Corporation, All rights reserved. ======//
+//===== Copyright ï¿½ 1996-2005, Valve Corporation, All rights reserved. ======//
 //
 // Purpose: VGUI scoreboard
 //
@@ -10,7 +10,7 @@
 #include "client_pch.h"
 #include "vgui_vprofpanel.h"
 #include <KeyValues.h>
-#include "vgui_BudgetPanel.h"
+#include "vgui_budgetpanel.h"
 #include "vprof_engine.h"
 #include "vprof_record.h"
 #include "ivideomode.h"
@@ -944,20 +944,26 @@ int CVProfPanel::UpdateVProfTreeEntry( KeyValues *pKeyValues, CVProfNode *pNode,
 	// Apply color to the item
 	int r,g,b,a;
 	m_pVProfile->GetBudgetGroupColor( pNode->GetBudgetGroupID(), r, g, b, a );
-	m_pHierarchy->SetItemColors( id, Color( r, g, b, a ), Color( 0, 0, 0, 255 ) );
+	auto color = Color(r,g,b,a);
+	auto color2 = Color(0,0,0,255);
+	m_pHierarchy->SetItemColors( id, color, color2 );
 
 	if( pNode->GetBudgetGroupID() == VPROF_BUDGET_GROUP_ID_UNACCOUNTED )
 	{
 		if ( curTimeLessChildren > vprof_unaccounted_limit.GetFloat() )
 		{
-			m_pHierarchy->SetItemColors( id, Color( 255, 0, 0, 255 ), Color( 0, 0, 0, 255 ) );
+			color = Color(255,0,0,255);
+			color2 = Color(0,0,0,255);
+			m_pHierarchy->SetItemColors( id, color, color2 );
 		}
 	}
 
 	if ( pNode->GetCurTime() > vprof_warningmsec.GetFloat() ||
 		 curTimeLessChildren > vprof_warningmsec.GetFloat() )
 	{
-		m_pHierarchy->SetItemColumnColors( id, 2, Color( 255, 0, 0, 255 ), Color( 63, 0, 0, 255 ) );
+		color = Color(255,0,0,255);
+		color2 = Color(63,0,0,255);
+		m_pHierarchy->SetItemColumnColors( id, 2, color, color2 );
 	}
 	return id;
 }
@@ -1042,7 +1048,9 @@ void CVProfPanel::UpdateProfile( float filteredtime )
 			CProfileHierarchyPanel::ColumnPanels_t cp;
 			AddColumns( cp );
 			m_RootItem = m_pHierarchy->AddItem( pVal, -1, cp );
-			m_pHierarchy->SetItemColors( m_RootItem, Color( 255, 255, 255, 255 ), Color( 0, 0, 0, 255 ) );
+			auto color = Color(255,255,255,255);
+			auto color2 = Color(0,0,0,255);
+			m_pHierarchy->SetItemColors( m_RootItem, color, color2 );
 			m_pHierarchy->ExpandItem( m_RootItem, true );
 		}
 

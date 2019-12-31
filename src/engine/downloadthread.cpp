@@ -1,10 +1,10 @@
-//========= Copyright © 1996-2005, Valve Corporation, All rights reserved. ============//
+//========= Copyright (C) 1996-2005, Valve Corporation, All rights reserved. ============//
 //
 // Purpose: 
 //
 // $NoKeywords: $
 //
-//=============================================================================//
+//======================================================================================//
 //--------------------------------------------------------------------------------------------------------------
 // downloadthread.cpp
 // 
@@ -20,7 +20,7 @@
 
 #if !defined( _X360 )
 #include "winlite.h"
-#include <WinInet.h>
+#include <wininet.h>
 #endif
 #include <assert.h>
 #include <sys/stat.h>
@@ -195,7 +195,7 @@ void ReadData( RequestContext& rc )
 		{
 			// We've read some data.  Make sure we won't walk off the end of our buffer, then
 			// use memcpy() to save the data off.
-			DWORD safeSize = (DWORD) min( rc.nBytesTotal - rc.nBytesCurrent, (int)dwSize );
+			DWORD safeSize = (DWORD) min( rc.nBytesTotal - rc.nBytesCurrent, (DWORD)dwSize );
 			//Thread_DPrintf( "Read %d bytes @ offset %d\n", safeSize, rc.nBytesCurrent );
 			if ( safeSize != dwSize )
 			{

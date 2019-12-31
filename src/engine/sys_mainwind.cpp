@@ -1,4 +1,4 @@
-//===== Copyright © 1996-2005, Valve Corporation, All rights reserved. ======//
+//===== Copyright ï¿½ 1996-2005, Valve Corporation, All rights reserved. ======//
 //
 // Purpose: 
 //
@@ -30,16 +30,16 @@
 #include "iengine.h"
 #include "video/iavi.h"
 #include "keys.h"
-#include "vguimatsurface/imatsystemsurface.h"
+#include "VGuiMatSurface/IMatSystemSurface.h"
 #include "tier3/tier3.h"
 #include "sound.h"
 #include "vgui_controls/Controls.h"
-#include "vgui_controls/messagedialog.h"
+#include "vgui_controls/MessageDialog.h"
 #include "sys_dll.h"
 #include "inputsystem/iinputsystem.h"
 #include "inputsystem/ButtonCode.h"
 #include "unicode/unicode.h"
-#include "gameui/igameui.h"
+#include "GameUI/IGameUI.h"
 #include "matchmaking.h"
 #include "sv_main.h"
 

@@ -1,4 +1,4 @@
-//========= Copyright © 1996-2005, Valve Corporation, All rights reserved. ============//
+//========= Copyright ï¿½ 1996-2005, Valve Corporation, All rights reserved. ============//
 //
 // Purpose: Portable code to mix sounds for snd_dma.cpp.
 //
@@ -19,6 +19,11 @@
 #if defined(_WIN32) && id386
 // warning C4731: frame pointer register 'ebp' modified by inline assembly code
 #pragma warning(disable : 4731)
+#endif
+
+// Undefine id386 because we dont want all the msvc inline assembly.
+#if defined(__GNUC__)
+#undef id386
 #endif
 
 // NOTE: !!!!!! YOU MUST UPDATE SND_MIXA.S IF THIS VALUE IS CHANGED !!!!!

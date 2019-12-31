@@ -1,4 +1,4 @@
-//========= Copyright © 1996-2005, Valve Corporation, All rights reserved. ============//
+//========= Copyright ï¿½ 1996-2005, Valve Corporation, All rights reserved. ============//
 //
 // Purpose: 
 //
@@ -17,6 +17,8 @@
 
 // memdbgon must be the last include file in a .cpp file!!!
 #include "tier0/memdbgon.h"
+
+#undef CreateEvent
 
 //////////////////////////////////////////////////////////////////////
 // Construction/Destruction
@@ -326,7 +328,7 @@ IGameEvent *CGameEventManager::CreateEvent( const char *name, bool bForce )
 	// event is known but no one listen to it
 	if ( descriptor->listeners.Count() == 0 && !bForce )
 	{
-		return false;
+		return NULL;
 	}
 
 	// create & return the new event 

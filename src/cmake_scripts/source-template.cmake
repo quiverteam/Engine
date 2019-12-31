@@ -3,15 +3,17 @@
 # Project script for Tier2 (Example)
 #
 #
-project(tier2 C CXX)
+project($$template C CXX)
 
-# Platform specific sources 
+# Platform specific sources
+# You can explicitly set platform sources using these
 set(WINDOWS_SRCS	)
 set(POSIX_SRCS	)
 
-# We need to append damn lzma shit
+# Sources for any platform go into this var
 set(SRCS	)
 
+# Remove if needed, this is a glob operation
 file(GLOB SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/ *.c *.cpp)
 list(APPEND SRCS ${SOURCES})
 
@@ -26,6 +28,7 @@ set(POSIX64_DEFINES	)
 set(WINDOWS_DEFINES	)
 set(POSIX_DEFINES	)
 
+# Defines for 32-bit or 64-bit platforms
 set(PLATFORM_64BIT_DEFINES	)
 set(PLATFORM_32BIT_DEFINES 	)
 
@@ -57,11 +60,16 @@ set(POSIX32_INCLUDE_DIRS	)
 set(POSIX64_INCLUDE_DIRS	)
 
 # Set the variable of target for stuff
-set(TARGET tier2)
+set(TARGET $$template)
 
 # Set the output file name
-set(OUTPUT_FILE_NAME tier2)
+set(OUTPUT_FILE_NAME $$template)
 
+
+#=========================================#
+# Use these only for libraries, if you want
+# to build an executable, use exe-base.cmake
+#=========================================#
 # If this is a shared lib
 set(SHARED_LIB 0)
 

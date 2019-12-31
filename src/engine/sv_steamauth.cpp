@@ -1,8 +1,8 @@
-//===== Copyright © 1996-2005, Valve Corporation, All rights reserved. ======//
+//===== Copyright (C) 1996-2005, Valve Corporation, All rights reserved. ======//
 //
 // Purpose: steam state machine that handles authenticating steam users
 //
-//===========================================================================//
+//=============================================================================//
 
 #ifdef _WIN32
 #if !defined( _X360 )
@@ -20,7 +20,7 @@
 #include "server.h"
 #include "proto_oob.h"
 #ifndef SWDS
-#include "steam.h"
+#include "Steam.h"
 #endif
 #include "host.h"
 #include "tier0/vcrmode.h"

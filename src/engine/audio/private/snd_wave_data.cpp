@@ -1,4 +1,4 @@
-//========= Copyright © 1996-2005, Valve Corporation, All rights reserved. ============//
+//========= Copyright ï¿½ 1996-2005, Valve Corporation, All rights reserved. ============//
 //
 // Purpose: 
 //
@@ -9,7 +9,7 @@
 #include "audio_pch.h"
 #include "datacache/idatacache.h"
 #include "utllinkedlist.h"
-#include "UtlDict.h"
+#include "utldict.h"
 #include "filesystem/IQueuedLoader.h"
 #include "cdll_int.h"
 
