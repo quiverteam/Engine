@@ -24,7 +24,20 @@
 #include <windows.h>
 #pragma warning(pop)
 #endif
+
+/* Undefine bad macros */
 #undef PostMessage
+#undef AddJob
+#undef SendMessage
+#undef GetCurrentTime
+#undef PlaySound
+#undef CreateFont
+#undef SetPort
+#undef CopyFile
+#undef MoveFile
+#undef MessageBox
+#undef DeleteFile
+#undef GetMessage
 
 #pragma warning( disable: 4800 )	// forcing value to bool 'true' or 'false' (performance warning)
 
