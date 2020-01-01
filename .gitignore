@@ -164,8 +164,9 @@ game/bin/linux64/
 game/bin/osx32/
 game/bin/osx64/
 
+# All build files
 src/build/
-
+cmake-build-*
 build/
 
 src/\.idea/
@@ -174,3 +175,4 @@ src/\.idea/
 .ycm_extra_conf.py
 .clang_complete
 .clangd
+compile_commands.json
