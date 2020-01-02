@@ -1221,7 +1221,7 @@ struct mstudio_modelvertexdata_t
 	inline void			SetVertexData( const mstudiovertex_t* p ) { intp* ptr = ( intp* )( ( ( byte* )this ) + pVertexData ); *ptr = ( intp )p; };
 	inline mstudiovertex_t*		VertexData( void ) const { intp* ptr = ( intp* )( ( ( byte* )this ) + pVertexData ); return ( mstudiovertex_t* )( *ptr ); };
 #else
-	inline void			SetVertexData( void* p ) { pVertexData = ( uint32 )p; };
+	inline void			SetVertexData( const mstudiovertex_t* p ) { pVertexData = ( uint32 )p; };
 	inline void*		VertexData( void ) const { return ( void* )pVertexData; };
 #endif
 	mutable uint32		pTangentData;
@@ -1230,7 +1230,7 @@ struct mstudio_modelvertexdata_t
 	inline void			SetTangentData( const Vector4D* p ) { intp* ptr = ( intp* )( ( ( byte* )this ) + pTangentData ); *ptr = ( intp )p; };
 	inline Vector4D*		TangentData( void ) const { intp* ptr = ( intp* )( ( ( byte* )this ) + pTangentData ); return ( Vector4D* )( *ptr ); };
 #else
-	inline void			SetTangentData( void* p ) { pTangentData = ( uint32 )p; };
+	inline void			SetTangentData( const Vector4D* p ) { pTangentData = ( uint32 )p; };
 	inline void*		TangentData( void ) const { return ( void* )pTangentData; };
 #endif
 };
@@ -2193,7 +2193,7 @@ struct studiohdr_t
 	inline MDLHandle_t		VirtualModel( void ) const { MDLHandle_t* ptr = ( MDLHandle_t* )( ( ( byte* )this ) + virtualModel ); return ( MDLHandle_t )( *ptr ); };
 #else
 	inline void			SetVirtualModel( void *p ) { virtualModel = ( uint32 )p; };
-	inline void*		VirtualModel( void ) { return ( void* )virtualModel; };
+	inline MDLHandle_t		VirtualModel( void ) const { return ( MDLHandle_t )virtualModel; };
 #endif
 	virtualmodel_t		*GetVirtualModel( void ) const;
 
