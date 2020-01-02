@@ -220,9 +220,8 @@ void MenuItem::OnCursorEntered()
 {
 	// post a message to the parent menu.
 	// forward the message on to the parent of this menu.
-	KeyValues *msg = new KeyValues ("CursorEnteredMenuItem");
+	KeyValues *msg = new KeyValues( "CursorEnteredMenuItem", "VPanel", GetVPanel() );
 	// tell the parent this menuitem is the one that was entered so it can highlight it
-	msg->SetInt("VPanel", GetVPanel());
 
 	ivgui()->PostMessage(GetVParent(), msg, NULL);
 }
@@ -234,9 +233,8 @@ void MenuItem::OnCursorExited()
 {
 	// post a message to the parent menu.
 	// forward the message on to the parent of this menu.
-	KeyValues *msg = new KeyValues ("CursorExitedMenuItem");
+	KeyValues *msg = new KeyValues( "CursorExitedMenuItem", "VPanel", GetVPanel() );
 	// tell the parent this menuitem is the one that was entered so it can unhighlight it
-	msg->SetInt("VPanel", GetVPanel());
 
 	ivgui()->PostMessage(GetVParent(), msg, NULL);
 }

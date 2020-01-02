@@ -3551,11 +3551,7 @@ void Panel::RequestFocus(int direction)
 //-----------------------------------------------------------------------------
 void Panel::OnRequestFocus(VPANEL subFocus, VPANEL defaultPanel)
 {
-#ifdef PLATFORM_64BITS
-	CallParentFunction( new KeyValues( "OnRequestFocus", "subFocus", ( uint64 )subFocus, "defaultPanel", ( uint64 )defaultPanel) );
-#else
-	CallParentFunction( new KeyValues( "OnRequestFocus", "subFocus", ( int )subFocus, "defaultPanel", ( int )defaultPanel ) );
-#endif
+	CallParentFunction( new KeyValues( "OnRequestFocus", "subFocus", subFocus, "defaultPanel", defaultPanel) );
 }
 
 //-----------------------------------------------------------------------------

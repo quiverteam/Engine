@@ -432,6 +432,22 @@ KeyValues::KeyValues( const char* setName, const char* firstKey, float firstValu
 //-----------------------------------------------------------------------------
 // Purpose: Constructor
 //-----------------------------------------------------------------------------
+KeyValues::KeyValues( const char* setName, const char* firstKey, size_t firstValue )
+{
+	TRACK_KV_ADD( this, setName );
+
+	Init();
+	SetName( setName );
+#ifdef PLATFORM_64BITS
+	SetUint64( firstKey, firstValue );
+#else
+	SetInt( firstKey, firstValue );
+#endif
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: Constructor
+//-----------------------------------------------------------------------------
 KeyValues::KeyValues( const char *setName, const char *firstKey, const char *firstValue, const char *secondKey, const char *secondValue )
 {
 	TRACK_KV_ADD( this, setName );
@@ -458,14 +474,19 @@ KeyValues::KeyValues( const char *setName, const char *firstKey, int firstValue,
 //-----------------------------------------------------------------------------
 // Purpose: Constructor
 //-----------------------------------------------------------------------------
-KeyValues::KeyValues( const char* setName, const char* firstKey, uint64 firstValue, const char* secondKey, uint64 secondValue )
+KeyValues::KeyValues( const char* setName, const char* firstKey, size_t firstValue, const char* secondKey, size_t secondValue )
 {
 	TRACK_KV_ADD( this, setName );
 
 	Init();
 	SetName( setName );
+#ifdef PLATFORM_64BITS
 	SetUint64( firstKey, firstValue );
 	SetUint64( secondKey, secondValue );
+#else
+	SetInt( firstKey, firstValue );
+	SetInt( secondKey, secondValue );
+#endif
 }
 
 //-----------------------------------------------------------------------------
