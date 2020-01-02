@@ -1,18 +1,18 @@
-//====== Copyright © 1996-2005, Valve Corporation, All rights reserved. =======
+//====== Copyright ï¿½ 1996-2005, Valve Corporation, All rights reserved. =======
 //
 // Purpose: 
 //
 //=============================================================================
 
 #include "filesystem.h"
-#include "matsys_controls/Picker.h"
-#include "tier1/keyvalues.h"
+#include "matsys_controls/picker.h"
+#include "tier1/KeyValues.h"
 #include "vgui_controls/ListPanel.h"
 #include "vgui_controls/TextEntry.h"
 #include "vgui_controls/Button.h"
-#include "vgui/isurface.h"
-#include "vgui/iinput.h"
-
+#include "vgui/ISurface.h"
+#include "vgui/IInput.h"
+#include "winlite.h"
 
 using namespace vgui;
 

@@ -1,4 +1,4 @@
-//====== Copyright © 1996-2005, Valve Corporation, All rights reserved. =======
+//====== Copyright ï¿½ 1996-2005, Valve Corporation, All rights reserved. =======
 //
 // Purpose: 
 //
@@ -9,9 +9,9 @@
 #endif
 #include "filesystem.h"
 #include "filesystem_init.h"
-#include "appframework/iappsystemgroup.h"
-#include "appframework/iappsystem.h"
-#include "appframework/appframework.h"
+#include "appframework/IAppSystemGroup.h"
+#include "appframework/IAppSystem.h"
+#include "appframework/AppFramework.h"
 #include "filesystem_helpers.h"
 
 #include "matsys_controls/QCGenerator.h"
@@ -25,9 +25,9 @@
 #include "vgui_controls/ComboBox.h"
 #include "vgui_controls/CheckButton.h"
 #include "vgui_controls/MessageBox.h"
-#include "vgui/isurface.h"
-#include "vgui/iinput.h"
-#include "vgui/cursor.h"
+#include "vgui/ISurface.h"
+#include "vgui/IInput.h"
+#include "vgui/Cursor.h"
 #include "vgui_controls/KeyBoardEditorDialog.h"
 
 #if defined( _X360 )

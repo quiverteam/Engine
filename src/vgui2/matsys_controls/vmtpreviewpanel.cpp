@@ -1,4 +1,4 @@
-//===== Copyright © 1996-2005, Valve Corporation, All rights reserved. ======//
+//===== Copyright ï¿½ 1996-2005, Valve Corporation, All rights reserved. ======//
 //
 // Purpose: 
 //
@@ -6,13 +6,13 @@
 
 #include "matsys_controls/vmtpreviewpanel.h"
 #include "matsys_controls/matsyscontrols.h"
-#include "vguimatsurface/imatsystemsurface.h"
-#include "materialsystem/materialsystemutil.h"
+#include "VGuiMatSurface/IMatSystemSurface.h"
+#include "materialsystem/MaterialSystemUtil.h"
 #include "materialsystem/imaterialsystem.h"
 #include "materialsystem/imaterial.h"
 #include "materialsystem/itexture.h"
 #include "materialsystem/imesh.h"
-#include "tier1/keyvalues.h"
+#include "tier1/KeyValues.h"
 
 
 using namespace vgui;

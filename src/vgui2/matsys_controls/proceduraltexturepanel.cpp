@@ -1,4 +1,4 @@
-//===== Copyright © 1996-2005, Valve Corporation, All rights reserved. ======//
+//===== Copyright ï¿½ 1996-2005, Valve Corporation, All rights reserved. ======//
 //
 // Purpose: 
 //
@@ -8,8 +8,8 @@
 #include "matsys_controls/matsyscontrols.h"
 #include "materialsystem/imaterialsystem.h"
 #include "materialsystem/itexture.h"
-#include "vguimatsurface/imatsystemsurface.h"
-#include "tier1/keyvalues.h"
+#include "VGuiMatSurface/IMatSystemSurface.h"
+#include "tier1/KeyValues.h"
 #include "pixelwriter.h"
 
 

@@ -1,8 +1,8 @@
-//====== Copyright © 1996-2003, Valve Corporation, All rights reserved. =======
+//====== Copyright (C) 1996-2003, Valve Corporation, All rights reserved. =======
 //
 // Purpose: 
 //
-//=============================================================================
+//===============================================================================
 
 #ifndef VTFPREVIEWPANEL_H
 #define VTFPREVIEWPANEL_H
@@ -12,9 +12,9 @@
 #endif
 
 
-#include "vgui_controls/panel.h"
+#include "vgui_controls/Panel.h"
 #include "tier1/utlstring.h"
-#include "materialsystem/materialsystemutil.h"
+#include "materialsystem/MaterialSystemUtil.h"
 #include "mathlib/vector.h"
 
 

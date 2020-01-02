@@ -1,4 +1,4 @@
-//===== Copyright © 1996-2005, Valve Corporation, All rights reserved. ======//
+//===== Copyright ï¿½ 1996-2005, Valve Corporation, All rights reserved. ======//
 //
 // Purpose: 
 //
@@ -6,10 +6,10 @@
 
 #include "matsys_controls/curveeditorpanel.h"
 #include "matsys_controls/matsyscontrols.h"
-#include "tier1/keyvalues.h"
-#include "vgui/isurface.h"
-#include "vgui/iinput.h"
-#include "vgui/mousecode.h"
+#include "tier1/KeyValues.h"
+#include "vgui/ISurface.h"
+#include "vgui/IInput.h"
+#include "vgui/MouseCode.h"
 
 using namespace vgui;
 

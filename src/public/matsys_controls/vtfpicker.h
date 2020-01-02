@@ -1,8 +1,8 @@
-//====== Copyright © 1996-2005, Valve Corporation, All rights reserved. =======
+//====== Copyright (C) 1996-2005, Valve Corporation, All rights reserved. =======
 //
 // Purpose: 
 //
-//=============================================================================
+//===============================================================================
 
 #ifndef VTFPICKER_H
 #define VTFPICKER_H
@@ -10,7 +10,7 @@
 #pragma once
 #endif
 
-#include "matsys_controls/BaseAssetPicker.h"
+#include "matsys_controls/baseassetpicker.h"
 
 
 //-----------------------------------------------------------------------------

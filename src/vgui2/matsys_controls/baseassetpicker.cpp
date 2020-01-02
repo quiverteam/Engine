@@ -1,12 +1,12 @@
-//====== Copyright © 1996-2005, Valve Corporation, All rights reserved. =======
+//====== Copyright ï¿½ 1996-2005, Valve Corporation, All rights reserved. =======
 //
 // Purpose: 
 //
 //=============================================================================
 
 #include "filesystem.h"
-#include "matsys_controls/BaseAssetPicker.h"
-#include "tier1/keyvalues.h"
+#include "matsys_controls/baseassetpicker.h"
+#include "tier1/KeyValues.h"
 #include "tier1/utlntree.h"
 #include "tier1/utlrbtree.h"
 #include "vgui_controls/ListPanel.h"
@@ -14,14 +14,14 @@
 #include "vgui_controls/ComboBox.h"
 #include "vgui_controls/Button.h"
 #include "vgui_controls/Splitter.h"
-#include "vgui_controls/treeview.h"
+#include "vgui_controls/TreeView.h"
 #include "vgui_controls/ImageList.h"
 #include "vgui_controls/CheckButton.h"
-#include "vgui/isurface.h"
-#include "vgui/iinput.h"
-#include "vgui/ivgui.h"
-#include "vgui/cursor.h"
-
+#include "vgui/ISurface.h"
+#include "vgui/IInput.h"
+#include "vgui/IVGui.h"
+#include "vgui/Cursor.h"
+#include "winlite.h"
 
 using namespace vgui;
 

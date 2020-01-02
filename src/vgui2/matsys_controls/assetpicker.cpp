@@ -1,10 +1,10 @@
-//====== Copyright © 1996-2005, Valve Corporation, All rights reserved. =======
+//====== Copyright ï¿½ 1996-2005, Valve Corporation, All rights reserved. =======
 //
 // Purpose: 
 //
 //=============================================================================
 
-#include "matsys_controls/AssetPicker.h"
+#include "matsys_controls/assetpicker.h"
 
 
 using namespace vgui;

@@ -214,6 +214,8 @@ add_subdirectory(engine)
 add_subdirectory(networksystem)
 add_subdirectory(utils/vrad)
 add_subdirectory(utils/vrad_launcher)
+add_subdirectory(dmxloader)
+add_subdirectory(vgui2/matsys_controls)
 
 if(VULKAN)
 	add_subdirectory(materialsystem/shaderapivk)

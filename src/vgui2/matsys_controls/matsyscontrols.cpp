@@ -1,4 +1,4 @@
-//===== Copyright © 1996-2005, Valve Corporation, All rights reserved. ======//
+//===== Copyright ï¿½ 1996-2005, Valve Corporation, All rights reserved. ======//
 //
 // Purpose: 
 //
@@ -6,12 +6,12 @@
 //===========================================================================//
 
 #include "matsys_controls/matsyscontrols.h"
-#include <materialsystem/IMaterialSystem.h>
-#include <materialsystem/IMaterialSystemHardwareConfig.h>
+#include <materialsystem/imaterialsystem.h>
+#include <materialsystem/imaterialsystemhardwareconfig.h>
 #include <datacache/imdlcache.h>
-#include <vguimatsurface/imatsystemsurface.h>
+#include <VGuiMatSurface/IMatSystemSurface.h>
 #include <istudiorender.h>
-#include "vgui_controls/controls.h"
+#include "vgui_controls/Controls.h"
 
 // memdbgon must be the last include file in a .cpp file!!!
 #include "tier0/memdbgon.h"

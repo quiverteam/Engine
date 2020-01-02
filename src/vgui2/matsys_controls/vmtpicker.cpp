@@ -1,13 +1,13 @@
-//====== Copyright © 1996-2005, Valve Corporation, All rights reserved. =======
+//====== Copyright (C) 1996-2005, Valve Corporation, All rights reserved. =======
 //
 // Purpose: 
 //
-//=============================================================================
+//===============================================================================
 
 #include "filesystem.h"
-#include "matsys_controls/VMTPicker.h"
-#include "matsys_controls/VMTPreviewPanel.h"
-#include "vgui_controls/splitter.h"
+#include "matsys_controls/vmtpicker.h"
+#include "matsys_controls/vmtpreviewpanel.h"
+#include "vgui_controls/Splitter.h"
 
 
 using namespace vgui;
