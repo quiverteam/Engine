@@ -583,4 +583,38 @@ PLATFORM_INTERFACE uint Plat_GetTmpFileName(const char* dir, const char* prefix,
 	return (uint)GetTempFileNameA((LPCSTR)dir, (LPCSTR)prefix, (UINT)seed, (LPSTR)buf);
 }
 
+/*
+Creates a new process
+
+Params:
+	-	The process image name, for example C:/Users/poop.exe
+	-	Command line to pass to the new process
+	-	Environment vars to pass to the new process, if NULL, it will use the calling process' envs
+Returns:
+	-	Boolean if the process started OK
+*/
+PLATFORM_INTERFACE bool Plat_CreateProcess(const char* exe, const char** cmdline, const char** environ)
+{
+	Assert(exe);
+	char cmdbuf[4096];
+	cmdbuf[0] = '\0'; // Null terminate so that strcat works
+	if(cmdline)
+	{
+		for(int i = 0; cmdline[i]; i++)
+		{
+			strcat(cmdbuf, cmdline[i]);
+			strcat(cmdbuf, " ");
+		}
+	}
+	STARTUPINFOA startinfo;
+	PROCESS_INFORMATION procinfo;
+	memset(procinfo, 0, sizeof(PROCESS_INFORMATION));
+	memset(startinfo, 0, sizeof(STARTUPINFOA));
+
+	BOOL ret = CreateProcessA((LPCSTR)exe, cmdbuf, NULL, NULL, FALSE, 0, environ ? _environ : environ, 
+			NULL, &startinfo, &procinfo);
+	/* Do I need to close any handles allocated in procinfo? */
+	return ret != 0;
+}
+
 #endif // _LINUX

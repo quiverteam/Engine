@@ -1871,6 +1871,17 @@ Returns:
 */
 PLATFORM_INTERFACE uint Plat_GetTmpFileName(const char* dir, const char* prefix, uint seed, char* buf);
 
+/*
+Creates a new process
+
+Params:
+	-	The process image name, for example C:/Users/poop.exe
+	-	Command line to pass to the new process
+	-	Environment vars to pass to the new process, if NULL, it will use the calling process' envs
+Returns:
+	-	Boolean if the process started OK
+*/
+PLATFORM_INTERFACE bool Plat_CreateProcess(const char* exe, const char** cmdline, const char** environ);
 
 //-----------------------------------------------------------------------------
 //
