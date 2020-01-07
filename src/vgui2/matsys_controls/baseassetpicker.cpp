@@ -21,7 +21,10 @@
 #include "vgui/IInput.h"
 #include "vgui/IVGui.h"
 #include "vgui/Cursor.h"
+
+#ifdef _WIN32
 #include "winlite.h"
+#endif
 
 using namespace vgui;
 

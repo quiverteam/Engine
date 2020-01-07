@@ -4,9 +4,10 @@
 //
 //===============================================================================
 
-#if !defined( _X360 )
-#include <windows.h>
+#ifdef _WIN32
+#include "winlite.h"
 #endif
+
 #undef PropertySheet
 
 #include "matsys_controls/gamefiletreeview.h"

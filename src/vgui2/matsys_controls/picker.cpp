@@ -12,7 +12,10 @@
 #include "vgui_controls/Button.h"
 #include "vgui/ISurface.h"
 #include "vgui/IInput.h"
+
+#ifdef _WIN32
 #include "winlite.h"
+#endif
 
 using namespace vgui;
 

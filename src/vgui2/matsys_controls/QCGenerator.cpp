@@ -4,9 +4,12 @@
 //
 //=============================================================================
 
-#if !defined( _X360 )
+#ifdef _WIN32
 #include <windows.h>
+#elif defined(_POSIX)
+#include <spawn.h>
 #endif
+
 #include "filesystem.h"
 #include "filesystem_init.h"
 #include "appframework/IAppSystemGroup.h"
@@ -29,10 +32,6 @@
 #include "vgui/IInput.h"
 #include "vgui/Cursor.h"
 #include "vgui_controls/KeyBoardEditorDialog.h"
-
-#if defined( _X360 )
-#include "xbox/xbox_win32stubs.h"
-#endif
 
 using namespace vgui;
 
@@ -181,11 +180,13 @@ void QCInfo::SyncToControls()
 	pTargetField = pQCGenerator->FindChildByName( "automassCheck" );
 	((CheckButton *)pTargetField)->SetSelected( bAutomass );
 
-	itoa( (int)fMass, tempText, 10 );
+	V_snprintf(tempText, MAX_PATH, "%i", (int)fMass);
+
 	pTargetField = pQCGenerator->FindChildByName( "massField" );
 	((TextEntry *)pTargetField)->SetText( tempText );
 
-	itoa( (int)fScale, tempText, 10 );
+	V_snprintf(tempText, MAX_PATH, "%i", (int)fScale);
+
 	pTargetField = pQCGenerator->FindChildByName( "scaleField" );
 	((TextEntry *)pTargetField)->SetText( tempText );
 
@@ -571,20 +572,15 @@ bool CQCGenerator::GenerateQCFile()
 	char studiomdlPath[512];
 	g_pFullFileSystem->RelativePathToFullPath( "studiomdl.bat", NULL, studiomdlPath, sizeof( studiomdlPath ));
 
-	GetVConfigRegistrySetting( GAMEDIR_TOKEN, szGamePath, sizeof( szGamePath ) );	
+	GetVConfigRegistrySetting( GAMEDIR_TOKEN, szGamePath, sizeof( szGamePath ) );
 
-	STARTUPINFO startup; 
-	PROCESS_INFORMATION process; 
+	const char* argv[] = {
+			"-game",
+			szGamePath,
+			szName,
+	};
 
-
-	memset(&startup, 0, sizeof(startup)); 
-	startup.cb = sizeof(startup); 
-
-	
-	sprintf( szCommand, "%s -game %s %s", studiomdlPath, szGamePath, szName);
-	bool bReturn = CreateProcess( NULL, szCommand, NULL, NULL, TRUE, CREATE_NEW_CONSOLE, NULL, NULL, &startup, &process);
-	    
-	return bReturn;
+	return Plat_CreateProcess(studiomdlPath, argv, NULL);
 }
 
 void CQCGenerator::InitializeSMDPaths( const char *pszPath, const char *pszScene )
