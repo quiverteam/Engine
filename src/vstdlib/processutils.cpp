@@ -4,9 +4,16 @@
 //
 //===========================================================================//
 
-#ifdef _WIN32
 
+#ifdef _WIN32
 #include <windows.h>
+#else
+#include <unistd.h>
+#include <spawn.h>
+#include <dirent.h>
+#include <sys/wait.h>
+#endif
+
 #include "vstdlib/iprocessutils.h"
 #include "tier1/utllinkedlist.h"
 #include "tier1/utlstring.h"
@@ -50,6 +57,7 @@ private:
 		HANDLE m_hProcess;
 		CUtlString m_CommandLine;
 		CUtlBuffer m_ProcessOutput;
+		unsigned int pid;
 	};
 
 	// Returns the last error that occurred
@@ -110,6 +118,7 @@ void CProcessUtils::Shutdown()
 //-----------------------------------------------------------------------------
 char *CProcessUtils::GetErrorString( char *pBuf, int nBufLen )
 {
+#ifdef _WIN32
 	FormatMessage( FORMAT_MESSAGE_FROM_SYSTEM, NULL, GetLastError(), 0, pBuf, nBufLen, NULL );
 	char *p = strchr(pBuf, '\r');	// get rid of \r\n
 	if(p) 
@@ -117,11 +126,20 @@ char *CProcessUtils::GetErrorString( char *pBuf, int nBufLen )
 		p[0] = 0;
 	}
 	return pBuf;
+#else
+	char* tmpstring = strerror(errno);
+	if(tmpstring)
+		strncpy(pBuf, tmpstring, nBufLen);
+	else
+		*pBuf = 0;
+	return pBuf;
+#endif
 }
 
 
 ProcessHandle_t CProcessUtils::CreateProcess( ProcessInfo_t &info, bool bConnectStdPipes )
 {
+#ifdef _WIN32
 	STARTUPINFO si;
 	memset(&si, 0, sizeof si);
 	si.cb = sizeof(si);
@@ -147,6 +165,58 @@ ProcessHandle_t CProcessUtils::CreateProcess( ProcessInfo_t &info, bool bConnect
 		info.m_CommandLine.Get(), GetErrorString( buf, sizeof(buf) ) );
 
 	return PROCESS_HANDLE_INVALID;
+#else
+
+	/* Figure out the path by tokenizing the string */
+	char* exe = strdup(info.m_CommandLine.Get());
+	char* buf[256];
+	char prev = 0, escaped = 0;
+	int i, substr_count = 1, b = 0;
+
+	/* Go through the command line and ensure spaces arent escaped */
+	for(i = 0; exe[i]; i++)
+	{
+		if(isspace(exe[i]) && !escaped)
+			exe[i] = '\0';
+		if(exe[i] == '\0' && prev != '\0')
+			++substr_count;
+		/* Give a pointer if this is the start of a new substring */
+		if(exe[i] && prev == '\0')
+			buf[b++] = &exe[i];
+		escaped = 0;
+		if(exe[i] == '\\' && prev != '\\')
+			escaped = 1;
+		prev = exe[i];
+	}
+
+	/* Setup spawn attribs and file actions */
+	posix_spawn_file_actions_t file_actions;
+	posix_spawnattr_t spawnattr;
+	posix_spawn_file_actions_init(&file_actions);
+	posix_spawnattr_init(&spawnattr);
+
+	/* Connect the pipes by duplicating them */
+	if(info.m_hChildStdoutWr && bConnectStdPipes)
+		posix_spawn_file_actions_adddup2(&file_actions, fileno((FILE*)info.m_hChildStdoutWr), fileno(stdout));
+	if(info.m_hChildStderrWr && bConnectStdPipes)
+		posix_spawn_file_actions_adddup2(&file_actions, fileno((FILE*)info.m_hChildStderrWr), fileno(stderr));
+	if(info.m_hChildStdinRd && bConnectStdPipes)
+		posix_spawn_file_actions_adddup2(&file_actions, fileno((FILE*)info.m_hChildStdinRd), fileno(stdin));
+
+	pid_t newpid = 0;
+	int ret = posix_spawn(&newpid, exe, &file_actions, &spawnattr, buf, environ);
+
+	if(ret)
+	{
+		char msgbuf[512];
+		Warning("Could not execute the command:\n    %s\n"
+		  "Error message:\n    %s\n", info.m_CommandLine.Get(), GetErrorString(msgbuf, sizeof(msgbuf))
+		);
+		return PROCESS_HANDLE_INVALID;
+	}
+	info.pid = newpid;
+	return m_Processes.AddToTail(info);
+#endif
 }
 
 //-----------------------------------------------------------------------------
@@ -166,6 +236,7 @@ ProcessHandle_t CProcessUtils::StartProcess( const char *pCommandLine, bool bCon
 	ProcessInfo_t info;
 	info.m_CommandLine = pCommandLine;
 
+#ifdef _WIN32
 	if ( !bConnectStdPipes )
 	{
 		info.m_hChildStderrWr = INVALID_HANDLE_VALUE;
@@ -207,6 +278,14 @@ ProcessHandle_t CProcessUtils::StartProcess( const char *pCommandLine, bool bCon
 		CloseHandle( info.m_hChildStdoutWr );
 	}
 	return PROCESS_HANDLE_INVALID;
+#else
+
+    info.m_hChildStderrWr = (bConnectStdPipes ? stderr : NULL);
+    info.m_hChildStdoutWr = (bConnectStdPipes ? stdout : NULL);
+    info.m_hChildStdinRd = (bConnectStdPipes ? stdin : NULL);
+    return CreateProcess(info, false);
+
+#endif
 }
 
 
@@ -234,11 +313,16 @@ ProcessHandle_t CProcessUtils::StartProcess( int argc, const char **argv, bool b
 void CProcessUtils::ShutdownProcess( ProcessHandle_t hProcess )
 {
 	ProcessInfo_t& info = m_Processes[hProcess];
+
+#ifdef _WIN32
 	CloseHandle( info.m_hChildStderrWr );
 	CloseHandle( info.m_hChildStdinRd );
 	CloseHandle( info.m_hChildStdinWr );
 	CloseHandle( info.m_hChildStdoutRd );
 	CloseHandle( info.m_hChildStdoutWr );
+#else
+	kill(info.pid, SIGTERM);
+#endif
 
 	m_Processes.Remove( hProcess );
 }
@@ -269,7 +353,11 @@ void CProcessUtils::AbortProcess( ProcessHandle_t hProcess )
 		if ( !IsProcessComplete( hProcess ) )
 		{
 			ProcessInfo_t& info = m_Processes[hProcess];
+#ifdef _WIN32
 			TerminateProcess( info.m_hProcess, 1 );
+#else
+			kill(info.pid, SIGTERM);
+#endif
 		}
 		ShutdownProcess( hProcess );
 	}
@@ -283,11 +371,18 @@ bool CProcessUtils::IsProcessComplete( ProcessHandle_t hProcess )
 {
 	Assert( m_bInitialized );
 	Assert( hProcess != PROCESS_HANDLE_INVALID );
+
 	if ( m_hCurrentProcess != hProcess )
 		return true;
 
+#ifdef _WIN32
 	HANDLE h = m_Processes[hProcess].m_hProcess;
 	return ( WaitForSingleObject( h, 0 ) != WAIT_TIMEOUT );
+#else
+	int stat;
+	waitpid(m_Processes[hProcess].pid, &stat, 0);
+	return WIFEXITED(stat);
+#endif
 }
 
 
@@ -310,6 +405,8 @@ int CProcessUtils::GetActualProcessOutputSize( ProcessHandle_t hProcess )
 	Assert( hProcess != PROCESS_HANDLE_INVALID );
 
 	ProcessInfo_t& info = m_Processes[ hProcess ];
+
+#ifdef _WIN32
 	if ( info.m_hChildStdoutRd == INVALID_HANDLE_VALUE )
 		return 0;
 
@@ -325,11 +422,16 @@ int CProcessUtils::GetActualProcessOutputSize( ProcessHandle_t hProcess )
 
 	// Add 1 for auto-NULL termination
 	return ( dwCount > 0 ) ? (int)dwCount + 1 : 0;
+#else
+	return 0; // STUB for now
+#endif
 }
 
 int CProcessUtils::GetActualProcessOutput( ProcessHandle_t hProcess, char *pBuf, int nBufLen )
 {
 	ProcessInfo_t& info = m_Processes[ hProcess ];
+
+#ifdef _WIN32
 	if ( info.m_hChildStdoutRd == INVALID_HANDLE_VALUE )
 		return 0;
 
@@ -369,6 +471,9 @@ int CProcessUtils::GetActualProcessOutput( ProcessHandle_t hProcess, char *pBuf,
 	}
 
 	return nActualCountRead;
+#else
+	return 0; // STUB for now
+#endif
 }
 
 
@@ -422,11 +527,18 @@ int CProcessUtils::GetProcessExitCode( ProcessHandle_t hProcess )
 {
 	Assert( m_bInitialized );
 	ProcessInfo_t &info = m_Processes[hProcess];
+
+#ifdef _WIN32
 	DWORD nExitCode;
 	BOOL bOk = GetExitCodeProcess( info.m_hProcess, &nExitCode );
 	if ( !bOk || nExitCode == STILL_ACTIVE )
 		return -1;
 	return nExitCode;
+#else
+	int stat;
+	waitpid(info.pid, &stat, 0);
+	return WEXITSTATUS(stat);
+#endif
 }
 
 
@@ -443,6 +555,7 @@ void CProcessUtils::WaitUntilProcessCompletes( ProcessHandle_t hProcess )
 
 	ProcessInfo_t &info = m_Processes[ hProcess ];
 
+#ifdef _WIN32
 	if ( info.m_hChildStdoutRd == INVALID_HANDLE_VALUE )
 	{
 		WaitForSingleObject( info.m_hProcess, INFINITE );
@@ -465,11 +578,12 @@ void CProcessUtils::WaitUntilProcessCompletes( ProcessHandle_t hProcess )
 			}
 		}
 	}
-
+#else
+	int stat = 0;
+	do
+	{
+		waitpid(info.pid, &stat, 0);
+	} while(WIFEXITED(stat));
+#endif
 	m_hCurrentProcess = PROCESS_HANDLE_INVALID;
 }
-
-#endif //_WIN32
-
-
-
