@@ -31,6 +31,7 @@ option(POSIX_UNSUPPORT "Enable project generation for things not quite ported to
 option(CLANG "Enables the use of the clang toolchain instead of the default GNU toolchain (Only for POSIX)" OFF)
 
 # Definitions that should always be enabled
+# TODO: Will NO_MALLOC_OVERRIDE work on windows?
 add_definitions(-DFRAME_POINTER_OMISSION_DISABLED)
 
 
@@ -140,6 +141,7 @@ if(DEFINED CMAKE_HOST_UNIX AND NOT UNIX_CROSS)
 	set(LINUX 1)
 	add_definitions(-D_DLL_EXT=".so")
 	add_definitions(-DLINUX -D_LINUX -DPOSIX -D_POSIX)
+	add_definitions(-DNO_MALLOC_OVERRIDE)
 	if(NOT CLANG_BUILD)
 		add_definitions(-DGNUC -DCOMPILER_GCC)
 	endif(NOT CLANG_BUILD)
@@ -216,6 +218,7 @@ add_subdirectory(utils/vrad)
 add_subdirectory(utils/vrad_launcher)
 add_subdirectory(dmxloader)
 add_subdirectory(vgui2/matsys_controls)
+add_subdirectory(vgui2/vgui_surfacelib)
 
 if(VULKAN)
 	add_subdirectory(materialsystem/shaderapivk)
@@ -223,7 +226,6 @@ endif(VULKAN)
 
 if(DEFINED WINDOWS_BUILD OR UNIX_CROSS)
 	add_subdirectory(materialsystem/shaderapidx9)
-	add_subdirectory(vgui2/vgui_surfacelib)
 	add_subdirectory(vgui2/vgui_controls)
 	add_subdirectory(vgui2/src)
 	add_subdirectory(hammer)
