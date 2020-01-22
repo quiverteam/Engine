@@ -1,4 +1,4 @@
-//====== Copyright © 1996-2005, Valve Corporation, All rights reserved. =======
+//====== Copyright (C) 1996-2005, Valve Corporation, All rights reserved. =======
 //
 // The tool UI has 4 purposes:
 //		1) Create the menu bar and client area (lies under the menu bar)
@@ -14,8 +14,8 @@
 #pragma once
 #endif
 
-#include "vgui_controls/panel.h"
-#include "vgui/mousecode.h"
+#include "vgui_controls/Panel.h"
+#include "vgui/MouseCode.h"
 
 
 //-----------------------------------------------------------------------------

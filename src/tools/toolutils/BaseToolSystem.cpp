@@ -1,10 +1,10 @@
-//====== Copyright © 1996-2005, Valve Corporation, All rights reserved. =======
+//====== Copyright (C) 1996-2005, Valve Corporation, All rights reserved. =======
 //
 // Purpose: Core Movie Maker UI API
 //
 //=============================================================================
 
-#include "toolutils/basetoolsystem.h"
+#include "toolutils/BaseToolSystem.h"
 #include "toolframework/ienginetool.h"
 #include "vgui/IPanel.h"
 #include "vgui_controls/Controls.h"
@@ -14,13 +14,13 @@
 #include "vgui_controls/FileOpenDialog.h"
 #include "vgui_controls/MessageBox.h"
 #include "vgui/Cursor.h"
-#include "vgui/iinput.h"
-#include "vgui/ivgui.h"
+#include "vgui/IInput.h"
+#include "vgui/IVGui.h"
 #include "vgui_controls/AnimationController.h"
 #include "ienginevgui.h"
-#include "toolui.h"
+#include "ToolUI.h"
 #include "toolutils/toolmenubar.h"
-#include "vgui/ilocalize.h"
+#include "vgui/ILocalize.h"
 #include "toolutils/enginetools_int.h"
 #include "toolutils/vgui_tools.h"
 #include "icvar.h"
@@ -31,13 +31,14 @@
 #include "toolutils/miniviewport.h"
 #include "materialsystem/imaterialsystem.h"
 #include "materialsystem/imaterial.h"
-#include "materialsystem/IMesh.h"
-#include "toolutils/BaseStatusBar.h"
-#include "movieobjects/movieobjects.h"
+#include "materialsystem/imesh.h"
+#include "toolutils/basestatusbar.h"
 #include "vgui_controls/KeyBoardEditorDialog.h"
 #include "vgui_controls/KeyBindingHelpDialog.h"
 #include "dmserializers/idmserializers.h"
 #include "tier2/renderutils.h"
+
+#include "movieobjects/movieobjects.h"
 
 // memdbgon must be the last include file in a .cpp file!!!
 #include "tier0/memdbgon.h"
