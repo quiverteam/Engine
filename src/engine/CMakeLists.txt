@@ -63,7 +63,7 @@ set(DEPENDENCIES 		vstdlib
 						bzip2
 						mathlib
 						appframework
-						Dmxloader)
+						dmxloader)
 
 # Platform specific link libs
 set(WINDOWS_LINK_LIBS	dinput8
