@@ -1,8 +1,8 @@
-//========= Copyright � 1996-2005, Valve Corporation, All rights reserved. ============//
+//========= Copyright (C) 1996-2005, Valve Corporation, All rights reserved. ============//
 //
 // Purpose: A redirection tool that allows the DLLs to reside elsewhere.
 //
-//=====================================================================================//
+//=======================================================================================//
 
 #if defined( _WIN32 )
 #include <windows.h>
@@ -74,14 +74,25 @@ int main(int argc, char** argv)
 {
 	// Load library
 	char sFullPath[MAX_PATH];
-	sprintf(sFullPath, "%s/launcher.%s", BIN_DIR, TEXT(_DLL_EXT));
+	sprintf(sFullPath, "%s/launcher" _DLL_EXT "", BIN_DIR);
+
+	if(!Plat_FileExists(sFullPath))
+	{
+		printf("%s does not exist. Launching will fail\n", sFullPath);
+	}
 
 	void* pLib = Plat_LoadLibrary(sFullPath);
 
 	if(!pLib)
 	{
-		printf("Unable to load launcher dynamic library.\nYou're most likely missing binaries.\n");
-		Plat_ShowMessageBox("Fatal Error", "Unable to load launcher dynamic library!\n", MB_TYPE_ERROR, MB_BUTTONS_OK);
+		printf("Unable to load launcher dynamic library.\nYou're most likely missing binaries.\nExpected path: %s\n", sFullPath);
+		getcwd(sFullPath, MAX_PATH);
+		printf("Current working directory: %s\n", sFullPath);
+#ifdef _LINUX
+		printf("LD_LIBRARY_PATH: %s\n", getenv("LD_LIBRARY_PATH"));
+		printf("Last reported DL Error: %s\n", dlerror());
+#endif
+		Plat_ShowMessageBox("Fatal Error", "Could not load launcher\n", MB_TYPE_ERROR, MB_BUTTONS_OK);
 		return 1;
 	}
 

@@ -15,7 +15,7 @@ file(GLOB SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/ *.c *.cpp)
 list(APPEND SRCS ${SOURCES})
 
 # Preprocessor defs
-set(DEFINES			-Dfopen=dont_use_fopen)
+set(DEFINES			-DLAUNCHER_MAIN)
 
 # Platform-specific preprocessor defines
 set(WIN32_DEFINES	)	
