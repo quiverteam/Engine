@@ -709,7 +709,7 @@ CStdioFile *CStdioFile::FS_fopen( const char *filename, const char *options, int
 //-----------------------------------------------------------------------------
 void CStdioFile::FS_setbufsize( unsigned nBytes )
 {
-#ifdef _WIN32
+//#ifdef _WIN32
 	if ( nBytes )
 	{
 		setvbuf( m_pFile, NULL, _IOFBF,  32768 );
@@ -717,12 +717,12 @@ void CStdioFile::FS_setbufsize( unsigned nBytes )
 	else
 	{
 		setvbuf( m_pFile, NULL, _IONBF,  0 );
-#if (_MSC_VER < 1900)
+#if (_MSC_VER < 1900) && defined(_MSC_VER)
 		// hack to make microsoft stdio not always read one stray byte on odd sized files
 		m_pFile->_bufsiz = 1;
 #endif // _MSC_VER < 1900
 	}
-#endif
+//#endif
 }
 
 //-----------------------------------------------------------------------------
