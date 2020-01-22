@@ -80,5 +80,7 @@
 #define TM_CONTEXT_LITE(val) ((char*)(val))
 #define TM_CONTEXT_FULL(val) ((char*)(val))
 
+#define tmFastTime() 0
+
 typedef char *HTELEMETRY;
 

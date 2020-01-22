@@ -7,13 +7,14 @@
 
 #ifndef VPROF_TELEMETRY_H
 #define VPROF_TELEMETRY_H
-#define RAD_TELEMETRY_DISABLED
+//#define RAD_TELEMETRY_DISABLED
 #if !defined( MAKE_VPC )
 
 #if !defined( RAD_TELEMETRY_DISABLED ) && ( defined( IS_WINDOWS_PC ) || defined( _LINUX ) )
 // Rad Telemetry profiling is enabled on Win32 and Win64.
 #define RAD_TELEMETRY_ENABLED
 #endif
+#define RAD_TELEMETRY_ENABLED
 
 #endif // !MAKE_VPC
 
@@ -50,7 +51,9 @@ public:
 //
 // Telemetry is enabled. Include the telemetry header.
 //
-#include "../../thirdparty/telemetry/include/telemetry.h"
+//#include "../../thirdparty/telemetry/include/telemetry.h"
+#include "tmapi_dummy.h"
+#include "platform.h"
 // Different versions of radbase.h define RADCOPYRIGHT to different values. So undef that here.
 #undef RADCOPYRIGHT
 
@@ -126,19 +129,13 @@ class CTelemetrySpikeDetector
 {
 public:
 	// Spews Telemetry message when threshold hit (in milliseconds.)
-	CTelemetrySpikeDetector( const char *msg, float threshold = 5 ) :
-		m_message( msg ), m_threshold( threshold ), time0( tmFastTime() ) {}
+	CTelemetrySpikeDetector( const char *msg, float threshold = 5 ) {}
 	~CTelemetrySpikeDetector()
 	{
-		float time = ( tmFastTime() - time0 ) * g_Telemetry.flRDTSCToMilliSeconds;
-		if( time >= m_threshold )
-		{
-			tmMessage( TELEMETRY_LEVEL0, TMMF_ICON_NOTE | TMMF_SEVERITY_WARNING, "(source/spike)%s %.2fms %t", m_message, time, tmSendCallStack( TELEMETRY_LEVEL0, 0 ) );
-		}
 	}
 
 private:
-	TmU64 time0;
+	uint64_t time0;
 	float m_threshold;
 	const char *m_message;
 };
