@@ -32,7 +32,7 @@ option(CLANG "Enables the use of the clang toolchain instead of the default GNU 
 
 # Definitions that should always be enabled
 # TODO: Will NO_MALLOC_OVERRIDE work on windows?
-add_definitions(-DFRAME_POINTER_OMISSION_DISABLED)
+add_definitions(-DFRAME_POINTER_OMISSION_DISABLED -D_CRT_SECURE_NO_DEPRECATE -D_CRT_NONSTDC_NO_DEPRECATE -D_ALLOW_RUNTIME_LIBRARY_MISMATCH -D_ALLOW_ITERATOR_DEBUG_LEVEL_MISMATCH -D_HAS_ITERATOR_DEBUGGING=0)
 
 
 set(MINGW32_TOOLCHAIN "${CMAKE_HOME_DIRECTORY}/cmake_scripts/toolchain-win32-mingw.cmake")
@@ -92,15 +92,15 @@ endif(USE_LIBC_FOR_SIMD)
 if(DEFINED CMAKE_HOST_WIN32 AND NOT UNIX_CROSS)
 	add_definitions(-DCOMPILER_MSVC)
 endif(DEFINED CMAKE_HOST_WIN32 AND NOT UNIX_CROSS)
-#
+
+#========================================================
 # WINDOWS VARS
-#
+#========================================================
 if(DEFINED CMAKE_HOST_WIN32 OR UNIX_CROSS)
 	set(WINDOWS_BUILD 1)
 	set(WINDOWS 1)
-	if(NOT UNIX_CROSS)
-		add_definitions(-D_DLL_EXT=".dll")
-	endif(NOT UNIX_CROSS)
+	add_definitions(-D_DLL_EXT=".dll")
+	add_definitions(-D_WIN32 -DWIN32 -DWINDOWS -D_ALLOW_MSC_VER_MISMATCH)
 	if(BUILD_64BIT)
 		if(UNIX_CROSS)
 			message("Building for MINGW64")
@@ -133,15 +133,15 @@ if(DEFINED CMAKE_HOST_WIN32 OR UNIX_CROSS)
 	endif(BUILD_64BIT)
 endif(DEFINED CMAKE_HOST_WIN32 OR UNIX_CROSS)
 
-#
+#========================================================
 # UNIX VARS
-#
+#========================================================
 if(DEFINED CMAKE_HOST_UNIX AND NOT UNIX_CROSS)
 	set(POSIX 1)
 	set(LINUX 1)
 	add_definitions(-D_DLL_EXT=".so")
 	add_definitions(-DLINUX -D_LINUX -DPOSIX -D_POSIX)
-	add_definitions(-DNO_MALLOC_OVERRIDE)
+	add_definitions(-DNO_MALLOC_OVERRIDE -DUSE_SDL -DDX_TO_GL_ABSTRACTION)
 	if(NOT CLANG_BUILD)
 		add_definitions(-DGNUC -DCOMPILER_GCC)
 	endif(NOT CLANG_BUILD)
@@ -219,6 +219,7 @@ add_subdirectory(utils/vrad_launcher)
 add_subdirectory(dmxloader)
 add_subdirectory(vgui2/matsys_controls)
 add_subdirectory(vgui2/vgui_surfacelib)
+add_subdirectory(tools/toolutils)
 
 if(VULKAN)
 	add_subdirectory(materialsystem/shaderapivk)
