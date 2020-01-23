@@ -7,7 +7,7 @@ project(filesystem_stdio C CXX)
 
 # Platform specific sources 
 set(WINDOWS_SRCS	)
-set(POSIX_SRCS	)
+set(POSIX_SRCS		"linux_support.cpp")
 
 set(SRCS			"basefilesystem.cpp"
 		"filetracker.cpp"
