@@ -48,7 +48,7 @@ if(DEFINED POSIX OR UNIX_CROSS)
 	# No undefined symbols!
 	set(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} -Wl,--no-undefined")
 
-	set(CMAKE_LINK_FLAGS "${CMAKE_LINK_FLAGS} -lc")
+	set(CMAKE_LINK_FLAGS "${CMAKE_LINK_FLAGS} -lc -ldl -lpthread")
 	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fpermissive -Wno-narrowing -Wno-enum-compare -Wno-format-security -Wno-multichar")
 	set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fpermissive -Wno-narrowing -Wno-enum-compare -Wno-format-security -Wno-multichar")
 	if(DEFINED POSIX64)

@@ -52,7 +52,7 @@ set(WIN32_LINK_LIBS		)
 set(WIN64_LINK_LIBS		)
 set(POSIX32_LINK_LIBS	)
 set(POSIX64_LINK_LIBS	)
-
+set(POSIX_LINK_LIBS 	dl pthread rt)
 # Generic include dirs
 set(INCLUDE_DIRS		${PUBLIC_INCLUDE}/tier1 ${PUBLIC_INCLUDE}/tier0)
 

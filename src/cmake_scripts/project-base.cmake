@@ -132,7 +132,7 @@ if(THIS_IS_A_EXE EQUAL 1 OR THIS_IS_A_SHARED_LIB EQUAL 1)
 									comdlg32
 									ole32)
 endif(THIS_IS_A_EXE EQUAL 1 OR THIS_IS_A_SHARED_LIB EQUAL 1)
-list(APPEND POSIX_LINK_LIBS 		tcmalloc_minimal)
+list(APPEND POSIX_LINK_LIBS 		tcmalloc_minimal dl pthread)
 
 if(DEFINED WINDOWS)
 	# Generic windows libs
