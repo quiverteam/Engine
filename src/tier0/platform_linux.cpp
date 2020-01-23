@@ -384,7 +384,7 @@ Params:
 */
 PLATFORM_INTERFACE void* Plat_PageAlloc(void* start, size_t regsz)
 {
-	if(start) Assert(start % m_nPageSize == 0); /* Alignment check! */
+	if(start) Assert((size_t)start % m_nPageSize == 0); /* Alignment check! */
 	Assert(regsz != 0);
 	linux_page_region* page = find_page_region(0);
 	if(page)
@@ -415,7 +415,7 @@ Returns:
 PLATFORM_INTERFACE int Plat_PageFree(void* blk, size_t sz)
 {
 	Assert(blk);
-	Assert(blk % m_nPageSize == 0); /* Alignment check */
+	Assert((size_t)blk % m_nPageSize == 0); /* Alignment check */
 	return munmap(blk, sz);
 }
 
@@ -430,7 +430,7 @@ Returns:
 */
 PLATFORM_INTERFACE int Plat_PageLock(void* blk, size_t sz)
 {
-	Assert(blk % m_nPageSize == 0); /* Alignment check */
+	Assert((size_t)blk % m_nPageSize == 0); /* Alignment check */
 	Assert(blk);
 	return mlock(blk, sz);
 }
@@ -445,7 +445,7 @@ Params:
 */
 PLATFORM_INTERFACE void* Plat_PageResize(void* blk, size_t pgsz)
 {
-	Assert(blk % m_nPageSize == 0);
+	Assert((size_t)blk % m_nPageSize == 0);
 	Assert(pgsz > 0);
 	linux_page_region* page = find_page_region(blk);
 	if(!page)
@@ -481,7 +481,7 @@ Returns:
 PLATFORM_INTERFACE int Plat_PageUnlock(void* blk, size_t sz)
 {
 	Assert(blk);
-	Assert(blk % m_nPageSize == 0);
+	Assert((size_t)blk % m_nPageSize == 0);
 	return munlock(blk, sz);
 }
 
@@ -497,7 +497,7 @@ Returns:
 PLATFORM_INTERFACE int Plat_PageProtect(void* blk, size_t sz, int flags)
 {
 	Assert(blk);
-	Assert(blk % m_nPageSize);
+	Assert((size_t)blk % m_nPageSize);
 	int realflags = 0;
 	if(flags & PAGE_PROT_EXEC)
 		realflags |= PROT_EXEC;
@@ -523,7 +523,7 @@ Returns:
 PLATFORM_INTERFACE int Plat_PageAdvise(void* blk, size_t sz, int advice)
 {
 	Assert(blk);
-	Assert(blk % m_nPageSize == 0);
+	Assert((size_t)blk % m_nPageSize == 0);
 	int realflags = 0;
 	if(advice & PAGE_ADVICE_NEED)
 		realflags |= MADV_WILLNEED;
