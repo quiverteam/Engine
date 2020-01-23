@@ -9,10 +9,13 @@ project(filesystem_stdio C CXX)
 set(WINDOWS_SRCS	)
 set(POSIX_SRCS	)
 
-set(SRCS	)
-
-file(GLOB SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/ *.c *.cpp)
-list(APPEND SRCS ${SOURCES})
+set(SRCS			"basefilesystem.cpp"
+		"filetracker.cpp"
+		"filesystem_async.cpp"
+		"filesystem_stdio.cpp"
+		"${ROOT}/public/kevvaluescompiler.cpp"
+		"${ROOT}/public/zip_utils.cpp"
+		"QueuedLoader.cpp")
 
 # Preprocessor defs
 set(DEFINES			-DFILESYSTEM_STDIO_EXPORTS
@@ -44,7 +47,7 @@ set(POSIX64_LINK_DIRS	)
 set(LINK_LIBS			)
 
 # Other projects this one depends on
-set(DEPENDENCIES vstdlib tier1 tier0)
+set(DEPENDENCIES vstdlib tier1 tier0 tier2)
 
 # Platform specific link libs
 set(WINDOWS_LINK_LIBS	)
