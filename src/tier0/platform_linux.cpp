@@ -450,7 +450,7 @@ PLATFORM_INTERFACE void* Plat_PageResize(void* blk, size_t pgsz)
 	linux_page_region* page = find_page_region(blk);
 	if(!page)
 	{
-		AssertMsg(page, "Plat_PageResize: Invalid page. blk=%llu", blk);
+		AssertMsg(page, "Plat_PageResize: Invalid page. blk=0x%X", (size_t)blk);
 		return nullptr;
 	}
 	void* ret = mremap(page->start, page->length, pgsz, MREMAP_MAYMOVE);
@@ -462,7 +462,7 @@ PLATFORM_INTERFACE void* Plat_PageResize(void* blk, size_t pgsz)
 			munlock(page->start, page->length);
 			return Plat_PageResize(blk, pgsz);
 		}
-		AssertMsg(ret != MAP_FAILED, "Plat_PageResize: Unknown error. errno=%u blk=%llu new page size=%u", errno, blk, pgsz);
+		AssertMsg(ret != MAP_FAILED, "Plat_PageResize: Unknown error. errno=%u blk=0x%X new page size=%u", errno, (size_t)blk, pgsz);
 		return nullptr;
 	}
 	page->length = pgsz;
