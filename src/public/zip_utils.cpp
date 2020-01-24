@@ -49,7 +49,7 @@ BEGIN_BYTESWAP_DATADESC( ZIP_FileHeader )
 	DEFINE_FIELD( relativeOffsetOfLocalHeader, FIELD_INTEGER ),
 END_BYTESWAP_DATADESC()
 
-#if !defined( SWDS )
+#if !defined( SWDS ) && !defined(_LINUX)
 
 BEGIN_BYTESWAP_DATADESC( ZIP_LocalFileHeader )
 	DEFINE_FIELD( signature, FIELD_INTEGER ),
