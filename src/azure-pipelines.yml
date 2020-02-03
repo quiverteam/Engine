@@ -1,0 +1,20 @@
+pool:
+  vmImage: 'windows-2019'
+
+
+steps:
+- task: CmdLine@2
+  displayName: Create lib project
+  inputs:
+    workingDirectory: "$(Build.Repository.LocalPath)/src/"
+    script: '
+      createlibprojects.bat
+      '
+    
+- task: CmdLine@2
+  displayName: Create bin project
+  inputs:
+    workingDirectory: "$(Build.Repository.LocalPath)/src/"
+    script: '
+      createbinprojects.bat
+      '
