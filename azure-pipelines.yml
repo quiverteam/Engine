@@ -26,14 +26,6 @@ steps:
     platform: 'win32'
     configuration: 'Release'
     maximumCpuCount: true
-
-- task: CmdLine@2
-  displayName: TEMP - check if needed files exist
-  inputs:
-    workingDirectory: "$(Build.Repository.LocalPath)/src/materialsystem/stdshaders/"
-    script: '
-      _check_files.bat
-      '
     
 - task: CmdLine@2
   displayName: Build All Shaders
