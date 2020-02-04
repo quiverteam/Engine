@@ -82,7 +82,7 @@ goto dx_sdk_end
 			goto dx_sdk_end
 :dx_sdk_end
 
-if /i "%8" == "-force30" goto set_force30_arg
+if /i "%9" == "-force30" goto set_force30_arg
 goto set_force_end
 :set_force30_arg
 			set DIRECTX_FORCE_MODEL=30
