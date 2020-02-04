@@ -59,11 +59,11 @@ steps:
     repositoryName: '$(Build.Repository.Name)'
     action: 'create'
     target: '$(Build.SourceVersion)'
-    # tagSource: 'manual'
-    # tag: 'auto_build_$(Build.BuildId)_$(Build.BuildNumber)'
-    tagSource: 'auto'
+    tagSource: 'manual'
+    tag: 'auto_build_$(Build.BuildId)_$(Build.BuildNumber)'
+    # tagSource: 'auto'
     releaseNotesSource: 'input'
-    releaseNotes: 'Need to build shaders manually since source''s shader setup is bad'
+    # releaseNotes: ''
     title: 'Auto Build - $(Build.BuildId) - $(Build.BuildNumber)'
     assets: |
       QuiverSource_$(Build.BuildId)_$(Build.BuildNumber).7z
