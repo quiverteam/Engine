@@ -26,15 +26,7 @@ steps:
     platform: 'win32'
     configuration: 'Release'
     maximumCpuCount: true
-    
-- task: CmdLine@2
-  displayName: Build All Shaders
-  inputs:
-    workingDirectory: "$(Build.Repository.LocalPath)/src/materialsystem/stdshaders/"
-    script: '
-      _buildallshaders_force.bat
-      '
-      
+          
 - task: PythonScript@0
   displayName: Generate Engine and Util Projects
   inputs:
