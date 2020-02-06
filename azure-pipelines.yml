@@ -16,7 +16,7 @@ steps:
   inputs:
     scriptSource: 'filePath'
     scriptPath: 'src/devtools/pyqpc/PyQPC.py'
-    arguments: '/basefile "../../vpc_scripts/default.vgc" +core -toolutils -filesystem_steam -appidlink /vs2019 /mksln core'
+    arguments: '/basefile "../../vpc_scripts/default.vgc" +core -toolutils -filesystem_steam /vs2019 /mksln core'
     
 # no difference from MSBuild@1?
 - task: VSBuild@1
@@ -32,7 +32,7 @@ steps:
   inputs:
     scriptSource: 'filePath'
     scriptPath: 'src/devtools/pyqpc/PyQPC.py'
-    arguments: '/basefile "../../vpc_scripts/default.vgc" /episodic +game +utils -core -gameui_client -bsppack -ep2_deathmap -vtex_dll -vtex_launcher -normal2ssbump -height2normal -height2ssbump -hammer_dll -hammer_launcher /vs2019 /mksln engine'
+    arguments: '/basefile "../../vpc_scripts/default.vgc" /episodic /hl2 +game +utils -core -gameui_client -bsppack -ep2_deathmap -vtex_dll -vtex_launcher -normal2ssbump -height2normal -height2ssbump -hammer_dll -hammer_launcher /vs2019 /mksln engine'
     
 # no difference from MSBuild@1?
 - task: VSBuild@1
