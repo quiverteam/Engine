@@ -1,0 +1,28 @@
+//-----------------------------------------------------------------------------
+//	DEFAULT.VGC
+//
+//	Configurations for all Source(TM) Projects
+//-----------------------------------------------------------------------------
+
+////////////////
+// Game Names //
+////////////////
+
+$CommandLineConditionals
+{
+	"EPISODIC"
+	"HL2"
+	"HL2MP"
+	"HL2R"
+}
+
+// Makes the VPC scripts work in the SDK's context
+$Conditional "SOURCESDK" "1"
+
+$Macro "ROOTDIR" "$ROOTDIR/../.."
+
+$Definitions "vpc_scripts/definitions/win32_2010.def"	[$VSTUDIO || $VS2019]
+
+$Include "vpc_scripts\projects.vgc"
+$Include "vpc_scripts\groups.vgc"
+

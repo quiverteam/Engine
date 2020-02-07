@@ -8,17 +8,17 @@ steps:
   inputs:
     scriptSource: 'filePath'
     scriptPath: 'src/devtools/pyqpc/PyQPC.py'
-    arguments: '/basefile "../../vpc_scripts/default.vgc" +libraries /vs2019 /mksln libraries_x64'
+    arguments: '/basefile "../../vpc_scripts/default_qpc.vgc" +libraries /vs2019 /mksln libraries_x64'
     
 - task: PythonScript@0
   displayName: Generate Bin Projects
   inputs:
     scriptSource: 'filePath'
     scriptPath: 'src/devtools/pyqpc/PyQPC.py'
-    arguments: '/basefile "../../vpc_scripts/default.vgc" +binaries /vs2019 /mksln binaries_x64'
+    arguments: '/basefile "../../vpc_scripts/default_qpc.vgc" +binaries /vs2019 /mksln binaries_x64'
           
 - task: PythonScript@0
-  displayName: Generate Engine and Util Projects
+  displayName: Auto Generate Issue 50
   inputs:
     scriptSource: 'filePath'
     scriptPath: 'src/auto_issue50.py'
