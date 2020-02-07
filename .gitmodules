@@ -4,3 +4,7 @@
 [submodule "game/core"]
 	path = game/core
 	url = https://github.com/quiverteam/Core
+[submodule "src/devtools/pyqpc"]
+	path = src/devtools/pyqpc
+	url = https://github.com/quiverteam/QuiverProjectCreator/
+	branch = vpc

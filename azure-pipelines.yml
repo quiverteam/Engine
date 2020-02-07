@@ -3,18 +3,24 @@ pool:
 
 
 steps:
-- task: CmdLine@2
-  displayName: Create lib project
+- task: PythonScript@0
+  displayName: Generate Lib Projects
   inputs:
-    workingDirectory: "$(Build.Repository.LocalPath)/src/"
-    script: '
-      createlibprojects.bat
-      '
+    scriptSource: 'filePath'
+    scriptPath: 'src/devtools/pyqpc/PyQPC.py'
+    arguments: '/basefile "../../vpc_scripts/default.vgc" +libraries /vs2019 /mksln libraries_x64'
     
-- task: CmdLine@2
-  displayName: Create bin project
+steps:
+- task: PythonScript@0
+  displayName: Generate Bin Projects
   inputs:
-    workingDirectory: "$(Build.Repository.LocalPath)/src/"
-    script: '
-      createbinprojects.bat
-      '
+    scriptSource: 'filePath'
+    scriptPath: 'src/devtools/pyqpc/PyQPC.py'
+    arguments: '/basefile "../../vpc_scripts/default.vgc" +binaries /vs2019 /mksln binaries_x64'
+          
+- task: PythonScript@0
+  displayName: Generate Engine and Util Projects
+  inputs:
+    scriptSource: 'filePath'
+    scriptPath: 'src/auto_issue50.py'
+    arguments: '$(git_token)'
