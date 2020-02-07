@@ -10,7 +10,6 @@ steps:
     scriptPath: 'src/devtools/pyqpc/PyQPC.py'
     arguments: '/basefile "../../vpc_scripts/default.vgc" +libraries /vs2019 /mksln libraries_x64'
     
-steps:
 - task: PythonScript@0
   displayName: Generate Bin Projects
   inputs:
