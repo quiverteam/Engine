@@ -56,7 +56,7 @@ configuration
 	}
 }
 
-dependencies [!$IS_LIB_PROJECT && !$CONSOLE_BASE]
+dependencies [!$IS_LIB_PROJECT]
 {
 	"tier0/tier0.qpc"
 	"tier1/tier1.qpc"
