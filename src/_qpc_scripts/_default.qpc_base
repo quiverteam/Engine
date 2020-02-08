@@ -26,6 +26,7 @@ dependency_paths
 	"mxtoolkitwin32"	"utils/mxtk/mxtoolkitwin32.qpc"
 	"nvtristriplib"		"utils/nvtristriplib/nvtristriplib.qpc"
 	"nvtristrip"		"utils/nvtristriplib/nvtristriplib.qpc"
+	"vmpi"				"utils/vmpi/vmpi.qpc"
 	
 	"bitmap"			"bitmap/bitmap.qpc"
 	"shaderlib"			"materialsystem/shaderlib/shaderlib.qpc"
@@ -34,14 +35,13 @@ dependency_paths
 	"raytrace"			"raytrace/raytrace.qpc"
 	"appframework"		"appframework/appframework.qpc"
 	"movieobjects"		"movieobjects/movieobjects.qpc"
-	"dmserializers"		"dmxloader/dmxloader.qpc"
+	"dmserializers"		"dmserializers/dmserializers.qpc"
 	"datamodel"			"datamodel/datamodel.qpc"
 	"choreoobjects"		"choreoobjects/choreoobjects.qpc"
 	"unitlib"			"unitlib/unitlib.qpc"
 	"dmxloader"			"dmxloader/dmxloader.qpc"
 	"particles"			"particles/particles.qpc"
 	"vtf"				"vtf/vtf.qpc"
-	"vmpi"				"utils/vmpi/vmpi.qpc"
 }
 
 // each pass it sets a macro with the name of each configuration in all caps
