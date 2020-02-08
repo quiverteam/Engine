@@ -2,8 +2,7 @@ schedules:
   - cron: "20 03 * * *"
     displayName: "Daily Build"
     branches:
-      include: ["dev"]
-      include: ["qpc"]
+      include: ["dev", "qpc"]
     always: "false" # Don't run unless changes happen
 
 
