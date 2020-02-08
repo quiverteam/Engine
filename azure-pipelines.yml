@@ -3,6 +3,7 @@ schedules:
     displayName: "Daily Build"
     branches:
       include: ["dev"]
+      include: ["qpc"]
     always: "false" # Don't run unless changes happen
 
 
@@ -16,33 +17,18 @@ pool:
 
 steps:
 - task: PythonScript@0
-  displayName: Generate Core Projects
+  displayName: Generate Projects
   inputs:
     scriptSource: 'filePath'
-    scriptPath: 'src/devtools/pyqpc/PyQPC.py'
-    arguments: '/basefile "../../vpc_scripts/default.vgc" +core -toolutils -filesystem_steam /vs2019 /mksln core'
+    scriptPath: 'src/devtools/qpc/qpc.py'
+    workingDirectory: 'src/'
+    arguments: '-a everything -r hammer_dll hlfaceposer vaudio_speex serverplugin_empty scenemanager matsys_regressiontest hlmv dmxedit -m episodic hl2 hl2mp -t vstudio -mf everything'
     
 # no difference from MSBuild@1?
 - task: VSBuild@1
-  displayName: Build Core projects
+  displayName: Build Projects
   inputs:
-    solution: 'src\core.sln'
-    platform: 'win32'
-    configuration: 'Release'
-    maximumCpuCount: true
-          
-- task: PythonScript@0
-  displayName: Generate Engine and Util Projects
-  inputs:
-    scriptSource: 'filePath'
-    scriptPath: 'src/devtools/pyqpc/PyQPC.py'
-    arguments: '/basefile "../../vpc_scripts/default.vgc" /episodic /hl2 +game +utils -core -gameui_client -bsppack -ep2_deathmap -vtex_dll -vtex_launcher -normal2ssbump -height2normal -height2ssbump -hammer_dll -hammer_launcher /vs2019 /mksln engine'
-    
-# no difference from MSBuild@1?
-- task: VSBuild@1
-  displayName: Build Engine and Utils
-  inputs:
-    solution: 'src\engine.sln'
+    solution: 'src\everything.sln'
     platform: 'win32'
     configuration: 'Release'
     maximumCpuCount: true
