@@ -14,13 +14,22 @@ configuration
 	{
 		libraries
 		{
-			"$LIBPUBLIC/appframework"
-			"$LIBPUBLIC/datamodel"
-			"$LIBPUBLIC/dmserializers"
-			"$LIBPUBLIC/mathlib"
-			"$LIBPUBLIC/tier2"
+			"appframework"
+			"datamodel"
+			"dmserializers"
+			"mathlib"
+			"tier2"
 		}
 	}
+}
+
+dependencies
+{
+	"appframework"
+	"datamodel"
+	"dmserializers"
+	"mathlib"
+	"tier2"
 }
 
 files

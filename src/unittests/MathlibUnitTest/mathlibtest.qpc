@@ -35,6 +35,11 @@ configuration
 	}
 }
 
+dependencies
+{
+	"mathlib/mathlib.qpc"
+}
+
 files
 {
 	folder "Source Files"

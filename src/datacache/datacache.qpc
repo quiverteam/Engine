@@ -28,6 +28,12 @@ configuration
 	}
 }
 
+dependencies
+{
+	"tier2/tier2.qpc"
+	"tier3/tier3.qpc"
+}
+
 files
 {
 	folder "Source Files"

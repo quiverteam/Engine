@@ -12,7 +12,6 @@ configuration
 {
 	general
 	{
-		out_dir "$CONFIG/$PLATFORM/dbg"
 		int_dir "$CONFIG/$PLATFORM/dbg"
 
 		include_directories
@@ -40,6 +39,12 @@ configuration
 			"shaderlib"
 		}
 	}
+}
+
+dependencies
+{
+	"mathlib/mathlib.qpc"
+	"shaderlib/shaderlib.qpc"
 }
 
 files

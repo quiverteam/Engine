@@ -44,6 +44,19 @@ configuration
 	}
 }
 
+dependencies
+{
+	"choreoobjects/choreoobjects.qpc"
+	"datamodel/datamodel.qpc"
+	"dmserializers/dmserializers.qpc"
+	"dmxloader/dmxloader.qpc"
+	"mathlib/mathlib.qpc"
+	"movieobjects/movieobjects.qpc"
+	"tier2/tier2.qpc"
+	"tier3/tier3.qpc"
+	"unitlib/unitlib.qpc"
+}
+
 files
 {
 	folder "Source Files"

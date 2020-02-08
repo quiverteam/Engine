@@ -1,22 +1,22 @@
 // ---------------------------------------------------------------
 // Base Application Settings
 // ---------------------------------------------------------------
-macro OUTBINNAME "$PROJECT_NAME"
-macro OUTBINDIR	"$BINDEFAULT"	[!$OUTBINDIR]
+macro OUTBINNAME        "$SCRIPT_NAME" [!$OUTBINNAME]
+macro OUTBINDIR         "$BINDEFAULT"   [!$OUTBINDIR]
 
 include "$SRCDIR/_qpc_scripts/source_base.qpc"
-
-include "$SRCDIR/_qpc_scripts/posix/exe_base.qpc"	[$POSIX]
 include "$SRCDIR/_qpc_scripts/win/exe_base.qpc" 	[$WINDOWS]
+include "$SRCDIR/_qpc_scripts/posix/exe_base.qpc"	[$POSIX]
 
 configuration
 {
 	general
 	{
-	//	out_dir "./$CONFIG/$_SUBDIRSUFFIX"	// change to $BINDEFAULT?
-		out_dir "./$OUTBINDIR"
+		// out_name "$OUTBINNAME"	[$OUTBINNAME]
 		
+		out_dir "./$OUTBINDIR"
 		int_dir "./$CONFIG/$_SUBDIRSUFFIX"
+		
 		configuration_type "application"
 
 		library_directories

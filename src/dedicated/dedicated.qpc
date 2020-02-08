@@ -46,6 +46,15 @@ configuration
 	}
 }
 
+dependencies
+{
+	"appframework"
+	"mathlib"
+	"tier2"
+	"tier3"
+	"vgui_controls"
+}
+
 files
 {
 	folder "Source Files"

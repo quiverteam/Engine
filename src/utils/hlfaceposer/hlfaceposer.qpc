@@ -57,6 +57,23 @@ configuration
 	}
 }
 
+dependencies
+{
+	"mxtoolkitwin32"
+	"appframework"
+	"bitmap"
+	"choreoobjects"
+	"mathlib"
+	"tier2"
+	"tier3"
+	"datamodel"
+	"dme_controls"
+	"dmserializers"
+	"matsys_controls"
+	"movieobjects"
+	"vgui_controls"
+}
+
 files
 {
 	folder "Source Files"

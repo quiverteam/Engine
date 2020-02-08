@@ -45,6 +45,18 @@ configuration
 	}
 }
 
+dependencies
+{
+	"appframework"
+	"datamodel"
+	"dmserializers"
+	"mathlib"
+	"movieobjects"
+	"nvtristrip"
+	"tier2"
+	"tier3"
+}
+
 files
 {
 	folder "Source Files"

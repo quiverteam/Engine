@@ -35,6 +35,14 @@ configuration
 	}
 }
 
+dependencies
+{
+	"bitmap"
+	"mathlib"
+	"raytrace"
+	"tier2"
+}
+
 files
 {
 	folder "Source Files"

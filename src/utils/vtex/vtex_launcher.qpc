@@ -41,6 +41,11 @@ configuration
 	}
 }
 
+dependencies
+{
+	"tier2"
+}
+
 files
 {
 	folder "Source Files"

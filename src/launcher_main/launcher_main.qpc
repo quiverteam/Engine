@@ -9,14 +9,6 @@ macro OUTBINNAME "quiver"
 
 include "$SRCDIR/_qpc_scripts/source_exe_base.qpc"
 
-files
-{
-	folder "Source Files"
-	{
-		- "$SRCDIR/public/tier0/memoverride.cpp"
-	}
-}
-
 configuration
 {
 	compiler
@@ -45,6 +37,7 @@ files
 {
 	folder "Source Files"
 	{
+		- "$SRCDIR/public/tier0/memoverride.cpp"
 		"main.cpp"
 	}
 

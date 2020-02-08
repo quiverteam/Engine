@@ -31,6 +31,15 @@ configuration
 	}
 }
 
+dependencies
+{
+	"appframework"
+	"choreoobjects"
+	"mathlib"
+	"tier2"
+	"tier3"
+}
+
 files
 {
 	folder "Source Files"

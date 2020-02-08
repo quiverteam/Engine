@@ -36,6 +36,12 @@ configuration
 	}
 }
 
+dependencies
+{
+	"appframework/appframework.qpc"
+	"tier0/tier0.qpc"
+}
+
 files
 {
 	folder "Source Files"

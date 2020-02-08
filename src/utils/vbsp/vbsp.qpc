@@ -45,6 +45,15 @@ configuration
 	}
 }
 
+dependencies
+{
+	"bitmap"
+	"fgdlib"
+	"mathlib"
+	"tier2"
+	"vtf"
+}
+
 files
 {
 	folder "Source Files"

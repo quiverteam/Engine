@@ -43,6 +43,11 @@ configuration
 	}
 }
 
+dependencies
+{
+	"jpeglib"
+}
+
 files
 {
 	folder "Source Files"

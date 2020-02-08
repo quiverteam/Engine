@@ -21,6 +21,13 @@ configuration
 	}
 }
 
+dependencies
+{
+	"appframework/appframework.qpc"
+	"tier2/tier2.qpc"
+	"bzip2/bzip2.qpc"
+}
+
 files
 {
 	folder "Source Files"

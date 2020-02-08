@@ -22,11 +22,18 @@ configuration
 	{
 		libraries
 		{
-			"$LIBPUBLIC/bitmap"
-			"$LIBPUBLIC/mathlib"
-			"$LIBPUBLIC/tier2"
+			"bitmap"
+			"mathlib"
+			"tier2"
 		}
 	}
+}
+
+dependencies
+{
+	"bitmap"
+	"mathlib"
+	"tier2"
 }
 
 files

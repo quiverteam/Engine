@@ -28,6 +28,12 @@ configuration
 	}
 }
 
+dependencies
+{
+	"tier2"
+	"mathlib"
+}
+
 files
 {
 	folder "Source Files"

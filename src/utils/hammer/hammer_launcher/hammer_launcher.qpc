@@ -29,6 +29,11 @@ configuration
 	}
 }
 
+dependencies
+{
+	"appframework/appframework.qpc"
+}
+
 files
 {
 	folder "Source Files"

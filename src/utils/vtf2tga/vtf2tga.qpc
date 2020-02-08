@@ -22,6 +22,14 @@ configuration
 	}
 }
 
+dependencies
+{
+	"bitmap/bitmap.qpc"
+	"mathlib/mathlib.qpc"
+	"tier2/tier2.qpc"
+	"vtf/vtf.qpc"
+}
+
 files
 {
 	folder "Source Files"

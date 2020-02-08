@@ -36,14 +36,23 @@ configuration
 			"comctl32.lib"
 			"Rpcrt4.lib"
 			"dbghelp.lib"
-			"$LIBPUBLIC/appframework"
-			"$LIBPUBLIC/matsys_controls"
-			"$LIBCOMMON/sqlwrapper"
-			"$LIBPUBLIC/tier2"
-			"$LIBPUBLIC/tier3"
-			"$LIBPUBLIC/vgui_controls"
+			"appframework"
+			"matsys_controls"
+			"sqlwrapper"
+			"tier2"
+			"tier3"
+			"vgui_controls"
 		}
 	}
+}
+
+dependencies
+{
+	"appframework"
+	"matsys_controls"
+	"tier2"
+	"tier3"
+	"vgui_controls"
 }
 
 files

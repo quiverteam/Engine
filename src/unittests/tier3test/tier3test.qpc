@@ -30,6 +30,14 @@ configuration
 	}
 }
 
+dependencies
+{
+	"mathlib/mathlib.qpc"
+	"tier2/tier2.qpc"
+	"tier3/tier3.qpc"
+	"unitlib/unitlib.qpc"
+}
+
 files
 {
 	folder "Source Files"

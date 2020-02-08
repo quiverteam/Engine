@@ -40,6 +40,12 @@ configuration
 	}
 }
 
+dependencies
+{
+	"tier2"
+	"vmpi"
+}
+
 files
 {
 	folder "Source Files"

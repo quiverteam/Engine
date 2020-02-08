@@ -43,6 +43,13 @@ configuration
 	}
 }
 
+dependencies
+{
+	"bitmap"
+	"mathlib"
+	"tier2"
+}
+
 files
 {
 	folder "Source Files"

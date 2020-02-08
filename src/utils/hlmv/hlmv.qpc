@@ -37,9 +37,18 @@ configuration
 			"appframework"
 			"bitmap"
 			"mathlib"
-			"$LIBCOMMON/mxtoolkitwin32"
+			"mxtoolkitwin32"
 		}
 	}
+}
+
+dependencies
+{
+	"tier2"
+	"appframework"
+	"bitmap"
+	"mathlib"
+	"mxtoolkitwin32"
 }
 
 files

@@ -2,6 +2,7 @@
 // Auto Generated QPC Script - Fix if needed before using
 // ---------------------------------------------------------------
 macro PROJECT_NAME "FileSystem_Stdio"
+macro OUTBINNAME "filesystem_stdio"
 
 macro SRCDIR ".."
 macro OUTBINDIR "$BINDEFAULT"
@@ -12,7 +13,6 @@ configuration
 {
 	general
 	{
-		out_dir "$CONFIG/$PLATFORM/Stdio"
 		int_dir "$CONFIG/$PLATFORM/Stdio"
 	}
 
@@ -34,6 +34,11 @@ configuration
 			"$LIBPUBLIC/tier2"
 		}
 	}
+}
+
+dependencies
+{
+	"tier2/tier2.qpc"
 }
 
 files

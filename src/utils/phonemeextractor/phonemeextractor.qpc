@@ -45,6 +45,11 @@ configuration
 	}
 }
 
+dependencies
+{
+	"mathlib"
+}
+
 files
 {
 	folder "Source Files"

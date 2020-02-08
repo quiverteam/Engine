@@ -38,6 +38,13 @@ configuration
 	}
 }
 
+dependencies
+{
+	"choreoobjects"
+	"mathlib"
+	"tier2"
+}
+
 files
 {
 	folder "Source Files"

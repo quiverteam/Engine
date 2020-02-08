@@ -40,6 +40,13 @@ configuration
 	}
 }
 
+dependencies
+{
+	"mathlib"
+	"nvtristrip"
+	"tier2"
+}
+
 files
 {
 	folder "Source Files"

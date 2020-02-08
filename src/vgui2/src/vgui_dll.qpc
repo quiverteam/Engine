@@ -39,6 +39,13 @@ configuration
 	}
 }
 
+dependencies
+{
+	"vgui_surfacelib"
+	"tier2"
+	"tier3"
+}
+
 files
 {
 	folder "Source Files"

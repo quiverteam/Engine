@@ -23,6 +23,12 @@ configuration
 	}
 }
 
+dependencies
+{
+	"tier2"
+	"tier3"
+}
+
 files
 {
 	folder "Source Files"

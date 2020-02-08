@@ -43,6 +43,13 @@ configuration
 	}
 }
 
+dependencies
+{
+	"tier2"
+	"vmpi"
+	"lzma"
+}
+
 files
 {
 	folder "Source Files"

@@ -56,8 +56,12 @@ configuration
 	}
 }
 
-dependencies [!$IS_LIB_PROJECT]
-{ "tier0/tier0.qpc" "vstdlib/vstdlib.qpc" }
+dependencies [!$IS_LIB_PROJECT && !$CONSOLE_BASE]
+{
+	"tier0/tier0.qpc"
+	"tier1/tier1.qpc"
+	"vstdlib/vstdlib.qpc"
+}
 
 files [!$IS_LIB_PROJECT]
 {

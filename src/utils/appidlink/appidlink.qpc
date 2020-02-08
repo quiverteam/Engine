@@ -23,6 +23,7 @@ files
 {
 	folder "Source Files"
 	{
+		- "$SRCDIR/public/tier0/memoverride.cpp"
 		"appidlink.cpp"
 	}
 }

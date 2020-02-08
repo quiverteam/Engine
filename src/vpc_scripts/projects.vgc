@@ -456,7 +456,7 @@ $Project "matsys_controls"
 
 $Project "matsys_regressiontest"
 {
-	"utils\matsys_regressiontest\matsys_regressiontest.vpc" [$WINDOWS]
+	"unittests\matsys_regressiontest\matsys_regressiontest.vpc" [$WINDOWS]
 }
 
 $Project "mdlcheck"

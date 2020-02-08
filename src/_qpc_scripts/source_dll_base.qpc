@@ -1,9 +1,9 @@
 // ---------------------------------------------------------------
 // Base Dynamic Library Settings
 // ---------------------------------------------------------------
-macro OUTBINNAME "$PROJECT_NAME"	[!$OUTBINNAME]
-macro OUTBINDIR "$BINDEFAULT"		[!$OUTBINDIR]
-macro OUTDLLEXT "$_BIN_EXT"
+macro OUTBINNAME        "$SCRIPT_NAME"     [!$OUTBINNAME]
+macro OUTBINDIR         "$BINDEFAULT"       [!$OUTBINDIR]
+macro OUTDLLEXT         "$_BIN_EXT"
 
 include "$SRCDIR/_qpc_scripts/source_base.qpc"
 

@@ -43,6 +43,13 @@ configuration
 	}
 }
 
+dependencies
+{
+	"mathlib/mathlib.qpc"
+	"tier2/tier2.qpc"
+	"utils/vmpi/vmpi.qpc"
+}
+
 files
 {
 	folder "Source Files"

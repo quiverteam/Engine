@@ -47,6 +47,7 @@ configuration
 dependencies
 {
 	- "vstdlib/vstdlib.qpc"
+	- "tier1/tier1.qpc"
 }
 
 files

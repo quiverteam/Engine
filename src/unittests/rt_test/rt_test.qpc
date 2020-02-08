@@ -31,6 +31,14 @@ configuration
 	}
 }
 
+dependencies
+{
+	"bitmap/bitmap.qpc"
+	"mathlib/mathlib.qpc"
+	"raytrace/raytrace.qpc"
+	"tier2/tier2.qpc"
+}
+
 files
 {
 	folder "Source Files"

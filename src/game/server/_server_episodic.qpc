@@ -1,12 +1,12 @@
 // ---------------------------------------------------------------
 // Auto Generated QPC Script - Fix if needed before using
 // ---------------------------------------------------------------
-macro PROJECT_NAME "Server (HL2)"
+macro PROJECT_NAME "Server (Episodic)"
 
 macro SRCDIR "../.."
-macro GAMENAME "mod_hl2"
+macro GAMENAME "mod_episodic"
 
-include "$SRCDIR/game/server/server_base.qpc"
+include "$SRCDIR/game/server/_server_base.qpc"
 
 configuration
 {
@@ -15,7 +15,9 @@ configuration
 		include_directories
 		{
 			"$SRCDIR/game/shared/hl2"
+			"$SRCDIR/game/shared/episodic"
 			"./hl2"
+			"./episodic"
 		}
 	}
 
@@ -24,6 +26,7 @@ configuration
 		preprocessor_definitions
 		{
 			"HL2_DLL"
+			"HL2_EPISODIC"
 			"USES_SAVERESTORE"
 		}
 	}
@@ -40,8 +43,6 @@ files
 		"basegrenade_concussion.cpp"
 		"basegrenade_contact.cpp"
 		"basegrenade_timed.cpp"
-		"EntityFlame.h"
-		"hl2/Func_Monitor.cpp"
 		"grenadethrown.cpp"
 		"grenadethrown.h"
 		"h_cycler.cpp"
@@ -62,16 +63,26 @@ files
 
 		folder "HL2 DLL"
 		{
-			"$SRCDIR/game/shared/hl2/achievements_hl2.cpp"
+			"$SRCDIR/game/shared/episodic/achievements_ep1.cpp"
+			"$SRCDIR/game/shared/episodic/achievements_ep2.cpp"
+			"$SRCDIR/game/shared/episodic/achievements_epx.cpp"
 			"hl2/ai_allymanager.cpp"
 			"hl2/ai_behavior_actbusy.cpp"
 			"hl2/ai_behavior_actbusy.h"
+			"episodic/ai_behavior_alyx_injured.cpp"
+			"episodic/ai_behavior_alyx_injured.h"
 			"hl2/ai_behavior_functank.cpp"
 			"hl2/ai_behavior_functank.h"
 			"hl2/ai_behavior_holster.cpp"
 			"hl2/ai_behavior_holster.h"
 			"hl2/ai_behavior_operator.cpp"
 			"hl2/ai_behavior_operator.h"
+			"ai_behavior_passenger.cpp"
+			"ai_behavior_passenger.h"
+			"episodic/ai_behavior_passenger_companion.cpp"
+			"episodic/ai_behavior_passenger_companion.h"
+			"episodic/ai_behavior_passenger_zombie.cpp"
+			"episodic/ai_behavior_passenger_zombie.h"
 			"hl2/ai_behavior_police.cpp"
 			"hl2/ai_behavior_police.h"
 			"hl2/ai_goal_police.cpp"
@@ -106,8 +117,8 @@ files
 			"$SRCDIR/game/shared/hl2/env_headcrabcanister_shared.cpp"
 			"$SRCDIR/game/shared/hl2/env_headcrabcanister_shared.h"
 			"hl2/env_speaker.cpp"
-			"hl2/env_speaker.h"
 			"hl2/env_starfield.cpp"
+			"hl2/Func_Monitor.cpp"
 			"hl2/func_recharge.cpp"
 			"hl2/func_tank.cpp"
 			"hl2/func_tank.h"
@@ -117,13 +128,13 @@ files
 			"hl2/grenade_bugbait.h"
 			"hl2/grenade_frag.cpp"
 			"hl2/grenade_frag.h"
+			"hl2/grenade_spit.cpp"
+			"hl2/grenade_spit.h"
 			"hl2/hl2_ai_network.cpp"
 			"hl2/hl2_client.cpp"
 			"hl2/hl2_eventlog.cpp"
 			"$SRCDIR/game/shared/hl2/hl2_gamerules.cpp"
 			"$SRCDIR/game/shared/hl2/hl2_gamerules.h"
-			"hl2/hl2_gamestats.cpp"
-			"hl2/hl2_gamestats.h"
 			"hl2/hl2_player.cpp"
 			"hl2/hl2_player.h"
 			"$SRCDIR/game/shared/hl2/hl2_player_shared.h"
@@ -148,12 +159,14 @@ files
 			"hl2/item_suit.cpp"
 			"hl2/look_door.cpp"
 			"hl2/monster_dummy.cpp"
-			"hl2/npc_alyx.cpp"
-			"hl2/npc_alyx.h"
+			"$SRCDIR/game/shared/episodic/npc_advisor_shared.h"
+			"episodic/npc_advisor.cpp"
+			"hl2/npc_alyx_episodic.cpp"
 			"hl2/npc_alyx_episodic.h"
 			"hl2/npc_antlion.cpp"
 			"hl2/npc_antlion.h"
 			"hl2/npc_antlionguard.cpp"
+			"hl2/npc_antliongrub.cpp"
 			"hl2/npc_apcdriver.cpp"
 			"hl2/npc_attackchopper.cpp"
 			"hl2/npc_attackchopper.h"
@@ -164,12 +177,12 @@ files
 			"hl2/npc_basescanner.h"
 			"hl2/npc_BaseZombie.cpp"
 			"hl2/npc_BaseZombie.h"
-			"hl2/npc_blob.cpp"
 			"hl2/npc_breen.cpp"
 			"hl2/npc_bullseye.cpp"
 			"hl2/npc_bullseye.h"
 			"hl2/npc_citizen17.cpp"
 			"hl2/npc_citizen17.h"
+			"episodic/npc_combine_cannon.cpp"
 			"hl2/npc_combine.cpp"
 			"hl2/npc_combine.h"
 			"hl2/npc_combinecamera.cpp"
@@ -188,9 +201,12 @@ files
 			"hl2/npc_gman.cpp"
 			"hl2/npc_headcrab.cpp"
 			"hl2/npc_headcrab.h"
+			"episodic/npc_hunter.cpp"
+			"episodic/npc_hunter.h"
 			"hl2/npc_ichthyosaur.cpp"
 			"hl2/npc_kleiner.cpp"
 			"hl2/npc_launcher.cpp"
+			"episodic/npc_magnusson.cpp"
 			"hl2/npc_Manhack.cpp"
 			"hl2/npc_manhack.h"
 			"hl2/npc_metropolice.cpp"
@@ -212,15 +228,15 @@ files
 			"npc_talker.h"
 			"hl2/npc_turret_ceiling.cpp"
 			"hl2/npc_turret_floor.cpp"
-			"hl2/npc_turret_floor.h"
 			"hl2/npc_turret_ground.cpp"
-			"hl2/npc_turret_ground.h"
 			"hl2/npc_vortigaunt_episodic.cpp"
 			"hl2/npc_vortigaunt_episodic.h"
 			"hl2/npc_zombie.cpp"
+			"hl2/npc_zombine.cpp"
 			"hl2/point_apc_controller.cpp"
 			"hl2/prop_combine_ball.cpp"
 			"hl2/prop_combine_ball.h"
+			"episodic/prop_scalable.cpp"
 			"hl2/prop_thumper.cpp"
 			"hl2/proto_sniper.cpp"
 			"hl2/rotorwash.cpp"
@@ -234,6 +250,8 @@ files
 			"hl2/vehicle_crane.cpp"
 			"hl2/vehicle_crane.h"
 			"hl2/vehicle_jeep.cpp"
+			"episodic/vehicle_jeep_episodic.cpp"
+			"episodic/vehicle_jeep_episodic.h"
 			"hl2/vehicle_prisoner_pod.cpp"
 			"hl2/vehicle_viewcontroller.cpp"
 			"hl2/weapon_357.cpp"
@@ -257,10 +275,30 @@ files
 			"hl2/weapon_rpg.h"
 			"hl2/weapon_shotgun.cpp"
 			"hl2/weapon_smg1.cpp"
+			"episodic/weapon_striderbuster.cpp"
+			"episodic/weapon_striderbuster.h"
 			"hl2/weapon_stunstick.cpp"
 			"hl2/weapon_stunstick.h"
+			"episodic/ep1_gamestats.h"
+			"episodic/ep2_gamestats.h"
 
-			folder "Unused"
+			"episodic/ep1_gamestats.cpp"	\
+			"episodic/ep2_gamestats.cpp"
+			{
+				configuration
+				{
+					compiler
+					{
+						precompiled_header "none"
+					}
+				}
+			}
+
+			"hl2/func_bulletshield.cpp"
+			"hl2/func_bulletshield.h"
+			"episodic/npc_puppet.cpp"
+
+			folder "unused"
 			{
 				"hl2/grenade_beam.cpp"
 				"hl2/grenade_beam.h"

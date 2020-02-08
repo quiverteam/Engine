@@ -37,7 +37,7 @@ configuration
 		libraries
 		{
 			"vgui_surfacelib_360.lib" [$X360]
-			"vgui_surfacelib.lib" "nvtc.lib" [$WIN32]
+			"nvtc.lib" [$WIN32]
 			"bitmap"
 			"mathlib"
 			"tier2"
@@ -46,6 +46,16 @@ configuration
 			"vgui_surfacelib"
 		}
 	}
+}
+
+dependencies
+{
+	"bitmap"
+	"mathlib"
+	"tier2"
+	"tier3"
+	"vgui_controls"
+	"vgui_surfacelib"
 }
 
 files

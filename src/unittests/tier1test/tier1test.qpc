@@ -28,6 +28,12 @@ configuration
 	}
 }
 
+dependencies
+{
+	"mathlib/mathlib.qpc"
+	"unitlib/unitlib.qpc"
+}
+
 files
 {
 	folder "Source Files"

@@ -37,6 +37,12 @@ configuration
 	}
 }
 
+dependencies
+{
+	"appframework/appframework.qpc"
+	"mathlib/mathlib.qpc"
+}
+
 files
 {
 	folder "Source Files"

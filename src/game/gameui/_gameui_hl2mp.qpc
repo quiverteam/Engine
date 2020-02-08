@@ -1,11 +1,11 @@
 // ---------------------------------------------------------------
 // Auto Generated QPC Script - Fix if needed before using
 // ---------------------------------------------------------------
-macro PROJECT_NAME "GameUI (Episodic)"
+macro PROJECT_NAME "GameUI (HL2MP)"
 
-macro GAMENAME "mod_episodic"
+macro GAMENAME "mod_hl2mp"
 
-include "gameui_base.qpc" [$WINDOWS]
+include "_gameui_base.qpc" [$WINDOWS]
 
 files
 {

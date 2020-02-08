@@ -5,7 +5,7 @@ macro PROJECT_NAME "GameUI (HL2)"
 
 macro GAMENAME "mod_hl2"
 
-include "gameui_base.qpc" [$WINDOWS]
+include "_gameui_base.qpc" [$WINDOWS]
 
 files
 {

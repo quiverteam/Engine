@@ -12,7 +12,6 @@ configuration
 {
 	general
 	{
-		out_dir "./$CONFIG/$PLATFORM/dx10"
 		int_dir "./$CONFIG/$PLATFORM/dx10"
 
 		include_directories
@@ -49,6 +48,14 @@ configuration
 			"$SRCDIR/dx10sdk/lib/d3dx10d.lib $SRCDIR/dx10sdk/lib/d3dx9d"
 		}
 	}
+}
+
+dependencies
+{
+	"bitmap/bitmap.qpc"
+	"mathlib/mathlib.qpc"
+	"tier2/tier2.qpc"
+	"thirdparty/bzip2/bzip2.qpc"
 }
 
 files

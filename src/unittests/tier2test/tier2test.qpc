@@ -30,6 +30,14 @@ configuration
 	}
 }
 
+dependencies
+{
+	"bitmap/bitmap.qpc"
+	"mathlib/mathlib.qpc"
+	"tier2/tier2.qpc"
+	"unitlib/unitlib.qpc"
+}
+
 files
 {
 	folder "Source Files"

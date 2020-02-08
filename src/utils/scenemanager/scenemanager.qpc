@@ -40,7 +40,7 @@ configuration
 			"comctl32.lib"
 			"odbc32.lib"
 			"odbccp32.lib"
-			"$LIBCOMMON/mxtoolkitwin32"
+			"mxtoolkitwin32"
 			"appframework"
 			"choreoobjects"
 			"mathlib"
@@ -48,6 +48,16 @@ configuration
 			"tier3"
 		}
 	}
+}
+
+dependencies
+{
+	"mxtoolkitwin32"
+	"appframework"
+	"choreoobjects"
+	"mathlib"
+	"tier2"
+	"tier3"
 }
 
 files

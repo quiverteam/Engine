@@ -50,6 +50,11 @@ configuration
 	}
 }
 
+dependencies
+{
+	"vmpi"
+}
+
 files
 {
 	folder "Source Files"

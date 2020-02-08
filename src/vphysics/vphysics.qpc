@@ -38,6 +38,16 @@ configuration
 	}
 }
 
+dependencies
+{
+	"mathlib"
+	"tier2"
+	"tier3"
+	"vstdlib"
+	
+	// TODO: put the bullet qpc projects in and add them here
+}
+
 files
 {
 	folder "Source Files"

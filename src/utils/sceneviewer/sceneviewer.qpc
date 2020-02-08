@@ -29,6 +29,20 @@ configuration
 	}
 }
 
+dependencies
+{
+	"appframework"
+	"datamodel"
+	"dme_controls"
+	"dmserializers"
+	"mathlib"
+	"matsys_controls"
+	"movieobjects"
+	"tier2"
+	"tier3"
+	"vgui_controls"
+}
+
 files
 {
 	folder "Source Files"
