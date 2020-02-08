@@ -23,6 +23,15 @@ configuration
 	}
 }
 
+dependencies
+{
+	"appframework"
+	"datamodel"
+	"dmserializers"
+	"mathlib"
+	"tier2"
+}
+
 files
 {
 	folder "Source Files"
