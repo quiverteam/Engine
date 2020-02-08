@@ -44,6 +44,11 @@ configuration
 	}
 }
 
+dependencies
+{
+	- "vstdlib/vstdlib.qpc"
+}
+
 files
 {
 	folder "Source Files"
