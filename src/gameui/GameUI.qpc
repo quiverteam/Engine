@@ -45,6 +45,17 @@ configuration
 	}
 }
 
+dependencies
+{
+	"bitmap"
+	"jpeglib"
+	"mathlib"
+	"tier2"
+	"tier3"
+	"vgui_controls"
+	"vtf"
+}
+
 files
 {
 	folder "Source Files"

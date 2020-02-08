@@ -23,9 +23,9 @@ configuration
 
 dependencies
 {
-	"appframework/appframework.qpc"
-	"tier2/tier2.qpc"
-	"bzip2/bzip2.qpc"
+	"appframework"
+	"tier2"
+	"bzip2"
 }
 
 files
