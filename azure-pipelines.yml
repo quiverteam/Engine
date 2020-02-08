@@ -10,6 +10,10 @@ pool:
   vmImage: 'windows-2019'
 
 
+# useful variables:
+# https://docs.microsoft.com/en-us/azure/devops/pipelines/build/variables?view=azure-devops&tabs=yaml
+
+
 steps:
 - task: PythonScript@0
   displayName: Generate Core Projects
@@ -49,7 +53,7 @@ steps:
     rootFolderOrFile: 'game/'
     includeRootFolder: false
     archiveType: '7z'
-    archiveFile: 'QuiverSource_$(Build.BuildId)_$(Build.BuildNumber).7z'
+    archiveFile: 'QuiverSource_$(Build.BuildId)_$(Build.SourceBranchName)_$(Build.BuildNumber).7z'
     replaceExistingArchive: true
 
 - task: GitHubRelease@0
@@ -60,11 +64,10 @@ steps:
     action: 'create'
     target: '$(Build.SourceVersion)'
     tagSource: 'manual'
-    tag: 'auto_build_$(Build.BuildId)_$(Build.BuildNumber)'
-    # tagSource: 'auto'
-    releaseNotesSource: 'input'
-    # releaseNotes: ''
-    title: 'Auto Build - $(Build.BuildId) - $(Build.BuildNumber)'
+    tag: 'auto_build_$(Build.BuildId)_$(Build.SourceBranchName)_$(Build.BuildNumber)'
+    # releaseNotesSource: 'input'
+    releaseNotes: "Auto Build on $(Build.Repository.Name) branch"
+    title: 'Auto Build $(Build.BuildId) - $(Build.SourceBranchName) - $(Build.BuildNumber)'
     assets: |
-      QuiverSource_$(Build.BuildId)_$(Build.BuildNumber).7z
+      QuiverSource_$(Build.BuildId)_$(Build.SourceBranchName)_$(Build.BuildNumber).7z
 
