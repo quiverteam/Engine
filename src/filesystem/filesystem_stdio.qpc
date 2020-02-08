@@ -1,0 +1,87 @@
+// ---------------------------------------------------------------
+// Auto Generated QPC Script - Fix if needed before using
+// ---------------------------------------------------------------
+macro PROJECT_NAME "FileSystem_Stdio"
+macro OUTBINNAME "filesystem_stdio"
+
+macro SRCDIR ".."
+macro OUTBINDIR "$BINDEFAULT"
+
+include "$SRCDIR/_qpc_scripts/source_dll_base.qpc"
+
+configuration
+{
+	general
+	{
+		int_dir "$CONFIG/$PLATFORM/Stdio"
+	}
+
+	compiler
+	{
+		preprocessor_definitions
+		{
+			"FILESYSTEM_STDIO_EXPORTS"
+			"DONT_PROTECT_FILEIO_FUNCTIONS"
+			"PROTECTED_THINGS_ENABLE"
+			"_USE_32BIT_TIME_T"
+		}
+	}
+
+	linker
+	{
+		libraries
+		{
+			"$LIBPUBLIC/tier2"
+		}
+	}
+}
+
+dependencies
+{
+	"tier2/tier2.qpc"
+}
+
+files
+{
+	folder "Source Files"
+	{
+		"BaseFileSystem.cpp"
+		"filetracker.cpp"
+		"filesystem_async.cpp"
+		"FileSystem_Stdio.cpp"
+		"$SRCDIR/public/kevvaluescompiler.cpp"
+		"$SRCDIR/public/zip_utils.cpp"
+		"QueuedLoader.cpp"
+	}
+
+	folder "Header Files"
+	{
+		"BaseFileSystem.h"
+		"filetracker.h"
+		"threadsaferefcountedobject.h"
+		"$SRCDIR/Public/tier0/basetypes.h"
+		"$SRCDIR/Public/BSPFILE.H"
+		"$SRCDIR/Public/bspflags.h"
+		"$SRCDIR/Public/mathlib/bumpvects.h"
+		"$SRCDIR/public/tier1/characterset.h"
+		"$SRCDIR/public/tier0/dbg.h"
+		"$SRCDIR/public/tier0/fasttimer.h"
+		"$SRCDIR/Public/FileSystem.h"
+		"$SRCDIR/Public/ifilelist.h"
+		"$SRCDIR/public/appframework/IAppSystem.h"
+		"$SRCDIR/public/tier1/interface.h"
+		"$SRCDIR/Public/mathlib/MATHLIB.H"
+		"$SRCDIR/public/tier0/platform.h"
+		"$SRCDIR/public/tier1/strtools.h"
+		"$SRCDIR/public/tier1/utlmemory.h"
+		"$SRCDIR/public/tier1/utlrbtree.h"
+		"$SRCDIR/public/tier1/utlsymbol.h"
+		"$SRCDIR/public/tier1/utlvector.h"
+		"$SRCDIR/Public/mathlib/vector.h"
+		"$SRCDIR/Public/mathlib/vector2d.h"
+		"$SRCDIR/Public/mathlib/vector4d.h"
+		"$SRCDIR/public/vstdlib/vstdlib.h"
+		"$SRCDIR/public/keyvaluescompiler.h"
+		"$SRCDIR/public/filesystem/IQueuedLoader.h"
+	}
+}

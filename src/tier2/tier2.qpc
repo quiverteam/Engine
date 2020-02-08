@@ -1,0 +1,56 @@
+// ---------------------------------------------------------------
+// Auto Generated QPC Script - Fix if needed before using
+// ---------------------------------------------------------------
+macro PROJECT_NAME "tier2"
+
+macro SRCDIR ".."
+macro OUTLIBDIR "$LIBPUBLIC"
+
+include "$SRCDIR/_qpc_scripts/source_lib_base.qpc"
+
+configuration
+{
+	general
+	{
+		include_directories
+		{
+			"$SRCDIR/public/tier2"
+		}
+	}
+}
+
+files
+{
+	folder "Source Files"
+	{
+		"beamsegdraw.cpp"
+		"defaultfilesystem.cpp"
+		"dmconnect.cpp"
+		"fileutils.cpp"
+		"keybindings.cpp"
+		"$SRCDIR/public/map_utils.cpp"
+		"$SRCDIR/public/materialsystem/MaterialSystemUtil.cpp"
+		"meshutils.cpp"
+		"renderutils.cpp"
+		"riff.cpp"
+		"soundutils.cpp"
+		"tier2.cpp"
+		"util_init.cpp"
+		"utlstreambuffer.cpp"
+		"vconfig.cpp"
+	}
+
+	folder "Public Header Files"
+	{
+		"$SRCDIR/public/tier2/beamsegdraw.h"
+		"$SRCDIR/public/tier2/fileutils.h"
+		"$SRCDIR/public/tier2/meshutils.h"
+		"$SRCDIR/public/tier2/keybindings.h"
+		"$SRCDIR/public/tier2/renderutils.h"
+		"$SRCDIR/public/tier2/riff.h"
+		"$SRCDIR/public/tier2/soundutils.h"
+		"$SRCDIR/public/tier2/tier2.h"
+		"$SRCDIR/public/tier2/utlstreambuffer.h"
+		"$SRCDIR/public/tier2/vconfig.h"
+	}
+}

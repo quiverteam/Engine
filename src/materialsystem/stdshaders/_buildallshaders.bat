@@ -16,7 +16,7 @@ rem ====== LAUNCH CONFIGURATIONS ======
 set "GAMEDIR=%cd%\..\..\..\game\mod_hl2"
 set "ENGINEDIR=..\..\..\game"
 set "SOURCEDIR=..\.."
-set "BUILD_SHADER=call _buildshaders.bat"
+set "BUILD_SHADER=call %cd%\_buildshaders.bat"
 
 @REM dynamic shaders only builds the required files (inc) to build stdshader_*.dll
 set dynamic_shaders=0
@@ -38,9 +38,9 @@ REM BUILD SHADERS
 REM ****************
 @REM  >_log_shaderlist_dx9_20b.log
 echo --------------------------------------------------------------------------------------------
-%BUILD_SHADER% _shaderlist_dx9_20b				-game %GAMEDIR% -source %SOURCEDIR% %dynamic_shaders%
+%BUILD_SHADER% _shaderlist_dx9_20b				-game %GAMEDIR% -source %SOURCEDIR% %dynamic_shaders% 0
 echo --------------------------------------------------------------------------------------------
-%BUILD_SHADER% _shaderlist_dx9_30				-game %GAMEDIR% -source %SOURCEDIR% %dynamic_shaders% -dx9_30 -force30
+%BUILD_SHADER% _shaderlist_dx9_30				-game %GAMEDIR% -source %SOURCEDIR% %dynamic_shaders% 0 -dx9_30 -force30
 echo --------------------------------------------------------------------------------------------
 @REM eventually, only use _shaderlist_dx9, it will have all shaders as shader model 3 in it only
 
@@ -69,4 +69,5 @@ echo.
 echo Press any key to rebuild stdshader projects and exit . . .
 pause >nul
 
-..\..\devtools\bin\vpc.exe /f /define:VS2019 +stdshaders
+py ..\..\devtools\qpc\qpc.py -d "../.."  -a stdshader_dx9 stdshader_dbg -t vstudio -f
+

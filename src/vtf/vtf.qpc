@@ -1,0 +1,48 @@
+// ---------------------------------------------------------------
+// Auto Generated QPC Script - Fix if needed before using
+// ---------------------------------------------------------------
+macro PROJECT_NAME "vtf"
+
+macro SRCDIR ".."
+macro OUTLIBDIR "$LIBPUBLIC"
+
+include "$SRCDIR/_qpc_scripts/source_lib_base.qpc"
+
+configuration
+{
+	general
+	{
+		include_directories
+		{
+			"$SRCDIR/dx9sdk/include" [$WIN32]
+		}
+	}
+
+	compiler
+	{
+		preprocessor_definitions
+		{
+			"fopen=dont_use_fopen"
+		}
+	}
+}
+
+files
+{
+	folder "Source Files"
+	{
+		"s3tc_decode.cpp" [$WIN32]
+		"vtf.cpp"
+	}
+
+	folder "Public Header Files"
+	{
+		"s3tc_decode.h" [$WIN32]
+		"$SRCDIR/Public/vtf/vtf.h"
+	}
+
+	folder "Header Files"
+	{
+		"cvtf.h"
+	}
+}

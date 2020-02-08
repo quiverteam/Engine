@@ -1,0 +1,78 @@
+// ---------------------------------------------------------------
+// Base Settings for Visual Studio
+// ---------------------------------------------------------------
+include "$SRCDIR/_qpc_scripts/win/vstudio_analyze.qpc" 	[$ANALYZE]
+include "$SRCDIR/_qpc_scripts/win/base_exe_dll.qpc" 	[!$IS_LIB_PROJECT]
+
+macro _MSC_VER "1800" [$VS2013 && $WIN32]
+macro _MSC_VER "1900" [$VS2015 && $WIN32]
+macro _MSC_VER "1910" [$VS2017 && $WIN32]
+macro _MSC_VER "1920" [($VS2019|| $VSTUDIO) && $WIN32]
+
+configuration
+{
+	general
+	{
+		toolset_version "msvc_142" [$VS2019 || $VSTUDIO]
+		toolset_version "msvc_141" [$VS2017]
+		toolset_version "msvc_140" [$VS2015]
+		toolset_version "msvc_120" [$VS2013]
+		toolset_version "msvc_110" [$VS2012]
+		toolset_version "msvc_100" [$VS2010]
+		
+		options
+		{
+			"/ltcg" [$LTCG && $WIN32 && $RELEASE]
+		}
+	}
+
+	compiler
+	{
+		preprocessor_definitions
+		{
+			"PLATFORM_WINDOWS_PC64" "WIN64" "_WIN64" "COMPILER_MSVC64"	[$WIN64]
+			"COMPILER_MSVC32" "PLATFORM_WINDOWS_PC32" "WIN32" "_WIN32" 	[$WIN32]
+			
+			"WINDOWS" "_WINDOWS" "COMPILER_MSVC" "MBCS"
+			
+			"_ALLOW_RUNTIME_LIBRARY_MISMATCH" "_ALLOW_ITERATOR_DEBUG_LEVEL_MISMATCH" "_ALLOW_MSC_VER_MISMATCH"
+			"_CRT_SECURE_NO_DEPRECATE" "_CRT_NONSTDC_NO_DEPRECATE"
+		}
+
+		precompiled_header "none"
+
+		options
+		{
+			"/ignore:4316" "/ignore:4594" "/ignore:4457" "/ignore:4456" "/ignore:4458" "/ignore:4459" "/ignore:4624" "/ignore:4577" "/Gw" [$_MSC_VER >= 1800]
+			
+			"/arch:SSE" [$WIN32]
+			
+			"/Oy-" 		[$NOFPO && $WIN32 && $RELEASE]
+			
+			"/ZI" 		[$WIN32 && $DEBUG]
+			"/d2Zi+" 	[$WIN32 && $RELEASE]
+			
+			"/RTC1" 	[$WIN64 && $DEBUG]
+			
+			"/Od" "/MTd" 								[$DEBUG]
+			"/O2" "/Ob2" "/Oi" "/Ot" "/MT" "/Gy" "/Zi"	[$RELEASE]
+			
+			"/W4" "/GF" "/fp:fast" "/GR" "/errorReport:prompt" "/MP" "/Zc:wchar_t" "/Zc:forScope"
+		}
+	}
+	
+	linker
+	{
+		libraries
+		{
+			"user32.lib" "shell32.lib"
+		}
+		
+		options
+		{
+			"/MACHINE:X64" [$WIN64]
+			"/ignore:4221" "/NOLOGO"
+		}
+	}
+}
+

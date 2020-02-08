@@ -1,0 +1,182 @@
+// ---------------------------------------------------------------
+// Auto Generated QPC Script - Fix if needed before using
+// ---------------------------------------------------------------
+macro PROJECT_NAME "tier0"
+
+macro SRCDIR ".."
+macro OUTBINDIR "$BINDEFAULT"
+
+include "$SRCDIR/_qpc_scripts/source_dll_base.qpc"
+
+files
+{
+	folder "Source Files"
+	{
+		- "$SRCDIR/public/tier0/memoverride.cpp"
+	}
+}
+
+configuration
+{
+	compiler
+	{
+		preprocessor_definitions
+		{
+			"TIER0_DLL_EXPORT"
+		}
+
+		precompiled_header "use"
+		precompiled_header_file "pch_tier0.h"
+		precompiled_header_output_file "$(IntDir)/tier0.pch"
+	}
+
+	linker
+	{
+		import_library "$LIBPUBLIC/$(TargetName)" [$WINDOWS]
+
+		libraries
+		{
+			"ws2_32.lib" [$WINDOWS || $POSIX]
+			- "$LIBPUBLIC/tier0" "$LIBPUBLIC/tier1" "$LIBPUBLIC/vstdlib" [$WINDOWS]
+			- "$LIBPUBLIC/libvstdlib" [$POSIX]
+			"tier1" [$POSIX]
+		}
+	}
+}
+
+dependencies
+{
+	- "vstdlib/vstdlib.qpc"
+	- "tier1/tier1.qpc"
+}
+
+files
+{
+	folder "Source Files"
+	{
+		"assert_dialog.cpp"
+		"assert_dialog.rc" [$WINDOWS || $POSIX]
+		"commandline.cpp"
+		"cpu.cpp"
+		{
+			configuration
+			{
+				compiler
+				{
+					precompiled_header "none"
+				}
+			}
+		}
+
+		"dbg.cpp"
+		"fasttimer.cpp"
+		"mem.cpp"
+		"mem_helpers.cpp"
+		"memdbg.cpp"
+		"memstd.cpp"
+		"memvalidate.cpp"
+		"minidump.cpp"
+		{
+			configuration
+			{
+				compiler
+				{
+					precompiled_header "none"
+				}
+			}
+		}
+
+		"pch_tier0.cpp"
+		{
+			configuration
+			{
+				compiler
+				{
+					precompiled_header "create"
+				}
+			}
+		}
+
+		"platform.cpp"
+		"pme.cpp" [$WINDOWS || $POSIX]
+		"PMELib.cpp" [$WINDOWS || $POSIX]
+		{
+			configuration
+			{
+				compiler
+				{
+					precompiled_header "none"
+				}
+			}
+		}
+
+		"progressbar.cpp"
+		"security.cpp"
+		"systeminformation.cpp"
+		"thread.cpp" [$WINDOWS || $POSIX]
+		"threadtools.cpp"
+		{
+			configuration
+			{
+				compiler
+				{
+					precompiled_header "create"
+				}
+			}
+		}
+
+		"tslist.cpp"
+		"vcrmode.cpp" [$WINDOWS || $POSIX]
+		"vprof.cpp"
+		"win32consoleio.cpp" [$WINDOWS]
+	}
+
+	folder "Header Files"
+	{
+		"$SRCDIR/public/tier0/basetypes.h"
+		"$SRCDIR/public/tier0/commonmacros.h"
+		"$SRCDIR/Public/tier0/dbg.h"
+		"$SRCDIR/public/tier0/dbgflag.h"
+		"$SRCDIR/public/tier0/EventMasks.h"
+		"$SRCDIR/public/tier0/EventModes.h"
+		"$SRCDIR/Public/tier0/fasttimer.h"
+		"$SRCDIR/public/tier0/ia32detect.h"
+		"$SRCDIR/public/tier0/icommandline.h"
+		"$SRCDIR/public/tier0/IOCTLCodes.h"
+		"$SRCDIR/public/tier0/K8PerformanceCounters.h"
+		"$SRCDIR/public/tier0/l2cache.h"
+		"$SRCDIR/Public/tier0/mem.h"
+		"$SRCDIR/public/tier0/memalloc.h"
+		"$SRCDIR/Public/tier0/memdbgoff.h"
+		"$SRCDIR/Public/tier0/memdbgon.h"
+		"$SRCDIR/public/tier0/minidump.h"
+		"$SRCDIR/public/tier0/P4PerformanceCounters.h"
+		"$SRCDIR/public/tier0/P5P6PerformanceCounters.h"
+		"pch_tier0.h"
+		"$SRCDIR/Public/tier0/platform.h"
+		"$SRCDIR/public/tier0/PMELib.h"
+		"$SRCDIR/public/tier0/progressbar.h"
+		"$SRCDIR/public/tier0/protected_things.h"
+		"resource.h"
+		"$SRCDIR/public/tier0/systeminformation.h"
+		"$SRCDIR/public/tier0/threadtools.h"
+		"$SRCDIR/public/tier0/tslist.h"
+		"$SRCDIR/public/tier0/validator.h"
+		"$SRCDIR/public/tier0/valobject.h"
+		"$SRCDIR/public/tier0/valve_off.h"
+		"$SRCDIR/public/tier0/valve_on.h"
+		"$SRCDIR/Public/tier0/vcr_shared.h"
+		"$SRCDIR/Public/tier0/vcrmode.h"
+		"$SRCDIR/Public/tier0/vprof.h"
+		"$SRCDIR/public/tier0/wchartypes.h"
+		"mem_helpers.h"
+	}
+
+	folder "DESKey" [$WINDOWS]
+	{
+		"DESKey/ALGO.H"
+		"DESKey/ALGO32.LIB"
+		"DESKey/DK2WIN32.H"
+		"DESKey/DK2WIN32.LIB"
+	}
+}

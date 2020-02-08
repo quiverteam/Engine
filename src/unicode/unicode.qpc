@@ -1,0 +1,41 @@
+// ---------------------------------------------------------------
+// Auto Generated QPC Script - Fix if needed before using
+// ---------------------------------------------------------------
+macro PROJECT_NAME "Unicode"
+
+macro SRCDIR ".."
+macro OUTBINDIR "$BINDEFAULT"
+
+include "$SRCDIR/_qpc_scripts/source_dll_base.qpc"
+
+configuration
+{
+	compiler
+	{
+		preprocessor_definitions
+		{
+			"UNICODE_EXPORTS"
+		}
+	}
+
+	linker
+	{
+		libraries
+		{
+			"unicows.lib" "kernel32.lib" [$RELEASE]
+		}
+
+		ignore_libraries
+		{
+			"advapi32.lib" "user32.lib" "gdi32.lib" [$RELEASE]
+		}
+	}
+}
+
+files
+{
+	folder "Source Files"
+	{
+		"unicode.cpp"
+	}
+}

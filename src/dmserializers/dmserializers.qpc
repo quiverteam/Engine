@@ -1,0 +1,50 @@
+// ---------------------------------------------------------------
+// Auto Generated QPC Script - Fix if needed before using
+// ---------------------------------------------------------------
+macro PROJECT_NAME "Dmserializers"
+
+macro SRCDIR ".."
+macro OUTLIBDIR "$LIBPUBLIC"
+
+include "$SRCDIR/_qpc_scripts/source_lib_base.qpc"
+
+configuration
+{
+	compiler
+	{
+		preprocessor_definitions
+		{
+			"DMSERIALIZERS_LIB"
+		}
+	}
+}
+
+files
+{
+	folder "Source Files"
+	{
+		"dmebaseimporter.cpp"
+		"dmserializers.cpp"
+		"importactbusy.cpp"
+		"importkeyvaluebase.cpp"
+		"importsfmv1.cpp"
+		"importsfmv2.cpp"
+		"importsfmv3.cpp"
+		"importsfmv4.cpp"
+		"importsfmv5.cpp"
+		"importsfmv6.cpp"
+		"importsfmv7.cpp"
+		"importsfmv8.cpp"
+		"importsfmv9.cpp"
+		"importvmf.cpp"
+		"importvmt.cpp"
+	}
+
+	folder "Header Files"
+	{
+		"dmebaseimporter.h"
+		"dmserializers.h"
+		"$SRCDIR/public/dmserializers/idmserializers.h"
+		"importkeyvaluebase.h"
+	}
+}

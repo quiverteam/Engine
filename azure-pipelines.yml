@@ -1,25 +1,58 @@
+schedules:
+  - cron: "20 03 * * *"
+    displayName: "Daily Build"
+    branches:
+      include: ["dev", "qpc"]
+    always: "false" # Don't run unless changes happen
+
+
 pool:
   vmImage: 'windows-2019'
 
 
+# useful variables:
+# https://docs.microsoft.com/en-us/azure/devops/pipelines/build/variables?view=azure-devops&tabs=yaml
+
+
 steps:
 - task: PythonScript@0
-  displayName: Generate Lib Projects
+  displayName: Generate Projects
   inputs:
     scriptSource: 'filePath'
-    scriptPath: 'src/devtools/pyqpc/PyQPC.py'
-    arguments: '/basefile "../../vpc_scripts/default_qpc.vgc" +libraries /vs2019 /mksln libraries_x64'
+    scriptPath: 'src/devtools/qpc/qpc.py'
+    workingDirectory: 'src/'
+    arguments: '-a everything -r hammer_dll hlfaceposer vaudio_speex serverplugin_empty scenemanager matsys_regressiontest hlmv dmxedit -m episodic hl2 hl2mp -t vstudio -mf everything'
     
-- task: PythonScript@0
-  displayName: Generate Bin Projects
+# no difference from MSBuild@1?
+- task: VSBuild@1
+  displayName: Build Projects
   inputs:
-    scriptSource: 'filePath'
-    scriptPath: 'src/devtools/pyqpc/PyQPC.py'
-    arguments: '/basefile "../../vpc_scripts/default_qpc.vgc" +binaries /vs2019 /mksln binaries_x64'
-          
-- task: PythonScript@0
-  displayName: Auto Generate Issue 50
+    solution: 'src\everything.sln'
+    platform: 'win32'
+    configuration: 'Release'
+    maximumCpuCount: true
+
+- task: ArchiveFiles@2
+  displayName: Compress game folder with 7z
   inputs:
-    scriptSource: 'filePath'
-    scriptPath: 'src/auto_issue50.py'
-    arguments: '$(git_token)'
+    rootFolderOrFile: 'game/'
+    includeRootFolder: false
+    archiveType: '7z'
+    archiveFile: 'QuiverSource_$(Build.BuildId)_$(Build.SourceBranchName)_$(Build.BuildNumber).7z'
+    replaceExistingArchive: true
+
+- task: GitHubRelease@0
+  displayName: Release to GitHub
+  inputs:
+    gitHubConnection: 'quiverteam'
+    repositoryName: '$(Build.Repository.Name)'
+    action: 'create'
+    target: '$(Build.SourceVersion)'
+    tagSource: 'manual'
+    tag: 'auto_build_$(Build.BuildId)_$(Build.SourceBranchName)_$(Build.BuildNumber)'
+    # releaseNotesSource: 'input'
+    releaseNotes: "Auto Build on $(Build.Repository.Name) branch"
+    title: 'Auto Build $(Build.BuildId) - $(Build.SourceBranchName) - $(Build.BuildNumber)'
+    assets: |
+      QuiverSource_$(Build.BuildId)_$(Build.SourceBranchName)_$(Build.BuildNumber).7z
+

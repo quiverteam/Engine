@@ -1,0 +1,58 @@
+//-----------------------------------------------------------------------------
+//	Base Configuration File for QPC
+//-----------------------------------------------------------------------------
+
+include "_qpc_scripts/_projects.qpc_base"
+include "_qpc_scripts/_groups.qpc_base"
+
+// could probably use projects, though stuff like client, gameui_client, and server won't work due to multiple paths
+dependency_paths
+{
+	"tier0"         	"tier0/tier0.qpc"
+	"tier1"         	"tier1/tier1.qpc"
+	"tier2"         	"tier2/tier2.qpc"
+	"tier3"         	"tier3/tier3.qpc"
+	"vstdlib"			"vstdlib/vstdlib.qpc"
+	
+	"jpeglib"			"thirdparty/jpeglib/jpeglib.qpc"
+	"bzip2"				"thirdparty/bzip2/bzip2.qpc"
+	"lzma"				"thirdparty/lzma/lzma.qpc"
+	
+	"vgui_controls"		"vgui2/vgui_controls/vgui_controls.qpc"
+	"vgui_surfacelib"	"vgui2/vgui_surfacelib/vgui_surfacelib.qpc"
+	"matsys_controls"	"vgui2/matsys_controls/matsys_controls.qpc"
+	"dme_controls"		"vgui2/dme_controls/dme_controls.qpc"
+	
+	"mxtoolkitwin32"	"utils/mxtk/mxtoolkitwin32.qpc"
+	"nvtristriplib"		"utils/nvtristriplib/nvtristriplib.qpc"
+	"nvtristrip"		"utils/nvtristriplib/nvtristriplib.qpc"
+	"vmpi"				"utils/vmpi/vmpi.qpc"
+	
+	"bitmap"			"bitmap/bitmap.qpc"
+	"shaderlib"			"materialsystem/shaderlib/shaderlib.qpc"
+	"mathlib"			"mathlib/mathlib.qpc"
+	"fgdlib"			"fgdlib/fgdlib.qpc"
+	"raytrace"			"raytrace/raytrace.qpc"
+	"appframework"		"appframework/appframework.qpc"
+	"movieobjects"		"movieobjects/movieobjects.qpc"
+	"dmserializers"		"dmserializers/dmserializers.qpc"
+	"datamodel"			"datamodel/datamodel.qpc"
+	"choreoobjects"		"choreoobjects/choreoobjects.qpc"
+	"unitlib"			"unitlib/unitlib.qpc"
+	"dmxloader"			"dmxloader/dmxloader.qpc"
+	"particles"			"particles/particles.qpc"
+	"vtf"				"vtf/vtf.qpc"
+}
+
+// each pass it sets a macro with the name of each configuration in all caps
+configurations
+{
+	Debug
+	Release
+}
+
+
+
+
+
+

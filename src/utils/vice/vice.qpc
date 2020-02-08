@@ -1,0 +1,52 @@
+// ---------------------------------------------------------------
+// Auto Generated QPC Script - Fix if needed before using
+// ---------------------------------------------------------------
+macro PROJECT_NAME "Vice"
+
+macro SRCDIR "../.."
+macro OUTBINDIR "$BINDEFAULT"
+
+include "$SRCDIR/_qpc_scripts/source_exe_con_base.qpc"
+
+configuration
+{
+	general
+	{
+		include_directories
+		{
+			"../common"
+		}
+	}
+
+	linker
+	{
+		libraries
+		{
+			"tier2"
+			"mathlib"
+		}
+	}
+}
+
+dependencies
+{
+	"tier2"
+	"mathlib"
+}
+
+files
+{
+	folder "Source Files"
+	{
+		"../common/cmdlib.cpp"
+		"$SRCDIR/public/filesystem_helpers.cpp"
+		"$SRCDIR/public/filesystem_init.cpp"
+		"../common/filesystem_tools.cpp"
+		"vice.cpp"
+	}
+
+	folder "Header Files"
+	{
+		"$SRCDIR/public/mathlib/IceKey.H"
+	}
+}

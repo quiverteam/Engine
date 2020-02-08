@@ -1,7 +1,7 @@
 BEGIN {use File::Basename; push @INC, dirname($0); }
 require "valve_perl_helpers.pl";
 use Cwd;
-use String::CRC32;
+# use String::CRC32;
 
 my $txtfilename = shift;
 my $arg = shift;

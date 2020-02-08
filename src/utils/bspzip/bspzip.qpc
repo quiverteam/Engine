@@ -1,0 +1,60 @@
+// ---------------------------------------------------------------
+// Auto Generated QPC Script - Fix if needed before using
+// ---------------------------------------------------------------
+macro PROJECT_NAME "Bspzip"
+
+macro SRCDIR "../.."
+macro OUTBINDIR "$BINDEFAULT"
+
+include "$SRCDIR/_qpc_scripts/source_exe_con_base.qpc"
+
+configuration
+{
+	general
+	{
+		include_directories
+		{
+			"../common"
+		}
+	}
+
+	linker
+	{
+		libraries
+		{
+			"mathlib"
+			"tier2"
+		}
+	}
+}
+
+dependencies
+{
+	"mathlib/mathlib.qpc"
+	"tier2/tier2.qpc"
+}
+
+files
+{
+	folder "Source Files"
+	{
+		"../common/bsplib.cpp"
+		"bspzip.cpp"
+		"../common/cmdlib.cpp"
+		"$SRCDIR/public/filesystem_helpers.cpp"
+		"$SRCDIR/public/filesystem_init.cpp"
+		"../common/filesystem_tools.cpp"
+		"$SRCDIR/public/lumpfiles.cpp"
+		"../common/scriplib.cpp"
+		"$SRCDIR/public/zip_utils.cpp"
+	}
+
+	folder "Header Files"
+	{
+		"$SRCDIR/public/bspfile.h"
+		"$SRCDIR/public/tier1/characterset.h"
+		"$SRCDIR/public/filesystem_helpers.h"
+		"../common/filesystem_tools.h"
+		"$SRCDIR/public/zip_utils.h"
+	}
+}

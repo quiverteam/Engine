@@ -251,10 +251,10 @@ float CalcWaterFogAlpha( const float flWaterZ, const float flEyePosZ, const floa
 #endif
 }
 
-float CalcRangeFog( const float flProjPosZ, const float flFogStartOverRange, const float flFogMaxDensity, const float flFogOORange )
+float CalcRangeFog( const float flProjPosZ, const float flFogEndOverRange, const float flFogMaxDensity, const float flFogOORange )
 {
 #if !(defined(SHADER_MODEL_PS_1_1) || defined(SHADER_MODEL_PS_1_4) || defined(SHADER_MODEL_PS_2_0)) //Minimum requirement of ps2b
-	return saturate( min( flFogMaxDensity, (flProjPosZ * flFogOORange) - flFogStartOverRange ) );
+	return min( flFogMaxDensity, ( saturate( 1.0 - (flFogEndOverRange - (flProjPosZ * flFogOORange)) ) ) );
 #else
 	return 0.0f; //ps20 shaders will never have range fog enabled because too many ran out of slots.
 #endif
