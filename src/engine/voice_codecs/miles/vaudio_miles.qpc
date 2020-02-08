@@ -25,6 +25,7 @@ configuration
 		preprocessor_definitions
 		{
 			"MILES_EXPORTS"
+			"WINDOWS_IGNORE_PACKING_MISMATCH"	[$WINDOWS]
 		}
 	}
 
