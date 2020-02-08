@@ -16,7 +16,8 @@ configuration
 	{
 		out_name "$OUTBINNAME"
 		
-		out_dir "./$OUTBINDIR"
+		// out_dir "./$OUTBINDIR"
+		out_dir "./$CONFIG/$_SUBDIRSUFFIX"
 		int_dir "./$CONFIG/$_SUBDIRSUFFIX"
 		
 		configuration_type "dynamic_library"
@@ -27,8 +28,20 @@ configuration
 		}
 	}
 	
+	compiler
+	{
+		preprocessor_definitions
+		{
+			"_DLL_EXT=$OUTDLLEXT"
+			"DLLNAME=$OUTBINNAME"
+		}
+	}
+	
 	linker
 	{
+		output_file		"./$OUTBINDIR/$OUTBINNAME"
+		debug_file		"./$OUTBINDIR/$OUTBINNAME"
+		
 		libraries
 		{
 			"$LIBPUBLIC/tier0"

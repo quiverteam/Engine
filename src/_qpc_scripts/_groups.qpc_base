@@ -252,6 +252,7 @@ group "libraries" "core" "everything"
 			"tier2"
 			"tier3"
 		}
+		
 		"vtf"
 		"bitmap"
 		"shaderlib"

@@ -7,7 +7,7 @@ configuration
 	{
 		preprocessor_definitions
 		{
-			"_DLL_EXT=$_DLL_EXT" "DLLNAME=$OUTBINNAME" "_USRDLL"
+			"_USRDLL"
 		}
 
 		options

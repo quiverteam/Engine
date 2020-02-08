@@ -18,6 +18,14 @@ configuration
 		int_dir "./$CONFIG/$_SUBDIRSUFFIX"
 		configuration_type "static_library"
 	}
+	
+	compiler
+	{
+		preprocessor_definitions
+		{
+			"LIBNAME=$OUTLIBNAME"
+		}
+	}
 }
 
 

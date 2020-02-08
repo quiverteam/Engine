@@ -3,14 +3,6 @@
 // ---------------------------------------------------------------
 configuration
 {
-	compiler
-	{
-		preprocessor_definitions
-		{
-			"EXENAME=$OUTBINNAME"
-		}
-	}
-
 	linker
 	{
 		libraries

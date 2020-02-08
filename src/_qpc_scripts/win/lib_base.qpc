@@ -7,7 +7,7 @@ configuration
 	{
 		preprocessor_definitions
 		{
-			"LIBNAME=$OUTLIBNAME" "_LIB"
+			"_LIB"
 		}
 
 		options

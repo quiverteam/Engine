@@ -36,7 +36,7 @@ configuration
 	compiler
 	{
 		preprocessor_definitions
-		{
+		{			
 			"STAGING_ONLY" [$STAGING_ONLY]
 			
 			"_X64_" "_x64_" "PLATFORM_64BITS" "_x86_64_" "_X86_64_" 	[$ARCH == x86_64]
@@ -51,6 +51,7 @@ configuration
 			"_PROFILE" [$PROFILE && !$RETAIL]
 			"RETAIL_ASSERTS" [$RETAIL && $RETAILASSERTS]
 			
+			"_DLL_EXT=$_BIN_EXT"
 			"FRAME_POINTER_OMISSION_DISABLED" "VPC"
 		}
 	}
