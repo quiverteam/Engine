@@ -1,0 +1,66 @@
+// ---------------------------------------------------------------
+// Auto Generated QPC Script - Fix if needed before using
+// ---------------------------------------------------------------
+macro PROJECT_NAME "Height2normal"
+
+macro SRCDIR "../.."
+macro OUTBINDIR "$BINDEFAULT"
+
+include "$SRCDIR/_qpc_scripts/source_exe_con_base.qpc"
+
+configuration
+{
+	general
+	{
+		include_directories
+		{
+			"../common"
+		}
+	}
+
+	compiler
+	{
+		preprocessor_definitions
+		{
+			"_HAS_ITERATOR_DEBUGGING=0"
+			"_WIN32"
+			"_CONSOLE"
+			"_ALLOW_RUNTIME_LIBRARY_MISMATCH"
+			"_ALLOW_ITERATOR_DEBUG_LEVEL_MISMATCH"
+			"_ALLOW_MSC_VER_MISMATCH"
+			"%(PreprocessorDefinitions)"
+		}
+	}
+
+	linker
+	{
+		libraries
+		{
+			"$LIBPUBLIC/bitmap"
+			"$LIBPUBLIC/mathlib"
+			"$LIBPUBLIC/tier2"
+		}
+	}
+}
+
+dependencies
+{
+	"bitmap"
+	"mathlib"
+	"tier2"
+}
+
+files
+{
+	folder "Source Files"
+	{
+		- "$SRCDIR/public/tier0/memoverride.cpp"
+		"height2normal.cpp"
+	}
+
+	folder "Header Files"
+	{
+		"$SRCDIR/public/tier1/interface.h"
+		"$SRCDIR/public/tier1/utlbuffer.h"
+	}
+}

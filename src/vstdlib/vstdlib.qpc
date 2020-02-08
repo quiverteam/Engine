@@ -1,0 +1,56 @@
+// ---------------------------------------------------------------
+// Auto Generated QPC Script - Fix if needed before using
+// ---------------------------------------------------------------
+macro PROJECT_NAME "vstdlib"
+
+macro SRCDIR ".."
+macro OUTBINDIR "$BINDEFAULT"
+
+include "$SRCDIR/_qpc_scripts/source_dll_base.qpc"
+
+configuration
+{
+	compiler
+	{
+		preprocessor_definitions
+		{
+			"VSTDLIB_DLL_EXPORT"
+		}
+	}
+
+	linker
+	{
+		import_library "$LIBPUBLIC/$(TargetName)"
+
+		libraries
+		{
+			"odbc32.lib" "odbccp32.lib" [$WIN32 || $LINUX]
+			- "$LIBPUBLIC/vstdlib"
+		}
+	}
+}
+
+files
+{
+	folder "Source Files"
+	{
+		"cvar.cpp"
+		"jobthread.cpp"
+		"KeyValuesSystem.cpp"
+		"processutils.cpp" [$WINDOWS]
+		"random.cpp"
+		"vcover.cpp"
+	}
+
+	folder "Public Header Files"
+	{
+		"$SRCDIR/public/vstdlib/cvar.h"
+		"$SRCDIR/public/vstdlib/jobthread.h"
+		"$SRCDIR/public/vstdlib/IKeyValuesSystem.h"
+		"$SRCDIR/public/vstdlib/iprocessutils.h"
+		"$SRCDIR/public/tier1/mempool.h"
+		"$SRCDIR/public/vstdlib/random.h"
+		"$SRCDIR/public/vstdlib/vcover.h"
+		"$SRCDIR/public/vstdlib/vstdlib.h"
+	}
+}

@@ -1,0 +1,61 @@
+// ---------------------------------------------------------------
+// Auto Generated QPC Script - Fix if needed before using
+// ---------------------------------------------------------------
+macro PROJECT_NAME "Vtex_launcher"
+
+macro SRCDIR "../.."
+macro OUTBINDIR "$BINDEFAULT"
+macro OUTBINNAME "vtex"
+
+include "$SRCDIR/_qpc_scripts/source_exe_con_base.qpc"
+
+configuration
+{
+	general
+	{
+		out_dir "./$CONFIG/$PLATFORM/launcher"
+		int_dir "./$CONFIG/$PLATFORM/launcher"
+
+		include_directories
+		{
+			"../common"
+		}
+	}
+
+	compiler
+	{
+		preprocessor_definitions
+		{
+			"PROTECTED_THINGS_DISABLE"
+		}
+	}
+
+	linker
+	{
+		libraries
+		{
+			"odbc32.lib"
+			"odbccp32.lib"
+			"tier2"
+		}
+	}
+}
+
+dependencies
+{
+	"tier2"
+}
+
+files
+{
+	folder "Source Files"
+	{
+		"vtex_launcher.cpp"
+	}
+
+	folder "Header Files"
+	{
+		"$SRCDIR/public/ilaunchabledll.h"
+		"$SRCDIR/public/tier1/interface.h"
+	}
+}

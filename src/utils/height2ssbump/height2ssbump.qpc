@@ -1,0 +1,53 @@
+// ---------------------------------------------------------------
+// Auto Generated QPC Script - Fix if needed before using
+// ---------------------------------------------------------------
+macro PROJECT_NAME "Height2ssbump"
+
+macro SRCDIR "../.."
+macro OUTBINDIR "$BINDEFAULT"
+
+include "$SRCDIR/_qpc_scripts/source_exe_con_base.qpc"
+
+configuration
+{
+	general
+	{
+		include_directories
+		{
+			"../common"
+		}
+	}
+
+	linker
+	{
+		libraries
+		{
+			"$LIBPUBLIC/bitmap"
+			"$LIBPUBLIC/mathlib"
+			"$LIBPUBLIC/raytrace"
+			"$LIBPUBLIC/tier2"
+		}
+
+		options
+		{
+			"/ASSEMBLYDEBUG" [$DEBUG]
+		}
+	}
+}
+
+dependencies
+{
+	"bitmap"
+	"mathlib"
+	"raytrace"
+	"tier2"
+}
+
+files
+{
+	folder "Source Files"
+	{
+		- "$SRCDIR/public/tier0/memoverride.cpp"
+		"height2ssbump.cpp"
+	}
+}

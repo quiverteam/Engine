@@ -7,3 +7,6 @@
 [submodule "src/devtools/pyqpc"]
 	path = src/devtools/pyqpc
 	url = https://github.com/quiverteam/PyQuiverProjectCreator
+[submodule "src/devtools/qpc"]
+	path = src/devtools/qpc
+	url = https://github.com/quiverteam/QuiverProjectCreator.git

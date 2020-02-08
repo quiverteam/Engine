@@ -69,5 +69,5 @@ echo.
 echo Press any key to rebuild stdshader projects and exit . . .
 pause >nul
 
-py ..\..\devtools\pyqpc\PyQPC.py /basefile "../../vpc_scripts/default.vgc" /f +stdshader_dx9 +stdshader_dbg /vs2019
+py ..\..\devtools\qpc\qpc.py -d "../.."  -a stdshader_dx9 stdshader_dbg -t vstudio -f
 

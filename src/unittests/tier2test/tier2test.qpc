@@ -1,0 +1,51 @@
+// ---------------------------------------------------------------
+// Auto Generated QPC Script - Fix if needed before using
+// ---------------------------------------------------------------
+macro PROJECT_NAME "tier2test"
+
+macro SRCDIR "../.."
+macro OUTBINDIR "$BINDEFAULT/unittests"
+
+include "$SRCDIR/_qpc_scripts/source_dll_base.qpc"
+
+configuration
+{
+	compiler
+	{
+		preprocessor_definitions
+		{
+			"TIER2TEST_EXPORTS"
+		}
+	}
+
+	linker
+	{
+		libraries
+		{
+			"$LIBPUBLIC/bitmap"
+			"$LIBPUBLIC/mathlib"
+			"$LIBPUBLIC/tier2"
+			"$LIBPUBLIC/unitlib"
+		}
+	}
+}
+
+dependencies
+{
+	"bitmap/bitmap.qpc"
+	"mathlib/mathlib.qpc"
+	"tier2/tier2.qpc"
+	"unitlib/unitlib.qpc"
+}
+
+files
+{
+	folder "Source Files"
+	{
+		"tier2test.cpp"
+	}
+
+	folder "Header Files"
+	{
+	}
+}

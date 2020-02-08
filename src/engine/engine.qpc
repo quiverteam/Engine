@@ -1,0 +1,1083 @@
+// ---------------------------------------------------------------
+// Auto Generated QPC Script - Fix if needed before using
+// ---------------------------------------------------------------
+macro PROJECT_NAME "engine"
+
+macro SRCDIR ".."
+macro OUTBINDIR "$BINDEFAULT"
+
+include "$SRCDIR/_qpc_scripts/source_dll_base.qpc"
+
+configuration
+{
+	general
+	{
+		// default_include_directories "false"
+		// default_library_directories "false"
+		
+		include_directories
+		{
+			"$SRCDIR/dx9sdk/include" [$WINDOWS]
+			"./"
+			"audio"
+			"audio/private"
+			"audio/public"
+			"$SRCDIR/vgui2/include"
+			"$SRCDIR/vgui2/controls"
+			// "$SRCDIR/engine/audio/public"
+			// "$SRCDIR/engine/audio/private"
+		}
+
+		library_directories
+		{
+			"$LIBCOMMON/vc7" "$SRCDIR/dx9sdk/lib" [$WINDOWS]
+		}
+	}
+
+	compiler
+	{
+		preprocessor_definitions
+		{
+			"USE_CONVARS"
+			"VOICE_OVER_IP"
+			"BUMPMAP"
+			"__USEA3D"
+			"_ADD_EAX_"
+			"ENGINE_DLL"
+			"PROTECTED_THINGS_ENABLE"
+			"fopen=dont_use_fopen"
+		}
+
+		options
+		{
+			"/arch:SSE" [$WIN32]
+		}
+	}
+
+	linker
+	{
+		libraries
+		{
+			"dinput8.lib" "winmm.lib" "wsock32.lib" "ws2_32.lib" "wininet.lib" "vfw32.lib" "Rpcrt4.lib" "$SRCDIR/dx9sdk/lib/dsound" "$SRCDIR/dx9sdk/lib/dxguid" [$WINDOWS]
+			"$LIBPUBLIC/appframework"
+			"$LIBPUBLIC/bitmap"
+			"$LIBPUBLIC/Dmxloader"
+			"$LIBPUBLIC/mathlib"
+			"$LIBPUBLIC/matsys_controls"
+			"$LIBPUBLIC/tier2"
+			"$LIBPUBLIC/tier3"
+			"$LIBPUBLIC/vtf"
+			"$LIBPUBLIC/vgui_controls"
+			"$LIBPUBLIC/steam_api"
+			"$LIBCOMMON/bzip2"
+			"$LIBCOMMON/jpeglib"
+		}
+	}
+}
+
+dependencies
+{
+	"vgui2/matsys_controls/matsys_controls.qpc"
+	"vgui2/vgui_controls/vgui_controls.qpc"
+	"thirdparty/jpeglib/jpeglib.qpc"
+	"appframework/appframework.qpc"
+	"thirdparty/bzip2/bzip2.qpc"
+	"dmxloader/dmxloader.qpc"
+	"mathlib/mathlib.qpc"
+	"bitmap/bitmap.qpc"
+	"tier2/tier2.qpc"
+	"tier3/tier3.qpc"
+	"vtf/vtf.qpc"
+}
+
+files
+{
+	folder "Client"
+	{
+		"client_pch.cpp"
+		{
+			configuration
+			{
+				compiler
+				{
+					precompiled_header "create"
+					precompiled_header_file "client_pch.h"
+					precompiled_header_output_file "$(IntDir)/client_pch.pch"
+				}
+			}
+		}
+
+		"cl_rcon.cpp"
+		"socketcreator.cpp"
+		"rpt_engine.cpp"
+		"cl_steamauth.cpp"
+		"clientframe.cpp"
+		"decal_clip.cpp"
+		"demofile.cpp"
+		"DevShotGenerator.cpp"
+		"OcclusionSystem.cpp"
+		"tmessage.cpp"
+		"r_efx.cpp"
+		"View.cpp"
+
+		"baseclient.cpp"	\
+		"baseclientstate.cpp"	\
+		"cbenchmark.cpp"	\
+		"cdll_engine_int.cpp"	\
+		"Cl_main.cpp"	\
+		"Cl_demo.cpp"	\
+		"cl_null.cpp"	\
+		"cl_demoaction.cpp"	\
+		"cl_demoaction_types.cpp"	\
+		"cl_demoactioneditors.cpp"	\
+		"cl_demoactionmanager.cpp"	\
+		"cl_demoeditorpanel.cpp"	\
+		"cl_demosmootherpanel.cpp"	\
+		"cl_demouipanel.cpp"	\
+		"cl_txviewpanel.cpp"	\
+		"cl_entityreport.cpp"	\
+		"cl_ents_parse.cpp"	\
+		"cl_localnetworkbackdoor.cpp"	\
+		"cl_parse_event.cpp"	\
+		"cl_pluginhelpers.cpp"	\
+		"cl_pred.cpp"	\
+		"cl_texturelistpanel.cpp"	\
+		"client.cpp"	\
+		"colorcorrectionpanel.cpp"	\
+		"console.cpp"
+		{
+			configuration
+			{
+				compiler
+				{
+					precompiled_header "use"
+					precompiled_header_file "client_pch.h"
+					precompiled_header_output_file "$(IntDir)/client_pch.pch"
+				}
+			}
+		}
+
+		"render_pch.cpp"
+		{
+			configuration
+			{
+				compiler
+				{
+					precompiled_header "create"
+					precompiled_header_file "render_pch.h"
+					precompiled_header_output_file "$(IntDir)/render_pch.pch"
+				}
+			}
+		}
+
+		"buildcubemaps.cpp"	\
+		"debug_leafvis.cpp"	\
+		"DebugOverlay.cpp"	\
+		"decals.cpp"	\
+		"disp.cpp"	\
+		"disp_interface.cpp"	\
+		"disp_mapload.cpp"	\
+		"Gl_draw.cpp"	\
+		"gl_rsurf.cpp"	\
+		"gl_shader.cpp"	\
+		"gl_drawlights.cpp"	\
+		"gl_lightmap.cpp"	\
+		"gl_matsysiface.cpp"	\
+		"gl_rlight.cpp"	\
+		"gl_rmain.cpp"	\
+		"Gl_rmisc.cpp"	\
+		"gl_screen.cpp"	\
+		"Gl_warp.cpp"	\
+		"l_studio.cpp"	\
+		"matsys_interface.cpp"	\
+		"modelloader.cpp"	\
+		"Overlay.cpp"	\
+		"r_areaportal.cpp"	\
+		"r_decal.cpp"	\
+		"r_linefile.cpp"	\
+		"shadowmgr.cpp"
+		{
+			configuration
+			{
+				compiler
+				{
+					precompiled_header "use"
+					precompiled_header_file "render_pch.h"
+					precompiled_header_output_file "$(IntDir)/render_pch.pch"
+				}
+			}
+		}
+	}
+
+	folder "Server"
+	{
+		"server_pch.cpp"
+		{
+			configuration
+			{
+				compiler
+				{
+					precompiled_header "create"
+					precompiled_header_file "server_pch.h"
+					precompiled_header_output_file "$(IntDir)/server_pch.pch"
+				}
+			}
+		}
+
+		"sv_ipratelimit.cpp"
+		"sv_rcon.cpp"
+		"sv_steamauth.cpp"
+		"sv_uploaddata.cpp"
+		"sv_uploadgamestats.cpp"
+
+		"sv_main.cpp"	\
+		"sv_client.cpp"	\
+		"sv_ents_write.cpp"	\
+		"sv_filter.cpp"	\
+		"sv_framesnapshot.cpp"	\
+		"sv_log.cpp"	\
+		"sv_master.cpp"	\
+		"sv_packedentities.cpp"	\
+		"sv_plugin.cpp"	\
+		"sv_precache.cpp"	\
+		"sv_redirect.cpp"	\
+		"sv_remoteaccess.cpp"	\
+		"vengineserver_impl.cpp"
+		{
+			configuration
+			{
+				compiler
+				{
+					precompiled_header "use"
+					precompiled_header_file "server_pch.h"
+					precompiled_header_output_file "$(IntDir)/server_pch.pch"
+				}
+			}
+		}
+	}
+
+	folder "Source Files"
+	{
+		"baseautocompletefilelist.cpp"
+		"baseserver.cpp"
+		"bitbuf_errorhandler.cpp"
+		"$SRCDIR/public/blockingudpsocket.cpp"
+		"$SRCDIR/public/BSPTreeData.cpp"
+		"$SRCDIR/public/builddisp.cpp"
+		"buildnum.cpp"
+		"changeframelist.cpp"
+		"checksum_engine.cpp"
+		"clockdriftmgr.cpp"
+		"cl_bounded_cvars.cpp"
+		"Cmd.cpp"
+		"cmodel.cpp"
+		"cmodel_bsp.cpp"
+		"cmodel_disp.cpp"
+		"$SRCDIR/public/CollisionUtils.cpp"
+		"Common.cpp"
+		"$SRCDIR/public/crtmemdebug.cpp"
+		"Cvar.cpp"
+		"$SRCDIR/public/disp_common.cpp"
+		"disp_defs.cpp"
+		"disp_helpers.cpp"
+		"$SRCDIR/public/disp_powerinfo.cpp"
+		"$SRCDIR/public/DispColl_Common.cpp"
+		"DownloadListGenerator.cpp"
+		"downloadthread.cpp"
+		"dt.cpp"
+		"dt_common_eng.cpp"
+		"dt_encode.cpp"
+		"dt_instrumentation.cpp"
+		"dt_instrumentation_server.cpp"
+		"dt_localtransfer.cpp"
+		"$SRCDIR/public/dt_recv.cpp"
+		"dt_recv_decoder.cpp"
+		"dt_recv_eng.cpp"
+		"$SRCDIR/public/dt_send.cpp"
+		"dt_send_eng.cpp"
+		"dt_stack.cpp"
+		"dt_test.cpp"
+		"$SRCDIR/public/dt_utlvector_common.cpp"
+		"$SRCDIR/public/dt_utlvector_recv.cpp"
+		"$SRCDIR/public/dt_utlvector_send.cpp"
+		"enginesingleuserfilter.cpp"
+		"EngineStats.cpp"
+		"enginethreads.cpp"
+		"enginetrace.cpp"
+		"FileSystem_Engine.cpp"
+		"$SRCDIR/public/filesystem_helpers.cpp"
+		"$SRCDIR/public/filesystem_init.cpp"
+		"filetransfermgr.cpp"
+		"GameEventManager.cpp"
+		"GameEventManagerOld.cpp"
+		"gametrace_engine.cpp"
+		"hltvclient.cpp"
+		"hltvclientstate.cpp"
+		"hltvdemo.cpp"
+		"hltvserver.cpp"
+		"hltvtest.cpp"
+		"Host.cpp"
+		"Host_cmd.cpp"
+		"host_listmaps.cpp"
+		"host_phonehome.cpp"
+		"host_state.cpp"
+		"initmathlib.cpp"
+		"$SRCDIR/common/language.cpp"
+		"LocalNetworkBackdoor.cpp"
+		"LoadScreenUpdate.cpp"
+		"$SRCDIR/public/lumpfiles.cpp"
+		"MapReslistGenerator.cpp"
+		"matchmakinghost.cpp"
+		"matchmakingqos.cpp"
+		"matchmakingclient.cpp"
+		"matchmakingshared.cpp"
+		"matchmakingmigrate.cpp"
+		"MaterialProxyFactory.cpp"
+		"mem_fgets.cpp"
+		"mod_vis.cpp"
+		"ModelInfo.cpp"
+		"net_chan.cpp"
+		"net_synctags.cpp"
+		"net_ws.cpp"
+		"net_ws_queued_packet_sender.cpp"
+		"$SRCDIR/common/netmessages.cpp"
+		"$SRCDIR/common/steamid.cpp"
+		"NetworkStringTable.cpp"
+		"NetworkStringTableItem.cpp"
+		"NetworkStringTableServer.cpp"
+		"$SRCDIR/public/networkvar.cpp"
+		"packed_entity.cpp"
+		"pure_server.cpp"
+		"Pr_edict.cpp"
+		"precache.cpp"
+		"quakedef.cpp"
+		"randomstream.cpp"
+		"$SRCDIR/common/randoverride.cpp"
+		"$SRCDIR/public/registry.cpp"
+		"$SRCDIR/public/sentence.cpp"
+		"Session.cpp"
+		"sound_shared.cpp"
+		"spatialpartition.cpp"
+		"StaticPropMgr.cpp"
+		"$SRCDIR/public/studio.cpp"
+		"sys_dll.cpp"
+		"sys_dll2.cpp"
+		{
+			configuration
+			{
+				compiler
+				{
+					options
+					{
+						"/EHa" "/EHsc" [!$X360]
+					}
+				}
+			}
+		}
+
+		"sys_engine.cpp"
+		"sys_mainwind.cpp"
+		"testscriptmgr.cpp"
+		"traceinit.cpp"
+		"$SRCDIR/public/vallocator.cpp"
+		"voiceserver_impl.cpp"
+		"vprof_engine.cpp"
+		"vprof_record.cpp"
+		"World.cpp"
+		"$SRCDIR/public/XZip.cpp"
+		"$SRCDIR/public/XUnzip.cpp"
+		"Zone.cpp"
+		"bugreporter.cpp"
+		"cheatcodes.cpp"
+		"download.cpp"
+		"$SRCDIR/public/Editor_SendCommand.cpp"
+		"host_saverestore.cpp"
+		"Keys.cpp"
+		"lightcache.cpp"
+		"NetworkStringTableClient.cpp"
+		"saverestore_filesystem.cpp"
+		"$SRCDIR/public/ScratchPad3D.cpp"
+		"servermsghandler.cpp"
+		"sys_getmodes.cpp"
+		"vgui_askconnectpanel.cpp"
+		"xboxsystem.cpp"
+		"$SRCDIR/common/SourceAppInfo.cpp"
+	}
+
+	folder "Audio"
+	{
+		"snd_io.cpp"
+		"EngineSoundServer.cpp"
+		"EngineSoundClient.cpp"
+		"EngSoundService.cpp"
+		"audio/private/voice_wavefile.cpp"
+		"audio/private/MPAFile.cpp" [$WIN32]
+		"audio/private/MPAHeader.cpp" [$WIN32]
+		"audio/private/CircularBuffer.cpp"
+		"audio/audio_pch.cpp"
+		{
+			configuration
+			{
+				compiler
+				{
+					precompiled_header "create"
+					precompiled_header_file "audio_pch.h"
+					precompiled_header_output_file "$(IntDir)/audio_pch.pch"
+				}
+			}
+		}
+
+		"audio/private/vox.cpp"	\
+		"audio/private/snd_dev_common.cpp"	\
+		"audio/private/snd_dma.cpp"	\
+		"audio/private/snd_dsp.cpp"	\
+		"audio/private/snd_mix.cpp"	\
+		"audio/private/snd_sentence_mixer.cpp"	\
+		"audio/private/snd_wave_data.cpp"	\
+		"audio/private/snd_wave_mixer.cpp"	\
+		"audio/private/snd_wave_mixer_adpcm.cpp"	\
+		"audio/private/snd_wave_source.cpp"	\
+		"audio/private/snd_wave_temp.cpp"	\
+		"audio/private/snd_win.cpp"	\
+		"audio/private/voice_gain.cpp"
+		{
+			configuration
+			{
+				compiler
+				{
+					precompiled_header "use"
+					precompiled_header_file "audio_pch.h"
+					precompiled_header_output_file "$(IntDir)/audio_pch.pch"
+				}
+			}
+		}
+
+		"audio/private/snd_dev_direct.cpp"	\
+		"audio/private/snd_dev_wave.cpp"	\
+		"audio/private/snd_mp3_source.cpp"	\
+		"audio/private/snd_wave_mixer_mp3.cpp"	\
+		"audio/private/VBRHeader.cpp"	\
+		"audio/private/voice.cpp"	\
+		"audio/private/voice_mixer_controls.cpp"	\
+		"audio/private/voice_record_dsound.cpp"	\
+		"audio/private/voice_sound_engine_interface.cpp" [$WIN32]
+		{
+			configuration
+			{
+				compiler
+				{
+					precompiled_header "use"
+					precompiled_header_file "audio_pch.h"
+					precompiled_header_output_file "$(IntDir)/audio_pch.pch"
+				}
+			}
+		}
+
+		"audio/private/snd_dev_xaudio.cpp"	\
+		"audio/private/snd_wave_mixer_xma.cpp" [$X360]
+		{
+			configuration
+			{
+				compiler
+				{
+					precompiled_header "use"
+					precompiled_header_file "audio_pch.h"
+					precompiled_header_output_file "$(IntDir)/audio_pch.pch"
+				}
+			}
+		}
+
+		folder "Header Files"
+		{
+			"audio/audio_pch.h"
+			"audio/public/ivoicecodec.h"
+			"audio/public/ivoicerecord.h"
+			"audio/public/snd_audio_source.h"
+			"audio/public/snd_device.h"
+			"audio/public/snd_io.h"
+			"audio/public/sound.h"
+			"audio/public/SoundService.h"
+			"audio/public/Voice.h"
+			"audio/public/vox.h"
+			"audio/private/MPAFile.h" [$WIN32]
+			"audio/private/MPAHeader.h" [$WIN32]
+			"audio/private/VBRHeader.h" [$WIN32]
+			"audio/private/CircularBuffer.h"
+			"audio/private/EAX.H"
+			"audio/private/snd_channels.h"
+			"audio/private/snd_convars.h"
+			"audio/private/snd_dev_common.h"
+			"audio/private/snd_dev_direct.h" [$WIN32]
+			"audio/private/snd_dev_wave.h" [$WIN32]
+			"audio/private/snd_dev_xaudio.h"
+			"audio/private/snd_dma.h"
+			"audio/private/snd_env_fx.h"
+			"audio/private/snd_fixedint.h"
+			"audio/private/snd_mix_buf.h"
+			"audio/private/snd_sfx.h"
+			"audio/private/snd_wave_mixer.h"
+			"audio/private/snd_wave_mixer_adpcm.h"
+			"audio/private/snd_wave_mixer_xma.h"
+			"audio/private/snd_wave_mixer_private.h"
+			"audio/private/snd_wave_source.h"
+			"audio/private/snd_wave_temp.h"
+			"audio/private/sound_private.h"
+			"audio/private/voice_gain.h"
+			"audio/private/voice_mixer_controls.h"
+			"audio/private/voice_sound_engine_interface.h"
+			"audio/private/voice_wavefile.h"
+			"audio/private/vox_private.h"
+		}
+	}
+
+	folder "VGUI Panels"
+	{
+		"$SRCDIR/public/vgui_controls/vgui_controls.cpp"
+		"$SRCDIR/common/vgui/vgui_basebudgetpanel.cpp"
+		"$SRCDIR/common/vgui/vgui_budgetbargraphpanel.cpp"
+		"$SRCDIR/common/vgui/vgui_budgethistorypanel.cpp"
+		"$SRCDIR/common/vgui/vgui_budgetpanelshared.cpp"
+
+		"perfuipanel.cpp"	\
+		"vgui_basepanel.cpp"	\
+		"vgui_baseui_interface.cpp"	\
+		"vgui_budgetpanel.cpp"	\
+		"vgui_DebugSystemPanel.cpp"	\
+		"vgui_drawtreepanel.cpp"	\
+		"vgui_helpers.cpp"	\
+		"vgui_texturebudgetpanel.cpp"	\
+		"vgui_vprofgraphpanel.cpp"	\
+		"vgui_vprofpanel.cpp"
+		{
+			configuration
+			{
+				compiler
+				{
+					precompiled_header "use"
+					precompiled_header_file "client_pch.h"
+					precompiled_header_output_file "$(IntDir)/client_pch.pch"
+				}
+			}
+		}
+
+		"vgui_budgetpanel.h"
+		"$SRCDIR/common/vgui/vgui_budgetpanelshared.h"
+		"vgui_texturebudgetpanel.h"
+		"vgui_vprofgraphpanel.h"
+		"vgui_vprofpanel.h"
+		"$SRCDIR/common/vgui/vgui_basebudgetpanel.h"
+		"vgui_baseui_interface.h"
+		"$SRCDIR/common/vgui/vgui_budgetbargraphpanel.h"
+		"$SRCDIR/common/vgui/vgui_budgethistorypanel.h"
+	}
+
+	folder "Tools Framework"
+	{
+		"$SRCDIR/public/toolframework/iclientenginetools.h"
+		"$SRCDIR/public/toolframework/ienginetool.h"
+		"$SRCDIR/public/toolframework/iserverenginetools.h"
+		"$SRCDIR/public/toolframework/itooldictionary.h"
+		"$SRCDIR/public/toolframework/itoolentity.h"
+		"$SRCDIR/public/toolframework/itoolframework.h"
+		"$SRCDIR/public/toolframework/itoolsystem.h"
+		"enginetool.cpp"
+		"toolframework.cpp"
+	}
+
+	folder "Header Files"
+	{
+		"baseclient.h"
+		"baseclientstate.h"
+		"baseserver.h"
+		"bitbuf_errorhandler.h"
+		"$SRCDIR/public/BSPTreeData.h"
+		"cbenchmark.h"
+		"cdll_engine_int.h"
+		"changeframelist.h"
+		"cheatcodes.h"
+		"checksum_engine.h"
+		"cl_demo.h"
+		"cl_entityreport.h"
+		"cl_ents_parse.h"
+		"cl_localnetworkbackdoor.h"
+		"cl_main.h"
+		"cl_parse_event.h"
+		"cl_pluginhelpers.h"
+		"cl_pred.h"
+		"cl_rcon.h"
+		"socketcreator.h"
+		"cl_steamauth.h"
+		"cl_texturelistpanel.h"
+		"CLIENT.H"
+		"$SRCDIR/public/client_render_handle.h"
+		"clientframe.h"
+		"clockdriftmgr.h"
+		"CMD.H"
+		"cmodel_engine.h"
+		"cmodel_private.h"
+		"$SRCDIR/public/CollisionUtils.h"
+		"common.h"
+		"$SRCDIR/public/mathlib/compressed_light_cube.h"
+		"conprint.h"
+		"CONSOLE.H"
+		"CVAR.H"
+		"debug_leafvis.h"
+		"DebugOverlay.h"
+		"decal.h"
+		"decal_clip.h"
+		"decal_private.h"
+		"demo.h"
+		"demofile.h"
+		"DevShotGenerator.h"
+		"disp.h"
+		"$SRCDIR/public/disp_common.h"
+		"disp_defs.h"
+		"disp_helpers.h"
+		"$SRCDIR/public/disp_powerinfo.h"
+		"$SRCDIR/public/disp_tesselate.h"
+		"$SRCDIR/public/DispColl_Common.h"
+		"DispNode.h"
+		"download.h"
+		"download_internal.h"
+		"DownloadListGenerator.h"
+		"DRAW.H"
+		"dt.h"
+		"$SRCDIR/public/dt_common.h"
+		"dt_encode.h"
+		"dt_instrumentation.h"
+		"dt_instrumentation_server.h"
+		"dt_localtransfer.h"
+		"$SRCDIR/public/dt_recv.h"
+		"dt_recv_decoder.h"
+		"dt_recv_eng.h"
+		"$SRCDIR/public/dt_send.h"
+		"dt_send_eng.h"
+		"dt_stack.h"
+		"dt_test.h"
+		"$SRCDIR/public/dt_utlvector_common.h"
+		"$SRCDIR/public/eifaceV21.h"
+		"$SRCDIR/public/engine_hlds_api.h"
+		"$SRCDIR/common/engine_launcher_api.h"
+		"enginesingleuserfilter.h"
+		"EngineSoundInternal.h"
+		"EngineStats.h"
+		"enginetrace.h"
+		"ents_shared.h"
+		"$SRCDIR/public/FileSystem.h"
+		"FileSystem_Engine.h"
+		"filetransfermgr.h"
+		"filter.h"
+		"$SRCDIR/common/FindSteamServers.h"
+		"$SRCDIR/public/tier1/fmtstr.h"
+		"framesnapshot.h"
+		"GameEventManager.h"
+		"getintersectingsurfaces_struct.h"
+		"gl_cvars.h"
+		"gl_drawlights.h"
+		"gl_lightmap.h"
+		"gl_matsysiface.h"
+		"GL_MODEL.H"
+		"gl_model_private.h"
+		"gl_rmain.h"
+		"gl_rsurf.h"
+		"gl_shader.h"
+		"gl_water.h"
+		"hltvclient.h"
+		"hltvclientstate.h"
+		"hltvdemo.h"
+		"hltvserver.h"
+		"hltvtest.h"
+		"host.h"
+		"host_cmd.h"
+		"host_jmp.h"
+		"host_saverestore.h"
+		"host_state.h"
+		"$SRCDIR/public/iclient.h"
+		"$SRCDIR/public/icliententity.h"
+		"icolorcorrectiontools.h"
+		"$SRCDIR/public/materialsystem/idebugtextureinfo.h"
+		"$SRCDIR/public/idedicatedexports.h"
+		"IDispInfo.h"
+		"$SRCDIR/public/engine/IEngineSound.h"
+		"ienginetoolinternal.h"
+		"$SRCDIR/public/engine/IEngineTrace.h"
+		"$SRCDIR/common/IGameServerData.h"
+		"$SRCDIR/public/ihltvdirector.h"
+		"$SRCDIR/public/inetchannel.h"
+		"$SRCDIR/public/inetmsghandler.h"
+		"$SRCDIR/public/inetwork.h"
+		"$SRCDIR/public/IScratchPad3D.h"
+		"$SRCDIR/public/iserver.h"
+		"$SRCDIR/public/iserverentity.h"
+		"$SRCDIR/public/engine/iserverplugin.h"
+		"$SRCDIR/public/engine/ishadowmgr.h"
+		"$SRCDIR/public/ISpatialPartition.h"
+		"ISpatialPartitionInternal.h"
+		"$SRCDIR/public/steam/isteamutils.h"
+		"$SRCDIR/public/IStudioRender.h"
+		"$SRCDIR/public/ivoicetweak.h"
+		"KEYS.H"
+		"$SRCDIR/public/tier0/l2cache.h"
+		"l_studio.h"
+		"lightcache.h"
+		"LoadScreenUpdate.h"
+		"LocalNetworkBackdoor.h"
+		"logofile_shared.h"
+		"lowpassstream.h"
+		"MapReslistGenerator.h"
+		"master.h"
+		"matchmaking.h"
+		"matchmakingqos.h"
+		"MaterialBuckets.h"
+		"MaterialProxyFactory.h"
+		"mem.h"
+		"mem_fgets.h"
+		"mod_vis.h"
+		"modelloader.h"
+		"$SRCDIR/public/modes.h"
+		"NET.H"
+		"net_chan.h"
+		"net_synctags.h"
+		"$SRCDIR/common/netmessages.h"
+		"NetworkStringTable.h"
+		"$SRCDIR/public/NetworkStringTableDefs.h"
+		"networkstringtableitem.h"
+		"NetworkStringTableServer.h"
+		"$SRCDIR/public/nmatrix.h"
+		"$SRCDIR/public/nvector.h"
+		"$SRCDIR/public/optimize.h"
+		"Overlay.h"
+		"packed_entity.h"
+		"pr_edict.h"
+		"precache.h"
+		"profile.h"
+		"profiling.h"
+		"PROGS.H"
+		"$SRCDIR/public/protected_things.h"
+		"$SRCDIR/common/protocol.h"
+		"quakedef.h"
+		"r_areaportal.h"
+		"r_decal.h"
+		"r_efxextern.h"
+		"R_LOCAL.H"
+		"randomnormals.h"
+		"RENDER.H"
+		"$SRCDIR/public/savegame_version.h"
+		"saverestore_filesystem.h"
+		"SBAR.H"
+		"$SRCDIR/public/ScratchPad3D.h"
+		"SCREEN.H"
+		"SERVER.H"
+		"Session.h"
+		"shadowmgr.h"
+		"audio/private/snd_mp3_source.h"
+		"audio/private/snd_wave_data.h"
+		"$SRCDIR/public/engine/SndInfo.h"
+		"$SRCDIR/public/soundinfo.h"
+		"StaticPropMgr.h"
+		"$SRCDIR/public/steam/steam_api.h"
+		"$SRCDIR/public/steam/steam_gameserver.h"
+		"$SRCDIR/public/steam/steamtypes.h"
+		"$SRCDIR/common/SteamWriteMiniDump.h"
+		"studio_internal.h"
+		"surfacehandle.h"
+		"$SRCDIR/public/surfinfo.h"
+		"sv_client.h"
+		"sv_filter.h"
+		"sv_ipratelimit.h"
+		"sv_log.h"
+		"sv_logofile.h"
+		"sv_main.h"
+		"sv_packedentities.h"
+		"sv_plugin.h"
+		"sv_precache.h"
+		"sv_rcon.h"
+		"sv_remoteaccess.h"
+		"sv_steamauth.h"
+		"sv_uploaddata.h"
+		"sv_uploadgamestats.h"
+		"sv_user.h"
+		"SYS.H"
+		"sys_dll.h"
+		"sysexternal.h"
+		"testscriptmgr.h"
+		"$SRCDIR/public/texture_group_names.h"
+		"tmessage.h"
+		"$SRCDIR/public/trace.h"
+		"traceinit.h"
+		"$SRCDIR/common/userid.h"
+		"$SRCDIR/public/tier1/utlfixedmemory.h"
+		"$SRCDIR/public/tier1/utlsymbol.h"
+		"vengineserver_impl.h"
+		"vgui_BasePanel.h"
+		"vgui_DebugSystemPanel.h"
+		"vgui_drawtreepanel.h"
+		"vgui_helpers.h"
+		"VIEW.H"
+		"vprof_engine.h"
+		"vprof_record.h"
+		"WORLD.H"
+		"ZONE.H"
+		"baseautocompletefilelist.h"
+		"dt_common_eng.h"
+		"enginebugreporter.h"
+		"engineperftools.h"
+		"host_phonehome.h"
+		"$SRCDIR/public/mathlib/IceKey.H"
+		"IOcclusionSystem.h"
+		"ithread.h"
+		"ModelInfo.h"
+		"$SRCDIR/public/mathlib/polyhedron.h"
+		"$SRCDIR/common/proto_oob.h"
+		"$SRCDIR/common/proto_version.h"
+		"sys_mainwind.h"
+		"cl_demoaction.h"
+		"cl_demoaction_types.h"
+		"cl_demoactioneditors.h"
+		"cl_demoactionmanager.h"
+		"cl_demoeditorpanel.h"
+		"cl_demosmootherpanel.h"
+		"cl_demosmoothing.h"
+		"cl_demouipanel.h"
+		"cl_txviewpanel.h"
+	}
+
+	folder "Resource Files" [$WINDOWS]
+	{
+		"halflife.rc"
+		"valve.ico"
+	}
+
+	folder "Public Headers"
+	{
+		"$SRCDIR/public/mathlib/amd3dx.h"
+		"$SRCDIR/public/vgui_controls/AnalogBar.h"
+		"$SRCDIR/public/vgui_controls/AnimationController.h"
+		"$SRCDIR/public/mathlib/ANORMS.H"
+		"$SRCDIR/public/basehandle.h"
+		"$SRCDIR/public/tier0/basetypes.h"
+		"$SRCDIR/public/tier1/bitbuf.h"
+		"$SRCDIR/public/bitvec.h"
+		"$SRCDIR/public/blockingudpsocket.h"
+		"$SRCDIR/public/bspfile.h"
+		"$SRCDIR/public/bspflags.h"
+		"$SRCDIR/common/bugreporter/bugreporter.h"
+		"$SRCDIR/public/builddisp.h"
+		"$SRCDIR/public/vgui_controls/BuildGroup.h"
+		"$SRCDIR/public/mathlib/bumpvects.h"
+		"$SRCDIR/public/vgui_controls/Button.h"
+		"$SRCDIR/public/cdll_int.h"
+		"$SRCDIR/public/tier1/characterset.h"
+		"$SRCDIR/public/vgui_controls/CheckButton.h"
+		"$SRCDIR/public/tier1/checksum_crc.h"
+		"$SRCDIR/public/tier1/checksum_md5.h"
+		"$SRCDIR/public/client_class.h"
+		"$SRCDIR/public/client_textmessage.h"
+		"$SRCDIR/public/clientstats.h"
+		"$SRCDIR/public/cmodel.h"
+		"$SRCDIR/public/Color.h"
+		"$SRCDIR/public/vgui_controls/ComboBox.h"
+		"$SRCDIR/public/commonmacros.h"
+		"$SRCDIR/public/mathlib/compressed_vector.h"
+		"$SRCDIR/public/con_nprint.h"
+		"$SRCDIR/public/const.h"
+		"$SRCDIR/public/vgui_controls/Controls.h"
+		"$SRCDIR/public/tier1/convar.h"
+		"$SRCDIR/public/coordsize.h"
+		"$SRCDIR/public/crtmemdebug.h"
+		"$SRCDIR/common/cserserverprotocol_engine.h"
+		"$SRCDIR/public/vgui/Cursor.h"
+		"$SRCDIR/public/vgui/Dar.h"
+		"$SRCDIR/public/datamap.h"
+		"$SRCDIR/public/tier0/dbg.h"
+		"$SRCDIR/dx9sdk/Include/dinput.h"
+		"$SRCDIR/public/disp_vertindex.h"
+		"$SRCDIR/public/dlight.h"
+		"$SRCDIR/public/dt_utlvector_recv.h"
+		"$SRCDIR/public/dt_utlvector_send.h"
+		"$SRCDIR/public/edict.h"
+		"$SRCDIR/public/vgui_controls/EditablePanel.h"
+		"$SRCDIR/public/editor_sendcommand.h"
+		"$SRCDIR/public/eiface.h"
+		"$SRCDIR/public/event_flags.h"
+		"event_system.h"
+		"$SRCDIR/public/tier0/fasttimer.h"
+		"$SRCDIR/public/vgui_controls/FileOpenDialog.h"
+		"$SRCDIR/public/filesystem_helpers.h"
+		"$SRCDIR/public/vgui_controls/FocusNavGroup.h"
+		"$SRCDIR/public/vgui_controls/Frame.h"
+		"$SRCDIR/public/GameBSPFile.h"
+		"$SRCDIR/public/gametrace.h"
+		"$SRCDIR/gameui/GameUI_Interface.h"
+		"$SRCDIR/public/globalvars_base.h"
+		"$SRCDIR/public/appframework/IAppSystem.h"
+		"$SRCDIR/public/ibsppack.h"
+		"$SRCDIR/public/icliententitylist.h"
+		"$SRCDIR/public/engine/IClientLeafSystem.h"
+		"$SRCDIR/public/iclientnetworkable.h"
+		"$SRCDIR/public/vgui/IClientPanel.h"
+		"$SRCDIR/public/iclientrenderable.h"
+		"$SRCDIR/public/iclientthinkable.h"
+		"$SRCDIR/public/iclientunknown.h"
+		"$SRCDIR/public/engine/ICollideable.h"
+		"$SRCDIR/public/tier0/ICommandLine.h"
+		"$SRCDIR/public/icvar.h"
+		"$SRCDIR/public/iefx.h"
+		"iengine.h"
+		"$SRCDIR/public/ienginevgui.h"
+		"igame.h"
+		"$SRCDIR/common/GameUI/IGameConsole.h"
+		"$SRCDIR/public/igameevents.h"
+		"$SRCDIR/common/GameUI/IGameUI.h"
+		"$SRCDIR/public/IGameUIFuncs.h"
+		"$SRCDIR/public/ihandleentity.h"
+		"$SRCDIR/public/ihltv.h"
+		"$SRCDIR/public/vgui/IHTML.h"
+		"$SRCDIR/public/vgui/IImage.h"
+		"$SRCDIR/public/vgui/IInput.h"
+		"$SRCDIR/public/vstdlib/IKeyValuesSystem.h"
+		"$SRCDIR/public/vgui/ILocalize.h"
+		"$SRCDIR/public/vgui_controls/Image.h"
+		"$SRCDIR/public/vgui_controls/ImageList.h"
+		"$SRCDIR/public/engine/imatchmaking.h"
+		"$SRCDIR/public/materialsystem/imaterial.h"
+		"$SRCDIR/public/materialsystem/imaterialproxy.h"
+		"$SRCDIR/public/materialsystem/imaterialproxyfactory.h"
+		"$SRCDIR/public/materialsystem/imaterialsystem.h"
+		"$SRCDIR/public/materialsystem/imaterialsystemhardwareconfig.h"
+		"$SRCDIR/public/materialsystem/imaterialvar.h"
+		"$SRCDIR/public/VGuiMatSurface/IMatSystemSurface.h"
+		"$SRCDIR/public/materialsystem/imesh.h"
+		"$SRCDIR/public/inetchannelinfo.h"
+		"$SRCDIR/public/inetmessage.h"
+		"$SRCDIR/public/tier1/interface.h"
+		"$SRCDIR/public/vgui/IPanel.h"
+		"$SRCDIR/public/iprediction.h"
+		"$SRCDIR/public/irecipientfilter.h"
+		"$SRCDIR/public/iregistry.h"
+		"$SRCDIR/public/isaverestore.h"
+		"$SRCDIR/public/vgui/IScheme.h"
+		"$SRCDIR/public/iservernetworkable.h"
+		"$SRCDIR/public/iserverunknown.h"
+		"$SRCDIR/public/engine/IStaticPropMgr.h"
+		"$SRCDIR/public/steam/isteamclient.h"
+		"$SRCDIR/public/steam/isteamgameserver.h"
+		"$SRCDIR/public/steam/isteamuser.h"
+		"$SRCDIR/public/steam/isteamuserstats.h"
+		"$SRCDIR/public/steam/isteamfriends.h"
+		"$SRCDIR/public/vgui/ISurface.h"
+		"$SRCDIR/public/vgui/ISystem.h"
+		"$SRCDIR/public/materialsystem/itexture.h"
+		"$SRCDIR/public/vaudio/ivaudio.h"
+		"$SRCDIR/public/engine/ivdebugoverlay.h"
+		"$SRCDIR/public/vgui/IVGui.h"
+		"$SRCDIR/public/ivguicenterprint.h"
+		"$SRCDIR/common/IVguiModule.h"
+		"ivideomode.h"
+		"$SRCDIR/public/engine/ivmodelinfo.h"
+		"$SRCDIR/public/engine/IVModelRender.h"
+		"$SRCDIR/public/ivoiceserver.h"
+		"$SRCDIR/common/ivprofexport.h"
+		"$SRCDIR/public/ivrenderview.h"
+		"$SRCDIR/public/ivtex.h"
+		"$SRCDIR/public/ixboxsystem.h" [$X360]
+		"$SRCDIR/public/jpeglib/jconfig.h"
+		"$SRCDIR/public/jpeglib/jmorecfg.h"
+		"$SRCDIR/public/jpeglib/jpeglib.h"
+		"$SRCDIR/public/vgui/KeyCode.h"
+		"$SRCDIR/public/tier1/KeyValues.h"
+		"$SRCDIR/public/vgui_controls/Label.h"
+		"$SRCDIR/public/vgui_controls/ListPanel.h"
+		"$SRCDIR/public/lumpfiles.h"
+		"$SRCDIR/public/materialsystem/materialsystem_config.h"
+		"$SRCDIR/public/mathlib/MATHLIB.H"
+		"$SRCDIR/public/measure_section.h"
+		"$SRCDIR/public/tier0/mem.h"
+		"$SRCDIR/public/tier0/memalloc.h"
+		"$SRCDIR/public/tier0/memdbgoff.h"
+		"$SRCDIR/public/tier0/memdbgon.h"
+		"$SRCDIR/public/tier1/mempool.h"
+		"$SRCDIR/public/tier1/memstack.h"
+		"$SRCDIR/public/vgui_controls/Menu.h"
+		"$SRCDIR/public/vgui_controls/MenuButton.h"
+		"$SRCDIR/public/vgui_controls/MenuItem.h"
+		"$SRCDIR/public/vgui_controls/MessageMap.h"
+		"$SRCDIR/public/model_types.h"
+		"$SRCDIR/public/vgui/MouseCode.h"
+		"$SRCDIR/public/mouthinfo.h"
+		"$SRCDIR/public/tier1/netadr.h"
+		"networkstringtableclient.h"
+		"$SRCDIR/public/networkvar.h"
+		"$SRCDIR/public/overlaytext.h"
+		"$SRCDIR/public/vgui_controls/Panel.h"
+		"$SRCDIR/public/vgui_controls/PanelAnimationVar.h"
+		"$SRCDIR/public/vgui_controls/PHandle.h"
+		"$SRCDIR/public/phyfile.h"
+		"$SRCDIR/public/tier0/platform.h"
+		"$SRCDIR/public/PlayerState.h"
+		"$SRCDIR/public/vgui_controls/ProgressBar.h"
+		"$SRCDIR/public/vgui_controls/PropertyDialog.h"
+		"$SRCDIR/public/vgui_controls/PropertyPage.h"
+		"$SRCDIR/public/vgui_controls/PropertySheet.h"
+		"$SRCDIR/common/qlimits.h"
+		"$SRCDIR/public/r_efx.h"
+		"$SRCDIR/public/vstdlib/random.h"
+		"$SRCDIR/public/saverestoretypes.h"
+		"$SRCDIR/public/vgui_controls/ScrollBar.h"
+		"$SRCDIR/public/sentence.h"
+		"$SRCDIR/public/server_class.h"
+		"$SRCDIR/public/shake.h"
+		"$SRCDIR/public/vgui_controls/Slider.h"
+		"$SRCDIR/public/tier1/smartptr.h"
+		"$SRCDIR/public/smooth_average.h"
+		"$SRCDIR/public/soundchars.h"
+		"$SRCDIR/public/soundflags.h"
+		"$SRCDIR/public/stdstring.h"
+		"$SRCDIR/common/Steam.h"
+		"$SRCDIR/public/steam/steamclientpublic.h"
+		"$SRCDIR/common/SteamCommon.h"
+		"$SRCDIR/common/SteamUserIDValidation.h"
+		"$SRCDIR/public/string_t.h"
+		"$SRCDIR/public/tier1/strtools.h"
+		"$SRCDIR/public/studio.h"
+		"$SRCDIR/public/vgui_controls/TextEntry.h"
+		"$SRCDIR/public/vgui_controls/TextImage.h"
+		"$SRCDIR/public/vgui_controls/ToggleButton.h"
+		"$SRCDIR/public/vgui_controls/Tooltip.h"
+		"$SRCDIR/public/vgui_controls/TreeView.h"
+		"$SRCDIR/public/vgui_controls/TreeViewListControl.h"
+		"$SRCDIR/public/unicode/unicode.h"
+		"$SRCDIR/public/tier1/utlbidirectionalset.h"
+		"$SRCDIR/public/tier1/utlbuffer.h"
+		"$SRCDIR/public/UtlCachedFileData.h"
+		"$SRCDIR/public/tier1/utldict.h"
+		"$SRCDIR/public/tier1/utlhash.h"
+		"$SRCDIR/public/tier1/utllinkedlist.h"
+		"$SRCDIR/public/tier1/utlmemory.h"
+		"$SRCDIR/public/tier1/utlmultilist.h"
+		"$SRCDIR/public/tier1/utlrbtree.h"
+		"$SRCDIR/public/tier1/UtlSortVector.h"
+		"$SRCDIR/public/tier1/utlvector.h"
+		"$SRCDIR/public/vallocator.h"
+		"$SRCDIR/public/vcollide.h"
+		"$SRCDIR/public/vcollide_parse.h"
+		"$SRCDIR/public/tier0/vcr_shared.h"
+		"$SRCDIR/public/tier0/vcrmode.h"
+		"$SRCDIR/public/mathlib/vector.h"
+		"$SRCDIR/public/mathlib/vector2d.h"
+		"$SRCDIR/public/mathlib/vector4d.h"
+		"$SRCDIR/public/vgui/VGUI.h"
+		"$SRCDIR/public/view_shared.h"
+		"$SRCDIR/public/mathlib/vmatrix.h"
+		"vmodes.h"
+		"$SRCDIR/public/vphysics_interface.h"
+		"$SRCDIR/public/mathlib/vplane.h"
+		"$SRCDIR/public/tier0/vprof.h"
+		"$SRCDIR/public/vstdlib/vstdlib.h"
+		"$SRCDIR/public/vtf/vtf.h"
+		"$SRCDIR/public/worldsize.h"
+		"$SRCDIR/public/zip/XZip.h"
+		"$SRCDIR/public/zip_uncompressed.h"
+		"$SRCDIR/public/xwvfile.h"
+	}
+}

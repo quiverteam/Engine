@@ -1,0 +1,34 @@
+// ---------------------------------------------------------------
+// Auto Generated QPC Script - Fix if needed before using
+// ---------------------------------------------------------------
+macro PROJECT_NAME "Soundtest"
+
+macro SRCDIR "../.."
+macro OUTBINDIR "$BINDEFAULT/unittests"
+
+include "$SRCDIR/_qpc_scripts/source_exe_base.qpc"
+
+configuration
+{
+	linker
+	{
+		libraries
+		{
+			"$LIBPUBLIC/appframework"
+		}
+	}
+}
+
+dependencies
+{
+	"appframework/appframework.qpc"
+}
+
+files
+{
+	folder "Source Files"
+	{
+		"$SRCDIR/public/filesystem_init.cpp"
+		"soundtest.cpp"
+	}
+}
