@@ -1,0 +1,112 @@
+// ---------------------------------------------------------------
+// Auto Generated QPC Script - Fix if needed before using
+// ---------------------------------------------------------------
+macro PROJECT_NAME "vguimatsurface"
+
+macro SRCDIR ".."
+macro OUTBINDIR "$BINDEFAULT"
+
+include "$SRCDIR/_qpc_scripts/source_dll_base.qpc"
+
+configuration
+{
+	general
+	{
+		include_directories
+		{
+			"$SRCDIR/vgui2/controls"
+			"$SRCDIR/vgui2/include"
+		}
+	}
+
+	compiler
+	{
+		preprocessor_definitions
+		{
+			"fopen=dont_use_fopen"
+			"BENCHMARK"
+			"VGUIMATSURFACE_DLL_EXPORT"
+			"GAMEUI_EXPORTS"
+			"DONT_PROTECT_FILEIO_FUNCTIONS"
+			"PROTECTED_THINGS_ENABLE"
+		}
+	}
+
+	linker
+	{
+		libraries
+		{
+			"vgui_surfacelib_360.lib" [$X360]
+			"vgui_surfacelib.lib" "nvtc.lib" [$WIN32]
+			"bitmap"
+			"mathlib"
+			"tier2"
+			"tier3"
+			"vgui_controls"
+			"vgui_surfacelib"
+		}
+	}
+}
+
+files
+{
+	folder "Source Files"
+	{
+		"Clip2D.cpp"
+		"Cursor.cpp"
+		"$SRCDIR/public/filesystem_helpers.cpp"
+		"FontTextureCache.cpp"
+		"Input.cpp"
+		"MatSystemSurface.cpp"
+		"memorybitmap.cpp" [$WIN32]
+		"TextureDictionary.cpp"
+		"$SRCDIR/vgui2/src/vgui_key_translation.cpp"
+		"$SRCDIR/public/vgui_controls/vgui_controls.cpp"
+	}
+
+	folder "Header Files"
+	{
+		"Clip2D.h"
+		"Cursor.h"
+		"Input.h"
+		"memorybitmap.h" [$WIN32]
+		"TextureDictionary.h"
+		"vguimatsurface.h"
+		"MatSystemSurface.h"
+		"FontTextureCache.h"
+		"$SRCDIR/vgui2/src/vgui_key_translation.h"
+	}
+
+	folder "Public Header Files"
+	{
+		"$SRCDIR/Public/tier0/basetypes.h"
+		"$SRCDIR/public/tier1/characterset.h"
+		"$SRCDIR/public/tier1/checksum_crc.h"
+		"$SRCDIR/public/commonmacros.h"
+		"$SRCDIR/Public/FileSystem.h"
+		"$SRCDIR/public/filesystem_helpers.h"
+		"$SRCDIR/common/vgui_surfacelib/FontAmalgam.h"
+		"$SRCDIR/common/vgui_surfacelib/FontManager.h"
+		"$SRCDIR/common/vgui/HtmlWindow.h" [$WIN32]
+		"$SRCDIR/public/appframework/IAppSystem.h"
+		"$SRCDIR/public/materialsystem/imaterial.h"
+		"$SRCDIR/public/materialsystem/imaterialsystem.h"
+		"$SRCDIR/public/materialsystem/imaterialvar.h"
+		"$SRCDIR/public/VGuiMatSurface/IMatSystemSurface.h"
+		"$SRCDIR/public/materialsystem/imesh.h"
+		"$SRCDIR/public/tier1/interface.h"
+		"$SRCDIR/public/materialsystem/itexture.h"
+		"$SRCDIR/public/pixelwriter.h"
+		"$SRCDIR/public/tier1/strtools.h"
+		"$SRCDIR/public/tier1/utllinkedlist.h"
+		"$SRCDIR/public/tier1/utlmemory.h"
+		"$SRCDIR/public/tier1/utlrbtree.h"
+		"$SRCDIR/public/tier1/utlvector.h"
+		"$SRCDIR/Public/mathlib/vector.h"
+		"$SRCDIR/Public/mathlib/vector2d.h"
+		"$SRCDIR/Public/mathlib/vector4d.h"
+		"$SRCDIR/public/vstdlib/vstdlib.h"
+		"$SRCDIR/public/vtf/vtf.h"
+		"$SRCDIR/common/vgui_surfacelib/Win32Font.h"
+	}
+}

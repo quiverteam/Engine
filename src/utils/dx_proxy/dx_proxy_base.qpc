@@ -1,0 +1,60 @@
+// ---------------------------------------------------------------
+// Auto Generated QPC Script - Fix if needed before using
+// ---------------------------------------------------------------
+macro PROJECT_NAME "DX_Proxy ($DX_SDK_VER)"
+
+macro SRCDIR
+macro OUTBINDIR
+macro DX_SDK_VER
+macro OUTBINDIR "$OUTBINDIR/$PLATFORM"
+macro OUTBINNAME "dx_proxy"
+
+include "$SRCDIR/_qpc_scripts/source_dll_base.qpc"
+
+configuration
+{
+	general
+	{
+		out_dir "./$CONFIG/$PLATFORM/$DX_SDK_VER"
+		int_dir "./$CONFIG/$PLATFORM/$DX_SDK_VER"
+	}
+
+	compiler
+	{
+		preprocessor_definitions
+		{
+			"DX_PROXY_EXPORTS"
+			"$DX_SDK_VER"
+		}
+
+		options
+		{
+			"/EHsc"
+		}
+	}
+
+	linker
+	{
+		ignore_libraries
+		{
+			"libcp.lib" "libcpd.lib" [$RELEASE]
+		}
+	}
+}
+
+files
+{
+	folder "Source Files"
+	{
+		- "$SRCDIR/public/tier0/memoverride.cpp"
+		"dx_proxy.cpp"
+		"filememcache.cpp"
+	}
+
+	folder "Header Files"
+	{
+		"$SRCDIR/common/dx_proxy/dx_proxy.h"
+		"dxincludeimpl.h"
+		"filememcache.h"
+	}
+}

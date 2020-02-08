@@ -1,0 +1,57 @@
+// ---------------------------------------------------------------
+// Auto Generated QPC Script - Fix if needed before using
+// ---------------------------------------------------------------
+macro PROJECT_NAME "Dmxedit"
+
+macro SRCDIR "../.."
+macro OUTBINDIR "$BINDEFAULT"
+
+include "$SRCDIR/_qpc_scripts/source_exe_con_base.qpc"
+
+configuration
+{
+	compiler
+	{
+		options
+		{
+			"/EHsc"
+		}
+	}
+
+	linker
+	{
+		libraries
+		{
+			"appframework"
+			"movieobjects"
+			"datamodel"
+			"dmserializers"
+			"mathlib"
+			"tier2"
+			"tier3"
+			"$LIBCOMMON/lua"
+		}
+	}
+}
+
+files
+{
+	folder "Source Files"
+	{
+		"dmxedit.cpp"
+		"luamain.cpp"
+		"doit.h"
+
+		folder "External"
+		{
+			"$SRCDIR/public/movieobjects/movieobjects.cpp"
+			"$SRCDIR/public/interpolatortypes.cpp"
+			"$SRCDIR/public/interpolatortypes.h"
+		}
+	}
+
+	folder "Header Files"
+	{
+		"dmxedit.h"
+	}
+}

@@ -1,0 +1,73 @@
+// ---------------------------------------------------------------
+// Auto Generated QPC Script - Fix if needed before using
+// ---------------------------------------------------------------
+macro PROJECT_NAME "Serverplugin_empty"
+
+macro SRCDIR "../.."
+macro OUTBINDIR "$BINDEFAULT"
+
+include "$SRCDIR/_qpc_scripts/source_dll_base.qpc"
+
+configuration
+{
+	general
+	{
+		include_directories
+		{
+			"$SRCDIR/game/server"
+			"$SRCDIR/game/shared"
+		}
+	}
+
+	compiler
+	{
+		preprocessor_definitions
+		{
+			"serverplugin_emptyONLY"
+			"_MBCS"
+		}
+	}
+
+	linker
+	{
+		libraries
+		{
+			"odbc32.lib"
+			"odbccp32.lib"
+			"mathlib"
+			"tier2"
+		}
+	}
+}
+
+files
+{
+	folder "Source Files"
+	{
+		"serverplugin_bot.cpp"
+		"serverplugin_empty.cpp"
+	}
+
+	folder "Header Files"
+	{
+		"$SRCDIR/public/tier0/basetypes.h"
+		"$SRCDIR/public/Color.h"
+		"$SRCDIR/public/tier0/dbg.h"
+		"$SRCDIR/public/eiface.h"
+		"$SRCDIR/public/filesystem.h"
+		"$SRCDIR/public/tier0/icommandline.h"
+		"$SRCDIR/public/igameevents.h"
+		"$SRCDIR/public/tier1/interface.h"
+		"$SRCDIR/public/game/server/iplayerinfo.h"
+		"$SRCDIR/public/engine/iserverplugin.h"
+		"$SRCDIR/public/tier1/KeyValues.h"
+		"$SRCDIR/public/tier0/mem.h"
+		"$SRCDIR/public/tier0/memalloc.h"
+		"$SRCDIR/public/tier0/memdbgon.h"
+		"$SRCDIR/public/tier1/strtools.h"
+		"$SRCDIR/public/tier1/utlbuffer.h"
+		"$SRCDIR/public/tier1/utlmemory.h"
+		"$SRCDIR/public/tier1/utlvector.h"
+		"$SRCDIR/public/vstdlib/vstdlib.h"
+	}
+}

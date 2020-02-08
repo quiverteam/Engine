@@ -1,0 +1,164 @@
+// ---------------------------------------------------------------
+// Auto Generated QPC Script - Fix if needed before using
+// ---------------------------------------------------------------
+macro PROJECT_NAME "MaterialSystem"
+
+macro SRCDIR ".."
+macro OUTBINDIR "$BINDEFAULT"
+
+include "$SRCDIR/_qpc_scripts/source_dll_base.qpc"
+
+configuration
+{
+	compiler
+	{
+		preprocessor_definitions
+		{
+			"DEFINE_MATERIALSYSTEM_INTERFACE"
+			"MATERIALSYSTEM_EXPORTS"
+			"PROTECTED_THINGS_ENABLE"
+			"strncpy=use_Q_strncpy_instead"
+			"_snprintf=use_Q_snprintf_instead"
+			"fopen=dont_use_fopen"
+		}
+
+		precompiled_header_file "pch_materialsystem.h"
+	}
+
+	linker
+	{
+		libraries
+		{
+			"bitmap"
+			"mathlib"
+			"shaderlib"
+			"tier2"
+			"vtf"
+		}
+	}
+}
+
+files
+{
+	folder "Source Files"
+	{
+		"CColorCorrection.cpp"
+		"CMaterial.cpp"
+		"CMaterial_QueueFriendly.cpp"
+		"CMaterialSubRect.cpp"
+		"CMaterialVar.cpp"
+		"cmatnullrendercontext.cpp"
+		"ColorSpace.cpp"
+		"CTexture.cpp"
+		"$SRCDIR/public/filesystem_helpers.cpp"
+		"ImagePacker.cpp"
+		"mat_stub.cpp"
+		"MaterialSystem_Global.cpp"
+		"morph.cpp"
+		"OcclusionQueryMgr.cpp"
+		"ShaderSystem.cpp"
+		"TextureManager.cpp"
+		"pch_materialsystem.cpp"
+		{
+			configuration
+			{
+				compiler
+				{
+					precompiled_header "create"
+				}
+			}
+		}
+
+		"CMaterialDict.cpp"	\
+		"CMaterialSystem.cpp"	\
+		"CMatLightmaps.cpp"	\
+		"CMatRenderContext.cpp"	\
+		"CMatQueuedRenderContext.cpp"
+		{
+			configuration
+			{
+				compiler
+				{
+					precompiled_header "use"
+				}
+			}
+		}
+	}
+
+	folder "Public Header Files"
+	{
+		"$SRCDIR/Public/mathlib/amd3dx.h"
+		"$SRCDIR/Public/tier0/basetypes.h"
+		"$SRCDIR/Public/mathlib/bumpvects.h"
+		"$SRCDIR/Public/const.h"
+		"$SRCDIR/public/tier1/convar.h"
+		"$SRCDIR/Public/crtmemdebug.h"
+		"$SRCDIR/common/cstringhash.h"
+		"$SRCDIR/Public/FileSystem.h"
+		"$SRCDIR/public/appframework/IAppSystem.h"
+		"$SRCDIR/public/materialsystem/IColorCorrection.h"
+		"$SRCDIR/public/materialsystem/imaterial.h"
+		"$SRCDIR/public/materialsystem/imaterialproxy.h"
+		"$SRCDIR/public/materialsystem/imaterialproxyfactory.h"
+		"$SRCDIR/public/materialsystem/imaterialsystem.h"
+		"$SRCDIR/public/materialsystem/imaterialsystemhardwareconfig.h"
+		"$SRCDIR/public/materialsystem/imaterialsystemstub.h"
+		"$SRCDIR/public/materialsystem/imaterialvar.h"
+		"$SRCDIR/public/materialsystem/imesh.h"
+		"$SRCDIR/public/materialsystem/imorph.h"
+		"$SRCDIR/public/tier1/interface.h"
+		"$SRCDIR/public/materialsystem/IShader.h"
+		"$SRCDIR/public/materialsystem/ishaderapi.h"
+		"$SRCDIR/public/materialsystem/itexture.h"
+		"$SRCDIR/public/tier1/KeyValues.h"
+		"$SRCDIR/public/materialsystem/materialsystem_config.h"
+		"$SRCDIR/Public/mathlib/MATHLIB.H"
+		"$SRCDIR/public/tier1/mempool.h"
+		"$SRCDIR/Public/PixelWriter.h"
+		"$SRCDIR/public/renderparm.h"
+		"$SRCDIR/public/tier1/strtools.h"
+		"$SRCDIR/public/tier1/utlbuffer.h"
+		"$SRCDIR/public/tier1/utlmemory.h"
+		"$SRCDIR/public/tier1/utlrbtree.h"
+		"$SRCDIR/public/tier1/utlsymbol.h"
+		"$SRCDIR/public/tier1/utlvector.h"
+		"$SRCDIR/Public/mathlib/vector.h"
+		"$SRCDIR/Public/mathlib/vector2d.h"
+		"$SRCDIR/Public/mathlib/vector4d.h"
+		"$SRCDIR/Public/mathlib/vmatrix.h"
+		"$SRCDIR/Public/mathlib/vplane.h"
+		"$SRCDIR/public/vstdlib/vstdlib.h"
+		"$SRCDIR/public/vtf/vtf.h"
+	}
+
+	folder "Header Files"
+	{
+		"CMaterial_QueueFriendly.h"
+		"CMaterialDict.h"
+		"CMaterialSystem.h"
+		"CMatLightmaps.h"
+		"cmatnullrendercontext.h"
+		"CMatQueuedRenderContext.h"
+		"CMatRenderContext.h"
+		"ColorSpace.h"
+		"IHardwareConfigInternal.h"
+		"ImagePacker.h"
+		"IMaterialInternal.h"
+		"IMaterialSystemInternal.h"
+		"IMatRenderContextInternal.h"
+		"IMorphInternal.h"
+		"IShaderSystem.h"
+		"$SRCDIR/public/shaderapi/IShaderUtil.h"
+		"ITextureInternal.h"
+		"MaterialSystem_Global.h"
+		"OcclusionQueryMgr.h"
+		"shader_dll_verify.h" [$WIN32]
+		"ShaderSystem.h"
+		"TextureManager.h"
+	}
+
+	folder "Shader Source"
+	{
+		"Wireframe.cpp"
+	}
+}

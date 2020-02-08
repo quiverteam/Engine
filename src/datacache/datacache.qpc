@@ -1,0 +1,55 @@
+// ---------------------------------------------------------------
+// Auto Generated QPC Script - Fix if needed before using
+// ---------------------------------------------------------------
+macro PROJECT_NAME "datacache"
+
+macro SRCDIR ".."
+macro OUTBINDIR "$BINDEFAULT"
+
+include "$SRCDIR/_qpc_scripts/source_dll_base.qpc"
+
+configuration
+{
+	compiler
+	{
+		preprocessor_definitions
+		{
+			"MDLCACHE_DLL_EXPORT"
+		}
+	}
+
+	linker
+	{
+		libraries
+		{
+			"$LIBPUBLIC/tier2"
+			"$LIBPUBLIC/tier3"
+		}
+	}
+}
+
+files
+{
+	folder "Source Files"
+	{
+		"datacache.cpp"
+		"mdlcache.cpp"
+		"$SRCDIR/public/studio.cpp"
+		"$SRCDIR/public/studio_virtualmodel.cpp"
+		"../common/studiobyteswap.cpp"
+	}
+
+	folder "Header Files"
+	{
+		"datacache.h"
+		"datacache_common.h"
+		"$SRCDIR/public/studio.h"
+		"../common/studiobyteswap.h"
+	}
+
+	folder "Interface"
+	{
+		"$SRCDIR/public/datacache/idatacache.h"
+		"$SRCDIR/public/datacache/imdlcache.h"
+	}
+}

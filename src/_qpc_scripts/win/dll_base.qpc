@@ -1,0 +1,37 @@
+// ---------------------------------------------------------------
+// Base Dynamic Library Settings for Visual Studio
+// ---------------------------------------------------------------
+configuration
+{
+	compiler
+	{
+		preprocessor_definitions
+		{
+			"_DLL_EXT=$_DLL_EXT" "DLLNAME=$OUTBINNAME" "_USRDLL"
+		}
+
+		options
+		{
+			"/Zm200" 	[$WIN32]
+		}
+	}
+}
+
+/*files
+{
+	folder "Source Files"
+	{
+		"$SRCDIR/common/debug_dll_check.cpp" [!$SOURCESDK]
+		{
+			configuration
+			{
+				compiler
+				{
+					precompiled_header "none"
+				}
+			}
+		}
+	}
+}*/
+
+

@@ -1,0 +1,28 @@
+// ---------------------------------------------------------------
+// Auto Generated QPC Script - Fix if needed before using
+// ---------------------------------------------------------------
+macro PROJECT_NAME "Networktest"
+
+macro SRCDIR "../.."
+macro OUTBINDIR "$BINDEFAULT/unittests"
+
+include "$SRCDIR/_qpc_scripts/source_exe_base.qpc"
+
+configuration
+{
+	linker
+	{
+		libraries
+		{
+			"$LIBPUBLIC/appframework"
+		}
+	}
+}
+
+files
+{
+	folder "Source Files"
+	{
+		"networktest.cpp"
+	}
+}

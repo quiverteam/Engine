@@ -1,0 +1,24 @@
+// ---------------------------------------------------------------
+// Base Static Library Settings
+// ---------------------------------------------------------------
+macro OUTLIBNAME "$PROJECT_NAME"
+macro OUTLIBDIR "$SRCDIR/lib/public/$PLATFORM"	[!$OUTLIBDIR]
+
+macro IS_LIB_PROJECT "1"
+
+include "$SRCDIR/_qpc_scripts/source_base.qpc"
+
+include "$SRCDIR/_qpc_scripts/posix/lib_base.qpc" 	[$POSIX]
+include "$SRCDIR/_qpc_scripts/win/lib_base.qpc" 	[$WINDOWS]
+
+configuration
+{
+	general
+	{
+		out_dir "$OUTLIBDIR"
+		int_dir "./$CONFIG/$_SUBDIRSUFFIX"
+		configuration_type "static_library"
+	}
+}
+
+

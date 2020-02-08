@@ -1,0 +1,45 @@
+// ---------------------------------------------------------------
+// Auto Generated QPC Script - Fix if needed before using
+// ---------------------------------------------------------------
+macro PROJECT_NAME "tier3test"
+
+macro SRCDIR "../.."
+macro OUTBINDIR "$BINDEFAULT/unittests"
+
+include "$SRCDIR/_qpc_scripts/source_dll_base.qpc"
+
+configuration
+{
+	compiler
+	{
+		preprocessor_definitions
+		{
+			"TIER3TEST_EXPORTS"
+		}
+	}
+
+	linker
+	{
+		libraries
+		{
+			"$LIBPUBLIC/mathlib"
+			"$LIBPUBLIC/tier2"
+			"$LIBPUBLIC/tier3"
+			"$LIBPUBLIC/unitlib"
+		}
+	}
+}
+
+files
+{
+	folder "Source Files"
+	{
+		"tier3test.cpp"
+	}
+
+	folder "Header Files"
+	{
+		"$SRCDIR/public/movieobjects/dmx_to_vcd.h"
+		"$SRCDIR/public/interpolatortypes.h"
+	}
+}

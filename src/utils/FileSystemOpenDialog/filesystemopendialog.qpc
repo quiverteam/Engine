@@ -1,0 +1,95 @@
+// ---------------------------------------------------------------
+// Auto Generated QPC Script - Fix if needed before using
+// ---------------------------------------------------------------
+macro PROJECT_NAME "FileSystemOpenDialog"
+
+macro SRCDIR "../.."
+macro OUTBINDIR "$BINDEFAULT"
+
+include "$SRCDIR/_qpc_scripts/source_dll_base.qpc"
+
+configuration
+{
+	general
+	{
+		include_directories
+		{
+			"../common"
+		}
+	}
+
+	compiler
+	{
+		preprocessor_definitions
+		{
+			"WINVER=0x502"
+		}
+
+		precompiled_header "use"
+		precompiled_header_output_file "$CONFIG/FileSystemOpenDialog.pch"
+
+		options
+		{
+			"/EHsc"
+		}
+	}
+
+	linker
+	{
+		libraries
+		{
+			"$LIBCOMMON/jpeglib"
+		}
+	}
+}
+
+files
+{
+	folder "Source Files"
+	{
+		"$SRCDIR/public/tier0/afxmem_override.cpp"
+		"FileDialogApp.cpp"
+		"FileDialogApp.h"
+		"FileSystemOpenDlg.cpp"
+		"FileSystemOpenDlg.h"
+		"$SRCDIR/common/IFileSystemOpenDialog.h"
+		- "$SRCDIR/public/tier0/memoverride.cpp"
+		"$SRCDIR/public/tier0/memoverride.cpp"
+		{
+			configuration
+			{
+				compiler
+				{
+					preprocessor_definitions
+					{
+						"NO_MEMOVERRIDE_NEW_DELETE"
+					}
+
+					precompiled_header "none"
+				}
+			}
+		}
+
+		"StdAfx.cpp"
+		{
+			configuration
+			{
+				compiler
+				{
+					precompiled_header "create"
+				}
+			}
+		}
+	}
+
+	folder "Header Files"
+	{
+		"Resource.h"
+		"StdAfx.h"
+	}
+
+	folder "Resource Files"
+	{
+		"FileSystemOpenDialog.rc"
+	}
+}

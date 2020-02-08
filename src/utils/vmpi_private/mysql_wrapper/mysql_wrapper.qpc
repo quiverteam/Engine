@@ -1,0 +1,54 @@
+// ---------------------------------------------------------------
+// Auto Generated QPC Script - Fix if needed before using
+// ---------------------------------------------------------------
+macro PROJECT_NAME "Mysql_wrapper"
+
+macro SRCDIR "../../.."
+macro OUTBINDIR "$BINDEFAULT"
+
+include "$SRCDIR/_qpc_scripts/source_dll_base.qpc"
+
+configuration
+{
+	general
+	{
+		include_directories
+		{
+			".."
+			"../mysql/include"
+			"../../vmpi"
+		}
+	}
+
+	compiler
+	{
+		preprocessor_definitions
+		{
+			"MYSQL_WRAPPER_EXPORTS"
+		}
+	}
+
+	linker
+	{
+		libraries
+		{
+			"../mysql/lib/opt/libmySQL"
+			"../mysql/lib/opt/zlib"
+		}
+	}
+}
+
+files
+{
+	folder "Source Files"
+	{
+		"mysql_wrapper.cpp"
+		"StdAfx.cpp"
+	}
+
+	folder "Header Files"
+	{
+		"../../vmpi/imysqlwrapper.h"
+		"StdAfx.h"
+	}
+}

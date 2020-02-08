@@ -1,0 +1,43 @@
+// ---------------------------------------------------------------
+// Auto Generated QPC Script - Fix if needed before using
+// ---------------------------------------------------------------
+macro PROJECT_NAME "inputsystem"
+
+macro SRCDIR ".."
+macro OUTBINDIR "$BINDEFAULT"
+
+include "$SRCDIR/_qpc_scripts/source_dll_base.qpc"
+
+configuration
+{
+	linker
+	{
+		libraries
+		{
+			"Winmm.lib" [$WINDOWS]
+			"$LIBPUBLIC/tier2"
+		}
+	}
+}
+
+files
+{
+	folder "Source Files"
+	{
+		"inputsystem.cpp"
+		"inputsystem.h"
+		"joystick.cpp"
+		"key_translation.cpp"
+		"key_translation.h"
+		"xcontroller.cpp"
+	}
+
+	folder "Public Headers"
+	{
+		"$SRCDIR/public/inputsystem/AnalogCode.h"
+		"$SRCDIR/public/inputsystem/ButtonCode.h"
+		"$SRCDIR/public/inputsystem/iinputsystem.h"
+		"$SRCDIR/public/inputsystem/InputEnums.h"
+		"$SRCDIR/dx9sdk/Include/XInput.h"
+	}
+}

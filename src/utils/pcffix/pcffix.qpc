@@ -1,0 +1,32 @@
+// ---------------------------------------------------------------
+// Auto Generated QPC Script - Fix if needed before using
+// ---------------------------------------------------------------
+macro PROJECT_NAME "pcffix"
+
+macro SRCDIR "../.."
+macro OUTBINDIR "$BINDEFAULT"
+
+include "$SRCDIR/_qpc_scripts/source_exe_con_base.qpc"
+
+configuration
+{
+	linker
+	{
+		libraries
+		{
+			"$LIBPUBLIC/appframework"
+			"$LIBPUBLIC/datamodel"
+			"$LIBPUBLIC/dmserializers"
+			"$LIBPUBLIC/mathlib"
+			"$LIBPUBLIC/tier2"
+		}
+	}
+}
+
+files
+{
+	folder "Source Files"
+	{
+		"pcffix.cpp"
+	}
+}

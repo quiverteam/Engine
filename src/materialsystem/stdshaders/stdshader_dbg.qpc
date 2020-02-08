@@ -1,0 +1,62 @@
+// ---------------------------------------------------------------
+// Auto Generated QPC Script - Fix if needed before using
+// ---------------------------------------------------------------
+macro PROJECT_NAME "stdshader_dbg"
+
+macro SRCDIR "../.."
+macro OUTBINDIR "$BINDEFAULT"
+
+include "$SRCDIR/_qpc_scripts/source_dll_base.qpc"
+
+configuration
+{
+	general
+	{
+		out_dir "$CONFIG/$PLATFORM/dbg"
+		int_dir "$CONFIG/$PLATFORM/dbg"
+
+		include_directories
+		{
+			"fxctmp9" "vshtmp9" "../../dx9sdk/include" [$WIN32]
+		}
+	}
+
+	compiler
+	{
+		preprocessor_definitions
+		{
+			"STDSHADER_DBG_DLL_EXPORT"
+			"FAST_MATERIALVAR_ACCESS"
+		}
+	}
+
+	linker
+	{
+		libraries
+		{
+			"version.lib" "winmm.lib" [$WIN32]
+			"$SRCDIR/dx9sdk/lib/d3dx9"
+			"mathlib"
+			"shaderlib"
+		}
+	}
+}
+
+files
+{
+	folder "Source Files"
+	{
+		"BaseVSShader.cpp"
+		"debugdepth.cpp"
+		"DebugDrawEnvmapMask.cpp"
+		"debugluxel.cpp"
+		"debugnormalmap.cpp"
+		"debugtangentspace.cpp"
+		"fillrate.cpp"
+	}
+
+	folder "Header Files"
+	{
+		"BaseVSShader.h"
+	}
+}

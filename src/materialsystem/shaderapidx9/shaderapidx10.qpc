@@ -1,0 +1,150 @@
+// ---------------------------------------------------------------
+// Auto Generated QPC Script - Fix if needed before using
+// ---------------------------------------------------------------
+macro PROJECT_NAME "shaderapidx10"
+
+macro SRCDIR "../.."
+macro OUTBINDIR "$BINDEFAULT"
+
+include "$SRCDIR/_qpc_scripts/source_dll_base.qpc"
+
+configuration
+{
+	general
+	{
+		out_dir "./$CONFIG/$PLATFORM/dx10"
+		int_dir "./$CONFIG/$PLATFORM/dx10"
+
+		include_directories
+		{
+			"$SRCDIR/dx10sdk/include"
+			".."
+		}
+	}
+
+	compiler
+	{
+		preprocessor_definitions
+		{
+			"SHADERAPIDX10"
+			"SHADER_DLL_EXPORT"
+			"PROTECTED_THINGS_ENABLE"
+			"strncpy=use_Q_strncpy_instead"
+			"_snprintf=use_Q_snprintf_instead"
+		}
+	}
+
+	linker
+	{
+		libraries
+		{
+			"$LIBPUBLIC/tier2"
+			"$LIBPUBLIC/bitmap"
+			"$LIBPUBLIC/mathlib"
+			"$LIBCOMMON/bzip2"
+			"$SRCDIR/dx10sdk/lib/d3d9"
+			"$SRCDIR/dx10sdk/lib/d3d10"
+			"$SRCDIR/dx10sdk/lib/dxgi"
+			"$SRCDIR/dx10sdk/lib/d3dx10.lib $SRCDIR/dx10sdk/lib/d3dx9"
+			"$SRCDIR/dx10sdk/lib/d3dx10d.lib $SRCDIR/dx10sdk/lib/d3dx9d"
+		}
+	}
+}
+
+files
+{
+	folder "Source Files"
+	{
+		"cvballoctracker.cpp"
+		"shaderdevicebase.cpp"
+		"shaderapibase.cpp"
+		"meshbase.cpp"
+
+		"ShaderDeviceDx10.cpp"	\
+		"ShaderAPIDx10.cpp"	\
+		"MeshDx10.cpp"	\
+		"InputLayoutDx10.cpp"	\
+		"ShaderShadowDx10.cpp"
+		{
+			configuration
+			{
+				compiler
+				{
+					preprocessor_definitions
+					{
+						"DX10"
+					}
+				}
+			}
+		}
+
+		"ColorFormatDX8.cpp"
+		"d3d_async.cpp"
+		"$SRCDIR/public/filesystem_helpers.cpp"
+		"HardwareConfig.cpp"
+		"MeshDX8.cpp"
+		"Recording.cpp"
+		"ShaderAPIDX8.cpp"
+		"ShaderDeviceDX8.cpp"
+		"ShaderShadowDX8.cpp"
+		"TextureDX8.cpp"
+		"TransitionTable.cpp"
+		"vertexdecl.cpp"
+		"VertexShaderDX8.cpp"
+		"wmi.cpp"
+	}
+
+	folder "DirectX Header Files"
+	{
+		"$SRCDIR/dx10sdk/include/d3d10.h"
+		"$SRCDIR/dx10sdk/include/d3dx10.h"
+		"$SRCDIR/dx10sdk/include/d3dx10core.h"
+		"$SRCDIR/dx10sdk/include/d3dx10math.h"
+		"$SRCDIR/dx10sdk/include/d3dx10math.inl"
+		"$SRCDIR/dx10sdk/include/d3dx10mesh.h"
+		"$SRCDIR/dx10sdk/include/d3dx10tex.h"
+	}
+
+	folder "Public Header Files"
+	{
+		"$SRCDIR/public/shaderapi/ishaderdevice.h"
+		"$SRCDIR/public/shaderapi/ishaderutil.h"
+		"$SRCDIR/public/shaderapi/ishaderapi.h"
+		"$SRCDIR/public/shaderapi/ishaderdynamic.h"
+		"$SRCDIR/public/shaderapi/ishadershadow.h"
+		"$SRCDIR/public/materialsystem/idebugtextureinfo.h"
+		"$SRCDIR/public/materialsystem/ivballoctracker.h"
+		"$SRCDIR/public/materialsystem/shader_vcs_version.h"
+	}
+
+	folder "Header Files"
+	{
+		"meshbase.h"
+		"shaderdevicebase.h"
+		"shaderapibase.h"
+		"shaderapi_global.h"
+		"HardwareConfig.h"
+		"ShaderDeviceDx10.h"
+		"ShaderAPIDx10.h"
+		"MeshDx10.h"
+		"ShaderShadowDx10.h"
+		"shaderapidx10_global.h"
+		"inputlayoutdx10.h"
+		"TransitionTable.h"
+		"vertexdecl.h"
+		"ColorFormatDX8.h"
+		"d3d_async.h"
+		"dynamicib.h"
+		"dynamicvb.h"
+		"IMeshDX8.h"
+		"locald3dtypes.h"
+		"Recording.h"
+		"ShaderAPIDX8.h"
+		"ShaderAPIDX8_Global.h"
+		"ShaderShadowDX8.h"
+		"stubd3ddevice.h"
+		"TextureDX8.h"
+		"VertexShaderDX8.h"
+		"wmi.h"
+	}
+}

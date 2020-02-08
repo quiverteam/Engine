@@ -1,0 +1,61 @@
+// ---------------------------------------------------------------
+// Auto Generated QPC Script - Fix if needed before using
+// ---------------------------------------------------------------
+macro PROJECT_NAME "lzma"
+
+macro SRCDIR "../.."
+macro OUTLIBDIR "$LIBCOMMON"
+
+include "$SRCDIR/_qpc_scripts/source_lib_base.qpc"
+
+configuration
+{
+	general
+	{
+		include_directories
+		{
+			"C"
+		}
+	}
+
+	compiler
+	{
+		preprocessor_definitions
+		{
+			"_NO_EXCEPTIONS"
+			"_LZMA_PROB32"
+		}
+	}
+}
+
+files
+{
+	folder "Source Files"
+	{
+		"Lzma.cpp"
+
+		folder "SDK"
+		{
+			"C/Alloc.c"
+			"C/Alloc.h"
+			"C/Threads.c"
+			"C/Threads.h"
+			"C/LzFind.c"
+			"C/LzFind.h"
+			"C/LzFindMt.c"
+			"C/LzFindMt.h"
+			"C/LzmaDec.c"
+			"C/LzmaDec.h"
+			"C/LzmaEnc.c"
+			"C/LzmaEnc.h"
+			"CPP/7zip/Compress/LZMADecoder.cpp"
+			"CPP/7zip/Compress/LZMADecoder.h"
+			"CPP/7zip/Compress/LZMAEncoder.cpp"
+			"CPP/7zip/Compress/LZMAEncoder.h"
+			"CPP/7zip/Common/CWrappers.cpp"
+			"CPP/7zip/Common/CWrappers.h"
+			"CPP/7zip/Common/StreamUtils.cpp"
+			"CPP/7zip/Common/StreamUtils.h"
+		}
+	}
+}

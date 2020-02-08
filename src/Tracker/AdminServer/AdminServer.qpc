@@ -1,0 +1,117 @@
+// ---------------------------------------------------------------
+// Auto Generated QPC Script - Fix if needed before using
+// ---------------------------------------------------------------
+macro PROJECT_NAME "AdminServer"
+
+macro SRCDIR "../.."
+macro OUTBINDIR "$BINDEFAULT"
+
+include "$SRCDIR/_qpc_scripts/source_dll_base.qpc"
+
+configuration
+{
+	compiler
+	{
+		preprocessor_definitions
+		{
+			"ADMINSERVER_EXPORTS"
+			"BUDGET_ADMIN_SERVER"
+		}
+	}
+
+	linker
+	{
+		libraries
+		{
+			"wsock32.lib"
+			"tier2"
+			"tier3"
+			"vgui_controls"
+		}
+	}
+}
+
+files
+{
+	folder "Source Files"
+	{
+		"AdminServer.cpp"
+		"BanContextMenu.cpp"
+		"ConfigPanel.cpp"
+		"GamePanelInfo.cpp"
+		"MapCycleEditDialog.cpp"
+		"../common/msgbuffer.cpp"
+		"PlayerContextMenu.cpp"
+		"PlayerListCompare.cpp"
+		"RemoteServer.cpp"
+		"VarEditDialog.cpp"
+		"VarListPropertyPage.cpp"
+		"$SRCDIR/common/vgui/vgui_basebudgetpanel.cpp"
+		"$SRCDIR/common/vgui/vgui_budgetbargraphpanel.cpp"
+		"$SRCDIR/common/vgui/vgui_budgethistorypanel.cpp"
+		"$SRCDIR/common/vgui/vgui_budgetpanelshared.cpp"
+		"$SRCDIR/public/vgui_controls/vgui_controls.cpp"
+
+		folder "Utils"
+		{
+			"TokenLine.cpp"
+		}
+
+		folder "Generic Dialogs"
+		{
+			"DialogAddBan.cpp"
+			"DialogCvarChange.cpp"
+		}
+
+		folder "Pages"
+		{
+			"BanPanel.cpp"
+			"BudgetPanelContainer.cpp"
+			"ChatPanel.cpp"
+			"GraphPanel.cpp"
+			"PlayerPanel.cpp"
+			"RawLogPanel.cpp"
+			"ServerConfigPanel.cpp"
+			"serverinfopanel.cpp"
+		}
+	}
+
+	folder "Header Files"
+	{
+		"AdminServer.h"
+		"BanContextMenu.h"
+		"BanPanel.h"
+		"BudgetPanelContainer.h"
+		"ChatPanel.h"
+		"ConfigPanel.h"
+		"DialogAddBan.h"
+		"DialogCvarChange.h"
+		"GamePanelInfo.h"
+		"GraphPanel.h"
+		"$SRCDIR/common/IGameServerData.h"
+		"IManageServer.h"
+		"$SRCDIR/public/tier1/interface.h"
+		"../common/IServerRefreshResponse.h"
+		"$SRCDIR/common/ivprofexport.h"
+		"MapCycleEditDialog.h"
+		"../common/msgbuffer.h"
+		"PlayerContextMenu.h"
+		"PlayerListCompare.h"
+		"PlayerPanel.h"
+		"RawLogPanel.h"
+		"RemoteServer.h"
+		"ServerConfigPanel.h"
+		"serverinfopanel.h"
+		"TokenLine.h"
+		"$SRCDIR/public/tier1/utlbuffer.h"
+		"$SRCDIR/public/tier1/utllinkedlist.h"
+		"$SRCDIR/public/tier1/utlsymbol.h"
+		"$SRCDIR/public/tier1/utlvector.h"
+		"VarEditDialog.h"
+		"VarListPropertyPage.h"
+		"$SRCDIR/common/vgui/vgui_basebudgetpanel.h"
+		"$SRCDIR/common/vgui/vgui_budgetbargraphpanel.h"
+		"$SRCDIR/common/vgui/vgui_budgethistorypanel.h"
+		"$SRCDIR/common/vgui/vgui_budgetpanelshared.h"
+	}
+}

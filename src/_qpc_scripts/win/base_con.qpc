@@ -1,0 +1,19 @@
+// ---------------------------------------------------------------
+// Auto Generated QPC Script - Fix if needed before using
+// ---------------------------------------------------------------
+macro SRCDIR
+macro OUTBINDIR
+macro PLATSUBDIR
+
+include "$SRCDIR/_qpc_scripts/win/exe_base.qpc"
+
+configuration
+{
+	linker
+	{
+		options
+		{
+			"/SUBSYSTEM:CONSOLE"
+		}
+	}
+}

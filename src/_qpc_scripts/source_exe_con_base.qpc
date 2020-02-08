@@ -1,0 +1,6 @@
+// ---------------------------------------------------------------
+// Auto Generated QPC Script - Fix if needed before using
+// ---------------------------------------------------------------
+include "$SRCDIR/_qpc_scripts/source_base.qpc"
+include "$SRCDIR/_qpc_scripts/win/base_con.qpc" 	[$WINDOWS]
+include "$SRCDIR/_qpc_scripts/posix/exe_base.qpc" 	[$POSIX]

@@ -1,0 +1,92 @@
+// ---------------------------------------------------------------
+// Auto Generated QPC Script - Fix if needed before using
+// ---------------------------------------------------------------
+macro PROJECT_NAME "vmpi_job_search"
+
+macro SRCDIR "../../.."
+macro OUTBINDIR "$BINDEFAULT"
+macro OUTBINNAME "vmpi_job_search"
+
+include "$SRCDIR/_qpc_scripts/source_exe_base.qpc"
+
+configuration
+{
+	general
+	{
+		include_directories
+		{
+			"../"
+			"../mysql/include"
+		}
+	}
+
+	compiler
+	{
+		preprocessor_definitions
+		{
+			"PROTECTED_THINGS_DISABLE"
+			"WINVER=0x400"
+		}
+
+		precompiled_header "use"
+		precompiled_header_output_file "$CONFIG/vmpi_browser_job_search.pch"
+
+		options
+		{
+			"/EHsc"
+		}
+	}
+}
+
+files
+{
+	folder "Source Files"
+	{
+		- "$SRCDIR/public/tier0/memoverride.cpp"
+		"../net_view_thread.cpp"
+		"vmpi_browser_job_search.cpp"
+		"vmpi_browser_job_search.rc"
+		"../window_anchor_mgr.cpp"
+
+		"JobSearchDlg.cpp"	\
+		"../vmpi_browser_helpers.cpp"
+		{
+			configuration
+			{
+				compiler
+				{
+					precompiled_header "none"
+				}
+			}
+		}
+
+		"StdAfx.cpp"
+		{
+			configuration
+			{
+				compiler
+				{
+					precompiled_header "create"
+				}
+			}
+		}
+	}
+
+	folder "Header Files"
+	{
+		"JobSearchDlg.h"
+		"../mysql_wrapper.h"
+		"../net_view_thread.h"
+		"Resource.h"
+		"StdAfx.h"
+		"../vmpi_browser_helpers.h"
+		"vmpi_browser_job_search.h"
+		"../window_anchor_mgr.h"
+	}
+
+	folder "Resource Files"
+	{
+		"res/vmpi_browser_job_search.ico"
+		"res/vmpi_browser_job_search.rc2"
+	}
+}

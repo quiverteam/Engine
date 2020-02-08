@@ -1,0 +1,44 @@
+// ---------------------------------------------------------------
+// Auto Generated QPC Script - Fix if needed before using
+// ---------------------------------------------------------------
+macro PROJECT_NAME "Hammer_launcher"
+
+macro SRCDIR "../../.."
+macro OUTBINDIR "$BINDEFAULT"
+macro OUTBINNAME "hammer"
+
+include "$SRCDIR/_qpc_scripts/source_exe_base.qpc"
+
+configuration
+{
+	compiler
+	{
+		options
+		{
+			"/EHa"
+		}
+	}
+
+	linker
+	{
+		libraries
+		{
+			"appframework"
+			"$LIBCOMMON/steam"
+		}
+	}
+}
+
+files
+{
+	folder "Source Files"
+	{
+		- "$SRCDIR/public/tier0/memoverride.cpp"
+		"main.cpp"
+	}
+
+	folder "Resources"
+	{
+		"hammer_launcher.rc"
+	}
+}

@@ -1,0 +1,65 @@
+// ---------------------------------------------------------------
+// Auto Generated QPC Script - Fix if needed before using
+// ---------------------------------------------------------------
+macro PROJECT_NAME "Soundsystem"
+
+macro SRCDIR ".."
+macro OUTBINDIR "$BINDEFAULT"
+
+include "$SRCDIR/_qpc_scripts/source_dll_base.qpc"
+
+configuration
+{
+	compiler
+	{
+		preprocessor_definitions
+		{
+			"SOUNDSYSTEM_EXPORTS"
+		}
+	}
+
+	linker
+	{
+		libraries
+		{
+			"$LIBCOMMON/mss32" [$WIN32]
+			"winmm.lib"
+			"$SRCDIR/dx9sdk/lib/dsound"
+			"$SRCDIR/dx9sdk/lib/dxguid"
+			"mathlib"
+			"tier2"
+		}
+	}
+}
+
+files
+{
+	folder "Source Files"
+	{
+		"$SRCDIR/public/sentence.cpp"
+		"snd_audio_source.cpp"
+		"snd_dev_wave.cpp"
+		"snd_io.cpp"
+		"snd_wave_mixer.cpp"
+		"snd_wave_mixer_adpcm.cpp"
+		"snd_wave_source.cpp"
+		"soundsystem.cpp"
+	}
+
+	folder "Header Files"
+	{
+		"snd_dev_wave.h"
+		"snd_wave_mixer.h"
+		"snd_wave_mixer_adpcm.h"
+		"snd_wave_mixer_private.h"
+		"snd_wave_source.h"
+		"soundsystem.h"
+	}
+
+	folder "Interface"
+	{
+		"$SRCDIR/public/soundsystem/isoundsystem.h"
+		"$SRCDIR/public/soundsystem/snd_audio_source.h"
+		"$SRCDIR/public/soundsystem/snd_device.h"
+	}
+}

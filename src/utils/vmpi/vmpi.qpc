@@ -1,0 +1,79 @@
+// ---------------------------------------------------------------
+// Auto Generated QPC Script - Fix if needed before using
+// ---------------------------------------------------------------
+macro PROJECT_NAME "Vmpi"
+
+macro SRCDIR "../.."
+macro OUTLIBDIR "$LIBPUBLIC"
+
+include "$SRCDIR/_qpc_scripts/source_lib_base.qpc"
+
+configuration
+{
+	general
+	{
+		include_directories
+		{
+			"../common"
+			"zlib"
+			"."
+		}
+	}
+
+	compiler
+	{
+		preprocessor_definitions
+		{
+			"PROTECTED_THINGS_DISABLE"
+			"MPI"
+		}
+	}
+
+	linker
+	{
+		libraries
+		{
+			"ZLib"
+		}
+	}
+}
+
+files
+{
+	folder "Source Files"
+	{
+		"$SRCDIR/public/filesystem_init.cpp"
+		"../common/filesystem_tools.cpp"
+		"iphelpers.cpp"
+		"loopback_channel.cpp"
+		"messbuf.cpp"
+		"ThreadedTCPSocket.cpp"
+		"ThreadedTCPSocketEmu.cpp"
+		"threadhelpers.cpp"
+		"vmpi.cpp"
+		"vmpi_distribute_tracker.cpp"
+		"vmpi_distribute_work.cpp"
+		"vmpi_distribute_work_sdk.cpp"
+		"vmpi_distribute_work_default.cpp"
+		"vmpi_filesystem.cpp"
+		"vmpi_filesystem_internal.h"
+		"vmpi_filesystem_master.cpp"
+		"vmpi_filesystem_worker.cpp"
+	}
+
+	folder "Header Files"
+	{
+		"$SRCDIR/public/tier1/bitbuf.h"
+		"ichannel.h"
+		"iphelpers.h"
+		"IThreadedTCPSocket.h"
+		"loopback_channel.h"
+		"messbuf.h"
+		"tcpsocket.h"
+		"ThreadedTCPSocketEmu.h"
+		"threadhelpers.h"
+		"vmpi.h"
+		"vmpi_defs.h"
+		"vmpi_filesystem.h"
+	}
+}

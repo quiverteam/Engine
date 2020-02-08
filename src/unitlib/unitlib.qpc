@@ -1,0 +1,45 @@
+// ---------------------------------------------------------------
+// Auto Generated QPC Script - Fix if needed before using
+// ---------------------------------------------------------------
+macro PROJECT_NAME "Unitlib"
+
+macro SRCDIR ".."
+macro OUTBINDIR "$BINDEFAULT"
+
+include "$SRCDIR/_qpc_scripts/source_dll_base.qpc"
+
+configuration
+{
+	compiler
+	{
+		preprocessor_definitions
+		{
+			"fopen=dont_use_fopen"
+			"UNITLIB_DLL_EXPORT"
+		}
+	}
+
+	linker
+	{
+		import_library "$LIBPUBLIC/$(TargetName)"
+
+		libraries
+		{
+			"odbc32.lib"
+			"odbccp32.lib"
+		}
+	}
+}
+
+files
+{
+	folder "Source Files"
+	{
+		"unitlib.cpp"
+	}
+
+	folder "Header Files"
+	{
+		"$SRCDIR/Public/unitlib/UnitLib.h"
+	}
+}

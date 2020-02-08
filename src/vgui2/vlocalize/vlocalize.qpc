@@ -1,0 +1,93 @@
+// ---------------------------------------------------------------
+// Auto Generated QPC Script - Fix if needed before using
+// ---------------------------------------------------------------
+macro PROJECT_NAME "Vlocalize"
+
+macro SRCDIR "../.."
+macro OUTBINDIR "$BINDEFAULT"
+
+include "$SRCDIR/_qpc_scripts/source_exe_base.qpc"
+
+configuration
+{
+	general
+	{
+		include_directories
+		{
+			"$SRCDIR/vgui2/controls"
+			"$SRCDIR/vgui2/include"
+		}
+	}
+
+	linker
+	{
+		libraries
+		{
+			"odbc32.lib"
+			"odbccp32.lib"
+			"WS2_32.LIB"
+			"appframework"
+			"tier2"
+			"tier3"
+			"vgui_controls"
+		}
+	}
+}
+
+files
+{
+	folder "Source Files"
+	{
+		"CreateTokenDialog.cpp"
+		"LocalizationDialog.cpp"
+		"main.cpp"
+		"$SRCDIR/public/vgui_controls/vgui_controls.cpp"
+	}
+
+	folder "Header Files"
+	{
+		"$SRCDIR/Public/tier0/basetypes.h"
+		"CreateTokenDialog.h"
+		"$SRCDIR/public/tier0/dbg.h"
+		"$SRCDIR/public/tier0/fasttimer.h"
+		"$SRCDIR/Public/FileSystem.h"
+		"$SRCDIR/public/appframework/IAppSystem.h"
+		"$SRCDIR/public/tier1/interface.h"
+		"LocalizationDialog.h"
+		"$SRCDIR/public/tier0/platform.h"
+		"$SRCDIR/public/tier1/strtools.h"
+		"$SRCDIR/public/tier1/utlmemory.h"
+		"$SRCDIR/public/tier1/utlrbtree.h"
+		"$SRCDIR/public/tier1/utlvector.h"
+		"$SRCDIR/Public/mathlib/vector2d.h"
+		"$SRCDIR/public/vgui/VGUI.h"
+		"$SRCDIR/public/vgui_controls/Button.h"
+		"$SRCDIR/public/Color.h"
+		"$SRCDIR/public/vgui_controls/Controls.h"
+		"$SRCDIR/public/vgui/Dar.h"
+		"$SRCDIR/public/vgui_controls/EditablePanel.h"
+		"$SRCDIR/public/vgui_controls/FileOpenDialog.h"
+		"$SRCDIR/public/vgui_controls/FocusNavGroup.h"
+		"$SRCDIR/public/vgui_controls/Frame.h"
+		"$SRCDIR/public/vgui/IClientPanel.h"
+		"$SRCDIR/public/vgui/IHTML.h"
+		"$SRCDIR/public/vgui/ILocalize.h"
+		"$SRCDIR/public/vgui/IScheme.h"
+		"$SRCDIR/public/vgui/ISurface.h"
+		"$SRCDIR/public/vgui/IVGui.h"
+		"$SRCDIR/public/vgui/KeyCode.h"
+		"$SRCDIR/public/tier1/KeyValues.h"
+		"$SRCDIR/public/vgui_controls/Label.h"
+		"$SRCDIR/public/vgui_controls/ListPanel.h"
+		"$SRCDIR/public/vgui_controls/Menu.h"
+		"$SRCDIR/public/vgui_controls/MenuButton.h"
+		"$SRCDIR/public/vgui_controls/MessageBox.h"
+		"$SRCDIR/public/vgui_controls/MessageMap.h"
+		"$SRCDIR/public/vgui/MouseCode.h"
+		"$SRCDIR/public/vgui_controls/Panel.h"
+		"$SRCDIR/public/vgui_controls/PHandle.h"
+		"$SRCDIR/public/vgui_controls/TextEntry.h"
+		"$SRCDIR/public/vstdlib/vstdlib.h"
+		"$SRCDIR/public/winlite.h"
+	}
+}

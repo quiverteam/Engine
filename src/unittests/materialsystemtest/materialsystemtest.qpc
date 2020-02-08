@@ -1,0 +1,29 @@
+// ---------------------------------------------------------------
+// Auto Generated QPC Script - Fix if needed before using
+// ---------------------------------------------------------------
+macro PROJECT_NAME "MaterialSystemTest"
+
+macro SRCDIR "../.."
+macro OUTBINDIR "$BINDEFAULT/unittests"
+
+include "$SRCDIR/_qpc_scripts/source_exe_base.qpc"
+
+configuration
+{
+	linker
+	{
+		libraries
+		{
+			"$LIBPUBLIC/appframework"
+			"$LIBPUBLIC/tier2"
+		}
+	}
+}
+
+files
+{
+	folder "Source Files"
+	{
+		"materialsystemtest.cpp"
+	}
+}

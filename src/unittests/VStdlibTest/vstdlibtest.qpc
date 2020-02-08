@@ -1,0 +1,48 @@
+// ---------------------------------------------------------------
+// Auto Generated QPC Script - Fix if needed before using
+// ---------------------------------------------------------------
+macro PROJECT_NAME "VStdlibTest"
+
+macro SRCDIR "../.."
+macro OUTBINDIR "$BINDEFAULT/unittests"
+
+include "$SRCDIR/_qpc_scripts/source_exe_con_base.qpc"
+
+configuration
+{
+	general
+	{
+		include_directories
+		{
+			"$SRCDIR/public/vstdlib"
+		}
+	}
+
+	compiler
+	{
+		preprocessor_definitions
+		{
+			"VSTDLIB_TEST"
+		}
+	}
+
+	linker
+	{
+		libraries
+		{
+			"$LIBPUBLIC/vstdlib"
+		}
+	}
+}
+
+files
+{
+	folder "Source Files"
+	{
+		"Main.cpp"
+	}
+
+	folder "Public Header Files"
+	{
+	}
+}

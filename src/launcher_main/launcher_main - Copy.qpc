@@ -1,0 +1,56 @@
+// ---------------------------------------------------------------
+// Auto Generated QPC Script - Fix if needed before using
+// ---------------------------------------------------------------
+macro PROJECT_NAME "launcher_main"
+
+macro SRCDIR ".."
+macro OUTBINDIR "$BINDEFAULT"
+macro OUTBINNAME "quiver"
+
+include "$SRCDIR/_qpc_scripts/source_exe_base.qpc"
+
+files
+{
+	folder "Source Files"
+	{
+		- "$SRCDIR/public/tier0/memoverride.cpp"
+	}
+}
+
+configuration
+{
+	compiler
+	{
+		preprocessor_definitions
+		{
+			"fopen=dont_use_fopen"
+		}
+	}
+
+	linker
+	{
+		libraries
+		{
+			- "$LIBPUBLIC/tier0" "$LIBPUBLIC/tier1" "$LIBPUBLIC/vstdlib" [$WINDOWS || $LINUX]
+		}
+
+		options
+		{
+			"/FIXED:NO" [$WINDOWS]
+		}
+	}
+}
+
+files
+{
+	folder "Source Files"
+	{
+		"main.cpp"
+	}
+
+	folder "Resources" [$WINDOWS]
+	{
+		"launcher_main.rc"
+		"$SRCDIR/launcher/res/launcher.ico"
+	}
+}

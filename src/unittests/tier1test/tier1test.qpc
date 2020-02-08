@@ -1,0 +1,43 @@
+// ---------------------------------------------------------------
+// Auto Generated QPC Script - Fix if needed before using
+// ---------------------------------------------------------------
+macro PROJECT_NAME "tier1test"
+
+macro SRCDIR "../.."
+macro OUTBINDIR "$BINDEFAULT/unittests"
+
+include "$SRCDIR/_qpc_scripts/source_dll_base.qpc"
+
+configuration
+{
+	compiler
+	{
+		preprocessor_definitions
+		{
+			"TIER1TEST_EXPORTS"
+		}
+	}
+
+	linker
+	{
+		libraries
+		{
+			"$LIBPUBLIC/mathlib"
+			"$LIBPUBLIC/unitlib"
+		}
+	}
+}
+
+files
+{
+	folder "Source Files"
+	{
+		"commandbuffertest.cpp"
+		"processtest.cpp"
+		"tier1test.cpp"
+	}
+
+	folder "Header Files"
+	{
+	}
+}

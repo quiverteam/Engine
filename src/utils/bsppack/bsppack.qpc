@@ -1,0 +1,62 @@
+// ---------------------------------------------------------------
+// Auto Generated QPC Script - Fix if needed before using
+// ---------------------------------------------------------------
+macro PROJECT_NAME "bsppack"
+
+macro SRCDIR "../.."
+macro OUTBINDIR "$BINDEFAULT"
+
+include "$SRCDIR/_qpc_scripts/source_dll_base.qpc"
+
+configuration
+{
+	general
+	{
+		include_directories
+		{
+			"../common"
+		}
+	}
+
+	compiler
+	{
+		preprocessor_definitions
+		{
+			"WIN_ERROR" "_USRDLL" "BSPPACK_EXPORTS" [$WIN32 && $X360]
+			"BSP_USE_LESS_MEMORY" [$X360]
+		}
+	}
+
+	linker
+	{
+		libraries
+		{
+			"$LIBPUBLIC/mathlib"
+			"$LIBPUBLIC/tier2"
+		}
+	}
+}
+
+files
+{
+	folder "Source Files"
+	{
+		"../common/bsplib.cpp"
+		"bsppack.cpp"
+		"../common/cmdlib.cpp"
+		"$SRCDIR/public/filesystem_helpers.cpp"
+		"$SRCDIR/public/filesystem_helpers.h"
+		"$SRCDIR/public/filesystem_init.cpp"
+		"../common/filesystem_tools.cpp"
+		"../common/filesystem_tools.h"
+		"$SRCDIR/public/lumpfiles.cpp"
+		"../common/scriplib.cpp"
+		"$SRCDIR/public/zip_utils.cpp"
+	}
+
+	folder "Public Header Files"
+	{
+		"$SRCDIR/Public/ibsppack.h"
+		"$SRCDIR/Public/bspfile.h"
+	}
+}

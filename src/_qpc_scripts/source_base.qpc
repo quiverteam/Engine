@@ -1,0 +1,75 @@
+// ---------------------------------------------------------------
+// Base file included in all projects
+// ---------------------------------------------------------------
+macro CONFIG "Debug"	[$DEBUG]
+macro CONFIG "Release"	[$RELEASE]
+
+macro PLATFORM "win32"		[$WIN32]
+macro PLATFORM "win64"		[$WIN64]
+macro PLATFORM "linux32"	[$LINUX32]
+macro PLATFORM "linux64"	[$LINUX64]
+macro PLATFORM "macos"		[$MACOS]
+
+macro ARCH "x86"	[$WIN32 || $POSIX32]
+macro ARCH "x86_64"	[$WIN64 || $POSIX64]
+
+macro NOFPO "1" [$RELEASE]
+
+macro LIBPUBLIC "$SRCDIR/lib/public/$PLATFORM"
+macro LIBCOMMON "$SRCDIR/lib/common/$PLATFORM"
+
+macro GAMENAME
+macro _SUBDIRSUFFIX "$PLATFORM/$GAMENAME"
+
+macro BINDEFAULT "$SRCDIR/../game/bin/$_SUBDIRSUFFIX"
+
+include "$SRCDIR/_qpc_scripts/win/base_vstudio.qpc"	[$WINDOWS]
+
+configuration
+{
+	general
+	{
+		language "cpp"
+		include_directories { "$SRCDIR/common" "$SRCDIR/public" "$SRCDIR/public/tier0" "$SRCDIR/public/tier1" }
+	}
+	
+	compiler
+	{
+		preprocessor_definitions
+		{
+			"STAGING_ONLY" [$STAGING_ONLY]
+			
+			"_X64_" "_x64_" "PLATFORM_64BITS" "_x86_64_" "_X86_64_" 	[$ARCH == x86_64]
+			"_X86_" "_x86_" "PLATFORM_32BITS" "_I386_" "_I386" 			[$ARCH == x86]
+			
+			"_HAS_ITERATOR_DEBUGGING=0" "_DEBUG" "DEBUG" 	[$DEBUG]
+			"NDEBUG"										[$RELEASE]
+			
+			"RELEASE_ASSERTS" [$RELEASEASSERTS && $RELEASE]
+			
+			"DEV_BUILD" [!$PUBLISH]
+			"_PROFILE" [$PROFILE && !$RETAIL]
+			"RETAIL_ASSERTS" [$RETAIL && $RETAILASSERTS]
+			
+			"FRAME_POINTER_OMISSION_DISABLED" "VPC"
+		}
+	}
+}
+
+dependencies [!$IS_LIB_PROJECT]
+{ "tier0/tier0.qpc" "vstdlib/vstdlib.qpc" }
+
+files [!$IS_LIB_PROJECT]
+{
+	folder "Source Files"
+	{
+		"$SRCDIR/public/tier0/memoverride.cpp"
+		{
+			configuration
+			{
+				compiler { precompiled_header "none" }
+			}
+		}
+	}
+}
+

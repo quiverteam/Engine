@@ -1,0 +1,113 @@
+// ---------------------------------------------------------------
+// Auto Generated QPC Script - Fix if needed before using
+// ---------------------------------------------------------------
+macro PROJECT_NAME "StudioRender"
+
+macro SRCDIR ".."
+macro OUTBINDIR "$BINDEFAULT"
+
+include "$SRCDIR/_qpc_scripts/source_dll_base.qpc"
+
+configuration
+{
+	compiler
+	{
+		preprocessor_definitions
+		{
+			"STUDIORENDER_EXPORTS"
+			"PROTECTED_THINGS_ENABLE"
+			"fopen=dont_use_fopen"
+		}
+	}
+
+	linker
+	{
+		libraries
+		{
+			"bitmap"
+			"mathlib"
+			"tier2"
+			"tier3"
+		}
+	}
+}
+
+files
+{
+	folder "Source Files"
+	{
+		"StudioRender.cpp"
+		"StudioRenderContext.cpp"
+		"FlexRenderData.cpp"
+		"r_studio.cpp"
+		"r_studiodecal.cpp"
+		"r_studiodraw.cpp"
+		"r_studioflex.cpp"
+		"r_studiogettriangles.cpp"
+		"r_studiolight.cpp"
+	}
+
+	folder "Header Files"
+	{
+		"r_studiolight.h"
+		"StudioRender.h"
+		"StudioRenderContext.h"
+		"FlexRenderData.h"
+	}
+
+	folder "Public Header Files"
+	{
+		"$SRCDIR/Public/mathlib/amd3dx.h"
+		"$SRCDIR/public/basehandle.h"
+		"$SRCDIR/Public/tier0/basetypes.h"
+		"$SRCDIR/Public/bspflags.h"
+		"$SRCDIR/Public/clientstats.h"
+		"$SRCDIR/Public/cmodel.h"
+		"$SRCDIR/Public/commonmacros.h"
+		"$SRCDIR/public/mathlib/compressed_vector.h"
+		"$SRCDIR/Public/const.h"
+		"$SRCDIR/public/tier1/convar.h"
+		"$SRCDIR/public/tier0/dbg.h"
+		"$SRCDIR/public/tier0/fasttimer.h"
+		"$SRCDIR/public/gametrace.h"
+		"$SRCDIR/public/appframework/IAppSystem.h"
+		"$SRCDIR/public/tier0/ICommandLine.h"
+		"$SRCDIR/public/ihandleentity.h"
+		"$SRCDIR/public/materialsystem/imaterial.h"
+		"$SRCDIR/public/materialsystem/imaterialsystem.h"
+		"$SRCDIR/public/materialsystem/imaterialsystemhardwareconfig.h"
+		"$SRCDIR/public/materialsystem/imaterialvar.h"
+		"$SRCDIR/public/materialsystem/imesh.h"
+		"$SRCDIR/public/tier1/interface.h"
+		"$SRCDIR/Public/IStudioRender.h"
+		"$SRCDIR/public/materialsystem/itexture.h"
+		"$SRCDIR/Public/mathlib/MATHLIB.H"
+		"$SRCDIR/Public/measure_section.h"
+		"$SRCDIR/public/tier0/mem.h"
+		"$SRCDIR/public/tier0/memalloc.h"
+		"$SRCDIR/public/tier0/memdbgoff.h"
+		"$SRCDIR/public/tier0/memdbgon.h"
+		"$SRCDIR/Public/model_types.h"
+		"$SRCDIR/public/optimize.h"
+		"$SRCDIR/Public/PixelWriter.h"
+		"$SRCDIR/public/tier0/platform.h"
+		"$SRCDIR/public/protected_things.h"
+		"$SRCDIR/Public/string_t.h"
+		"$SRCDIR/public/tier1/strtools.h"
+		"$SRCDIR/Public/studio.h"
+		"$SRCDIR/public/tier1/utlbuffer.h"
+		"$SRCDIR/public/tier1/utllinkedlist.h"
+		"$SRCDIR/public/tier1/utlmemory.h"
+		"$SRCDIR/public/tier1/utlvector.h"
+		"$SRCDIR/Public/vcollide.h"
+		"$SRCDIR/Public/mathlib/vector.h"
+		"$SRCDIR/Public/mathlib/vector2d.h"
+		"$SRCDIR/Public/mathlib/vector4d.h"
+		"$SRCDIR/Public/mathlib/vmatrix.h"
+		"$SRCDIR/Public/mathlib/vplane.h"
+		"$SRCDIR/public/tier0/vprof.h"
+		"$SRCDIR/public/vstdlib/vstdlib.h"
+		"$SRCDIR/public/vtf/vtf.h"
+		"$SRCDIR/public/tier1/UtlStringMap.h"
+	}
+}

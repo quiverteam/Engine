@@ -1,0 +1,61 @@
+// ---------------------------------------------------------------
+// Auto Generated QPC Script - Fix if needed before using
+// ---------------------------------------------------------------
+macro PROJECT_NAME "MathlibTest"
+
+macro SRCDIR "../.."
+macro OUTBINDIR "$BINDEFAULT/unittests"
+
+include "$SRCDIR/_qpc_scripts/source_exe_con_base.qpc"
+
+configuration
+{
+	general
+	{
+		include_directories
+		{
+			"$SRCDIR/public/mathlib"
+		}
+	}
+
+	compiler
+	{
+		preprocessor_definitions
+		{
+			"MATHLIB_TEST"
+		}
+	}
+
+	linker
+	{
+		libraries
+		{
+			"$LIBPUBLIC/mathlib"
+		}
+	}
+}
+
+files
+{
+	folder "Source Files"
+	{
+		"Main.cpp"
+		"Matrix.cpp"
+		"Vector.cpp"
+		"Quat.cpp"
+		"Tests.h"
+	}
+
+	folder "Public Header Files"
+	{
+		"$SRCDIR/public/mathlib/compressed_vector.h"
+		"$SRCDIR/Public/mathlib/MATHLIB.H"
+		"$SRCDIR/Public/mathlib/vector.h"
+		"$SRCDIR/Public/mathlib/vector2d.h"
+		"$SRCDIR/Public/mathlib/vector4d.h"
+		"$SRCDIR/Public/mathlib/matrixmath.h"
+		"$SRCDIR/Public/mathlib/vmatrix.h"
+		"$SRCDIR/Public/mathlib/ssemath.h"
+		"$SRCDIR/Public/mathlib/ssequaternion.h"
+	}
+}

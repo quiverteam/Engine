@@ -1,0 +1,40 @@
+// ---------------------------------------------------------------
+// Auto Generated QPC Script - Fix if needed before using
+// ---------------------------------------------------------------
+macro PROJECT_NAME "vgui_surfacelib"
+
+macro SRCDIR "../.."
+macro OUTLIBDIR "$LIBPUBLIC"
+
+include "$SRCDIR/_qpc_scripts/source_lib_base.qpc"
+
+files
+{
+	folder "Source Files"
+	{
+		"BitmapFont.cpp"
+		"FontAmalgam.cpp"
+		"FontManager.cpp"
+		"FontEffects.cpp"
+		"FontEffects.h"
+		"Win32Font.cpp" [$WIN32]
+		"Win32Font_x360.cpp" [$X360]
+	}
+
+	folder "Public Header Files"
+	{
+		"$SRCDIR/Public/tier0/basetypes.h"
+		"$SRCDIR/common/vgui_surfacelib/BitmapFont.h"
+		"$SRCDIR/common/vgui_surfacelib/FontAmalgam.h"
+		"$SRCDIR/common/vgui_surfacelib/FontManager.h"
+		"$SRCDIR/public/appframework/IAppSystem.h"
+		"$SRCDIR/public/tier1/interface.h"
+		"$SRCDIR/public/tier1/strtools.h"
+		"$SRCDIR/public/tier1/utlbuffer.h"
+		"$SRCDIR/public/tier1/utlmemory.h"
+		"$SRCDIR/public/tier1/utlvector.h"
+		"$SRCDIR/Public/mathlib/vector2d.h"
+		"$SRCDIR/public/vstdlib/vstdlib.h"
+		"$SRCDIR/common/vgui_surfacelib/Win32Font.h"
+	}
+}

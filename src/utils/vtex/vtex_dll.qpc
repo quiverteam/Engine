@@ -1,0 +1,61 @@
+// ---------------------------------------------------------------
+// Auto Generated QPC Script - Fix if needed before using
+// ---------------------------------------------------------------
+macro PROJECT_NAME "Vtex_dll"
+
+macro SRCDIR "../.."
+macro OUTBINDIR "$BINDEFAULT"
+
+include "$SRCDIR/_qpc_scripts/source_dll_base.qpc"
+
+configuration
+{
+	general
+	{
+		out_dir "./$CONFIG/$PLATFORM/dll"
+		int_dir "./$CONFIG/$PLATFORM/dll"
+
+		include_directories
+		{
+			"../common"
+		}
+	}
+
+	compiler
+	{
+		preprocessor_definitions
+		{
+			"VTEX_DLL"
+			"VTEX_DLL_EXPORTS"
+			"PROTECTED_THINGS_DISABLE"
+		}
+	}
+
+	linker
+	{
+		libraries
+		{
+			"bitmap"
+			"mathlib"
+			"tier2"
+			"vtf"
+		}
+	}
+}
+
+files
+{
+	folder "Source Files"
+	{
+		"../common/cmdlib.cpp"
+		"$SRCDIR/public/filesystem_helpers.cpp"
+		"$SRCDIR/public/filesystem_init.cpp"
+		"../common/filesystem_tools.cpp"
+		"vtex.cpp"
+	}
+
+	folder "Header Files"
+	{
+		"$SRCDIR/Public/ivtex.h"
+	}
+}

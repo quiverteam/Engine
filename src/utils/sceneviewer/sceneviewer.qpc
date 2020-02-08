@@ -1,0 +1,55 @@
+// ---------------------------------------------------------------
+// Auto Generated QPC Script - Fix if needed before using
+// ---------------------------------------------------------------
+macro PROJECT_NAME "Sceneviewer"
+
+macro SRCDIR "../.."
+macro OUTBINDIR "$BINDEFAULT"
+
+include "$SRCDIR/_qpc_scripts/source_exe_base.qpc"
+
+configuration
+{
+	linker
+	{
+		libraries
+		{
+			"Rpcrt4.lib"
+			"appframework"
+			"datamodel"
+			"dme_controls"
+			"dmserializers"
+			"mathlib"
+			"matsys_controls"
+			"movieobjects"
+			"tier2"
+			"tier3"
+			"vgui_controls"
+		}
+	}
+}
+
+files
+{
+	folder "Source Files"
+	{
+		"clipviewpanel.cpp"
+		"sceneviewer.cpp"
+		"sceneviewerpanel.cpp"
+
+		folder "external"
+		{
+			"$SRCDIR/public/interpolatortypes.cpp"
+			"$SRCDIR/public/interpolatortypes.h"
+			"$SRCDIR/public/movieobjects/movieobjects.cpp"
+			"$SRCDIR/public/vgui_controls/vgui_controls.cpp"
+		}
+	}
+
+	folder "Header Files"
+	{
+		"clipviewpanel.h"
+		"sceneviewer.h"
+		"SceneViewerPanel.h"
+	}
+}

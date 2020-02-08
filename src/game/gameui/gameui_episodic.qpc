@@ -1,0 +1,16 @@
+// ---------------------------------------------------------------
+// Auto Generated QPC Script - Fix if needed before using
+// ---------------------------------------------------------------
+macro PROJECT_NAME "GameUI (Episodic)"
+
+macro GAMENAME "mod_episodic"
+
+include "gameui_base.qpc" [$WINDOWS]
+
+files
+{
+	folder "Game_MapLab"
+	{
+		"maplab/ui_defines.h"
+	}
+}

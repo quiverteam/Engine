@@ -1,0 +1,117 @@
+// ---------------------------------------------------------------
+// Auto Generated QPC Script - Fix if needed before using
+// ---------------------------------------------------------------
+macro PROJECT_NAME "ihvtest1"
+
+macro SRCDIR "../.."
+macro OUTBINDIR "$BINDEFAULT/unittests"
+
+include "$SRCDIR/_qpc_scripts/source_exe_base.qpc"
+
+configuration
+{
+	general
+	{
+		include_directories
+		{
+			"$SRCDIR/game/shared"
+		}
+	}
+
+	compiler
+	{
+		preprocessor_definitions
+		{
+			"IHVTEST"
+		}
+	}
+
+	linker
+	{
+		libraries
+		{
+			"$LIBPUBLIC/appframework"
+			"$LIBPUBLIC/mathlib"
+			"$LIBCOMMON/vtuneapi"
+		}
+	}
+}
+
+files
+{
+	folder "Source Files"
+	{
+		"$SRCDIR/public/bone_setup.cpp"
+		"$SRCDIR/Public/collisionutils.cpp"
+		"ihvtest1.cpp"
+		"$SRCDIR/public/studio.cpp"
+		"sys_clock.cpp" [$WIN32]
+	}
+
+	folder "Public Header Files"
+	{
+		"$SRCDIR/Public/mathlib/amd3dx.h"
+		"$SRCDIR/public/basehandle.h"
+		"$SRCDIR/Public/tier0/basetypes.h"
+		"$SRCDIR/Public/bitvec.h"
+		"$SRCDIR/public/bone_accessor.h"
+		"$SRCDIR/public/bone_setup.h"
+		"$SRCDIR/Public/bspflags.h"
+		"$SRCDIR/Public/clientstats.h"
+		"$SRCDIR/Public/cmodel.h"
+		"$SRCDIR/Public/CollisionUtils.h"
+		"$SRCDIR/Public/commonmacros.h"
+		"$SRCDIR/public/mathlib/compressed_vector.h"
+		"$SRCDIR/Public/const.h"
+		"$SRCDIR/public/tier0/dbg.h"
+		"$SRCDIR/public/tier0/fasttimer.h"
+		"$SRCDIR/Public/FileSystem.h"
+		"$SRCDIR/public/gametrace.h"
+		"$SRCDIR/public/appframework/IAppSystem.h"
+		"$SRCDIR/public/tier0/ICommandLine.h"
+		"$SRCDIR/public/ihandleentity.h"
+		"$SRCDIR/public/materialsystem/imaterialproxyfactory.h"
+		"$SRCDIR/public/materialsystem/imaterialsystem.h"
+		"$SRCDIR/public/materialsystem/imaterialsystemhardwareconfig.h"
+		"$SRCDIR/public/tier1/interface.h"
+		"$SRCDIR/Public/IStudioRender.h"
+		"$SRCDIR/public/materialsystem/materialsystem_config.h"
+		"$SRCDIR/Public/mathlib/MATHLIB.H"
+		"$SRCDIR/public/tier0/mem.h"
+		"$SRCDIR/public/tier0/memalloc.h"
+		"$SRCDIR/public/tier0/memdbgon.h"
+		"$SRCDIR/public/tier0/platform.h"
+		"$SRCDIR/public/protected_things.h"
+		"$SRCDIR/public/vstdlib/random.h"
+		"$SRCDIR/Public/string_t.h"
+		"$SRCDIR/public/tier1/strtools.h"
+		"$SRCDIR/Public/studio.h"
+		"$SRCDIR/public/tier1/utlbuffer.h"
+		"$SRCDIR/public/tier1/utldict.h"
+		"$SRCDIR/public/tier1/utlmemory.h"
+		"$SRCDIR/public/tier1/utlrbtree.h"
+		"$SRCDIR/public/tier1/utlsymbol.h"
+		"$SRCDIR/public/tier1/utlvector.h"
+		"$SRCDIR/Public/vcollide.h"
+		"$SRCDIR/Public/mathlib/vector.h"
+		"$SRCDIR/Public/mathlib/vector2d.h"
+		"$SRCDIR/Public/mathlib/vector4d.h"
+		"$SRCDIR/public/tier0/vprof.h"
+		"$SRCDIR/public/vstdlib/vstdlib.h"
+	}
+
+	folder "Build Bat Files" [$0]
+	{
+		"copybin.bat"
+		"copycommonsrc.bat"
+		"copydx8.bat"
+		"copygamesharedsrc.bat"
+		"copyihvtestsrc.bat"
+		"copylib.bat"
+		"copymatsyssrc.bat"
+		"copypublicsrc.bat"
+		"copyshaderdx8src.bat"
+		"copysrc.bat"
+		"copystudiorendersrc.bat"
+	}
+}
