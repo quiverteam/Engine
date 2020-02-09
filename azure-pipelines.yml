@@ -1,11 +1,3 @@
-schedules:
-  - cron: "20 03 * * *"
-    displayName: "Daily Build"
-    branches:
-      include: ["dev", "qpc"]
-    always: "false" # Don't run unless changes happen
-
-
 pool:
   vmImage: 'windows-2019'
 
@@ -15,44 +7,15 @@ pool:
 
 
 steps:
-- task: PythonScript@0
+- task: BatchScript@1
   displayName: Generate Projects
   inputs:
+    filename: 'src/_create_allprojects.bat'
+
+- task: PythonScript@0
+  displayName: Build and Check for Issue 50
+  inputs:
     scriptSource: 'filePath'
-    scriptPath: 'src/devtools/qpc/qpc.py'
+    scriptPath: 'src/auto_issue50.py'
     workingDirectory: 'src/'
-    arguments: '-a everything -r hammer_dll hlfaceposer vaudio_speex serverplugin_empty scenemanager matsys_regressiontest hlmv dmxedit -m episodic hl2 hl2mp -t vstudio -mf everything'
-    
-# no difference from MSBuild@1?
-- task: VSBuild@1
-  displayName: Build Projects
-  inputs:
-    solution: 'src\everything.sln'
-    platform: 'win32'
-    configuration: 'Release'
-    maximumCpuCount: true
-
-- task: ArchiveFiles@2
-  displayName: Compress game folder with 7z
-  inputs:
-    rootFolderOrFile: 'game/'
-    includeRootFolder: false
-    archiveType: '7z'
-    archiveFile: 'QuiverSource_$(Build.BuildId)_$(Build.SourceBranchName)_$(Build.BuildNumber).7z'
-    replaceExistingArchive: true
-
-- task: GitHubRelease@0
-  displayName: Release to GitHub
-  inputs:
-    gitHubConnection: 'quiverteam'
-    repositoryName: '$(Build.Repository.Name)'
-    action: 'create'
-    target: '$(Build.SourceVersion)'
-    tagSource: 'manual'
-    tag: 'auto_build_$(Build.BuildId)_$(Build.SourceBranchName)_$(Build.BuildNumber)'
-    # releaseNotesSource: 'input'
-    releaseNotes: "Auto Build on $(Build.Repository.Name) branch"
-    title: 'Auto Build $(Build.BuildId) - $(Build.SourceBranchName) - $(Build.BuildNumber)'
-    assets: |
-      QuiverSource_$(Build.BuildId)_$(Build.SourceBranchName)_$(Build.BuildNumber).7z
-
+    arguments: '$(git_token)'
