@@ -12,7 +12,7 @@
 //                 implied.
 //
 #include "mxtk/mxpath.h"
-#ifdef WIN32
+#ifdef WINDOWS
 #include <windows.h>
 #else
 #include <unistd.h"
