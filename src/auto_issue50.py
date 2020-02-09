@@ -19,8 +19,6 @@ class Solution(object):
                     match = _REGEX_PROJECT_FILE.match(line)
                     if match:
                         self.projects.append(Solution.__read_project(match.groups(), f))
-                    else:
-                        print('No MATCH: {0}'.format(line))
 
     @staticmethod
     def __read_project(project, f):
@@ -44,7 +42,7 @@ failedprojects = list()
 
 def CheckSolution(solutionname):		
 	for project in Solution(solutionname).project_names():
-		devenv = Popen('\"C:/Program Files (x86)/Microsoft Visual Studio/2019/Enterprise/Common7/IDE/devenv.com\" {}\{} /Build Release|x64 /Project {} /ProjectConfig Release|x64'.format(getcwd(), solutionname, project), shell=True, stdout=PIPE)
+		devenv = Popen('\"C:/Program Files (x86)/Microsoft Visual Studio/2019/Community/Common7/IDE/devenv.com\" {}\{} /Build Release|x64 /Project \"{}\" /ProjectConfig Release|x64'.format(getcwd(), solutionname, project), stdout=PIPE)
 		while True:
 			output = devenv.stdout.readline()
 			if output:
@@ -71,7 +69,6 @@ for project in failedprojects:
 	issuebody += '- [ ] {}\n'.format(project)
 	
 g = Github(sys.argv[1])
-print(sys.argv[1])
 	
 for repo in g.get_user().get_repos():
 	if repo.name == 'Engine':
