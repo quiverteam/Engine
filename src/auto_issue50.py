@@ -71,6 +71,7 @@ for project in failedprojects:
 	issuebody += '- [ ] {}\n'.format(project)
 	
 g = Github(sys.argv[1])
+print(sys.argv[1])
 	
 for repo in g.get_user().get_repos():
 	if repo.name == 'Engine':
