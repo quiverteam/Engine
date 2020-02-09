@@ -42,7 +42,7 @@ failedprojects = list()
 
 def CheckSolution(solutionname):		
 	for project in Solution(solutionname).project_names():
-		devenv = Popen('\"C:/Program Files (x86)/Microsoft Visual Studio/2019/Community/Common7/IDE/devenv.com\" {}\{} /Build Release|x64 /Project \"{}\" /ProjectConfig Release|x64'.format(getcwd(), solutionname, project), stdout=PIPE)
+		devenv = Popen('\"C:/Program Files (x86)/Microsoft Visual Studio/2019/Enterprise/Common7/IDE/devenv.com\" {}\{} /Build Release|x64 /Project \"{}\" /ProjectConfig Release|x64'.format(getcwd(), solutionname, project), stdout=PIPE)
 		while True:
 			output = devenv.stdout.readline()
 			if output:
