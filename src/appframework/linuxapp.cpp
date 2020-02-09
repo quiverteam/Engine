@@ -137,7 +137,7 @@ bool CSteamApplication::Create( )
 	m_pFileSystem = (IFileSystem*)AddSystem( fileSystemModule, FILESYSTEM_INTERFACE_VERSION );
 	if ( !m_pFileSystem )
 	{
-		Error( "Unable to load %s", pFileSystemDLL );
+		Error( "Unable to load %s", pFileSystemDLL);
 		return false;
 	}
 

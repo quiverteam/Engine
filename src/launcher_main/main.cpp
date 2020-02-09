@@ -74,7 +74,7 @@ int main(int argc, char** argv)
 {
 	// Load library
 	char sFullPath[MAX_PATH];
-	sprintf(sFullPath, "%s/launcher" _DLL_EXT "", BIN_DIR);
+	sprintf(sFullPath, "%s/launcher" DLL_EXT_STRING "", BIN_DIR);
 
 	if(!Plat_FileExists(sFullPath))
 	{
@@ -109,11 +109,8 @@ int main(int argc, char** argv)
 	char sCmdLine[1024];
 
 	for(int i = 0; i < argc; i++)
-		sprintf("%s %s", sCmdLine, argv[i]);
+		sprintf(sCmdLine, "%s %s", sCmdLine, argv[i]);
 
-	// NOTE: This may cause issues later on windows.
-	// We are passing NULL as hInstance and hPrevInstance. App framework seems want us to set the app instance before loading anything.
-	// I will investigate this later, but it could really cause some issues.
 	pLauncherMain(NULL, NULL, sCmdLine, argc);
 }
 

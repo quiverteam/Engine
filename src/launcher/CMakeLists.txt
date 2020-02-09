@@ -9,7 +9,7 @@ project(launcher C CXX)
 set(WINDOWS_SRCS	)
 set(POSIX_SRCS	)
 
-set(SRCS	)
+set(SRCS		${ROOT}/public/filesystem_init.cpp)
 
 file(GLOB SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/ *.c *.cpp)
 list(APPEND SRCS ${SOURCES})
@@ -42,7 +42,7 @@ set(POSIX64_LINK_DIRS	)
 set(LINK_LIBS			)
 
 # Other projects this one depends on
-set(DEPENDENCIES vstdlib tier1 tier0 tier2 tier3 appframework)
+set(DEPENDENCIES vstdlib tier1 tier0 tier2 tier3 appframework tier4)
 
 # Platform specific link libs
 set(WINDOWS_LINK_LIBS	shlwapi.lib winmm.lib wsock32.lib odbc32.lib odbccp32.lib
@@ -81,3 +81,5 @@ set(STATIC_LIB 0)
 
 # Include this to handle all the defines
 include(${CMAKESCRIPTS_DIR}/library-base.cmake)
+
+set_target_properties(launcher PROPERTIES PREFIX "")

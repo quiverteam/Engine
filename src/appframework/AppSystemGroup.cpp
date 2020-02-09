@@ -1,4 +1,4 @@
-//========= Copyright © 1996-2005, Valve Corporation, All rights reserved. ============//
+//========= Copyright ï¿½ 1996-2005, Valve Corporation, All rights reserved. ============//
 //
 // Purpose: Defines a group of app systems that all have the same lifetime
 // that need to be connected/initialized, etc. in a well-defined order
@@ -69,7 +69,11 @@ AppModule_t CAppSystemGroup::LoadModule( const char *pDLLName )
 	CSysModule *pSysModule = LoadModuleDLL( pDLLName );
 	if (!pSysModule)
 	{
+#ifdef _LINUX
+		Warning("AppFramework : Unable to load module %s: %s\n", pDLLName, dlerror() ? dlerror() : "No error." );
+#else
 		Warning("AppFramework : Unable to load module %s!\n", pDLLName );
+#endif
 		return APP_MODULE_INVALID;
 	}
 

@@ -64,12 +64,15 @@
 #define DLLEXPORT __attribute__((dllexport))
 #endif
 
+#define MAKE_DLL_NAME(name) name _DLL_EXT
+
 SpewRetval_t LauncherDefaultSpewFunc( SpewType_t spewType, char const *pMsg )
 {
 	switch( spewType )
 	{
 	case SPEW_MESSAGE:
 	case SPEW_LOG:
+		printf("%s", pMsg);
 		return SPEW_CONTINUE;
 
 	case SPEW_WARNING:
@@ -77,6 +80,8 @@ SpewRetval_t LauncherDefaultSpewFunc( SpewType_t spewType, char const *pMsg )
 		{
 			Plat_ShowMessageBox("Warning", pMsg, MB_TYPE_WARN, MB_BUTTON_OK);
 		}
+		else
+			printf("%s", pMsg);
 		return SPEW_CONTINUE;
 
 	case SPEW_ASSERT:
@@ -599,19 +604,19 @@ bool CSourceAppSystemGroup::Create()
 
 	AppSystemInfo_t appSystems[] = 
 	{
-		{ "engine.dll",				CVAR_QUERY_INTERFACE_VERSION },	// NOTE: This one must be first!!
-		{ "inputsystem.dll",		INPUTSYSTEM_INTERFACE_VERSION },
-		{ "materialsystem.dll",		MATERIAL_SYSTEM_INTERFACE_VERSION },
-		{ "datacache.dll",			DATACACHE_INTERFACE_VERSION },
-		{ "datacache.dll",			MDLCACHE_INTERFACE_VERSION },
-		{ "datacache.dll",			STUDIO_DATA_CACHE_INTERFACE_VERSION },
-		{ "studiorender.dll",		STUDIO_RENDER_INTERFACE_VERSION },
-		{ "vphysics.dll",			VPHYSICS_INTERFACE_VERSION },
-		{ "qvideo.dll",				AVI_INTERFACE_VERSION },
+		{ ("engine"),				CVAR_QUERY_INTERFACE_VERSION },	// NOTE: This one must be first!!
+		{ ("inputsystem"),		INPUTSYSTEM_INTERFACE_VERSION },
+		{ ("materialsystem"),		MATERIAL_SYSTEM_INTERFACE_VERSION },
+		{ ("datacache"),			DATACACHE_INTERFACE_VERSION },
+		{ ("datacache"),			MDLCACHE_INTERFACE_VERSION },
+		{ ("datacache"),			STUDIO_DATA_CACHE_INTERFACE_VERSION },
+		{ ("studiorender"),		STUDIO_RENDER_INTERFACE_VERSION },
+		{ ("vphysics"),			VPHYSICS_INTERFACE_VERSION },
+		{ ("qvideo"),				AVI_INTERFACE_VERSION },
 		// NOTE: This has to occur before vgui2.dll so it replaces vgui2's surface implementation
-		{ "vguimatsurface.dll",		VGUI_SURFACE_INTERFACE_VERSION },
-		{ "vgui2.dll",				VGUI_IVGUI_INTERFACE_VERSION },
-		{ "engine.dll",				VENGINE_LAUNCHER_API_VERSION },
+		{ ("vguimatsurface"),		VGUI_SURFACE_INTERFACE_VERSION },
+		{ ("vgui2"),				VGUI_IVGUI_INTERFACE_VERSION },
+		{ ("engine"),				VENGINE_LAUNCHER_API_VERSION },
 
 		{ "", "" }					// Required to terminate the list
 	};
@@ -622,7 +627,7 @@ bool CSourceAppSystemGroup::Create()
 	// Hook in datamodel and p4 control if we're running with -tools
 	if ( IsPC() && CommandLine()->FindParm( "-tools" ))
 	{
-		AppModule_t vstdlibModule = LoadModule( "vstdlib.dll" );
+		AppModule_t vstdlibModule = LoadModule( ("vstdlib") );
 		IProcessUtils *processUtils = ( IProcessUtils* )AddSystem( vstdlibModule, PROCESS_UTILS_INTERFACE_VERSION );
 		if ( !processUtils )
 			return false;
@@ -648,10 +653,10 @@ bool CSourceAppSystemGroup::Create()
 
 	// Load up the appropriate shader DLL
 	// This has to be done before connection.
-	char const* pDLLName = "shaderapidx9.dll";
+	char const* pDLLName = ("shaderapidx9");
 	if ( CommandLine()->FindParm( "-noshaderapi" ) )
 	{
-		pDLLName = "shaderapiempty.dll";
+		pDLLName = ("shaderapiempty");
 	}
 	pMaterialSystem->SetShaderAPI( pDLLName );
 
