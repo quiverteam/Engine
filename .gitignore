@@ -163,6 +163,7 @@ game/bin/linux32/
 game/bin/linux64/
 game/bin/osx32/
 game/bin/osx64/
+testbed/
 
 # All build files
 src/build/
