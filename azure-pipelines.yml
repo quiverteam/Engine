@@ -16,7 +16,7 @@ steps:
     arguments: '-a everything -t vstudio -m hl2 hl2mp episodic -mf everything'
 
 - script: 'pip install PyGithub'
-    displayName: 'Install PyGithub'    
+  displayName: 'Install PyGithub'    
     
 - task: PythonScript@0
   displayName: Build and Check for Issue 50
