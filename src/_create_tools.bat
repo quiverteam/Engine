@@ -1,5 +1,5 @@
 @echo off
 
-devtools\qpc\qpc.py -a utils -t vstudio -mf utils
+py devtools\qpc\qpc.py -a utils -t vstudio -mf utils
 
 pause
