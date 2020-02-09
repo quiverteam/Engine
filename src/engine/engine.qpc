@@ -68,7 +68,7 @@ configuration
 			"$LIBPUBLIC/tier3"
 			"$LIBPUBLIC/vtf"
 			"$LIBPUBLIC/vgui_controls"
-			"$LIBPUBLIC/steam_api"
+			"$LIB_STEAM_API"
 			"$LIBCOMMON/bzip2"
 			"$LIBCOMMON/jpeglib"
 		}

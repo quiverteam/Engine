@@ -68,7 +68,7 @@ files
 		"FontTextureCache.cpp"
 		"Input.cpp"
 		"MatSystemSurface.cpp"
-		"memorybitmap.cpp" [$WIN32]
+		"memorybitmap.cpp" [$WINDOWS]
 		"TextureDictionary.cpp"
 		"$SRCDIR/vgui2/src/vgui_key_translation.cpp"
 		"$SRCDIR/public/vgui_controls/vgui_controls.cpp"
@@ -79,7 +79,7 @@ files
 		"Clip2D.h"
 		"Cursor.h"
 		"Input.h"
-		"memorybitmap.h" [$WIN32]
+		"memorybitmap.h" [$WINDOWS]
 		"TextureDictionary.h"
 		"vguimatsurface.h"
 		"MatSystemSurface.h"
@@ -97,7 +97,7 @@ files
 		"$SRCDIR/public/filesystem_helpers.h"
 		"$SRCDIR/common/vgui_surfacelib/FontAmalgam.h"
 		"$SRCDIR/common/vgui_surfacelib/FontManager.h"
-		"$SRCDIR/common/vgui/HtmlWindow.h" [$WIN32]
+		"$SRCDIR/common/vgui/HtmlWindow.h" [$WINDOWS]
 		"$SRCDIR/public/appframework/IAppSystem.h"
 		"$SRCDIR/public/materialsystem/imaterial.h"
 		"$SRCDIR/public/materialsystem/imaterialsystem.h"

@@ -10,8 +10,11 @@ macro PLATFORM "linux32"	[$LINUX32]
 macro PLATFORM "linux64"	[$LINUX64]
 macro PLATFORM "macos"		[$MACOS]
 
-macro ARCH "x86"	[$WIN32 || $POSIX32]
-macro ARCH "x86_64"	[$WIN64 || $POSIX64]
+macro ARCH	"x86"		[$WIN32 || $POSIX32]
+macro 32BIT	"1"			[$WIN32 || $POSIX32]
+
+macro ARCH	"x86_64"	[$WIN64 || $POSIX64]
+macro 64BIT	"1"			[$WIN64 || $POSIX64]
 
 macro NOFPO "1" [$RELEASE]
 
@@ -24,6 +27,10 @@ macro _SUBDIRSUFFIX "$PLATFORM/$GAMENAME"
 macro BINDEFAULT "$SRCDIR/../game/bin/$_SUBDIRSUFFIX"
 
 include "$SRCDIR/_qpc_scripts/win/base_vstudio.qpc"	[$WINDOWS]
+
+// some library macros
+macro LIB_STEAM_API		"steam_api"		[$32BIT]
+macro LIB_STEAM_API		"steam_api64"	[$64BIT]
 
 configuration
 {
@@ -39,8 +46,8 @@ configuration
 		{			
 			"STAGING_ONLY" [$STAGING_ONLY]
 			
-			"_X64_" "_x64_" "PLATFORM_64BITS" "_x86_64_" "_X86_64_" 	[$ARCH == x86_64]
-			"_X86_" "_x86_" "PLATFORM_32BITS" "_I386_" "_I386" 			[$ARCH == x86]
+			"_X64_" "_x64_" "PLATFORM_64BITS" "_x86_64_" "_X86_64_" 	[$64BIT]
+			"_X86_" "_x86_" "PLATFORM_32BITS" "_I386_" "_I386" 			[$32BIT]
 			
 			"_HAS_ITERATOR_DEBUGGING=0" "_DEBUG" "DEBUG" 	[$DEBUG]
 			"NDEBUG"										[$RELEASE]

@@ -14,7 +14,7 @@ configuration
 	{
 		include_directories
 		{
-			"$SRCDIR/dx9sdk/include" [$WIN32]
+			"$SRCDIR/dx9sdk/include" [$WINDOWS]
 		}
 	}
 
@@ -31,13 +31,13 @@ files
 {
 	folder "Source Files"
 	{
-		"s3tc_decode.cpp" [$WIN32]
+		"s3tc_decode.cpp" [$WINDOWS]
 		"vtf.cpp"
 	}
 
 	folder "Public Header Files"
 	{
-		"s3tc_decode.h" [$WIN32]
+		"s3tc_decode.h" [$WINDOWS]
 		"$SRCDIR/Public/vtf/vtf.h"
 	}
 

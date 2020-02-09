@@ -16,7 +16,7 @@ configuration
 
 		include_directories
 		{
-			"fxctmp9" "vshtmp9" "../../dx9sdk/include" [$WIN32]
+			"fxctmp9" "vshtmp9" "../../dx9sdk/include" [$WINDOWS]
 		}
 	}
 
@@ -33,7 +33,9 @@ configuration
 	{
 		libraries
 		{
-			"version.lib" "winmm.lib" "$SRCDIR/dx9sdk/lib/d3dx9" [$WIN32]
+			"version.lib" "winmm.lib"       [$WINDOWS]
+			"$SRCDIR/dx9sdk/lib/d3dx9"      [$WIN32]
+			"$SRCDIR/dx9sdk/lib/x64/d3dx9"  [$WIN64]
 			"mathlib"
 			"shaderlib"
 		}
@@ -67,7 +69,7 @@ files
 		"colorcorrection.cpp"
 		"core_dx9.cpp"
 		"debugmrttexture.cpp"
-		"debugmorphaccumulator_dx9.cpp" [$WIN32]
+		"debugmorphaccumulator_dx9.cpp" [$WINDOWS]
 		"DebugTextureView.cpp"
 		"DecalBaseTimesLightmapAlphaBlendSelfIllum_dx9.cpp"
 		"DecalModulate_dx9.cpp"
@@ -97,8 +99,8 @@ files
 		"lightmappedreflective.cpp"
 		"modulate_dx9.cpp"
 		"MonitorScreen_dx9.cpp"
-		"morphaccumulate_dx9.cpp" [$WIN32]
-		"morphweight_dx9.cpp" [$WIN32]
+		"morphaccumulate_dx9.cpp" [$WINDOWS]
+		"morphweight_dx9.cpp" [$WINDOWS]
 		"motion_blur_dx9.cpp"
 		"occlusion_dx9.cpp"
 		"particlelitgeneric_dx9.cpp"

@@ -17,8 +17,8 @@ files
 		"FontManager.cpp"
 		"FontEffects.cpp"
 		"FontEffects.h"
-		"Win32Font.cpp" [$WIN32]
-		"Win32Font_x360.cpp" [$X360]
+		"Win32Font.cpp"         [$WINDOWS]
+		"Win32Font_x360.cpp"    [$X360]
 	}
 
 	folder "Public Header Files"

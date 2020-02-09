@@ -14,7 +14,7 @@ configuration
 	{
 		libraries
 		{
-			"steam_api"
+			"$LIB_STEAM_API"
 		}
 	}
 }

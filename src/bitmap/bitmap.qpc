@@ -14,7 +14,7 @@ configuration
 	{
 		include_directories
 		{
-			"$SRCDIR/dx9sdk/include" [$WIN32]
+			"$SRCDIR/dx9sdk/include"    [$WINDOWS]
 		}
 	}
 
@@ -22,7 +22,7 @@ configuration
 	{
 		libraries
 		{
-			"$LIBPUBLIC/nvtc"
+			"$LIBPUBLIC/nvtc"   [$WIN32]
 			"$LIBPUBLIC/ATI_Compress_MT_VC8"
 		}
 	}
@@ -37,7 +37,7 @@ files
 		"float_bm.cpp"
 		"float_bm2.cpp"
 		"float_bm3.cpp"
-		"float_bm4.cpp" [$WIN32]
+		"float_bm4.cpp"     [$WINDOWS]
 		"float_bm_bilateral_filter.cpp"
 		"float_cube.cpp"
 		"imageformat.cpp"
