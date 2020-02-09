@@ -53,6 +53,9 @@ for project in $PROJECTS; do
 		[ -f "$project/$project.so" ] && $CP "$project/$project.so" "$TESTBED_DIR/$dir"
 	done
 done
+# Filesystem is a special cookie -_- and I'm fucking lazy so let's not try to make this extensible 
+$CP -f "filesystem/libfilesystem_stdio.so" "$TESTBED_DIR/$dir/filesystem_stdio.so"
+
 popd
 echo "Installing launcher script"
 
