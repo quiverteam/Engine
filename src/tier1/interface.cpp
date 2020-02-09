@@ -251,10 +251,11 @@ HMODULE Sys_LoadLibrary( const char *pLibraryName, Sys_Flags flags )
 	if ( !ret && !( flags & SYS_NOLOAD ) )
 	{
 		const char *pError = dlerror();
-		if ( pError && ( strstr( pError, "No such file" ) == 0 ) && ( strstr( pError, "image not found" ) == 0 ) )
+		if (pError)
 		{
 			Msg( " failed to dlopen %s error=%s\n", str, pError );
 		}
+		Msg("Failed to load %s\n", str);
 	}
 	
 	return ret;
@@ -301,7 +302,7 @@ CSysModule *Sys_LoadModule( const char *pModuleName, Sys_Flags flags /* = SYS_NO
 		}
 		else
 		{
-			Q_snprintf( szAbsoluteModuleName, sizeof(szAbsoluteModuleName), "%s/bin/%s", szCwd, pModuleName );
+			Q_snprintf( szAbsoluteModuleName, sizeof(szAbsoluteModuleName), "%s/bin/%s/%s", szCwd, PLATFORM_SUBDIR, pModuleName );
 		}
 		hDLL = Sys_LoadLibrary( szAbsoluteModuleName, flags );
 	}
