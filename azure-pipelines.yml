@@ -7,10 +7,13 @@ pool:
 
 
 steps:
-- task: BatchScript@1
+- task: PythonScript@0
   displayName: Generate Projects
   inputs:
-    filename: 'src/_create_allprojects.bat'
+    scriptSource: 'filePath'
+    scriptPath: 'src/devtools/qpc/qpc.py'
+    workingDirectory: 'src/'
+    arguments: '-a everything -t vstudio -m hl2 hl2mp episodic -mf everything'
 
 - task: PythonScript@0
   displayName: Build and Check for Issue 50
