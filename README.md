@@ -13,7 +13,7 @@ Custom Source Engine branch based on Source Engine 2007, currently available on 
 
 3. Run src/\_create\_allprojects.bat
 
-4. Open the soltion created, and build the "Game" folder in the solution in Release - Win32, or more projects if you want.
+4. Open the solution created, and build the "Game" folder in the solution in Release - Win32, or more projects if you want.
 
 #### OPTIONAL - Building Shaders:
 
