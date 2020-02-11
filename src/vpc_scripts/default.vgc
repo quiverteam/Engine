@@ -1,14 +1,11 @@
 //-----------------------------------------------------------------------------
 //	DEFAULT.VGC
 //
-//	Configurations for all Source(TM) Projects
+//	Base Configuration File for PyQPC
 //-----------------------------------------------------------------------------
 
-////////////////
-// Game Names //
-////////////////
-
-$Games
+// Conditionals you can enable on the Command Line with '/option'
+$CommandLineConditionals
 {
 	"EPISODIC"
 	"HL2"
@@ -19,6 +16,10 @@ $Games
 // Makes the VPC scripts work in the SDK's context
 $Conditional "SOURCESDK" "1"
 
-$Include "vpc_scripts\projects.vgc"
-$Include "vpc_scripts\groups.vgc"
+$Macro "ROOTDIR" "$ROOTDIR/../.."
+
+$Definitions "vpc_scripts/definitions/win32_2010.def"	[$VSTUDIO || $VS2019]
+
+$Include "vpc_scripts/projects.vgc"
+$Include "vpc_scripts/groups.vgc"
 

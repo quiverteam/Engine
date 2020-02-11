@@ -1,0 +1,67 @@
+// ---------------------------------------------------------------
+// Auto Generated QPC Script - Fix if needed before using
+// ---------------------------------------------------------------
+macro PROJECT_NAME "Actbusy"
+
+macro SRCDIR "../.."
+macro OUTBINDIR "$BINDEFAULT/tools"
+
+include "$SRCDIR/_qpc_scripts/source_dll_base.qpc"
+
+configuration
+{
+	linker
+	{
+		libraries
+		{
+			"Psapi.lib"
+			"%(AdditionalDependencies)"
+			"datamodel"
+			"dme_controls"
+			"dmserializers"
+			"mathlib"
+			"matsys_controls"
+			"movieobjects"
+			"tier2"
+			"tier3"
+			"toolutils"
+			"vgui_controls"
+		}
+	}
+}
+
+files
+{
+	folder "Source Files"
+	{
+		"actbusydoc.cpp"
+		"actbusytool.cpp"
+		"$SRCDIR/public/interpolatortypes.cpp"
+		"$SRCDIR/public/movieobjects/movieobjects.cpp"
+		"$SRCDIR/public/registry.cpp"
+		"$SRCDIR/public/vgui_controls/vgui_controls.cpp"
+	}
+
+	folder "Header Files"
+	{
+		"actbusydoc.h"
+		"actbusytool.h"
+		"$SRCDIR/public/interpolatortypes.h"
+	}
+}
+
+// TODO: add support for this in qpc soon
+/*dependencies
+{
+	"$SRCDIR/datamodel/datamodel.qpc"
+	"$SRCDIR/vgui2/dme_controls/dme_controls.qpc"
+	"$SRCDIR/dmserializers/dmserializers.qpc"
+	"$SRCDIR/mathlib/mathlib.qpc"
+	"$SRCDIR/vgui2/matsys_controls/matsys_controls.qpc"
+	"$SRCDIR/movieobjects/movieobjects.qpc"
+	"$SRCDIR/tier2/tier2.qpc"
+	"$SRCDIR/tier3/tier3.qpc"
+	"$SRCDIR/tools/toolutils/toolutils.qpc"
+	"$SRCDIR/vgui2/vgui_controls/vgui_controls.qpc"
+}*/
+

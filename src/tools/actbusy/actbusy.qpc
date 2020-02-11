@@ -1,0 +1,50 @@
+// ---------------------------------------------------------------
+// Auto Generated QPC Script - Fix if needed before using
+// ---------------------------------------------------------------
+macro PROJECT_NAME "Actbusy"
+
+macro SRCDIR "../.."
+macro OUTBINDIR "$BINDEFAULT/tools"
+
+include "$SRCDIR/_qpc_scripts/source_dll_base.qpc"
+
+configuration
+{
+	linker
+	{
+		libraries
+		{
+			"Psapi.lib"
+			"datamodel"
+			"dme_controls"
+			"dmserializers"
+			"mathlib"
+			"matsys_controls"
+			"movieobjects"
+			"tier2"
+			"tier3"
+			"toolutils"
+			"vgui_controls"
+		}
+	}
+}
+
+files
+{
+	folder "Source Files"
+	{
+		"actbusydoc.cpp"
+		"actbusytool.cpp"
+		"$SRCDIR/public/interpolatortypes.cpp"
+		"$SRCDIR/public/movieobjects/movieobjects.cpp"
+		"$SRCDIR/public/registry.cpp"
+		"$SRCDIR/public/vgui_controls/vgui_controls.cpp"
+	}
+
+	folder "Header Files"
+	{
+		"actbusydoc.h"
+		"actbusytool.h"
+		"$SRCDIR/public/interpolatortypes.h"
+	}
+}

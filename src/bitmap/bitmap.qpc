@@ -1,0 +1,59 @@
+// ---------------------------------------------------------------
+// Auto Generated QPC Script - Fix if needed before using
+// ---------------------------------------------------------------
+macro PROJECT_NAME "bitmap"
+
+macro SRCDIR ".."
+macro OUTLIBDIR "$LIBPUBLIC"
+
+include "$SRCDIR/_qpc_scripts/source_lib_base.qpc"
+
+configuration
+{
+	general
+	{
+		include_directories
+		{
+			"$SRCDIR/dx9sdk/include" [$WIN32]
+		}
+	}
+
+	linker
+	{
+		libraries
+		{
+			"$LIBPUBLIC/nvtc"
+			"$LIBPUBLIC/ATI_Compress_MT_VC8"
+		}
+	}
+}
+
+files
+{
+	folder "Source Files"
+	{
+		"ImageByteSwap.cpp"
+		"colorconversion.cpp"
+		"float_bm.cpp"
+		"float_bm2.cpp"
+		"float_bm3.cpp"
+		"float_bm4.cpp" [$WIN32]
+		"float_bm_bilateral_filter.cpp"
+		"float_cube.cpp"
+		"imageformat.cpp"
+		"psd.cpp"
+		"resample.cpp"
+		"tgaloader.cpp"
+		"tgawriter.cpp"
+	}
+
+	folder "Header Files"
+	{
+		"$SRCDIR/public/bitmap/bitmap.h"
+		"$SRCDIR/public/bitmap/float_bm.h"
+		"$SRCDIR/public/bitmap/imageformat.h"
+		"$SRCDIR/public/bitmap/psd.h"
+		"$SRCDIR/public/bitmap/tgaloader.h"
+		"$SRCDIR/public/bitmap/tgawriter.h"
+	}
+}

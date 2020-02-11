@@ -1,0 +1,49 @@
+// ---------------------------------------------------------------
+// Base Posix Settings
+// ---------------------------------------------------------------
+configuration
+{
+	compiler
+	{
+		preprocessor_definitions
+		{
+			"GNUC" "COMPILER_GCC" [!$CLANG && $GCC]
+			"CLANG" "COMPILER_CLANG" [$CLANG && !$GCC]
+			
+			"DEDICATED" [$DEDICATED]
+			
+			// the 10240 in the following line is the output of `sysctl -n kern.maxfilesperproc`
+			"_OSX" "OSX" "_DARWIN_UNLIMITED_SELECT" "FD_SETSIZE=10240" "OVERRIDE_V_DEFINES" [$OSX]
+			"_LINUX" "LINUX" [$LINUX]
+			"POSIX" "_POSIX" [$POSIX]
+			
+			"_POSIX64" "POSIX64" 	[$POSIX64]
+			"_LINUX64" "LINUX64" 	[$LINUX64]
+			"_OSX64" "OSX64" 		[$OSX64]
+			
+			"_DLL_EXT=$_BIN_EXT"
+		}
+
+		precompiled_header_file "stdafx.h"
+
+		options
+		{
+			"-O1" [$DEBUG]
+			"-O3" [$RELEASE]
+			"-arch x86_64 -m64" [$POSIX64 && !$CLANG && $GCC]
+			"-mcpu=x86-64 -m64" [$POSIX64 && $CLANG && !$GCC]
+			"-msse -msse2 -msse3" [$POSIX64]
+			"-mavx" [$POSIX64 && $USE_AVX]
+			"-gdwarf-2 -g2 $(OptimizerLevel_CompilerSpecific)"
+		}
+	}
+
+	linker
+	{
+		options
+		{
+			"-arch x86_64" [$OSX64]
+		}
+	}
+}
+

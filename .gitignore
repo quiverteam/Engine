@@ -35,10 +35,11 @@ ipch
 
 # --------------------------------------------
 # Shader Files made during build
-*.inc
+#*.inc
 *.tmp
 *.vcs
 
+/src/materialsystem/stdshaders/fxctmp9_tmp
 /src/materialsystem/stdshaders/*.copy
 /src/materialsystem/stdshaders/makefile.*
 /src/materialsystem/stdshaders/vcslist.txt

@@ -1,0 +1,72 @@
+// ---------------------------------------------------------------
+// Auto Generated QPC Script - Fix if needed before using
+// ---------------------------------------------------------------
+macro PROJECT_NAME "QCGenerator_Launcher"
+
+macro SRCDIR "../.."
+macro OUTBINDIR "$BINDEFAULT"
+macro OUTBINNAME "QCGenerator"
+
+include "$SRCDIR/_qpc_scripts/source_exe_base.qpc"
+
+configuration
+{
+	general
+	{
+		include_directories
+		{
+			"$SRCDIR/vgui2/include"
+			"$SRCDIR/vgui2/controls"
+			"$SRCDIR/../src/utils/common"
+		}
+	}
+
+	compiler
+	{
+		options
+		{
+			"/EHsc"
+		}
+	}
+
+	linker
+	{
+		libraries
+		{
+			"comctl32.lib"
+			"Rpcrt4.lib"
+			"dbghelp.lib"
+			"appframework"
+			"matsys_controls"
+			"sqlwrapper"
+			"tier2"
+			"tier3"
+			"vgui_controls"
+		}
+	}
+}
+
+dependencies
+{
+	"appframework"
+	"matsys_controls"
+	"tier2"
+	"tier3"
+	"vgui_controls"
+}
+
+files
+{
+	folder "Source Files"
+	{
+		"CQCGenMain.cpp"
+		"main.cpp"
+		"$SRCDIR/public/vgui_controls/vgui_controls.cpp"
+	}
+
+	folder "Header Files"
+	{
+		"CQCGenMain.h"
+		"../common/filesystem_tools.h"
+	}
+}

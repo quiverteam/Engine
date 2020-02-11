@@ -58,6 +58,7 @@ set shaderDir=shaders
 @REM your total thread count
 set /A threadcount=%NUMBER_OF_PROCESSORS%
 @REM this increases performance greatly
+set force_compile=0
 
 @REM should be removed, idk
 set EngineBinDir=../../../game/bin/%platform%
@@ -68,8 +69,8 @@ set inputbase=%1
 set DIRECTX_SDK_VER=pc09.00
 set DIRECTX_SDK_BIN_DIR=dx_proxy\dx9_00\%platform%
 
-if /i "%7" == "-dx9_30" goto dx_sdk_dx9_30
-if /i "%7" == "-dx10" goto dx_sdk_dx10
+if /i "%8" == "-dx9_30" goto dx_sdk_dx9_30
+if /i "%8" == "-dx10" goto dx_sdk_dx10
 goto dx_sdk_end
 :dx_sdk_dx9_30
 			set DIRECTX_SDK_VER=pc09.30
@@ -81,12 +82,21 @@ goto dx_sdk_end
 			goto dx_sdk_end
 :dx_sdk_end
 
-if /i "%8" == "-force30" goto set_force30_arg
+if /i "%9" == "-force30" goto set_force30_arg
 goto set_force_end
 :set_force30_arg
 			set DIRECTX_FORCE_MODEL=30
 			goto set_force_end
 :set_force_end
+
+if /i "%7" == "1" set force_compile=1
+
+if %force_compile%==1 (
+	@REM force compile, azure pipelines perl is broken on windows-2019, so this is a work around
+	set perl=C:\Strawberry\perl\bin\perl
+) else (
+	set perl=perl
+)
 
 if /i "%2" == "-game" goto set_mod_args
 if /i "%6" == "1" set dynamic_shaders=1
@@ -167,15 +177,21 @@ if exist makefile.%inputbase% del /f /q makefile.%inputbase%
 REM ****************
 REM Generate a makefile for the shader project
 REM ****************
-perl "%SrcDirBase%\devtools\bin\updateshaders.pl" -source "%SrcDirBase%" %inputbase%
-
+echo Creating makefile for %inputbase%...
+@REM should just have it setup to install String::CRC32 now
+if %force_compile%==1 (
+	echo Force Compiling Shaders, skipping crc check
+	%perl% "%SrcDirBase%\devtools\bin\updateshaders_force.pl" -source "%SrcDirBase%" %inputbase%
+) else (
+	%perl% "%SrcDirBase%\devtools\bin\updateshaders.pl" -source "%SrcDirBase%" %inputbase%
+)
 
 REM ****************
 REM Run the makefile, generating minimal work/build list for fxc files, go ahead and compile vsh and psh files.
 REM ****************
 rem nmake /S /C -f makefile.%inputbase% clean > clean.txt 2>&1
 @REM echo Building inc files, asm vcs files, and VMPI worklist for %inputbase%...
-echo Creating makefile for %inputbase%...
+echo Building makefile...
 nmake /S /C -f makefile.%inputbase%
 
 REM ****************
@@ -183,7 +199,7 @@ REM Copy the inc files to their target
 REM ****************
 if exist "inclist.txt" (
 	echo Publishing shader inc files to target...
-	perl %SrcDirBase%\devtools\bin\copyshaderincfiles.pl inclist.txt
+	%perl% %SrcDirBase%\devtools\bin\copyshaderincfiles.pl inclist.txt
 )
 
 REM ****************
@@ -209,7 +225,7 @@ echo %EngineBinDir%\tier0.dll >> filestocopy.txt
 REM ****************
 REM Cull duplicate entries in work/build list
 REM ****************
-if exist filestocopy.txt type filestocopy.txt | perl "%SrcDirBase%\devtools\bin\uniqifylist.pl" > uniquefilestocopy.txt
+if exist filestocopy.txt type filestocopy.txt | %perl% "%SrcDirBase%\devtools\bin\uniqifylist.pl" > uniquefilestocopy.txt
 if exist filelistgen.txt if not "%dynamic_shaders%" == "1" (
     echo Generating action list...
     copy filelistgen.txt filelist.txt >nul

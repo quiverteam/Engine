@@ -45,20 +45,14 @@ $Project "Dedicated"
 	$Folder	"Source Files"
 	{
 		$File	"dedicated.rc"
-		$File	"sys_linux.cpp"
-		{
-			$Configuration
-			{
-				$ExcludedFromBuild					"Yes"
-			}
-		}
+		$File	"sys_linux.cpp"		[$LINUX]
 		$File	"filesystem.cpp"
 		$File	"$SRCDIR\public\filesystem_init.cpp"
 		$File	"$SRCDIR\common\netapi.cpp"
 		$File	"$SRCDIR\common\SteamAppStartup.cpp"
 		$File	"sys_common.cpp"
 		$File	"sys_ded.cpp"
-		$File	"sys_windows.cpp"
+		$File	"sys_windows.cpp"	[$WINDOWS]
 		{
 			$Configuration
 			{

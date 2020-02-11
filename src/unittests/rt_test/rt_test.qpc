@@ -1,0 +1,48 @@
+// ---------------------------------------------------------------
+// Auto Generated QPC Script - Fix if needed before using
+// ---------------------------------------------------------------
+macro PROJECT_NAME "rt_test"
+
+macro SRCDIR "../.."
+macro OUTBINDIR "$SRCDIR/unittests/rt_test"
+
+include "$SRCDIR/_qpc_scripts/source_exe_con_base.qpc"
+
+configuration
+{
+	compiler
+	{
+		preprocessor_definitions
+		{
+			"PROTECTED_THINGS_DISABLE" [$DEBUG]
+		}
+	}
+
+	linker
+	{
+		libraries
+		{
+			"winmm.lib" [$DEBUG]
+			"$LIBPUBLIC/bitmap"
+			"$LIBPUBLIC/mathlib"
+			"$LIBPUBLIC/raytrace"
+			"$LIBPUBLIC/tier2"
+		}
+	}
+}
+
+dependencies
+{
+	"bitmap/bitmap.qpc"
+	"mathlib/mathlib.qpc"
+	"raytrace/raytrace.qpc"
+	"tier2/tier2.qpc"
+}
+
+files
+{
+	folder "Source Files"
+	{
+		"rt_test.cpp"
+	}
+}

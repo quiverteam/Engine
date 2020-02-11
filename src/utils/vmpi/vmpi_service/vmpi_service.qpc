@@ -1,0 +1,72 @@
+// ---------------------------------------------------------------
+// Auto Generated QPC Script - Fix if needed before using
+// ---------------------------------------------------------------
+macro PROJECT_NAME "Vmpi_service"
+
+macro SRCDIR "../../.."
+macro OUTBINDIR "$BINDEFAULT"
+
+include "$SRCDIR/_qpc_scripts/source_exe_base.qpc"
+
+configuration
+{
+	general
+	{
+		include_directories
+		{
+			"../../common"
+			".."
+		}
+	}
+
+	compiler
+	{
+		preprocessor_definitions
+		{
+			"PROTECTED_THINGS_DISABLE"
+		}
+	}
+
+	linker
+	{
+		libraries
+		{
+			"pdh.lib"
+			"ws2_32.lib"
+			"odbc32.lib"
+			"odbccp32.lib"
+		}
+	}
+}
+
+files
+{
+	folder "Source Files"
+	{
+		"../iphelpers.cpp"
+		"service_conn_mgr.cpp"
+		"service_helpers.cpp"
+		"perf_counters.cpp"
+		"vmpi_service.rc"
+		"StdAfx.cpp"
+		"../tcpsocket_helpers.cpp"
+		"../ThreadedTCPSocket.cpp"
+		"../ThreadedTCPSocketEmu.cpp"
+		"../threadhelpers.cpp"
+		"vmpi_service.cpp"
+	}
+
+	folder "Header Files"
+	{
+		"service_conn_mgr.h"
+		"service_helpers.h"
+		"perf_counters.h"
+		"StdAfx.h"
+		"resource.h"
+		"vmpi_service.h"
+	}
+
+	folder "Resource Files"
+	{
+	}
+}

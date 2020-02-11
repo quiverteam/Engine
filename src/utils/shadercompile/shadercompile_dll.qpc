@@ -1,0 +1,80 @@
+// ---------------------------------------------------------------
+// Auto Generated QPC Script - Fix if needed before using
+// ---------------------------------------------------------------
+macro PROJECT_NAME "Shadercompile_dll"
+
+macro SRCDIR "../.."
+macro OUTBINDIR "$BINDEFAULT"
+
+include "$SRCDIR/_qpc_scripts/source_dll_base.qpc"
+
+configuration
+{
+	general
+	{
+		include_directories
+		{
+			"../common"
+			"../vmpi"
+			"$SRCDIR/dx9sdk/include"
+		}
+	}
+
+	compiler
+	{
+		preprocessor_definitions
+		{
+			"SHADERCOMPILE_EXPORTS"
+			"MPI"
+		}
+	}
+
+	linker
+	{
+		libraries
+		{
+			"ws2_32.lib"
+			"odbc32.lib"
+			"odbccp32.lib"
+			"$LIBPUBLIC/tier2"
+			"$LIBPUBLIC/vmpi"
+			"$LIBCOMMON/lzma"
+		}
+	}
+}
+
+dependencies
+{
+	"tier2"
+	"vmpi"
+	"lzma"
+}
+
+files
+{
+	folder "Source Files"
+	{
+		"../common/cmdlib.cpp"
+		"cmdsink.cpp"
+		"d3dxfxc.cpp"
+		"$SRCDIR/public/filesystem_helpers.cpp"
+		"../common/pacifier.cpp"
+		"shadercompile.cpp"
+		"subprocess.cpp"
+		"cfgprocessor.cpp"
+		"../common/threads.cpp"
+		"../common/vmpi_tools_shared.cpp"
+		"../common/tools_minidump.cpp"
+	}
+
+	folder "Header Files"
+	{
+		"cmdsink.h"
+		"d3dxfxc.h"
+		"$SRCDIR/public/ishadercompiledll.h"
+		"shadercompile.h"
+		"utlnodehash.h"
+		"cfgprocessor.h"
+		"$SRCDIR/public/tier1/UtlStringMap.h"
+	}
+}

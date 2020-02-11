@@ -58,29 +58,31 @@ $Configuration
 	
 	$PreBuildEvent
 	{
-		$CommandLine		"if EXIST $OUTBINDIR\$(TargetFileName) for /f $QUOTEdelims=$QUOTE %%A in ('attrib $QUOTE$OUTBINDIR\$(TargetFileName)$QUOTE') do set valveTmpIsReadOnly=$QUOTE%%A$QUOTE" "\n" \
+		$CommandLine		"if EXIST $OUTBINDIR\$(TargetFileName) for /f \"delims=\" %%A in ('attrib \"$OUTBINDIR\$(TargetFileName)\"') do set valveTmpIsReadOnly=\"%%A\"" "\n" \
 							"set valveTmpIsReadOnlyLetter=%valveTmpIsReadOnly:~6,1%" "\n" \
-							"if $QUOTE%valveTmpIsReadOnlyLetter%$QUOTE==$QUOTER$QUOTE del /q $QUOTE$(TargetDir)$QUOTE$(TargetFileName)" "\n" \
-							"$CRCCHECK" "\n" 			
+							"if \"%valveTmpIsReadOnlyLetter%\"==\"R\" del /q \"$(TargetDir)\"$(TargetFileName)" "\n" \
+							"$CRCCHECK" "\n" 		
+		$ExcludedFromBuild	"Yes"	
 	}
 
-	$PostBuildEvent [!$ANALYZE]
+	$PostBuildEvent
 	{
-		$CommandLine		"call $SRCDIR\vpc_scripts\valve_p4_edit.cmd $OUTBINDIR\$(TargetFileName) $SRCDIR" "\n" [!$SOURCESDK]
-		$CommandLine		"$BASE"	"copy $QUOTE$(TargetDir)$QUOTE$(TargetFileName) $OUTBINDIR\$(TargetFileName) >nul" "\n" \
+		$CommandLine		"if not exist \"$OUTBINDIR\" mkdir \"$OUTBINDIR\"" "\n" 
+		
+		$CommandLine		"$BASE"	"copy \"$(TargetDir)$(TargetFileName)\" \"$OUTBINDIR\$(TargetFileName)\" >nul" "\n" \
 							"if ERRORLEVEL 1 goto BuildEventFailed" "\n" \
-							"if exist $QUOTE$(TargetDir)$QUOTE$(TargetName).map copy $QUOTE$(TargetDir)$QUOTE$(TargetName).map $OUTBINDIR\$(TargetName).map >nul" "\n"
-		$CommandLine		"$BASE"	"call $SRCDIR\vpc_scripts\valve_p4_edit.cmd $OUTBINDIR\$(TargetName).pdb $SRCDIR" "\n" [!$SOURCESDK]
-		$CommandLine		"$BASE"	"copy $QUOTE$(TargetDir)$QUOTE$(TargetName).pdb $OUTBINDIR\$(TargetName).pdb >nul" "\n" \
+							"if exist \"$(TargetDir)$(TargetName).map\" copy \"$(TargetDir)$(TargetName).map\" \"$OUTBINDIR\$(TargetName).map\" >nul" "\n"
+							
+		$CommandLine		"$BASE"	"copy \"$(TargetDir)$(TargetName).pdb\" \"$OUTBINDIR\$(TargetName).pdb\" >nul" "\n" \
 							"if ERRORLEVEL 1 goto BuildEventFailed" "\n" \
 							"goto BuildEventOK" "\n" \
 							":BuildEventFailed" "\n" \
 							"echo *** ERROR! PostBuildStep FAILED for $(ProjectName)! EXE or DLL is probably running. ***" "\n" \
-							"del /q $QUOTE$(TargetDir)$QUOTE$(TargetFileName)" "\n" \
+							"del /q \"$(TargetDir)$(TargetFileName)\"" "\n" \
 							"exit 1" "\n" \
 							":BuildEventOK" "\n"
 		$Description		"Publishing to $OUTBINDIR"
-		$ExcludedFromBuild						"No"
+		$ExcludedFromBuild	"No"
 	}
 }
 

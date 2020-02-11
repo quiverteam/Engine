@@ -1,0 +1,211 @@
+// ---------------------------------------------------------------
+// Auto Generated QPC Script - Fix if needed before using
+// ---------------------------------------------------------------
+macro PROJECT_NAME "Hlmv"
+
+macro SRCDIR "../.."
+macro OUTBINDIR "$BINDEFAULT"
+
+include "$SRCDIR/_qpc_scripts/source_exe_base.qpc"
+
+configuration
+{
+	general
+	{
+		include_directories
+		{
+			"../common"
+		}
+	}
+
+	compiler
+	{
+		preprocessor_definitions
+		{
+			"VECTOR"
+			"PROTECTED_THINGS_DISABLE"
+		}
+	}
+
+	linker
+	{
+		libraries
+		{
+			"comctl32.lib"
+			"winmm.lib"
+			"tier2"
+			"appframework"
+			"bitmap"
+			"mathlib"
+			"mxtoolkitwin32"
+		}
+
+		entry_point "mainCRTStartup"
+	}
+}
+
+dependencies
+{
+	"tier2"
+	"appframework"
+	"bitmap"
+	"mathlib"
+	"mxtoolkitwin32"
+}
+
+files
+{
+	folder "Source Files"
+	{
+		"attachments_window.cpp"
+		"$SRCDIR/public/bone_setup.cpp"
+		"$SRCDIR/Public/CollisionUtils.cpp"
+		"ControlPanel.cpp"
+		"debugdrawmodel.cpp"
+		"FileAssociation.cpp"
+		"$SRCDIR/public/filesystem_helpers.cpp"
+		"$SRCDIR/public/filesystem_init.cpp"
+		"$SRCDIR/public/jigglebones.cpp"
+		"matsyswin.cpp"
+		"mdlviewer.cpp"
+		"mxLineEdit2.cpp"
+		"pakviewer.cpp"
+		"physmesh.cpp"
+		"$SRCDIR/public/studio.cpp"
+		"studio_flex.cpp"
+		"studio_render.cpp"
+		"studio_utils.cpp"
+		"sys_win.cpp"
+		"ViewerSettings.cpp"
+	}
+
+	folder "Header Files"
+	{
+		"$SRCDIR/Public/mathlib/amd3dx.h"
+		"attachments_window.h"
+		"$SRCDIR/public/basehandle.h"
+		"$SRCDIR/Public/tier0/basetypes.h"
+		"$SRCDIR/Public/bitvec.h"
+		"$SRCDIR/public/bone_accessor.h"
+		"$SRCDIR/public/bone_setup.h"
+		"$SRCDIR/Public/bspflags.h"
+		"$SRCDIR/public/tier1/characterset.h"
+		"../common/cmdlib.h"
+		"$SRCDIR/Public/cmodel.h"
+		"$SRCDIR/Public/CollisionUtils.h"
+		"$SRCDIR/Public/commonmacros.h"
+		"$SRCDIR/public/mathlib/compressed_vector.h"
+		"$SRCDIR/public/const.h"
+		"$SRCDIR/public/vphysics/constraints.h"
+		"ControlPanel.h"
+		"$SRCDIR/public/tier0/dbg.h"
+		"debugdrawmodel.h"
+		"$SRCDIR/public/tier0/fasttimer.h"
+		"FileAssociation.h"
+		"$SRCDIR/Public/FileSystem.h"
+		"$SRCDIR/public/filesystem_helpers.h"
+		"$SRCDIR/public/tier1/fmtstr.h"
+		"$SRCDIR/public/gametrace.h"
+		"$SRCDIR/public/appframework/IAppSystem.h"
+		"$SRCDIR/public/tier0/ICommandLine.h"
+		"$SRCDIR/public/ihandleentity.h"
+		"$SRCDIR/public/materialsystem/imaterial.h"
+		"$SRCDIR/public/materialsystem/imaterialproxyfactory.h"
+		"$SRCDIR/public/materialsystem/imaterialsystem.h"
+		"$SRCDIR/public/materialsystem/imaterialsystemhardwareconfig.h"
+		"$SRCDIR/public/materialsystem/imaterialvar.h"
+		"$SRCDIR/public/materialsystem/imesh.h"
+		"$SRCDIR/public/tier1/interface.h"
+		"$SRCDIR/Public/ISpatialPartition.h"
+		"$SRCDIR/Public/IStudioRender.h"
+		"$SRCDIR/public/materialsystem/itexture.h"
+		"$SRCDIR/public/jigglebones.h"
+		"$SRCDIR/public/materialsystem/materialsystem_config.h"
+		"$SRCDIR/Public/mathlib/MATHLIB.H"
+		"matsyswin.h"
+		"mdlviewer.h"
+		"$SRCDIR/public/tier0/memdbgoff.h"
+		"$SRCDIR/public/tier0/memdbgon.h"
+		"$SRCDIR/public/tier1/mempool.h"
+		"$SRCDIR/Public/mouthinfo.h"
+		"pakviewer.h"
+		"$SRCDIR/Public/phyfile.h"
+		"../common/physdll.h"
+		"physmesh.h"
+		"$SRCDIR/public/tier0/platform.h"
+		"$SRCDIR/public/protected_things.h"
+		"$SRCDIR/public/vstdlib/random.h"
+		"$SRCDIR/Public/string_t.h"
+		"$SRCDIR/public/tier1/strtools.h"
+		"$SRCDIR/Public/studio.h"
+		"studio_render.h"
+		"StudioModel.h"
+		"sys.h"
+		"$SRCDIR/public/texture_group_names.h"
+		"$SRCDIR/public/tier1/utlbuffer.h"
+		"$SRCDIR/public/tier1/utldict.h"
+		"$SRCDIR/public/tier1/utllinkedlist.h"
+		"$SRCDIR/public/tier1/utlmemory.h"
+		"$SRCDIR/public/tier1/utlrbtree.h"
+		"$SRCDIR/public/tier1/utlsymbol.h"
+		"$SRCDIR/public/tier1/utlvector.h"
+		"$SRCDIR/Public/vcollide.h"
+		"$SRCDIR/Public/vcollide_parse.h"
+		"$SRCDIR/Public/mathlib/vector.h"
+		"$SRCDIR/Public/mathlib/vector2d.h"
+		"$SRCDIR/Public/mathlib/vector4d.h"
+		"ViewerSettings.h"
+		"$SRCDIR/Public/mathlib/vmatrix.h"
+		"$SRCDIR/Public/vphysics_interface.h"
+		"$SRCDIR/Public/mathlib/vplane.h"
+		"$SRCDIR/public/tier0/vprof.h"
+		"$SRCDIR/public/vstdlib/vstdlib.h"
+
+		folder "mxtk"
+		{
+			"../mxtk/include/mx/mx.h"
+			"../mxtk/include/mx/mxBmp.h"
+			"../mxtk/include/mx/mxButton.h"
+			"../mxtk/include/mx/mxCheckBox.h"
+			"../mxtk/include/mx/mxChoice.h"
+			"../mxtk/include/mx/mxChooseColor.h"
+			"../mxtk/include/mx/mxEvent.h"
+			"../mxtk/include/mx/mxFileDialog.h"
+			"../mxtk/include/mx/mxGlWindow.h"
+			"../mxtk/include/mx/mxGroupBox.h"
+			"../mxtk/include/mx/mxImage.h"
+			"../mxtk/include/mx/mxInit.h"
+			"../mxtk/include/mx/mxLabel.h"
+			"../mxtk/include/mx/mxLineEdit.h"
+			"mxLineEdit2.h"
+			"../mxtk/include/mx/mxLinkedList.h"
+			"../mxtk/include/mx/mxListBox.h"
+			"../mxtk/include/mx/mxMatSysWindow.h"
+			"../mxtk/include/mx/mxMenu.h"
+			"../mxtk/include/mx/mxMenuBar.h"
+			"../mxtk/include/mx/mxMessageBox.h"
+			"../mxtk/include/mx/mxpath.h"
+			"../mxtk/include/mx/mxPcx.h"
+			"../mxtk/include/mx/mxPopupMenu.h"
+			"../mxtk/include/mx/mxProgressBar.h"
+			"../mxtk/include/mx/mxRadioButton.h"
+			"../mxtk/include/mx/mxScrollbar.h"
+			"../mxtk/include/mx/mxSlider.h"
+			"../mxtk/include/mx/mxstring.h"
+			"../mxtk/include/mx/mxTab.h"
+			"../mxtk/include/mx/mxTga.h"
+			"../mxtk/include/mx/mxToggleButton.h"
+			"../mxtk/include/mx/mxToolTip.h"
+			"../mxtk/include/mx/mxTreeView.h"
+			"../mxtk/include/mx/mxWidget.h"
+			"../mxtk/include/mx/mxWindow.h"
+		}
+	}
+
+	folder "Resources"
+	{
+		"hlmv.rc"
+		"icon1.ico"
+		"resource.h"
+	}
+}

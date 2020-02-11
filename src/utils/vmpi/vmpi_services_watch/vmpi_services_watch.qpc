@@ -1,0 +1,90 @@
+// ---------------------------------------------------------------
+// Auto Generated QPC Script - Fix if needed before using
+// ---------------------------------------------------------------
+macro PROJECT_NAME "vmpi_services_watch"
+
+macro SRCDIR "../../.."
+macro OUTBINDIR "$BINDEFAULT"
+macro OUTBINNAME "vmpi_services_watch"
+
+include "$SRCDIR/_qpc_scripts/source_exe_base.qpc"
+
+configuration
+{
+	general
+	{
+		include_directories
+		{
+			"./"
+			"../"
+			"../../common"
+		}
+	}
+
+	compiler
+	{
+		preprocessor_definitions
+		{
+			"PROTECTED_THINGS_DISABLE"
+		}
+
+		options
+		{
+			"/EHsc"
+		}
+	}
+
+	linker
+	{
+		libraries
+		{
+			"ws2_32.lib"
+			"vmpi"
+		}
+	}
+}
+
+dependencies
+{
+	"vmpi"
+}
+
+files
+{
+	folder "Source Files"
+	{
+		- "$SRCDIR/public/tier0/memoverride.cpp"
+		"../idle_dialog.cpp"
+		"../net_view_thread.cpp"
+		"PatchTimeout.cpp"
+		"ServicesDlg.cpp"
+		"SetPasswordDlg.cpp"
+		"../vmpi_browser_helpers.cpp"
+		"vmpi_browser_services.cpp"
+		"vmpi_browser_services.rc"
+		"../win_idle.cpp"
+		"../window_anchor_mgr.cpp"
+		"StdAfx.cpp"
+	}
+
+	folder "Header Files"
+	{
+		"../idle_dialog.h"
+		"../net_view_thread.h"
+		"PatchTimeout.h"
+		"Resource.h"
+		"ServicesDlg.h"
+		"SetPasswordDlg.h"
+		"StdAfx.h"
+		"vmpi_browser_services.h"
+		"../vmpi_defs.h"
+		"../win_idle.h"
+		"../window_anchor_mgr.h"
+	}
+
+	folder "Resources"
+	{
+		"res/vmpi_browser_services.ico"
+		"res/vmpi_browser_services.rc2"
+	}
+}

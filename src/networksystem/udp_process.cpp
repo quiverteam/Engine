@@ -16,8 +16,8 @@
 //-----------------------------------------------------------------------------
 // Allocates memory for packets
 //-----------------------------------------------------------------------------
-static CMemoryPool s_PacketBufferAlloc( NET_MAX_MESSAGE, 8, CMemoryPool::GROW_SLOW );
-DEFINE_FIXEDSIZE_ALLOCATOR( CNetPacket, 32, CMemoryPool::GROW_SLOW );
+static CUtlMemoryPool s_PacketBufferAlloc( NET_MAX_MESSAGE, 8, CUtlMemoryPool::GROW_SLOW );
+DEFINE_FIXEDSIZE_ALLOCATOR( CNetPacket, 32, CUtlMemoryPool::GROW_SLOW );
 
 
 //-----------------------------------------------------------------------------

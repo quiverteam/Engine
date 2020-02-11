@@ -1,0 +1,82 @@
+// ---------------------------------------------------------------
+// Auto Generated QPC Script - Fix if needed before using
+// ---------------------------------------------------------------
+macro PROJECT_NAME "Captioncompiler"
+
+macro SRCDIR "../.."
+macro OUTBINDIR "$BINDEFAULT"
+
+include "$SRCDIR/_qpc_scripts/source_exe_con_base.qpc"
+
+configuration
+{
+	general
+	{
+		include_directories
+		{
+			"../common"
+			"$SRCDIR/game/shared"
+			"."
+		}
+	}
+
+	compiler
+	{
+		preprocessor_definitions
+		{
+			"captioncompiler"
+		}
+	}
+
+	linker
+	{
+		libraries
+		{
+			"appframework"
+			"mathlib"
+			"tier2"
+			"tier3"
+		}
+	}
+}
+
+dependencies
+{
+	"appframework"
+	"mathlib"
+	"tier2"
+	"tier3"
+}
+
+files
+{
+	folder "Source Files"
+	{
+		"captioncompiler.cpp"
+		"$SRCDIR/common/compiledcaptionswap.cpp"
+		"../common/filesystem_tools.cpp"
+	}
+
+	folder "Header Files"
+	{
+		"cbase.h"
+		"../common/filesystem_tools.h"
+	}
+
+	folder "Shared Code"
+	{
+		"../common/cmdlib.cpp"
+		"../common/cmdlib.h"
+		"$SRCDIR/public/filesystem_helpers.cpp"
+		"$SRCDIR/public/filesystem_helpers.h"
+		"$SRCDIR/public/filesystem_init.cpp"
+		"$SRCDIR/public/filesystem_init.h"
+		"$SRCDIR/public/mathlib/mathlib.h"
+		"../common/pacifier.cpp"
+		"../common/pacifier.h"
+		"../common/scriplib.cpp"
+		"../common/scriplib.h"
+		"$SRCDIR/public/stringregistry.cpp"
+		"$SRCDIR/public/stringregistry.h"
+	}
+}

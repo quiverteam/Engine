@@ -1,0 +1,35 @@
+// ---------------------------------------------------------------
+// Auto Generated QPC Script - Fix if needed before using
+// ---------------------------------------------------------------
+macro PROJECT_NAME "Inputtest"
+
+macro SRCDIR "../.."
+macro OUTBINDIR "$BINDEFAULT/unittests"
+
+include "$SRCDIR/_qpc_scripts/source_exe_base.qpc"
+
+configuration
+{
+	linker
+	{
+		libraries
+		{
+			"$LIBPUBLIC/appframework"
+			"$LIBPUBLIC/tier2"
+		}
+	}
+}
+
+dependencies
+{
+	"appframework/appframework.qpc"
+	"tier2/tier2.qpc"
+}
+
+files
+{
+	folder "Source Files"
+	{
+		"inputtest.cpp"
+	}
+}

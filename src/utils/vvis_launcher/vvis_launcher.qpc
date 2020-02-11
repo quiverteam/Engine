@@ -1,0 +1,51 @@
+// ---------------------------------------------------------------
+// Auto Generated QPC Script - Fix if needed before using
+// ---------------------------------------------------------------
+macro PROJECT_NAME "Vvis_launcher"
+
+macro SRCDIR "../.."
+macro OUTBINDIR "$BINDEFAULT"
+macro OUTBINNAME "vvis"
+
+include "$SRCDIR/_qpc_scripts/source_exe_con_base.qpc"
+
+configuration
+{
+	general
+	{
+		include_directories
+		{
+			"../common"
+		}
+	}
+
+	compiler
+	{
+		precompiled_header "use"
+		precompiled_header_output_file "$CONFIG/vvis_launcher.pch"
+	}
+}
+
+files
+{
+	folder "Source Files"
+	{
+		"vvis_launcher.cpp"
+		"StdAfx.cpp"
+		{
+			configuration
+			{
+				compiler
+				{
+					precompiled_header "create"
+				}
+			}
+		}
+	}
+
+	folder "Header Files"
+	{
+		"$SRCDIR/public/tier1/interface.h"
+		"StdAfx.h"
+	}
+}

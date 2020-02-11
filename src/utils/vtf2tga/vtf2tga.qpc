@@ -1,0 +1,60 @@
+// ---------------------------------------------------------------
+// Auto Generated QPC Script - Fix if needed before using
+// ---------------------------------------------------------------
+macro PROJECT_NAME "Vtf2tga"
+
+macro SRCDIR "../.."
+macro OUTBINDIR "$BINDEFAULT"
+
+include "$SRCDIR/_qpc_scripts/source_exe_con_base.qpc"
+
+configuration
+{
+	linker
+	{
+		libraries
+		{
+			"bitmap"
+			"mathlib"
+			"tier2"
+			"vtf"
+		}
+	}
+}
+
+dependencies
+{
+	"bitmap/bitmap.qpc"
+	"mathlib/mathlib.qpc"
+	"tier2/tier2.qpc"
+	"vtf/vtf.qpc"
+}
+
+files
+{
+	folder "Source Files"
+	{
+		"vtf2tga.cpp"
+	}
+
+	folder "Header Files"
+	{
+		"$SRCDIR/public/mathlib/amd3dx.h"
+		"$SRCDIR/public/tier0/basetypes.h"
+		"$SRCDIR/public/tier0/commonmacros.h"
+		"$SRCDIR/public/tier0/dbg.h"
+		"$SRCDIR/public/tier0/fasttimer.h"
+		"$SRCDIR/public/mathlib/mathlib.h"
+		"$SRCDIR/public/tier0/memdbgon.h"
+		"$SRCDIR/public/tier0/platform.h"
+		"$SRCDIR/public/tier0/protected_things.h"
+		"$SRCDIR/public/string_t.h"
+		"$SRCDIR/public/tier1/strtools.h"
+		"$SRCDIR/public/tier1/utlbuffer.h"
+		"$SRCDIR/public/tier1/utlmemory.h"
+		"$SRCDIR/public/mathlib/vector.h"
+		"$SRCDIR/public/mathlib/vector2d.h"
+		"$SRCDIR/public/vstdlib/vstdlib.h"
+		"$SRCDIR/public/vtf/vtf.h"
+	}
+}
