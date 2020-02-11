@@ -41,6 +41,7 @@ configuration
 			"winmm.lib"
 			"Msimg32.lib"
 			"$LIBCOMMON/mxtoolkitwin32"
+			"$LIBCOMMON/lzma"
 			"appframework"
 			"bitmap"
 			"choreoobjects"
@@ -54,6 +55,8 @@ configuration
 			"movieobjects"
 			"vgui_controls"
 		}
+		
+		entry_point "mainCRTStartup"
 	}
 }
 
