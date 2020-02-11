@@ -47,6 +47,8 @@ configuration
 			"tier2"
 			"tier3"
 		}
+
+		entry_point "mainCRTStartup"
 	}
 }
 
