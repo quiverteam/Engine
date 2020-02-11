@@ -50,6 +50,11 @@ configuration
 	}
 }
 
+dependencies
+{
+	"libspeex"
+}
+
 files
 {
 	folder "Source Files"
