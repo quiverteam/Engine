@@ -65,7 +65,7 @@ configuration
 	{
 		libraries
 		{
-			"user32.lib" "shell32.lib"
+			"user32.lib" "shell32.lib" [!$IS_LIB_PROJECT]
 		}
 		
 		options
