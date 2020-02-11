@@ -39,6 +39,8 @@ configuration
 			"mathlib"
 			"mxtoolkitwin32"
 		}
+
+		entry_point "mainCRTStartup"
 	}
 }
 
