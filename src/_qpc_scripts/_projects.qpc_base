@@ -100,7 +100,11 @@ project "launcher"					"launcher/launcher.qpc"
 
 project "launcher_main"				"launcher_main/launcher_main.qpc"
 
+project "libspeex"					"thirdparty/libspeex/libspeex.qpc"
+
 project "localization_check"		"utils/localization_check/localization_check.qpc" [$WINDOWS]
+
+project "lua"						"thirdparty/lua-5.1.1/lua.qpc"
 
 project "lzma"						"thirdparty/lzma/lzma.qpc" [$WINDOWS]
 

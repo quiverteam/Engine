@@ -42,6 +42,8 @@ dependency_paths
 	"dmxloader"			"dmxloader/dmxloader.qpc"
 	"particles"			"particles/particles.qpc"
 	"vtf"				"vtf/vtf.qpc"
+	"lua"				"thirdparty/lua-5.1.1/lua.qpc"
+	"libspeex"			"thirdparty/libspeex/libspeex.qpc"
 }
 
 // each pass it sets a macro with the name of each configuration in all caps
