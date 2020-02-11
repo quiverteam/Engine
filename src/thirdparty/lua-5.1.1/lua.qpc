@@ -1,0 +1,44 @@
+macro PROJECT_NAME "lua"
+
+macro SRCDIR "../.."
+macro OUTLIBDIR "$LIBCOMMON"
+
+macro LUASRCDIR "./src"
+
+include "$SRCDIR/_qpc_scripts/source_lib_base.qpc"
+
+files
+{
+	folder "Source Files"
+	{
+		"$LUASRCDIR/lapi.c"
+		"$LUASRCDIR/lcode.c"
+		"$LUASRCDIR/ldebug.c"
+		"$LUASRCDIR/ldo.c"
+		"$LUASRCDIR/ldump.c"
+		"$LUASRCDIR/lfunc.c"
+		"$LUASRCDIR/lgc.c"
+		"$LUASRCDIR/llex.c"
+		"$LUASRCDIR/lmem.c"
+		"$LUASRCDIR/lobject.c"
+		"$LUASRCDIR/lopcodes.c"
+		"$LUASRCDIR/lparser.c"
+		"$LUASRCDIR/lstate.c"
+		"$LUASRCDIR/lstring.c"
+		"$LUASRCDIR/ltable.c"
+		"$LUASRCDIR/ltm.c"
+		"$LUASRCDIR/lundump.c"
+		"$LUASRCDIR/lvm.c"
+		"$LUASRCDIR/lzio.c"
+		"$LUASRCDIR/lauxlib.c"
+		"$LUASRCDIR/lbaselib.c"
+		"$LUASRCDIR/ldblib.c"
+		"$LUASRCDIR/liolib.c"
+		"$LUASRCDIR/lmathlib.c"
+		"$LUASRCDIR/loslib.c"
+		"$LUASRCDIR/ltablib.c"
+		"$LUASRCDIR/lstrlib.c"
+		"$LUASRCDIR/loadlib.c"
+		"$LUASRCDIR/linit.c"
+	}
+}
