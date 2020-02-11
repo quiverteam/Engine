@@ -22,7 +22,7 @@ configuration
 	{
 		libraries
 		{
-			"unicows.lib" "kernel32.lib" [$RELEASE]
+			"kernel32.lib" [$RELEASE]
 		}
 
 		ignore_libraries
