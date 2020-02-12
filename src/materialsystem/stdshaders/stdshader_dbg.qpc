@@ -44,7 +44,7 @@ configuration
 dependencies
 {
 	"mathlib/mathlib.qpc"
-	"shaderlib/shaderlib.qpc"
+	"shaderlib"
 }
 
 files
