@@ -42,6 +42,24 @@ steps:
     replaceExistingArchive: true
 
 - task: GitHubRelease@0
+  condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/master'))
+  displayName: Release to GitHub
+  inputs:
+    gitHubConnection: 'quiverteam'
+    repositoryName: '$(Build.Repository.Name)'
+    action: 'create'
+    target: '$(Build.SourceVersion)'
+    tagSource: 'manual'
+    tag: 'auto_build_$(Build.BuildId)_$(Build.SourceBranchName)_$(Build.BuildNumber)'
+    # releaseNotesSource: 'input'
+    isPreRelease: false
+    releaseNotes: "Auto Build on $(Build.Repository.Name) branch"
+    title: 'Auto Build $(Build.BuildId) - $(Build.SourceBranchName) - $(Build.BuildNumber)'
+    assets: |
+      QuiverSource_$(Build.BuildId)_$(Build.SourceBranchName)_$(Build.BuildNumber).7z
+      
+- task: GitHubRelease@0
+  condition: and(succeeded(), ne(variables['Build.SourceBranch'], 'refs/heads/master'))
   displayName: Release to GitHub
   inputs:
     gitHubConnection: 'quiverteam'
@@ -56,4 +74,3 @@ steps:
     title: 'Auto Build $(Build.BuildId) - $(Build.SourceBranchName) - $(Build.BuildNumber)'
     assets: |
       QuiverSource_$(Build.BuildId)_$(Build.SourceBranchName)_$(Build.BuildNumber).7z
-
