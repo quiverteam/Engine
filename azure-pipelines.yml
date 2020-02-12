@@ -1,6 +1,6 @@
 schedules:
   - cron: "20 03 * * *"
-    displayName: "Daily Build"
+    displayName: "Auto Build"
     branches:
       include: ["dev", "qpc"]
     always: "false" # Don't run unless changes happen
@@ -21,7 +21,7 @@ steps:
     scriptSource: 'filePath'
     scriptPath: 'src/devtools/qpc/qpc.py'
     workingDirectory: 'src/'
-    arguments: '-a everything -r hammer_dll hlfaceposer vaudio_speex serverplugin_empty scenemanager matsys_regressiontest hlmv dmxedit -m episodic hl2 hl2mp -t vstudio -mf everything'
+    arguments: '-a everything -m episodic hl2 hl2mp -t vstudio -mf everything'
     
 # no difference from MSBuild@1?
 - task: VSBuild@1
@@ -51,6 +51,7 @@ steps:
     tagSource: 'manual'
     tag: 'auto_build_$(Build.BuildId)_$(Build.SourceBranchName)_$(Build.BuildNumber)'
     # releaseNotesSource: 'input'
+    isPreRelease: true
     releaseNotes: "Auto Build on $(Build.Repository.Name) branch"
     title: 'Auto Build $(Build.BuildId) - $(Build.SourceBranchName) - $(Build.BuildNumber)'
     assets: |
