@@ -7,13 +7,13 @@ include "$SRCDIR/_qpc_scripts/win/base_exe_dll.qpc" 	[!$IS_LIB_PROJECT]
 macro _MSC_VER "1800" [$VS2013 && $WIN32]
 macro _MSC_VER "1900" [$VS2015 && $WIN32]
 macro _MSC_VER "1910" [$VS2017 && $WIN32]
-macro _MSC_VER "1920" [($VS2019|| $VSTUDIO) && $WIN32]
+macro _MSC_VER "1920" [($VS2019|| $VSTUDIO || $VISUAL_STUDIO) && $WIN32]
 
 configuration
 {
 	general
 	{
-		toolset_version "msvc_142" [$VS2019 || $VSTUDIO]
+		toolset_version "msvc_142" [$VS2019 || $VSTUDIO || $VISUAL_STUDIO]
 		toolset_version "msvc_141" [$VS2017]
 		toolset_version "msvc_140" [$VS2015]
 		toolset_version "msvc_120" [$VS2013]
