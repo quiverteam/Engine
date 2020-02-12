@@ -1,12 +1,10 @@
-//===== Copyright � 1996-2005, Valve Corporation, All rights reserved. ======//
+//===== Copyright (C) 1996-2005, Valve Corporation, All rights reserved. ======//
 //
-// Purpose: 
+// Purpose: Handles game launching
 //
-// Defines the entry point for the application.
-//
-//===========================================================================//
+//=============================================================================//
 
-#if defined( _WIN32 ) && !defined( _X360 )
+#if defined( _WIN32 )
 #include <windows.h>
 #include "shlwapi.h" // registry stuff
 #endif
@@ -32,6 +30,7 @@
 #include <direct.h>
 #else
 #include <unistd.h>
+#include <SDL2/SDL.h>
 #endif
 
 #include "materialsystem/imaterialsystem.h"
@@ -57,14 +56,10 @@
 
 #define DEFAULT_HL2_GAMEDIR	"hl2"
 
-// Quick fix, improve this later!
-#ifdef _WINDOWS
-#define DLLEXPORT __declspec(dllexport)
-#else
-#define DLLEXPORT __attribute__((dllexport))
-#endif
+/* Global Semaphore for only running one instance of the engine at once */
+CThreadSemaphore* g_pSemaphore;
 
-#define MAKE_DLL_NAME(name) name _DLL_EXT
+#define SOURCE_SEMAPHORE_NAME "SourceEngineLock"
 
 SpewRetval_t LauncherDefaultSpewFunc( SpewType_t spewType, char const *pMsg )
 {
@@ -441,53 +436,6 @@ void CLogAllFiles::LogAllFilesFunc(const char *fullPathFileName, const char *opt
 	g_LogFiles.LogFile( fullPathFileName, options );
 }
 
-//-----------------------------------------------------------------------------
-// Purpose: This is a bit of a hack because it appears 
-// Output : Returns true on success, false on failure.
-//-----------------------------------------------------------------------------
-static bool IsWin98OrOlder()
-{
-	bool retval = false;
-
-#ifdef _WIN32
-	OSVERSIONINFOEX osvi;
-	ZeroMemory(&osvi, sizeof(OSVERSIONINFOEX));
-	osvi.dwOSVersionInfoSize = sizeof(OSVERSIONINFOEX);
-	
-	BOOL bOsVersionInfoEx = GetVersionEx ((OSVERSIONINFO *) &osvi);
-	if( !bOsVersionInfoEx )
-	{
-		// If OSVERSIONINFOEX doesn't work, try OSVERSIONINFO.
-		osvi.dwOSVersionInfoSize = sizeof (OSVERSIONINFO);
-		if ( !GetVersionEx ( (OSVERSIONINFO *) &osvi) )
-		{
-			Error( "IsWin98OrOlder:  Unable to get OS version information" );
-		}
-	}
-
-	switch (osvi.dwPlatformId)
-	{
-	case VER_PLATFORM_WIN32_NT:
-		// NT, XP, Win2K, etc. all OK for SSE
-		break;
-	case VER_PLATFORM_WIN32_WINDOWS:
-		// Win95, 98, Me can't do SSE
-		retval = true;
-		break;
-	case VER_PLATFORM_WIN32s:
-		// Can't really run this way I don't think...
-		retval = true;
-		break;
-	default:
-		break;
-	}
-
-	return retval;
-#else
-	return false;
-#endif //_WIN32
-}
-
 
 //-----------------------------------------------------------------------------
 // Purpose: Figure out if Steam is running, then load the GameOverlayRenderer.dll
@@ -788,50 +736,15 @@ const char *CSourceAppSystemGroup::DetermineDefaultGame()
 //-----------------------------------------------------------------------------
 // Allow only one windowed source app to run at a time
 //-----------------------------------------------------------------------------
-HANDLE g_hMutex = NULL;
 bool GrabSourceMutex()
 {
-	if ( IsPC() && CommandLine()->FindParm("-multirun"))
-	{
-#ifdef _WINDOWS
-		// don't allow more than one instance to run
-		g_hMutex = ::CreateMutex(NULL, FALSE, TEXT("hl2_singleton_mutex"));
-
-		unsigned int waitResult = ::WaitForSingleObject(g_hMutex, 0);
-
-		// Here, we have the mutex
-		if (waitResult == WAIT_OBJECT_0 || waitResult == WAIT_ABANDONED)
-			return true;
-
-		// couldn't get the mutex, we must be running another instance
-		::CloseHandle(g_hMutex);
-
-      return false;
-#else
-		char* env = getenv("SOURCEENGINELOCK");
-		if(strcmp(env, "1") == 0)
-			return false;
-		setenv("SOURCEENGINELOCK", "1", 1);
-		return true;
-#endif
-	}
-	
-	return true;
+	/* Try to lock it with a timeout, which will tell us if it's locked already or not */
+	return g_pSemaphore->LockTimeout(1.0f);
 }
 
 void ReleaseSourceMutex()
 {
-
-	if ( IsPC() && g_hMutex && CommandLine()->FindParm("-multirun"))
-	{
-#ifdef _WINDOWS
-		::ReleaseMutex( g_hMutex );
-		::CloseHandle( g_hMutex );
-		g_hMutex = NULL;
-#else
-		setenv("SOURCEENGINELOCK", "0", 1);
-#endif
-	}
+	g_pSemaphore->Release();
 }
 
 // Remove all but the last -game parameter.
@@ -990,8 +903,11 @@ static const char *BuildCommand()
 //			nCmdShow - 
 // Output : int APIENTRY
 //-----------------------------------------------------------------------------
-extern "C" DLLEXPORT int LauncherMain( HINSTANCE hInstance, HINSTANCE hPrevInstance, char* lpCmdLine, int nCmdShow )
+DLL_EXPORT int LauncherMain( HINSTANCE hInstance, HINSTANCE hPrevInstance, char* lpCmdLine, int nCmdShow )
 {
+	/* Before we do anything; create the global semaphore */
+	g_pSemaphore = new CThreadSemaphore(SOURCE_SEMAPHORE_NAME, 1);
+
 	SetAppInstance( hInstance );
 
 	// Hook the debug output stuff.
@@ -1036,18 +952,21 @@ extern "C" DLLEXPORT int LauncherMain( HINSTANCE hInstance, HINSTANCE hPrevInsta
 	// See the function for why we do this.
 	RemoveSpuriousGameParameters();
 
-	if ( IsPC() )
-	{
+	/* Initialize things for Windows */
 #ifdef _WINDOWS
-		// initialize winsock
-		WSAData wsaData;
-		int	nError = ::WSAStartup( MAKEWORD(2,0), &wsaData );
-		if ( nError )
-		{
-			Msg( "Warning! Failed to start Winsock via WSAStartup = 0x%x.\n", nError);
-		}
-#endif
+	// initialize winsock
+	WSAData wsaData;
+	int	nError = ::WSAStartup( MAKEWORD(2,0), &wsaData );
+	if ( nError )
+	{
+		Msg( "Warning! Failed to start Winsock via WSAStartup = 0x%x.\n", nError);
 	}
+#endif
+
+	/* Initialize SDL2 (Currently Linux only) */
+#ifdef _LINUX
+	SDL_Init(SDL_INIT_EVERYTHING);
+#endif
 
 	// Run in text mode? (No graphics or sound).
 	if ( CommandLine()->CheckParm( "-textmode" ) )
@@ -1118,16 +1037,16 @@ extern "C" DLLEXPORT int LauncherMain( HINSTANCE hInstance, HINSTANCE hPrevInsta
 	}
 
 	// If game is not run from Steam then add -insecure in order to avoid client timeout message
-	if ( NULL == CommandLine()->CheckParm( "-steam" ) )
+	if ( !CommandLine()->CheckParm( "-steam" ) )
 	{
 		CommandLine()->AppendParm( "-insecure", NULL );
 	}
 
 	// Figure out the directory the executable is running from
 	// and make that be the current working directory
-	_chdir( GetBaseDirectory() );
+	Plat_Chdir(GetBaseDirectory());
 
-	g_LeakDump.m_bCheckLeaks = CommandLine()->CheckParm( "-leakcheck" ) ? true : false;
+	g_LeakDump.m_bCheckLeaks = CommandLine()->CheckParm("-leakcheck") != nullptr;
 
 	bool bRestart = true;
 	while ( bRestart )
@@ -1173,6 +1092,7 @@ extern "C" DLLEXPORT int LauncherMain( HINSTANCE hInstance, HINSTANCE hPrevInsta
 		}
 	}
 
+	/* Shutdown Winsock when we're finished on Windows */
 	#ifdef _WINDOWS
 	int nError = ::WSACleanup();
 	if ( nError )
