@@ -45,15 +45,7 @@ CInputSystem2::~CInputSystem2()
 InitReturnVal_t CInputSystem2::Init()
 {
 	DevWarning("WARNING: Inputsystem2 is currently loaded. This is experimental.");
-	int flags = SDL_WasInit(0);
-	if(!(flags & SDL_INIT_JOYSTICK))
-		SDL_InitSubSystem(SDL_INIT_JOYSTICK);
-	if(!(flags & SDL_INIT_EVENTS))
-		SDL_InitSubSystem(SDL_INIT_EVENTS);
-	if(!(flags & SDL_INIT_GAMECONTROLLER))
-		SDL_InitSubSystem(SDL_INIT_GAMECONTROLLER);
-	Msg("[Inputsystem2] Loaded OK...\n");
-	
+
 	/* Find all joysticks */
 	int numjoy = SDL_NumJoysticks();
 	this->joystick_count = numjoy;
@@ -242,6 +234,7 @@ void CInputSystem2::PollInputState()
 	{
 		switch(ev.type)
 		{
+			/* Key events */
 			case SDL_KEYDOWN:
 			case SDL_KEYUP:
 			{
@@ -253,12 +246,15 @@ void CInputSystem2::PollInputState()
 					this->curr_input.released_tick[key] = ev.key.timestamp;
 				break;
 			}
+			/* Handle mouse motion events */
 			case SDL_MOUSEMOTION:
 			{
+				/* According to the SDL2 wiki, these are relative to the window, meaning it's not DELTA x and y */
 				this->curr_input.mouse_x = ev.motion.x;
 				this->curr_input.mouse_y = ev.motion.y;
 				break;
 			}
+			/* Mouse button events */
 			case SDL_MOUSEBUTTONDOWN:
 			case SDL_MOUSEBUTTONUP:
 			{
@@ -272,6 +268,7 @@ void CInputSystem2::PollInputState()
 				this->curr_input.mouse[map[ev.button.button]] = (ev.type != SDL_MOUSEBUTTONUP);
 				break;
 			}
+			/* Mouse wheel events */
 			case SDL_MOUSEWHEEL:
 			{
 				if(ev.wheel.y > 0)
@@ -288,7 +285,8 @@ void CInputSystem2::PollInputState()
 			default: break;
 		}
 	}
-	/* Grab all posted user events */
+	/* Grab all posted user events and remove them from the queue */
+	/* TODO: This needs to be extended to handle all forms of input */
 	for(auto x : this->events)
 	{
 		switch(x.m_nType)
@@ -389,7 +387,12 @@ ButtonCode_t CInputSystem2::ScanCodeToButtonCode(int lParam) const
 
 void CInputSystem2::SleepUntilInput(int nMaxSleepTimeMS)
 {
-
+	/* There should be a somewhat better way to do this, but whatever */
+	while (!SDL_HasEvents(SDL_FIRSTEVENT, SDL_LASTEVENT) && nMaxSleepTimeMS > 0)
+	{
+		Plat_USleep(1000);
+		nMaxSleepTimeMS--;
+	}
 }
 
 int CInputSystem2::GetPollCount() const
