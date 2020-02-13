@@ -617,4 +617,16 @@ PLATFORM_INTERFACE bool Plat_CreateProcess(const char* exe, const char** cmdline
 	return ret != 0;
 }
 
+PLATFORM_INTERFACE void Plat_USleep(unsigned int micros)
+{
+	/* Win32 jazz */
+	HANDLE timer;
+	LARGE_INTEGER time;
+	time.QuadPart = -(10 * (__int64)micros);
+	timer = CreateWaitableTimer(NULL, TRUE, NULL);
+	SetWaitableTimer(timer, &time, 0, NULL, NULL, 0);
+	WaitForSingleObject(timer, INFINITE);
+	CloseHandle(timer);
+}
+
 #endif // _LINUX

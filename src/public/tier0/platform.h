@@ -1883,6 +1883,17 @@ Returns:
 */
 PLATFORM_INTERFACE bool Plat_CreateProcess(const char* exe, const char** cmdline, const char** environ);
 
+/*
+Sleeps for a number of microseconds, same as usleep on *NIX operating systems
+
+Params:
+    -   Number of micros to sleep for
+Returns:
+    -   None
+ */
+PLATFORM_INTERFACE void Plat_USleep(unsigned int micros);
+
+
 //-----------------------------------------------------------------------------
 //
 // Improved process info API!

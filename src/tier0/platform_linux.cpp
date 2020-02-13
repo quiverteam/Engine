@@ -615,4 +615,9 @@ PLATFORM_INTERFACE bool Plat_CreateProcess(const char* exe, const char** cmdline
 	return true;
 }
 
+PLATFORM_INTERFACE void Plat_USleep(unsigned int micros)
+{
+	usleep(micros);
+}
+
 #endif //_WIN32
