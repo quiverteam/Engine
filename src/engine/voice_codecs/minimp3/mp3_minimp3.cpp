@@ -19,12 +19,13 @@ public:
 	virtual unsigned int GetPosition();
 	virtual void SetPosition( unsigned int position );
 private:
-	mp3dec_t	m_decoder;
-	mp3dec_frame_info_t m_info;
+	mp3dec_t	m_Decoder;
+	mp3dec_frame_info_t m_Info;
 	IAudioStreamEvent* m_pHandler;
-	char m_buffer[16000];
-	int m_bufferpos = 0;
-	int m_filepos = 0;
+	char m_Buffer[16000];
+	uint m_BufferPos = 0;
+	uint m_FilePos = 0;
+	int m_EndOfBufferPos = -1;
 };
 
 CMiniMP3AudioStream::CMiniMP3AudioStream()
@@ -35,11 +36,11 @@ bool CMiniMP3AudioStream::Init( IAudioStreamEvent* pHandler )
 {
 	m_pHandler = pHandler;
 
-	memset( m_buffer, NULL, sizeof( m_buffer ) );
-	m_pHandler->StreamRequestData( m_buffer, sizeof( m_buffer ), 0 );
-	mp3dec_init( &m_decoder );
+	memset( m_Buffer, NULL, sizeof( m_Buffer ) );
+	m_pHandler->StreamRequestData( m_Buffer, sizeof( m_Buffer ), 0 );
+	mp3dec_init( &m_Decoder );
 	
-	if ( mp3dec_decode_frame( &m_decoder, ( const uint8_t* )m_buffer, sizeof( m_buffer ), NULL, &m_info ) > 0 )
+	if ( mp3dec_decode_frame( &m_Decoder, ( const uint8_t* )m_Buffer, sizeof( m_Buffer ), NULL, &m_Info ) > 0 )
 		return true;
 
 	return false;
@@ -54,50 +55,58 @@ CMiniMP3AudioStream::~CMiniMP3AudioStream()
 // IAudioStream functions
 int	CMiniMP3AudioStream::Decode( void* pBuffer, unsigned int bufferSize )
 {
-	if ( m_bufferpos >= 15000 )
+	if ( m_BufferPos >= sizeof( m_Buffer ) - m_Info.frame_bytes )
 	{
-		memset( m_buffer, NULL, sizeof( m_buffer ) );
-		if ( m_pHandler->StreamRequestData( m_buffer, sizeof( m_buffer ), m_filepos ) < sizeof( m_buffer ) )
-			return 0;
+		memset( m_Buffer, NULL, sizeof( m_Buffer ) );
 
-		m_bufferpos = 0;
+		int ReadBytes = m_pHandler->StreamRequestData( m_Buffer, sizeof( m_Buffer ), m_FilePos );
+		if ( ReadBytes < sizeof( m_Buffer ) )
+		{
+			m_EndOfBufferPos = ReadBytes;
+		}
+
+		m_BufferPos = 0;
+	}
+	if ( m_EndOfBufferPos >= 0 && m_BufferPos >= m_EndOfBufferPos )
+	{
+		return 0;
 	}
 
-	int samples = mp3dec_decode_frame( &m_decoder, ( const uint8_t* )m_buffer + ( size_t )m_bufferpos, sizeof( m_buffer ), ( short* )pBuffer, &m_info );
-	m_bufferpos += m_info.frame_bytes;
-	m_filepos += m_info.frame_bytes;
+	int samples = mp3dec_decode_frame( &m_Decoder, ( const uint8_t* )m_Buffer + ( size_t )m_BufferPos, sizeof( m_Buffer ), ( short* )pBuffer, &m_Info );
+	m_BufferPos += m_Info.frame_bytes;
+	m_FilePos += m_Info.frame_bytes;
 
-	return samples*2*m_info.channels;
+	return samples*2*m_Info.channels;
 }
 
 
 int CMiniMP3AudioStream::GetOutputBits()
 {
-	return m_info.bitrate_kbps;
+	return m_Info.bitrate_kbps;
 }
 
 
 int CMiniMP3AudioStream::GetOutputRate()
 {
-	return m_info.hz;
+	return m_Info.hz;
 }
 
 
 int CMiniMP3AudioStream::GetOutputChannels()
 {
-	return m_info.channels;
+	return m_Info.channels;
 }
 
 
 unsigned int CMiniMP3AudioStream::GetPosition()
 {
-	return 0;
+	return m_FilePos;
 }
 
-// NOTE: Only supports seeking forward right now
 void CMiniMP3AudioStream::SetPosition( unsigned int position )
 {
-
+	m_FilePos = position;
+	m_BufferPos = sizeof( m_Buffer ); //Force refresh of the buffer data
 }
 
 
