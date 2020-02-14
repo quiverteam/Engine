@@ -232,6 +232,7 @@ group "game" "everything"
 		"qvideo"
 		"vstdlib"
 		"vaudio_miles"
+		"audio_minimp3"
 		"unicode"
 	}
 }
