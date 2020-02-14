@@ -227,8 +227,6 @@ project "unicode"					"unicode/unicode.qpc" [$WINDOWS]
 
 project "unitlib"					"unitlib/unitlib.qpc" [$WINDOWS]
 
-project "vaudio_miles"				"engine/voice_codecs/miles/vaudio_miles.qpc" [$WINDOWS]
-
 project "audio_minimp3"				"engine/voice_codecs/minimp3/audio_minimp3.qpc" 
 
 project "vaudio_speex"				"engine/voice_codecs/speex/vaudio_speex.qpc" [$WINDOWS]
