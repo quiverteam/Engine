@@ -148,6 +148,8 @@ enum CommitFunc_t
 	COMMIT_FUNC_CommitSetVSConstantBuffers,
 	COMMIT_FUNC_CommitSetPSConstantBuffers,
 	COMMIT_FUNC_CommitSetGSConstantBuffers,
+	COMMIT_FUNC_CommitSetDepthStencilState,
+	COMMIT_FUNC_CommitSetBlendState,
 
 	COMMIT_FUNC_COUNT,
 };
@@ -156,6 +158,42 @@ IMPLEMENT_RENDERSTATE_FUNC( CommitSetTopology, m_Topology, IASetPrimitiveTopolog
 IMPLEMENT_RENDERSTATE_FUNC_DX11( CommitSetVertexShader, m_pVertexShader, VSSetShader )
 IMPLEMENT_RENDERSTATE_FUNC_DX11( CommitSetGeometryShader, m_pGeometryShader, GSSetShader )
 IMPLEMENT_RENDERSTATE_FUNC_DX11( CommitSetPixelShader, m_pPixelShader, PSSetShader )
+
+static void CommitSetDepthStencilState( ID3D11Device* pDevice, ID3D11DeviceContext* pDeviceContext,
+					const ShaderStateDx11_t& desiredState, ShaderStateDx11_t& currentState,
+					bool bForce )
+{
+	bool bChanged = bForce ||
+		desiredState.m_OMState.m_pDepthStencilState != currentState.m_OMState.m_pDepthStencilState ||
+		desiredState.m_OMState.m_nStencilRef != currentState.m_OMState.m_nStencilRef;
+	if ( bChanged )
+	{
+		pDeviceContext->OMSetDepthStencilState( desiredState.m_OMState.m_pDepthStencilState, desiredState.m_OMState.m_nStencilRef );
+		currentState.m_OMState.m_pDepthStencilState = desiredState.m_OMState.m_pDepthStencilState;
+		currentState.m_OMState.m_nStencilRef = desiredState.m_OMState.m_nStencilRef;
+	}
+}
+
+static void CommitSetBlendState( ID3D11Device* pDevice, ID3D11DeviceContext* pDeviceContext,
+				const ShaderStateDx11_t& desiredState, ShaderStateDx11_t& currentState,
+				bool bForce )
+{
+	bool bChanged = bForce ||
+		desiredState.m_OMState.m_pBlendState != currentState.m_OMState.m_pBlendState ||
+		desiredState.m_OMState.m_nSampleMask != currentState.m_OMState.m_nSampleMask ||
+		memcmp( desiredState.m_OMState.m_pBlendColor, currentState.m_OMState.m_pBlendColor,
+			sizeof( desiredState.m_OMState.m_pBlendColor ) );
+	if ( bChanged )
+	{
+		pDeviceContext->OMSetBlendState( desiredState.m_OMState.m_pBlendState,
+						 desiredState.m_OMState.m_pBlendColor,
+						 desiredState.m_OMState.m_nSampleMask );
+		currentState.m_OMState.m_nSampleMask = desiredState.m_OMState.m_nSampleMask;
+		currentState.m_OMState.m_pBlendState = desiredState.m_OMState.m_pBlendState;
+		memcpy( currentState.m_OMState.m_pBlendColor, desiredState.m_OMState.m_pBlendColor,
+			sizeof( desiredState.m_OMState.m_pBlendColor ) );
+	}
+}
 
 static void CommitSetVSConstantBuffers( ID3D11Device* pDevice, ID3D11DeviceContext* pDeviceContext,
 				       const ShaderStateDx11_t& desiredState, ShaderStateDx11_t& currentState,
@@ -443,6 +481,7 @@ void CShaderAPIDx11::ResetRenderState( bool bFullReset )
 	hr = D3D11Device()->CreateDepthStencilState( &dsDesc, &pDepthStencilState );
 	Assert( !FAILED(hr) );
 	D3D11DeviceContext()->OMSetDepthStencilState( pDepthStencilState, 0 );
+	D3D11DeviceContext()->OMSet
 
 	D3D11_BLEND_DESC bDesc;
 	memset( &bDesc, 0, sizeof(bDesc) );

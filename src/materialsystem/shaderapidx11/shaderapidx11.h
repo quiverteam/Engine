@@ -62,11 +62,22 @@ struct ShaderInputLayoutStateDx11_t
 	VertexFormat_t m_pVertexDecl[ MAX_DX11_STREAMS ];
 };
 
+struct ShaderOMStateDx11_t
+{
+	ID3D11DepthStencilState* m_pDepthStencilState;
+	uint m_nStencilRef;
+
+	ID3D11BlendState* m_pBlendState;
+	float m_pBlendColor[4];
+	uint m_nSampleMask;
+};
+
 struct ShaderStateDx11_t
 {
 	int m_nViewportCount;
 	D3D11_VIEWPORT m_pViewports[ MAX_DX11_VIEWPORTS ];
 	FLOAT m_ClearColor[4];
+	ShaderOMStateDx11_t m_OMState;
 	ShaderRasterState_t m_RasterState;
 	ID3D11RasterizerState *m_pRasterState;
 	ID3D11VertexShader *m_pVertexShader;
