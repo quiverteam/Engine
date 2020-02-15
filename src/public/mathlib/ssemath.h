@@ -45,7 +45,7 @@ typedef union
 } __m256d_t;
 
 /* Disabled for mingw since mingw's headers will automatically include avx shit */
-#if (!defined(__GNUC__) && defined(_WIN32)) || defined(_POSIX)
+#if defined(_POSIX)
 /* These are thrown in because immintrin introduces a bunch of ABI changes we don't want when not using AVX2 */
 typedef __m256_t __m256;
 typedef __m256d_t __m256d;
