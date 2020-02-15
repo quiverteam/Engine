@@ -1,0 +1,174 @@
+//-----------------------------------------------------------------------------
+//	SHADERAPIDX11.VPC
+//
+//	Project Script
+//-----------------------------------------------------------------------------
+
+$macro SRCDIR		"..\.."
+$Macro OUTBINDIR	"$BINDEFAULT"
+
+$Include "$SRCDIR\vpc_scripts\source_dll_base.vpc"
+
+$Configuration	"Debug"
+{
+	$General
+	{
+		$OutputDirectory			".\Debug\$PLATSUBDIR\dx11"
+		$IntermediateDirectory		".\Debug\$PLATSUBDIR\dx11"
+	}
+}
+
+$Configuration	"Release"
+{
+	$General
+	{
+		$OutputDirectory			".\Release\$PLATSUBDIR\dx11"
+		$IntermediateDirectory		".\Release\$PLATSUBDIR\dx11"
+	}
+}
+
+// Common Configuration
+$Configuration
+{
+	$Compiler
+	{
+		$AdditionalIncludeDirectories	"$BASE;..\"
+		$PreprocessorDefinitions		"$BASE;SHADERAPIDX11;SHADER_DLL_EXPORT;PROTECTED_THINGS_ENABLE;strncpy=use_Q_strncpy_instead;_snprintf=use_Q_snprintf_instead"
+
+//		$AdditionalOptions		"/FC"
+	}
+}
+
+$Project "shaderapidx11"
+{
+	$Folder	"Source Files"
+	{
+		// Shared riles
+		$File	"cvballoctracker.cpp"
+		$File	"shaderdevicebase.cpp"
+		$File	"shaderapibase.cpp"
+		$File	"meshbase.cpp"
+		
+		// DX11 related files
+		$File	"ShaderDeviceDx11.cpp"		\
+				"ShaderAPIDx11.cpp"			\
+				"MeshDx11.cpp"				\
+				"InputLayoutDx11.cpp"		\
+				"ShaderShadowDx11.cpp"
+  		{
+			$Configuration
+			{
+				$Compiler
+				{
+					$PreprocessorDefinitions	"DX11"
+				}
+			}
+		}
+
+		// DX9 related files	
+		$File	"ColorFormatDX8.cpp"
+		$File	"d3d_async.cpp"
+		$File	"$SRCDIR\public\filesystem_helpers.cpp"
+		$File	"HardwareConfig.cpp"
+		$File	"MeshDX8.cpp"
+		$File	"Recording.cpp"
+		$File	"ShaderAPIDX8.cpp"
+		$File	"ShaderDeviceDX8.cpp"
+		$File	"ShaderShadowDX8.cpp"
+		$File	"TextureDX8.cpp"
+		$File	"TransitionTable.cpp"
+		$File	"vertexdecl.cpp"
+		$File	"VertexShaderDX8.cpp"
+		$File	"wmi.cpp"
+	}
+
+	$Folder	"DirectX Header Files"
+	{
+		$File	"$SRCDIR\dx10sdk\include\d3d10.h"
+		$File	"$SRCDIR\dx10sdk\include\d3dx10.h"
+		$File	"$SRCDIR\dx10sdk\include\d3dx10core.h"
+		$File	"$SRCDIR\dx10sdk\include\d3dx10math.h"
+		$File	"$SRCDIR\dx10sdk\include\d3dx10math.inl"
+		$File	"$SRCDIR\dx10sdk\include\d3dx10mesh.h"
+		$File	"$SRCDIR\dx10sdk\include\d3dx10tex.h"
+	}
+
+	$Folder	"Public Header Files"
+	{
+		$File	"$SRCDIR\public\shaderapi\ishaderdevice.h"
+		$File	"$SRCDIR\public\shaderapi\ishaderutil.h"
+		$File	"$SRCDIR\public\shaderapi\ishaderapi.h"
+		$File	"$SRCDIR\public\shaderapi\ishaderdynamic.h"
+		$File	"$SRCDIR\public\shaderapi\ishadershadow.h"
+		$File	"$SRCDIR\public\materialsystem\idebugtextureinfo.h"
+		$File	"$SRCDIR\public\materialsystem\ivballoctracker.h"
+		$File	"$SRCDIR\public\materialsystem\shader_vcs_version.h"
+	}
+
+	$Folder	"Header Files"
+	{
+		// Shared files
+		$File	"meshbase.h"
+		$File	"shaderdevicebase.h"
+		$File	"shaderapibase.h"
+		$File	"shaderapi_global.h"
+		$File	"HardwareConfig.h"
+
+		// DX11 related files
+		$File	"ShaderDeviceDx11.h"
+		$File	"ShaderAPIDx11.h"
+		$File	"MeshDx11.h"
+		$File	"ShaderShadowDx11.h"
+		$File	"shaderapidx11_global.h"
+		$File	"inputlayoutdx11.h"
+
+		// DX9 related files		
+		$File	"TransitionTable.h"
+		$File	"vertexdecl.h"
+//		$File	"..\CMaterialSystemStats.h"
+		$File	"ColorFormatDX8.h"
+		$File	"d3d_async.h"
+		$File	"dynamicib.h"
+		$File	"dynamicvb.h"
+		$File	"IMeshDX8.h"
+		$File	"locald3dtypes.h"
+		$File	"Recording.h"
+		$File	"ShaderAPIDX8.h"
+		$File	"ShaderAPIDX8_Global.h"
+		$File	"ShaderShadowDX8.h"
+		$File	"stubd3ddevice.h"
+		$File	"TextureDX8.h"
+		$File	"VertexShaderDX8.h"					
+		$File	"wmi.h"
+	}
+
+	$Folder	"Link Libraries"
+	{
+		$Lib	"$LIBPUBLIC\tier2"
+		$Lib	"$LIBPUBLIC\bitmap"
+		$Lib	"$LIBPUBLIC\mathlib"
+		$Lib	"$LIBCOMMON\bzip2"
+		
+		//$File	"$SRCDIR\dx10sdk\lib\d3d9.lib" 
+		//$File	"$SRCDIR\dx10sdk\lib\d3d10.lib" 
+		//$File	"$SRCDIR\dx10sdk\lib\dxgi.lib" 
+		
+		//$File	"$SRCDIR\dx10sdk\lib\d3dx10.lib"	\
+		//		"$SRCDIR\dx10sdk\lib\d3dx9.lib"
+		//{
+		//	$Configuration "Debug"
+		//	{
+		//		$ExcludedFromBuild	"Yes"
+		//	}
+		//}
+		
+		//$File	"$SRCDIR\dx10sdk\lib\d3dx10d.lib"	\
+		//		"$SRCDIR\dx10sdk\lib\d3dx9d.lib"
+		//{
+		//	$Configuration "Release"
+		//	{
+		//		$ExcludedFromBuild	"Yes"
+		//	}
+		//}
+	}
+}

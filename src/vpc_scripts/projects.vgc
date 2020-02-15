@@ -699,6 +699,11 @@ $Project "shaderapidx10"
 	"materialsystem\shaderapidx9\shaderapidx10.vpc" [$WINDOWS] //No dx10 on posix; togl doesnt support it
 }
 
+$Project "shaderapidx11"
+{
+	"materialsystem\shaderapidx9\shaderapidx11.vpc" [$WINDOWS]
+}
+
 $Project "shaderapiempty"
 {
 	"materialsystem\shaderapiempty\shaderapiempty.vpc" [$WINDOWS]
