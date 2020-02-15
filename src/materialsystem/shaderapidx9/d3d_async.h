@@ -16,8 +16,13 @@
 #define SHADERAPI_USE_SMP 1
 #include "recording.h"
 #include "strtools.h"
+
+#if defined(DX11)
+#include <d3d11.h>
+#else
 #include <d3d9.h>
 #include <d3dx9.h>
+#endif
 
 #ifdef NDEBUG
 #define DO_D3D(x) Dx9Device()->x

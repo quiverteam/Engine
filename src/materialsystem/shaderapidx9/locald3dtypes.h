@@ -46,7 +46,12 @@ public:
 	typedef ID3D10Buffer					*LPDIRECT3DVERTEXBUFFER;
 };
 
-#endif // DX10
+#elif defined(DX11)
+
+#include <d3d11.h>
+#include <d3dcompiler.h>
+
+#else // DX10
 
 
 #if !defined( _X360 )
@@ -110,6 +115,8 @@ public:
 	typedef IDirect3DIndexBuffer			*LPDIRECT3DINDEXBUFFER;
 	typedef IDirect3DVertexBuffer			*LPDIRECT3DVERTEXBUFFER;
 };
+
+#endif
 
 typedef void *HardwareShader_t;
 

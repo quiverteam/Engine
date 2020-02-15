@@ -10,7 +10,6 @@
 #include <d3dcompiler.h>
 
 #include "shaderdevicedx11.h"
-#include "shaderdevicedx8.h"
 #include "shaderapi/ishaderutil.h"
 #include "shaderapidx11.h"
 #include "shadershadowdx11.h"
@@ -20,7 +19,7 @@
 #include "tier2/tier2.h"
 #include "tier0/icommandline.h"
 #include "inputlayoutdx11.h"
-#include "shaderapibase.h"
+#include "shaderapidx9/shaderapibase.h"
 
 
 //-----------------------------------------------------------------------------
@@ -217,7 +216,7 @@ bool CShaderDeviceMgrDx11::ComputeCapsFromD3D( HardwareCaps_t *pCaps, IDXGIAdapt
 	pCaps->m_MaxVertexShaderBlendMatrices = 53;	// FIXME
 	pCaps->m_SupportsMipmappedCubemaps = true;
 	pCaps->m_SupportsNonPow2Textures = true;
-	pCaps->m_nDXSupportLevel = 100;
+	pCaps->m_nDXSupportLevel = 110;
 	pCaps->m_PreferDynamicTextures = false;
 	pCaps->m_HasProjectedBumpEnv = true;
 	pCaps->m_MaxUserClipPlanes = 6;		// FIXME
@@ -229,7 +228,7 @@ bool CShaderDeviceMgrDx11::ComputeCapsFromD3D( HardwareCaps_t *pCaps, IDXGIAdapt
 	pCaps->m_bNeedsATICentroidHack = false;
 	pCaps->m_bColorOnSecondStream = true;
 	pCaps->m_bSupportsStreamOffset = true;
-	pCaps->m_nMaxDXSupportLevel = 100;
+	pCaps->m_nMaxDXSupportLevel = 110;
 	pCaps->m_bFogColorSpecifiedInLinearSpace = ( desc.VendorId == VENDORID_NVIDIA );
 	pCaps->m_nVertexTextureCount = 16;
 	pCaps->m_nMaxVertexTextureDimension = D3D11_REQ_TEXTURE2D_U_OR_V_DIMENSION;
@@ -450,10 +449,13 @@ CreateInterfaceFn CShaderDeviceMgrDx11::SetMode( void *hWnd, int nAdapter, const
 	}
 	nDXLevel = GetClosestActualDXLevel( nDXLevel );
 
-	if ( nDXLevel < 100 )
+	if ( nDXLevel < 110 )
 	{
 		// Fall back to the Dx9 implementations
-		return g_pShaderDeviceMgrDx8->SetMode( hWnd, nAdapter, mode );
+		//return g_pShaderDeviceMgrDx8->SetMode( hWnd, nAdapter, mode );
+		Error( "DirectX 11 unsupported!" );
+		Assert( 0 );
+		return NULL;
 	}
 
 	if ( g_pShaderAPI )
@@ -782,15 +784,20 @@ void CShaderDeviceDx11::ReleaseInputLayouts( VertexShaderIndex_t nIndex )
 //-----------------------------------------------------------------------------
 VertexShaderHandle_t CShaderDeviceDx11::CreateVertexShader( IShaderBuffer* pShaderBuffer )
 {
+	return CreateVertexShader( pShaderBuffer->GetBits(), pShaderBuffer->GetSize() );
+}
+
+VertexShaderHandle_t CShaderDeviceDx11::CreateVertexShader( const void* pBuffer, size_t nBufLen )
+{
 	// Create the vertex shader
-	ID3D11VertexShader *pShader = NULL;
-	HRESULT hr = m_pDevice->CreateVertexShader( pShaderBuffer->GetBits(), pShaderBuffer->GetSize(), NULL, &pShader );
+	ID3D11VertexShader* pShader = NULL;
+	HRESULT hr = m_pDevice->CreateVertexShader( pBuffer, nBufLen, NULL, &pShader );
 
 	if ( FAILED( hr ) || !pShader )
 		return VERTEX_SHADER_HANDLE_INVALID;
 
-	ID3D11ShaderReflection *pInfo;
-	hr = D3DReflect( pShaderBuffer->GetBits(), pShaderBuffer->GetSize(), IID_ID3D11ShaderReflection, (void **)&pInfo );
+	ID3D11ShaderReflection* pInfo;
+	hr = D3DReflect( pBuffer, nBufLen, IID_ID3D11ShaderReflection, (void**)&pInfo );
 	if ( FAILED( hr ) || !pInfo )
 	{
 		pShader->Release();
@@ -798,13 +805,13 @@ VertexShaderHandle_t CShaderDeviceDx11::CreateVertexShader( IShaderBuffer* pShad
 	}
 
 	// Insert the shader into the dictionary of shaders
-	VertexShaderIndex_t i = m_VertexShaderDict.AddToTail( );
-	VertexShader_t &dict = m_VertexShaderDict[i];
+	VertexShaderIndex_t i = m_VertexShaderDict.AddToTail();
+	VertexShader_t& dict = m_VertexShaderDict[i];
 	dict.m_pShader = pShader;
 	dict.m_pInfo = pInfo;
-	dict.m_nByteCodeLen = pShaderBuffer->GetSize();
-	dict.m_pByteCode = new unsigned char[ dict.m_nByteCodeLen ];
-	memcpy( dict.m_pByteCode, pShaderBuffer->GetBits(), dict.m_nByteCodeLen );
+	dict.m_nByteCodeLen = nBufLen;
+	dict.m_pByteCode = new unsigned char[dict.m_nByteCodeLen];
+	memcpy( dict.m_pByteCode, pBuffer, dict.m_nByteCodeLen );
 	return (VertexShaderHandle_t)i;
 }
 
@@ -830,16 +837,21 @@ void CShaderDeviceDx11::DestroyVertexShader( VertexShaderHandle_t hShader )
 //-----------------------------------------------------------------------------
 GeometryShaderHandle_t CShaderDeviceDx11::CreateGeometryShader( IShaderBuffer* pShaderBuffer )
 {
+	CreateGeometryShader( pShaderBuffer->GetBits(), pShaderBuffer->GetSize() );
+}
+
+GeometryShaderHandle_t CShaderDeviceDx11::CreateGeometryShader( const void* pBuffer, size_t nBufLen )
+{
 	// Create the geometry shader
-	ID3D11GeometryShader *pShader = NULL;
-	HRESULT hr = m_pDevice->CreateGeometryShader( pShaderBuffer->GetBits(),
-		pShaderBuffer->GetSize(), NULL, &pShader );
+	ID3D11GeometryShader* pShader = NULL;
+	HRESULT hr = m_pDevice->CreateGeometryShader( pBuffer,
+						      nBufLen, NULL, &pShader );
 
 	if ( FAILED( hr ) || !pShader )
 		return GEOMETRY_SHADER_HANDLE_INVALID;
 
-	ID3D11ShaderReflection *pInfo;
-	hr = D3DReflect( pShaderBuffer->GetBits(), pShaderBuffer->GetSize(), IID_ID3D11ShaderReflection, (void **)&pInfo );
+	ID3D11ShaderReflection* pInfo;
+	hr = D3DReflect( pBuffer, nBufLen, IID_ID3D11ShaderReflection, (void**)&pInfo );
 	if ( FAILED( hr ) || !pInfo )
 	{
 		pShader->Release();
@@ -847,7 +859,7 @@ GeometryShaderHandle_t CShaderDeviceDx11::CreateGeometryShader( IShaderBuffer* p
 	}
 
 	// Insert the shader into the dictionary of shaders
-	GeometryShaderIndex_t i = m_GeometryShaderDict.AddToTail( );
+	GeometryShaderIndex_t i = m_GeometryShaderDict.AddToTail();
 	m_GeometryShaderDict[i].m_pShader = pShader;
 	m_GeometryShaderDict[i].m_pInfo = pInfo;
 	return (GeometryShaderHandle_t)i;
@@ -872,16 +884,21 @@ void CShaderDeviceDx11::DestroyGeometryShader( GeometryShaderHandle_t hShader )
 //-----------------------------------------------------------------------------
 PixelShaderHandle_t CShaderDeviceDx11::CreatePixelShader( IShaderBuffer* pShaderBuffer )
 {
+	CreatePixelShader( pShaderBuffer->GetBits(), pShaderBuffer->GetSize() );
+}
+
+PixelShaderHandle_t CShaderDeviceDx11::CreatePixelShader( const void* pBuffer, size_t nBufLen )
+{
 	// Create the pixel shader
-	ID3D11PixelShader *pShader = NULL;
-	HRESULT hr = m_pDevice->CreatePixelShader( pShaderBuffer->GetBits(),
-		pShaderBuffer->GetSize(), NULL, &pShader );
+	ID3D11PixelShader* pShader = NULL;
+	HRESULT hr = m_pDevice->CreatePixelShader( pBuffer,
+						   nBufLen, NULL, &pShader );
 
 	if ( FAILED( hr ) || !pShader )
 		return PIXEL_SHADER_HANDLE_INVALID;
 
-	ID3D11ShaderReflection *pInfo;
-	hr = D3DReflect( pShaderBuffer->GetBits(), pShaderBuffer->GetSize(), IID_ID3D11ShaderReflection, (void **)&pInfo );
+	ID3D11ShaderReflection* pInfo;
+	hr = D3DReflect( pBuffer, nBufLen, IID_ID3D11ShaderReflection, (void**)&pInfo );
 	if ( FAILED( hr ) || !pInfo )
 	{
 		pShader->Release();
@@ -889,7 +906,7 @@ PixelShaderHandle_t CShaderDeviceDx11::CreatePixelShader( IShaderBuffer* pShader
 	}
 
 	// Insert the shader into the dictionary of shaders
-	PixelShaderIndex_t i = m_PixelShaderDict.AddToTail( );
+	PixelShaderIndex_t i = m_PixelShaderDict.AddToTail();
 	m_PixelShaderDict[i].m_pShader = pShader;
 	m_PixelShaderDict[i].m_pInfo = pInfo;
 	return (PixelShaderHandle_t)i;

@@ -13,7 +13,7 @@
 #include "utlvector.h"
 #include "materialsystem/imaterialsystem.h"
 #include "IHardwareConfigInternal.h"
-#include "shaderapi_global.h"
+#include "shaderapidx9/shaderapi_global.h"
 #include "shaderapi/ishaderutil.h"
 #include "shaderapi/ishaderapi.h"
 #include "shaderdevicedx11.h"

@@ -14,7 +14,7 @@
 #pragma once
 #endif
 
-#include "meshbase.h"
+#include "shaderapidx9/meshbase.h"
 #include "shaderapi/ishaderdevice.h"
 
 

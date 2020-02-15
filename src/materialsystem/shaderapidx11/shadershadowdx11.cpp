@@ -16,6 +16,9 @@
 #include "tier0/dbg.h"
 #include "materialsystem/idebugtextureinfo.h"
 
+#include "shaderapidx11.h"
+#include "shaderdevicedx11.h"
+
 
 //-----------------------------------------------------------------------------
 // Class Factory
@@ -212,8 +215,12 @@ void CShaderShadowDx11::SetPixelShader( const char *pShaderName, int pshIndex )
 void CShaderShadowDx11::BlendFuncSeparateAlpha( ShaderBlendFactor_t srcFactor, ShaderBlendFactor_t dstFactor )
 {
 }
+
 // indicates what per-vertex data we're providing
 void CShaderShadowDx11::DrawFlags( unsigned int drawFlags )
 {
 }
 
+void CShaderShadowDx11::SetConstantBuffer( ConstantBufferHandle_t cbuffer, size_t nBufSize )
+{
+}

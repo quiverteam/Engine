@@ -15,7 +15,6 @@
 
 #include "shaderapi/ishadershadow.h"
 
-
 //-----------------------------------------------------------------------------
 // The empty shader shadow
 //-----------------------------------------------------------------------------
@@ -154,6 +153,8 @@ public:
 	void EnableAlphaToCoverage( bool bEnable );
 
 	void SetShadowDepthFiltering( Sampler_t stage );
+
+	virtual void SetConstantBuffer( ConstantBufferHandle_t cbuffer, size_t nBufSize );
 
 	bool m_IsTranslucent;
 	bool m_IsAlphaTested;

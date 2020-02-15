@@ -15,7 +15,7 @@
 
 #include <d3d11.h>
 
-#include "shaderapibase.h"
+#include "shaderapidx9/shaderapibase.h"
 #include "materialsystem/idebugtextureinfo.h"
 #include "meshdx11.h"
 
@@ -31,6 +31,7 @@ struct MaterialSystemHardwareIdentifier_t;
 //-----------------------------------------------------------------------------
 #define MAX_DX11_VIEWPORTS  16
 #define MAX_DX11_STREAMS	16
+#define MAX_DX11_CBUFFERS	15
 
 
 //-----------------------------------------------------------------------------
@@ -71,6 +72,12 @@ struct ShaderStateDx11_t
 	ID3D11VertexShader *m_pVertexShader;
 	ID3D11GeometryShader *m_pGeometryShader;
 	ID3D11PixelShader *m_pPixelShader;
+	ID3D11Buffer* m_pVSConstantBuffers[MAX_DX11_CBUFFERS];
+	ID3D11Buffer* m_pPSConstantBuffers[MAX_DX11_CBUFFERS];
+	ID3D11Buffer* m_pGSConstantBuffers[MAX_DX11_CBUFFERS];
+	int m_nVSConstantBuffers;
+	int m_nPSConstantBuffers;
+	int m_nGSConstantBuffers;
 	ShaderVertexBufferStateDx11_t m_pVertexBuffer[ MAX_DX11_STREAMS ];
 	ShaderIndexBufferStateDx11_t m_IndexBuffer;
 	ShaderInputLayoutStateDx11_t m_InputLayout;
@@ -136,6 +143,13 @@ public:
 	virtual void BindVertexBuffer( int nStreamID, IVertexBuffer *pVertexBuffer, int nOffsetInBytes, int nFirstVertex, int nVertexCount, VertexFormat_t fmt, int nRepetitions = 1 );
 	virtual void BindIndexBuffer( IIndexBuffer *pIndexBuffer, int nOffsetInBytes );
 	virtual void Draw( MaterialPrimitiveType_t primitiveType, int nFirstIndex, int nIndexCount );
+	virtual void SetPixelShaderConstantBuffers( int nCount, const ConstantBufferHandle_t* pBuffers );
+	virtual void SetVertexShaderConstantBuffers( int nCount, const ConstantBufferHandle_t* pBuffers );
+	virtual void SetGeometryShaderConstantBuffers( int nCount, const ConstantBufferHandle_t* pBuffers );
+	virtual ConstantBufferHandle_t CreateConstantBuffer( size_t nBufSize );
+	virtual void DestroyConstantBuffer( ConstantBufferHandle_t hBuffer );
+	virtual void UpdateConstantBuffer( ConstantBufferHandle_t hBuffer, void* pData, size_t nSize );
+
 
 	// Methods of IShaderDynamicAPI
 public:

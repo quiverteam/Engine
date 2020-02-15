@@ -6,6 +6,7 @@
 
 $macro SRCDIR		"..\.."
 $Macro OUTBINDIR	"$BINDEFAULT"
+$macro DX9DIR		"..\shaderapidx9"
 
 $Include "$SRCDIR\vpc_scripts\source_dll_base.vpc"
 
@@ -33,7 +34,7 @@ $Configuration
 	$Compiler
 	{
 		$AdditionalIncludeDirectories	"$BASE;..\"
-		$PreprocessorDefinitions		"$BASE;SHADERAPIDX11;SHADER_DLL_EXPORT;PROTECTED_THINGS_ENABLE;strncpy=use_Q_strncpy_instead;_snprintf=use_Q_snprintf_instead"
+		$PreprocessorDefinitions		"$BASE;DX11;SHADERAPIDX11;SHADER_DLL_EXPORT;PROTECTED_THINGS_ENABLE;strncpy=use_Q_strncpy_instead;_snprintf=use_Q_snprintf_instead"
 
 //		$AdditionalOptions		"/FC"
 	}
@@ -44,10 +45,12 @@ $Project "shaderapidx11"
 	$Folder	"Source Files"
 	{
 		// Shared riles
-		$File	"cvballoctracker.cpp"
-		$File	"shaderdevicebase.cpp"
-		$File	"shaderapibase.cpp"
-		$File	"meshbase.cpp"
+		$File	"$DX9DIR\cvballoctracker.cpp"
+		$File	"$DX9DIR\shaderdevicebase.cpp"
+		$File	"$DX9DIR\shaderapibase.cpp"
+		$File	"$DX9DIR\meshbase.cpp"
+
+		$File	"vertexshaderdx11.cpp"
 		
 		// DX11 related files
 		$File	"ShaderDeviceDx11.cpp"		\
@@ -66,31 +69,20 @@ $Project "shaderapidx11"
 		}
 
 		// DX9 related files	
-		$File	"ColorFormatDX8.cpp"
-		$File	"d3d_async.cpp"
-		$File	"$SRCDIR\public\filesystem_helpers.cpp"
-		$File	"HardwareConfig.cpp"
-		$File	"MeshDX8.cpp"
-		$File	"Recording.cpp"
-		$File	"ShaderAPIDX8.cpp"
-		$File	"ShaderDeviceDX8.cpp"
-		$File	"ShaderShadowDX8.cpp"
-		$File	"TextureDX8.cpp"
-		$File	"TransitionTable.cpp"
-		$File	"vertexdecl.cpp"
-		$File	"VertexShaderDX8.cpp"
-		$File	"wmi.cpp"
-	}
-
-	$Folder	"DirectX Header Files"
-	{
-		$File	"$SRCDIR\dx10sdk\include\d3d10.h"
-		$File	"$SRCDIR\dx10sdk\include\d3dx10.h"
-		$File	"$SRCDIR\dx10sdk\include\d3dx10core.h"
-		$File	"$SRCDIR\dx10sdk\include\d3dx10math.h"
-		$File	"$SRCDIR\dx10sdk\include\d3dx10math.inl"
-		$File	"$SRCDIR\dx10sdk\include\d3dx10mesh.h"
-		$File	"$SRCDIR\dx10sdk\include\d3dx10tex.h"
+		//$File	"$DX9DIR\ColorFormatDX8.cpp"
+		//$File	"$DX9DIR\d3d_async.cpp"
+		//$File	"$SRCDIR\public\filesystem_helpers.cpp"
+		//$File	"$DX9DIR\HardwareConfig.cpp"
+		//$File	"$DX9DIR\MeshDX8.cpp"
+		//$File	"$DX9DIR\Recording.cpp"
+		//$File	"$DX9DIR\ShaderAPIDX8.cpp"
+		//$File	"$DX9DIR\ShaderDeviceDX8.cpp"
+		//$File	"$DX9DIR\ShaderShadowDX8.cpp"
+		//$File	"$DX9DIR\TextureDX8.cpp"
+		//$File	"$DX9DIR\TransitionTable.cpp"
+		//$File	"$DX9DIR\vertexdecl.cpp"
+		//$File	"$DX9DIR\VertexShaderDX8.cpp"
+		//$File	"$DX9DIR\wmi.cpp"
 	}
 
 	$Folder	"Public Header Files"
@@ -108,11 +100,11 @@ $Project "shaderapidx11"
 	$Folder	"Header Files"
 	{
 		// Shared files
-		$File	"meshbase.h"
-		$File	"shaderdevicebase.h"
-		$File	"shaderapibase.h"
-		$File	"shaderapi_global.h"
-		$File	"HardwareConfig.h"
+		$File	"$DX9DIR\meshbase.h"
+		$File	"$DX9DIR\shaderdevicebase.h"
+		$File	"$DX9DIR\shaderapibase.h"
+		$File	"$DX9DIR\shaderapi_global.h"
+		$File	"$DX9DIR\HardwareConfig.h"
 
 		// DX11 related files
 		$File	"ShaderDeviceDx11.h"
@@ -121,25 +113,26 @@ $Project "shaderapidx11"
 		$File	"ShaderShadowDx11.h"
 		$File	"shaderapidx11_global.h"
 		$File	"inputlayoutdx11.h"
+		$File	"vertexshaderdx11.h"
 
 		// DX9 related files		
-		$File	"TransitionTable.h"
-		$File	"vertexdecl.h"
+		//$File	"$DX9DIR\TransitionTable.h"
+		//$File	"$DX9DIR\vertexdecl.h"
 //		$File	"..\CMaterialSystemStats.h"
-		$File	"ColorFormatDX8.h"
-		$File	"d3d_async.h"
-		$File	"dynamicib.h"
-		$File	"dynamicvb.h"
-		$File	"IMeshDX8.h"
-		$File	"locald3dtypes.h"
-		$File	"Recording.h"
-		$File	"ShaderAPIDX8.h"
-		$File	"ShaderAPIDX8_Global.h"
-		$File	"ShaderShadowDX8.h"
-		$File	"stubd3ddevice.h"
-		$File	"TextureDX8.h"
-		$File	"VertexShaderDX8.h"					
-		$File	"wmi.h"
+		//$File	"$DX9DIR\ColorFormatDX8.h"
+		//$File	"$DX9DIR\d3d_async.h"
+		//$File	"$DX9DIR\dynamicib.h"
+		//$File	"$DX9DIR\dynamicvb.h"
+		//$File	"$DX9DIR\IMeshDX8.h"
+		//$File	"$DX9DIR\locald3dtypes.h"
+		//$File	"$DX9DIR\Recording.h"
+		//$File	"$DX9DIR\ShaderAPIDX8.h"
+		//$File	"$DX9DIR\ShaderAPIDX8_Global.h"
+		//$File	"$DX9DIR\ShaderShadowDX8.h"
+		//$File	"$DX9DIR\stubd3ddevice.h"
+		//$File	"$DX9DIR\TextureDX8.h"
+		//$File	"$DX9DIR\VertexShaderDX8.h"					
+		//$File	"$DX9DIR\wmi.h"
 	}
 
 	$Folder	"Link Libraries"

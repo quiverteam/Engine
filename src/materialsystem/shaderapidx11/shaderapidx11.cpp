@@ -7,7 +7,7 @@
 //===========================================================================//
 
 #include "shaderapidx11.h"
-#include "shaderapibase.h"
+#include "shaderapidx9/shaderapibase.h"
 #include "shaderapi/ishaderutil.h"
 #include "materialsystem/idebugtextureinfo.h"
 #include "materialsystem/materialsystem_config.h"
@@ -145,6 +145,9 @@ enum CommitFunc_t
 	COMMIT_FUNC_CommitSetInputLayout,
 	COMMIT_FUNC_CommitSetTopology,
 	COMMIT_FUNC_CommitSetRasterState,
+	COMMIT_FUNC_CommitSetVSConstantBuffers,
+	COMMIT_FUNC_CommitSetPSConstantBuffers,
+	COMMIT_FUNC_CommitSetGSConstantBuffers,
 
 	COMMIT_FUNC_COUNT,
 };
@@ -153,6 +156,57 @@ IMPLEMENT_RENDERSTATE_FUNC( CommitSetTopology, m_Topology, IASetPrimitiveTopolog
 IMPLEMENT_RENDERSTATE_FUNC_DX11( CommitSetVertexShader, m_pVertexShader, VSSetShader )
 IMPLEMENT_RENDERSTATE_FUNC_DX11( CommitSetGeometryShader, m_pGeometryShader, GSSetShader )
 IMPLEMENT_RENDERSTATE_FUNC_DX11( CommitSetPixelShader, m_pPixelShader, PSSetShader )
+
+static void CommitSetVSConstantBuffers( ID3D11Device* pDevice, ID3D11DeviceContext* pDeviceContext,
+				       const ShaderStateDx11_t& desiredState, ShaderStateDx11_t& currentState,
+				       bool bForce )
+{
+	static constexpr size_t vsBufSize = sizeof( ShaderStateDx11_t::m_pVSConstantBuffers );
+
+	bool bChanged = bForce ||
+		( desiredState.m_nVSConstantBuffers != currentState.m_nVSConstantBuffers ) ||
+		memcmp( desiredState.m_pVSConstantBuffers, currentState.m_pVSConstantBuffers, vsBufSize );
+	if ( bChanged )
+	{
+		pDeviceContext->VSSetConstantBuffers( 0, desiredState.m_nVSConstantBuffers, desiredState.m_pVSConstantBuffers );
+		memcpy( currentState.m_pVSConstantBuffers, desiredState.m_pVSConstantBuffers, vsBufSize );
+		currentState.m_nVSConstantBuffers = desiredState.m_nVSConstantBuffers;
+	}
+}
+
+static void CommitSetPSConstantBuffers( ID3D11Device* pDevice, ID3D11DeviceContext* pDeviceContext,
+					const ShaderStateDx11_t& desiredState, ShaderStateDx11_t& currentState,
+					bool bForce )
+{
+	static constexpr size_t psBufSize = sizeof( ShaderStateDx11_t::m_pPSConstantBuffers );
+
+	bool bChanged = bForce ||
+		( desiredState.m_nPSConstantBuffers != currentState.m_nPSConstantBuffers ) ||
+		memcmp( desiredState.m_pPSConstantBuffers, currentState.m_pPSConstantBuffers, psBufSize );
+	if ( bChanged )
+	{
+		pDeviceContext->PSSetConstantBuffers( 0, desiredState.m_nPSConstantBuffers, desiredState.m_pPSConstantBuffers );
+		memcpy( currentState.m_pPSConstantBuffers, desiredState.m_pPSConstantBuffers, psBufSize );
+		currentState.m_nPSConstantBuffers = desiredState.m_nPSConstantBuffers;
+	}
+}
+
+static void CommitSetGSConstantBuffers( ID3D11Device* pDevice, ID3D11DeviceContext* pDeviceContext,
+					const ShaderStateDx11_t& desiredState, ShaderStateDx11_t& currentState,
+					bool bForce )
+{
+	static constexpr size_t gsBufSize = sizeof( ShaderStateDx11_t::m_pGSConstantBuffers );
+
+	bool bChanged = bForce ||
+		( desiredState.m_nGSConstantBuffers != currentState.m_nGSConstantBuffers ) ||
+		memcmp( desiredState.m_pGSConstantBuffers, currentState.m_pGSConstantBuffers, gsBufSize );
+	if ( bChanged )
+	{
+		pDeviceContext->GSSetConstantBuffers( 0, desiredState.m_nGSConstantBuffers, desiredState.m_pGSConstantBuffers );
+		memcpy( currentState.m_pGSConstantBuffers, desiredState.m_pGSConstantBuffers, gsBufSize );
+		currentState.m_nGSConstantBuffers = desiredState.m_nGSConstantBuffers;
+	}
+}
 
 static void CommitSetInputLayout( ID3D11Device *pDevice, ID3D11DeviceContext *pDeviceContext, 
 				  const ShaderStateDx11_t &desiredState, ShaderStateDx11_t &currentState,
@@ -466,6 +520,91 @@ int CShaderAPIDx11::GetViewports( ShaderViewport_t* pViewports, int nMax ) const
 	return nCount;
 }
 
+//-----------------------------------------------------------------------------
+// Methods related to constant buffers
+//-----------------------------------------------------------------------------
+void CShaderAPIDx11::SetVertexShaderConstantBuffers( int nCount, const ConstantBufferHandle_t* pBuffers )
+{
+	nCount = min( nCount, MAX_DX11_CBUFFERS );
+	m_DesiredState.m_nVSConstantBuffers = nCount;
+	for ( int i = 0; i < nCount; i++ )
+	{
+		m_DesiredState.m_pVSConstantBuffers[i] = (ID3D11Buffer *)pBuffers[i];
+	}
+
+	if ( m_bResettingRenderState ||
+	     m_DesiredState.m_nVSConstantBuffers != nCount ||
+	     memcmp( m_DesiredState.m_pVSConstantBuffers, pBuffers, sizeof( ID3D11Buffer* ) * nCount ) )
+		ADD_COMMIT_FUNC( CommitSetVSConstantBuffers );
+}
+
+void CShaderAPIDx11::SetPixelShaderConstantBuffers( int nCount, const ConstantBufferHandle_t* pBuffers )
+{
+	nCount = min( nCount, MAX_DX11_CBUFFERS );
+	m_DesiredState.m_nPSConstantBuffers = nCount;
+	for ( int i = 0; i < nCount; i++ )
+	{
+		m_DesiredState.m_pPSConstantBuffers[i] = (ID3D11Buffer*)pBuffers[i];
+	}
+
+	if ( m_bResettingRenderState ||
+	     m_DesiredState.m_nPSConstantBuffers != nCount ||
+	     memcmp( m_DesiredState.m_pPSConstantBuffers, pBuffers, sizeof( ID3D11Buffer* ) * nCount ) )
+		ADD_COMMIT_FUNC( CommitSetPSConstantBuffers );
+}
+
+void CShaderAPIDx11::SetGeometryShaderConstantBuffers( int nCount, const ConstantBufferHandle_t* pBuffers )
+{
+	nCount = min( nCount, MAX_DX11_CBUFFERS );
+	m_DesiredState.m_nGSConstantBuffers = nCount;
+	for ( int i = 0; i < nCount; i++ )
+	{
+		m_DesiredState.m_pGSConstantBuffers[i] = (ID3D11Buffer*)pBuffers[i];
+	}
+	if ( m_bResettingRenderState ||
+	     m_DesiredState.m_nGSConstantBuffers != nCount ||
+	     memcmp( m_DesiredState.m_pGSConstantBuffers, pBuffers, sizeof( ID3D11Buffer* ) * nCount ) )
+		ADD_COMMIT_FUNC( CommitSetGSConstantBuffers );
+}
+
+ConstantBufferHandle_t CShaderAPIDx11::CreateConstantBuffer( size_t nBufLen )
+{
+	ID3D11Buffer* pCBuffer = NULL;
+
+	D3D11_BUFFER_DESC cbDesc;
+	cbDesc.ByteWidth = nBufLen;
+	cbDesc.Usage = D3D11_USAGE_DYNAMIC;
+	cbDesc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
+	cbDesc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
+	cbDesc.MiscFlags = 0;
+	cbDesc.StructureByteStride = 0;
+
+	HRESULT hr = D3D11Device()->CreateBuffer( &cbDesc, NULL, &pCBuffer );
+	if ( FAILED( hr ) )
+	{
+		Warning( "Could not set constant buffer!" );
+		return NULL;
+	}
+
+	return (ConstantBufferHandle_t)pCBuffer;
+}
+
+void CShaderAPIDx11::UpdateConstantBuffer( ConstantBufferHandle_t hBuffer, void* pData, size_t nSize )
+{
+	ID3D11Buffer* pBuffer = (ID3D11Buffer*)hBuffer;
+	D3D11_MAPPED_SUBRESOURCE newData;
+	D3D11DeviceContext()->Map( pBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &newData );
+	memcpy( newData.pData, pData, nSize );
+	D3D11DeviceContext()->Unmap( pBuffer, 0 );
+}
+
+void CShaderAPIDx11::DestroyConstantBuffer( ConstantBufferHandle_t hBuffer )
+{
+	if ( hBuffer )
+	{
+		( (ID3D11Buffer*)hBuffer )->Release();
+	}
+}
 
 //-----------------------------------------------------------------------------
 // Methods related to state objects

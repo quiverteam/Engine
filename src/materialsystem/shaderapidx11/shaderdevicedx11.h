@@ -14,7 +14,7 @@
 #endif
 
 
-#include "shaderdevicebase.h"
+#include "shaderapidx9/shaderdevicebase.h"
 #include "tier1/utlvector.h"
 #include "tier1/utlrbtree.h"
 #include "tier1/utllinkedlist.h"
@@ -108,10 +108,13 @@ public:
 	virtual void Present();
 	virtual IShaderBuffer* CompileShader( const char *pProgram, size_t nBufLen, const char *pShaderVersion );
 	virtual VertexShaderHandle_t CreateVertexShader( IShaderBuffer *pShader );
+	VertexShaderHandle_t CreateVertexShader( const void* pBuffer, size_t nBufLen );
 	virtual void DestroyVertexShader( VertexShaderHandle_t hShader );
 	virtual GeometryShaderHandle_t CreateGeometryShader( IShaderBuffer* pShaderBuffer );
+	GeometryShaderHandle_t CreateGeometryShader( const void* pBuffer, size_t nBufLen );
 	virtual void DestroyGeometryShader( GeometryShaderHandle_t hShader );
 	virtual PixelShaderHandle_t CreatePixelShader( IShaderBuffer* pShaderBuffer );
+	PixelShaderHandle_t CreatePixelShader( const void* pBuffer, size_t nBufLen );
 	virtual void DestroyPixelShader( PixelShaderHandle_t hShader );
 	virtual void ReleaseResources() {}
 	virtual void ReacquireResources() {}
@@ -225,7 +228,6 @@ inline ID3D11PixelShader* CShaderDeviceDx11::GetPixelShader( PixelShaderHandle_t
 		return m_PixelShaderDict[ (PixelShaderIndex_t)hShader ].m_pShader;
 	return NULL;
 }
-
 
 //-----------------------------------------------------------------------------
 // Singleton

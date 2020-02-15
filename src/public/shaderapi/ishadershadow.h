@@ -223,7 +223,6 @@ enum PolygonOffsetMode_t
 	SHADER_POLYOFFSET_RESERVED		= 0x3	// Reserved for future use
 };
 
-
 //-----------------------------------------------------------------------------
 // The Shader interface versions
 //-----------------------------------------------------------------------------
@@ -346,6 +345,9 @@ public:
 
 	// Shadow map filtering
 	virtual void SetShadowDepthFiltering( Sampler_t stage ) = 0;
+
+	// Sets the constant buffer structure that will be used for the shader.
+	virtual void SetConstantBuffer( ConstantBufferHandle_t cbuffer, size_t nBufSize ) = 0;
 };
 // end class IShaderShadow
 

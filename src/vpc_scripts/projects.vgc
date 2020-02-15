@@ -701,7 +701,7 @@ $Project "shaderapidx10"
 
 $Project "shaderapidx11"
 {
-	"materialsystem\shaderapidx9\shaderapidx11.vpc" [$WINDOWS]
+	"materialsystem\shaderapidx11\shaderapidx11.vpc" [$WINDOWS]
 }
 
 $Project "shaderapiempty"
