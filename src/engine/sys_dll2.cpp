@@ -45,6 +45,9 @@
 #include "VGuiMatSurface/IMatSystemSurface.h"
 #endif
 
+/* SDL2 includes */
+#include <SDL2/SDL.h>
+
 // This is here just for legacy support of older .dlls!!!
 #include "SoundEmitterSystem/isoundemittersystembase.h"
 #include "eiface.h"
@@ -62,11 +65,7 @@
 #include <eh.h>
 #endif
 
-#if defined( _X360 )
-#include "xbox/xbox_win32stubs.h"
-#else
 #include "xbox/xboxstubs.h"
-#endif
 
 // memdbgon must be the last include file in a .cpp file!!!
 #include "tier0/memdbgon.h"
@@ -548,18 +547,6 @@ InitReturnVal_t CEngineAPI::Init()
 
 	m_bRunningSimulation = false;
 
-	// Initialize the FPU control word
-#if !defined( SWDS ) && ( !PLATFORM_64BITS )
-#ifdef __GNUC__
-	asm("fninit\n\t");
-#elif defined(_MSC_VER)
-	_asm
-	{
-		fninit
-	}
-#endif
-#endif
-
 	SetupFPUControlWord();
 
 	// This creates the videomode singleton object, it doesn't depend on the registry
@@ -674,19 +661,11 @@ void CEngineAPI::ActivateSimulation( bool bActive )
 //-----------------------------------------------------------------------------
 void CEngineAPI::PumpMessages()
 {
-	MSG msg;
-	while ( PeekMessage( &msg, NULL, 0, 0, PM_REMOVE ) )
-	{
-		TranslateMessage( &msg );
-		DispatchMessage( &msg );
-	}
+	/* Pump all events */
+	SDL_PumpEvents();
 
 	// Get input from attached devices
 	g_pInputSystem->PollInputState();
-
-	// NOTE: Under some implementations of Win9x, 
-	// dispatching messages can cause the FPU control word to change
-	SetupFPUControlWord();
 
 	game->DispatchAllStoredGameMessages();
 
@@ -698,8 +677,6 @@ void CEngineAPI::PumpMessages()
 //-----------------------------------------------------------------------------
 void CEngineAPI::PumpMessagesEditMode( bool &bIdle, long &lIdleCount )
 {
-	MSG msg;
-
 	if ( bIdle && !g_pHammer->HammerOnIdle( lIdleCount++ ) )
 	{
 		bIdle = false;
@@ -708,31 +685,31 @@ void CEngineAPI::PumpMessagesEditMode( bool &bIdle, long &lIdleCount )
 	// Get input from attached devices
 	g_pInputSystem->PollInputState();
 
-	while ( PeekMessage(&msg, NULL, 0, 0, PM_REMOVE) )
+	/* Find and execute certain event types */
+	SDL_Event ev;
+	while(SDL_PeepEvents(&ev, 1, SDL_GETEVENT, SDL_WINDOWEVENT, SDL_WINDOWEVENT))
 	{
-		if ( msg.message == WM_QUIT )
+		switch(ev.window.type)
 		{
-			eng->SetQuitting( IEngine::QUIT_TODESKTOP );
-			break;
+			case SDL_WINDOWEVENT_SHOWN:
+				bIdle = false;
+				break;
+			case SDL_WINDOWEVENT_HIDDEN:
+				bIdle = true;
+				break;
+			case SDL_WINDOWEVENT_CLOSE:
+				eng->SetQuitting(IEngine::QUIT_TODESKTOP);
+				break;
+			default: break;
 		}
-
-		if ( !g_pHammer->HammerPreTranslateMessage(&msg) )
-		{
-			TranslateMessage(&msg);
-			DispatchMessage(&msg);
-		}
-
-		// Reset idle state after pumping idle message.
-		if ( g_pHammer->HammerIsIdleMessage(&msg) )
-		{
-			bIdle = true;
-			lIdleCount = 0;
-		}
+		SDL_PumpEvents();
 	}
-
-	// NOTE: Under some implementations of Win9x, 
-	// dispatching messages can cause the FPU control word to change
-	SetupFPUControlWord();
+	SDL_PumpEvents();
+	/* Check for quit events */
+	if(SDL_QuitRequested())
+	{
+		eng->SetQuitting(IEngine::QUIT_TODESKTOP);
+	}
 
 	game->DispatchAllStoredGameMessages();
 }
@@ -765,9 +742,7 @@ bool CEngineAPI::MainLoop()
 		// Pump messages unless someone wants to quit
 		if ( eng->GetQuitting() != IEngine::QUIT_NOTQUITTING )
 		{
-			if ( eng->GetQuitting() != IEngine::QUIT_TODESKTOP )
-				return true;
-			return false;
+			return eng->GetQuitting() != IEngine::QUIT_TODESKTOP;
 		}
 
 		// Pump the message loop
@@ -809,21 +784,14 @@ bool CEngineAPI::MainLoop()
 //-----------------------------------------------------------------------------
 bool CEngineAPI::InitRegistry( const char *pModName )
 {
-	if ( IsPC() )
-	{
-		char szRegSubPath[MAX_PATH];
-		Q_snprintf( szRegSubPath, sizeof(szRegSubPath), "%s\\%s", "Source", pModName );
-		return registry->Init( szRegSubPath );
-	}
-	return true;
+	char szRegSubPath[MAX_PATH];
+	Q_snprintf( szRegSubPath, sizeof(szRegSubPath), "%s\\%s", "Source", pModName );
+	return registry->Init( szRegSubPath );
 }
 
 void CEngineAPI::ShutdownRegistry( )
 {
-	if ( IsPC() )
-	{
-		registry->Shutdown( );
-	}
+	registry->Shutdown();
 }
 
 
@@ -836,10 +804,10 @@ bool CEngineAPI::OnStartup( void *pInstance, const char *pStartupModName )
 	// This fixes a bug on certain machines where the input will 
 	// stop coming in for about 1 second when someone hits a key.
 	// (true means to disable priority boost)
-	if ( IsPC() )
-	{
-		SetThreadPriorityBoost( GetCurrentThread(), true ); 
-	}
+
+#ifdef _WIN32
+	SetThreadPriorityBoost( GetCurrentThread(), true );
+#endif
 
 	// FIXME: Turn videomode + game into IAppSystems?
 
@@ -875,10 +843,6 @@ bool CEngineAPI::OnStartup( void *pInstance, const char *pStartupModName )
 	// Setup the material system config record, CreateGameWindow depends on it
 	// (when we're running stand-alone)
 	InitMaterialSystemConfig( InEditMode() );
-
-#if defined( _X360 )
-	XBX_NotifyCreateListener( XNOTIFY_SYSTEM|XNOTIFY_LIVE|XNOTIFY_XMP );
-#endif
 
 	ShutdownRegistry();
 	return true;
@@ -950,12 +914,11 @@ bool CEngineAPI::ModInit( const char *pModName, const char *pGameDir )
 
 	// Create the game window now that we have a search path
 	// FIXME: Deal with initial window width + height better
-	if ( !videomode || !videomode->CreateGameWindow( g_pMaterialSystemConfig->m_VideoMode.m_Width, g_pMaterialSystemConfig->m_VideoMode.m_Height, g_pMaterialSystemConfig->Windowed(), g_pMaterialSystemConfig->NoBorderWindow() ) )
-	{
-		return false;
-	}
+	return !(!videomode || !videomode->CreateGameWindow(g_pMaterialSystemConfig->m_VideoMode.m_Width,
+	                                                    g_pMaterialSystemConfig->m_VideoMode.m_Height,
+	                                                    g_pMaterialSystemConfig->Windowed(),
+	                                                    g_pMaterialSystemConfig->NoBorderWindow()));
 
-	return true;
 }
 
 void CEngineAPI::ModShutdown()
@@ -1048,16 +1011,6 @@ int CEngineAPI::RunListenServer()
 	return nRunResult;
 }
 
-#if 0
-CON_COMMAND( bigalloc, "huge alloc crash" )
-{
-	Msg( "pre-crash %d\n", g_pMemAlloc->MemoryAllocFailed() );
-	void *buf = malloc( UINT_MAX );
-	Msg( "post-alloc %d\n", g_pMemAlloc->MemoryAllocFailed() );
-	*(int *)buf = 0;
-}
-#endif
-
 extern void S_ClearBuffer();
 extern char g_minidumpinfo[ 4096 ];
 extern PAGED_POOL_INFO_t g_pagedpoolinfo;
@@ -1080,7 +1033,7 @@ extern "C" void __cdecl WriteMiniDumpUsingExceptionInfo( unsigned int uStructure
 			
 			Plat_GetPagedPoolInfo( &final );
 
-			V_snprintf( ppi, sizeof(ppi), "prev PP PAGES: used: %d, free %d\nfinal PP PAGES: used: %d, free %d\nmemalloc = %u\n", g_pagedpoolinfo.numPagesUsed, g_pagedpoolinfo.numPagesFree, final.numPagesUsed, final.numPagesFree, g_pMemAlloc->MemoryAllocFailed() );
+			V_snprintf( ppi, sizeof(ppi), "prev PP PAGES: used: %d, free %d\nfinal PP PAGES: used: %d, free %d\n", g_pagedpoolinfo.numPagesUsed, g_pagedpoolinfo.numPagesFree, final.numPagesUsed, final.numPagesFree);
 			V_strncat( errorText, ppi, sizeof(errorText) );
 
 			SteamAPI_SetMiniDumpComment( errorText );
@@ -1150,14 +1103,12 @@ bool CModAppSystemGroup::AddLegacySystems()
 	if ( !AddSystems( appSystems ) ) 
 		return false;
 
-#if !defined( _LINUX )
 //	if ( CommandLine()->FindParm( "-tools" ) )
 	{
 		AppModule_t toolFrameworkModule = LoadModule( "engine.dll" );
 		if ( !AddSystem( toolFrameworkModule, VTOOLFRAMEWORK_INTERFACE_VERSION ) )
 			return false;
 	}
-#endif
 
 	return true;
 }
@@ -1240,14 +1191,12 @@ bool CModAppSystemGroup::Create()
 	if ( !AddSystems( systems.Base() ) ) 
 		return false;
 
-#if !defined( _LINUX )
 //	if ( CommandLine()->FindParm( "-tools" ) )
 	{
 		AppModule_t toolFrameworkModule = LoadModule( "engine.dll" );
 		if ( !AddSystem( toolFrameworkModule, VTOOLFRAMEWORK_INTERFACE_VERSION ) )
 			return false;
 	}
-#endif
 
 	return true;
 }
@@ -1509,7 +1458,7 @@ int CDedicatedServerAPI::BuildMapCycleListHints(char **hints)
 
 	// Start off with the common preloads.
 	Q_snprintf(szMap, sizeof( szMap ), "%s\\%s\\%s%s\r\n", szReslistsBaseDir, szMod, szCommonPreloads, szReslistsExt);
-	int hintsSize = strlen(szMap) + 1;
+	int hintsSize = (int)strlen(szMap) + 1;
 	*hints = (char*)malloc( hintsSize );
 	if ( *hints == NULL )
 	{
@@ -1524,7 +1473,7 @@ int CDedicatedServerAPI::BuildMapCycleListHints(char **hints)
 	if ( length )
 	{
 		char *pStart = (char *)malloc(length);
-		if ( pStart && ( 1 == g_pFileSystem->Read(pStart, length, pFile) )
+		if ( pStart && ( 1 == g_pFileSystem->Read(pStart, (int)length, pFile) )
 		   )
 		{
 			const char *pFileList = pStart;
