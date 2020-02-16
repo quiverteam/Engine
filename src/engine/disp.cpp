@@ -1,4 +1,4 @@
-//===== Copyright © 1996-2005, Valve Corporation, All rights reserved. ======//
+//===== Copyright ï¿½ 1996-2005, Valve Corporation, All rights reserved. ======//
 //
 // Purpose: 
 //
@@ -619,7 +619,7 @@ struct ProcessLightmapSampleData_t
 
 static void	ProcessLightmapSample( const ProcessLightmapSampleData_t &data, const Vector &vPos, const Vector &vNormal, const Vector &vTangentS, const Vector &vTangentT, int t, int s, int tmax, int smax )
 {
-#if !defined( _LINUX )
+#ifndef SWDS
 	float distSqr = data.m_vLightOrigin.DistToSqr( vPos );
 	if( distSqr < data.m_LightDistSqr )
 	{
@@ -641,7 +641,7 @@ static void	ProcessLightmapSample( const ProcessLightmapSampleData_t &data, cons
 
 static void	ProcessLightmapSampleBumped( const ProcessLightmapSampleData_t &data, const Vector &vPos, const Vector &vNormal, const Vector &vTangentS, const Vector &vTangentT, int t, int s, int tmax, int smax )
 {
-#if !defined( _LINUX )
+#ifndef SWDS
 	float distSqr = data.m_vLightOrigin.DistToSqr( vPos );
 	if( distSqr < data.m_LightDistSqr )
 	{
@@ -691,7 +691,6 @@ static void	ProcessLightmapSampleBumped( const ProcessLightmapSampleData_t &data
 //-----------------------------------------------------------------------------
 static void	ProcessLightmapSampleAlpha( const ProcessLightmapSampleData_t &data, const Vector &vPos, const Vector &vNormal, const Vector &vTangentS, const Vector &vTangentT, int t, int s, int tmax, int smax )
 {
-#if !defined( _LINUX )
 	float distSqr = data.m_vLightOrigin.DistToSqr( vPos );
 	if( distSqr < data.m_LightDistSqr )
 	{
@@ -706,7 +705,6 @@ static void	ProcessLightmapSampleAlpha( const ProcessLightmapSampleData_t &data,
 		int index = t*smax + s;
 		blocklights[0][index][3] += scale * data.m_Intensity[0];
 	}
-#endif
 }
 
 // This iterates over all the lightmap samples and for each one, calls:
