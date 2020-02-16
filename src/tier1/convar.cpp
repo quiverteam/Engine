@@ -505,7 +505,7 @@ int DefaultCompletionFunc( const char *partial, char commands[ COMMAND_COMPLETIO
 //	m_bIsNewConCommand = true;
 //}
 
-ConCommand::ConCommand( const char *pName, FnCommandCallbackVoid_t callback, const char *pHelpString /*= 0*/, int flags /*= 0*/, FnCommandCompletionCallback completionFunc /*= 0*/ )
+ConCommand::ConCommand( const char *pName, FnCommandCallbackVoid_t callback, const char *pHelpString /*= 0*/, int flags /*= 0*/, FnCommandCompletionCallback completionFunc /*= 0*/ ) noexcept
 {
 	// Set the callback
 	m_fnCommandCallbackV1 = callback;
@@ -518,7 +518,7 @@ ConCommand::ConCommand( const char *pName, FnCommandCallbackVoid_t callback, con
 	BaseClass::CreateBase( pName, pHelpString, flags );
 }
 
-ConCommand::ConCommand( const char *pName, FnCommandCallback_t callback, const char *pHelpString /*= 0*/, int flags /*= 0*/, FnCommandCompletionCallback completionFunc /*= 0*/ )
+ConCommand::ConCommand( const char *pName, FnCommandCallback_t callback, const char *pHelpString /*= 0*/, int flags /*= 0*/, FnCommandCompletionCallback completionFunc /*= 0*/ ) noexcept
 {
 	// Set the callback
 	m_fnCommandCallback = callback;
@@ -531,7 +531,7 @@ ConCommand::ConCommand( const char *pName, FnCommandCallback_t callback, const c
 	BaseClass::CreateBase( pName, pHelpString, flags );
 }
 
-ConCommand::ConCommand( const char *pName, ICommandCallback *pCallback, const char *pHelpString /*= 0*/, int flags /*= 0*/, ICommandCompletionCallback *pCompletionCallback /*= 0*/ )
+ConCommand::ConCommand( const char *pName, ICommandCallback *pCallback, const char *pHelpString /*= 0*/, int flags /*= 0*/, ICommandCompletionCallback *pCompletionCallback /*= 0*/ ) noexcept
 {
 	// Set the callback
 	m_pCommandCallback = pCallback;

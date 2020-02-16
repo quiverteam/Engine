@@ -266,11 +266,11 @@ public:
 	typedef ConCommandBase BaseClass;
 
 	ConCommand( const char *pName, FnCommandCallbackVoid_t callback, 
-		const char *pHelpString = 0, int flags = 0, FnCommandCompletionCallback completionFunc = 0 );
+		const char *pHelpString = 0, int flags = 0, FnCommandCompletionCallback completionFunc = 0 ) noexcept;
 	ConCommand( const char *pName, FnCommandCallback_t callback, 
-		const char *pHelpString = 0, int flags = 0, FnCommandCompletionCallback completionFunc = 0 );
+		const char *pHelpString = 0, int flags = 0, FnCommandCompletionCallback completionFunc = 0 ) noexcept;
 	ConCommand( const char *pName, ICommandCallback *pCallback, 
-		const char *pHelpString = 0, int flags = 0, ICommandCompletionCallback *pCommandCompletionCallback = 0 );
+		const char *pHelpString = 0, int flags = 0, ICommandCompletionCallback *pCommandCompletionCallback = 0 ) noexcept;
 
 	virtual ~ConCommand( void );
 
