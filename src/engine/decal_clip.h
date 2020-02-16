@@ -1,4 +1,4 @@
-//========= Copyright © 1996-2005, Valve Corporation, All rights reserved. ============//
+//========= Copyright ï¿½ 1996-2005, Valve Corporation, All rights reserved. ============//
 //
 // Purpose: 
 //
@@ -7,9 +7,8 @@
 
 #ifndef DECAL_CLIP_H
 #define DECAL_CLIP_H
-#ifdef _WIN32
+
 #pragma once
-#endif
 
 
 #include "mathlib/vector.h"

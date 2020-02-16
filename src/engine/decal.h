@@ -1,4 +1,4 @@
-//===== Copyright © 1996-2005, Valve Corporation, All rights reserved. ======//
+//===== Copyright ï¿½ 1996-2005, Valve Corporation, All rights reserved. ======//
 //
 // Purpose: 
 //
@@ -9,9 +9,7 @@
 #ifndef DECAL_H
 #define DECAL_H
 
-#ifdef _WIN32
 #pragma once
-#endif
 
 #include "gl_model_private.h"
 

@@ -1,4 +1,4 @@
-//========= Copyright © 1996-2005, Valve Corporation, All rights reserved. ============//
+//========= Copyright ï¿½ 1996-2005, Valve Corporation, All rights reserved. ============//
 //
 // Purpose: 
 //
@@ -73,10 +73,10 @@ public:
 	virtual void ResetDemoInterpolation() = 0;
 };
 
-#ifndef _LINUX
+//#ifndef _LINUX
 extern IDemoPlayer *demoplayer;	// reference to current demo player
 extern IDemoRecorder *demorecorder; // reference to current demo recorder
-#endif
+//#endif
 
 
 #endif // DEMO_H
