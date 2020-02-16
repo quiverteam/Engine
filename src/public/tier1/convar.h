@@ -323,17 +323,17 @@ friend class ConVarRef;
 public:
 	typedef ConCommandBase BaseClass;
 
-								ConVar( const char *pName, const char *pDefaultValue, int flags = 0);
+								ConVar( const char *pName, const char *pDefaultValue, int flags = 0) noexcept ;
 
 								ConVar( const char *pName, const char *pDefaultValue, int flags, 
-									const char *pHelpString );
+									const char *pHelpString ) noexcept ;
 								ConVar( const char *pName, const char *pDefaultValue, int flags, 
-									const char *pHelpString, bool bMin, float fMin, bool bMax, float fMax );
+									const char *pHelpString, bool bMin, float fMin, bool bMax, float fMax ) noexcept ;
 								ConVar( const char *pName, const char *pDefaultValue, int flags, 
-									const char *pHelpString, FnChangeCallback_t callback );
+									const char *pHelpString, FnChangeCallback_t callback ) noexcept ;
 								ConVar( const char *pName, const char *pDefaultValue, int flags, 
 									const char *pHelpString, bool bMin, float fMin, bool bMax, float fMax,
-									FnChangeCallback_t callback );
+									FnChangeCallback_t callback ) noexcept ;
 
 	virtual						~ConVar( void );
 
