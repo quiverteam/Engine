@@ -1,0 +1,169 @@
+// ---------------------------------------------------------------
+// Auto Generated QPC Script - Fix if needed before using
+// ---------------------------------------------------------------
+macro PROJECT_NAME "Studiomdl"
+
+macro SRCDIR "../.."
+macro OUTBINDIR "$BINDEFAULT"
+
+include "$SRCDIR/_qpc_scripts/source_exe_con_base.qpc"
+
+configuration
+{
+	general
+	{
+		include_directories
+		{
+			"../common"
+			"../nvtristriplib"
+			"$SRCDIR/game/shared"
+		}
+	}
+
+	compiler
+	{
+		preprocessor_definitions
+		{
+			"PROTECTED_THINGS_DISABLE"
+		}
+	}
+
+	linker
+	{
+		libraries
+		{
+			"winmm.lib"
+			"appframework"
+			"datamodel"
+			"dmserializers"
+			"mathlib"
+			"movieobjects"
+			"nvtristrip"
+			"tier2"
+			"tier3"
+		}
+	}
+}
+
+dependencies
+{
+	"appframework"
+	"datamodel"
+	"dmserializers"
+	"mathlib"
+	"movieobjects"
+	"nvtristrip"
+	"tier2"
+	"tier3"
+}
+
+files
+{
+	folder "Source Files"
+	{
+		"$SRCDIR/public/bone_setup.cpp"
+		"../common/cmdlib.cpp"
+		"collisionmodel.cpp"
+		"$SRCDIR/Public/CollisionUtils.cpp"
+		"dmxsupport.cpp"
+		"$SRCDIR/public/filesystem_helpers.cpp"
+		"$SRCDIR/public/filesystem_init.cpp"
+		"../common/FileSystem_Tools.cpp"
+		"HardwareMatrixState.cpp"
+		"HardwareVertexCache.cpp"
+		"$SRCDIR/public/interpolatortypes.cpp"
+		"$SRCDIR/public/movieobjects/movieobjects_compiletools.cpp"
+		"mrmsupport.cpp"
+		"objsupport.cpp"
+		"optimize.cpp"
+		"perfstats.cpp"
+		"../common/physdll.cpp"
+		"../common/scriplib.cpp"
+		"simplify.cpp"
+		"$SRCDIR/public/studio.cpp"
+		"$SRCDIR/common/studiobyteswap.cpp"
+		"studiomdl.cpp"
+		"UnifyLODs.cpp"
+		"v1support.cpp"
+		"write.cpp"
+	}
+
+	folder "Header Files"
+	{
+		"../common/cmdlib.h"
+		"collisionmodel.h"
+		"FileBuffer.h"
+		"../common/FileSystem_Tools.h"
+		"HardwareMatrixState.h"
+		"HardwareVertexCache.h"
+		"../NvTriStripLib/NvTriStrip.h"
+		"perfstats.h"
+		"../common/physdll.h"
+		"../common/scriplib.h"
+		"studiomdl.h"
+	}
+
+	folder "Public Header Files"
+	{
+		"$SRCDIR/public/gametrace.h"
+		"$SRCDIR/Public/FileSystem.h"
+		"$SRCDIR/public/filesystem_helpers.h"
+		"$SRCDIR/Public/cmodel.h"
+		"$SRCDIR/Public/mathlib/amd3dx.h"
+		"$SRCDIR/public/basehandle.h"
+		"$SRCDIR/Public/tier0/basetypes.h"
+		"$SRCDIR/Public/bitvec.h"
+		"$SRCDIR/public/bone_accessor.h"
+		"$SRCDIR/public/bone_setup.h"
+		"$SRCDIR/Public/bspflags.h"
+		"$SRCDIR/public/tier1/byteswap.h"
+		"$SRCDIR/public/tier1/characterset.h"
+		"$SRCDIR/Public/CollisionUtils.h"
+		"$SRCDIR/Public/commonmacros.h"
+		"$SRCDIR/public/mathlib/compressed_vector.h"
+		"$SRCDIR/Public/const.h"
+		"$SRCDIR/public/vphysics/constraints.h"
+		"$SRCDIR/public/tier0/dbg.h"
+		"$SRCDIR/public/tier0/fasttimer.h"
+		"$SRCDIR/public/appframework/IAppSystem.h"
+		"$SRCDIR/public/tier0/ICommandLine.h"
+		"$SRCDIR/public/ihandleentity.h"
+		"$SRCDIR/public/materialsystem/imaterial.h"
+		"$SRCDIR/public/materialsystem/imaterialsystem.h"
+		"$SRCDIR/public/materialsystem/imaterialvar.h"
+		"$SRCDIR/public/tier1/interface.h"
+		"$SRCDIR/Public/IStudioRender.h"
+		"$SRCDIR/public/tier1/KeyValues.h"
+		"$SRCDIR/public/materialsystem/materialsystem_config.h"
+		"$SRCDIR/Public/mathlib/MATHLIB.H"
+		"$SRCDIR/public/tier0/memdbgoff.h"
+		"$SRCDIR/public/tier0/memdbgon.h"
+		"$SRCDIR/Public/phyfile.h"
+		"$SRCDIR/public/optimize.h"
+		"$SRCDIR/public/tier0/platform.h"
+		"$SRCDIR/public/protected_things.h"
+		"$SRCDIR/public/vstdlib/random.h"
+		"$SRCDIR/common/studiobyteswap.h"
+		"$SRCDIR/Public/string_t.h"
+		"$SRCDIR/public/tier1/strtools.h"
+		"$SRCDIR/Public/studio.h"
+		"$SRCDIR/public/tier3/tier3.h"
+		"$SRCDIR/public/tier1/utlbuffer.h"
+		"$SRCDIR/public/tier1/utldict.h"
+		"$SRCDIR/public/tier1/utllinkedlist.h"
+		"$SRCDIR/public/tier1/utlmemory.h"
+		"$SRCDIR/public/tier1/utlrbtree.h"
+		"$SRCDIR/public/tier1/utlsymbol.h"
+		"$SRCDIR/public/tier1/utlvector.h"
+		"$SRCDIR/Public/vcollide.h"
+		"$SRCDIR/Public/vcollide_parse.h"
+		"$SRCDIR/Public/mathlib/vector.h"
+		"$SRCDIR/Public/mathlib/vector2d.h"
+		"$SRCDIR/Public/mathlib/vector4d.h"
+		"$SRCDIR/Public/mathlib/vmatrix.h"
+		"$SRCDIR/Public/vphysics_interface.h"
+		"$SRCDIR/Public/mathlib/vplane.h"
+		"$SRCDIR/public/tier0/vprof.h"
+		"$SRCDIR/public/vstdlib/vstdlib.h"
+	}
+}

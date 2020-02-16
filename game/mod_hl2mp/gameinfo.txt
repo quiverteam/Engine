@@ -1,0 +1,34 @@
+"GameInfo"
+{
+	game	    "Half-Life 2 DM"
+	title	    "HALF+LIFE'"
+	title2	    "deathmatch"
+	type		multiplayer_only
+
+	FileSystem
+	{
+		SteamAppId				220	
+		SearchPaths
+		{
+			gamebin				|gameinfo_path|bin
+			game				|gameinfo_path|.
+            
+            game			    hl2mp/custom/*
+			game				hl2/custom/*
+            
+			game			    hl2mp/hl2mp_english.vpk
+			game			    hl2mp/hl2mp_pak.vpk
+            
+			game				hl2/hl2_sound_vo_english.vpk
+			game				hl2/hl2_pak.vpk
+			game				hl2/hl2_textures.vpk
+			game				hl2/hl2_sound_misc.vpk
+			game				hl2/hl2_misc.vpk
+            
+			game				hl2mp
+			game				hl2
+            
+			core				core
+		}
+	}
+}

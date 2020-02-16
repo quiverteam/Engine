@@ -1,0 +1,76 @@
+schedules:
+  - cron: "20 03 * * *"
+    displayName: "Auto Build"
+    branches:
+      include: ["dev", "qpc"]
+    always: "false" # Don't run unless changes happen
+
+
+pool:
+  vmImage: 'windows-2019'
+
+
+# useful variables:
+# https://docs.microsoft.com/en-us/azure/devops/pipelines/build/variables?view=azure-devops&tabs=yaml
+
+
+steps:
+- task: PythonScript@0
+  displayName: Generate Projects
+  inputs:
+    scriptSource: 'filePath'
+    scriptPath: 'src/devtools/qpc/qpc.py'
+    workingDirectory: 'src/'
+    arguments: '-a everything -m episodic hl2 hl2mp -t vstudio -mf everything'
+    
+# no difference from MSBuild@1?
+- task: VSBuild@1
+  displayName: Build Projects
+  inputs:
+    solution: 'src\everything.sln'
+    platform: 'win32'
+    configuration: 'Release'
+    maximumCpuCount: true
+
+- task: ArchiveFiles@2
+  displayName: Compress game folder with 7z
+  inputs:
+    rootFolderOrFile: 'game/'
+    includeRootFolder: false
+    archiveType: '7z'
+    archiveFile: 'QuiverSource_$(Build.BuildId)_$(Build.SourceBranchName)_$(Build.BuildNumber).7z'
+    replaceExistingArchive: true
+
+- task: GitHubRelease@0
+  condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/master'))
+  displayName: Release to GitHub
+  inputs:
+    gitHubConnection: 'quiverteam'
+    repositoryName: '$(Build.Repository.Name)'
+    action: 'create'
+    target: '$(Build.SourceVersion)'
+    tagSource: 'manual'
+    tag: 'auto_build_$(Build.BuildId)_$(Build.SourceBranchName)_$(Build.BuildNumber)'
+    # releaseNotesSource: 'input'
+    isPreRelease: false
+    releaseNotes: "Auto Build on $(Build.Repository.Name) branch"
+    title: 'Auto Build $(Build.BuildId) - $(Build.SourceBranchName) - $(Build.BuildNumber)'
+    assets: |
+      QuiverSource_$(Build.BuildId)_$(Build.SourceBranchName)_$(Build.BuildNumber).7z
+      
+- task: GitHubRelease@0
+  condition: and(succeeded(), ne(variables['Build.SourceBranch'], 'refs/heads/master'))
+  displayName: Release to GitHub
+  inputs:
+    gitHubConnection: 'quiverteam'
+    repositoryName: '$(Build.Repository.Name)'
+    action: 'create'
+    target: '$(Build.SourceVersion)'
+    tagSource: 'manual'
+    tag: 'auto_build_$(Build.BuildId)_$(Build.SourceBranchName)_$(Build.BuildNumber)'
+    # releaseNotesSource: 'input'
+    isPreRelease: true
+    releaseNotes: "Auto Build on $(Build.Repository.Name) branch"
+    title: 'Auto Build $(Build.BuildId) - $(Build.SourceBranchName) - $(Build.BuildNumber)'
+    assets: |
+      QuiverSource_$(Build.BuildId)_$(Build.SourceBranchName)_$(Build.BuildNumber).7z

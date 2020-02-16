@@ -1,0 +1,124 @@
+// ---------------------------------------------------------------
+// Auto Generated QPC Script - Fix if needed before using
+// ---------------------------------------------------------------
+macro PROJECT_NAME "vphysics"
+
+macro SRCDIR ".."
+macro OUTBINDIR "$SRCDIR/../game/bin"
+
+include "$SRCDIR/_qpc_scripts/source_dll_base.qpc"
+
+configuration
+{
+	general
+	{
+		include_directories
+		{
+			"$SRCDIR/public"
+			"$SRCDIR/common"
+			"$SRCDIR/vphysics"
+			"$SRCDIR/thirdparty/bullet/src"
+		}
+	}
+
+	linker
+	{
+		libraries
+		{
+			"$LIBPUBLIC/tier0"
+			"$LIBPUBLIC/tier2"
+			"$LIBPUBLIC/mathlib"
+			"$LIBPUBLIC/vstdlib"
+			"$LIBCOMMON/BulletCollision"
+			"$LIBCOMMON/BulletDynamics"
+			"$LIBCOMMON/BulletSoftBody"
+			"$LIBCOMMON/BulletMultithreaded"
+			"$LIBCOMMON/LinearMath"
+		}
+	}
+}
+
+dependencies
+{
+	"mathlib"
+	"tier2"
+	"tier3"
+	"vstdlib"
+	
+	// TODO: put the bullet qpc projects in and add them here
+}
+
+files
+{
+	folder "Source Files"
+	{
+		"DebugDrawer.cpp"
+		"miscmath.cpp"
+		"Physics.cpp"
+		"Physics_Collision.cpp"
+		"Physics_CollisionSet.cpp"
+		"Physics_Constraint.cpp"
+		"Physics_DragController.cpp"
+		"Physics_Environment.cpp"
+		"Physics_FluidController.cpp"
+		"Physics_FrictionSnapshot.cpp"
+		"Physics_KeyParser.cpp"
+		"Physics_MotionController.cpp"
+		"Physics_Object.cpp"
+		"Physics_ObjectPairHash.cpp"
+		"Physics_PlayerController.cpp"
+		"Physics_ShadowController.cpp"
+		"Physics_SoftBody.cpp"
+		"Physics_SurfaceProps.cpp"
+		"Physics_VehicleAirboat.cpp"
+		"Physics_VehicleController.cpp"
+		"Physics_VehicleControllerCustom.cpp"
+		"StdAfx.cpp"
+	}
+
+	folder "Header Files"
+	{
+		"constraintsV32.h"
+		"convert.h"
+		"DebugDrawer.h"
+		"IController.h"
+		"miscmath.h"
+		"phydata.h"
+		"Physics.h"
+		"Physics_Collision.h"
+		"Physics_CollisionSet.h"
+		"Physics_Constraint.h"
+		"Physics_DragController.h"
+		"Physics_Environment.h"
+		"Physics_FluidController.h"
+		"Physics_FrictionSnapshot.h"
+		"Physics_KeyParser.h"
+		"Physics_MotionController.h"
+		"Physics_Object.h"
+		"Physics_ObjectPairHash.h"
+		"Physics_PlayerController.h"
+		"Physics_ShadowController.h"
+		"Physics_SoftBody.h"
+		"Physics_SurfaceProps.h"
+		"Physics_VehicleAirboat.h"
+		"Physics_VehicleController.h"
+		"Physics_VehicleControllerCustom.h"
+		"softbodyV32.h"
+		"StdAfx.h"
+		"vehiclesV32.h"
+		"vphysics_interfaceV32.h"
+	}
+
+	folder "Public Header Files"
+	{
+		"$SRCDIR/public/vphysics/collision_set.h"
+		"$SRCDIR/public/vphysics/constraints.h"
+		"$SRCDIR/public/vphysics/friction.h"
+		"$SRCDIR/public/vphysics/object_hash.h"
+		"$SRCDIR/public/vphysics/performance.h"
+		"$SRCDIR/public/vphysics/player_controller.h"
+		"$SRCDIR/public/vphysics/stats.h"
+		"$SRCDIR/public/vphysics/vehicles.h"
+		"$SRCDIR/public/vphysics/virtualmesh.h"
+	}
+}

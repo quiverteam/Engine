@@ -1,0 +1,20 @@
+// ---------------------------------------------------------------
+// Auto Generated QPC Script - Fix if needed before using
+// ---------------------------------------------------------------
+configuration
+{
+	compiler
+	{
+		options
+		{
+			"/ignore:6308" "/ignore:6255" "/ignore:6387" "/ignore:6309" "/ignore:6011" "/ignore:6211" "/ignore:6326" "/ignore:6239" "/ignore:6285" \
+			"/ignore:6237" "/ignore:6235" "/ignore:6240" "/ignore:6323" "/ignore:6326" "/ignore:6335" "/ignore:6320" "/ignore:6250" "/ignore:6384" \
+			"/ignore:6318" "/ignore:6322" "/analyze" "/analyze:only" "/analyze:stacksize100000" [$ANALYZE]
+			
+			"/ignore:6244" "/ignore:6246" [$ANALYZE && $ALLOWSHADOWING]
+			
+			"/ignore:6014" "/ignore:28159" "/ignore:28182" "/ignore:28183" "/ignore:28197" "/ignore:28198" "/ignore:28204" "/ignore:28247" "/ignore:28251" \
+			"/ignore:28301" "/ignore:28195" "/ignore:6340" "/ignore:28125" "/ignore:28160" "/ignore:6248" "/ignore:6102" [$ANALYZE && ($VS2012 || $VS2013)]
+		}
+	}
+}

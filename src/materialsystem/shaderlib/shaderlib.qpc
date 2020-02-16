@@ -1,0 +1,80 @@
+// ---------------------------------------------------------------
+// Auto Generated QPC Script - Fix if needed before using
+// ---------------------------------------------------------------
+macro PROJECT_NAME "shaderlib"
+
+macro SRCDIR "../.."
+macro OUTLIBDIR "$LIBPUBLIC"
+
+include "$SRCDIR/_qpc_scripts/source_lib_base.qpc"
+
+configuration
+{
+	general
+	{
+		include_directories
+		{
+			".."
+		}
+	}
+
+	compiler
+	{
+		preprocessor_definitions
+		{
+			"fopen=dont_use_fopen"
+			"FAST_MATERIALVAR_ACCESS"
+		}
+	}
+}
+
+files
+{
+	folder "Source Files"
+	{
+		"BaseShader.cpp"
+		"ShaderDLL.cpp"
+		"shaderlib_cvar.cpp"
+	}
+
+	folder "Header Files"
+	{
+		"shaderDLL_Global.h"
+		"shaderlib_cvar.h"
+		"$SRCDIR/public/shaderlib/BaseShader.h"
+		"$SRCDIR/Public/tier0/basetypes.h"
+		"$SRCDIR/Public/commonmacros.h"
+		"$SRCDIR/public/shaderlib/cshader.h"
+		"$SRCDIR/public/tier0/dbg.h"
+		"$SRCDIR/public/tier0/fasttimer.h"
+		"$SRCDIR/public/appframework/IAppSystem.h"
+		"$SRCDIR/public/tier0/ICommandLine.h"
+		"$SRCDIR/Public/icvar.h"
+		"$SRCDIR/public/materialsystem/imaterial.h"
+		"$SRCDIR/public/materialsystem/imaterialsystem.h"
+		"$SRCDIR/public/materialsystem/imaterialsystemhardwareconfig.h"
+		"$SRCDIR/public/materialsystem/imaterialvar.h"
+		"$SRCDIR/public/materialsystem/imesh.h"
+		"$SRCDIR/public/materialsystem/IShader.h"
+		"$SRCDIR/public/materialsystem/ishaderapi.h"
+		"../IShaderSystem.h"
+		"$SRCDIR/public/materialsystem/itexture.h"
+		"$SRCDIR/public/materialsystem/materialsystem_config.h"
+		"$SRCDIR/Public/mathlib/MATHLIB.H"
+		"$SRCDIR/public/tier0/memdbgoff.h"
+		"$SRCDIR/public/tier0/memdbgon.h"
+		"$SRCDIR/public/tier0/platform.h"
+		"$SRCDIR/public/protected_things.h"
+		"$SRCDIR/public/shaderlib/ShaderDLL.h"
+		"$SRCDIR/public/string_t.h"
+		"$SRCDIR/public/tier1/strtools.h"
+		"$SRCDIR/public/tier1/utlmemory.h"
+		"$SRCDIR/public/tier1/utlvector.h"
+		"$SRCDIR/Public/mathlib/vector.h"
+		"$SRCDIR/Public/mathlib/vector2d.h"
+		"$SRCDIR/Public/mathlib/vector4d.h"
+		"$SRCDIR/Public/mathlib/vmatrix.h"
+		"$SRCDIR/Public/mathlib/vplane.h"
+		"$SRCDIR/public/vstdlib/vstdlib.h"
+	}
+}

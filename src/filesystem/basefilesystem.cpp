@@ -1736,10 +1736,9 @@ bool CVPKFile::FindFile( const char *pFilename, int &nIndex, int64 &nOffset, int
 	if ( i != pPathEntry->InvalidIndex() )
 	{
 		CVPKFileEntry *pEntry = pPathEntry->operator[]( i );
-		nIndex = i;
+		nIndex = pEntry->ArchiveIndex;
 		nOffset = pEntry->EntryOffset;
 		nLength = pEntry->EntryLength;
-		m_pLastRequest = pEntry;
 
 		return true;
 	}
@@ -1770,7 +1769,7 @@ bool CVPKFile::FindFirst( const char* pWildCard, WIN32_FIND_DATA* dat )
 	{
 		UtlSymId_t iCurrentPath = 0;
 		pPathEntry = pExtensionEntry->operator[]( iCurrentPath );
-		while ( pPathEntry )
+		while ( pPathEntry && iCurrentPath < pExtensionEntry->GetNumStrings() )
 		{
 			if ( Q_strncmp( path, pExtensionEntry->String( iCurrentPath ), strlen(path) ) == 0 )
 			{
@@ -1839,7 +1838,7 @@ int CVPKFile::ReadFromPack( int nIndex, void* buffer, int nDestBytes, int nBytes
 	strcpy( vpk, GetPath().String() );
 	V_StripExtension( vpk, vpk, MAX_PATH );
 	char volume[ MAX_PATH ];
-	V_snprintf( volume, MAX_PATH, "%s_%03d.vpk", vpk, m_pLastRequest->ArchiveIndex );
+	V_snprintf( volume, MAX_PATH, "%s_%03d.vpk", vpk, nIndex );
 
 	FILE *volumevpk = m_fs->Trace_FOpen( volume, "rb", 0, NULL );
 

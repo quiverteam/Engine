@@ -1,0 +1,82 @@
+// ---------------------------------------------------------------
+// Auto Generated QPC Script - Fix if needed before using
+// ---------------------------------------------------------------
+macro PROJECT_NAME "QC_Eyes"
+
+macro SRCDIR "../.."
+macro OUTBINDIR "$BINDEFAULT"
+
+include "$SRCDIR/_qpc_scripts/source_exe_base.qpc"
+
+configuration
+{
+	compiler
+	{
+		preprocessor_definitions
+		{
+			"NO_WARN_MBCS_MFC_DEPRECATION"
+		}
+
+		precompiled_header "use"
+		precompiled_header_output_file "$CONFIG/QC_Eyes.pch"
+
+		options
+		{
+			"/EHsc"
+		}
+	}
+
+	linker
+	{
+		libraries
+		{
+			"windowscodecs.lib"
+		}
+	}
+}
+
+files
+{
+	folder "Source Files"
+	{
+		- "$SRCDIR/public/tier0/memoverride.cpp"
+		"QC_Eyes.cpp"
+		"QC_Eyes.rc"
+		"QC_EyesDlg.cpp"
+		"StdAfx.cpp"
+		{
+			configuration
+			{
+				compiler
+				{
+					precompiled_header "create"
+				}
+			}
+		}
+	}
+
+	folder "Header Files"
+	{
+		"QC_Eyes.h"
+		"QC_EyesDlg.h"
+		"Resource.h"
+		"StdAfx.h"
+	}
+
+	folder "Resources"
+	{
+		"res/eye_default.bmp"
+		"res/eye_lower_hi.bmp"
+		"res/eye_lower_lo.bmp"
+		"res/eye_lower_mid.bmp"
+		"res/eye_upper_hi.bmp"
+		"res/eye_upper_lo.bmp"
+		"res/eye_upper_mid.bmp"
+		"res/eye_XY_L.bmp"
+		"res/eye_XY_R.bmp"
+		"res/eye_Z_L.bmp"
+		"res/eye_Z_R.bmp"
+		"res/QC_Eyes.ico"
+		"res/QC_Eyes.rc2"
+	}
+}

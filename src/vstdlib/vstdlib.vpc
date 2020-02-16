@@ -40,14 +40,6 @@ $Configuration	"Release"
 	}
 }
 
-$Project
-{
-	$folder	"Link Libraries"
-	{
-		-$File	"$LIBPUBLIC\vstdlib.lib"
-	}
-}
-
 $Project "vstdlib"
 {
 	$Folder	"Source Files"
@@ -70,5 +62,10 @@ $Project "vstdlib"
 		$File	"$SRCDIR\public\vstdlib\random.h"
 		$File	"$SRCDIR\public\vstdlib\vcover.h"
 		$File	"$SRCDIR\public\vstdlib\vstdlib.h"
+	}
+	
+	$Folder	"Link Libraries"
+	{
+		-$Lib	"$LIBPUBLIC/vstdlib"
 	}
 }

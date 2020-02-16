@@ -1,0 +1,88 @@
+// ---------------------------------------------------------------
+// Auto Generated QPC Script - Fix if needed before using
+// ---------------------------------------------------------------
+macro PROJECT_NAME "SDKLauncher"
+
+macro SRCDIR "../.."
+macro OUTBINDIR "$BINDEFAULT"
+
+include "$SRCDIR/_qpc_scripts/source_exe_base.qpc"
+
+configuration
+{
+	general
+	{
+		include_directories
+		{
+			"$SRCDIR/utils/common"
+		}
+	}
+
+	linker
+	{
+		libraries
+		{
+			"odbc32.lib"
+			"odbccp32.lib"
+			"WS2_32.LIB"
+			"$LIBCOMMON/steam"
+			"appframework"
+			"tier2"
+			"tier3"
+			"vgui_controls"
+		}
+	}
+}
+
+dependencies
+{
+	"appframework"
+	"tier2"
+	"tier3"
+	"vgui_controls"
+}
+
+files
+{
+	folder "Source Files"
+	{
+		"$SRCDIR/common/ConfigManager.cpp"
+		"$SRCDIR/common/SourceAppInfo.cpp"
+		"configs.cpp"
+		"CreateModWizard.cpp"
+		"CreateModWizard.h"
+		"$SRCDIR/public/filesystem_init.cpp"
+		"$SRCDIR/public/registry.cpp"
+		"Main.cpp"
+		"min_footprint_files.cpp"
+		"ModConfigsHelper.cpp"
+		"ModWizard_CopyFiles.cpp"
+		"ModWizard_Finished.cpp"
+		"ModWizard_GetModInfo.cpp"
+		"ModWizard_Intro.cpp"
+		"sdklauncher_main.h"
+		"SDKLauncherDialog.cpp"
+		"$SRCDIR/public/vgui_controls/vgui_controls.cpp"
+	}
+
+	folder "Header Files"
+	{
+		"$SRCDIR/common/ConfigManager.h"
+		"configs.h"
+		"$SRCDIR/public/filesystem_init.h"
+		"$SRCDIR/public/tier1/interface.h"
+		"min_footprint_files.h"
+		"ModConfigsHelper.h"
+		"ModWizard_CopyFiles.h"
+		"ModWizard_GetModInfo.h"
+		"ModWizard_Intro.h"
+		"SDKLauncherDialog.h"
+	}
+
+	folder "Resource Files"
+	{
+		"icon2.ico"
+		"Script1.rc"
+		"steam.ico"
+	}
+}

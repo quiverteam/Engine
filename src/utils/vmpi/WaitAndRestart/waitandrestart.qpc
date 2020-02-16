@@ -1,0 +1,41 @@
+// ---------------------------------------------------------------
+// Auto Generated QPC Script - Fix if needed before using
+// ---------------------------------------------------------------
+macro PROJECT_NAME "WaitAndRestart"
+
+macro SRCDIR "../../.."
+macro OUTBINDIR "$BINDEFAULT"
+macro OUTBINNAME "WaitAndRestart"
+
+include "$SRCDIR/_qpc_scripts/source_exe_base.qpc"
+
+configuration
+{
+	general
+	{
+		include_directories
+		{
+			".."
+		}
+	}
+
+	compiler
+	{
+		preprocessor_definitions
+		{
+			"PROTECTED_THINGS_DISABLE"
+		}
+	}
+}
+
+files
+{
+	folder "Source Files"
+	{
+		"WaitAndRestart.cpp"
+	}
+
+	folder "Header Files"
+	{
+	}
+}

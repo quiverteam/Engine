@@ -1,0 +1,310 @@
+// ---------------------------------------------------------------
+// Auto Generated QPC Script - Fix if needed before using
+// ---------------------------------------------------------------
+macro SRCDIR "../.."
+macro GAMENAME
+macro OUTBINNAME "gameui"
+macro OUTBINDIR "$SRCDIR/../game/$GAMENAME/bin/$PLATFORM"
+
+include "$SRCDIR/_qpc_scripts/source_dll_base.qpc" [$WINDOWS || $LINUX]
+
+configuration
+{
+	general
+	{
+		include_directories
+		{
+			"./"
+			"$SRCDIR/game/shared"
+			"$SRCDIR/game/client"
+			"$SRCDIR/game/client/game_controls"
+		}
+	}
+
+	compiler
+	{
+		preprocessor_definitions
+		{
+			"HL2_CLIENT_DLL"
+			"HL2_EPISODIC"
+			"GAMEUI_DLL"
+			"SUPPRESS_INVALID_PARAMETER_NO_INFO"
+			"_CRT_NO_VA_START_VALIDATION"
+			"NO_STRING_T"
+			"CLIENT_DLL"
+			"VECTOR"
+			"VERSION_SAFE_STEAM_API_INTERFACES"
+			"DISABLE_PROTECTED_THINGS"
+			"strncpy=use_Q_strncpy_instead"
+			"_snprintf=use_Q_snprintf_instead"
+			"GAMEUI_EXPORTS"
+		}
+
+		precompiled_header "use"
+		precompiled_header_file "cbase.h"
+		precompiled_header_output_file "$(IntDir)/gameui.pch"
+	}
+
+	linker
+	{
+		ignore_import_library "true"
+
+		libraries
+		{
+			"Ws2_32.lib" "odbc32.lib" "odbccp32.lib" "Shlwapi.lib" "winmm.lib" [$WINDOWS]
+			"$LIBCOMMON/jpeglib"
+			"$LIBPUBLIC/bitmap"
+			"$LIBPUBLIC/mathlib"
+			"$LIBPUBLIC/tier2"
+			"$LIBPUBLIC/tier3"
+			"$LIBPUBLIC/dmxloader"
+			"$LIBPUBLIC/vgui_controls"
+			"$LIBPUBLIC/matsys_controls"
+			"$LIBPUBLIC/vtf"
+			"$LIBPUBLIC/steam_api"
+		}
+
+		ignore_libraries
+		{
+			"libc"
+			"libcd"
+			"libcmtd"
+			"msvcrt"
+		}
+	}
+}
+
+dependencies
+{
+	"thirdparty/jpeglib/jpeglib.qpc"
+	"bitmap/bitmap.qpc"
+	"mathlib/mathlib.qpc"
+	"tier2/tier2.qpc"
+	"tier3/tier3.qpc"
+	"dmxloader/dmxloader.qpc"
+	"vgui2/vgui_controls/vgui_controls.qpc"
+	"vgui2/matsys_controls/matsys_controls.qpc"
+	"vtf/vtf.qpc"
+}
+
+files
+{
+	folder "Source Files"
+	{
+		"BonusMapsDatabase.cpp"
+		"BonusMapsDatabase.h"
+		"BonusMapsDialog.cpp"
+		"BonusMapsDialog.h"
+		"CommentaryExplanationDialog.cpp"
+		"CommentaryExplanationDialog.h"
+		"ControllerDialog.cpp"
+		"ControllerDialog.h"
+		"LoadGameDialog.cpp"
+		"LoadGameDialog.h"
+		"NewGameDialog.cpp"
+		"NewGameDialog.h"
+		"SaveGameBrowserDialog.cpp"
+		"SaveGameBrowserDialog.h"
+		"SaveGameDialog.cpp"
+		"SaveGameDialog.h"
+		"TGAImagePanel.cpp"
+		"TGAImagePanel.h"
+		"nb_button.h"
+		"nb_button.cpp"
+		"cbase.h"
+		"basemodframe.h"
+		"gamemodes.h"
+		"UIGameData.h"
+		"vaddonassociation.h"
+		"vaddons.h"
+		"vattractscreen.h"
+		"vcustomcampaigns.h"
+		"vdropdownmenu.h"
+		"vflyoutmenu.h"
+		"vfooterpanel.h"
+		"vgenericconfirmation.h"
+		"vgenericpanellist.h"
+		"vgetlegacydata.h"
+		"vhybridbutton.h"
+		"vingamemainmenu.h"
+		"vloadingprogress.h"
+		"vmainmenu.h"
+		"vslidercontrol.h"
+		"vtransitionscreen.h"
+		"basemodframe.cpp"
+		"BaseModPanel.cpp"
+		"gamemodes.cpp"
+		"vaddonassociation.cpp"
+		"vaddons.cpp"
+		"vattractscreen.cpp"
+		"vcampaigns.cpp"
+		"vcustomcampaigns.cpp"
+		"vdropdownmenu.cpp"
+		"vflyoutmenu.cpp"
+		"vfooterpanel.cpp"
+		"vgenericconfirmation.cpp"
+		"vgenericpanellist.cpp"
+		"vgetlegacydata.cpp"
+		"vhybridbutton.cpp"
+		"vingamemainmenu.cpp"
+		"vloadingprogress.cpp"
+		"vmainmenu.cpp"
+		"vmenubackground.cpp"
+		"vslidercontrol.cpp"
+		"vtransitionscreen.cpp"
+		"UIGameData.cpp"
+
+		"backgroundmenubutton.cpp"	\
+		"basesavegamedialog.cpp"	\
+		"bitmapimagepanel.cpp"	\
+		"commandcheckbutton.cpp"	\
+		"contentcontroldialog.cpp"	\
+		"createmultiplayergamebotpage.cpp"	\
+		"createmultiplayergamedialog.cpp"	\
+		"createmultiplayergamegameplaypage.cpp"	\
+		"createmultiplayergameserverpage.cpp"	\
+		"customtabexplanationdialog.cpp"	\
+		"cvarnegatecheckbutton.cpp"	\
+		"cvarslider.cpp"	\
+		"cvartextentry.cpp"	\
+		"cvartogglecheckbutton.cpp"	\
+		"gameconsole.cpp"	\
+		"gameconsoledialog.cpp"	\
+		"gameui_interface.cpp"	\
+		"gameui_util.cpp"	\
+		"keytogglecheckbutton.cpp"	\
+		"labeledcommandcombobox.cpp"	\
+		"loadingdialog.cpp"	\
+		"loadingtippanel.cpp"	\
+		"logofile.cpp"	\
+		"modinfo.cpp"	\
+		"mousemessageforwardingpanel.cpp"	\
+		"multiplayeradvanceddialog.cpp"	\
+		"panellistpanel.cpp"	\
+		"playerlistdialog.cpp"	\
+		"rungameengine.cpp"	\
+		"scriptobject.cpp"	\
+		"sys_utils.cpp"	\
+		"textentrybox.cpp"	\
+		"urlbutton.cpp"	\
+		"vcontrolslistpanel.cpp"	\
+		"vguisystemmoduleloader.cpp"	\
+		"$SRCDIR/common/language.cpp"	\
+		"$SRCDIR/public/crtmemdebug.cpp"	\
+		"$SRCDIR/public/filesystem_helpers.cpp"	\
+		"$SRCDIR/common/randoverride.cpp"	\
+		"$SRCDIR/public/vgui_controls/vgui_controls.cpp"
+		{
+			configuration
+			{
+				compiler
+				{
+					precompiled_header "none"
+				}
+			}
+		}
+
+		folder "Settings"
+		{
+			folder "Headers"
+			{
+				"shared/settings/vaudio.h"
+				"shared/settings/vaudiovideo.h"
+				"shared/settings/vgameplaysettings.h"
+				"shared/settings/vkeyboard.h"
+				"shared/settings/vkeyboardmouse.h"
+				"shared/settings/vmouse.h"
+				"shared/settings/voptions.h"
+				"shared/settings/vvideo.h"
+			}
+
+			"shared/settings/vaudio.cpp"	\
+			"shared/settings/vaudiovideo.cpp"	\
+			"shared/settings/vgameplaysettings.cpp"	\
+			"shared/settings/vkeyboard.cpp"	\
+			"shared/settings/vkeyboardmouse.cpp"	\
+			"shared/settings/vmouse.cpp"	\
+			"shared/settings/voptions.cpp"	\
+			"shared/settings/vvideo.cpp"
+			{
+				configuration
+				{
+					compiler
+					{
+						precompiled_header "none"
+					}
+				}
+			}
+		}
+
+		folder "Settings_Old"
+		{
+			folder "Headers"
+			{
+				"shared/settings_old/optionsdialog.h"
+				"shared/settings_old/optionsmousedialog.h"
+				"shared/settings_old/optionssubaudio.h"
+				"shared/settings_old/optionssubdifficulty.h"
+				"shared/settings_old/optionssubgame.h"
+				"shared/settings_old/optionssubkeyboard.h"
+				"shared/settings_old/optionssubmouse.h"
+				"shared/settings_old/optionssubportal.h"
+				"shared/settings_old/optionssubvideo.h"
+				"shared/settings_old/optionssubvoice.h"
+			}
+
+			"shared/settings_old/optionsdialog.cpp"	\
+			"shared/settings_old/optionsmousedialog.cpp"	\
+			"shared/settings_old/optionssubaudio.cpp"	\
+			"shared/settings_old/optionssubdifficulty.cpp"	\
+			"shared/settings_old/optionssubgame.cpp"	\
+			"shared/settings_old/optionssubkeyboard.cpp"	\
+			"shared/settings_old/optionssubmouse.cpp"	\
+			"shared/settings_old/optionssubportal.cpp"	\
+			"shared/settings_old/optionssubvideo.cpp"	\
+			"shared/settings_old/optionssubvoice.cpp"
+			{
+				configuration
+				{
+					compiler
+					{
+						precompiled_header "none"
+					}
+				}
+			}
+		}
+	}
+
+	folder "Precompiled Header"
+	{
+		"stdafx.cpp"
+		{
+			configuration
+			{
+				compiler
+				{
+					precompiled_header "create"
+				}
+			}
+		}
+	}
+
+	folder "Public Header Files"
+	{
+		"$SRCDIR/public/iachievementmgr.h"
+		"$SRCDIR/public/game/client/IGameClientExports.h"
+		"$SRCDIR/common/GameUI/IGameUI.h"
+		"$SRCDIR/public/IGameUIFuncs.h"
+		"$SRCDIR/public/tier1/interface.h"
+		"$SRCDIR/common/IRunGameEngine.h"
+		"$SRCDIR/common/IVGuiModule.h"
+		"$SRCDIR/common/IVGuiModuleLoader.h"
+		"$SRCDIR/public/savegame_version.h"
+		"$SRCDIR/common/language.h"
+	}
+
+	folder "Game_MapLab"
+	{
+		"maplab/ui_defines.h"
+	}
+}

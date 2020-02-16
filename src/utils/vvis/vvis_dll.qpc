@@ -1,0 +1,120 @@
+// ---------------------------------------------------------------
+// Auto Generated QPC Script - Fix if needed before using
+// ---------------------------------------------------------------
+macro PROJECT_NAME "Vvis_dll"
+
+macro SRCDIR "../.."
+macro OUTBINDIR "$BINDEFAULT"
+
+include "$SRCDIR/_qpc_scripts/source_dll_base.qpc"
+
+configuration
+{
+	general
+	{
+		include_directories
+		{
+			"../common"
+			"../vmpi"
+			"../vmpi/mysql/include"
+		}
+	}
+
+	compiler
+	{
+		preprocessor_definitions
+		{
+			"MPI"
+			"PROTECTED_THINGS_DISABLE"
+		}
+	}
+
+	linker
+	{
+		libraries
+		{
+			"odbc32.lib"
+			"odbccp32.lib"
+			"ws2_32.lib"
+			"mathlib"
+			"tier2"
+			"vmpi"
+		}
+	}
+}
+
+dependencies
+{
+	"mathlib/mathlib.qpc"
+	"tier2/tier2.qpc"
+	"utils/vmpi/vmpi.qpc"
+}
+
+files
+{
+	folder "Source Files"
+	{
+		- "$SRCDIR/public/tier0/memoverride.cpp"
+		"../common/bsplib.cpp"
+		"../common/cmdlib.cpp"
+		"$SRCDIR/public/collisionutils.cpp"
+		"$SRCDIR/public/filesystem_helpers.cpp"
+		"flow.cpp"
+		"$SRCDIR/public/loadcmdline.cpp"
+		"$SRCDIR/public/lumpfiles.cpp"
+		"../common/mpi_stats.cpp"
+		"mpivis.cpp"
+		"../common/MySqlDatabase.cpp"
+		"../common/pacifier.cpp"
+		"$SRCDIR/public/scratchpad3d.cpp"
+		"../common/scratchpad_helpers.cpp"
+		"../common/scriplib.cpp"
+		"../common/threads.cpp"
+		"../common/tools_minidump.cpp"
+		"../common/tools_minidump.h"
+		"../common/vmpi_tools_shared.cpp"
+		"vvis.cpp"
+		"WaterDist.cpp"
+		"$SRCDIR/public/zip_utils.cpp"
+	}
+
+	folder "Header Files"
+	{
+		"$SRCDIR/public/mathlib/amd3dx.h"
+		"$SRCDIR/public/tier0/basetypes.h"
+		"$SRCDIR/public/BSPFILE.H"
+		"$SRCDIR/public/bspflags.h"
+		"../common/bsplib.h"
+		"$SRCDIR/public/BSPTreeData.h"
+		"$SRCDIR/public/mathlib/bumpvects.h"
+		"$SRCDIR/public/tier1/byteswap.h"
+		"$SRCDIR/public/tier1/checksum_crc.h"
+		"$SRCDIR/public/tier1/checksum_md5.h"
+		"../common/cmdlib.h"
+		"$SRCDIR/public/cmodel.h"
+		"$SRCDIR/public/tier0/commonmacros.h"
+		"$SRCDIR/public/GameBSPFile.h"
+		"../common/ISQLDBReplyTarget.h"
+		"$SRCDIR/public/mathlib/mathlib.h"
+		"mpivis.h"
+		"../common/MySqlDatabase.h"
+		"../common/pacifier.h"
+		"../common/scriplib.h"
+		"$SRCDIR/public/tier1/strtools.h"
+		"../common/threads.h"
+		"$SRCDIR/public/tier1/utlbuffer.h"
+		"$SRCDIR/public/tier1/utllinkedlist.h"
+		"$SRCDIR/public/tier1/utlmemory.h"
+		"$SRCDIR/public/tier1/utlrbtree.h"
+		"$SRCDIR/public/tier1/utlsymbol.h"
+		"$SRCDIR/public/tier1/utlvector.h"
+		"$SRCDIR/public/vcollide.h"
+		"$SRCDIR/public/mathlib/vector.h"
+		"$SRCDIR/public/mathlib/vector2d.h"
+		"vis.h"
+		"../vmpi/vmpi_distribute_work.h"
+		"../common/vmpi_tools_shared.h"
+		"$SRCDIR/public/vstdlib/vstdlib.h"
+		"$SRCDIR/public/wadtypes.h"
+	}
+}

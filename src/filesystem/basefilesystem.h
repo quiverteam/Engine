@@ -388,7 +388,6 @@ public:
 private:
 	bool m_bVolumes;
 	unsigned int m_nVersion;
-	CVPKFileEntry* m_pLastRequest;
 	char m_pWildCard[MAX_FILEPATH];
 	UtlSymId_t m_iCurrentExtension;
 	UtlSymId_t m_iCurrentPath;

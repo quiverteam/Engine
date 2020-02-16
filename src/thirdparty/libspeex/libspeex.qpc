@@ -1,0 +1,64 @@
+macro PROJECT_NAME "libspeex"
+
+macro SRCDIR "../.."
+macro OUTLIBDIR "$LIBCOMMON"
+
+macro LIBSPEEXSRCDIR "./libspeex"
+
+include "$SRCDIR/_qpc_scripts/source_lib_base.qpc"
+
+files
+{
+	folder "Source Files"
+	{
+		"$LIBSPEEXSRCDIR/nb_celp.c"
+		"$LIBSPEEXSRCDIR/sb_celp.c"
+		"$LIBSPEEXSRCDIR/lpc.c"
+		"$LIBSPEEXSRCDIR/ltp.c"
+		"$LIBSPEEXSRCDIR/lsp.c"
+		"$LIBSPEEXSRCDIR/quant_lsp.c"
+		"$LIBSPEEXSRCDIR/lsp_tables_nb.c"
+		"$LIBSPEEXSRCDIR/gain_table.c"
+		"$LIBSPEEXSRCDIR/gain_table_lbr.c"
+		"$LIBSPEEXSRCDIR/cb_search.c"
+		"$LIBSPEEXSRCDIR/filters.c"
+		"$LIBSPEEXSRCDIR/bits.c"
+		"$LIBSPEEXSRCDIR/modes.c"
+		"$LIBSPEEXSRCDIR/vq.c"
+		"$LIBSPEEXSRCDIR/high_lsp_tables.c"
+		"$LIBSPEEXSRCDIR/vbr.c"
+		"$LIBSPEEXSRCDIR/hexc_table.c"
+		"$LIBSPEEXSRCDIR/exc_5_256_table.c"
+		"$LIBSPEEXSRCDIR/exc_5_64_table.c"
+		"$LIBSPEEXSRCDIR/exc_8_128_table.c"
+		"$LIBSPEEXSRCDIR/exc_10_32_table.c"
+		"$LIBSPEEXSRCDIR/exc_10_16_table.c"
+		"$LIBSPEEXSRCDIR/exc_20_32_table.c"
+		"$LIBSPEEXSRCDIR/hexc_10_32_table.c"
+		"$LIBSPEEXSRCDIR/misc.c"
+		"$LIBSPEEXSRCDIR/speex_header.c"
+		"$LIBSPEEXSRCDIR/speex_callbacks.c"
+		"$LIBSPEEXSRCDIR/math_approx.c"
+		"$LIBSPEEXSRCDIR/stereo.c"
+	}
+	
+	folder "Header Files"
+	{
+		"$LIBSPEEXSRCDIR/lsp.h"
+		"$LIBSPEEXSRCDIR/nb_celp.h"
+		"$LIBSPEEXSRCDIR/lpc.h"
+		"$LIBSPEEXSRCDIR/ltp.h"
+		"$LIBSPEEXSRCDIR/quant_lsp.h"
+		"$LIBSPEEXSRCDIR/cb_search.h"
+		"$LIBSPEEXSRCDIR/filters.h"
+		"$LIBSPEEXSRCDIR/stack_alloc.h"
+		"$LIBSPEEXSRCDIR/vq.h"
+		"$LIBSPEEXSRCDIR/modes.h"
+		"$LIBSPEEXSRCDIR/sb_celp.h"
+		"$LIBSPEEXSRCDIR/vbr.h"
+		"$LIBSPEEXSRCDIR/misc.h"
+		"$LIBSPEEXSRCDIR/ltp_sse.h"
+		"$LIBSPEEXSRCDIR/filters_sse.h"
+		"$LIBSPEEXSRCDIR/math_approx.h"
+	}
+}

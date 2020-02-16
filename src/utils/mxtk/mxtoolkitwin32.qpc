@@ -1,0 +1,107 @@
+// ---------------------------------------------------------------
+// Auto Generated QPC Script - Fix if needed before using
+// ---------------------------------------------------------------
+macro PROJECT_NAME "Mxtoolkitwin32"
+
+macro SRCDIR "../.."
+macro OUTLIBDIR "$LIBCOMMON"
+
+include "$SRCDIR/_qpc_scripts/source_lib_base.qpc"
+
+configuration
+{
+	general
+	{
+		include_directories
+		{
+			"../../public"
+		}
+	}
+
+	compiler
+	{
+		preprocessor_definitions
+		{
+			"_CRT_SECURE_NO_DEPRECATE"
+		}
+	}
+}
+
+files
+{
+	folder "Source Files"
+	{
+		"mx.cpp"
+		"mxBmp.cpp"
+		"mxButton.cpp"
+		"mxCheckBox.cpp"
+		"mxChoice.cpp"
+		"mxChooseColor.cpp"
+		"mxFileDialog.cpp"
+		"mxGlWindow.cpp"
+		"mxGroupBox.cpp"
+		"mxLabel.cpp"
+		"mxLineEdit.cpp"
+		"mxListBox.cpp"
+		"mxlistview.cpp"
+		"mxMatSysWindow.cpp"
+		"mxMenu.cpp"
+		"mxMenuBar.cpp"
+		"mxMessageBox.cpp"
+		"mxpath.cpp"
+		"mxPcx.cpp"
+		"mxPopupMenu.cpp"
+		"mxProgressBar.cpp"
+		"mxRadioButton.cpp"
+		"mxScrollbar.cpp"
+		"mxSlider.cpp"
+		"mxstring.cpp"
+		"mxTab.cpp"
+		"mxTga.cpp"
+		"mxToolTip.cpp"
+		"mxTreeView.cpp"
+		"mxWidget.cpp"
+		"mxWindow.cpp"
+	}
+
+	folder "Header Files"
+	{
+		"../../public/mxtk/gl.h"
+		"../../public/mxtk/mx.h"
+		"../../public/mxtk/mxBmp.h"
+		"../../public/mxtk/mxButton.h"
+		"../../public/mxtk/mxCheckBox.h"
+		"../../public/mxtk/mxChoice.h"
+		"../../public/mxtk/mxChooseColor.h"
+		"../../public/mxtk/mxEvent.h"
+		"../../public/mxtk/mxFileDialog.h"
+		"../../public/mxtk/mxGlWindow.h"
+		"../../public/mxtk/mxGroupBox.h"
+		"../../public/mxtk/mxImage.h"
+		"../../public/mxtk/mxInit.h"
+		"../../public/mxtk/mxLabel.h"
+		"../../public/mxtk/mxLineEdit.h"
+		"../../public/mxtk/mxLinkedList.h"
+		"../../public/mxtk/mxListBox.h"
+		"../../public/mxtk/mxlistview.h"
+		"../../public/mxtk/mxMatSysWindow.h"
+		"../../public/mxtk/mxMenu.h"
+		"../../public/mxtk/mxMenuBar.h"
+		"../../public/mxtk/mxMessageBox.h"
+		"../../public/mxtk/mxpath.h"
+		"../../public/mxtk/mxPcx.h"
+		"../../public/mxtk/mxPopupMenu.h"
+		"../../public/mxtk/mxProgressBar.h"
+		"../../public/mxtk/mxRadioButton.h"
+		"../../public/mxtk/mxScrollbar.h"
+		"../../public/mxtk/mxSlider.h"
+		"../../public/mxtk/mxstring.h"
+		"../../public/mxtk/mxTab.h"
+		"../../public/mxtk/mxTga.h"
+		"../../public/mxtk/mxToggleButton.h"
+		"../../public/mxtk/mxToolTip.h"
+		"../../public/mxtk/mxTreeView.h"
+		"../../public/mxtk/mxWidget.h"
+		"../../public/mxtk/mxWindow.h"
+	}
+}

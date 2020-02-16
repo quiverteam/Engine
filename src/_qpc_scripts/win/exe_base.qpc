@@ -1,0 +1,19 @@
+// ---------------------------------------------------------------
+// Base Application Settings for Visual Studio
+// ---------------------------------------------------------------
+configuration
+{
+	linker
+	{
+		libraries
+		{
+			"legacy_stdio_definitions.lib" [!$VS2010 && !$VS2013 && $WIN64 && $RELEASE]
+		}
+
+		options
+		{
+			"/NXCOMPAT"
+			"$SRCDIR\lib\public\ftol3.obj" [$VS2013 && !$DISABLE_FTOL3_OVERRIDE && !$SOURCESDK]
+		}
+	}
+}

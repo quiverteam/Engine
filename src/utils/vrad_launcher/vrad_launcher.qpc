@@ -1,0 +1,45 @@
+// ---------------------------------------------------------------
+// Auto Generated QPC Script - Fix if needed before using
+// ---------------------------------------------------------------
+macro PROJECT_NAME "Vrad_launcher"
+
+macro SRCDIR "../.."
+macro OUTBINDIR "$BINDEFAULT"
+macro OUTBINNAME "vrad"
+
+include "$SRCDIR/_qpc_scripts/source_exe_con_base.qpc"
+
+configuration
+{
+	compiler
+	{
+		precompiled_header "use"
+		precompiled_header_output_file "$CONFIG/vrad_launcher.pch"
+	}
+}
+
+files
+{
+	folder "Source Files"
+	{
+		- "$SRCDIR/public/tier0/memoverride.cpp"
+		"vrad_launcher.cpp"
+		"StdAfx.cpp"
+		{
+			configuration
+			{
+				compiler
+				{
+					precompiled_header "create"
+				}
+			}
+		}
+	}
+
+	folder "Header Files"
+	{
+		"$SRCDIR/public/tier1/interface.h"
+		"$SRCDIR/public/ivraddll.h"
+		"StdAfx.h"
+	}
+}

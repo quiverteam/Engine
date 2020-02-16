@@ -1,8 +1,14 @@
-use String::CRC32;
+# use String::CRC32;
 BEGIN {use File::Basename; push @INC, dirname($0); }
 require "valve_perl_helpers.pl";
 
 $dynamic_compile = defined $ENV{"dynamic_shaders"} && $ENV{"dynamic_shaders"} != 0;
+$force_compile = defined $ENV{"force_compile"} && $ENV{"force_compile"} != 0;
+
+if( $force_compile == 0 )
+{
+	use String::CRC32;
+}
 
 $depnum = 0;
 $baseSourceDir = ".";
@@ -238,13 +244,17 @@ foreach $shader ( @srcfiles )
 	}
 	if( $compilevcs )
 	{
-		my $vcsFileName = "..\\..\\..\\game\\hl2\\shaders\\$shadertype\\$shaderbase" . $g_vcsext;
-		# We want to check for perforce operations even if the crc matches in the event that a file has been manually reverted and needs to be checked out again.
-		&output_vcslist_line( "$vcsFileName\n" );  
-		$shadercrcpass{$shader} = &CheckCRCAgainstTarget( $shadersrc, $vcsFileName, 0 );
-		if( $shadercrcpass{$shader} )
+		if( $force_compile == 0 )
 		{
-			$compilevcs = 0;
+			my $vcsFileName = "..\\..\\..\\game\\core\\shaders\\$shadertype\\$shaderbase" . $g_vcsext;
+			# We want to check for perforce operations even if the crc matches in the event that a file has been manually reverted and needs to be checked out again.
+			&output_vcslist_line( "$vcsFileName\n" );  
+		
+			$shadercrcpass{$shader} = &CheckCRCAgainstTarget( $shadersrc, $vcsFileName, 0 );
+			if( $shadercrcpass{$shader} )
+			{
+				$compilevcs = 0;
+			}
 		}
 	}
 	if( $compilevcs )
