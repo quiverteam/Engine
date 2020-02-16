@@ -25,7 +25,7 @@
 //-----------------------------------------------------------------------------
 // Explicit instantiation of shader buffer implementation
 //-----------------------------------------------------------------------------
-template class CShaderBuffer< ID3DBlob >;
+template class CShaderBuffer< ID3D11Buffer >;
 
 
 //-----------------------------------------------------------------------------

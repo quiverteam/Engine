@@ -15,6 +15,68 @@
 
 #include "shaderapi/ishadershadow.h"
 
+// DX11 fixed function state
+struct ShadowStateDx11_t
+{
+	// Depth buffering state
+	ShaderDepthFunc_t m_ZFunc;
+	bool m_ZEnable;
+
+	// Write enable
+	uint64 m_ColorWriteEnable;
+
+	// Fill mode
+	ShaderFillMode_t m_FillMode;
+
+	// Alpha state
+	ShaderBlendFactor_t m_SrcBlend;
+	ShaderBlendFactor_t m_DestBlend;
+
+	// Separate alpha blend state
+	ShaderBlendFactor_t m_SrcBlendAlpha;
+	ShaderBlendFactor_t m_DestBlendAlpha;
+
+	StencilComparisonFunction_t m_AlphaFunc;
+	int m_AlphaRef;
+
+	bool	m_ZWriteEnable : 1;
+	bool	m_ZBias : 2;
+	bool	m_CullEnable : 1;
+	bool	m_AlphaBlendEnable : 1;
+	bool	m_SeparateAlphaBlendEnable : 1;
+	bool	m_StencilEnable : 1;
+	bool	m_EnableAlphaToCoverage : 1;
+
+	unsigned char m_Reserved[4];
+};
+
+// DX11 shader (non-fixed function) state
+struct ShadowShaderStateDx11_t
+{
+	// The vertex + pixel shader group to use...
+	VertexShader_t m_VertexShader;
+	PixelShader_t  m_PixelShader;
+	
+	// The static vertex + pixel shader indices
+	int	m_nStaticVshIndex;
+	int	m_nStaticPshIndex;
+
+	// Vertex data used by this snapshot
+	// Note that the vertex format actually used will be the
+	// aggregate of the vertex formats used by all snapshots in a material
+	VertexFormat_t m_VertexUsage;
+
+	// Morph data used by this snapshot
+	// Note that the morph format actually used will be the
+	// aggregate of the morph formats used by all snapshots in a material
+	MorphFormat_t m_MorphUsage;
+
+	// Modulate constant color into the vertex color
+	bool m_ModulateConstantColor;
+
+	bool m_nReserved[3];
+};
+
 //-----------------------------------------------------------------------------
 // The empty shader shadow
 //-----------------------------------------------------------------------------
@@ -160,6 +222,10 @@ public:
 	bool m_IsAlphaTested;
 	bool m_bIsDepthWriteEnabled;
 	bool m_bUsesVertexAndPixelShaders;
+
+	ShadowStateDx11_t m_ShadowState;
+	ShadowShaderStateDx11_t m_ShadowShaderState;
+
 };
 
 

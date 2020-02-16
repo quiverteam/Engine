@@ -1,0 +1,111 @@
+//-----------------------------------------------------------------------------
+//	SHADERAPIDX11.QPC
+//
+//	Project Script
+//-----------------------------------------------------------------------------
+
+macro SRCDIR		"..\.."
+macro OUTBINDIR	"$BINDEFAULT"
+macro DX9DIR		"..\shaderapidx9"
+
+include "$SRCDIR\_qpc_scripts\source_dll_base.qpc"
+
+configuration
+{
+
+	general
+	{
+		int_dir "./$CONFIG/$PLATFORM/dx11"
+
+		include_directories
+		{
+			".."
+		}
+	}
+
+	compiler
+	{
+		preprocessor_definitions
+		{
+			"DX11"
+			"SHADERAPIDX11"
+			"SHADER_DLL_EXPORT"
+			"PROTECTED_THINGS_ENABLE"
+			"strncpy=use_Q_strncpy_instead"
+			"_snprintf=use_Q_snprintf_instead"
+		}
+	}
+	
+	linker
+	{
+		libraries
+		{
+			"$LIBPUBLIC/tier2"
+			"$LIBPUBLIC/bitmap"
+			"$LIBPUBLIC/mathlib"
+			"$LIBCOMMON/bzip2"
+		}
+	}
+}
+
+dependencies
+{
+	"bitmap/bitmap.qpc"
+	"mathlib/mathlib.qpc"
+	"tier2/tier2.qpc"
+	"thirdparty/bzip2/bzip2.qpc"
+}
+
+files
+{
+	folder	"Source Files"
+	{
+		// Shared riles
+		"$DX9DIR\cvballoctracker.cpp"
+		"$DX9DIR\shaderdevicebase.cpp"
+		"$DX9DIR\shaderapibase.cpp"
+		"$DX9DIR\meshbase.cpp"
+
+		"vertexshaderdx11.cpp"
+		
+		// DX11 related files
+		"ShaderDeviceDx11.cpp"
+		"ShaderAPIDx11.cpp"
+		"MeshDx11.cpp"
+		"InputLayoutDx11.cpp"
+		"ShaderShadowDx11.cpp"
+		"TransitionTableDx11.cpp"
+	}
+
+	folder	"Public Header Files"
+	{
+		"$SRCDIR\public\shaderapi\ishaderdevice.h"
+		"$SRCDIR\public\shaderapi\ishaderutil.h"
+		"$SRCDIR\public\shaderapi\ishaderapi.h"
+		"$SRCDIR\public\shaderapi\ishaderdynamic.h"
+		"$SRCDIR\public\shaderapi\ishadershadow.h"
+		"$SRCDIR\public\materialsystem\idebugtextureinfo.h"
+		"$SRCDIR\public\materialsystem\ivballoctracker.h"
+		"$SRCDIR\public\materialsystem\shader_vcs_version.h"
+	}
+
+	folder	"Header Files"
+	{
+		// Shared files
+		"$DX9DIR\meshbase.h"
+		"$DX9DIR\shaderdevicebase.h"
+		"$DX9DIR\shaderapibase.h"
+		"$DX9DIR\shaderapi_global.h"
+		"$DX9DIR\HardwareConfig.h"
+
+		// DX11 related files
+		"ShaderDeviceDx11.h"
+		"ShaderAPIDx11.h"
+		"MeshDx11.h"
+		"ShaderShadowDx11.h"
+		"shaderapidx11_global.h"
+		"inputlayoutdx11.h"
+		"vertexshaderdx11.h"
+		"TransitionTableDx11.h"
+	}
+}

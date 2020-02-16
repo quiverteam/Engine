@@ -179,6 +179,8 @@ project "serverplugin_empty"		"utils/serverplugin_sample/serverplugin_empty.qpc"
 
 project "shaderapidx9"				"materialsystem/shaderapidx9/shaderapidx9.qpc"
 
+project "shaderapidx11"				"materialsystem/shaderapidx11/shaderapidx11.qpc"
+
 project "shaderapiempty"			"materialsystem/shaderapiempty/shaderapiempty.qpc" [$WINDOWS]
 
 project "shaderapitest"				"unittests/shaderapitest/shaderapitest.qpc" [$WINDOWS]

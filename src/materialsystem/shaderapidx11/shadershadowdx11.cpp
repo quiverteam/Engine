@@ -56,39 +56,65 @@ void CShaderShadowDx11::SetDefaultState()
 // Methods related to depth buffering
 void CShaderShadowDx11::DepthFunc( ShaderDepthFunc_t depthFunc )
 {
+	m_ShadowState.m_ZFunc = depthFunc;
 }
 
 void CShaderShadowDx11::EnableDepthWrites( bool bEnable )
 {
-	m_bIsDepthWriteEnabled = bEnable;
+	m_ShadowState.m_ZWriteEnable = bEnable;
 }
 
 void CShaderShadowDx11::EnableDepthTest( bool bEnable )
 {
+	m_ShadowState.m_ZEnable = bEnable;
 }
 
 void CShaderShadowDx11::EnablePolyOffset( PolygonOffsetMode_t nOffsetMode )
 {
+	m_ShadowState.m_ZBias = nOffsetMode;
 }
 
 // Suppresses/activates color writing 
 void CShaderShadowDx11::EnableColorWrites( bool bEnable )
 {
+	if ( bEnable )
+	{
+		m_ShadowState.m_ColorWriteEnable |= ( D3D11_COLOR_WRITE_ENABLE_RED |
+						      D3D11_COLOR_WRITE_ENABLE_GREEN |
+						      D3D11_COLOR_WRITE_ENABLE_BLUE );
+	}
+	else
+	{
+		m_ShadowState.m_ColorWriteEnable &= ~( D3D11_COLOR_WRITE_ENABLE_RED |
+						       D3D11_COLOR_WRITE_ENABLE_GREEN |
+						       D3D11_COLOR_WRITE_ENABLE_BLUE );
+	}
+	
 }
 
 // Suppresses/activates alpha writing 
 void CShaderShadowDx11::EnableAlphaWrites( bool bEnable )
 {
+	if ( bEnable )
+	{
+		m_ShadowState.m_ColorWriteEnable |= D3D11_COLOR_WRITE_ENABLE_ALPHA;
+	}
+	else
+	{
+		m_ShadowState.m_ColorWriteEnable &= ~D3D11_COLOR_WRITE_ENABLE_ALPHA;
+	}
 }
 
 // Methods related to alpha blending
 void CShaderShadowDx11::EnableBlending( bool bEnable )
 {
-	m_IsTranslucent = bEnable;
+	m_ShadowState.m_AlphaBlendEnable = bEnable;
 }
 
 void CShaderShadowDx11::BlendFunc( ShaderBlendFactor_t srcFactor, ShaderBlendFactor_t dstFactor )
 {
+	m_ShadowState.m_SrcBlend = srcFactor;
+	m_ShadowState.m_DestBlend = dstFactor;
 }
 
 // A simpler method of dealing with alpha modulation
@@ -115,7 +141,6 @@ void CShaderShadowDx11::SetShadowDepthFiltering( Sampler_t stage )
 // Alpha testing
 void CShaderShadowDx11::EnableAlphaTest( bool bEnable )
 {
-	m_IsAlphaTested = bEnable;
 }
 
 void CShaderShadowDx11::AlphaFunc( ShaderAlphaFunc_t alphaFunc, float alphaRef /* [0-1] */ )

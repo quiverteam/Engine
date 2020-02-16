@@ -125,6 +125,16 @@ enum ShaderTexArg_t
 	SHADER_TEXARG_ONE,
 };
 
+// NOTE: Same as D3D11_BLEND_OP
+enum ShaderBlendOp_t
+{
+	SHADER_BLENDOP_ADD = 1,
+	SHADER_BLENDOP_SUBTRACT = 2,
+	SHADER_BLENDOP_REV_SUBTRACT = 3,
+	SHADER_BLENDOP_MIN = 4,
+	SHADER_BLENDOP_MAX = 5
+};
+
 enum ShaderTexOp_t
 {
 	// DX5 shaders support these

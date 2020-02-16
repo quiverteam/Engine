@@ -16,6 +16,7 @@
 #include <d3d11.h>
 
 #include "shaderapidx9/shaderapibase.h"
+#include "shaderapi/ishadershadow.h"
 #include "materialsystem/idebugtextureinfo.h"
 #include "meshdx11.h"
 
@@ -62,12 +63,34 @@ struct ShaderInputLayoutStateDx11_t
 	VertexFormat_t m_pVertexDecl[ MAX_DX11_STREAMS ];
 };
 
-struct ShaderOMStateDx11_t
+struct ShaderDepthStencilStateDx11_t
 {
-	ID3D11DepthStencilState* m_pDepthStencilState;
+	StencilOperation_t m_StencilFailOp;
+	StencilOperation_t m_StencilDepthFailOp;
+	StencilOperation_t m_StencilPassOp;
+	StencilComparisonFunction_t m_StencilFunc;
+	uint8 m_nStencilReadMask;
+	uint8 m_nStencilWriteMask;
 	uint m_nStencilRef;
+	bool m_bStencilEnable;
+	
+	bool m_bDepthEnable;
+	uint8 m_nDepthWriteMask;
+	ShaderDepthFunc_t m_DepthFunc;
+};
 
-	ID3D11BlendState* m_pBlendState;
+struct ShaderBlendStateDx11_t
+{
+	bool m_bAlphaToCoverage;
+	bool m_bIndependentBlend;
+	bool m_bBlendEnable;
+	ShaderBlendFactor_t m_SrcBlend;
+	ShaderBlendFactor_t m_DestBlend;
+	ShaderBlendOp_t m_BlendOp;
+	ShaderBlendFactor_t m_SrcBlendAlpha;
+	ShaderBlendFactor_t m_DestBlendAlpha;
+	ShaderBlendOp_t m_BlendOpAlpha;
+	uint8 m_WriteMask;
 	float m_pBlendColor[4];
 	uint m_nSampleMask;
 };
@@ -77,9 +100,20 @@ struct ShaderStateDx11_t
 	int m_nViewportCount;
 	D3D11_VIEWPORT m_pViewports[ MAX_DX11_VIEWPORTS ];
 	FLOAT m_ClearColor[4];
-	ShaderOMStateDx11_t m_OMState;
+
+	// ---------------------------------
+	// Fixed-function states
+	// ---------------------------------
+	ShaderBlendStateDx11_t m_BlendState;
+	ID3D11BlendState* m_pBlendState;
+	ShaderDepthStencilStateDx11_t m_DepthStencilState;
+	ID3D11DepthStencilState* m_pDepthStencilState;
 	ShaderRasterState_t m_RasterState;
 	ID3D11RasterizerState *m_pRasterState;
+
+	// ---------------------------------
+	// Shader states
+	// ---------------------------------
 	ID3D11VertexShader *m_pVertexShader;
 	ID3D11GeometryShader *m_pGeometryShader;
 	ID3D11PixelShader *m_pPixelShader;
@@ -89,6 +123,10 @@ struct ShaderStateDx11_t
 	int m_nVSConstantBuffers;
 	int m_nPSConstantBuffers;
 	int m_nGSConstantBuffers;
+
+	// ---------------------------------
+	// Pipeline states
+	// ---------------------------------
 	ShaderVertexBufferStateDx11_t m_pVertexBuffer[ MAX_DX11_STREAMS ];
 	ShaderIndexBufferStateDx11_t m_IndexBuffer;
 	ShaderInputLayoutStateDx11_t m_InputLayout;
@@ -791,37 +829,14 @@ private:
 	}
 
 	// Methods related to stencil
-	void SetStencilEnable(bool onoff)
-	{
-	}
-
-	void SetStencilFailOperation(StencilOperation_t op)
-	{
-	}
-
-	void SetStencilZFailOperation(StencilOperation_t op)
-	{
-	}
-
-	void SetStencilPassOperation(StencilOperation_t op)
-	{
-	}
-
-	void SetStencilCompareFunction(StencilComparisonFunction_t cmpfn)
-	{
-	}
-
-	void SetStencilReferenceValue(int ref)
-	{
-	}
-
-	void SetStencilTestMask(uint32 msk)
-	{
-	}
-
-	void SetStencilWriteMask(uint32 msk)
-	{
-	}
+	void SetStencilEnable( bool onoff );
+	void SetStencilFailOperation( StencilOperation_t op );
+	void SetStencilZFailOperation( StencilOperation_t op );
+	void SetStencilPassOperation( StencilOperation_t op );
+	void SetStencilCompareFunction( StencilComparisonFunction_t cmpfn );
+	void SetStencilReferenceValue( int ref );
+	void SetStencilTestMask( uint32 msk );
+	void SetStencilWriteMask( uint32 msk );
 
 	void ClearStencilBufferRectangle( int xmin, int ymin, int xmax, int ymax,int value)
 	{
@@ -829,7 +844,7 @@ private:
 
 	virtual void GetDXLevelDefaults(uint &max_dxlevel,uint &recommended_dxlevel)
 	{
-		max_dxlevel=recommended_dxlevel=90;
+		max_dxlevel=recommended_dxlevel=110;
 	}
 
 	virtual void GetMaxToRender( IMesh *pMesh, bool bMaxUntilFlush, int *pMaxVerts, int *pMaxIndices )

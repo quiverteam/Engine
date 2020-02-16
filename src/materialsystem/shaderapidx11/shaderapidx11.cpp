@@ -159,42 +159,6 @@ IMPLEMENT_RENDERSTATE_FUNC_DX11( CommitSetVertexShader, m_pVertexShader, VSSetSh
 IMPLEMENT_RENDERSTATE_FUNC_DX11( CommitSetGeometryShader, m_pGeometryShader, GSSetShader )
 IMPLEMENT_RENDERSTATE_FUNC_DX11( CommitSetPixelShader, m_pPixelShader, PSSetShader )
 
-static void CommitSetDepthStencilState( ID3D11Device* pDevice, ID3D11DeviceContext* pDeviceContext,
-					const ShaderStateDx11_t& desiredState, ShaderStateDx11_t& currentState,
-					bool bForce )
-{
-	bool bChanged = bForce ||
-		desiredState.m_OMState.m_pDepthStencilState != currentState.m_OMState.m_pDepthStencilState ||
-		desiredState.m_OMState.m_nStencilRef != currentState.m_OMState.m_nStencilRef;
-	if ( bChanged )
-	{
-		pDeviceContext->OMSetDepthStencilState( desiredState.m_OMState.m_pDepthStencilState, desiredState.m_OMState.m_nStencilRef );
-		currentState.m_OMState.m_pDepthStencilState = desiredState.m_OMState.m_pDepthStencilState;
-		currentState.m_OMState.m_nStencilRef = desiredState.m_OMState.m_nStencilRef;
-	}
-}
-
-static void CommitSetBlendState( ID3D11Device* pDevice, ID3D11DeviceContext* pDeviceContext,
-				const ShaderStateDx11_t& desiredState, ShaderStateDx11_t& currentState,
-				bool bForce )
-{
-	bool bChanged = bForce ||
-		desiredState.m_OMState.m_pBlendState != currentState.m_OMState.m_pBlendState ||
-		desiredState.m_OMState.m_nSampleMask != currentState.m_OMState.m_nSampleMask ||
-		memcmp( desiredState.m_OMState.m_pBlendColor, currentState.m_OMState.m_pBlendColor,
-			sizeof( desiredState.m_OMState.m_pBlendColor ) );
-	if ( bChanged )
-	{
-		pDeviceContext->OMSetBlendState( desiredState.m_OMState.m_pBlendState,
-						 desiredState.m_OMState.m_pBlendColor,
-						 desiredState.m_OMState.m_nSampleMask );
-		currentState.m_OMState.m_nSampleMask = desiredState.m_OMState.m_nSampleMask;
-		currentState.m_OMState.m_pBlendState = desiredState.m_OMState.m_pBlendState;
-		memcpy( currentState.m_OMState.m_pBlendColor, desiredState.m_OMState.m_pBlendColor,
-			sizeof( desiredState.m_OMState.m_pBlendColor ) );
-	}
-}
-
 static void CommitSetVSConstantBuffers( ID3D11Device* pDevice, ID3D11DeviceContext* pDeviceContext,
 				       const ShaderStateDx11_t& desiredState, ShaderStateDx11_t& currentState,
 				       bool bForce )
@@ -318,7 +282,7 @@ static void CommitSetVertexBuffer( ID3D11Device *pDevice, ID3D11DeviceContext *p
 		{
 			ppVertexBuffers[i] = newState.m_pBuffer;
 			pStrides[i] = newState.m_nStride;
-		    pOffsets[i] = newState.m_nOffset;
+			pOffsets[i] = newState.m_nOffset;
 			++nBufferCount;
 			memcpy( &currentState.m_pVertexBuffer[i], &newState, sizeof( ShaderVertexBufferStateDx11_t ) );
 		}
@@ -348,6 +312,10 @@ static void CommitSetVertexBuffer( ID3D11Device *pDevice, ID3D11DeviceContext *p
 			&ppVertexBuffers[nFirstBuffer], &pStrides[nFirstBuffer], &pOffsets[nFirstBuffer] );
 	}
 }
+
+//-----------------------------------------------------------------------------
+// Rasterizer state
+//-----------------------------------------------------------------------------
 
 static void GenerateRasterizerDesc( D3D11_RASTERIZER_DESC* pDesc, const ShaderRasterState_t& state )
 {
@@ -401,7 +369,7 @@ static void CommitSetRasterState( ID3D11Device *pDevice, ID3D11DeviceContext *pD
 		// NOTE: This does a search for existing matching state objects
 		ID3D11RasterizerState *pState = NULL;
 		HRESULT hr = pDevice->CreateRasterizerState( &desc, &pState );
-		if ( !FAILED(hr) )
+		if ( FAILED(hr) )
 		{
 			Warning( "Unable to create rasterizer state object!\n" );
 		}
@@ -413,6 +381,156 @@ static void CommitSetRasterState( ID3D11Device *pDevice, ID3D11DeviceContext *pD
 	}																		
 }
 
+//-----------------------------------------------------------------------------
+// Blend state
+//-----------------------------------------------------------------------------
+
+FORCEINLINE static D3D11_BLEND TranslateBlendFunc( ShaderBlendFactor_t blend )
+{
+	switch ( blend )
+	{
+	case SHADER_BLEND_ZERO:
+		return D3D11_BLEND_ZERO;
+
+	case SHADER_BLEND_ONE:
+		return D3D11_BLEND_ONE;
+
+	case SHADER_BLEND_DST_COLOR:
+		return D3D11_BLEND_DEST_COLOR;
+
+	case SHADER_BLEND_ONE_MINUS_DST_COLOR:
+		return D3D11_BLEND_INV_DEST_COLOR;
+
+	case SHADER_BLEND_SRC_ALPHA:
+		return D3D11_BLEND_SRC_ALPHA;
+
+	case SHADER_BLEND_ONE_MINUS_SRC_ALPHA:
+		return D3D11_BLEND_INV_SRC_ALPHA;
+
+	case SHADER_BLEND_DST_ALPHA:
+		return D3D11_BLEND_DEST_ALPHA;
+
+	case SHADER_BLEND_ONE_MINUS_DST_ALPHA:
+		return D3D11_BLEND_INV_DEST_ALPHA;
+
+	case SHADER_BLEND_SRC_COLOR:
+		return D3D11_BLEND_SRC_COLOR;
+
+	case SHADER_BLEND_ONE_MINUS_SRC_COLOR:
+		return D3D11_BLEND_INV_SRC_COLOR;
+
+	default:
+		// Impossible
+		return D3D11_BLEND_ZERO;
+	}
+}
+
+static void GenerateBlendDesc( D3D11_BLEND_DESC* pDesc, const ShaderBlendStateDx11_t& newState )
+{
+	memset( pDesc, 0, sizeof( D3D11_BLEND_DESC ) );
+
+	pDesc->AlphaToCoverageEnable = newState.m_bAlphaToCoverage ? TRUE : FALSE;
+	pDesc->IndependentBlendEnable = newState.m_bIndependentBlend ? TRUE : FALSE;
+	pDesc->RenderTarget[0].BlendEnable = newState.m_bBlendEnable ? TRUE : FALSE;
+	pDesc->RenderTarget[0].BlendOp = (D3D11_BLEND_OP)newState.m_BlendOp;
+	pDesc->RenderTarget[0].BlendOpAlpha = (D3D11_BLEND_OP)newState.m_BlendOpAlpha;
+	pDesc->RenderTarget[0].DestBlend = TranslateBlendFunc( newState.m_DestBlend );
+	pDesc->RenderTarget[0].SrcBlend = TranslateBlendFunc( newState.m_SrcBlend );
+	pDesc->RenderTarget[0].DestBlendAlpha = TranslateBlendFunc( newState.m_DestBlendAlpha );
+	pDesc->RenderTarget[0].SrcBlendAlpha = TranslateBlendFunc( newState.m_SrcBlendAlpha );
+	pDesc->RenderTarget[0].RenderTargetWriteMask = newState.m_WriteMask;
+}
+
+static void CommitSetBlendState( ID3D11Device* pDevice, ID3D11DeviceContext* pDeviceContext,
+				 const ShaderStateDx11_t& desiredState, ShaderStateDx11_t& currentState,
+				 bool bForce )
+{
+	bool bChanged = bForce ||
+		memcmp( &desiredState.m_BlendState, &currentState.m_BlendState, sizeof( ShaderBlendStateDx11_t ) );
+	if ( bChanged )
+	{
+		// Clear out existing blend state
+		if ( currentState.m_pBlendState )
+		{
+			currentState.m_pBlendState->Release();
+		}
+
+		D3D11_BLEND_DESC desc;
+		GenerateBlendDesc( &desc, desiredState.m_BlendState );
+
+		// NOTE: This does a search for existing matching state objects
+		ID3D11BlendState* pState = NULL;
+		HRESULT hr = pDevice->CreateBlendState( &desc, &pState );
+		if ( FAILED( hr ) )
+		{
+			Warning( "Unable to create Dx11 blend state object!\n" );
+		}
+
+		pDeviceContext->OMSetBlendState( pState, desiredState.m_BlendState.m_pBlendColor, desiredState.m_BlendState.m_nSampleMask );
+
+		currentState.m_pBlendState = pState;
+		memcpy( &currentState.m_BlendState, &desiredState.m_BlendState, sizeof( ShaderBlendStateDx11_t ) );
+	}
+}
+
+//-----------------------------------------------------------------------------
+// Depth/Stencil state
+//-----------------------------------------------------------------------------
+
+static void GenerateDepthStencilDesc( D3D11_DEPTH_STENCIL_DESC* pDesc, const ShaderDepthStencilStateDx11_t& newState )
+{
+	pDesc->FrontFace.StencilDepthFailOp = (D3D11_STENCIL_OP)newState.m_StencilDepthFailOp;
+	pDesc->FrontFace.StencilFailOp = (D3D11_STENCIL_OP)newState.m_StencilFailOp;
+	pDesc->FrontFace.StencilPassOp = (D3D11_STENCIL_OP)newState.m_StencilPassOp;
+	pDesc->FrontFace.StencilFunc = (D3D11_COMPARISON_FUNC)newState.m_StencilFunc;
+
+	// UNDONE: Backface?
+	pDesc->BackFace.StencilFunc = D3D11_COMPARISON_ALWAYS;
+	pDesc->BackFace.StencilFailOp = D3D11_STENCIL_OP_KEEP;
+	pDesc->BackFace.StencilPassOp = D3D11_STENCIL_OP_KEEP;
+	pDesc->BackFace.StencilDepthFailOp = D3D11_STENCIL_OP_INCR;
+
+	pDesc->StencilEnable = newState.m_bStencilEnable ? TRUE : FALSE;
+	pDesc->StencilReadMask = newState.m_nStencilReadMask;
+	pDesc->StencilWriteMask = newState.m_nStencilWriteMask;
+
+	pDesc->DepthEnable = newState.m_bDepthEnable ? TRUE: FALSE;
+	pDesc->DepthFunc = (D3D11_COMPARISON_FUNC)newState.m_DepthFunc;
+	pDesc->DepthWriteMask = (D3D11_DEPTH_WRITE_MASK)newState.m_nDepthWriteMask;
+}
+
+static void CommitSetDepthStencilState( ID3D11Device* pDevice, ID3D11DeviceContext* pDeviceContext,
+					const ShaderStateDx11_t& desiredState, ShaderStateDx11_t& currentState,
+					bool bForce )
+{
+	bool bChanged = bForce ||
+		memcmp( &currentState.m_DepthStencilState, &desiredState.m_DepthStencilState,
+			sizeof( ShaderDepthStencilStateDx11_t ) );
+	if ( bChanged )
+	{
+		// Clear out current state
+		if ( currentState.m_pDepthStencilState )
+		{
+			currentState.m_pDepthStencilState->Release();
+		}
+
+		D3D11_DEPTH_STENCIL_DESC desc;
+		GenerateDepthStencilDesc( &desc, desiredState.m_DepthStencilState );
+
+		// NOTE: This does a search for existing matching state objects
+		ID3D11DepthStencilState* pState = NULL;
+		HRESULT hr = pDevice->CreateDepthStencilState( &desc, &pState );
+		if ( FAILED( hr ) )
+		{
+			Warning( "Unable to create depth/stencil object!\n" );
+		}
+
+		pDeviceContext->OMSetDepthStencilState( pState, desiredState.m_DepthStencilState.m_nStencilRef );
+
+		currentState.m_pDepthStencilState = desiredState.m_pDepthStencilState;
+		memcpy( &currentState.m_DepthStencilState, &desiredState.m_DepthStencilState, sizeof( ShaderDepthStencilStateDx11_t ) );
+	}
+}
 
 //-----------------------------------------------------------------------------
 //
@@ -481,7 +599,6 @@ void CShaderAPIDx11::ResetRenderState( bool bFullReset )
 	hr = D3D11Device()->CreateDepthStencilState( &dsDesc, &pDepthStencilState );
 	Assert( !FAILED(hr) );
 	D3D11DeviceContext()->OMSetDepthStencilState( pDepthStencilState, 0 );
-	D3D11DeviceContext()->OMSet
 
 	D3D11_BLEND_DESC bDesc;
 	memset( &bDesc, 0, sizeof(bDesc) );
@@ -1641,4 +1758,46 @@ void CShaderAPIDx11::SetBumpEnvMatrix( TextureStage_t textureStage, float m00, f
 
 void CShaderAPIDx11::SyncToken( const char *pToken )
 {
+}
+
+// Stencils
+
+void CShaderAPIDx11::SetStencilEnable( bool onoff )
+{
+	ADD_RENDERSTATE_FUNC( CommitSetDepthStencilState, m_DepthStencilState.m_bStencilEnable, onoff );
+}
+
+void CShaderAPIDx11::SetStencilFailOperation( StencilOperation_t op )
+{
+	ADD_RENDERSTATE_FUNC( CommitSetDepthStencilState, m_DepthStencilState.m_StencilFailOp, op );
+}
+
+void CShaderAPIDx11::SetStencilZFailOperation( StencilOperation_t op )
+{
+	ADD_RENDERSTATE_FUNC( CommitSetDepthStencilState, m_DepthStencilState.m_StencilDepthFailOp, op );
+}
+
+void CShaderAPIDx11::SetStencilPassOperation( StencilOperation_t op )
+{
+	ADD_RENDERSTATE_FUNC( CommitSetDepthStencilState, m_DepthStencilState.m_StencilPassOp, op );
+}
+
+void CShaderAPIDx11::SetStencilCompareFunction( StencilComparisonFunction_t cmpfn )
+{
+	ADD_RENDERSTATE_FUNC( CommitSetDepthStencilState, m_DepthStencilState.m_StencilFunc, cmpfn );
+}
+
+void CShaderAPIDx11::SetStencilReferenceValue( int ref )
+{
+	ADD_RENDERSTATE_FUNC( CommitSetDepthStencilState, m_DepthStencilState.m_nStencilRef, ref );
+}
+
+void CShaderAPIDx11::SetStencilTestMask( uint32 msk )
+{
+	ADD_RENDERSTATE_FUNC( CommitSetDepthStencilState, m_DepthStencilState.m_nStencilReadMask, msk );
+}
+
+void CShaderAPIDx11::SetStencilWriteMask( uint32 msk )
+{
+	ADD_RENDERSTATE_FUNC( CommitSetDepthStencilState, m_DepthStencilState.m_nStencilWriteMask, msk );
 }
