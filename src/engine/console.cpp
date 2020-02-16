@@ -1,4 +1,4 @@
-//========= Copyright © 1996-2005, Valve Corporation, All rights reserved. ============//
+//========= Copyright ï¿½ 1996-2005, Valve Corporation, All rights reserved. ============//
 //
 // Purpose: 
 //
@@ -7,7 +7,6 @@
 #include "client_pch.h"
 #include <time.h>
 #ifndef SWDS
-#include "io.h"
 #include "keys.h"
 #include "draw.h"
 #endif
@@ -18,18 +17,15 @@
 #include "server.h"
 #include "MapReslistGenerator.h"
 #include "tier0/vcrmode.h"
-#if defined( _X360 )
-#include "xbox/xbox_console.h"
+
+#if defined(_WIN32) && !defined(SWDS)
+#include "io.h"
 #endif
 
 // memdbgon must be the last include file in a .cpp file!!!
 #include "tier0/memdbgon.h"
 
-#if !defined( _X360 )
 #define	MAXPRINTMSG	4096
-#else
-#define	MAXPRINTMSG	1024
-#endif
 
 bool con_debuglog = false;
 bool con_initialized = false;
@@ -171,9 +167,6 @@ Con_HideConsole_f
 */
 void Con_HideConsole_f( void )
 {
-	if ( IsX360() )
-		return;
-
 	if ( EngineVGui()->IsConsoleVisible() )
 	{
 		// hide the console
@@ -188,9 +181,6 @@ Con_ShowConsole_f
 */
 void Con_ShowConsole_f( void )
 {
-	if ( IsX360() )
-		return;
-
 	if ( vgui::input()->GetAppModalSurface() )
 	{
 		// If a dialog has modal, it probably has grabbed keyboard focus, so showing
@@ -214,9 +204,6 @@ void Con_ShowConsole_f( void )
 //-----------------------------------------------------------------------------
 void Con_ToggleConsole_f( void )
 {
-	if ( IsX360() )
-		return;
-
 	if (EngineVGui()->IsConsoleVisible())
 	{
 		Con_HideConsole_f();
@@ -234,10 +221,7 @@ void Con_ToggleConsole_f( void )
 // Purpose: Clears the console
 //-----------------------------------------------------------------------------
 void Con_Clear_f( void )
-{	
-	if ( IsX360() )
-		return;
-
+{
 	EngineVGui()->ClearConsole();
 	Con_ClearNotify();
 }
@@ -264,7 +248,7 @@ Con_Init
 */
 void Con_Init (void)
 {
-#ifdef _LINUX
+#ifdef SWDS
 	con_debuglog = false; // the dedicated server's console will handle this
 	con_debuglogmapprefixed = false;
 #else
@@ -357,35 +341,33 @@ void Con_Printf( const char *fmt, ... );
 
 void Con_ColorPrint( const Color& clr, char const *msg )
 {
-	if ( IsPC() )
+	if (g_bInColorPrint)
+		return;
+
+	int nCon_Filter_Enable = con_filter_enable.GetInt();
+	if (nCon_Filter_Enable > 0)
 	{
-		if ( g_bInColorPrint )
-			return;
+		const char *pszText = con_filter_text.GetString();
+		const char *pszIgnoreText = con_filter_text_out.GetString();
 
-		int nCon_Filter_Enable = con_filter_enable.GetInt();
-		if ( nCon_Filter_Enable > 0 )
+		switch (nCon_Filter_Enable)
 		{
-			const char *pszText = con_filter_text.GetString();
-			const char *pszIgnoreText = con_filter_text_out.GetString();
-
-			switch( nCon_Filter_Enable )
-			{
 			case 1:
 				// if line does not contain keyword do not print the line
-				if ( pszText && ( *pszText != '\0' ) && ( Q_stristr( msg, pszText ) == NULL ))
+				if (pszText && (*pszText != '\0') && (Q_stristr(msg, pszText) == NULL))
 					return;
-				if ( pszIgnoreText && *pszIgnoreText && ( Q_stristr( msg, pszIgnoreText ) != NULL ) )
+				if (pszIgnoreText && *pszIgnoreText && (Q_stristr(msg, pszIgnoreText) != NULL))
 					return;
 				break;
 
 			case 2:
-				if ( pszIgnoreText && *pszIgnoreText && ( Q_stristr( msg, pszIgnoreText ) != NULL ) )
+				if (pszIgnoreText && *pszIgnoreText && (Q_stristr(msg, pszIgnoreText) != NULL))
 					return;
 				// if line does not contain keyword print it in a darker color
-				if ( pszText && ( *pszText != '\0' ) && ( Q_stristr( msg, pszText ) == NULL ))
+				if (pszText && (*pszText != '\0') && (Q_stristr(msg, pszText) == NULL))
 				{
-					Color mycolor(200, 200, 200, 150 );
-					g_pCVar->ConsoleColorPrintf( mycolor, msg );
+					Color mycolor(200, 200, 200, 150);
+					g_pCVar->ConsoleColorPrintf(mycolor, msg);
 					return;
 				}
 				break;
@@ -393,87 +375,62 @@ void Con_ColorPrint( const Color& clr, char const *msg )
 			default:
 				// by default do no filtering
 				break;
-			}
 		}
-
-		g_bInColorPrint = true;
-
-		// also echo to debugging console
-		if ( Plat_IsInDebugSession() && !con_trace.GetInt() )
-		{
-			Sys_OutputDebugString(msg);
-		}
-			
-		if ( sv.IsDedicated() )
-		{
-			g_bInColorPrint = false;
-			return;		// no graphics mode
-		}
-
-		bool convisible = Con_IsVisible();
-		bool indeveloper = ( developer.GetInt() > 0 );
-		bool debugprint = g_fIsDebugPrint;
-
-		if ( g_fColorPrintf )
-		{
-			g_pCVar->ConsoleColorPrintf( clr, "%s", msg );
-		}
-		else
-		{
-			// write it out to the vgui console no matter what
-			if ( g_fIsDebugPrint )
-			{
-				// Don't spew debug stuff to actual console once in game, unless console isn't up
-				if ( !cl.IsActive() || !convisible )
-				{
-					g_pCVar->ConsoleDPrintf( "%s", msg );
-				}
-			}
-			else
-			{
-				g_pCVar->ConsolePrintf( "%s", msg );
-			}
-		}
-
-		// Make sure we "spew" if this wan't generated from the spew system
-		if ( !g_bInSpew )
-		{
-			Msg( "%s", msg );
-		}
-
-		// Only write to notify if it's non-debug or we are running with developer set > 0
-		// Buf it it's debug then make sure we don't have the console down
-		if ( ( !debugprint || indeveloper ) && !( debugprint && convisible ) )
-		{
-			if ( g_pConPanel )
-			{
-				g_pConPanel->AddToNotify( clr, msg );
-			}
-		}
-		g_bInColorPrint = false;
 	}
 
-#if defined( _X360 )
-	int			r,g,b,a;
-	char		buffer[MAXPRINTMSG];
-	const char	*pFrom;
-	char		*pTo;
+	g_bInColorPrint = true;
 
-	clr.GetColor(r, g, b, a);
-
-	// fixup percent printers
-	pFrom = msg;
-	pTo   = buffer;
-	while ( *pFrom && pTo < buffer+sizeof(buffer)-1 )
+	// also echo to debugging console
+	if (Plat_IsInDebugSession() && !con_trace.GetInt())
 	{
-		*pTo = *pFrom++;
-		if ( *pTo++ == '%' )
-			*pTo++ = '%';
+		Sys_OutputDebugString(msg);
 	}
-	*pTo = '\0';
 
-	XBX_DebugString( XMAKECOLOR(r,g,b), buffer );
-#endif
+	if (sv.IsDedicated())
+	{
+		g_bInColorPrint = false;
+		return;        // no graphics mode
+	}
+
+	bool convisible = Con_IsVisible();
+	bool indeveloper = (developer.GetInt() > 0);
+	bool debugprint = g_fIsDebugPrint;
+
+	if (g_fColorPrintf)
+	{
+		g_pCVar->ConsoleColorPrintf(clr, "%s", msg);
+	} else
+	{
+		// write it out to the vgui console no matter what
+		if (g_fIsDebugPrint)
+		{
+			// Don't spew debug stuff to actual console once in game, unless console isn't up
+			if (!cl.IsActive() || !convisible)
+			{
+				g_pCVar->ConsoleDPrintf("%s", msg);
+			}
+		} else
+		{
+			g_pCVar->ConsolePrintf("%s", msg);
+		}
+	}
+
+	// Make sure we "spew" if this wan't generated from the spew system
+	if (!g_bInSpew)
+	{
+		Msg("%s", msg);
+	}
+
+	// Only write to notify if it's non-debug or we are running with developer set > 0
+	// Buf it it's debug then make sure we don't have the console down
+	if ((!debugprint || indeveloper) && !(debugprint && convisible))
+	{
+		if (g_pConPanel)
+		{
+			g_pConPanel->AddToNotify(clr, msg);
+		}
+	}
+	g_bInColorPrint = false;
 }
 #endif
 
@@ -517,11 +474,7 @@ void Con_Print( const char *msg )
 	}
 	else
 	{
-#if !defined( _X360 )
 		Color clr( 255, 255, 255, 255 );
-#else
-		Color clr( 0, 0, 0, 255 );
-#endif
 		Con_ColorPrint( clr, msg );
 	}
 #endif
@@ -560,11 +513,7 @@ void Con_Printf( const char *fmt, ... )
 	}
 	else
 	{
-#if !defined( _X360 )
 		Color clr( 255, 255, 255, 255 );
-#else
-		Color clr( 0, 0, 0, 255 );
-#endif
 		Con_ColorPrint( clr, msg );
 	}
 #endif
