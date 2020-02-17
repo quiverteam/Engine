@@ -19,6 +19,8 @@
 #include "shaderapi/ishadershadow.h"
 #include "materialsystem/idebugtextureinfo.h"
 #include "meshdx11.h"
+#include "ShaderConstantBufferDx11.h"
+#include "utllinkedlist.h"
 
 
 //-----------------------------------------------------------------------------
@@ -197,7 +199,7 @@ public:
 	virtual void SetGeometryShaderConstantBuffers( int nCount, const ConstantBufferHandle_t* pBuffers );
 	virtual ConstantBufferHandle_t CreateConstantBuffer( size_t nBufSize );
 	virtual void DestroyConstantBuffer( ConstantBufferHandle_t hBuffer );
-	virtual void UpdateConstantBuffer( ConstantBufferHandle_t hBuffer, void* pData, size_t nSize );
+	virtual void UpdateConstantBuffer( ConstantBufferHandle_t hBuffer, void* pData );
 
 
 	// Methods of IShaderDynamicAPI
@@ -206,7 +208,7 @@ public:
 
 public:
 	// Methods of CShaderAPIBase
-	virtual bool OnDeviceInit() { ResetRenderState(); return true; }
+	virtual bool OnDeviceInit();
 	virtual void OnDeviceShutdown() {}
 	virtual void ReleaseShaderObjects();
 	virtual void RestoreShaderObjects();
@@ -949,6 +951,14 @@ private:
 
 private:
 	CMeshDx11 m_Mesh;
+
+	//CUtlFixedLinkedList<Texture_t
+
+	CUtlFixedLinkedList<CShaderConstantBufferDx11> m_ConstantBuffers;
+
+	// Common constant buffers
+	ConstantBufferHandle_t m_hTransformBuffer;
+	ConstantBufferHandle_t m_hLightingBuffer;
 
 	bool m_bResettingRenderState : 1;
 	CFunctionCommit m_Commit;

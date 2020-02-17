@@ -14,6 +14,27 @@
 #endif
 
 #include "shaderapi/ishadershadow.h"
+#include "../shaderapidx9/locald3dtypes.h"
+
+//
+// Common constant buffers
+//
+
+ALIGN16 struct TransformBuffer_t
+{
+	DirectX::XMFLOAT4X4 modelTransform;
+	DirectX::XMFLOAT4X4 viewTransform;
+	DirectX::XMFLOAT4X4 projTransform;
+};
+
+ALIGN16 struct LightingBuffer_t
+{
+	DirectX::XMFLOAT4X4 lightData[MAX_NUM_LIGHTS];
+	DirectX::XMFLOAT4X4 lightData2[MAX_NUM_LIGHTS];
+	int lightTypes[MAX_NUM_LIGHTS];
+	int numLights;
+	DirectX::XMFLOAT3 ambientCube[6];	
+};
 
 // DX11 fixed function state
 struct ShadowStateDx11_t

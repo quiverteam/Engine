@@ -16,6 +16,7 @@
 #include "shaderdevicedx11.h"
 #include "shaderapidx11_global.h"
 #include "imaterialinternal.h"
+#include "ShaderConstantBufferDx11.h"
 
 
 //-----------------------------------------------------------------------------
@@ -163,7 +164,7 @@ static void CommitSetVSConstantBuffers( ID3D11Device* pDevice, ID3D11DeviceConte
 				       const ShaderStateDx11_t& desiredState, ShaderStateDx11_t& currentState,
 				       bool bForce )
 {
-	static constexpr size_t vsBufSize = sizeof( ShaderStateDx11_t::m_pVSConstantBuffers );
+	static constexpr size_t vsBufSize = sizeof( void * ) * MAX_DX11_CBUFFERS;
 
 	bool bChanged = bForce ||
 		( desiredState.m_nVSConstantBuffers != currentState.m_nVSConstantBuffers ) ||
@@ -544,17 +545,18 @@ static void CommitSetDepthStencilState( ID3D11Device* pDevice, ID3D11DeviceConte
 static CShaderAPIDx11 s_ShaderAPIDx11;
 CShaderAPIDx11* g_pShaderAPIDx11 = &s_ShaderAPIDx11;
 
-EXPOSE_SINGLE_INTERFACE_GLOBALVAR( CShaderAPIDx11, IShaderAPI, 
-								  SHADERAPI_INTERFACE_VERSION, s_ShaderAPIDx11 )
+EXPOSE_SINGLE_INTERFACE_GLOBALVAR( CShaderAPIDx11, IShaderAPI,
+				   SHADERAPI_INTERFACE_VERSION, s_ShaderAPIDx11 )
 
-EXPOSE_SINGLE_INTERFACE_GLOBALVAR( CShaderAPIDx11, IDebugTextureInfo, 
-								  DEBUG_TEXTURE_INFO_VERSION, s_ShaderAPIDx11 )
+	EXPOSE_SINGLE_INTERFACE_GLOBALVAR( CShaderAPIDx11, IDebugTextureInfo,
+					   DEBUG_TEXTURE_INFO_VERSION, s_ShaderAPIDx11 )
 
-								  
+
 //-----------------------------------------------------------------------------
 // Constructor, destructor
 //-----------------------------------------------------------------------------
-CShaderAPIDx11::CShaderAPIDx11() 
+CShaderAPIDx11::CShaderAPIDx11() :
+	m_ConstantBuffers( 32 )
 {
 	m_bResettingRenderState = false;
 	m_Commit.Init( COMMIT_FUNC_COUNT );
@@ -725,41 +727,22 @@ void CShaderAPIDx11::SetGeometryShaderConstantBuffers( int nCount, const Constan
 
 ConstantBufferHandle_t CShaderAPIDx11::CreateConstantBuffer( size_t nBufLen )
 {
-	ID3D11Buffer* pCBuffer = NULL;
-
-	D3D11_BUFFER_DESC cbDesc;
-	cbDesc.ByteWidth = nBufLen;
-	cbDesc.Usage = D3D11_USAGE_DYNAMIC;
-	cbDesc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
-	cbDesc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
-	cbDesc.MiscFlags = 0;
-	cbDesc.StructureByteStride = 0;
-
-	HRESULT hr = D3D11Device()->CreateBuffer( &cbDesc, NULL, &pCBuffer );
-	if ( FAILED( hr ) )
-	{
-		Warning( "Could not set constant buffer!" );
-		return NULL;
-	}
-
-	return (ConstantBufferHandle_t)pCBuffer;
+	CShaderConstantBufferDx11 buf;
+	buf.Create( nBufLen );
+	return m_ConstantBuffers.AddToTail( buf );
 }
 
-void CShaderAPIDx11::UpdateConstantBuffer( ConstantBufferHandle_t hBuffer, void* pData, size_t nSize )
+void CShaderAPIDx11::UpdateConstantBuffer( ConstantBufferHandle_t hBuffer, void* pData )
 {
-	ID3D11Buffer* pBuffer = (ID3D11Buffer*)hBuffer;
-	D3D11_MAPPED_SUBRESOURCE newData;
-	D3D11DeviceContext()->Map( pBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &newData );
-	memcpy( newData.pData, pData, nSize );
-	D3D11DeviceContext()->Unmap( pBuffer, 0 );
+	CShaderConstantBufferDx11& buf = m_ConstantBuffers.Element( hBuffer );
+	buf.Update( pData );
 }
 
 void CShaderAPIDx11::DestroyConstantBuffer( ConstantBufferHandle_t hBuffer )
 {
-	if ( hBuffer )
-	{
-		( (ID3D11Buffer*)hBuffer )->Release();
-	}
+	CShaderConstantBufferDx11& buf = m_ConstantBuffers.Element( hBuffer );
+	buf.Destroy();
+	m_ConstantBuffers.Remove( hBuffer );
 }
 
 //-----------------------------------------------------------------------------
@@ -1020,6 +1003,15 @@ void CShaderAPIDx11::Draw( MaterialPrimitiveType_t primitiveType, int nFirstInde
 
 	// FIXME: How do I set the base vertex location!?
 	D3D11DeviceContext()->DrawIndexed( (UINT)nIndexCount, (UINT)nFirstIndex, 0 );
+}
+
+bool CShaderAPIDx11::OnDeviceInit()
+{
+	m_hTransformBuffer = CreateConstantBuffer( sizeof( TransformBuffer_t ) );
+	m_hLightingBuffer = CreateConstantBuffer( sizeof( LightingBuffer_t ) );
+
+	ResetRenderState();
+	return true;
 }
 
 
@@ -1570,10 +1562,29 @@ void CShaderAPIDx11::CreateTextures(
 					const char *pDebugName,
 					const char *pTextureGroupName )
 {
+	LOCK_SHADERAPI();
+
+	if ( depth == 0 )
+		depth == 1;
 	for ( int k = 0; k < count; ++ k )
 	{
 		pHandles[ k ] = 0;
 	}
+
+	bool bIsCubeMap = ( flags & TEXTURE_CREATE_CUBEMAP ) != 0;
+	bool bIsRenderTarget = ( flags & TEXTURE_CREATE_RENDERTARGET ) != 0;
+	bool bIsManaged = ( flags & TEXTURE_CREATE_MANAGED ) != 0;
+	bool bIsDepthBuffer = ( flags & TEXTURE_CREATE_DEPTHBUFFER ) != 0;
+	bool bIsDynamic = ( flags & TEXTURE_CREATE_DYNAMIC ) != 0;
+
+	// Can't be both managed + dynamic. Dynamic is an optimization, but 
+	// if it's not managed, then we gotta do special client-specific stuff
+	// So, managed wins out!
+	if ( bIsManaged )
+		bIsDynamic = false;
+
+	// Create a set of texture handles
+	//CreateTextureHandles
 }
 
 ShaderAPITextureHandle_t CShaderAPIDx11::CreateDepthTexture( ImageFormat renderFormat, int width, int height, const char *pDebugName, bool bTexture )
