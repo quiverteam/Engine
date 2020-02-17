@@ -357,7 +357,7 @@ public:
 	virtual void SetShadowDepthFiltering( Sampler_t stage ) = 0;
 
 	// Sets the constant buffer structure that will be used for the shader.
-	virtual void SetConstantBuffer( ConstantBufferHandle_t cbuffer, size_t nBufSize ) = 0;
+	virtual void SetConstantBuffer( ConstantBufferHandle_t cbuffer ) = 0;
 };
 // end class IShaderShadow
 

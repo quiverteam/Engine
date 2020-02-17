@@ -17,6 +17,7 @@
 #include "shaderapidx11_global.h"
 #include "imaterialinternal.h"
 #include "ShaderConstantBufferDx11.h"
+#include "vertexshaderdx11.h"
 
 
 //-----------------------------------------------------------------------------
@@ -1035,6 +1036,7 @@ bool CShaderAPIDx11::CanDownloadTextures() const
 // Used to clear the transition table when we know it's become invalid.
 void CShaderAPIDx11::ClearSnapshots()
 {
+	g_pShaderShadowDx11->m_ShadowStateCache.RemoveAll();
 }
 
 // Sets the default *dynamic* state
@@ -1042,20 +1044,10 @@ void CShaderAPIDx11::SetDefaultState()
 {
 }
 
-
-// Returns the snapshot id for the shader state
+// Returns the snapshot id for the current shadow state
 StateSnapshot_t	 CShaderAPIDx11::TakeSnapshot( )
 {
-	StateSnapshot_t id = 0;
-	if (g_pShaderShadowDx11->m_IsTranslucent)
-		id |= TRANSLUCENT;
-	if (g_pShaderShadowDx11->m_IsAlphaTested)
-		id |= ALPHATESTED;
-	if (g_pShaderShadowDx11->m_bUsesVertexAndPixelShaders)
-		id |= VERTEX_AND_PIXEL_SHADERS;
-	if (g_pShaderShadowDx11->m_bIsDepthWriteEnabled)
-		id |= DEPTHWRITE;
-	return id;
+	return g_pShaderShadowDx11->FindOrCreateSnapshot();
 }
 
 // Returns true if the state snapshot is transparent
@@ -1094,6 +1086,36 @@ VertexFormat_t CShaderAPIDx11::ComputeVertexUsage( int numSnapshots, StateSnapsh
 // Uses a state snapshot
 void CShaderAPIDx11::UseSnapshot( StateSnapshot_t snapshot )
 {
+	ShadowStateCacheEntryDx11_t entry = g_pShaderShadowDx11->m_ShadowStateCache.Element( snapshot );
+
+	ADD_RENDERSTATE_FUNC( CommitSetDepthStencilState, m_DepthStencilState.m_bDepthEnable, entry.m_State.m_ZEnable );
+	ADD_RENDERSTATE_FUNC( CommitSetDepthStencilState, m_DepthStencilState.m_DepthFunc, entry.m_State.m_ZFunc );
+	uint8 depthWriteMask = entry.m_State.m_ZWriteEnable ? 1 : 0;
+	ADD_RENDERSTATE_FUNC( CommitSetDepthStencilState, m_DepthStencilState.m_nDepthWriteMask, depthWriteMask );
+	// TODO: ZBias
+	ADD_RENDERSTATE_FUNC( CommitSetDepthStencilState, m_DepthStencilState.m_bStencilEnable, entry.m_State.m_StencilEnable );
+
+	ADD_RENDERSTATE_FUNC( CommitSetRasterState, m_RasterState.m_bCullEnable, entry.m_State.m_CullEnable );
+	ADD_RENDERSTATE_FUNC( CommitSetRasterState, m_RasterState.m_FillMode, entry.m_State.m_FillMode );
+
+	ADD_RENDERSTATE_FUNC( CommitSetBlendState, m_BlendState.m_bAlphaToCoverage, entry.m_State.m_EnableAlphaToCoverage );
+	ADD_RENDERSTATE_FUNC( CommitSetBlendState, m_BlendState.m_bBlendEnable, entry.m_State.m_AlphaBlendEnable );
+	ADD_RENDERSTATE_FUNC( CommitSetBlendState, m_BlendState.m_bIndependentBlend, entry.m_State.m_SeparateAlphaBlendEnable );
+	ADD_RENDERSTATE_FUNC( CommitSetBlendState, m_BlendState.m_WriteMask, entry.m_State.m_ColorWriteEnable );
+	ADD_RENDERSTATE_FUNC( CommitSetBlendState, m_BlendState.m_SrcBlend, entry.m_State.m_SrcBlend );
+	ADD_RENDERSTATE_FUNC( CommitSetBlendState, m_BlendState.m_DestBlend, entry.m_State.m_DestBlend );
+	ADD_RENDERSTATE_FUNC( CommitSetBlendState, m_BlendState.m_SrcBlendAlpha, entry.m_State.m_SrcBlendAlpha );
+	ADD_RENDERSTATE_FUNC( CommitSetBlendState, m_BlendState.m_DestBlendAlpha, entry.m_State.m_DestBlendAlpha );
+
+	ShaderManager()->SetVertexShaderIndex( entry.m_ShaderState.m_nStaticVshIndex );
+	ShaderManager()->SetVertexShader( entry.m_ShaderState.m_VertexShader );
+
+	ShaderManager()->SetPixelShaderIndex( entry.m_ShaderState.m_nStaticPshIndex );
+	ShaderManager()->SetPixelShader( entry.m_ShaderState.m_PixelShader );
+
+	SetVertexShaderConstantBuffers( entry.m_ShaderState.m_nCBuffers, entry.m_ShaderState.m_CBuffers );
+	SetGeometryShaderConstantBuffers( entry.m_ShaderState.m_nCBuffers, entry.m_ShaderState.m_CBuffers );
+	SetPixelShaderConstantBuffers( entry.m_ShaderState.m_nCBuffers, entry.m_ShaderState.m_CBuffers );
 }
 
 // Sets the color to modulate by
@@ -1455,19 +1477,23 @@ void CShaderAPIDx11::SetPixelShaderIndex( int pshIndex )
 // Sets the constant register for vertex and pixel shaders
 void CShaderAPIDx11::SetVertexShaderConstant( int var, float const* pVec, int numConst, bool bForce )
 {
+	Warning( "Unsupported CShaderAPIDx11::SetVertexShaderConstant() called!\n" );
 }
 
 void CShaderAPIDx11::SetPixelShaderConstant( int var, float const* pVec, int numConst, bool bForce )
 {
+	Warning( "Unsupported CShaderAPIDx11::SetPixelShaderConstant() called!\n" );
 }
 
 void CShaderAPIDx11::InvalidateDelayedShaderConstants( void )
 {
+	Warning( "Unsupported CShaderAPIDx11::InvalidateDelayedShaderConstants() called!\n" );
 }
 
 //Set's the linear->gamma conversion textures to use for this hardware for both srgb writes enabled and disabled(identity)
 void CShaderAPIDx11::SetLinearToGammaConversionTextures( ShaderAPITextureHandle_t hSRGBWriteEnabledTexture, ShaderAPITextureHandle_t hIdentityTexture )
 {
+	Warning( "Unsupported CShaderAPIDx11::SetLinearToGammaConversionTextures() called!\n" );
 }
 
 
@@ -1761,10 +1787,12 @@ void CShaderAPIDx11::RestoreShaderObjects()
 
 void CShaderAPIDx11::SetTextureTransformDimension( TextureStage_t textureStage, int dimension, bool projected )
 {
+	Warning( "Unsupported CShaderAPIDx11::SetTextureTransformDimension() called!\n" );
 }
 
 void CShaderAPIDx11::SetBumpEnvMatrix( TextureStage_t textureStage, float m00, float m01, float m10, float m11 )
 {
+	Warning( "Unsupported CShaderAPIDx11::SetBumpEnvMatrix() called!\n" );
 }
 
 void CShaderAPIDx11::SyncToken( const char *pToken )

@@ -15,6 +15,13 @@
 
 #include "shaderapi/ishadershadow.h"
 #include "../shaderapidx9/locald3dtypes.h"
+#include "shaderapidx11.h"
+
+enum
+{
+	MAX_TEXTURES = 16,
+	MAX_SAMPLERS = 16,
+};
 
 //
 // Common constant buffers
@@ -34,6 +41,11 @@ ALIGN16 struct LightingBuffer_t
 	int lightTypes[MAX_NUM_LIGHTS];
 	int numLights;
 	DirectX::XMFLOAT3 ambientCube[6];	
+};
+
+struct SamplerShadowStateDx11_t
+{
+	bool m_TextureEnable : 1;
 };
 
 // DX11 fixed function state
@@ -57,6 +69,8 @@ struct ShadowStateDx11_t
 	ShaderBlendFactor_t m_SrcBlendAlpha;
 	ShaderBlendFactor_t m_DestBlendAlpha;
 
+	SamplerShadowStateDx11_t m_Samplers[MAX_SAMPLERS];
+
 	StencilComparisonFunction_t m_AlphaFunc;
 	int m_AlphaRef;
 
@@ -67,6 +81,7 @@ struct ShadowStateDx11_t
 	bool	m_SeparateAlphaBlendEnable : 1;
 	bool	m_StencilEnable : 1;
 	bool	m_EnableAlphaToCoverage : 1;
+	bool	m_VertexBlendEnable : 1;
 
 	unsigned char m_Reserved[4];
 };
@@ -74,6 +89,10 @@ struct ShadowStateDx11_t
 // DX11 shader (non-fixed function) state
 struct ShadowShaderStateDx11_t
 {
+	// Which constant buffers does the shader use?
+	ConstantBufferHandle_t m_CBuffers[MAX_DX11_CBUFFERS];
+	int m_nCBuffers;
+
 	// The vertex + pixel shader group to use...
 	VertexShader_t m_VertexShader;
 	PixelShader_t  m_PixelShader;
@@ -95,7 +114,21 @@ struct ShadowShaderStateDx11_t
 	// Modulate constant color into the vertex color
 	bool m_ModulateConstantColor;
 
-	bool m_nReserved[3];
+	// These are in the shader state because
+	// in Dx11, these options are no longer fixed function
+	// and must be done in the shader.
+	bool m_AlphaTestEnable;
+	bool m_Translucent;
+	
+	bool m_UseVertexAndPixelShaders;
+
+	//int m_nReserved[3];
+};
+
+struct ShadowStateCacheEntryDx11_t
+{
+	ShadowStateDx11_t m_State;
+	ShadowShaderStateDx11_t m_ShaderState;
 };
 
 //-----------------------------------------------------------------------------
@@ -237,15 +270,16 @@ public:
 
 	void SetShadowDepthFiltering( Sampler_t stage );
 
-	virtual void SetConstantBuffer( ConstantBufferHandle_t cbuffer, size_t nBufSize );
+	virtual void SetConstantBuffer( ConstantBufferHandle_t cbuffer );
 
-	bool m_IsTranslucent;
-	bool m_IsAlphaTested;
-	bool m_bIsDepthWriteEnabled;
-	bool m_bUsesVertexAndPixelShaders;
+	StateSnapshot_t FindOrCreateSnapshot();
+
+public:
 
 	ShadowStateDx11_t m_ShadowState;
 	ShadowShaderStateDx11_t m_ShadowShaderState;
+
+	CUtlFixedLinkedList<ShadowStateCacheEntryDx11_t> m_ShadowStateCache;
 
 };
 
