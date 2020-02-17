@@ -230,8 +230,11 @@ LRESULT CVGuiWnd::WindowProcVGui( UINT uMsg, WPARAM wParam, LPARAM lParam )
 			// request keyboard focus too on mouse down
 			if ( uMsg != WM_MOUSEMOVE)
 			{
-				m_pParentWnd->Invalidate();
-				m_pParentWnd->SetFocus();
+				if ( m_pParentWnd )
+				{
+					m_pParentWnd->Invalidate();
+					m_pParentWnd->SetFocus();
+				}
 			}
 			break;
 		}
