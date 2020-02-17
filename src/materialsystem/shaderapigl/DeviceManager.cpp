@@ -20,9 +20,9 @@ static void* ShaderInterfaceFactory( const char *pInterfaceName, int *pReturnCod
 		*pReturnCode = IFACE_OK;
 	}
 	if ( !Q_stricmp( pInterfaceName, SHADER_DEVICE_INTERFACE_VERSION ) )
-		return static_cast< IShaderDevice* >( &s_ShaderDeviceEmpty );
+		return static_cast< IShaderDevice* >( &s_GLShaderDevice );
 	if ( !Q_stricmp( pInterfaceName, SHADERAPI_INTERFACE_VERSION ) )
-		return static_cast< IShaderAPI* >( &g_ShaderAPIEmpty );
+		return static_cast< IShaderAPI* >( &g_ShaderAPIGL );
 	if ( !Q_stricmp( pInterfaceName, SHADERSHADOW_INTERFACE_VERSION ) )
 		return static_cast< IShaderShadow* >( &g_ShaderShadow );
 
@@ -52,7 +52,7 @@ void *CShaderDeviceManager::QueryInterface( const char *pInterfaceName )
 	if ( !Q_stricmp( pInterfaceName, SHADER_DEVICE_MGR_INTERFACE_VERSION ) )
 		return static_cast< IShaderDeviceMgr* >( this );
 	if ( !Q_stricmp( pInterfaceName, MATERIALSYSTEM_HARDWARECONFIG_INTERFACE_VERSION ) )
-		return static_cast< IMaterialSystemHardwareConfig* >( &g_ShaderAPIEmpty );
+		return static_cast< IMaterialSystemHardwareConfig* >( &g_ShaderAPIGL );
 	return NULL;
 }
 
