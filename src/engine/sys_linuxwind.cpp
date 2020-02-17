@@ -1,11 +1,11 @@
-//========= Copyright © 1996-2005, Valve Corporation, All rights reserved. ============//
+//========= Copyright (C) 1996-2005, Valve Corporation, All rights reserved. ============//
 //
 // Purpose: Linux support for the IGame interface
 //
 // $Workfile:     $
 // $Date:         $
 // $NoKeywords: $
-//=============================================================================//
+//=======================================================================================//
 #include "iengine.h"
 #include <stdlib.h>
 
@@ -13,6 +13,10 @@
 #include "basetypes.h"
 #include "ivideomode.h"
 #include "igame.h"
+
+/* SDL2 includes */
+#include <SDL2/SDL.h>
+#include <SDL2/SDL_video.h>
 
 #define HWND int
 #define UINT unsigned int
@@ -23,6 +27,12 @@
 #include "server.h"
 #include "cdll_int.h"
 
+/*
+ * The IGame interface will most likely need some modification in the future.
+ * We have no way of asking for a list of displays, nor do we have a way to set the
+ * active display. In addition, since we're moving to SDL, the Win32 version of this (sys_mainwind.cpp) will probably just get ported.
+ */
+
 void ForceReloadProfile( void );
 
 void ClearIOStates( void );
@@ -31,6 +41,14 @@ void ClearIOStates( void );
 //-----------------------------------------------------------------------------
 class CGame : public IGame
 {
+public:
+	SDL_Window* pWindow;
+	SDL_DisplayMode** pDisplayModes;
+	int *nDisplayModes, nCurrDispMode, nDispIndex, nDisplays;
+	char* pWindowName;
+
+	int x,y,w,h;
+
 public:
 					CGame( void );
 	virtual			~CGame( void );
@@ -56,6 +74,7 @@ public:
 	virtual void		DispatchAllStoredGameMessages();
 	virtual void		PlayStartupVideos() {}
 	virtual void		GetDesktopInfo( int &width, int &height, int &refreshRate );
+
 private:
 	void			SetActiveApp( bool fActive );
 
@@ -105,14 +124,70 @@ void VCR_EnterPausedState()
 */
 }
 
+CGame::CGame( void ) :
+		pWindow(0),
+		pWindowName(0),
+		nDisplayModes(0),
+		pDisplayModes(0),
+		nCurrDispMode(0),
+		nDispIndex(0),
+		nDisplays(-1)
+{
+	m_bActiveApp = true;
+}
+
+CGame::~CGame( void )
+{
+	if(pWindowName) free(pWindowName);
+}
 
 bool CGame::CreateGameWindow( void )
 {
+	/* First, read some info from the gameinfo.txt for our window title */
+	KeyValues* pKV = new KeyValues("ModInfo");
+	if(pKV->LoadFromFile(g_pFullFileSystem, "gameinfo.txt"))
+	{
+		pWindowName = strdup(pKV->GetString("game"));
+	}
+	else
+	{
+		Warning("Couldn't get game from gameinfo.txt, using default window title.\n");
+		pWindowName = strdup("hl2");
+	}
+	pKV->deleteThis();
+
+	/* Set the flags */
+	unsigned int flags = SDL_WINDOW_OPENGL; /* TODO: This might need to get changed in the future to support vulkan */
+	if(videomode->IsNoborderWindowMode())
+		flags |= SDL_WINDOW_FULLSCREEN_DESKTOP;
+	else
+		flags |= SDL_WINDOW_FULLSCREEN;
+
+	/* Actually create the widow now */
+	this->pWindow = SDL_CreateWindow(this->pWindowName, SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED,
+			1000, 1000, flags);
+	this->w = 1000;
+	this->h = 1000;
+
+	if(!this->pWindow)
+	{
+		Error("Failed to create main window.\n");
+		return false;
+	}
+
+	/* Get the window position */
+	SDL_GetWindowPosition(this->pWindow, &this->w, &this->h);
+
+	Msg("Created window: title=\"%s\", flags=%u, w=%i, h=%i, x=%i, y=%i", this->pWindowName, flags,
+			this->w, this->h, this->x, this->y);
+
 	return true;
 }
 
 void CGame::DestroyGameWindow( void )
 {
+	if(this->pWindow)
+		SDL_DestroyWindow(this->pWindow);
 }
 
 
@@ -128,16 +203,7 @@ void CGame::InputDetachFromGameWindow()
 
 void CGame::SetGameWindow( void *hWnd )
 {
-	return;
-}
-
-CGame::CGame( void )
-{
-	m_bActiveApp = true;
-}
-
-CGame::~CGame( void )
-{
+	// stub?
 }
 
 bool CGame::Init( void *pvInstance )
@@ -152,40 +218,46 @@ bool CGame::Shutdown( void )
 
 void *CGame::GetMainWindow( void )
 {
-	return 0;
+	return this->pWindow;
 }
 
 void **CGame::GetMainWindowAddress( void )
 {
-	return NULL;
+	return reinterpret_cast<void**>(&this->pWindow);
 }
 
 void CGame::SetWindowXY( int x, int y )
 {
+	if(this->pWindow)
+	{
+		SDL_SetWindowPosition(this->pWindow, x, y);
+		Msg("Set window pos: x=%i, y=%i\n", x, y);
+		this->x = x;
+		this->y = y;
+	}
 }
 
 void CGame::SetWindowSize( int w, int h )
 {
+	if(this->pWindow)
+	{
+		SDL_SetWindowSize(this->pWindow, w, h);
+		Msg("Set window size: w=%i, h=%i\n", w, h);
+		this->w = w;
+		this->h = h;
+	}
 }
 
 void CGame::GetWindowRect( int *x, int *y, int *w, int *h )
 {
 	if ( x )
-	{
-		*x = 0;
-	}
+		*x = this->x;
 	if ( y )
-	{
-		*y = 0;
-	}
+		*y = this->y;
 	if ( w )
-	{
-		*w = 0;
-	}
+		*w = this->w;
 	if ( h )
-	{
-		*h = 0;
-	}
+		*h = this->h;
 }
 
 bool CGame::IsActiveApp( void )
@@ -204,8 +276,11 @@ void CGame::DispatchAllStoredGameMessages()
 
 void CGame::GetDesktopInfo( int &width, int &height, int &refreshRate )
 {
-    width = 0;
-    height = 0;
-	refreshRate = 0;
+	SDL_DisplayMode mode;
+	SDL_GetDesktopDisplayMode(0, &mode);
+    width = mode.w;
+    height = mode.h;
+	refreshRate = mode.refresh_rate;
 }
+
 
