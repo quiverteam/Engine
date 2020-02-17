@@ -106,7 +106,7 @@ group "utils" "everything"
 			"datamodel"
 			"hammer_dll"
 			"hammer_launcher"
-			"filesystemopendialog"
+			"FileSystemOpenDialog"
 		}
 
 		folder "Map Compilers"

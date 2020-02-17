@@ -63,7 +63,7 @@ project "fgdlib" 					"fgdlib/fgdlib.qpc" [$WINDOWS]
 
 project "filesystem_stdio" 			"filesystem/filesystem_stdio.qpc"
 
-project "FileSystemOpenDialog" 		"utils/FileSystemOpenDialog/FileSystemOpenDialog.qpc" [$WINDOWS]
+project "FileSystemOpenDialog" 		"utils/FileSystemOpenDialog/filesystemopendialog.qpc" [$WINDOWS]
 
 project "gameui" 					"gameui/GameUI.qpc"
 
