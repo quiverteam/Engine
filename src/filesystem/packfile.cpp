@@ -602,29 +602,31 @@ bool CVPKFile::Prepare( int64 fileLen, int64 nFileOfs )
 				m_fs->FS_fread( &entry.EntryLength, sizeof( entry.EntryLength ), m_hPackFileHandle );
 				m_fs->FS_fread( &entry.Terminator, sizeof( entry.Terminator ), m_hPackFileHandle );
 
-				// NOTE: This gets inserted into the reverse file map and will be deleted in CVPKFile destructor
-				char *pszFullFilePath = new char[ MAX_PATH ];
-
-				if ( bPathEmpty )
-					V_snprintf( pszFullFilePath, MAX_PATH, "%s.%s", file_name.Base(), extension.Base() );
-				else
-					V_snprintf( pszFullFilePath, MAX_PATH, "%s%c%s.%s", base_path.Base(), CORRECT_PATH_SEPARATOR, file_name.Base(), extension.Base() );
-
 				if ( entry.PreloadBytes )
 				{
 #if VPK_DEBUG
-					Warning( "VPK file entry %s has preload data and will be ignored\n", pszFullFilePath );
+					Warning( "VPK file entry %s/%s.%s has preload data and will be ignored\n", base_path.Base(), file_name.Base(), extension.Base() );
 #endif
 					m_fs->FS_fseek( m_hPackFileHandle, entry.PreloadBytes, FILESYSTEM_SEEK_CURRENT );
 				}
+				else
+				{
+					// NOTE: These get inserted into CUtlMaps and will be deleted in CVPKFile destructor
+					char *pszFullFilePath = new char[ MAX_PATH ];
+					char *pszExtension = new char[ extension.Count() ];
 
-				char *pszExtension = new char[ extension.Count() ];
-				V_strcpy( pszExtension, extension.Base() );
+					V_strcpy( pszExtension, extension.Base() );
+
+					if ( bPathEmpty )
+						V_snprintf( pszFullFilePath, MAX_PATH, "%s.%s", file_name.Base(), extension.Base() );
+					else
+						V_snprintf( pszFullFilePath, MAX_PATH, "%s%c%s.%s", base_path.Base(), CORRECT_PATH_SEPARATOR, file_name.Base(), extension.Base() );
 				
-				m_PathMap[ base_path.Base() ].AddToTail( pFileEntry );
-				m_FileMap[ pszFullFilePath ] = pFileEntry;
-				m_ReverseFileMap.Insert( pFileEntry, pszFullFilePath );
-				m_ExtensionMap.Insert( pFileEntry, pszExtension );
+					m_PathMap[ base_path.Base() ].AddToTail( pFileEntry );
+					m_FileMap[ pszFullFilePath ] = pFileEntry;
+					m_ReverseFileMap.Insert( pFileEntry, pszFullFilePath );
+					m_ExtensionMap.Insert( pFileEntry, pszExtension );
+				}
 			}
 		}
 	}
