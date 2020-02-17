@@ -16,14 +16,16 @@
 // Includes
 //--------------------------------------------------------------------------------------------------------------
 
-#ifdef _WIN32
+#ifndef SWDS
 
 // fopen is needed for the bzip code
 #undef fopen
 
-#if !defined( _X360 )
+#ifdef _WIN32
 #include "winlite.h"
 #include <wininet.h>
+#else
+
 #endif
 
 #include <assert.h>
@@ -41,10 +43,6 @@
 #include "tier0/vcrmode.h"
 
 #include "../thirdparty/bzip2/bzlib.h"
-
-#if defined( _X360 )
-#include "xbox/xbox_win32stubs.h"
-#endif
 
 // memdbgon must be the last include file in a .cpp file!!!
 #include "tier0/memdbgon.h"
