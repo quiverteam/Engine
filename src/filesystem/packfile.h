@@ -255,9 +255,9 @@ public:
 	virtual bool FindNext( CBaseFileSystem::FindData_t *pFindData ) override;
 	virtual int  ReadFromPack( int nIndex, void* buffer, int nDestBytes, int nBytes, int64 nOffset  ) override;
 
-	int64 GetPackFileBaseOffset() { return m_nBaseOffset; }
+	int64 GetPackFileBaseOffset() override { return m_nBaseOffset; }
 
-	bool	IndexToFilename( int nIndex, char *pBuffer, int nBufferSize ) { return true; };
+	bool IndexToFilename( int nIndex, char *pBuffer, int nBufferSize ) override;
 
 	inline bool	UsesVolumes()	{ return m_bVolumes; }
 

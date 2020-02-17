@@ -821,7 +821,7 @@ int CVPKFile::ReadFromPack( int nIndex, void* buffer, int nDestBytes, int nBytes
 		// spew info about real i/o request
 		char szName[MAX_PATH];
 		IndexToFilename( nIndex, szName, sizeof( szName ) );
-		Msg( "Read From Pack: Sync I/O: Requested:%7d, Offset:0x%16.16x, %s\n", nBytes, m_nBaseOffset + nOffset, szName );
+		Msg( "Read From Pack: Sync I/O: Requested:%7d, Offset:0x%16.16llx, %s\n", nBytes, m_nBaseOffset + nOffset, szName );
 	}
 
 	// Seek to the start of the read area and perform the read: TODO: CHANGE THIS INTO A CFileHandle
@@ -841,6 +841,21 @@ int CVPKFile::ReadFromPack( int nIndex, void* buffer, int nDestBytes, int nBytes
 	m_mutex.Unlock();
 
 	return nBytesRead;
+}
+
+bool CVPKFile::IndexToFilename( int nIndex, char *pBuffer, int nBufferSize )
+{
+	const VPKFileEntry_t *pFileEntry = m_pFileEntries[ nIndex ];
+	unsigned short pathid = m_ReverseFileMap.Find( pFileEntry );
+
+	if ( pathid != m_ReverseFileMap.InvalidIndex() )
+	{
+		V_strncpy( pBuffer, m_ReverseFileMap[ pathid ], nBufferSize );
+		return true;
+	}
+
+	V_strncpy( pBuffer, "unknown", nBufferSize );
+	return false;
 }
 
 void CVPKFile::ReadString( CUtlVector< char > &buffer, FILE *pArchiveFile )
