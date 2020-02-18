@@ -1,4 +1,4 @@
-//===== Copyright © 1996-2005, Valve Corporation, All rights reserved. ======//
+//===== Copyright ï¿½ 1996-2005, Valve Corporation, All rights reserved. ======//
 //
 // Purpose: 
 //
@@ -61,9 +61,6 @@
 #include "LoadScreenUpdate.h"
 #include "tier0/systeminformation.h"
 #include "steam/steam_api.h"
-#ifdef _X360
-#include "xbox/xbox_launch.h"
-#endif
 
 // memdbgon must be the last include file in a .cpp file!!!
 #include "tier0/memdbgon.h"
@@ -294,9 +291,6 @@ static bool s_bIsHL2Demo = false;
 void CL_InitHL2DemoFlag()
 {
 #ifndef NO_STEAM
-#if defined(_X360)
-	s_bIsHL2Demo = false;
-#else
 	static bool initialized = false;
 	if ( !initialized )
 	{
@@ -322,7 +316,6 @@ void CL_InitHL2DemoFlag()
 			s_bIsHL2Demo = true;
 		}
 	}
-#endif
 #endif
 }
 
@@ -378,18 +371,6 @@ bool CL_IsPortalDemo()
 	return s_bIsPortalDemo;
 }
 
-
-#ifdef _XBOX
-extern void Host_WriteConfiguration( const char *dirname, const char *filename );
-//-----------------------------------------------------------------------------
-// Convar callback to write the user configuration 
-//-----------------------------------------------------------------------------
-void WriteConfig_f( ConVar *var, const char *pOldString )
-{
-	Host_WriteConfiguration( "cfg", "xboxuser.cfg" );
-}
-#endif
-
 //-----------------------------------------------------------------------------
 // Purpose: If the client is in the process of connecting and the cl.signon hits
 //  is complete, make sure the client thinks its totally connected.
@@ -421,11 +402,6 @@ bool CL_CheckCRCs( const char *pszMap )
 	if ( sv.IsActive() ) // Single player
 		return true;
 
-	if ( IsX360() )
-	{
-		return true;
-	}
-
 	CRC32_Init(&mapCRC);
 	if (!CRC_MapFile( &mapCRC, pszMap ) )
 	{
@@ -453,18 +429,10 @@ bool CL_CheckCRCs( const char *pszMap )
 	// Hacked map
 	if ( cl.serverCRC != mapCRC && !demoplayer->IsPlayingBack())
 	{
-		if ( IsX360() )
-		{
-			Warning( "Disconnect: BSP CRC failed!\n" );
-		}
 		COM_ExplainDisconnection( true, "Your map [%s] differs from the server's.\n", pszMap );
 		Host_Error ("Disconnected");
 		return false;
 	}
-
-	// Don't CRC the client dll
-	if ( IsX360() )
-		return true;
 
 	// Check to see that our copy of the client side dll matches the server's.
 	// Client side DLL  CRC check.
@@ -571,10 +539,7 @@ void CL_ReadPackets ( bool bFinalTick )
 
 		// Show the vgui dialog on timeout
 		COM_ExplainDisconnection( false, "Lost connection to server.");
-		if ( IsPC() )
-		{
-			EngineVGui()->ShowErrorMessage();
-		}
+		EngineVGui()->ShowErrorMessage();
 
 		Host_Disconnect (true);
 		return;
@@ -611,12 +576,6 @@ void CL_ClearState ( void )
 	}
 
 	R_LevelShutdown();
-	if ( IsX360() )
-	{
-		// Reset material system temporary memory (frees up memory for map loading)
-		bool bOnLevelShutdown = true;
-		materials->ResetTempHWMemory( bOnLevelShutdown );
-	}
 	
 	if ( g_pLocalNetworkBackdoor )
 		g_pLocalNetworkBackdoor->ClearState();
@@ -726,11 +685,7 @@ void CL_DispatchSound( const SoundInfo_t &sound )
 			// this adjusts for host_thread_mode or any other cases where we're running more than one
 			// tick at a time, but we get network updates on the first tick
 			soundtime -= ((g_ClientGlobalVariables.simTicksThisFrame-1) * host_state.interval_per_tick);
-#if 0
-			static float lastSoundTime = 0;
-			Msg("[%.3f] Play %s at %.3f\n", soundtime - lastSoundTime, name, soundtime );
-			lastSoundTime = soundtime;
-#endif
+
 			// this sound was networked over from the server, use server clock
 			params.delay = S_ComputeDelayForSoundtime( soundtime, CLOCK_SYNC_SERVER );
 			if ( params.delay < 0 )
@@ -976,12 +931,6 @@ void CL_FullyConnected( void )
 	// that raycasts against the world is supported (owing to the fact
 	// that the world entity has been created by this point)
 	StaticPropMgr()->LevelInitClient();
-
-	if ( IsX360() )
-	{
-		// Notify the loader the end of the loading context, preloads are about to be purged
-		g_pQueuedLoader->EndMapLoading( false );
-	}
 		
 	// loading completed
 	// can NOW safely purge unused models and their data hierarchy (materials, shaders, etc)
@@ -1036,13 +985,6 @@ void CL_FullyConnected( void )
 			Q_pretifymem( cl.m_NetChannel->GetTotalData( FLOW_OUTGOING ), 3 ) );
 	}
 
-	if ( IsX360() )
-	{
-		// Reset material system temporary memory (once loading is complete), ready for in-map use
-		bool bOnLevelShutdown = false;
-		materials->ResetTempHWMemory( bOnLevelShutdown );
-	}
-
 	// allow normal screen updates
 	SCR_EndLoadingPlaque();
 	EndLoadingUpdates();
@@ -1086,15 +1028,6 @@ void CL_FullyConnected( void )
 	{
 		scr_nextdrawtick = host_tickcount + TIME_TO_TICKS( 0.25f );
 	}
-
-#ifdef _X360
-	// At this point, check for a valid controller connection.  If it's been lost, then we need to pop our game UI up
-	XINPUT_CAPABILITIES caps;
-	if ( XInputGetCapabilities( XBX_GetPrimaryUserId(), XINPUT_FLAG_GAMEPAD, &caps ) == ERROR_DEVICE_NOT_CONNECTED )
-	{
-		EngineVGui()->ActivateGameUI();
-	}
-#endif // _X360
 
 	extern double g_flAccumulatedModelLoadTime;
 	extern double g_flAccumulatedSoundLoadTime;
@@ -2041,15 +1974,6 @@ bool CL_ShouldLoadBackgroundLevel( const CCommand &args )
 
 	if ( args.ArgC() == 2 )
 	{
-		// presence of args identifies an end-of-game situation
-		if ( IsX360() )
-		{
-			// 360 needs to get UI in the correct state to transition to the Background level
-			// from the credits.
-			EngineVGui()->OnCreditsFinished();
-			return true;
-		}
-
 		if ( !Q_stricmp( args[1], "force" ) )
 		{
 			// Adrian: Have to do this so the menu shows up if we ever call this while in a level.
@@ -2096,12 +2020,6 @@ bool CL_ShouldLoadBackgroundLevel( const CCommand &args )
 		CommandLine()->CheckParm("+load") ||
 		CommandLine()->CheckParm("-makereslists"))
 		return false;
-
-#ifdef _X360
-	// check if we are accepting an invite
-	if ( XboxLaunch()->GetLaunchFlags() & LF_INVITERESTART )
-		return false;
-#endif
 
 	// nothing else is going on, so load the startup level
 
@@ -2311,8 +2229,6 @@ void DisplaySystemVersion( char *osversion, int maxlen );
 
 void CL_SetPagedPoolInfo()
 {
-	if ( IsX360() )
-		return;
 #if !defined( _X360 ) && !defined(NO_STEAM) && !defined(SWDS) && !defined(LINUX)
 	Plat_GetPagedPoolInfo( &g_pagedpoolinfo );
 #endif
@@ -2320,9 +2236,6 @@ void CL_SetPagedPoolInfo()
 
 void CL_SetSteamCrashComment()
 {
-	if ( IsX360() )
-		return;
-
 	char map[ 80 ];
 	char videoinfo[ 2048 ];
 	char misc[ 256 ];
@@ -2386,15 +2299,6 @@ void CL_SetSteamCrashComment()
 		ConVarRef mat_motion_blur_enabled( "mat_motion_blur_enabled" );
 		ConVarRef mat_queue_mode( "mat_queue_mode" );
 
-#ifdef _X360
-	Q_snprintf( videoinfo, sizeof(videoinfo), "picmip: %i forceansio: %i trilinear: %i antialias: %i vsync: %i rootlod: %i reducefillrate: %i\n"\
-		"shadowrendertotexture: %i r_flashlightdepthtexture %i waterforcereflectentities: %i mat_motion_blur_enabled: %i",
-										mat_picmip.GetInt(), mat_forceaniso.GetInt(), mat_trilinear.GetInt(), mat_antialias.GetInt(), mat_aaquality.GetInt(),
-										mat_vsync.GetInt(), r_rootlod.GetInt(), mat_reducefillrate.GetInt(), 
-										r_shadowrendertotexture.GetInt(), r_flashlightdepthtexture.GetInt(),
-										r_waterforcereflectentities.GetInt(),
-										mat_motion_blur_enabled.GetInt() );
-#else
 		Q_snprintf( videoinfo, sizeof(videoinfo), "picmip: %i forceansio: %i trilinear: %i antialias: %i vsync: %i rootlod: %i reducefillrate: %i\n"\
 			"shadowrendertotexture: %i r_flashlightdepthtexture %i waterforceexpensive: %i waterforcereflectentities: %i mat_motion_blur_enabled: %i mat_queue_mode %i",
 											mat_picmip.GetInt(), mat_forceaniso.GetInt(), mat_trilinear.GetInt(), mat_antialias.GetInt(), mat_aaquality.GetInt(),
@@ -2402,7 +2306,6 @@ void CL_SetSteamCrashComment()
 											r_shadowrendertotexture.GetInt(), r_flashlightdepthtexture.GetInt(),
 											r_waterforceexpensive.GetInt(), r_waterforcereflectentities.GetInt(),
 											mat_motion_blur_enabled.GetInt(), mat_queue_mode.GetInt() );
-#endif
 	int latency = 0;
 	if ( cl.m_NetChannel )
 	{
@@ -2487,8 +2390,10 @@ void CL_Init (void)
 	char szRate[128];
 	szRate[0] = 0;
 
+#ifdef _WIN32
 	// get rate from registry
 	Sys_GetRegKeyValue("Software\\Valve\\Steam", "Rate", szRate, sizeof(szRate), IsX360() ? "6000" : "10000" );
+#endif
 
 	if (Q_strlen(szRate) > 0)
 	{
@@ -2496,14 +2401,6 @@ void CL_Init (void)
 	}
 	
 	CL_InitLanguageCvar();
-	
-// We don't want to unlock all the chapters by default for cert!
-#if 0
-	if ( IsX360() && !IsRetail() )
-	{
-		sv_unlockedchapters.SetValue( 15 );
-	}
-#endif
 }
 
 //-----------------------------------------------------------------------------
