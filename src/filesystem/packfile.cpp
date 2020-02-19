@@ -516,7 +516,6 @@ CVPKFile::CVPKFile( CBaseFileSystem* fs, bool bVolumes, VPKHeader_t vpkheader, c
 
 	// Why does CUtlMap make me define this for a pointer type? WHY?
 	m_ExtensionMap.SetLessFunc( VPK_FileEntry_LessFunc );
-	m_ReverseFileMap.SetLessFunc( VPK_FileEntry_LessFunc );
 }
 
 //-----------------------------------------------------------------------------
@@ -536,14 +535,6 @@ CVPKFile::~CVPKFile()
 			continue;
 
 		delete[] m_ExtensionMap.Element( i );
-	}
-
-	for ( unsigned short i = 0; i < m_ReverseFileMap.MaxElement(); ++i )
-	{
-		if ( !m_ReverseFileMap.IsValidIndex( i ) )
-			continue;
-
-		delete[] m_ReverseFileMap.Element( i );
 	}
 }
 
@@ -611,9 +602,11 @@ bool CVPKFile::Prepare( int64 fileLen, int64 nFileOfs )
 				}
 				else
 				{
-					// NOTE: These get inserted into CUtlMaps and will be deleted in CVPKFile destructor
-					char *pszFullFilePath = new char[ MAX_PATH ];
+					// NOTE: This gets inserted into a CUtlMap and will be deleted in CVPKFile destructor
 					char *pszExtension = new char[ extension.Count() ];
+
+					// NOTE: This will be owned and deleted by the VPKFileEntry_t destructor
+					char *pszFullFilePath = new char[ MAX_PATH ];
 
 					V_strcpy( pszExtension, extension.Base() );
 
@@ -624,7 +617,7 @@ bool CVPKFile::Prepare( int64 fileLen, int64 nFileOfs )
 				
 					m_PathMap[ base_path.Base() ].AddToTail( pFileEntry );
 					m_FileMap[ pszFullFilePath ] = pFileEntry;
-					m_ReverseFileMap.Insert( pFileEntry, pszFullFilePath );
+					pFileEntry->pszFullFilePath = pszFullFilePath;
 					m_ExtensionMap.Insert( pFileEntry, pszExtension );
 				}
 			}
@@ -767,10 +760,7 @@ bool CVPKFile::FindFirst( CBaseFileSystem::FindData_t *pFindData )
 					{
 						if ( V_stricmp( m_ExtensionMap[ extid ], extension ) == 0 )
 						{
-							unsigned int fullpathid = m_ReverseFileMap.Find( entry );
-
-							if ( fullpathid != m_ReverseFileMap.InvalidIndex() )
-								pFindData->pfFindData.fileList.CopyAndAddToTail( m_ReverseFileMap[ fullpathid ] );
+							pFindData->pfFindData.fileList.CopyAndAddToTail( entry->pszFullFilePath );
 						}
 					}
 				}
@@ -846,16 +836,9 @@ int CVPKFile::ReadFromPack( int nIndex, void* buffer, int nDestBytes, int nBytes
 bool CVPKFile::IndexToFilename( int nIndex, char *pBuffer, int nBufferSize )
 {
 	const VPKFileEntry_t *pFileEntry = m_pFileEntries[ nIndex ];
-	unsigned short pathid = m_ReverseFileMap.Find( pFileEntry );
 
-	if ( pathid != m_ReverseFileMap.InvalidIndex() )
-	{
-		V_strncpy( pBuffer, m_ReverseFileMap[ pathid ], nBufferSize );
-		return true;
-	}
-
-	V_strncpy( pBuffer, "unknown", nBufferSize );
-	return false;
+	V_strncpy( pBuffer, pFileEntry->pszFullFilePath, nBufferSize );
+	return true;
 }
 
 void CVPKFile::ReadString( CUtlVector< char > &buffer, FILE *pArchiveFile )

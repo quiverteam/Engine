@@ -238,8 +238,14 @@ struct VPKDirectoryEntry_t
 
 struct VPKFileEntry_t
 {
+	~VPKFileEntry_t()
+	{
+		delete[] pszFullFilePath;
+	}
+
 	VPKDirectoryEntry_t entry;
-	int index;
+	const char *pszFullFilePath = nullptr; // Fully formed path of file inside VPK
+	int index; // Index into CVPKFile's CUtlVector of VPKFileEntry_t*
 };
 
 class CVPKFile : public CPackFile
@@ -277,7 +283,6 @@ protected:
 	CUtlStringMap< CUtlVector< const VPKFileEntry_t* > > m_PathMap; // Maps base path to list of file entries
 	CUtlMap< const VPKFileEntry_t*, char* > m_ExtensionMap; // Maps file entries to their respective file extension
 	CUtlStringMap< const VPKFileEntry_t* > m_FileMap; // Maps fully formed file path to a particular file entry
-	CUtlMap< const VPKFileEntry_t*, char* > m_ReverseFileMap; // Maps file entry to its fully formed path
 };
 
 // Pack file handle implementation:
