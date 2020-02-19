@@ -3,6 +3,8 @@
 #include "platform.h"
 #include "bitmap/imageformat.h"
 #include "Dx11Global.h"
+#include "shaderapi/shareddefs.h"
+#include "tier0/dbg.h"
 
 class CTextureDx11
 {
@@ -37,6 +39,23 @@ public:
 	ID3D11Texture3D *GetTexture3D( int n ) const;
 	ID3D11SamplerState *GetSamplerState() const;
 
+	void Delete();
+
+	void AdjustSamplerState();
+
+	void SetAnisotropicLevel( int level );
+	void SetMinFilter( ShaderTexFilterMode_t texFilterMode );
+	void SetMagFilter( ShaderTexFilterMode_t texFilterMode );
+	void SetWrap( ShaderTexCoordComponent_t coord, ShaderTexWrapMode_t wrapMode );
+
+	void AdjustD3DFilter();
+
+	void SetupTexture2D( int width, int height, int depth, int count, int i,
+			     int flags, int numCopies,
+			     int numMipLevels, ImageFormat dstImageFormat );
+	void SetupDepthTexture( ImageFormat renderFormat, int width, int height,
+				const char *pDebugName, bool bTexture );
+
 	bool Is1D() const;
 	bool Is2D() const;
 	bool Is3D() const;
@@ -45,7 +64,7 @@ public:
 	void SetTexture( int n, ID3D11Resource *tex );
 	//void SetView( ID3D11ShaderResourceView *view );
 
-public:
+private:
 	union
 	{
 		ID3D11Resource *m_pTexture;
@@ -61,11 +80,15 @@ public:
 		ID3D11RenderTargetView *m_pRenderTargetView;
 	};
 
-public:
 	D3D11_TEXTURE_ADDRESS_MODE m_UTexWrap;
 	D3D11_TEXTURE_ADDRESS_MODE m_VTexWrap;
 	D3D11_TEXTURE_ADDRESS_MODE m_WTexWrap;
 	D3D11_FILTER m_Filter;
+	ShaderTexFilterMode_t m_MinFilter;
+	ShaderTexFilterMode_t m_MagFilter;
+	int m_Anisotropy;
+
+public:
 	unsigned char m_NumLevels;
 	unsigned char m_SwitchNeeded;
 	unsigned char m_NumCopies;
@@ -76,6 +99,7 @@ public:
 	int m_iTextureType;
 	int m_nWidth;
 	int m_nHeight;
+	
 	ImageFormat m_Format;
 	int m_nSizeTexels;
 	int m_nSizeBytes;

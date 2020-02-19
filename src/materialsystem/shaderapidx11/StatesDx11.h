@@ -13,7 +13,7 @@ namespace StatesDx11
 	// The shader state is not part of the shadow state.
 	struct ShaderAttrib
 	{
-		ConstantBufferHandle_t constantBuffers[MAX_DX11_CBUFFERS];
+		ConstantBuffer_t constantBuffers[MAX_DX11_CBUFFERS];
 		int numConstantBuffers;
 
 		VertexShader_t vertexShader;
@@ -36,7 +36,7 @@ namespace StatesDx11
 
 		ShaderAttrib()
 		{
-			memset( constantBuffers, 0, sizeof( ConstantBufferHandle_t ) * MAX_DX11_CBUFFERS );
+			memset( constantBuffers, 0, sizeof( ConstantBuffer_t ) * MAX_DX11_CBUFFERS );
 			numConstantBuffers = 0;
 			vertexShader = 0;
 			pixelShader = 0;
@@ -48,7 +48,7 @@ namespace StatesDx11
 			morphFormat = 0;
 		}
 
-		void AddConstantBuffer( ConstantBufferHandle_t hBuffer )
+		void AddConstantBuffer( ConstantBuffer_t hBuffer )
 		{
 			constantBuffers[numConstantBuffers++] = hBuffer;
 		}
@@ -61,10 +61,13 @@ namespace StatesDx11
 	struct SamplerAttrib
 	{
 		bool samplers[MAX_DX11_SAMPLERS];
+		ShaderAPITextureHandle_t textures[MAX_DX11_SAMPLERS];
 
 		SamplerAttrib()
 		{
 			memset( samplers, 0, MAX_DX11_SAMPLERS );
+			memset( textures, INVALID_SHADERAPI_TEXTURE_HANDLE,
+				sizeof( ShaderAPITextureHandle_t ) * MAX_DX11_SAMPLERS );
 		}
 	};
 

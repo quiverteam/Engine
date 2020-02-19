@@ -589,6 +589,10 @@ bool CShaderDeviceDx11::InitDevice( void *hWnd, int nAdapter, const ShaderDevice
 
 	g_pHardwareConfig->SetupHardwareCaps( mode, g_ShaderDeviceMgrDx11.GetHardwareCaps( nAdapter ) );
 
+	// Create shared constant buffers
+	m_hTransformBuffer = CreateConstantBuffer( sizeof( TransformBuffer_t ) );
+	m_hLightingBuffer = CreateConstantBuffer( sizeof( LightingBuffer_t ) );
+
 	return true;
 }
 
@@ -1008,21 +1012,26 @@ void CShaderDeviceDx11::DestroyIndexBuffer( IIndexBuffer *pIndexBuffer )
 	}
 }
 
-ConstantBufferHandle_t CShaderDeviceDx11::CreateConstantBuffer( size_t nBufLen )
+ConstantBuffer_t CShaderDeviceDx11::CreateConstantBuffer( size_t nBufLen )
 {
 	CShaderConstantBufferDx11 buf;
 	buf.Create( nBufLen );
 	return m_ConstantBuffers.AddToTail( buf );
 }
 
-void CShaderDeviceDx11::UpdateConstantBuffer( ConstantBufferHandle_t hBuffer, void *pData )
+void CShaderDeviceDx11::UpdateConstantBuffer( ConstantBuffer_t hBuffer, void *pData )
 {
 	Assert( m_ConstantBuffers.Find( hBuffer ) != m_ConstantBuffers.InvalidIndex() );
 	CShaderConstantBufferDx11 &buf = m_ConstantBuffers.Element( hBuffer );
 	buf.Update( pData );
 }
 
-void CShaderDeviceDx11::DestroyConstantBuffer( ConstantBufferHandle_t hBuffer )
+ConstantBufferHandle_t CShaderDeviceDx11::GetConstantBuffer( ConstantBuffer_t iBuffer )
+{
+	return (ConstantBufferHandle_t)&m_ConstantBuffers.Element( iBuffer );
+}
+
+void CShaderDeviceDx11::DestroyConstantBuffer( ConstantBuffer_t hBuffer )
 {
 	Assert( m_ConstantBuffers.Find( hBuffer ) != m_ConstantBuffers.InvalidIndex() );
 	CShaderConstantBufferDx11 &buf = m_ConstantBuffers.Element( hBuffer );

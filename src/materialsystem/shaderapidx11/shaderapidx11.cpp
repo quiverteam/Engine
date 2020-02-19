@@ -553,10 +553,12 @@ EXPOSE_SINGLE_INTERFACE_GLOBALVAR( CShaderAPIDx11, IDebugTextureInfo,
 CShaderAPIDx11::CShaderAPIDx11() :
 	m_Textures( 32 )
 {
+	m_ModifyTextureHandle = INVALID_SHADERAPI_TEXTURE_HANDLE;
+	m_ModifyTextureLockedLevel = -1;
 	m_bResettingRenderState = false;
 	m_Commit.Init( COMMIT_FUNC_COUNT );
-	ClearShaderState( &m_DesiredState );
-	ClearShaderState( &m_CurrentState );
+	m_DesiredState = StatesDx11::RenderState();
+	ClearShaderState( &m_CurrentDX11State );
 }
 
 CShaderAPIDx11::~CShaderAPIDx11()
@@ -569,6 +571,7 @@ CShaderAPIDx11::~CShaderAPIDx11()
 void CShaderAPIDx11::ClearShaderState( ShaderStateDx11_t *pState )
 {
 	memset( pState, 0, sizeof( ShaderStateDx11_t ) );
+	pState->m_RenderState = StatesDx11::RenderState();
 }
 
 //-----------------------------------------------------------------------------
@@ -613,6 +616,10 @@ void CShaderAPIDx11::ResetRenderState( bool bFullReset )
 	D3D11DeviceContext()->OMSetBlendState( pBlendState, pBlendFactor, 0xFFFFFFFF );
 }
 
+#define ShaderAttribChanged(varname) m_DesiredState.shaderState.shaderAttrib.##varname != m_CurrentDX11State.m_RenderState.shaderState.shaderAttrib.##varname
+#define DesiredShaderVar(varname) m_DesiredState.shaderState.shaderAttrib.##varname
+#define CurrentShaderVar(varname) m_CurrentDX11State.m_RenderState.shaderState.shaderAttrib.##varname
+
 //-----------------------------------------------------------------------------
 // Commits queued-up state change requests
 //-----------------------------------------------------------------------------
@@ -622,7 +629,83 @@ void CShaderAPIDx11::CommitStateChanges( bool bForce )
 	if ( g_pShaderDevice->IsDeactivated() )
 		return;
 
-	m_Commit.CallCommitFuncs( D3D11Device(), D3D11DeviceContext(), m_DesiredState, m_CurrentState, bForce );
+	// Desired RenderState differs from current RenderState
+
+	ID3D11DeviceContext *ctx = D3D11DeviceContext();
+
+	//
+	// Vertex stuff
+	//
+
+	if (ShaderAttribChanged() )
+
+	//
+	// Shaders
+	//
+
+	if ( ShaderAttribChanged( vertexShader ) )
+	{
+		ID3D11VertexShader *vsh = g_pShaderDeviceDx11->GetVertexShader(
+			(VertexShaderHandle_t)DesiredShaderVar( vertexShader ) );
+		ctx->VSSetShader( vsh, NULL, 0 );
+		m_CurrentDX11State.m_pVertexShader = vsh;
+	}
+
+	if ( ShaderAttribChanged( pixelShader ) )
+	{
+		ID3D11PixelShader *psh = g_pShaderDeviceDx11->GetPixelShader(
+			(PixelShaderHandle_t)DesiredShaderVar( pixelShader ) );
+		ctx->PSSetShader( psh, NULL, 0 );
+		m_CurrentDX11State.m_pPixelShader = psh;
+	}
+
+	//
+	// Constant buffers
+	//
+
+	if ( ShaderAttribChanged( numConstantBuffers ) ||
+	     memcmp( DesiredShaderVar( constantBuffers ), CurrentShaderVar( constantBuffers ), sizeof( ConstantBuffer_t ) * MAX_DX11_CBUFFERS ) )
+	{
+		for ( int i = 0; i < DesiredShaderVar( numConstantBuffers ); i++ )
+		{
+			m_CurrentDX11State.m_pPSConstantBuffers[i] =
+				(ID3D11Buffer *)g_pShaderDevice->GetConstantBuffer( DesiredShaderVar( constantBuffers )[i] );
+		}
+
+		ctx->VSSetConstantBuffers( 0, DesiredShaderVar( numConstantBuffers ),
+					   m_CurrentDX11State.m_pPSConstantBuffers );
+		ctx->GSSetConstantBuffers( 0, DesiredShaderVar( numConstantBuffers ),
+					   m_CurrentDX11State.m_pPSConstantBuffers );
+		ctx->PSSetConstantBuffers( 0, DesiredShaderVar( numConstantBuffers ),
+					   m_CurrentDX11State.m_pPSConstantBuffers );
+	}
+
+	//
+	// Textures
+	//
+	
+	if ( memcmp( m_DesiredState.shadowState.samplerAttrib.textures,
+		     m_CurrentDX11State.m_RenderState.shadowState.samplerAttrib.textures,
+		     sizeof( ShaderAPITextureHandle_t ) * MAX_DX11_SAMPLERS ) )
+	{
+		for ( int i = 0; i < MAX_DX11_SAMPLERS; i++ )
+		{
+			ShaderAPITextureHandle_t handle = m_DesiredState.shadowState.samplerAttrib.textures[i];
+			if ( handle == INVALID_SHADERAPI_TEXTURE_HANDLE )
+			{
+				m_CurrentDX11State.m_pSamplers[i] = NULL;
+				m_CurrentDX11State.m_pTextureViews[i] = NULL;
+			}
+			else
+			{
+				CTextureDx11 &tex = GetTexture( handle );
+				m_CurrentDX11State.m_pSamplers[i] = tex.GetSamplerState();
+				m_CurrentDX11State.m_pTextureViews[i] = tex.GetView();
+			}
+			ctx->PSSetSamplers( 0, MAX_DX11_SAMPLERS, m_CurrentDX11State.m_pSamplers );
+			ctx->PSSetShaderResources( 0, MAX_DX11_SAMPLERS, m_CurrentDX11State.m_pTextureViews );
+		}
+	}
 }
 
 //-----------------------------------------------------------------------------
@@ -673,46 +756,23 @@ int CShaderAPIDx11::GetViewports( ShaderViewport_t *pViewports, int nMax ) const
 //-----------------------------------------------------------------------------
 void CShaderAPIDx11::SetVertexShaderConstantBuffers( int nCount, const ConstantBufferHandle_t *pBuffers )
 {
-	nCount				    = min( nCount, MAX_DX11_CBUFFERS );
-	m_DesiredState.m_nVSConstantBuffers = nCount;
-	for ( int i = 0; i < nCount; i++ )
-	{
-		m_DesiredState.m_pVSConstantBuffers[i] = (ID3D11Buffer *)pBuffers[i];
-	}
-
-	if ( m_bResettingRenderState ||
-	     m_DesiredState.m_nVSConstantBuffers != nCount ||
-	     memcmp( m_DesiredState.m_pVSConstantBuffers, pBuffers, sizeof( ID3D11Buffer * ) * nCount ) )
-		ADD_COMMIT_FUNC( CommitSetVSConstantBuffers );
+	nCount = min( nCount, MAX_DX11_CBUFFERS );
+	m_DesiredState.shaderState.shaderAttrib.numConstantBuffers = nCount;
+	memcpy( &m_DesiredState.shaderState.shaderAttrib.constantBuffers, pBuffers, sizeof( ConstantBufferHandle_t ) * nCount );
 }
 
 void CShaderAPIDx11::SetPixelShaderConstantBuffers( int nCount, const ConstantBufferHandle_t *pBuffers )
 {
-	nCount				    = min( nCount, MAX_DX11_CBUFFERS );
-	m_DesiredState.m_nPSConstantBuffers = nCount;
-	for ( int i = 0; i < nCount; i++ )
-	{
-		m_DesiredState.m_pPSConstantBuffers[i] = (ID3D11Buffer *)pBuffers[i];
-	}
-
-	if ( m_bResettingRenderState ||
-	     m_DesiredState.m_nPSConstantBuffers != nCount ||
-	     memcmp( m_DesiredState.m_pPSConstantBuffers, pBuffers, sizeof( ID3D11Buffer * ) * nCount ) )
-		ADD_COMMIT_FUNC( CommitSetPSConstantBuffers );
+	nCount = min( nCount, MAX_DX11_CBUFFERS );
+	m_DesiredState.shaderState.shaderAttrib.numConstantBuffers = nCount;
+	memcpy( &m_DesiredState.shaderState.shaderAttrib.constantBuffers, pBuffers, sizeof( ConstantBufferHandle_t ) * nCount );
 }
 
 void CShaderAPIDx11::SetGeometryShaderConstantBuffers( int nCount, const ConstantBufferHandle_t *pBuffers )
 {
-	nCount				    = min( nCount, MAX_DX11_CBUFFERS );
-	m_DesiredState.m_nGSConstantBuffers = nCount;
-	for ( int i = 0; i < nCount; i++ )
-	{
-		m_DesiredState.m_pGSConstantBuffers[i] = (ID3D11Buffer *)pBuffers[i];
-	}
-	if ( m_bResettingRenderState ||
-	     m_DesiredState.m_nGSConstantBuffers != nCount ||
-	     memcmp( m_DesiredState.m_pGSConstantBuffers, pBuffers, sizeof( ID3D11Buffer * ) * nCount ) )
-		ADD_COMMIT_FUNC( CommitSetGSConstantBuffers );
+	nCount = min( nCount, MAX_DX11_CBUFFERS );
+	m_DesiredState.shaderState.shaderAttrib.numConstantBuffers = nCount;
+	memcpy( &m_DesiredState.shaderState.shaderAttrib.constantBuffers, pBuffers, sizeof( ConstantBufferHandle_t ) * nCount );
 }
 
 //-----------------------------------------------------------------------------
@@ -971,9 +1031,6 @@ void CShaderAPIDx11::Draw( MaterialPrimitiveType_t primitiveType, int nFirstInde
 
 bool CShaderAPIDx11::OnDeviceInit()
 {
-	m_hTransformBuffer = CreateConstantBuffer( sizeof( TransformBuffer_t ) );
-	m_hLightingBuffer  = CreateConstantBuffer( sizeof( LightingBuffer_t ) );
-
 	ResetRenderState();
 	return true;
 }
@@ -1127,6 +1184,7 @@ void CShaderAPIDx11::ShadeMode( ShaderShadeMode_t mode )
 // Binds a particular material to render with
 void CShaderAPIDx11::Bind( IMaterial *pMaterial )
 {
+	//m_pMaterial = pMaterial->Get;
 }
 
 // Cull mode
@@ -1242,7 +1300,7 @@ void CShaderAPIDx11::FlushBufferedPrimitives()
 // Creates/destroys Mesh
 IMesh *CShaderAPIDx11::CreateStaticMesh( VertexFormat_t fmt, const char *pTextureBudgetGroup, IMaterial *pMaterial )
 {
-	return &m_Mesh;
+	return m_pRenderingMesh;
 }
 
 void CShaderAPIDx11::DestroyStaticMesh( IMesh *mesh )
@@ -1255,7 +1313,7 @@ void CShaderAPIDx11::DestroyStaticMesh( IMesh *mesh )
 IMesh *CShaderAPIDx11::GetDynamicMesh( IMaterial *pMaterial, int nHWSkinBoneCount, bool buffered, IMesh *pVertexOverride, IMesh *pIndexOverride )
 {
 	Assert( ( pMaterial == NULL ) || ( (IMaterialInternal *)pMaterial )->IsRealTimeVersion() );
-	return &m_Mesh;
+	return m_pRenderingMesh;
 }
 
 IMesh *CShaderAPIDx11::GetDynamicMeshEx( IMaterial *pMaterial, VertexFormat_t fmt, int nHWSkinBoneCount, bool buffered, IMesh *pVertexOverride, IMesh *pIndexOverride )
@@ -1263,12 +1321,12 @@ IMesh *CShaderAPIDx11::GetDynamicMeshEx( IMaterial *pMaterial, VertexFormat_t fm
 	// UNDONE: support compressed dynamic meshes if needed (pro: less VB memory, con: time spent compressing)
 	Assert( CompressionType( pVertexOverride->GetVertexFormat() ) != VERTEX_COMPRESSION_NONE );
 	Assert( ( pMaterial == NULL ) || ( (IMaterialInternal *)pMaterial )->IsRealTimeVersion() );
-	return &m_Mesh;
+	return m_pRenderingMesh;
 }
 
 IMesh *CShaderAPIDx11::GetFlexMesh()
 {
-	return &m_Mesh;
+	return m_pRenderingMesh;
 }
 
 // Begins a rendering pass that uses a state snapshot
@@ -1466,6 +1524,7 @@ ImageFormat CShaderAPIDx11::GetNearestRenderTargetFormat( ImageFormat fmt ) cons
 // Sets the texture state
 void CShaderAPIDx11::BindTexture( Sampler_t stage, ShaderAPITextureHandle_t textureHandle )
 {
+	m_DesiredState.shadowState.samplerAttrib.textures[stage] = textureHandle;
 }
 
 // Indicates we're going to be modifying this texture
@@ -1473,6 +1532,21 @@ void CShaderAPIDx11::BindTexture( Sampler_t stage, ShaderAPITextureHandle_t text
 // all use the texture specified by this function.
 void CShaderAPIDx11::ModifyTexture( ShaderAPITextureHandle_t textureHandle )
 {
+	LOCK_SHADERAPI();
+
+	// Can't do this if we're locked!
+	Assert( m_ModifyTextureLockedLevel < 0 );
+
+	m_ModifyTextureHandle = textureHandle;
+
+	// If we've got a multi-copy texture, we need to up the current copy count
+	CTextureDx11 &tex = GetTexture( textureHandle );
+	if ( tex.m_NumCopies > 1 )
+	{
+		// Each time we modify a texture, we'll want to switch texture
+		// as soon as a TexImage2D call is made...
+		tex.m_SwitchNeeded = true;
+	}
 }
 
 // Texture management methods
@@ -1499,18 +1573,40 @@ void CShaderAPIDx11::TexUnlock()
 // These are bound to the texture, not the texture environment
 void CShaderAPIDx11::TexMinFilter( ShaderTexFilterMode_t texFilterMode )
 {
+	LOCK_SHADERAPI();
+
+	ShaderAPITextureHandle_t hModifyTexture = m_ModifyTextureHandle;
+	if ( hModifyTexture == INVALID_SHADERAPI_TEXTURE_HANDLE )
+		return;
+
+	GetTexture( hModifyTexture ).SetMinFilter( texFilterMode );
 }
 
 void CShaderAPIDx11::TexMagFilter( ShaderTexFilterMode_t texFilterMode )
 {
+	LOCK_SHADERAPI();
+
+	ShaderAPITextureHandle_t hModifyTexture = m_ModifyTextureHandle;
+	if ( hModifyTexture == INVALID_SHADERAPI_TEXTURE_HANDLE )
+		return;
+
+	GetTexture( hModifyTexture ).SetMagFilter( texFilterMode );
 }
 
 void CShaderAPIDx11::TexWrap( ShaderTexCoordComponent_t coord, ShaderTexWrapMode_t wrapMode )
 {
+	LOCK_SHADERAPI();
+
+	ShaderAPITextureHandle_t hModifyTexture = m_ModifyTextureHandle;
+	if ( hModifyTexture == INVALID_SHADERAPI_TEXTURE_HANDLE )
+		return;
+
+	GetTexture( hModifyTexture ).SetWrap( coord, wrapMode );
 }
 
 void CShaderAPIDx11::TexSetPriority( int priority )
 {
+	Warning( "Unsupported CShaderAPIDx11::SetTexPriority() called!\n" );
 }
 
 ShaderAPITextureHandle_t CShaderAPIDx11::CreateTexture(
@@ -1552,188 +1648,6 @@ void CShaderAPIDx11::CreateTextureHandles( ShaderAPITextureHandle_t *handles, in
 		handles[idxCreating++] = m_Textures.AddToTail();
 }
 
-DXGI_FORMAT GetD3DFormat( ImageFormat format )
-{
-	switch ( format )
-	{
-
-	// I have no fucking idea about these formats
-	// (check if they are unused)
-	case IMAGE_FORMAT_BGR888:
-		return DXGI_FORMAT_UNKNOWN;
-	case IMAGE_FORMAT_I8:
-		return DXGI_FORMAT_UNKNOWN;
-	case IMAGE_FORMAT_IA88:
-		return DXGI_FORMAT_UNKNOWN;
-	case IMAGE_FORMAT_UV88:
-		return DXGI_FORMAT_UNKNOWN;
-	case IMAGE_FORMAT_UVWQ8888:
-		return DXGI_FORMAT_UNKNOWN;
-	case IMAGE_FORMAT_UVLX8888:
-		return DXGI_FORMAT_UNKNOWN;
-
-	// These ones are good as-is
-	case IMAGE_FORMAT_A8:
-		return DXGI_FORMAT_A8_UNORM;
-	case IMAGE_FORMAT_DXT1:
-	case IMAGE_FORMAT_DXT1_ONEBITALPHA:
-		return DXGI_FORMAT_BC1_UNORM;
-	case IMAGE_FORMAT_DXT3:
-		return DXGI_FORMAT_BC2_UNORM;
-	case IMAGE_FORMAT_DXT5:
-		return DXGI_FORMAT_BC3_UNORM;
-	case IMAGE_FORMAT_BGRA4444:
-		return DXGI_FORMAT_B4G4R4A4_UNORM;
-	case IMAGE_FORMAT_BGRX5551:
-		return DXGI_FORMAT_B5G5R5A1_UNORM;
-	case IMAGE_FORMAT_BGR565:
-		return DXGI_FORMAT_B5G6R5_UNORM;
-	case IMAGE_FORMAT_BGRX8888:
-		return DXGI_FORMAT_B8G8R8X8_UNORM;
-	case IMAGE_FORMAT_BGRA8888:
-		return DXGI_FORMAT_B8G8R8A8_UNORM;
-	case IMAGE_FORMAT_RGBA16161616F:
-		return DXGI_FORMAT_R16G16B16A16_FLOAT;
-	case IMAGE_FORMAT_RGBA16161616:
-		return DXGI_FORMAT_R16G16B16A16_UNORM;
-	case IMAGE_FORMAT_R32F:
-		return DXGI_FORMAT_R32_FLOAT;
-	case IMAGE_FORMAT_RGBA32323232F:
-		return DXGI_FORMAT_R32G32B32A32_FLOAT;
-	}
-}
-
-ImageFormat GetImageFormat( DXGI_FORMAT d3dFormat )
-{
-	switch ( d3dFormat )
-	{
-	case DXGI_FORMAT_UNKNOWN:
-		return IMAGE_FORMAT_UNKNOWN;
-
-	case DXGI_FORMAT_A8_UNORM:
-		return IMAGE_FORMAT_A8;
-	case DXGI_FORMAT_BC1_UNORM:
-		return IMAGE_FORMAT_DXT1_ONEBITALPHA;
-	case DXGI_FORMAT_BC2_UNORM:
-		return IMAGE_FORMAT_DXT3;
-	case DXGI_FORMAT_BC3_UNORM:
-		return IMAGE_FORMAT_DXT5;
-	case DXGI_FORMAT_B4G4R4A4_UNORM:
-		return IMAGE_FORMAT_BGRA4444;
-	case DXGI_FORMAT_B5G6R5_UNORM:
-		return IMAGE_FORMAT_BGR565;
-	case DXGI_FORMAT_B8G8R8X8_UNORM:
-		return IMAGE_FORMAT_BGRX8888;
-	case DXGI_FORMAT_B8G8R8A8_UNORM:
-		return IMAGE_FORMAT_BGRA8888;
-	case DXGI_FORMAT_R16G16B16A16_FLOAT:
-		return IMAGE_FORMAT_RGBA16161616F;
-	case DXGI_FORMAT_R16G16B16A16_UNORM:
-		return IMAGE_FORMAT_RGBA16161616;
-	case DXGI_FORMAT_R32_FLOAT:
-		return IMAGE_FORMAT_R32F;
-	case DXGI_FORMAT_R32G32B32A32_FLOAT:
-		return IMAGE_FORMAT_RGBA32323232F;
-	}
-}
-
-// Texture2D is used for regular 2D textures, cubemaps, and 2D texture arrays
-// TODO: Support 1D and 3D textures?
-ID3D11Resource *CreateD3DTexture( int width, int height, int nDepth,
-				  ImageFormat dstFormat, int numLevels, int nCreationFlags )
-{
-	if ( nDepth <= 0 )
-		nDepth = 1;
-
-	bool isCubeMap = ( nCreationFlags & TEXTURE_CREATE_CUBEMAP ) != 0;
-	if ( isCubeMap )
-		nDepth = 6;
-
-	bool bIsRenderTarget = ( nCreationFlags & TEXTURE_CREATE_RENDERTARGET ) != 0;
-	bool bManaged = ( nCreationFlags & TEXTURE_CREATE_MANAGED ) != 0;
-	bool bIsDepthBuffer = ( nCreationFlags & TEXTURE_CREATE_DEPTHBUFFER ) != 0;
-	bool isDynamic = ( nCreationFlags & TEXTURE_CREATE_DYNAMIC ) != 0;
-	bool bAutoMipMap = ( nCreationFlags & TEXTURE_CREATE_AUTOMIPMAP ) != 0;
-	bool bVertexTexture = ( nCreationFlags & TEXTURE_CREATE_VERTEXTEXTURE ) != 0;
-	bool bAllowNonFilterable = ( nCreationFlags & TEXTURE_CREATE_UNFILTERABLE_OK ) != 0;
-	bool bVolumeTexture = ( nDepth > 1 );
-	bool bIsFallback = ( nCreationFlags & TEXTURE_CREATE_FALLBACK ) != 0;
-	bool bNoD3DBits = ( nCreationFlags & TEXTURE_CREATE_NOD3DMEMORY ) != 0;
-
-	// NOTE: This function shouldn't be used for creating depth buffers!
-	Assert( !bIsDepthBuffer );
-
-	DXGI_FORMAT d3dFormat = DXGI_FORMAT_UNKNOWN;
-	d3dFormat = GetD3DFormat( dstFormat );
-
-	if ( d3dFormat == DXGI_FORMAT_UNKNOWN )
-	{
-		Warning( "ShaderAPIDX11::CreateD3DTexture: Invalid image format %i!\n", (int)dstFormat );
-		Assert( 0 );
-		return 0;
-	}
-
-	D3D11_USAGE usage = D3D11_USAGE_DEFAULT;
-	if ( isDynamic )
-	{
-		usage = D3D11_USAGE_DYNAMIC;
-	}
-
-	UINT miscFlags = 0;
-	if ( bAutoMipMap )
-	{
-		miscFlags |= D3D11_RESOURCE_MISC_GENERATE_MIPS;
-	}
-	if ( isCubeMap )
-	{
-		miscFlags |= D3D11_RESOURCE_MISC_TEXTURECUBE;
-	}
-
-	UINT bindFlags = 0;
-	if ( bIsRenderTarget )
-	{
-		bindFlags |= D3D11_BIND_RENDER_TARGET;
-	}
-
-	UINT cpuAccessFlags = D3D11_CPU_ACCESS_WRITE;
-
-	ID3D11Resource *pBaseTexture = NULL;
-	HRESULT hr = S_OK;
-
-	// TODO: Support 1D and 3D textures
-	// (2D textures are good for regular textures, cubemaps, and texture arrays)
-	D3D11_TEXTURE2D_DESC desc;
-	ZeroMemory( &desc, sizeof( D3D11_TEXTURE3D_DESC ) );
-	if ( bVolumeTexture ) // isCubeMap will also cause this to be set
-		desc.ArraySize = nDepth;
-	desc.Format = d3dFormat;
-	desc.Width = width;
-	desc.Height = height;
-	desc.MipLevels = numLevels;
-	desc.MiscFlags = miscFlags;
-	desc.BindFlags = bindFlags;
-	desc.CPUAccessFlags = cpuAccessFlags;
-	desc.Usage = usage;
-	ID3D11Texture2D *pTex2D = NULL;
-	hr = D3D11Device()->CreateTexture2D( &desc, NULL, &pTex2D );
-	pBaseTexture = pTex2D;
-
-	if ( FAILED( hr ) )
-	{
-		switch ( hr )
-		{
-		case E_OUTOFMEMORY:
-			Warning( "ShaderAPIDX11::CreateD3DTexture: E_OUTOFMEMORY\n" );
-			break;
-		default:
-			break;
-		}
-		return 0;
-	}
-
-	return pBaseTexture;
-}
-
 void CShaderAPIDx11::CreateTextures(
     ShaderAPITextureHandle_t *pHandles,
     int count,
@@ -1749,84 +1663,16 @@ void CShaderAPIDx11::CreateTextures(
 {
 	LOCK_SHADERAPI();
 
-	if ( depth == 0 )
-		depth == 1;
-
-	bool bIsCubeMap	     = ( flags & TEXTURE_CREATE_CUBEMAP ) != 0;
-	if ( bIsCubeMap )
-		depth = 6;
-	bool bIsRenderTarget = ( flags & TEXTURE_CREATE_RENDERTARGET ) != 0;
-	bool bIsManaged	     = ( flags & TEXTURE_CREATE_MANAGED ) != 0;
-	bool bIsDepthBuffer  = ( flags & TEXTURE_CREATE_DEPTHBUFFER ) != 0;
-	bool bIsDynamic	     = ( flags & TEXTURE_CREATE_DYNAMIC ) != 0;
-
-	// Can't be both managed + dynamic. Dynamic is an optimization, but
-	// if it's not managed, then we gotta do special client-specific stuff
-	// So, managed wins out!
-	if ( bIsManaged )
-		bIsDynamic = false;
-
 	// Create a set of texture handles
 	CreateTextureHandles( pHandles, count );
 	CTextureDx11 **arrTxp = (CTextureDx11 **)stackalloc( count * sizeof( CTextureDx11 * ) );
-
-	unsigned short usSetFlags = 0;
-	usSetFlags |= ( flags & TEXTURE_CREATE_VERTEXTEXTURE ) ? CTextureDx11::IS_VERTEX_TEXTURE : 0;
 
 	for ( int idxFrame = 0; idxFrame < count; ++idxFrame )
 	{
 		arrTxp[idxFrame]	  = &GetTexture( pHandles[idxFrame] );
 		CTextureDx11 *pTexture	  = arrTxp[idxFrame];
-		pTexture->m_nFlags	  = CTextureDx11::IS_ALLOCATED;
-		pTexture->m_nWidth	  = width;
-		pTexture->m_nHeight	  = height;
-		pTexture->m_Depth	  = depth;
-		pTexture->m_Count	  = count;
-		pTexture->m_CountIndex	  = idxFrame;
-		pTexture->m_CreationFlags = flags;
-		pTexture->m_nFlags |= usSetFlags;
-
-		ID3D11Resource *pD3DTex;
-
-		// Set the initial texture state
-		if ( numCopies <= 1 )
-		{
-			pTexture->m_NumCopies = 1;
-			pD3DTex = CreateD3DTexture( width, height, depth, dstImageFormat, numMipLevels, flags );
-			pTexture->SetTexture( pD3DTex );
-		}
-		else
-		{
-			pTexture->m_NumCopies = numCopies;
-			pTexture->m_ppTexture = new ID3D11Resource * [numCopies];
-			for ( int k = 0; k < numCopies; k++ )
-			{
-				pD3DTex = CreateD3DTexture( width, height, depth, dstImageFormat, numMipLevels, flags );
-				pTexture->SetTexture( k, pD3DTex );
-			}
-		}
-		pTexture->m_CurrentCopy = 0;
-
-		pD3DTex = GetD3DTexture( pHandles[idxFrame] );
-
-		pTexture->m_Format = dstImageFormat;
-		pTexture->m_UTexWrap = D3D11_TEXTURE_ADDRESS_CLAMP;
-		pTexture->m_VTexWrap = D3D11_TEXTURE_ADDRESS_CLAMP;
-		pTexture->m_WTexWrap = D3D11_TEXTURE_ADDRESS_CLAMP;
-
-		if ( bIsRenderTarget )
-		{
-			pTexture->m_Filter = D3D11_FILTER_MIN_MAG_LINEAR_MIP_POINT;
-			pTexture->m_NumLevels = 1;
-		}
-		else
-		{
-			pTexture->m_NumLevels = numMipLevels;
-			pTexture->m_Filter = ( numMipLevels != 1 ) ?
-				D3D11_FILTER_MIN_MAG_MIP_LINEAR :
-				D3D11_FILTER_MIN_MAG_LINEAR_MIP_POINT;
-		}
-		pTexture->m_SwitchNeeded = false;
+		pTexture->SetupTexture2D( width, height, depth, count, idxFrame, flags,
+					  numCopies, numMipLevels, dstImageFormat );
 
 	}
 }
@@ -1849,37 +1695,77 @@ ShaderAPITextureHandle_t CShaderAPIDx11::CreateDepthTexture( ImageFormat renderF
 
 	ShaderAPITextureHandle_t i = CreateTextureHandle();
 	CTextureDx11 *pTexture = &GetTexture( i );
-
-	pTexture->m_nFlags = CTextureDx11::IS_ALLOCATED;
-	if ( bTexture )
-		pTexture->m_nFlags |= CTextureDx11::IS_DEPTH_STENCIL_TEXTURE;
-	else
-		pTexture->m_nFlags |= CTextureDx11::IS_DEPTH_STENCIL;
-
-	pTexture->m_nWidth = width;
-	pTexture->m_nHeight = height;
-	pTexture->m_Depth = 1;
-	pTexture->m_Count = 1;
-	pTexture->m_CountIndex = 0;
-	pTexture->m_CreationFlags = 0;
-	pTexture->m_NumCopies = 1;
-	pTexture->m_CurrentCopy = 0;
+	pTexture->SetupDepthTexture( renderFormat, width, height, pDebugName, bTexture );
 
 	return i;
 }
 
 void CShaderAPIDx11::DeleteTexture( ShaderAPITextureHandle_t textureHandle )
 {
+	LOCK_SHADERAPI();
+
+	if ( !TextureIsAllocated( textureHandle ) )
+	{
+		// already deallocated
+		return;
+	}
+	
+	// Unbind it!
+
+	// Delete it baby
+	GetTexture( textureHandle ).Delete();
 }
 
 bool CShaderAPIDx11::IsTexture( ShaderAPITextureHandle_t textureHandle )
 {
-	return true;
+	LOCK_SHADERAPI();
+
+	if ( !TextureIsAllocated( textureHandle ) )
+		return false;
+
+	if ( GetTexture( textureHandle ).m_nFlags & CTextureDx11::IS_DEPTH_STENCIL )
+	{
+		return GetTexture( textureHandle ).GetDepthStencilView() != 0;
+	}
+	else if ( ( GetTexture( textureHandle ).m_NumCopies == 1 && GetTexture( textureHandle ).GetTexture() != 0 ) ||
+		( GetTexture( textureHandle ).m_NumCopies > 1 && GetTexture( textureHandle ).GetTexture( 0 ) != 0 ) )
+	{
+		return true;
+	}
+
+	return false;
+}
+
+void CShaderAPIDx11::SetAnisotropicLevel( int nAnisotropyLevel )
+{
+	LOCK_SHADERAPI();
+
+	// NOTE: This must be called before the rest of the code in this function so
+	//       anisotropic can be set per-texture to force it on! This will also avoid
+	//       a possible infinite loop that existed before.
+	g_pShaderUtil->NoteAnisotropicLevel( nAnisotropyLevel );
+
+	// Never set this to 1. In the case we want it set to 1, we will use this to override
+	//   aniso per-texture, so set it to something reasonable
+	if ( nAnisotropyLevel > g_pHardwareConfig->Caps().m_nMaxAnisotropy || nAnisotropyLevel <= 1 )
+	{
+		// Set it to 1/4 the max but between 2-8
+		nAnisotropyLevel = max( 2, min( 8, ( g_pHardwareConfig->Caps().m_nMaxAnisotropy / 4 ) ) );
+	}
+
+	// Set the D3D max aninsotropy state for all samplers
+	for ( ShaderAPITextureHandle_t handle = m_Textures.Head();
+	      handle != m_Textures.InvalidIndex();
+	      handle = m_Textures.Next( handle ) )
+	{
+		CTextureDx11 &tex = GetTexture( handle );
+		tex.SetAnisotropicLevel( nAnisotropyLevel );
+	}
 }
 
 bool CShaderAPIDx11::IsTextureResident( ShaderAPITextureHandle_t textureHandle )
 {
-	return false;
+	return true;
 }
 
 // stuff that isn't to be used from within a shader

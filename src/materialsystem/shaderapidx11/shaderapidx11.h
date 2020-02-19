@@ -73,26 +73,17 @@ struct ShaderStateDx11_t
 	D3D11_VIEWPORT m_pViewports[MAX_DX11_VIEWPORTS];
 	FLOAT m_ClearColor[4];
 
-	// ---------------------------------
-	// Fixed-function states
-	// ---------------------------------
 	ID3D11BlendState *m_pBlendState;
 	ID3D11DepthStencilState *m_pDepthStencilState;
 	ID3D11RasterizerState *m_pRasterState;
-
-	// ---------------------------------
-	// Shader states
-	// ---------------------------------
 	ID3D11VertexShader *m_pVertexShader;
 	ID3D11GeometryShader *m_pGeometryShader;
 	ID3D11PixelShader *m_pPixelShader;
 	ID3D11Buffer *m_pVSConstantBuffers[MAX_DX11_CBUFFERS];
 	ID3D11Buffer *m_pPSConstantBuffers[MAX_DX11_CBUFFERS];
 	ID3D11Buffer *m_pGSConstantBuffers[MAX_DX11_CBUFFERS];
-
-	// ---------------------------------
-	// Pipeline states
-	// ---------------------------------
+	ID3D11SamplerState *m_pSamplers[MAX_DX11_SAMPLERS];
+	ID3D11ShaderResourceView *m_pTextureViews[MAX_DX11_SAMPLERS];
 	ShaderVertexBufferStateDx11_t m_pVertexBuffer[MAX_DX11_STREAMS];
 	ShaderIndexBufferStateDx11_t m_IndexBuffer;
 	ShaderInputLayoutStateDx11_t m_InputLayout;
@@ -159,6 +150,11 @@ public:
 	virtual void SetPixelShaderConstantBuffers( int nCount, const ConstantBufferHandle_t *pBuffers );
 	virtual void SetVertexShaderConstantBuffers( int nCount, const ConstantBufferHandle_t *pBuffers );
 	virtual void SetGeometryShaderConstantBuffers( int nCount, const ConstantBufferHandle_t *pBuffers );
+
+	FORCEINLINE bool TextureIsAllocated( ShaderAPITextureHandle_t hTexture )
+	{
+		return m_Textures.IsValidIndex( hTexture ) && ( GetTexture( hTexture ).m_nFlags & CTextureDx11::IS_ALLOCATED );
+	}
 
 	// Methods of IShaderDynamicAPI
 public:
@@ -644,9 +640,7 @@ private:
 	}
 
 	// Level of anisotropic filtering
-	virtual void SetAnisotropicLevel( int nAnisotropyLevel )
-	{
-	}
+	virtual void SetAnisotropicLevel( int nAnisotropyLevel );
 
 	void SetDefaultDynamicState()
 	{
@@ -1014,13 +1008,17 @@ private:
 	// Current material
 	IMaterialInternal *m_pMaterial;
 
+	// Members related to textures
 	CUtlFixedLinkedList<CTextureDx11> m_Textures;
+	char m_ModifyTextureLockedLevel;
+	ShaderAPITextureHandle_t m_ModifyTextureHandle;
 
 	bool m_bResettingRenderState : 1;
 	CFunctionCommit m_Commit;
 
 	StatesDx11::RenderState m_DesiredState;
 	ShaderStateDx11_t m_CurrentDX11State;
+
 };
 
 //-----------------------------------------------------------------------------

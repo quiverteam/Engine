@@ -126,9 +126,10 @@ public:
 	virtual void DestroyVertexBuffer( IVertexBuffer *pVertexBuffer );
 	virtual IIndexBuffer *CreateIndexBuffer( ShaderBufferType_t type, MaterialIndexFormat_t fmt, int nIndexCount, const char *pTextureBudgetGroup );
 	virtual void DestroyIndexBuffer( IIndexBuffer *pIndexBuffer );
-	virtual ConstantBufferHandle_t CreateConstantBuffer( size_t nBufSize );
-	virtual void UpdateConstantBuffer( ConstantBufferHandle_t hBuffer, void *pData );
-	virtual void DestroyConstantBuffer( ConstantBufferHandle_t hBuffer );
+	virtual ConstantBuffer_t CreateConstantBuffer( size_t nBufSize );
+	virtual void UpdateConstantBuffer( ConstantBuffer_t hBuffer, void *pData );
+	virtual void DestroyConstantBuffer( ConstantBuffer_t hBuffer );
+	virtual ConstantBufferHandle_t GetConstantBuffer( ConstantBuffer_t buffer );
 	virtual IVertexBuffer *GetDynamicVertexBuffer( int nStreamID, VertexFormat_t vertexFormat, bool bBuffered = true );
 	virtual IIndexBuffer *GetDynamicIndexBuffer( MaterialIndexFormat_t fmt, bool bBuffered = true );
 	virtual void SetHardwareGammaRamp( float fGamma, float fGammaTVRangeMin, float fGammaTVRangeMax, float fGammaTVExponent, bool bTVEnabled );
