@@ -4077,8 +4077,11 @@ void CBaseFileSystem::FindClose( FileFindHandle_t handle )
 	FindData_t *pFindData = &m_FindData[handle];
 	Assert(pFindData);
 
+	// Technically none of this should be necessary because the find data is removed anyway but...
 	pFindData->pfFindData.fileList.PurgeAndDeleteElements();
 	pFindData->pfFindData.directoryList.PurgeAndDeleteElements();
+	pFindData->pfFindData.currentDirectory = 0;
+	pFindData->pfFindData.currentFile = 0;
 
 	if ( pFindData->findHandle != INVALID_HANDLE_VALUE)
 	{

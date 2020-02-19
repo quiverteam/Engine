@@ -187,6 +187,9 @@ struct PackFileFindData_t
 	// Compiled list of files/folders based on wildcard input
 	CUtlStringList directoryList;
 	CUtlStringList fileList;
+
+	int currentDirectory = 0;
+	int currentFile = 0;
 };
 
 //-----------------------------------------------------------------------------

@@ -666,7 +666,7 @@ bool CVPKFile::FindFirst( CBaseFileSystem::FindData_t *pFindData )
 	if ( extension[0] == '\0' || ( extension[0] == '*' && extension[1] == '\0' ) )
 	{
 		// We're looking for directories
-		char path[MAX_FILEPATH];
+		char path[ MAX_FILEPATH ];
 		strncpy( path, pFindData->wildCardString.Base(), sizeof( path ) );
 		V_FixSlashes( path );
 
@@ -690,9 +690,7 @@ bool CVPKFile::FindFirst( CBaseFileSystem::FindData_t *pFindData )
 				V_StripTrailingSlash( parent_path );
 
 				if ( V_stricmp( parent_path, path ) == 0 )
-				{
-					pFindData->pfFindData.directoryList.CopyAndAddToTail( current_path );
-				}
+					pFindData->pfFindData.directoryList.CopyAndAddToTail( V_UnqualifiedFileName( current_path ) );
 			}
 		}
 
@@ -705,7 +703,7 @@ bool CVPKFile::FindFirst( CBaseFileSystem::FindData_t *pFindData )
 			V_StripFilename( filepath );
 
 			if ( V_stricmp( filepath, path ) == 0 )
-				pFindData->pfFindData.fileList.CopyAndAddToTail( current_file );
+				pFindData->pfFindData.fileList.CopyAndAddToTail( V_UnqualifiedFileName( current_file ) );
 		}
 
 		return FindNext( pFindData );
@@ -732,9 +730,7 @@ bool CVPKFile::FindFirst( CBaseFileSystem::FindData_t *pFindData )
 				for ( auto entry : fileEntryList )
 				{
 					if ( V_stricmp( entry->pszFileExtension, extension ) == 0 )
-					{
-						pFindData->pfFindData.fileList.CopyAndAddToTail( entry->szFullFilePath );
-					}
+						pFindData->pfFindData.fileList.CopyAndAddToTail( V_UnqualifiedFileName( entry->szFullFilePath ) );
 				}
 
 				return FindNext( pFindData );
@@ -747,27 +743,25 @@ bool CVPKFile::FindFirst( CBaseFileSystem::FindData_t *pFindData )
 
 bool CVPKFile::FindNext( CBaseFileSystem::FindData_t *pFindData )
 {
-	if ( !pFindData->pfFindData.directoryList.IsEmpty() )
+	if ( pFindData->pfFindData.currentDirectory != pFindData->pfFindData.directoryList.Count() )
 	{
-		char *head = pFindData->pfFindData.directoryList.Head();
+		const char *pszDirectoryName = pFindData->pfFindData.directoryList[ pFindData->pfFindData.currentDirectory ];
 		pFindData->findData.dwFileAttributes |= FILE_ATTRIBUTE_DIRECTORY;
 
-		const char *pszUnqualified = V_UnqualifiedFileName( head );
-		strncpy( pFindData->findData.cFileName, pszUnqualified, sizeof( pFindData->findData.cFileName ) );
-		delete head;
-		pFindData->pfFindData.directoryList.Remove( 0 );
+		strncpy( pFindData->findData.cFileName, pszDirectoryName, sizeof( pFindData->findData.cFileName ) );
+		++pFindData->pfFindData.currentDirectory;
+
 		return true;
 	}
 
-	if ( !pFindData->pfFindData.fileList.IsEmpty() )
+	if ( pFindData->pfFindData.currentFile != pFindData->pfFindData.fileList.Count() )
 	{
-		char *head = pFindData->pfFindData.fileList.Head();
+		const char *pszFileName = pFindData->pfFindData.fileList[ pFindData->pfFindData.currentFile ];
 		pFindData->findData.dwFileAttributes &= ~FILE_ATTRIBUTE_DIRECTORY;
 
-		const char *pszUnqualified = V_UnqualifiedFileName( head );
-		strncpy( pFindData->findData.cFileName, pszUnqualified, sizeof( pFindData->findData.cFileName ) );
-		delete head;
-		pFindData->pfFindData.fileList.Remove( 0 );
+		strncpy( pFindData->findData.cFileName, pszFileName, sizeof( pFindData->findData.cFileName ) );
+		++pFindData->pfFindData.currentFile;
+
 		return true;
 	}
 
@@ -776,8 +770,6 @@ bool CVPKFile::FindNext( CBaseFileSystem::FindData_t *pFindData )
 
 int CVPKFile::ReadFromPack( int nIndex, void* buffer, int nDestBytes, int nBytes, int64 nOffset )
 {
-	m_mutex.Lock();
-
 	if ( fs_monitor_read_from_pack.GetInt() == 1 || ( fs_monitor_read_from_pack.GetInt() == 2 && ThreadInMainThread() ) )
 	{
 		// spew info about real i/o request
@@ -787,17 +779,9 @@ int CVPKFile::ReadFromPack( int nIndex, void* buffer, int nDestBytes, int nBytes
 	}
 
 	// Seek to the start of the read area and perform the read: TODO: CHANGE THIS INTO A CFileHandle
-	FILE *vpk = nullptr;
-	if ( m_bVolumes )
-	{
-		const int archiveIndex = m_pFileEntries[ nIndex ]->entry.ArchiveIndex;
-		Assert( archiveIndex < m_hArchiveHandles.Count() );
+	FILE *vpk = ( m_bVolumes ) ? m_hArchiveHandles[ m_pFileEntries[ nIndex ]->entry.ArchiveIndex ] : m_hPackFileHandle;
 
-		vpk = m_hArchiveHandles[ archiveIndex ];
-	}
-	else
-		vpk = m_hPackFileHandle;
-
+	m_mutex.Lock(); // We should only need to lock when doing filesystem operations
 	m_fs->FS_fseek( vpk, m_nBaseOffset + nOffset, SEEK_SET );
 	int nBytesRead = m_fs->FS_fread( buffer, nDestBytes, nBytes, vpk );
 	m_mutex.Unlock();
