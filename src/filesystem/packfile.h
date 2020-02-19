@@ -347,7 +347,7 @@ inline CPackFile::~CPackFile()
 
 	if ( m_hPackFileHandle )
 	{
-		m_fs->FS_fclose( m_hPackFileHandle );
+		m_fs->Trace_FClose( m_hPackFileHandle );
 		m_hPackFileHandle = NULL;
 	}
 
