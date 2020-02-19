@@ -1,0 +1,70 @@
+﻿---
+AlignTrailingComments: 'false'
+AllowAllParametersOfDeclarationOnNextLine: 'false'
+AllowShortBlocksOnASingleLine: 'false'
+AllowShortFunctionsOnASingleLine: None
+AllowShortIfStatementsOnASingleLine: 'false'
+AllowShortLoopsOnASingleLine: 'false'
+BreakBeforeBraces: Allman
+BreakConstructorInitializersBeforeComma: 'false'
+ConstructorInitializerAllOnOneLineOrOnePerLine: 'true'
+Cpp11BracedListStyle: 'false'
+DerivePointerAlignment: 'true'
+IndentCaseLabels: 'false'
+IndentWidth: '8'
+IndentWrappedFunctionNames: 'false'
+Language: Cpp
+NamespaceIndentation: All
+PointerAlignment: Right
+SpaceBeforeAssignmentOperators: 'true'
+SpaceBeforeParens: ControlStatements
+SpaceInEmptyParentheses: 'false'
+SpacesInAngles: 'false'
+SpacesInCStyleCastParentheses: 'false'
+SpacesInContainerLiterals: 'false'
+SpacesInParentheses: 'true'
+Standard: Auto
+TabWidth: '8'
+UseTab: Always
+AlignAfterOpenBracket: Align
+AlignConsecutiveAssignments: 'true'
+Standard: Cpp03
+AccessModifierOffset: -8
+ColumnLimit: 0
+SortIncludes: 'false'
+BreakConstructorInitializers: AfterColon
+ConstructorInitializerIndentWidth: '8'
+
+# Make sure code like:
+# BEGIN_BYTESWAP_DATADESC()
+#   FIELD(abc, int)
+# END_BYTESWAP_DATADESC()
+# gets correctly indented.
+MacroBlockBegin: "^\
+AI_BEGIN_CUSTOM_SCHEDULE_PROVIDER|\
+BEGIN_BYTESWAP_DATADESC|\
+BEGIN_DATADESC|\
+BEGIN_SEND_TABLE_NOBASE|\
+BEGIN_SHADER_PARAMS|\
+BEGIN_SIMPLE_DATADESC|\
+IMPLEMENT_CLIENTCLASS_DT_NOBASE|\
+IMPLEMENT_CLIENTCLASS_DT|\
+IMPLEMENT_SERVERCLASS_ST_NOBASE|\
+IMPLEMENT_SERVERCLASS_ST|\
+MSL_FOREACH_GROUP_BEGIN|\
+MSL_FOREACH_SURFACE_IN_GROUP_BEGIN$"
+MacroBlockEnd: "^\
+AI_END_CUSTOM_SCHEDULE_PROVIDER|\
+END_BYTESWAP_DATADESC|\
+END_DATADESC|\
+END_SEND_TABLE|\
+END_SHADER_PARAMS|\
+END_DATADESC|\
+END_RECV_TABLE|\
+END_RECV_TABLE|\
+END_SEND_TABLE|\
+END_SEND_TABLE|\
+MSL_FOREACH_GROUP_END|\
+MSL_FOREACH_SURFACE_IN_GROUP_END$"
+
+...
