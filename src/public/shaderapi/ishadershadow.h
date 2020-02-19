@@ -14,6 +14,7 @@
 #endif
 
 #include "shaderapi/shareddefs.h"
+#include "ishaderdevice.h"
 #include <materialsystem/imaterial.h>
 
 
@@ -357,7 +358,7 @@ public:
 	virtual void SetShadowDepthFiltering( Sampler_t stage ) = 0;
 
 	// Sets the constant buffer structure that will be used for the shader.
-	virtual void SetConstantBuffer( ConstantBufferHandle_t cbuffer ) = 0;
+	virtual void SetConstantBuffer( ConstantBuffer_t cbuffer ) = 0;
 };
 // end class IShaderShadow
 

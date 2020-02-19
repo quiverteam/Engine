@@ -132,6 +132,7 @@ namespace StatesDx11
 	struct ColorBlendAttrib
 	{
 		bool bBlendEnable;
+		bool bIndependentAlphaBlend;
 
 		ShaderBlendFactor_t srcBlend;
 		ShaderBlendFactor_t destBlend;
@@ -148,6 +149,7 @@ namespace StatesDx11
 		ColorBlendAttrib()
 		{
 			bBlendEnable = false;
+			bIndependentAlphaBlend = false;
 			srcBlend = SHADER_BLEND_ONE;
 			destBlend = SHADER_BLEND_ZERO;
 			blendOp = SHADER_BLENDOP_ADD;
@@ -219,9 +221,11 @@ namespace StatesDx11
 	struct CullFaceAttrib
 	{
 		MaterialCullMode_t cullMode;
+		bool bEnable;
 
 		CullFaceAttrib()
 		{
+			bEnable = true;
 			cullMode = MATERIAL_CULLMODE_CCW;
 		}
 	};

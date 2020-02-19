@@ -66,12 +66,16 @@ struct ShaderInputLayoutStateDx11_t
 
 struct ShaderStateDx11_t
 {
-	// RenderState corresponding to the DX11 state
-	StatesDx11::RenderState m_RenderState;
-
 	int m_nViewportCount;
 	D3D11_VIEWPORT m_pViewports[MAX_DX11_VIEWPORTS];
 	FLOAT m_ClearColor[4];
+
+	ShaderVertexBufferStateDx11_t m_pVertexBuffer[MAX_DX11_STREAMS];
+	ShaderIndexBufferStateDx11_t m_IndexBuffer;
+	ShaderInputLayoutStateDx11_t m_InputLayout;
+	D3D11_PRIMITIVE_TOPOLOGY m_Topology;
+
+	// These are changed when the RenderState is changed.
 
 	ID3D11BlendState *m_pBlendState;
 	ID3D11DepthStencilState *m_pDepthStencilState;
@@ -84,40 +88,13 @@ struct ShaderStateDx11_t
 	ID3D11Buffer *m_pGSConstantBuffers[MAX_DX11_CBUFFERS];
 	ID3D11SamplerState *m_pSamplers[MAX_DX11_SAMPLERS];
 	ID3D11ShaderResourceView *m_pTextureViews[MAX_DX11_SAMPLERS];
-	ShaderVertexBufferStateDx11_t m_pVertexBuffer[MAX_DX11_STREAMS];
-	ShaderIndexBufferStateDx11_t m_IndexBuffer;
-	ShaderInputLayoutStateDx11_t m_InputLayout;
-	D3D11_PRIMITIVE_TOPOLOGY m_Topology;
 };
 
-//-----------------------------------------------------------------------------
-// Commit function helper class
-//-----------------------------------------------------------------------------
-typedef void ( *StateCommitFunc_t )( ID3D11Device *pDevice, ID3D11DeviceContext *pContext,
-				     const ShaderStateDx11_t &desiredState, ShaderStateDx11_t &currentState,
-				     bool bForce );
-
-class CFunctionCommit
+struct DynamicStateDx11_t
 {
-public:
-	CFunctionCommit();
-	~CFunctionCommit();
-
-	void Init( int nFunctionCount );
-
-	// Methods related to queuing functions to be called per-(pMesh->Draw call) or per-pass
-	void ClearAllCommitFuncs();
-	void CallCommitFuncs( bool bForce );
-	bool IsCommitFuncInUse( int nFunc ) const;
-	void MarkCommitFuncInUse( int nFunc );
-	void AddCommitFunc( StateCommitFunc_t f );
-	void CallCommitFuncs( ID3D11Device *pDevice, ID3D11DeviceContext *pContext, const ShaderStateDx11_t &desiredState, ShaderStateDx11_t &currentState, bool bForce = false );
-
-private:
-	// A list of state commit functions to run as per-draw call commit time
-	unsigned char *m_pCommitFlags;
-	int m_nCommitBufferSize;
-	CUtlVector<StateCommitFunc_t> m_CommitFuncs;
+	Vector4D m_AmbientLightCube[6];
+	LightDesc_t m_Lights[MAX_NUM_LIGHTS];
+	int m_NumLights;
 };
 
 //-----------------------------------------------------------------------------
@@ -147,9 +124,6 @@ public:
 	virtual void BindVertexBuffer( int nStreamID, IVertexBuffer *pVertexBuffer, int nOffsetInBytes, int nFirstVertex, int nVertexCount, VertexFormat_t fmt, int nRepetitions = 1 );
 	virtual void BindIndexBuffer( IIndexBuffer *pIndexBuffer, int nOffsetInBytes );
 	virtual void Draw( MaterialPrimitiveType_t primitiveType, int nFirstIndex, int nIndexCount );
-	virtual void SetPixelShaderConstantBuffers( int nCount, const ConstantBufferHandle_t *pBuffers );
-	virtual void SetVertexShaderConstantBuffers( int nCount, const ConstantBufferHandle_t *pBuffers );
-	virtual void SetGeometryShaderConstantBuffers( int nCount, const ConstantBufferHandle_t *pBuffers );
 
 	FORCEINLINE bool TextureIsAllocated( ShaderAPITextureHandle_t hTexture )
 	{
@@ -692,7 +666,7 @@ private:
 	}
 	virtual bool SupportsFetch4() const
 	{
-		return false;
+		return true;
 	}
 	virtual void EnableBuffer2FramesAhead( bool bEnable )
 	{
@@ -996,11 +970,25 @@ private:
 	//
 private:
 	void ClearShaderState( ShaderStateDx11_t *pState );
-	void CommitStateChanges( bool bForce = false );
+	void IssueStateChanges( bool bForce = false );
 
 	void CreateTextureHandles( ShaderAPITextureHandle_t *handles, int count );
 	CTextureDx11 &GetTexture(ShaderAPITextureHandle_t handle);
 	ShaderAPITextureHandle_t CreateTextureHandle();
+
+	void DoIssueVertexShader();
+	void DoIssuePixelShader();
+	void DoIssueGeometryShader();
+	void DoIssueConstantBuffers();
+	void DoIssueTexture();
+	void DoIssueRasterState();
+	void DoIssueBlendState();
+	void DoIssueDepthStencilState();
+	bool DoIssueVertexBuffer( bool bForce );
+	void DoIssueIndexBuffer();
+	void DoIssueInputLayout();
+	void DoIssueTopology();
+	void DoIssueViewports();
 
 private:
 	// The mesh we are currently rendering
@@ -1014,10 +1002,12 @@ private:
 	ShaderAPITextureHandle_t m_ModifyTextureHandle;
 
 	bool m_bResettingRenderState : 1;
-	CFunctionCommit m_Commit;
 
-	StatesDx11::RenderState m_DesiredState;
-	ShaderStateDx11_t m_CurrentDX11State;
+	StatesDx11::RenderState m_TargetState;
+	StatesDx11::RenderState m_State;
+	ShaderStateDx11_t m_DX11TargetState;
+	ShaderStateDx11_t m_DX11State;
+	DynamicStateDx11_t m_DynamicState;
 
 };
 

@@ -38,6 +38,12 @@ ALIGN16 struct LightingBuffer_t
 	DirectX::XMFLOAT3 ambientCube[6];	
 };
 
+ALIGN16 struct FogBuffer_t
+{
+	DirectX::XMFLOAT3 fogColor;
+	DirectX::XMFLOAT4 fogParams;
+};
+
 //-----------------------------------------------------------------------------
 // The empty shader shadow
 //-----------------------------------------------------------------------------
@@ -113,7 +119,7 @@ public:
 	virtual void StencilMask( int nMask );
 	virtual void StencilWriteMask( int nMask );
 
-	virtual void SetConstantBuffer( ConstantBufferHandle_t cbuffer );
+	virtual void SetConstantBuffer( ConstantBuffer_t cbuffer );
 
 	StateSnapshot_t FindOrCreateSnapshot();
 

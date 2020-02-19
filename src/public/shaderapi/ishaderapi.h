@@ -173,11 +173,6 @@ public:
 	virtual void SetViewports( int nCount, const ShaderViewport_t* pViewports ) = 0;
 	virtual int GetViewports( ShaderViewport_t* pViewports, int nMax ) const = 0;
 
-	// DX11 stuffs
-	virtual void SetPixelShaderConstantBuffers( int nCount, const ConstantBufferHandle_t* pBuffers ) = 0;
-	virtual void SetVertexShaderConstantBuffers( int nCount, const ConstantBufferHandle_t* pBuffers ) = 0;
-	virtual void SetGeometryShaderConstantBuffers( int nCount, const ConstantBufferHandle_t* pBuffers ) = 0;
-
 	// Buffer clearing
 	virtual void ClearBuffers( bool bClearColor, bool bClearDepth, bool bClearStencil, int renderTargetWidth, int renderTargetHeight ) = 0;
 	virtual void ClearColor3ub( unsigned char r, unsigned char g, unsigned char b ) = 0;

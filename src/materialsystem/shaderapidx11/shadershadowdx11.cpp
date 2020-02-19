@@ -106,8 +106,11 @@ void CShaderShadowDx11::EnableBlending( bool bEnable )
 void CShaderShadowDx11::BlendFunc( ShaderBlendFactor_t srcFactor, ShaderBlendFactor_t dstFactor )
 {
 	m_ShadowState.colorBlendAttrib.bBlendEnable = true;
-	m_ShadowState.colorBlendAttrib.srcBlendAlpha = srcFactor;
-	m_ShadowState.colorBlendAttrib.destBlendAlpha = dstFactor;
+	if ( !m_ShadowState.colorBlendAttrib.bIndependentAlphaBlend )
+	{
+		m_ShadowState.colorBlendAttrib.srcBlendAlpha = srcFactor;
+		m_ShadowState.colorBlendAttrib.destBlendAlpha = dstFactor;
+	}
 	m_ShadowState.colorBlendAttrib.srcBlend = srcFactor;
 	m_ShadowState.colorBlendAttrib.destBlend = dstFactor;
 }
@@ -136,7 +139,8 @@ void CShaderShadowDx11::PolyMode( ShaderPolyModeFace_t face, ShaderPolyMode_t po
 void CShaderShadowDx11::EnableCulling( bool bEnable )
 {
 	// DX11FIXME
-	m_ShadowState.cullFaceAttrib.cullMode = MATERIAL_CULLMODE_CCW;
+	m_ShadowState.cullFaceAttrib.bEnable = bEnable;
+	//m_ShadowState.cullFaceAttrib.cullMode = MATERIAL_CULLMODE_CCW;
 }
 
 // constant color + transparency
@@ -283,11 +287,12 @@ void CShaderShadowDx11::StencilWriteMask( int nMask )
 
 void CShaderShadowDx11::BlendFuncSeparateAlpha( ShaderBlendFactor_t srcFactor, ShaderBlendFactor_t dstFactor )
 {
+	m_ShadowState.colorBlendAttrib.bIndependentAlphaBlend = true;
 	m_ShadowState.colorBlendAttrib.srcBlendAlpha = srcFactor;
 	m_ShadowState.colorBlendAttrib.destBlendAlpha = dstFactor;
 }
 
-void CShaderShadowDx11::SetConstantBuffer( ConstantBufferHandle_t cbuffer )
+void CShaderShadowDx11::SetConstantBuffer( ConstantBuffer_t cbuffer )
 {
 	m_ShadowShaderState.shaderAttrib.AddConstantBuffer( cbuffer );
 }
