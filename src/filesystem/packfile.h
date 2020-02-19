@@ -240,11 +240,12 @@ struct VPKFileEntry_t
 {
 	~VPKFileEntry_t()
 	{
-		delete[] pszFullFilePath;
+		delete[] pszFileExtension;
 	}
 
 	VPKDirectoryEntry_t entry;
-	const char *pszFullFilePath = nullptr; // Fully formed path of file inside VPK
+	char szFullFilePath[ MAX_FILEPATH ]; // Fully formed path of file inside VPK
+	char *pszFileExtension = nullptr; // File extension
 	int index; // Index into CVPKFile's CUtlVector of VPKFileEntry_t*
 };
 
@@ -281,7 +282,6 @@ private:
 protected:
 
 	CUtlStringMap< CUtlVector< const VPKFileEntry_t* > > m_PathMap; // Maps base path to list of file entries
-	CUtlMap< const VPKFileEntry_t*, char* > m_ExtensionMap; // Maps file entries to their respective file extension
 	CUtlStringMap< const VPKFileEntry_t* > m_FileMap; // Maps fully formed file path to a particular file entry
 };
 

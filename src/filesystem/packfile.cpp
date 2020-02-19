@@ -498,11 +498,6 @@ bool CZipPackFile::CPackFileLessFunc::Less( CZipPackFile::CPackFileEntry const& 
 	return ( src1.m_HashName < src2.m_HashName );
 }
 
-static bool VPK_FileEntry_LessFunc( const VPKFileEntry_t* const &p1, const VPKFileEntry_t* const &p2 )
-{
-	return ( p1 < p2 );
-}
-
 //-----------------------------------------------------------------------------
 //
 //-----------------------------------------------------------------------------
@@ -513,9 +508,6 @@ CVPKFile::CVPKFile( CBaseFileSystem* fs, bool bVolumes, VPKHeader_t vpkheader, c
 	V_strncpy( m_szBasePath, pszBasePath, sizeof( m_szBasePath ) );
 	m_fs = fs;
 	m_bIsVPK = true;
-
-	// Why does CUtlMap make me define this for a pointer type? WHY?
-	m_ExtensionMap.SetLessFunc( VPK_FileEntry_LessFunc );
 }
 
 //-----------------------------------------------------------------------------
@@ -527,15 +519,6 @@ CVPKFile::~CVPKFile()
 		m_fs->Trace_FClose( archive );
 
 	m_pFileEntries.PurgeAndDeleteElements();
-
-	// We can't use PurgeAndDeleteElements because we need to use delete[]
-	for ( unsigned short i = 0; i < m_ExtensionMap.MaxElement(); ++i )
-	{
-		if ( !m_ExtensionMap.IsValidIndex( i ) )
-			continue;
-
-		delete[] m_ExtensionMap.Element( i );
-	}
 }
 
 //-----------------------------------------------------------------------------
@@ -593,32 +576,26 @@ bool CVPKFile::Prepare( int64 fileLen, int64 nFileOfs )
 				m_fs->FS_fread( &entry.EntryLength, sizeof( entry.EntryLength ), m_hPackFileHandle );
 				m_fs->FS_fread( &entry.Terminator, sizeof( entry.Terminator ), m_hPackFileHandle );
 
+				if ( bPathEmpty )
+					V_snprintf( pFileEntry->szFullFilePath, sizeof( pFileEntry->szFullFilePath ), "%s.%s", file_name.Base(), extension.Base() );
+				else
+					V_snprintf( pFileEntry->szFullFilePath, sizeof( pFileEntry->szFullFilePath ), "%s%c%s.%s", base_path.Base(), CORRECT_PATH_SEPARATOR, file_name.Base(), extension.Base() );
+
+				pFileEntry->pszFileExtension = new char[ extension.Count() ];
+				V_strcpy( pFileEntry->pszFileExtension, extension.Base() );
+
 				if ( entry.PreloadBytes )
 				{
 #if VPK_DEBUG
-					Warning( "VPK file entry %s/%s.%s has preload data and will be ignored\n", base_path.Base(), file_name.Base(), extension.Base() );
+					Warning( "VPK file entry %s has preload data and will be ignored\n", pFileEntry->szFullFilePath );
 #endif
 					m_fs->FS_fseek( m_hPackFileHandle, entry.PreloadBytes, FILESYSTEM_SEEK_CURRENT );
 				}
 				else
 				{
-					// NOTE: This gets inserted into a CUtlMap and will be deleted in CVPKFile destructor
-					char *pszExtension = new char[ extension.Count() ];
-
-					// NOTE: This will be owned and deleted by the VPKFileEntry_t destructor
-					char *pszFullFilePath = new char[ MAX_PATH ];
-
-					V_strcpy( pszExtension, extension.Base() );
-
-					if ( bPathEmpty )
-						V_snprintf( pszFullFilePath, MAX_PATH, "%s.%s", file_name.Base(), extension.Base() );
-					else
-						V_snprintf( pszFullFilePath, MAX_PATH, "%s%c%s.%s", base_path.Base(), CORRECT_PATH_SEPARATOR, file_name.Base(), extension.Base() );
-				
+					// File only available for lookups if it has no preload data
 					m_PathMap[ base_path.Base() ].AddToTail( pFileEntry );
-					m_FileMap[ pszFullFilePath ] = pFileEntry;
-					pFileEntry->pszFullFilePath = pszFullFilePath;
-					m_ExtensionMap.Insert( pFileEntry, pszExtension );
+					m_FileMap[ pFileEntry->szFullFilePath ] = pFileEntry;
 				}
 			}
 		}
@@ -630,8 +607,8 @@ bool CVPKFile::Prepare( int64 fileLen, int64 nFileOfs )
 
 		while ( true )
 		{
-			char volPath[ MAX_PATH ];
-			V_snprintf( volPath, MAX_PATH, "%s_%03d.vpk", m_szBasePath, volNum );
+			char volPath[ MAX_FILEPATH ];
+			V_snprintf( volPath, sizeof( volPath ), "%s_%03d.vpk", m_szBasePath, volNum );
 			++volNum;
 
 			FILE *archive = m_fs->Trace_FOpen( volPath, "rb", 0, NULL );
@@ -650,7 +627,7 @@ bool CVPKFile::Prepare( int64 fileLen, int64 nFileOfs )
 //-----------------------------------------------------------------------------
 bool CVPKFile::FindFile( const char *pFilename, int &nIndex, int64 &nOffset, int &nLength )
 {
-	char fixedfilename[ MAX_PATH ];
+	char fixedfilename[ MAX_FILEPATH ];
 	V_strncpy( fixedfilename, pFilename, sizeof( fixedfilename ) );
 
 	V_FixDoubleSlashes( fixedfilename );
@@ -705,7 +682,7 @@ bool CVPKFile::FindFirst( CBaseFileSystem::FindData_t *pFindData )
 			if ( V_stricmp( path, current_path ) == 0 )
 				continue;
 
-			char parent_path[ MAX_PATH ];
+			char parent_path[ MAX_FILEPATH ];
 			strncpy( parent_path, current_path, sizeof( parent_path ) );
 
 			if ( V_StripLastDir( parent_path, sizeof( parent_path ) ) )
@@ -723,7 +700,7 @@ bool CVPKFile::FindFirst( CBaseFileSystem::FindData_t *pFindData )
 		for ( int i = 0; i < numFileMapStrings; ++i )
 		{
 			const char *current_file = m_FileMap.String( i );
-			char filepath[ MAX_PATH ];
+			char filepath[ MAX_FILEPATH ];
 			strncpy( filepath, current_file, sizeof( filepath ) );
 			V_StripFilename( filepath );
 
@@ -754,14 +731,9 @@ bool CVPKFile::FindFirst( CBaseFileSystem::FindData_t *pFindData )
 
 				for ( auto entry : fileEntryList )
 				{
-					unsigned int extid = m_ExtensionMap.Find( entry );
-
-					if ( extid != m_ExtensionMap.InvalidIndex() )
+					if ( V_stricmp( entry->pszFileExtension, extension ) == 0 )
 					{
-						if ( V_stricmp( m_ExtensionMap[ extid ], extension ) == 0 )
-						{
-							pFindData->pfFindData.fileList.CopyAndAddToTail( entry->pszFullFilePath );
-						}
+						pFindData->pfFindData.fileList.CopyAndAddToTail( entry->szFullFilePath );
 					}
 				}
 
@@ -809,7 +781,7 @@ int CVPKFile::ReadFromPack( int nIndex, void* buffer, int nDestBytes, int nBytes
 	if ( fs_monitor_read_from_pack.GetInt() == 1 || ( fs_monitor_read_from_pack.GetInt() == 2 && ThreadInMainThread() ) )
 	{
 		// spew info about real i/o request
-		char szName[MAX_PATH];
+		char szName[ MAX_FILEPATH ];
 		IndexToFilename( nIndex, szName, sizeof( szName ) );
 		Msg( "Read From Pack: Sync I/O: Requested:%7d, Offset:0x%16.16llx, %s\n", nBytes, m_nBaseOffset + nOffset, szName );
 	}
@@ -836,8 +808,8 @@ int CVPKFile::ReadFromPack( int nIndex, void* buffer, int nDestBytes, int nBytes
 bool CVPKFile::IndexToFilename( int nIndex, char *pBuffer, int nBufferSize )
 {
 	const VPKFileEntry_t *pFileEntry = m_pFileEntries[ nIndex ];
+	V_strncpy( pBuffer, pFileEntry->szFullFilePath, nBufferSize );
 
-	V_strncpy( pBuffer, pFileEntry->pszFullFilePath, nBufferSize );
 	return true;
 }
 
