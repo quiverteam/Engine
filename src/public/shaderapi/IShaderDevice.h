@@ -121,6 +121,7 @@ DECLARE_POINTER_HANDLE( PixelShaderHandle_t );
 #define GEOMETRY_SHADER_HANDLE_INVALID	( (GeometryShaderHandle_t)0 )
 #define PIXEL_SHADER_HANDLE_INVALID		( (PixelShaderHandle_t)0 )
 
+typedef int ConstantBufferHandle_t;
 
 //-----------------------------------------------------------------------------
 // A shader buffer returns a block of memory which must be released when done with it
@@ -258,6 +259,10 @@ public:
 
 	virtual IIndexBuffer *CreateIndexBuffer( ShaderBufferType_t bufferType, MaterialIndexFormat_t fmt, int nIndexCount, const char *pBudgetGroup ) = 0;
 	virtual void DestroyIndexBuffer( IIndexBuffer *pIndexBuffer ) = 0;
+
+	virtual ConstantBufferHandle_t CreateConstantBuffer( size_t nBufSize )		 = 0;
+	virtual void UpdateConstantBuffer( ConstantBufferHandle_t hBuffer, void *pData ) = 0;
+	virtual void DestroyConstantBuffer( ConstantBufferHandle_t hBuffer )		 = 0;
 
 	// Do we need to specify the stream here in the case of locking multiple dynamic VBs on different streams?
 	virtual IVertexBuffer *GetDynamicVertexBuffer( int nStreamID, VertexFormat_t vertexFormat, bool bBuffered = true ) = 0;

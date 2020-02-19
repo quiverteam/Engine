@@ -14,6 +14,8 @@
 #endif
 
 
+#include "ShaderConstantBufferDx11.h"
+#include "shaderapi/ishaderapi.h"
 #include "shaderapidx9/shaderdevicebase.h"
 #include "tier1/utlvector.h"
 #include "tier1/utlrbtree.h"
@@ -124,6 +126,9 @@ public:
 	virtual void DestroyVertexBuffer( IVertexBuffer *pVertexBuffer );
 	virtual IIndexBuffer *CreateIndexBuffer( ShaderBufferType_t type, MaterialIndexFormat_t fmt, int nIndexCount, const char *pTextureBudgetGroup );
 	virtual void DestroyIndexBuffer( IIndexBuffer *pIndexBuffer );
+	virtual ConstantBufferHandle_t CreateConstantBuffer( size_t nBufSize );
+	virtual void UpdateConstantBuffer( ConstantBufferHandle_t hBuffer, void *pData );
+	virtual void DestroyConstantBuffer( ConstantBufferHandle_t hBuffer );
 	virtual IVertexBuffer *GetDynamicVertexBuffer( int nStreamID, VertexFormat_t vertexFormat, bool bBuffered = true );
 	virtual IIndexBuffer *GetDynamicIndexBuffer( MaterialIndexFormat_t fmt, bool bBuffered = true );
 	virtual void SetHardwareGammaRamp( float fGamma, float fGammaTVRangeMin, float fGammaTVRangeMax, float fGammaTVExponent, bool bTVEnabled );
@@ -193,6 +198,12 @@ private:
 	ID3D11DeviceContext* m_pDeviceContext;
 	IDXGISwapChain *m_pSwapChain;
 	ID3D11RenderTargetView *m_pRenderTargetView;
+
+	CUtlFixedLinkedList<CShaderConstantBufferDx11> m_ConstantBuffers;
+
+	// Common constant buffers
+	ConstantBufferHandle_t m_hTransformBuffer;
+	ConstantBufferHandle_t m_hLightingBuffer;
 
 	CUtlFixedLinkedList< VertexShader_t > m_VertexShaderDict;
 	CUtlFixedLinkedList< GeometryShader_t > m_GeometryShaderDict;

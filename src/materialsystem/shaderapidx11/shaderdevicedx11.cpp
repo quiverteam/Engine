@@ -13,7 +13,8 @@
 #include "shaderapi/ishaderutil.h"
 #include "shaderapidx11.h"
 #include "shadershadowdx11.h"
-#include "meshdx11.h"
+#include "IndexBufferDx11.h"
+#include "VertexBufferDx11.h"
 #include "shaderapidx11_global.h"
 #include "tier1/keyvalues.h"
 #include "tier2/tier2.h"
@@ -498,7 +499,8 @@ CreateInterfaceFn CShaderDeviceMgrDx11::SetMode( void *hWnd, int nAdapter, const
 //-----------------------------------------------------------------------------
 // constructor, destructor
 //-----------------------------------------------------------------------------
-CShaderDeviceDx11::CShaderDeviceDx11()
+CShaderDeviceDx11::CShaderDeviceDx11() :
+	m_ConstantBuffers( 32 )
 {
 	m_pDevice = NULL;
 	m_pOutput = NULL;
@@ -1004,6 +1006,28 @@ void CShaderDeviceDx11::DestroyIndexBuffer( IIndexBuffer *pIndexBuffer )
 		g_pShaderAPIDx11->UnbindIndexBuffer( pIndexBufferBase->GetDx11Buffer() );
 		delete pIndexBufferBase;
 	}
+}
+
+ConstantBufferHandle_t CShaderDeviceDx11::CreateConstantBuffer( size_t nBufLen )
+{
+	CShaderConstantBufferDx11 buf;
+	buf.Create( nBufLen );
+	return m_ConstantBuffers.AddToTail( buf );
+}
+
+void CShaderDeviceDx11::UpdateConstantBuffer( ConstantBufferHandle_t hBuffer, void *pData )
+{
+	Assert( m_ConstantBuffers.Find( hBuffer ) != m_ConstantBuffers.InvalidIndex() );
+	CShaderConstantBufferDx11 &buf = m_ConstantBuffers.Element( hBuffer );
+	buf.Update( pData );
+}
+
+void CShaderDeviceDx11::DestroyConstantBuffer( ConstantBufferHandle_t hBuffer )
+{
+	Assert( m_ConstantBuffers.Find( hBuffer ) != m_ConstantBuffers.InvalidIndex() );
+	CShaderConstantBufferDx11 &buf = m_ConstantBuffers.Element( hBuffer );
+	buf.Destroy();
+	m_ConstantBuffers.Remove( hBuffer );
 }
 
 IVertexBuffer *CShaderDeviceDx11::GetDynamicVertexBuffer( int nStreamID, VertexFormat_t vertexFormat, bool bBuffered )

@@ -16,12 +16,7 @@
 #include "shaderapi/ishadershadow.h"
 #include "../shaderapidx9/locald3dtypes.h"
 #include "shaderapidx11.h"
-
-enum
-{
-	MAX_TEXTURES = 16,
-	MAX_SAMPLERS = 16,
-};
+#include "StatesDx11.h"
 
 //
 // Common constant buffers
@@ -41,94 +36,6 @@ ALIGN16 struct LightingBuffer_t
 	int lightTypes[MAX_NUM_LIGHTS];
 	int numLights;
 	DirectX::XMFLOAT3 ambientCube[6];	
-};
-
-struct SamplerShadowStateDx11_t
-{
-	bool m_TextureEnable : 1;
-};
-
-// DX11 fixed function state
-struct ShadowStateDx11_t
-{
-	// Depth buffering state
-	ShaderDepthFunc_t m_ZFunc;
-	bool m_ZEnable;
-
-	// Write enable
-	uint64 m_ColorWriteEnable;
-
-	// Fill mode
-	ShaderFillMode_t m_FillMode;
-
-	// Alpha state
-	ShaderBlendFactor_t m_SrcBlend;
-	ShaderBlendFactor_t m_DestBlend;
-
-	// Separate alpha blend state
-	ShaderBlendFactor_t m_SrcBlendAlpha;
-	ShaderBlendFactor_t m_DestBlendAlpha;
-
-	SamplerShadowStateDx11_t m_Samplers[MAX_SAMPLERS];
-
-	StencilComparisonFunction_t m_AlphaFunc;
-	int m_AlphaRef;
-
-	bool	m_ZWriteEnable : 1;
-	bool	m_ZBias : 2;
-	bool	m_CullEnable : 1;
-	bool	m_AlphaBlendEnable : 1;
-	bool	m_SeparateAlphaBlendEnable : 1;
-	bool	m_StencilEnable : 1;
-	bool	m_EnableAlphaToCoverage : 1;
-	bool	m_VertexBlendEnable : 1;
-
-	unsigned char m_Reserved[4];
-};
-
-// DX11 shader (non-fixed function) state
-struct ShadowShaderStateDx11_t
-{
-	// Which constant buffers does the shader use?
-	ConstantBufferHandle_t m_CBuffers[MAX_DX11_CBUFFERS];
-	int m_nCBuffers;
-
-	// The vertex + pixel shader group to use...
-	VertexShader_t m_VertexShader;
-	PixelShader_t  m_PixelShader;
-	
-	// The static vertex + pixel shader indices
-	int	m_nStaticVshIndex;
-	int	m_nStaticPshIndex;
-
-	// Vertex data used by this snapshot
-	// Note that the vertex format actually used will be the
-	// aggregate of the vertex formats used by all snapshots in a material
-	VertexFormat_t m_VertexUsage;
-
-	// Morph data used by this snapshot
-	// Note that the morph format actually used will be the
-	// aggregate of the morph formats used by all snapshots in a material
-	MorphFormat_t m_MorphUsage;
-
-	// Modulate constant color into the vertex color
-	bool m_ModulateConstantColor;
-
-	// These are in the shader state because
-	// in Dx11, these options are no longer fixed function
-	// and must be done in the shader.
-	bool m_AlphaTestEnable;
-	bool m_Translucent;
-	
-	bool m_UseVertexAndPixelShaders;
-
-	//int m_nReserved[3];
-};
-
-struct ShadowStateCacheEntryDx11_t
-{
-	ShadowStateDx11_t m_State;
-	ShadowShaderStateDx11_t m_ShaderState;
 };
 
 //-----------------------------------------------------------------------------
@@ -180,32 +87,12 @@ public:
 
 	// Indicates we're going to light the model
 	void EnableLighting( bool bEnable );
-	void EnableSpecular( bool bEnable );
 
 	// vertex blending
 	void EnableVertexBlend( bool bEnable );
 
 	// per texture unit stuff
-	void OverbrightValue( TextureStage_t stage, float value );
 	void EnableTexture( Sampler_t stage, bool bEnable );
-	void EnableTexGen( TextureStage_t stage, bool bEnable );
-	void TexGen( TextureStage_t stage, ShaderTexGenParam_t param );
-
-	// alternate method of specifying per-texture unit stuff, more flexible and more complicated
-	// Can be used to specify different operation per channel (alpha/color)...
-	void EnableCustomPixelPipe( bool bEnable );
-	void CustomTextureStages( int stageCount );
-	void CustomTextureOperation( TextureStage_t stage, ShaderTexChannel_t channel, 
-		ShaderTexOp_t op, ShaderTexArg_t arg1, ShaderTexArg_t arg2 );
-
-	// indicates what per-vertex data we're providing
-	void DrawFlags( unsigned int drawFlags );
-
-	// A simpler method of dealing with alpha modulation
-	void EnableAlphaPipe( bool bEnable );
-	void EnableConstantAlpha( bool bEnable );
-	void EnableVertexAlpha( bool bEnable );
-	void EnableTextureAlpha( TextureStage_t stage, bool bEnable );
 
 	// GR - Separate alpha blending
 	void EnableBlendingSeparateAlpha( bool bEnable );
@@ -215,72 +102,58 @@ public:
 	void SetVertexShader( const char *pFileName, int vshIndex );
 	void SetPixelShader( const char *pFileName, int pshIndex );
 
-	// Convert from linear to gamma color space on writes to frame buffer.
-	void EnableSRGBWrite( bool bEnable )
-	{
-	}
+	virtual void SetMorphFormat( MorphFormat_t flags );
 
-	void EnableSRGBRead( Sampler_t stage, bool bEnable )
-	{
-	}
-
-	virtual void FogMode( ShaderFogMode_t fogMode )
-	{
-	}
-	virtual void SetDiffuseMaterialSource( ShaderMaterialSource_t materialSource )
-	{
-	}
-
-	virtual void SetMorphFormat( MorphFormat_t flags )
-	{
-	}
-
-	virtual void EnableStencil( bool bEnable )
-	{
-	}
-	virtual void StencilFunc( ShaderStencilFunc_t stencilFunc )
-	{
-	}
-	virtual void StencilPassOp( ShaderStencilOp_t stencilOp )
-	{
-	}
-	virtual void StencilFailOp( ShaderStencilOp_t stencilOp )
-	{
-	}
-	virtual void StencilDepthFailOp( ShaderStencilOp_t stencilOp )
-	{
-	}
-	virtual void StencilReference( int nReference )
-	{
-	}
-	virtual void StencilMask( int nMask )
-	{
-	}
-	virtual void StencilWriteMask( int nMask )
-	{
-	}
-
-	virtual void DisableFogGammaCorrection( bool bDisable )
-	{
-		//FIXME: empty for now.
-	}
-
-	// Alpha to coverage
-	void EnableAlphaToCoverage( bool bEnable );
-
-	void SetShadowDepthFiltering( Sampler_t stage );
+	virtual void EnableStencil( bool bEnable );
+	virtual void StencilFunc( ShaderStencilFunc_t stencilFunc );
+	virtual void StencilPassOp( ShaderStencilOp_t stencilOp );
+	virtual void StencilFailOp( ShaderStencilOp_t stencilOp );
+	virtual void StencilDepthFailOp( ShaderStencilOp_t stencilOp );
+	virtual void StencilReference( int nReference );
+	virtual void StencilMask( int nMask );
+	virtual void StencilWriteMask( int nMask );
 
 	virtual void SetConstantBuffer( ConstantBufferHandle_t cbuffer );
 
 	StateSnapshot_t FindOrCreateSnapshot();
 
+	// ---------------------------------------------------
+	// Below are unsupported by Dx11, only included to
+	// not break Dx9 compatibility.
+	// ---------------------------------------------------
+
+	// Convert from linear to gamma color space on writes to frame buffer.
+	void EnableSRGBWrite( bool bEnable );
+	void EnableSRGBRead( Sampler_t stage, bool bEnable );
+	virtual void FogMode( ShaderFogMode_t fogMode );
+	virtual void SetDiffuseMaterialSource( ShaderMaterialSource_t materialSource );
+	void EnableTexGen( TextureStage_t stage, bool bEnable );
+	void TexGen( TextureStage_t stage, ShaderTexGenParam_t param );
+	// alternate method of specifying per-texture unit stuff, more flexible and more complicated
+	// Can be used to specify different operation per channel (alpha/color)...
+	void EnableCustomPixelPipe( bool bEnable );
+	void CustomTextureStages( int stageCount );
+	void CustomTextureOperation( TextureStage_t stage, ShaderTexChannel_t channel,
+				     ShaderTexOp_t op, ShaderTexArg_t arg1, ShaderTexArg_t arg2 );
+	void EnableTextureAlpha( TextureStage_t stage, bool bEnable );
+	void EnableSpecular( bool bEnable );
+	// A simpler method of dealing with alpha modulation
+	void EnableAlphaPipe( bool bEnable );
+	void EnableConstantAlpha( bool bEnable );
+	void EnableVertexAlpha( bool bEnable );
+	// Alpha to coverage
+	void EnableAlphaToCoverage( bool bEnable );
+	void SetShadowDepthFiltering( Sampler_t stage );
+	void OverbrightValue( TextureStage_t stage, float value );
+	virtual void DisableFogGammaCorrection( bool bDisable );
+	// indicates what per-vertex data we're providing
+	void DrawFlags( unsigned int drawFlags );
+
 public:
+	StatesDx11::ShadowRenderState m_ShadowState;
+	StatesDx11::ShadowShaderState m_ShadowShaderState;
 
-	ShadowStateDx11_t m_ShadowState;
-	ShadowShaderStateDx11_t m_ShadowShaderState;
-
-	CUtlFixedLinkedList<ShadowStateCacheEntryDx11_t> m_ShadowStateCache;
-
+	CUtlFixedLinkedList<StatesDx11::RenderState> m_ShadowStateCache;
 };
 
 

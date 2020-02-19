@@ -19,13 +19,12 @@
 #include "ShaderConstantBufferDx11.h"
 #include "vertexshaderdx11.h"
 
-
 //-----------------------------------------------------------------------------
 // Methods related to queuing functions to be called prior to rendering
 //-----------------------------------------------------------------------------
 CFunctionCommit::CFunctionCommit()
 {
-	m_pCommitFlags = NULL;
+	m_pCommitFlags	    = NULL;
 	m_nCommitBufferSize = 0;
 }
 
@@ -42,10 +41,9 @@ void CFunctionCommit::Init( int nFunctionCount )
 {
 	m_nCommitBufferSize = ( nFunctionCount + 7 ) >> 3;
 	Assert( !m_pCommitFlags );
-	m_pCommitFlags = new unsigned char[ m_nCommitBufferSize ];
+	m_pCommitFlags = new unsigned char[m_nCommitBufferSize];
 	memset( m_pCommitFlags, 0, m_nCommitBufferSize );
 }
-
 
 //-----------------------------------------------------------------------------
 // Methods related to queuing functions to be called per-(pMesh->Draw call) or per-pass
@@ -53,13 +51,13 @@ void CFunctionCommit::Init( int nFunctionCount )
 inline bool CFunctionCommit::IsCommitFuncInUse( int nFunc ) const
 {
 	Assert( nFunc >> 3 < m_nCommitBufferSize );
-	return ( m_pCommitFlags[ nFunc >> 3 ] & ( 1 << ( nFunc & 0x7 ) ) ) != 0;
+	return ( m_pCommitFlags[nFunc >> 3] & ( 1 << ( nFunc & 0x7 ) ) ) != 0;
 }
 
 inline void CFunctionCommit::MarkCommitFuncInUse( int nFunc )
 {
 	Assert( nFunc >> 3 < m_nCommitBufferSize );
-	m_pCommitFlags[ nFunc >> 3 ] |= 1 << ( nFunc & 0x7 );
+	m_pCommitFlags[nFunc >> 3] |= 1 << ( nFunc & 0x7 );
 }
 
 inline void CFunctionCommit::AddCommitFunc( StateCommitFunc_t f )
@@ -67,16 +65,14 @@ inline void CFunctionCommit::AddCommitFunc( StateCommitFunc_t f )
 	m_CommitFuncs.AddToTail( f );
 }
 
-
 //-----------------------------------------------------------------------------
 // Clears all commit functions
 //-----------------------------------------------------------------------------
-inline void CFunctionCommit::ClearAllCommitFuncs( )
+inline void CFunctionCommit::ClearAllCommitFuncs()
 {
 	memset( m_pCommitFlags, 0, m_nCommitBufferSize );
 	m_CommitFuncs.RemoveAll();
 }
-
 
 //-----------------------------------------------------------------------------
 // Calls all commit functions in a particular list
@@ -90,45 +86,44 @@ void CFunctionCommit::CallCommitFuncs( ID3D11Device *pDevice, ID3D11DeviceContex
 		m_CommitFuncs[i]( pDevice, pContext, desiredState, currentState, bForce );
 	}
 
-	ClearAllCommitFuncs( );
+	ClearAllCommitFuncs();
 }
-
 
 //-----------------------------------------------------------------------------
 // Helpers for commit functions
 //-----------------------------------------------------------------------------
-#define ADD_COMMIT_FUNC( _func_name )	\
-	if ( !m_Commit.IsCommitFuncInUse( COMMIT_FUNC_ ## _func_name ) )	\
-	{																	\
-		m_Commit.AddCommitFunc( _func_name );							\
-		m_Commit.MarkCommitFuncInUse( COMMIT_FUNC_ ## _func_name );		\
+#define ADD_COMMIT_FUNC( _func_name )                                     \
+	if ( !m_Commit.IsCommitFuncInUse( COMMIT_FUNC_##_func_name ) )    \
+	{                                                                 \
+		m_Commit.AddCommitFunc( _func_name );                     \
+		m_Commit.MarkCommitFuncInUse( COMMIT_FUNC_##_func_name ); \
 	}
 
-#define ADD_RENDERSTATE_FUNC( _func_name, _state, _val )					\
-	if ( m_bResettingRenderState || ( m_DesiredState. ## _state != _val ) )	\
-	{																		\
-		m_DesiredState. ## _state = _val;									\
-		ADD_COMMIT_FUNC( _func_name )										\
+#define ADD_RENDERSTATE_FUNC( _func_name, _state, _val )                      \
+	if ( m_bResettingRenderState || ( m_DesiredState.##_state != _val ) ) \
+	{                                                                     \
+		m_DesiredState.##_state = _val;                               \
+		ADD_COMMIT_FUNC( _func_name )                                 \
 	}
 
-#define IMPLEMENT_RENDERSTATE_FUNC( _func_name, _state, _d3dFunc )			\
-	static void _func_name( ID3D11Device *pDevice, ID3D11DeviceContext *pContext, const ShaderStateDx11_t &desiredState, ShaderStateDx11_t &currentState, bool bForce )	\
-	{																			\
-		if ( bForce || ( desiredState. ## _state != currentState. ## _state ) )	\
-		{																		\
-			pContext->_d3dFunc( desiredState. ## _state );						\
-			currentState. ## _state	= desiredState. ## _state;					\
-		}																		\
+#define IMPLEMENT_RENDERSTATE_FUNC( _func_name, _state, _d3dFunc )                                                                                                          \
+	static void _func_name( ID3D11Device *pDevice, ID3D11DeviceContext *pContext, const ShaderStateDx11_t &desiredState, ShaderStateDx11_t &currentState, bool bForce ) \
+	{                                                                                                                                                                   \
+		if ( bForce || ( desiredState.##_state != currentState.##_state ) )                                                                                         \
+		{                                                                                                                                                           \
+			pContext->_d3dFunc( desiredState.##_state );                                                                                                        \
+			currentState.##_state = desiredState.##_state;                                                                                                      \
+		}                                                                                                                                                           \
 	}
 
-#define IMPLEMENT_RENDERSTATE_FUNC_DX11( _func_name, _state, _d3dFunc )			\
-	static void _func_name( ID3D11Device *pDevice, ID3D11DeviceContext *pContext, const ShaderStateDx11_t &desiredState, ShaderStateDx11_t &currentState, bool bForce )	\
-	{																			\
-		if ( bForce || ( desiredState. ## _state != currentState. ## _state ) )	\
-		{																		\
-			pContext->_d3dFunc( desiredState. ## _state, NULL, 0 );						\
-			currentState. ## _state	= desiredState. ## _state;					\
-		}																		\
+#define IMPLEMENT_RENDERSTATE_FUNC_DX11( _func_name, _state, _d3dFunc )                                                                                                     \
+	static void _func_name( ID3D11Device *pDevice, ID3D11DeviceContext *pContext, const ShaderStateDx11_t &desiredState, ShaderStateDx11_t &currentState, bool bForce ) \
+	{                                                                                                                                                                   \
+		if ( bForce || ( desiredState.##_state != currentState.##_state ) )                                                                                         \
+		{                                                                                                                                                           \
+			pContext->_d3dFunc( desiredState.##_state, NULL, 0 );                                                                                               \
+			currentState.##_state = desiredState.##_state;                                                                                                      \
+		}                                                                                                                                                           \
 	}
 
 //-----------------------------------------------------------------------------
@@ -161,15 +156,15 @@ IMPLEMENT_RENDERSTATE_FUNC_DX11( CommitSetVertexShader, m_pVertexShader, VSSetSh
 IMPLEMENT_RENDERSTATE_FUNC_DX11( CommitSetGeometryShader, m_pGeometryShader, GSSetShader )
 IMPLEMENT_RENDERSTATE_FUNC_DX11( CommitSetPixelShader, m_pPixelShader, PSSetShader )
 
-static void CommitSetVSConstantBuffers( ID3D11Device* pDevice, ID3D11DeviceContext* pDeviceContext,
-				       const ShaderStateDx11_t& desiredState, ShaderStateDx11_t& currentState,
-				       bool bForce )
+static void CommitSetVSConstantBuffers( ID3D11Device *pDevice, ID3D11DeviceContext *pDeviceContext,
+					const ShaderStateDx11_t &desiredState, ShaderStateDx11_t &currentState,
+					bool bForce )
 {
 	static constexpr size_t vsBufSize = sizeof( void * ) * MAX_DX11_CBUFFERS;
 
 	bool bChanged = bForce ||
-		( desiredState.m_nVSConstantBuffers != currentState.m_nVSConstantBuffers ) ||
-		memcmp( desiredState.m_pVSConstantBuffers, currentState.m_pVSConstantBuffers, vsBufSize );
+			( desiredState.m_nVSConstantBuffers != currentState.m_nVSConstantBuffers ) ||
+			memcmp( desiredState.m_pVSConstantBuffers, currentState.m_pVSConstantBuffers, vsBufSize );
 	if ( bChanged )
 	{
 		pDeviceContext->VSSetConstantBuffers( 0, desiredState.m_nVSConstantBuffers, desiredState.m_pVSConstantBuffers );
@@ -178,15 +173,15 @@ static void CommitSetVSConstantBuffers( ID3D11Device* pDevice, ID3D11DeviceConte
 	}
 }
 
-static void CommitSetPSConstantBuffers( ID3D11Device* pDevice, ID3D11DeviceContext* pDeviceContext,
-					const ShaderStateDx11_t& desiredState, ShaderStateDx11_t& currentState,
+static void CommitSetPSConstantBuffers( ID3D11Device *pDevice, ID3D11DeviceContext *pDeviceContext,
+					const ShaderStateDx11_t &desiredState, ShaderStateDx11_t &currentState,
 					bool bForce )
 {
 	static constexpr size_t psBufSize = sizeof( ShaderStateDx11_t::m_pPSConstantBuffers );
 
 	bool bChanged = bForce ||
-		( desiredState.m_nPSConstantBuffers != currentState.m_nPSConstantBuffers ) ||
-		memcmp( desiredState.m_pPSConstantBuffers, currentState.m_pPSConstantBuffers, psBufSize );
+			( desiredState.m_nPSConstantBuffers != currentState.m_nPSConstantBuffers ) ||
+			memcmp( desiredState.m_pPSConstantBuffers, currentState.m_pPSConstantBuffers, psBufSize );
 	if ( bChanged )
 	{
 		pDeviceContext->PSSetConstantBuffers( 0, desiredState.m_nPSConstantBuffers, desiredState.m_pPSConstantBuffers );
@@ -195,15 +190,15 @@ static void CommitSetPSConstantBuffers( ID3D11Device* pDevice, ID3D11DeviceConte
 	}
 }
 
-static void CommitSetGSConstantBuffers( ID3D11Device* pDevice, ID3D11DeviceContext* pDeviceContext,
-					const ShaderStateDx11_t& desiredState, ShaderStateDx11_t& currentState,
+static void CommitSetGSConstantBuffers( ID3D11Device *pDevice, ID3D11DeviceContext *pDeviceContext,
+					const ShaderStateDx11_t &desiredState, ShaderStateDx11_t &currentState,
 					bool bForce )
 {
 	static constexpr size_t gsBufSize = sizeof( ShaderStateDx11_t::m_pGSConstantBuffers );
 
 	bool bChanged = bForce ||
-		( desiredState.m_nGSConstantBuffers != currentState.m_nGSConstantBuffers ) ||
-		memcmp( desiredState.m_pGSConstantBuffers, currentState.m_pGSConstantBuffers, gsBufSize );
+			( desiredState.m_nGSConstantBuffers != currentState.m_nGSConstantBuffers ) ||
+			memcmp( desiredState.m_pGSConstantBuffers, currentState.m_pGSConstantBuffers, gsBufSize );
 	if ( bChanged )
 	{
 		pDeviceContext->GSSetConstantBuffers( 0, desiredState.m_nGSConstantBuffers, desiredState.m_pGSConstantBuffers );
@@ -212,20 +207,20 @@ static void CommitSetGSConstantBuffers( ID3D11Device* pDevice, ID3D11DeviceConte
 	}
 }
 
-static void CommitSetInputLayout( ID3D11Device *pDevice, ID3D11DeviceContext *pDeviceContext, 
+static void CommitSetInputLayout( ID3D11Device *pDevice, ID3D11DeviceContext *pDeviceContext,
 				  const ShaderStateDx11_t &desiredState, ShaderStateDx11_t &currentState,
 				  bool bForce )
 {
-	const ShaderInputLayoutStateDx11_t& newState = desiredState.m_InputLayout;
-	if ( bForce || memcmp( &newState, &currentState.m_InputLayout, sizeof(ShaderInputLayoutStateDx11_t) ) )	
+	const ShaderInputLayoutStateDx11_t &newState = desiredState.m_InputLayout;
+	if ( bForce || memcmp( &newState, &currentState.m_InputLayout, sizeof( ShaderInputLayoutStateDx11_t ) ) )
 	{
 		// FIXME: Deal with multiple streams
-		ID3D11InputLayout *pInputLayout = g_pShaderDeviceDx11->GetInputLayout( 
-			newState.m_hVertexShader, newState.m_pVertexDecl[0] );
-		pDeviceContext->IASetInputLayout( pInputLayout );						
+		ID3D11InputLayout *pInputLayout = g_pShaderDeviceDx11->GetInputLayout(
+		    newState.m_hVertexShader, newState.m_pVertexDecl[0] );
+		pDeviceContext->IASetInputLayout( pInputLayout );
 
 		currentState.m_InputLayout = newState;
-	}																		
+	}
 }
 
 static void CommitSetViewports( ID3D11Device *pDevice, ID3D11DeviceContext *pContext,
@@ -234,8 +229,8 @@ static void CommitSetViewports( ID3D11Device *pDevice, ID3D11DeviceContext *pCon
 	bool bChanged = bForce || ( desiredState.m_nViewportCount != currentState.m_nViewportCount );
 	if ( !bChanged && desiredState.m_nViewportCount > 0 )
 	{
-		bChanged = memcmp( desiredState.m_pViewports, currentState.m_pViewports, 
-			desiredState.m_nViewportCount * sizeof( D3D11_VIEWPORT ) ) != 0;
+		bChanged = memcmp( desiredState.m_pViewports, currentState.m_pViewports,
+				   desiredState.m_nViewportCount * sizeof( D3D11_VIEWPORT ) ) != 0;
 	}
 
 	if ( !bChanged )
@@ -248,7 +243,7 @@ static void CommitSetViewports( ID3D11Device *pDevice, ID3D11DeviceContext *pCon
 	memset( currentState.m_pViewports, 0xDD, sizeof( currentState.m_pViewports ) );
 #endif
 
-	memcpy( currentState.m_pViewports, desiredState.m_pViewports, 
+	memcpy( currentState.m_pViewports, desiredState.m_pViewports,
 		desiredState.m_nViewportCount * sizeof( D3D11_VIEWPORT ) );
 }
 
@@ -257,7 +252,7 @@ static void CommitSetIndexBuffer( ID3D11Device *pDevice, ID3D11DeviceContext *pD
 				  bool bForce )
 {
 	const ShaderIndexBufferStateDx11_t &newState = desiredState.m_IndexBuffer;
-	bool bChanged = bForce || memcmp( &newState, &currentState.m_IndexBuffer, sizeof(ShaderIndexBufferStateDx11_t) );
+	bool bChanged				     = bForce || memcmp( &newState, &currentState.m_IndexBuffer, sizeof( ShaderIndexBufferStateDx11_t ) );
 	if ( !bChanged )
 		return;
 
@@ -269,22 +264,22 @@ static void CommitSetVertexBuffer( ID3D11Device *pDevice, ID3D11DeviceContext *p
 				   const ShaderStateDx11_t &desiredState, ShaderStateDx11_t &currentState,
 				   bool bForce )
 {
-	ID3D11Buffer *ppVertexBuffers[ MAX_DX11_STREAMS ];
-	UINT pStrides[ MAX_DX11_STREAMS ];
-	UINT pOffsets[ MAX_DX11_STREAMS ];
+	ID3D11Buffer *ppVertexBuffers[MAX_DX11_STREAMS];
+	UINT pStrides[MAX_DX11_STREAMS];
+	UINT pOffsets[MAX_DX11_STREAMS];
 
 	UINT nFirstBuffer = 0;
 	UINT nBufferCount = 0;
-	bool bInMatch = true;
+	bool bInMatch	  = true;
 	for ( int i = 0; i < MAX_DX11_STREAMS; ++i )
 	{
 		const ShaderVertexBufferStateDx11_t &newState = desiredState.m_pVertexBuffer[i];
-		bool bMatch = !bForce && !memcmp( &newState, &currentState.m_pVertexBuffer[i], sizeof(ShaderVertexBufferStateDx11_t) );
+		bool bMatch				      = !bForce && !memcmp( &newState, &currentState.m_pVertexBuffer[i], sizeof( ShaderVertexBufferStateDx11_t ) );
 		if ( !bMatch )
 		{
 			ppVertexBuffers[i] = newState.m_pBuffer;
-			pStrides[i] = newState.m_nStride;
-			pOffsets[i] = newState.m_nOffset;
+			pStrides[i]	   = newState.m_nStride;
+			pOffsets[i]	   = newState.m_nOffset;
 			++nBufferCount;
 			memcpy( &currentState.m_pVertexBuffer[i], &newState, sizeof( ShaderVertexBufferStateDx11_t ) );
 		}
@@ -293,7 +288,7 @@ static void CommitSetVertexBuffer( ID3D11Device *pDevice, ID3D11DeviceContext *p
 		{
 			if ( !bMatch )
 			{
-				bInMatch = false;
+				bInMatch     = false;
 				nFirstBuffer = i;
 			}
 			continue;
@@ -302,16 +297,16 @@ static void CommitSetVertexBuffer( ID3D11Device *pDevice, ID3D11DeviceContext *p
 		if ( bMatch )
 		{
 			bInMatch = true;
-			pDeviceContext->IASetVertexBuffers( nFirstBuffer, nBufferCount, 
-				&ppVertexBuffers[nFirstBuffer], &pStrides[nFirstBuffer], &pOffsets[nFirstBuffer] );
+			pDeviceContext->IASetVertexBuffers( nFirstBuffer, nBufferCount,
+							    &ppVertexBuffers[nFirstBuffer], &pStrides[nFirstBuffer], &pOffsets[nFirstBuffer] );
 			nBufferCount = 0;
 		}
 	}
 
 	if ( !bInMatch )
 	{
-		pDeviceContext->IASetVertexBuffers( nFirstBuffer, nBufferCount, 
-			&ppVertexBuffers[nFirstBuffer], &pStrides[nFirstBuffer], &pOffsets[nFirstBuffer] );
+		pDeviceContext->IASetVertexBuffers( nFirstBuffer, nBufferCount,
+						    &ppVertexBuffers[nFirstBuffer], &pStrides[nFirstBuffer], &pOffsets[nFirstBuffer] );
 	}
 }
 
@@ -319,10 +314,10 @@ static void CommitSetVertexBuffer( ID3D11Device *pDevice, ID3D11DeviceContext *p
 // Rasterizer state
 //-----------------------------------------------------------------------------
 
-static void GenerateRasterizerDesc( D3D11_RASTERIZER_DESC* pDesc, const ShaderRasterState_t& state )
+static void GenerateRasterizerDesc( D3D11_RASTERIZER_DESC *pDesc, const ShaderRasterState_t &state )
 {
 	pDesc->FillMode = ( state.m_FillMode == SHADER_FILL_WIREFRAME ) ? D3D11_FILL_WIREFRAME : D3D11_FILL_SOLID;
-	
+
 	// Cull state
 	if ( state.m_bCullEnable )
 	{
@@ -337,18 +332,18 @@ static void GenerateRasterizerDesc( D3D11_RASTERIZER_DESC* pDesc, const ShaderRa
 	// Depth bias state
 	if ( !state.m_bDepthBias )
 	{
-		pDesc->DepthBias = 0;
-		pDesc->DepthBiasClamp = 0.0f;
+		pDesc->DepthBias	    = 0;
+		pDesc->DepthBiasClamp	    = 0.0f;
 		pDesc->SlopeScaledDepthBias = 0.0f;
-		pDesc->DepthClipEnable = FALSE;
+		pDesc->DepthClipEnable	    = FALSE;
 	}
 	else
 	{
 		// FIXME: Implement! Read ConVars
 	}
 
-	pDesc->ScissorEnable = state.m_bScissorEnable ? TRUE : FALSE;
-	pDesc->MultisampleEnable = state.m_bMultisampleEnable ? TRUE : FALSE;
+	pDesc->ScissorEnable	     = state.m_bScissorEnable ? TRUE : FALSE;
+	pDesc->MultisampleEnable     = state.m_bMultisampleEnable ? TRUE : FALSE;
 	pDesc->AntialiasedLineEnable = FALSE;
 }
 
@@ -356,8 +351,8 @@ static void CommitSetRasterState( ID3D11Device *pDevice, ID3D11DeviceContext *pD
 				  const ShaderStateDx11_t &desiredState, ShaderStateDx11_t &currentState,
 				  bool bForce )
 {
-	const ShaderRasterState_t& newState = desiredState.m_RasterState;
-	if ( bForce || memcmp( &newState, &currentState.m_RasterState, sizeof(ShaderRasterState_t) ) )	
+	const ShaderRasterState_t &newState = desiredState.m_RasterState;
+	if ( bForce || memcmp( &newState, &currentState.m_RasterState, sizeof( ShaderRasterState_t ) ) )
 	{
 		// Clear out the existing state
 		if ( currentState.m_pRasterState )
@@ -370,17 +365,17 @@ static void CommitSetRasterState( ID3D11Device *pDevice, ID3D11DeviceContext *pD
 
 		// NOTE: This does a search for existing matching state objects
 		ID3D11RasterizerState *pState = NULL;
-		HRESULT hr = pDevice->CreateRasterizerState( &desc, &pState );
-		if ( FAILED(hr) )
+		HRESULT hr		      = pDevice->CreateRasterizerState( &desc, &pState );
+		if ( FAILED( hr ) )
 		{
 			Warning( "Unable to create rasterizer state object!\n" );
 		}
 
-		pDeviceContext->RSSetState( pState );						
+		pDeviceContext->RSSetState( pState );
 
 		currentState.m_pRasterState = pState;
 		memcpy( &currentState.m_RasterState, &newState, sizeof( ShaderRasterState_t ) );
-	}																		
+	}
 }
 
 //-----------------------------------------------------------------------------
@@ -427,28 +422,28 @@ FORCEINLINE static D3D11_BLEND TranslateBlendFunc( ShaderBlendFactor_t blend )
 	}
 }
 
-static void GenerateBlendDesc( D3D11_BLEND_DESC* pDesc, const ShaderBlendStateDx11_t& newState )
+static void GenerateBlendDesc( D3D11_BLEND_DESC *pDesc, const ShaderBlendStateDx11_t &newState )
 {
 	memset( pDesc, 0, sizeof( D3D11_BLEND_DESC ) );
 
-	pDesc->AlphaToCoverageEnable = newState.m_bAlphaToCoverage ? TRUE : FALSE;
-	pDesc->IndependentBlendEnable = newState.m_bIndependentBlend ? TRUE : FALSE;
-	pDesc->RenderTarget[0].BlendEnable = newState.m_bBlendEnable ? TRUE : FALSE;
-	pDesc->RenderTarget[0].BlendOp = (D3D11_BLEND_OP)newState.m_BlendOp;
-	pDesc->RenderTarget[0].BlendOpAlpha = (D3D11_BLEND_OP)newState.m_BlendOpAlpha;
-	pDesc->RenderTarget[0].DestBlend = TranslateBlendFunc( newState.m_DestBlend );
-	pDesc->RenderTarget[0].SrcBlend = TranslateBlendFunc( newState.m_SrcBlend );
-	pDesc->RenderTarget[0].DestBlendAlpha = TranslateBlendFunc( newState.m_DestBlendAlpha );
-	pDesc->RenderTarget[0].SrcBlendAlpha = TranslateBlendFunc( newState.m_SrcBlendAlpha );
+	pDesc->AlphaToCoverageEnable		     = newState.m_bAlphaToCoverage ? TRUE : FALSE;
+	pDesc->IndependentBlendEnable		     = newState.m_bIndependentBlend ? TRUE : FALSE;
+	pDesc->RenderTarget[0].BlendEnable	     = newState.m_bBlendEnable ? TRUE : FALSE;
+	pDesc->RenderTarget[0].BlendOp		     = (D3D11_BLEND_OP)newState.m_BlendOp;
+	pDesc->RenderTarget[0].BlendOpAlpha	     = (D3D11_BLEND_OP)newState.m_BlendOpAlpha;
+	pDesc->RenderTarget[0].DestBlend	     = TranslateBlendFunc( newState.m_DestBlend );
+	pDesc->RenderTarget[0].SrcBlend		     = TranslateBlendFunc( newState.m_SrcBlend );
+	pDesc->RenderTarget[0].DestBlendAlpha	     = TranslateBlendFunc( newState.m_DestBlendAlpha );
+	pDesc->RenderTarget[0].SrcBlendAlpha	     = TranslateBlendFunc( newState.m_SrcBlendAlpha );
 	pDesc->RenderTarget[0].RenderTargetWriteMask = newState.m_WriteMask;
 }
 
-static void CommitSetBlendState( ID3D11Device* pDevice, ID3D11DeviceContext* pDeviceContext,
-				 const ShaderStateDx11_t& desiredState, ShaderStateDx11_t& currentState,
+static void CommitSetBlendState( ID3D11Device *pDevice, ID3D11DeviceContext *pDeviceContext,
+				 const ShaderStateDx11_t &desiredState, ShaderStateDx11_t &currentState,
 				 bool bForce )
 {
 	bool bChanged = bForce ||
-		memcmp( &desiredState.m_BlendState, &currentState.m_BlendState, sizeof( ShaderBlendStateDx11_t ) );
+			memcmp( &desiredState.m_BlendState, &currentState.m_BlendState, sizeof( ShaderBlendStateDx11_t ) );
 	if ( bChanged )
 	{
 		// Clear out existing blend state
@@ -461,8 +456,8 @@ static void CommitSetBlendState( ID3D11Device* pDevice, ID3D11DeviceContext* pDe
 		GenerateBlendDesc( &desc, desiredState.m_BlendState );
 
 		// NOTE: This does a search for existing matching state objects
-		ID3D11BlendState* pState = NULL;
-		HRESULT hr = pDevice->CreateBlendState( &desc, &pState );
+		ID3D11BlendState *pState = NULL;
+		HRESULT hr		 = pDevice->CreateBlendState( &desc, &pState );
 		if ( FAILED( hr ) )
 		{
 			Warning( "Unable to create Dx11 blend state object!\n" );
@@ -479,35 +474,35 @@ static void CommitSetBlendState( ID3D11Device* pDevice, ID3D11DeviceContext* pDe
 // Depth/Stencil state
 //-----------------------------------------------------------------------------
 
-static void GenerateDepthStencilDesc( D3D11_DEPTH_STENCIL_DESC* pDesc, const ShaderDepthStencilStateDx11_t& newState )
+static void GenerateDepthStencilDesc( D3D11_DEPTH_STENCIL_DESC *pDesc, const ShaderDepthStencilStateDx11_t &newState )
 {
 	pDesc->FrontFace.StencilDepthFailOp = (D3D11_STENCIL_OP)newState.m_StencilDepthFailOp;
-	pDesc->FrontFace.StencilFailOp = (D3D11_STENCIL_OP)newState.m_StencilFailOp;
-	pDesc->FrontFace.StencilPassOp = (D3D11_STENCIL_OP)newState.m_StencilPassOp;
-	pDesc->FrontFace.StencilFunc = (D3D11_COMPARISON_FUNC)newState.m_StencilFunc;
+	pDesc->FrontFace.StencilFailOp	    = (D3D11_STENCIL_OP)newState.m_StencilFailOp;
+	pDesc->FrontFace.StencilPassOp	    = (D3D11_STENCIL_OP)newState.m_StencilPassOp;
+	pDesc->FrontFace.StencilFunc	    = (D3D11_COMPARISON_FUNC)newState.m_StencilFunc;
 
 	// UNDONE: Backface?
-	pDesc->BackFace.StencilFunc = D3D11_COMPARISON_ALWAYS;
-	pDesc->BackFace.StencilFailOp = D3D11_STENCIL_OP_KEEP;
-	pDesc->BackFace.StencilPassOp = D3D11_STENCIL_OP_KEEP;
+	pDesc->BackFace.StencilFunc	   = D3D11_COMPARISON_ALWAYS;
+	pDesc->BackFace.StencilFailOp	   = D3D11_STENCIL_OP_KEEP;
+	pDesc->BackFace.StencilPassOp	   = D3D11_STENCIL_OP_KEEP;
 	pDesc->BackFace.StencilDepthFailOp = D3D11_STENCIL_OP_INCR;
 
-	pDesc->StencilEnable = newState.m_bStencilEnable ? TRUE : FALSE;
-	pDesc->StencilReadMask = newState.m_nStencilReadMask;
+	pDesc->StencilEnable	= newState.m_bStencilEnable ? TRUE : FALSE;
+	pDesc->StencilReadMask	= newState.m_nStencilReadMask;
 	pDesc->StencilWriteMask = newState.m_nStencilWriteMask;
 
-	pDesc->DepthEnable = newState.m_bDepthEnable ? TRUE: FALSE;
-	pDesc->DepthFunc = (D3D11_COMPARISON_FUNC)newState.m_DepthFunc;
+	pDesc->DepthEnable    = newState.m_bDepthEnable ? TRUE : FALSE;
+	pDesc->DepthFunc      = (D3D11_COMPARISON_FUNC)newState.m_DepthFunc;
 	pDesc->DepthWriteMask = (D3D11_DEPTH_WRITE_MASK)newState.m_nDepthWriteMask;
 }
 
-static void CommitSetDepthStencilState( ID3D11Device* pDevice, ID3D11DeviceContext* pDeviceContext,
-					const ShaderStateDx11_t& desiredState, ShaderStateDx11_t& currentState,
+static void CommitSetDepthStencilState( ID3D11Device *pDevice, ID3D11DeviceContext *pDeviceContext,
+					const ShaderStateDx11_t &desiredState, ShaderStateDx11_t &currentState,
 					bool bForce )
 {
 	bool bChanged = bForce ||
-		memcmp( &currentState.m_DepthStencilState, &desiredState.m_DepthStencilState,
-			sizeof( ShaderDepthStencilStateDx11_t ) );
+			memcmp( &currentState.m_DepthStencilState, &desiredState.m_DepthStencilState,
+				sizeof( ShaderDepthStencilStateDx11_t ) );
 	if ( bChanged )
 	{
 		// Clear out current state
@@ -520,8 +515,8 @@ static void CommitSetDepthStencilState( ID3D11Device* pDevice, ID3D11DeviceConte
 		GenerateDepthStencilDesc( &desc, desiredState.m_DepthStencilState );
 
 		// NOTE: This does a search for existing matching state objects
-		ID3D11DepthStencilState* pState = NULL;
-		HRESULT hr = pDevice->CreateDepthStencilState( &desc, &pState );
+		ID3D11DepthStencilState *pState = NULL;
+		HRESULT hr			= pDevice->CreateDepthStencilState( &desc, &pState );
 		if ( FAILED( hr ) )
 		{
 			Warning( "Unable to create depth/stencil object!\n" );
@@ -544,20 +539,19 @@ static void CommitSetDepthStencilState( ID3D11Device* pDevice, ID3D11DeviceConte
 // Class Factory
 //-----------------------------------------------------------------------------
 static CShaderAPIDx11 s_ShaderAPIDx11;
-CShaderAPIDx11* g_pShaderAPIDx11 = &s_ShaderAPIDx11;
+CShaderAPIDx11 *g_pShaderAPIDx11 = &s_ShaderAPIDx11;
 
 EXPOSE_SINGLE_INTERFACE_GLOBALVAR( CShaderAPIDx11, IShaderAPI,
 				   SHADERAPI_INTERFACE_VERSION, s_ShaderAPIDx11 )
 
-	EXPOSE_SINGLE_INTERFACE_GLOBALVAR( CShaderAPIDx11, IDebugTextureInfo,
-					   DEBUG_TEXTURE_INFO_VERSION, s_ShaderAPIDx11 )
-
+EXPOSE_SINGLE_INTERFACE_GLOBALVAR( CShaderAPIDx11, IDebugTextureInfo,
+				   DEBUG_TEXTURE_INFO_VERSION, s_ShaderAPIDx11 )
 
 //-----------------------------------------------------------------------------
 // Constructor, destructor
 //-----------------------------------------------------------------------------
 CShaderAPIDx11::CShaderAPIDx11() :
-	m_ConstantBuffers( 32 )
+	m_Textures( 32 )
 {
 	m_bResettingRenderState = false;
 	m_Commit.Init( COMMIT_FUNC_COUNT );
@@ -569,15 +563,13 @@ CShaderAPIDx11::~CShaderAPIDx11()
 {
 }
 
-
 //-----------------------------------------------------------------------------
 // Clears the shader state to a well-defined value
 //-----------------------------------------------------------------------------
-void CShaderAPIDx11::ClearShaderState( ShaderStateDx11_t* pState )
+void CShaderAPIDx11::ClearShaderState( ShaderStateDx11_t *pState )
 {
 	memset( pState, 0, sizeof( ShaderStateDx11_t ) );
 }
-
 
 //-----------------------------------------------------------------------------
 // Resets the render state
@@ -585,42 +577,41 @@ void CShaderAPIDx11::ClearShaderState( ShaderStateDx11_t* pState )
 void CShaderAPIDx11::ResetRenderState( bool bFullReset )
 {
 	D3D11_RASTERIZER_DESC rDesc;
-	memset( &rDesc, 0, sizeof(rDesc) );
-	rDesc.FillMode = D3D11_FILL_SOLID;
-	rDesc.CullMode = D3D11_CULL_NONE;
-	rDesc.FrontCounterClockwise = TRUE;	// right-hand rule 
+	memset( &rDesc, 0, sizeof( rDesc ) );
+	rDesc.FillMode		    = D3D11_FILL_SOLID;
+	rDesc.CullMode		    = D3D11_CULL_NONE;
+	rDesc.FrontCounterClockwise = TRUE; // right-hand rule
 
 	ID3D11RasterizerState *pRasterizerState;
-	HRESULT hr = D3D11Device()->CreateRasterizerState( &rDesc, &pRasterizerState ); 
-	Assert( !FAILED(hr) );
+	HRESULT hr = D3D11Device()->CreateRasterizerState( &rDesc, &pRasterizerState );
+	Assert( !FAILED( hr ) );
 	D3D11DeviceContext()->RSSetState( pRasterizerState );
 
 	D3D11_DEPTH_STENCIL_DESC dsDesc;
-	memset( &dsDesc, 0, sizeof(dsDesc) );
+	memset( &dsDesc, 0, sizeof( dsDesc ) );
 
 	ID3D11DepthStencilState *pDepthStencilState;
 	hr = D3D11Device()->CreateDepthStencilState( &dsDesc, &pDepthStencilState );
-	Assert( !FAILED(hr) );
+	Assert( !FAILED( hr ) );
 	D3D11DeviceContext()->OMSetDepthStencilState( pDepthStencilState, 0 );
 
 	D3D11_BLEND_DESC bDesc;
-	memset( &bDesc, 0, sizeof(bDesc) );
+	memset( &bDesc, 0, sizeof( bDesc ) );
 	D3D11_RENDER_TARGET_BLEND_DESC *rtbDesc = &bDesc.RenderTarget[0];
-	rtbDesc->SrcBlend = D3D11_BLEND_ONE;
-	rtbDesc->DestBlend = D3D11_BLEND_ZERO;
-	rtbDesc->BlendOp = D3D11_BLEND_OP_ADD;
-	rtbDesc->SrcBlendAlpha = D3D11_BLEND_ONE;
-	rtbDesc->DestBlendAlpha = D3D11_BLEND_ZERO;
-	rtbDesc->BlendOpAlpha = D3D11_BLEND_OP_ADD;
-	rtbDesc->RenderTargetWriteMask = D3D11_COLOR_WRITE_ENABLE_ALL;
+	rtbDesc->SrcBlend			= D3D11_BLEND_ONE;
+	rtbDesc->DestBlend			= D3D11_BLEND_ZERO;
+	rtbDesc->BlendOp			= D3D11_BLEND_OP_ADD;
+	rtbDesc->SrcBlendAlpha			= D3D11_BLEND_ONE;
+	rtbDesc->DestBlendAlpha			= D3D11_BLEND_ZERO;
+	rtbDesc->BlendOpAlpha			= D3D11_BLEND_OP_ADD;
+	rtbDesc->RenderTargetWriteMask		= D3D11_COLOR_WRITE_ENABLE_ALL;
 
 	FLOAT pBlendFactor[4] = { 1.0f, 1.0f, 1.0f, 1.0f };
 	ID3D11BlendState *pBlendState;
 	hr = D3D11Device()->CreateBlendState( &bDesc, &pBlendState );
-	Assert( !FAILED(hr) );
+	Assert( !FAILED( hr ) );
 	D3D11DeviceContext()->OMSetBlendState( pBlendState, pBlendFactor, 0xFFFFFFFF );
 }
-
 
 //-----------------------------------------------------------------------------
 // Commits queued-up state change requests
@@ -634,41 +625,39 @@ void CShaderAPIDx11::CommitStateChanges( bool bForce )
 	m_Commit.CallCommitFuncs( D3D11Device(), D3D11DeviceContext(), m_DesiredState, m_CurrentState, bForce );
 }
 
-
 //-----------------------------------------------------------------------------
 // Methods of IShaderDynamicAPI
 //-----------------------------------------------------------------------------
-void CShaderAPIDx11::GetBackBufferDimensions( int& nWidth, int& nHeight ) const
+void CShaderAPIDx11::GetBackBufferDimensions( int &nWidth, int &nHeight ) const
 {
 	g_pShaderDeviceDx11->GetBackBufferDimensions( nWidth, nHeight );
-} 
+}
 
-	
 //-----------------------------------------------------------------------------
 // Viewport-related methods
 //-----------------------------------------------------------------------------
-void CShaderAPIDx11::SetViewports( int nCount, const ShaderViewport_t* pViewports )
+void CShaderAPIDx11::SetViewports( int nCount, const ShaderViewport_t *pViewports )
 {
-	nCount = min( nCount, MAX_DX11_VIEWPORTS );
+	nCount				= min( nCount, MAX_DX11_VIEWPORTS );
 	m_DesiredState.m_nViewportCount = nCount;
 
 	for ( int i = 0; i < nCount; ++i )
 	{
 		Assert( pViewports[i].m_nVersion == SHADER_VIEWPORT_VERSION );
 
-		D3D11_VIEWPORT& viewport = m_DesiredState.m_pViewports[i];
-		viewport.TopLeftX = pViewports[i].m_nTopLeftX;
-		viewport.TopLeftY = pViewports[i].m_nTopLeftY;
-		viewport.Width = pViewports[i].m_nWidth;
-		viewport.Height = pViewports[i].m_nHeight;
-		viewport.MinDepth = pViewports[i].m_flMinZ;
-		viewport.MaxDepth = pViewports[i].m_flMaxZ;
+		D3D11_VIEWPORT &viewport = m_DesiredState.m_pViewports[i];
+		viewport.TopLeftX	 = pViewports[i].m_nTopLeftX;
+		viewport.TopLeftY	 = pViewports[i].m_nTopLeftY;
+		viewport.Width		 = pViewports[i].m_nWidth;
+		viewport.Height		 = pViewports[i].m_nHeight;
+		viewport.MinDepth	 = pViewports[i].m_flMinZ;
+		viewport.MaxDepth	 = pViewports[i].m_flMaxZ;
 	}
 
 	ADD_COMMIT_FUNC( CommitSetViewports );
 }
 
-int CShaderAPIDx11::GetViewports( ShaderViewport_t* pViewports, int nMax ) const
+int CShaderAPIDx11::GetViewports( ShaderViewport_t *pViewports, int nMax ) const
 {
 	int nCount = m_DesiredState.m_nViewportCount;
 	if ( pViewports && nMax )
@@ -682,9 +671,9 @@ int CShaderAPIDx11::GetViewports( ShaderViewport_t* pViewports, int nMax ) const
 //-----------------------------------------------------------------------------
 // Methods related to constant buffers
 //-----------------------------------------------------------------------------
-void CShaderAPIDx11::SetVertexShaderConstantBuffers( int nCount, const ConstantBufferHandle_t* pBuffers )
+void CShaderAPIDx11::SetVertexShaderConstantBuffers( int nCount, const ConstantBufferHandle_t *pBuffers )
 {
-	nCount = min( nCount, MAX_DX11_CBUFFERS );
+	nCount				    = min( nCount, MAX_DX11_CBUFFERS );
 	m_DesiredState.m_nVSConstantBuffers = nCount;
 	for ( int i = 0; i < nCount; i++ )
 	{
@@ -693,71 +682,50 @@ void CShaderAPIDx11::SetVertexShaderConstantBuffers( int nCount, const ConstantB
 
 	if ( m_bResettingRenderState ||
 	     m_DesiredState.m_nVSConstantBuffers != nCount ||
-	     memcmp( m_DesiredState.m_pVSConstantBuffers, pBuffers, sizeof( ID3D11Buffer* ) * nCount ) )
+	     memcmp( m_DesiredState.m_pVSConstantBuffers, pBuffers, sizeof( ID3D11Buffer * ) * nCount ) )
 		ADD_COMMIT_FUNC( CommitSetVSConstantBuffers );
 }
 
-void CShaderAPIDx11::SetPixelShaderConstantBuffers( int nCount, const ConstantBufferHandle_t* pBuffers )
+void CShaderAPIDx11::SetPixelShaderConstantBuffers( int nCount, const ConstantBufferHandle_t *pBuffers )
 {
-	nCount = min( nCount, MAX_DX11_CBUFFERS );
+	nCount				    = min( nCount, MAX_DX11_CBUFFERS );
 	m_DesiredState.m_nPSConstantBuffers = nCount;
 	for ( int i = 0; i < nCount; i++ )
 	{
-		m_DesiredState.m_pPSConstantBuffers[i] = (ID3D11Buffer*)pBuffers[i];
+		m_DesiredState.m_pPSConstantBuffers[i] = (ID3D11Buffer *)pBuffers[i];
 	}
 
 	if ( m_bResettingRenderState ||
 	     m_DesiredState.m_nPSConstantBuffers != nCount ||
-	     memcmp( m_DesiredState.m_pPSConstantBuffers, pBuffers, sizeof( ID3D11Buffer* ) * nCount ) )
+	     memcmp( m_DesiredState.m_pPSConstantBuffers, pBuffers, sizeof( ID3D11Buffer * ) * nCount ) )
 		ADD_COMMIT_FUNC( CommitSetPSConstantBuffers );
 }
 
-void CShaderAPIDx11::SetGeometryShaderConstantBuffers( int nCount, const ConstantBufferHandle_t* pBuffers )
+void CShaderAPIDx11::SetGeometryShaderConstantBuffers( int nCount, const ConstantBufferHandle_t *pBuffers )
 {
-	nCount = min( nCount, MAX_DX11_CBUFFERS );
+	nCount				    = min( nCount, MAX_DX11_CBUFFERS );
 	m_DesiredState.m_nGSConstantBuffers = nCount;
 	for ( int i = 0; i < nCount; i++ )
 	{
-		m_DesiredState.m_pGSConstantBuffers[i] = (ID3D11Buffer*)pBuffers[i];
+		m_DesiredState.m_pGSConstantBuffers[i] = (ID3D11Buffer *)pBuffers[i];
 	}
 	if ( m_bResettingRenderState ||
 	     m_DesiredState.m_nGSConstantBuffers != nCount ||
-	     memcmp( m_DesiredState.m_pGSConstantBuffers, pBuffers, sizeof( ID3D11Buffer* ) * nCount ) )
+	     memcmp( m_DesiredState.m_pGSConstantBuffers, pBuffers, sizeof( ID3D11Buffer * ) * nCount ) )
 		ADD_COMMIT_FUNC( CommitSetGSConstantBuffers );
-}
-
-ConstantBufferHandle_t CShaderAPIDx11::CreateConstantBuffer( size_t nBufLen )
-{
-	CShaderConstantBufferDx11 buf;
-	buf.Create( nBufLen );
-	return m_ConstantBuffers.AddToTail( buf );
-}
-
-void CShaderAPIDx11::UpdateConstantBuffer( ConstantBufferHandle_t hBuffer, void* pData )
-{
-	CShaderConstantBufferDx11& buf = m_ConstantBuffers.Element( hBuffer );
-	buf.Update( pData );
-}
-
-void CShaderAPIDx11::DestroyConstantBuffer( ConstantBufferHandle_t hBuffer )
-{
-	CShaderConstantBufferDx11& buf = m_ConstantBuffers.Element( hBuffer );
-	buf.Destroy();
-	m_ConstantBuffers.Remove( hBuffer );
 }
 
 //-----------------------------------------------------------------------------
 // Methods related to state objects
 //-----------------------------------------------------------------------------
-void CShaderAPIDx11::SetRasterState( const ShaderRasterState_t& state )
+void CShaderAPIDx11::SetRasterState( const ShaderRasterState_t &state )
 {
-	if ( memcmp( &state, &m_DesiredState.m_RasterState, sizeof(ShaderRasterState_t) ) )
+	if ( memcmp( &state, &m_DesiredState.m_RasterState, sizeof( ShaderRasterState_t ) ) )
 	{
-		memcpy( &m_DesiredState.m_RasterState, &state, sizeof(ShaderRasterState_t) );
+		memcpy( &m_DesiredState.m_RasterState, &state, sizeof( ShaderRasterState_t ) );
 		ADD_COMMIT_FUNC( CommitSetRasterState );
 	}
 }
-
 
 //-----------------------------------------------------------------------------
 // Methods related to clearing buffers
@@ -781,15 +749,14 @@ void CShaderAPIDx11::ClearColor4ub( unsigned char r, unsigned char g, unsigned c
 void CShaderAPIDx11::ClearBuffers( bool bClearColor, bool bClearDepth, bool bClearStencil, int renderTargetWidth, int renderTargetHeight )
 {
 	// NOTE: State change commit isn't necessary since clearing doesn't use state
-//	CommitStateChanges();
+	//	CommitStateChanges();
 
 	// FIXME: This implementation is totally bust0red [doesn't guarantee exact color specified]
 	if ( bClearColor )
 	{
-		D3D11DeviceContext()->ClearRenderTargetView( D3D11RenderTargetView(), m_DesiredState.m_ClearColor ); 
+		D3D11DeviceContext()->ClearRenderTargetView( D3D11RenderTargetView(), m_DesiredState.m_ClearColor );
 	}
 }
-
 
 //-----------------------------------------------------------------------------
 // Methods related to binding shaders
@@ -827,24 +794,24 @@ void CShaderAPIDx11::BindVertexBuffer( int nStreamID, IVertexBuffer *pVertexBuff
 	if ( pVertexBufferDx11 )
 	{
 		state.m_pBuffer = pVertexBufferDx11->GetDx11Buffer();
-		state.m_nStride = pVertexBufferDx11->VertexSize(); 
+		state.m_nStride = pVertexBufferDx11->VertexSize();
 	}
 	else
 	{
 		state.m_pBuffer = NULL;
-		state.m_nStride = 0; 
+		state.m_nStride = 0;
 	}
 	state.m_nOffset = nOffsetInBytes;
 
-	if ( m_bResettingRenderState || memcmp( &m_DesiredState.m_pVertexBuffer[ nStreamID ], &state, sizeof( ShaderVertexBufferStateDx11_t ) ) )
+	if ( m_bResettingRenderState || memcmp( &m_DesiredState.m_pVertexBuffer[nStreamID], &state, sizeof( ShaderVertexBufferStateDx11_t ) ) )
 	{
-		m_DesiredState.m_pVertexBuffer[ nStreamID ] = state;
+		m_DesiredState.m_pVertexBuffer[nStreamID] = state;
 		ADD_COMMIT_FUNC( CommitSetVertexBuffer );
 	}
 
-	if ( m_bResettingRenderState || ( m_DesiredState.m_InputLayout.m_pVertexDecl[ nStreamID ] != fmt ) )
+	if ( m_bResettingRenderState || ( m_DesiredState.m_InputLayout.m_pVertexDecl[nStreamID] != fmt ) )
 	{
-		m_DesiredState.m_InputLayout.m_pVertexDecl[ nStreamID ] = fmt;
+		m_DesiredState.m_InputLayout.m_pVertexDecl[nStreamID] = fmt;
 		ADD_COMMIT_FUNC( CommitSetInputLayout );
 	}
 }
@@ -857,27 +824,25 @@ void CShaderAPIDx11::BindIndexBuffer( IIndexBuffer *pIndexBuffer, int nOffsetInB
 	if ( pIndexBufferDx11 )
 	{
 		state.m_pBuffer = pIndexBufferDx11->GetDx11Buffer();
-		state.m_Format = ( pIndexBufferDx11->GetIndexFormat() == MATERIAL_INDEX_FORMAT_16BIT ) ? 
-			DXGI_FORMAT_R16_UINT : DXGI_FORMAT_R32_UINT;
+		state.m_Format	= ( pIndexBufferDx11->GetIndexFormat() == MATERIAL_INDEX_FORMAT_16BIT ) ? DXGI_FORMAT_R16_UINT : DXGI_FORMAT_R32_UINT;
 	}
 	else
 	{
 		state.m_pBuffer = NULL;
-		state.m_Format = DXGI_FORMAT_R16_UINT;
+		state.m_Format	= DXGI_FORMAT_R16_UINT;
 	}
 	state.m_nOffset = nOffsetInBytes;
 
 	ADD_RENDERSTATE_FUNC( CommitSetIndexBuffer, m_IndexBuffer, state );
 }
 
-
 //-----------------------------------------------------------------------------
 // Unbinds resources because they are about to be deleted
 //-----------------------------------------------------------------------------
 void CShaderAPIDx11::Unbind( VertexShaderHandle_t hShader )
 {
-	ID3D11VertexShader* pShader = g_pShaderDeviceDx11->GetVertexShader( hShader );
-	Assert ( pShader );
+	ID3D11VertexShader *pShader = g_pShaderDeviceDx11->GetVertexShader( hShader );
+	Assert( pShader );
 	if ( m_DesiredState.m_pVertexShader == pShader )
 	{
 		BindVertexShader( VERTEX_SHADER_HANDLE_INVALID );
@@ -890,8 +855,8 @@ void CShaderAPIDx11::Unbind( VertexShaderHandle_t hShader )
 
 void CShaderAPIDx11::Unbind( GeometryShaderHandle_t hShader )
 {
-	ID3D11GeometryShader* pShader = g_pShaderDeviceDx11->GetGeometryShader( hShader );
-	Assert ( pShader );
+	ID3D11GeometryShader *pShader = g_pShaderDeviceDx11->GetGeometryShader( hShader );
+	Assert( pShader );
 	if ( m_DesiredState.m_pGeometryShader == pShader )
 	{
 		BindGeometryShader( GEOMETRY_SHADER_HANDLE_INVALID );
@@ -904,8 +869,8 @@ void CShaderAPIDx11::Unbind( GeometryShaderHandle_t hShader )
 
 void CShaderAPIDx11::Unbind( PixelShaderHandle_t hShader )
 {
-	ID3D11PixelShader* pShader = g_pShaderDeviceDx11->GetPixelShader( hShader );
-	Assert ( pShader );
+	ID3D11PixelShader *pShader = g_pShaderDeviceDx11->GetPixelShader( hShader );
+	Assert( pShader );
 	if ( m_DesiredState.m_pPixelShader == pShader )
 	{
 		BindPixelShader( PIXEL_SHADER_HANDLE_INVALID );
@@ -918,7 +883,7 @@ void CShaderAPIDx11::Unbind( PixelShaderHandle_t hShader )
 
 void CShaderAPIDx11::UnbindVertexBuffer( ID3D11Buffer *pBuffer )
 {
-	Assert ( pBuffer );
+	Assert( pBuffer );
 
 	for ( int i = 0; i < MAX_DX11_STREAMS; ++i )
 	{
@@ -939,7 +904,7 @@ void CShaderAPIDx11::UnbindVertexBuffer( ID3D11Buffer *pBuffer )
 
 void CShaderAPIDx11::UnbindIndexBuffer( ID3D11Buffer *pBuffer )
 {
-	Assert ( pBuffer );
+	Assert( pBuffer );
 
 	if ( m_DesiredState.m_IndexBuffer.m_pBuffer == pBuffer )
 	{
@@ -951,14 +916,13 @@ void CShaderAPIDx11::UnbindIndexBuffer( ID3D11Buffer *pBuffer )
 	}
 }
 
-
 //-----------------------------------------------------------------------------
 // Sets the topology state
 //-----------------------------------------------------------------------------
 void CShaderAPIDx11::SetTopology( MaterialPrimitiveType_t topology )
 {
 	D3D11_PRIMITIVE_TOPOLOGY d3dTopology;
-	switch( topology )
+	switch ( topology )
 	{
 	case MATERIAL_POINTS:
 		d3dTopology = D3D11_PRIMITIVE_TOPOLOGY_POINTLIST;
@@ -992,7 +956,6 @@ void CShaderAPIDx11::SetTopology( MaterialPrimitiveType_t topology )
 	ADD_RENDERSTATE_FUNC( CommitSetTopology, m_Topology, d3dTopology );
 }
 
-
 //-----------------------------------------------------------------------------
 // Main entry point for rendering
 //-----------------------------------------------------------------------------
@@ -1009,12 +972,11 @@ void CShaderAPIDx11::Draw( MaterialPrimitiveType_t primitiveType, int nFirstInde
 bool CShaderAPIDx11::OnDeviceInit()
 {
 	m_hTransformBuffer = CreateConstantBuffer( sizeof( TransformBuffer_t ) );
-	m_hLightingBuffer = CreateConstantBuffer( sizeof( LightingBuffer_t ) );
+	m_hLightingBuffer  = CreateConstantBuffer( sizeof( LightingBuffer_t ) );
 
 	ResetRenderState();
 	return true;
 }
-
 
 //-----------------------------------------------------------------------------
 //
@@ -1045,7 +1007,7 @@ void CShaderAPIDx11::SetDefaultState()
 }
 
 // Returns the snapshot id for the current shadow state
-StateSnapshot_t	 CShaderAPIDx11::TakeSnapshot( )
+StateSnapshot_t CShaderAPIDx11::TakeSnapshot()
 {
 	return g_pShaderShadowDx11->FindOrCreateSnapshot();
 }
@@ -1053,32 +1015,32 @@ StateSnapshot_t	 CShaderAPIDx11::TakeSnapshot( )
 // Returns true if the state snapshot is transparent
 bool CShaderAPIDx11::IsTranslucent( StateSnapshot_t id ) const
 {
-	return (id & TRANSLUCENT) != 0; 
+	return ( id & TRANSLUCENT ) != 0;
 }
 
 bool CShaderAPIDx11::IsAlphaTested( StateSnapshot_t id ) const
 {
-	return (id & ALPHATESTED) != 0; 
+	return ( id & ALPHATESTED ) != 0;
 }
 
 bool CShaderAPIDx11::IsDepthWriteEnabled( StateSnapshot_t id ) const
 {
-	return (id & DEPTHWRITE) != 0; 
+	return ( id & DEPTHWRITE ) != 0;
 }
 
 bool CShaderAPIDx11::UsesVertexAndPixelShaders( StateSnapshot_t id ) const
 {
-	return (id & VERTEX_AND_PIXEL_SHADERS) != 0; 
+	return ( id & VERTEX_AND_PIXEL_SHADERS ) != 0;
 }
 
 // Gets the vertex format for a set of snapshot ids
-VertexFormat_t CShaderAPIDx11::ComputeVertexFormat( int numSnapshots, StateSnapshot_t* pIds ) const
+VertexFormat_t CShaderAPIDx11::ComputeVertexFormat( int numSnapshots, StateSnapshot_t *pIds ) const
 {
 	return 0;
 }
 
 // Gets the vertex format for a set of snapshot ids
-VertexFormat_t CShaderAPIDx11::ComputeVertexUsage( int numSnapshots, StateSnapshot_t* pIds ) const
+VertexFormat_t CShaderAPIDx11::ComputeVertexUsage( int numSnapshots, StateSnapshot_t *pIds ) const
 {
 	return 0;
 }
@@ -1123,7 +1085,7 @@ void CShaderAPIDx11::Color3f( float r, float g, float b )
 {
 }
 
-void CShaderAPIDx11::Color3fv( float const* pColor )
+void CShaderAPIDx11::Color3fv( float const *pColor )
 {
 }
 
@@ -1131,7 +1093,7 @@ void CShaderAPIDx11::Color4f( float r, float g, float b, float a )
 {
 }
 
-void CShaderAPIDx11::Color4fv( float const* pColor )
+void CShaderAPIDx11::Color4fv( float const *pColor )
 {
 }
 
@@ -1140,7 +1102,7 @@ void CShaderAPIDx11::Color3ub( unsigned char r, unsigned char g, unsigned char b
 {
 }
 
-void CShaderAPIDx11::Color3ubv( unsigned char const* rgb )
+void CShaderAPIDx11::Color3ubv( unsigned char const *rgb )
 {
 }
 
@@ -1148,7 +1110,7 @@ void CShaderAPIDx11::Color4ub( unsigned char r, unsigned char g, unsigned char b
 {
 }
 
-void CShaderAPIDx11::Color4ubv( unsigned char const* rgba )
+void CShaderAPIDx11::Color4ubv( unsigned char const *rgba )
 {
 }
 
@@ -1157,14 +1119,13 @@ void CShaderAPIDx11::GetStandardTextureDimensions( int *pWidth, int *pHeight, St
 	ShaderUtil()->GetStandardTextureDimensions( pWidth, pHeight, id );
 }
 
-
 // The shade mode
 void CShaderAPIDx11::ShadeMode( ShaderShadeMode_t mode )
 {
 }
 
 // Binds a particular material to render with
-void CShaderAPIDx11::Bind( IMaterial* pMaterial )
+void CShaderAPIDx11::Bind( IMaterial *pMaterial )
 {
 }
 
@@ -1182,7 +1143,6 @@ void CShaderAPIDx11::OverrideDepthEnable( bool bEnable, bool bDepthEnable )
 {
 }
 
-
 //legacy fast clipping linkage
 void CShaderAPIDx11::SetHeightClipZ( float z )
 {
@@ -1192,9 +1152,8 @@ void CShaderAPIDx11::SetHeightClipMode( enum MaterialHeightClipMode_t heightClip
 {
 }
 
-
 // Sets the lights
-void CShaderAPIDx11::SetLight( int lightNum, const LightDesc_t& desc )
+void CShaderAPIDx11::SetLight( int lightNum, const LightDesc_t &desc )
 {
 }
 
@@ -1212,7 +1171,7 @@ int CShaderAPIDx11::GetMaxLights( void ) const
 	return 0;
 }
 
-const LightDesc_t& CShaderAPIDx11::GetLight( int lightNum ) const
+const LightDesc_t &CShaderAPIDx11::GetLight( int lightNum ) const
 {
 	static LightDesc_t blah;
 	return blah;
@@ -1281,39 +1240,39 @@ void CShaderAPIDx11::FlushBufferedPrimitives()
 }
 
 // Creates/destroys Mesh
-IMesh* CShaderAPIDx11::CreateStaticMesh( VertexFormat_t fmt, const char *pTextureBudgetGroup, IMaterial * pMaterial )
+IMesh *CShaderAPIDx11::CreateStaticMesh( VertexFormat_t fmt, const char *pTextureBudgetGroup, IMaterial *pMaterial )
 {
 	return &m_Mesh;
 }
 
-void CShaderAPIDx11::DestroyStaticMesh( IMesh* mesh )
+void CShaderAPIDx11::DestroyStaticMesh( IMesh *mesh )
 {
 }
 
 // Gets the dynamic mesh; note that you've got to render the mesh
 // before calling this function a second time. Clients should *not*
 // call DestroyStaticMesh on the mesh returned by this call.
-IMesh* CShaderAPIDx11::GetDynamicMesh( IMaterial* pMaterial, int nHWSkinBoneCount, bool buffered, IMesh* pVertexOverride, IMesh* pIndexOverride )
+IMesh *CShaderAPIDx11::GetDynamicMesh( IMaterial *pMaterial, int nHWSkinBoneCount, bool buffered, IMesh *pVertexOverride, IMesh *pIndexOverride )
 {
-	Assert( (pMaterial == NULL) || ((IMaterialInternal *)pMaterial)->IsRealTimeVersion() );
+	Assert( ( pMaterial == NULL ) || ( (IMaterialInternal *)pMaterial )->IsRealTimeVersion() );
 	return &m_Mesh;
 }
 
-IMesh* CShaderAPIDx11::GetDynamicMeshEx( IMaterial* pMaterial, VertexFormat_t fmt, int nHWSkinBoneCount, bool buffered, IMesh* pVertexOverride, IMesh* pIndexOverride )
+IMesh *CShaderAPIDx11::GetDynamicMeshEx( IMaterial *pMaterial, VertexFormat_t fmt, int nHWSkinBoneCount, bool buffered, IMesh *pVertexOverride, IMesh *pIndexOverride )
 {
 	// UNDONE: support compressed dynamic meshes if needed (pro: less VB memory, con: time spent compressing)
 	Assert( CompressionType( pVertexOverride->GetVertexFormat() ) != VERTEX_COMPRESSION_NONE );
-	Assert( (pMaterial == NULL) || ((IMaterialInternal *)pMaterial)->IsRealTimeVersion() );
+	Assert( ( pMaterial == NULL ) || ( (IMaterialInternal *)pMaterial )->IsRealTimeVersion() );
 	return &m_Mesh;
 }
 
-IMesh* CShaderAPIDx11::GetFlexMesh()
+IMesh *CShaderAPIDx11::GetFlexMesh()
 {
 	return &m_Mesh;
 }
 
 // Begins a rendering pass that uses a state snapshot
-void CShaderAPIDx11::BeginPass( StateSnapshot_t snapshot  )
+void CShaderAPIDx11::BeginPass( StateSnapshot_t snapshot )
 {
 }
 
@@ -1412,16 +1371,13 @@ void CShaderAPIDx11::FogMaxDensity( float flMaxDensity )
 {
 }
 
-
 void CShaderAPIDx11::GetFogDistances( float *fStart, float *fEnd, float *fFogZ )
 {
 }
 
-
 void CShaderAPIDx11::SceneFogColor3ub( unsigned char r, unsigned char g, unsigned char b )
 {
 }
-
 
 void CShaderAPIDx11::SceneFogMode( MaterialFogMode_t fogMode )
 {
@@ -1431,12 +1387,12 @@ void CShaderAPIDx11::GetSceneFogColor( unsigned char *rgb )
 {
 }
 
-MaterialFogMode_t CShaderAPIDx11::GetSceneFogMode( )
+MaterialFogMode_t CShaderAPIDx11::GetSceneFogMode()
 {
 	return MATERIAL_FOG_NONE;
 }
 
-int CShaderAPIDx11::GetPixelFogCombo( )
+int CShaderAPIDx11::GetPixelFogCombo()
 {
 	return 0; //FIXME
 }
@@ -1445,7 +1401,7 @@ void CShaderAPIDx11::FogColor3f( float r, float g, float b )
 {
 }
 
-void CShaderAPIDx11::FogColor3fv( float const* rgb )
+void CShaderAPIDx11::FogColor3fv( float const *rgb )
 {
 }
 
@@ -1453,7 +1409,7 @@ void CShaderAPIDx11::FogColor3ub( unsigned char r, unsigned char g, unsigned cha
 {
 }
 
-void CShaderAPIDx11::FogColor3ubv( unsigned char const* rgb )
+void CShaderAPIDx11::FogColor3ubv( unsigned char const *rgb )
 {
 }
 
@@ -1461,7 +1417,7 @@ void CShaderAPIDx11::Viewport( int x, int y, int width, int height )
 {
 }
 
-void CShaderAPIDx11::GetViewport( int& x, int& y, int& width, int& height ) const
+void CShaderAPIDx11::GetViewport( int &x, int &y, int &width, int &height ) const
 {
 }
 
@@ -1475,12 +1431,12 @@ void CShaderAPIDx11::SetPixelShaderIndex( int pshIndex )
 }
 
 // Sets the constant register for vertex and pixel shaders
-void CShaderAPIDx11::SetVertexShaderConstant( int var, float const* pVec, int numConst, bool bForce )
+void CShaderAPIDx11::SetVertexShaderConstant( int var, float const *pVec, int numConst, bool bForce )
 {
 	Warning( "Unsupported CShaderAPIDx11::SetVertexShaderConstant() called!\n" );
 }
 
-void CShaderAPIDx11::SetPixelShaderConstant( int var, float const* pVec, int numConst, bool bForce )
+void CShaderAPIDx11::SetPixelShaderConstant( int var, float const *pVec, int numConst, bool bForce )
 {
 	Warning( "Unsupported CShaderAPIDx11::SetPixelShaderConstant() called!\n" );
 }
@@ -1495,7 +1451,6 @@ void CShaderAPIDx11::SetLinearToGammaConversionTextures( ShaderAPITextureHandle_
 {
 	Warning( "Unsupported CShaderAPIDx11::SetLinearToGammaConversionTextures() called!\n" );
 }
-
 
 // Returns the nearest supported format
 ImageFormat CShaderAPIDx11::GetNearestSupportedFormat( ImageFormat fmt ) const
@@ -1521,26 +1476,25 @@ void CShaderAPIDx11::ModifyTexture( ShaderAPITextureHandle_t textureHandle )
 }
 
 // Texture management methods
-void CShaderAPIDx11::TexImage2D( int level, int cubeFace, ImageFormat dstFormat, int zOffset, int width, int height, 
-								 ImageFormat srcFormat, bool bSrcIsTiled, void *imageData )
+void CShaderAPIDx11::TexImage2D( int level, int cubeFace, ImageFormat dstFormat, int zOffset, int width, int height,
+				 ImageFormat srcFormat, bool bSrcIsTiled, void *imageData )
 {
 }
 
 void CShaderAPIDx11::TexSubImage2D( int level, int cubeFace, int xOffset, int yOffset, int zOffset, int width, int height,
-									ImageFormat srcFormat, int srcStride, bool bSrcIsTiled, void *imageData )
+				    ImageFormat srcFormat, int srcStride, bool bSrcIsTiled, void *imageData )
 {
 }
 
-bool CShaderAPIDx11::TexLock( int level, int cubeFaceID, int xOffset, int yOffset, 
-							  int width, int height, CPixelWriter& writer )
+bool CShaderAPIDx11::TexLock( int level, int cubeFaceID, int xOffset, int yOffset,
+			      int width, int height, CPixelWriter &writer )
 {
 	return false;
 }
 
-void CShaderAPIDx11::TexUnlock( )
+void CShaderAPIDx11::TexUnlock()
 {
 }
-
 
 // These are bound to the texture, not the texture environment
 void CShaderAPIDx11::TexMinFilter( ShaderTexFilterMode_t texFilterMode )
@@ -1559,63 +1513,359 @@ void CShaderAPIDx11::TexSetPriority( int priority )
 {
 }
 
-ShaderAPITextureHandle_t CShaderAPIDx11::CreateTexture( 
-	int width, 
-	int height,
-	int depth,
-	ImageFormat dstImageFormat, 
-	int numMipLevels, 
-	int numCopies, 
-	int flags, 
-	const char *pDebugName,
-	const char *pTextureGroupName )
+ShaderAPITextureHandle_t CShaderAPIDx11::CreateTexture(
+    int width,
+    int height,
+    int depth,
+    ImageFormat dstImageFormat,
+    int numMipLevels,
+    int numCopies,
+    int flags,
+    const char *pDebugName,
+    const char *pTextureGroupName )
 {
 	ShaderAPITextureHandle_t handle;
 	CreateTextures( &handle, 1, width, height, depth, dstImageFormat, numMipLevels, numCopies, flags, pDebugName, pTextureGroupName );
 	return handle;
 }
 
-void CShaderAPIDx11::CreateTextures( 
-					ShaderAPITextureHandle_t *pHandles,
-					int count,
-					int width, 
-					int height,
-					int depth,
-					ImageFormat dstImageFormat, 
-					int numMipLevels, 
-					int numCopies, 
-					int flags, 
-					const char *pDebugName,
-					const char *pTextureGroupName )
+void CShaderAPIDx11::CreateTextureHandles( ShaderAPITextureHandle_t *handles, int count )
+{
+	if ( count <= 0 )
+		return;
+
+	MEM_ALLOC_CREDIT();
+
+	int idxCreating = 0;
+	ShaderAPITextureHandle_t hTexture;
+	for ( hTexture = m_Textures.Head(); hTexture != m_Textures.InvalidIndex(); hTexture = m_Textures.Next( hTexture ) )
+	{
+		if ( !( m_Textures[hTexture].m_nFlags & CTextureDx11::IS_ALLOCATED ) )
+		{
+			handles[idxCreating++] = hTexture;
+			if ( idxCreating >= count )
+				return;
+		}
+	}
+
+	while ( idxCreating < count )
+		handles[idxCreating++] = m_Textures.AddToTail();
+}
+
+DXGI_FORMAT GetD3DFormat( ImageFormat format )
+{
+	switch ( format )
+	{
+
+	// I have no fucking idea about these formats
+	// (check if they are unused)
+	case IMAGE_FORMAT_BGR888:
+		return DXGI_FORMAT_UNKNOWN;
+	case IMAGE_FORMAT_I8:
+		return DXGI_FORMAT_UNKNOWN;
+	case IMAGE_FORMAT_IA88:
+		return DXGI_FORMAT_UNKNOWN;
+	case IMAGE_FORMAT_UV88:
+		return DXGI_FORMAT_UNKNOWN;
+	case IMAGE_FORMAT_UVWQ8888:
+		return DXGI_FORMAT_UNKNOWN;
+	case IMAGE_FORMAT_UVLX8888:
+		return DXGI_FORMAT_UNKNOWN;
+
+	// These ones are good as-is
+	case IMAGE_FORMAT_A8:
+		return DXGI_FORMAT_A8_UNORM;
+	case IMAGE_FORMAT_DXT1:
+	case IMAGE_FORMAT_DXT1_ONEBITALPHA:
+		return DXGI_FORMAT_BC1_UNORM;
+	case IMAGE_FORMAT_DXT3:
+		return DXGI_FORMAT_BC2_UNORM;
+	case IMAGE_FORMAT_DXT5:
+		return DXGI_FORMAT_BC3_UNORM;
+	case IMAGE_FORMAT_BGRA4444:
+		return DXGI_FORMAT_B4G4R4A4_UNORM;
+	case IMAGE_FORMAT_BGRX5551:
+		return DXGI_FORMAT_B5G5R5A1_UNORM;
+	case IMAGE_FORMAT_BGR565:
+		return DXGI_FORMAT_B5G6R5_UNORM;
+	case IMAGE_FORMAT_BGRX8888:
+		return DXGI_FORMAT_B8G8R8X8_UNORM;
+	case IMAGE_FORMAT_BGRA8888:
+		return DXGI_FORMAT_B8G8R8A8_UNORM;
+	case IMAGE_FORMAT_RGBA16161616F:
+		return DXGI_FORMAT_R16G16B16A16_FLOAT;
+	case IMAGE_FORMAT_RGBA16161616:
+		return DXGI_FORMAT_R16G16B16A16_UNORM;
+	case IMAGE_FORMAT_R32F:
+		return DXGI_FORMAT_R32_FLOAT;
+	case IMAGE_FORMAT_RGBA32323232F:
+		return DXGI_FORMAT_R32G32B32A32_FLOAT;
+	}
+}
+
+ImageFormat GetImageFormat( DXGI_FORMAT d3dFormat )
+{
+	switch ( d3dFormat )
+	{
+	case DXGI_FORMAT_UNKNOWN:
+		return IMAGE_FORMAT_UNKNOWN;
+
+	case DXGI_FORMAT_A8_UNORM:
+		return IMAGE_FORMAT_A8;
+	case DXGI_FORMAT_BC1_UNORM:
+		return IMAGE_FORMAT_DXT1_ONEBITALPHA;
+	case DXGI_FORMAT_BC2_UNORM:
+		return IMAGE_FORMAT_DXT3;
+	case DXGI_FORMAT_BC3_UNORM:
+		return IMAGE_FORMAT_DXT5;
+	case DXGI_FORMAT_B4G4R4A4_UNORM:
+		return IMAGE_FORMAT_BGRA4444;
+	case DXGI_FORMAT_B5G6R5_UNORM:
+		return IMAGE_FORMAT_BGR565;
+	case DXGI_FORMAT_B8G8R8X8_UNORM:
+		return IMAGE_FORMAT_BGRX8888;
+	case DXGI_FORMAT_B8G8R8A8_UNORM:
+		return IMAGE_FORMAT_BGRA8888;
+	case DXGI_FORMAT_R16G16B16A16_FLOAT:
+		return IMAGE_FORMAT_RGBA16161616F;
+	case DXGI_FORMAT_R16G16B16A16_UNORM:
+		return IMAGE_FORMAT_RGBA16161616;
+	case DXGI_FORMAT_R32_FLOAT:
+		return IMAGE_FORMAT_R32F;
+	case DXGI_FORMAT_R32G32B32A32_FLOAT:
+		return IMAGE_FORMAT_RGBA32323232F;
+	}
+}
+
+// Texture2D is used for regular 2D textures, cubemaps, and 2D texture arrays
+// TODO: Support 1D and 3D textures?
+ID3D11Resource *CreateD3DTexture( int width, int height, int nDepth,
+				  ImageFormat dstFormat, int numLevels, int nCreationFlags )
+{
+	if ( nDepth <= 0 )
+		nDepth = 1;
+
+	bool isCubeMap = ( nCreationFlags & TEXTURE_CREATE_CUBEMAP ) != 0;
+	if ( isCubeMap )
+		nDepth = 6;
+
+	bool bIsRenderTarget = ( nCreationFlags & TEXTURE_CREATE_RENDERTARGET ) != 0;
+	bool bManaged = ( nCreationFlags & TEXTURE_CREATE_MANAGED ) != 0;
+	bool bIsDepthBuffer = ( nCreationFlags & TEXTURE_CREATE_DEPTHBUFFER ) != 0;
+	bool isDynamic = ( nCreationFlags & TEXTURE_CREATE_DYNAMIC ) != 0;
+	bool bAutoMipMap = ( nCreationFlags & TEXTURE_CREATE_AUTOMIPMAP ) != 0;
+	bool bVertexTexture = ( nCreationFlags & TEXTURE_CREATE_VERTEXTEXTURE ) != 0;
+	bool bAllowNonFilterable = ( nCreationFlags & TEXTURE_CREATE_UNFILTERABLE_OK ) != 0;
+	bool bVolumeTexture = ( nDepth > 1 );
+	bool bIsFallback = ( nCreationFlags & TEXTURE_CREATE_FALLBACK ) != 0;
+	bool bNoD3DBits = ( nCreationFlags & TEXTURE_CREATE_NOD3DMEMORY ) != 0;
+
+	// NOTE: This function shouldn't be used for creating depth buffers!
+	Assert( !bIsDepthBuffer );
+
+	DXGI_FORMAT d3dFormat = DXGI_FORMAT_UNKNOWN;
+	d3dFormat = GetD3DFormat( dstFormat );
+
+	if ( d3dFormat == DXGI_FORMAT_UNKNOWN )
+	{
+		Warning( "ShaderAPIDX11::CreateD3DTexture: Invalid image format %i!\n", (int)dstFormat );
+		Assert( 0 );
+		return 0;
+	}
+
+	D3D11_USAGE usage = D3D11_USAGE_DEFAULT;
+	if ( isDynamic )
+	{
+		usage = D3D11_USAGE_DYNAMIC;
+	}
+
+	UINT miscFlags = 0;
+	if ( bAutoMipMap )
+	{
+		miscFlags |= D3D11_RESOURCE_MISC_GENERATE_MIPS;
+	}
+	if ( isCubeMap )
+	{
+		miscFlags |= D3D11_RESOURCE_MISC_TEXTURECUBE;
+	}
+
+	UINT bindFlags = 0;
+	if ( bIsRenderTarget )
+	{
+		bindFlags |= D3D11_BIND_RENDER_TARGET;
+	}
+
+	UINT cpuAccessFlags = D3D11_CPU_ACCESS_WRITE;
+
+	ID3D11Resource *pBaseTexture = NULL;
+	HRESULT hr = S_OK;
+
+	// TODO: Support 1D and 3D textures
+	// (2D textures are good for regular textures, cubemaps, and texture arrays)
+	D3D11_TEXTURE2D_DESC desc;
+	ZeroMemory( &desc, sizeof( D3D11_TEXTURE3D_DESC ) );
+	if ( bVolumeTexture ) // isCubeMap will also cause this to be set
+		desc.ArraySize = nDepth;
+	desc.Format = d3dFormat;
+	desc.Width = width;
+	desc.Height = height;
+	desc.MipLevels = numLevels;
+	desc.MiscFlags = miscFlags;
+	desc.BindFlags = bindFlags;
+	desc.CPUAccessFlags = cpuAccessFlags;
+	desc.Usage = usage;
+	ID3D11Texture2D *pTex2D = NULL;
+	hr = D3D11Device()->CreateTexture2D( &desc, NULL, &pTex2D );
+	pBaseTexture = pTex2D;
+
+	if ( FAILED( hr ) )
+	{
+		switch ( hr )
+		{
+		case E_OUTOFMEMORY:
+			Warning( "ShaderAPIDX11::CreateD3DTexture: E_OUTOFMEMORY\n" );
+			break;
+		default:
+			break;
+		}
+		return 0;
+	}
+
+	return pBaseTexture;
+}
+
+void CShaderAPIDx11::CreateTextures(
+    ShaderAPITextureHandle_t *pHandles,
+    int count,
+    int width,
+    int height,
+    int depth,
+    ImageFormat dstImageFormat,
+    int numMipLevels,
+    int numCopies,
+    int flags,
+    const char *pDebugName,
+    const char *pTextureGroupName )
 {
 	LOCK_SHADERAPI();
 
 	if ( depth == 0 )
 		depth == 1;
-	for ( int k = 0; k < count; ++ k )
-	{
-		pHandles[ k ] = 0;
-	}
 
-	bool bIsCubeMap = ( flags & TEXTURE_CREATE_CUBEMAP ) != 0;
+	bool bIsCubeMap	     = ( flags & TEXTURE_CREATE_CUBEMAP ) != 0;
+	if ( bIsCubeMap )
+		depth = 6;
 	bool bIsRenderTarget = ( flags & TEXTURE_CREATE_RENDERTARGET ) != 0;
-	bool bIsManaged = ( flags & TEXTURE_CREATE_MANAGED ) != 0;
-	bool bIsDepthBuffer = ( flags & TEXTURE_CREATE_DEPTHBUFFER ) != 0;
-	bool bIsDynamic = ( flags & TEXTURE_CREATE_DYNAMIC ) != 0;
+	bool bIsManaged	     = ( flags & TEXTURE_CREATE_MANAGED ) != 0;
+	bool bIsDepthBuffer  = ( flags & TEXTURE_CREATE_DEPTHBUFFER ) != 0;
+	bool bIsDynamic	     = ( flags & TEXTURE_CREATE_DYNAMIC ) != 0;
 
-	// Can't be both managed + dynamic. Dynamic is an optimization, but 
+	// Can't be both managed + dynamic. Dynamic is an optimization, but
 	// if it's not managed, then we gotta do special client-specific stuff
 	// So, managed wins out!
 	if ( bIsManaged )
 		bIsDynamic = false;
 
 	// Create a set of texture handles
-	//CreateTextureHandles
+	CreateTextureHandles( pHandles, count );
+	CTextureDx11 **arrTxp = (CTextureDx11 **)stackalloc( count * sizeof( CTextureDx11 * ) );
+
+	unsigned short usSetFlags = 0;
+	usSetFlags |= ( flags & TEXTURE_CREATE_VERTEXTEXTURE ) ? CTextureDx11::IS_VERTEX_TEXTURE : 0;
+
+	for ( int idxFrame = 0; idxFrame < count; ++idxFrame )
+	{
+		arrTxp[idxFrame]	  = &GetTexture( pHandles[idxFrame] );
+		CTextureDx11 *pTexture	  = arrTxp[idxFrame];
+		pTexture->m_nFlags	  = CTextureDx11::IS_ALLOCATED;
+		pTexture->m_nWidth	  = width;
+		pTexture->m_nHeight	  = height;
+		pTexture->m_Depth	  = depth;
+		pTexture->m_Count	  = count;
+		pTexture->m_CountIndex	  = idxFrame;
+		pTexture->m_CreationFlags = flags;
+		pTexture->m_nFlags |= usSetFlags;
+
+		ID3D11Resource *pD3DTex;
+
+		// Set the initial texture state
+		if ( numCopies <= 1 )
+		{
+			pTexture->m_NumCopies = 1;
+			pD3DTex = CreateD3DTexture( width, height, depth, dstImageFormat, numMipLevels, flags );
+			pTexture->SetTexture( pD3DTex );
+		}
+		else
+		{
+			pTexture->m_NumCopies = numCopies;
+			pTexture->m_ppTexture = new ID3D11Resource * [numCopies];
+			for ( int k = 0; k < numCopies; k++ )
+			{
+				pD3DTex = CreateD3DTexture( width, height, depth, dstImageFormat, numMipLevels, flags );
+				pTexture->SetTexture( k, pD3DTex );
+			}
+		}
+		pTexture->m_CurrentCopy = 0;
+
+		pD3DTex = GetD3DTexture( pHandles[idxFrame] );
+
+		pTexture->m_Format = dstImageFormat;
+		pTexture->m_UTexWrap = D3D11_TEXTURE_ADDRESS_CLAMP;
+		pTexture->m_VTexWrap = D3D11_TEXTURE_ADDRESS_CLAMP;
+		pTexture->m_WTexWrap = D3D11_TEXTURE_ADDRESS_CLAMP;
+
+		if ( bIsRenderTarget )
+		{
+			pTexture->m_Filter = D3D11_FILTER_MIN_MAG_LINEAR_MIP_POINT;
+			pTexture->m_NumLevels = 1;
+		}
+		else
+		{
+			pTexture->m_NumLevels = numMipLevels;
+			pTexture->m_Filter = ( numMipLevels != 1 ) ?
+				D3D11_FILTER_MIN_MAG_MIP_LINEAR :
+				D3D11_FILTER_MIN_MAG_LINEAR_MIP_POINT;
+		}
+		pTexture->m_SwitchNeeded = false;
+
+	}
+}
+
+CTextureDx11 &CShaderAPIDx11::GetTexture( ShaderAPITextureHandle_t handle )
+{
+	return m_Textures[handle];
+}
+
+ShaderAPITextureHandle_t CShaderAPIDx11::CreateTextureHandle()
+{
+	ShaderAPITextureHandle_t handle;
+	CreateTextureHandles( &handle, 1 );
+	return handle;
 }
 
 ShaderAPITextureHandle_t CShaderAPIDx11::CreateDepthTexture( ImageFormat renderFormat, int width, int height, const char *pDebugName, bool bTexture )
 {
-	return 0;
+	LOCK_SHADERAPI();
+
+	ShaderAPITextureHandle_t i = CreateTextureHandle();
+	CTextureDx11 *pTexture = &GetTexture( i );
+
+	pTexture->m_nFlags = CTextureDx11::IS_ALLOCATED;
+	if ( bTexture )
+		pTexture->m_nFlags |= CTextureDx11::IS_DEPTH_STENCIL_TEXTURE;
+	else
+		pTexture->m_nFlags |= CTextureDx11::IS_DEPTH_STENCIL;
+
+	pTexture->m_nWidth = width;
+	pTexture->m_nHeight = height;
+	pTexture->m_Depth = 1;
+	pTexture->m_Count = 1;
+	pTexture->m_CountIndex = 0;
+	pTexture->m_CreationFlags = 0;
+	pTexture->m_NumCopies = 1;
+	pTexture->m_CurrentCopy = 0;
+
+	return i;
 }
 
 void CShaderAPIDx11::DeleteTexture( ShaderAPITextureHandle_t textureHandle )
@@ -1664,11 +1914,11 @@ int CShaderAPIDx11::SelectionMode( bool selectionMode )
 	return 0;
 }
 
-void CShaderAPIDx11::SelectionBuffer( unsigned int* pBuffer, int size )
+void CShaderAPIDx11::SelectionBuffer( unsigned int *pBuffer, int size )
 {
 }
 
-void CShaderAPIDx11::ClearSelectionNames( )
+void CShaderAPIDx11::ClearSelectionNames()
 {
 }
 
@@ -1684,9 +1934,8 @@ void CShaderAPIDx11::PopSelectionName()
 {
 }
 
-
 // Use this to get the mesh builder that allows us to modify vertex data
-CMeshBuilder* CShaderAPIDx11::GetVertexModifyBuilder()
+CMeshBuilder *CShaderAPIDx11::GetVertexModifyBuilder()
 {
 	return 0;
 }
@@ -1710,7 +1959,7 @@ double CShaderAPIDx11::CurrentTime() const
 }
 
 // Get the current camera position in world space.
-void CShaderAPIDx11::GetWorldSpaceCameraPosition( float * pPos ) const
+void CShaderAPIDx11::GetWorldSpaceCameraPosition( float *pPos ) const
 {
 }
 
@@ -1740,7 +1989,7 @@ int CShaderAPIDx11::GetCurrentNumBones( void ) const
 }
 
 // Is hardware morphing enabled?
-bool CShaderAPIDx11::IsHWMorphingEnabled( ) const
+bool CShaderAPIDx11::IsHWMorphingEnabled() const
 {
 	return false;
 }
@@ -1839,4 +2088,16 @@ void CShaderAPIDx11::SetStencilTestMask( uint32 msk )
 void CShaderAPIDx11::SetStencilWriteMask( uint32 msk )
 {
 	ADD_RENDERSTATE_FUNC( CommitSetDepthStencilState, m_DepthStencilState.m_nStencilWriteMask, msk );
+}
+
+IDirect3DBaseTexture *CShaderAPIDx11::GetD3DTexture( ShaderAPITextureHandle_t handle )
+{
+	if ( handle == INVALID_SHADERAPI_TEXTURE_HANDLE )
+		return NULL;
+
+	CTextureDx11 &tex = GetTexture( handle );
+	if ( tex.m_NumCopies == 1 )
+		return tex.GetTexture();
+	else
+		return tex.GetTexture( tex.m_CurrentCopy );
 }

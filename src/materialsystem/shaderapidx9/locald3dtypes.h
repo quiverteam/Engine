@@ -52,6 +52,9 @@ public:
 #include <d3dcompiler.h>
 #include <DirectXMath.h>
 
+// Stupid typedef to avoid breaking API
+typedef ID3D11Resource IDirect3DBaseTexture;
+
 #else // DX10
 
 
@@ -125,7 +128,8 @@ typedef void *HardwareShader_t;
 // The vertex and pixel shader type
 //-----------------------------------------------------------------------------
 typedef int VertexShader_t;
-typedef int PixelShader_t;	
+typedef int PixelShader_t;
+typedef int GeometryShader_t;
 
 //-----------------------------------------------------------------------------
 // Bitpattern for an invalid shader
