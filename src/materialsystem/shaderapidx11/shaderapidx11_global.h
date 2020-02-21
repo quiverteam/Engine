@@ -14,6 +14,7 @@
 #endif
 
 #include "shaderapidx9/shaderapi_global.h"
+#include "tier2/tier2.h"
 
 //-----------------------------------------------------------------------------
 // The main hardware config interface

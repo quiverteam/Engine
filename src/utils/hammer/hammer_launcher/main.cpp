@@ -121,7 +121,7 @@ bool CHammerApp::Create( )
 	g_pInputSystem = (IInputSystem*)FindSystem( INPUTSYSTEM_INTERFACE_VERSION );
 
 	// This has to be done before connection.
-	g_pMaterialSystem->SetShaderAPI( "shaderapidx9.dll" );
+	g_pMaterialSystem->SetShaderAPI( "shaderapidx11.dll" );
 
 	return true;
 }

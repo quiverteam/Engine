@@ -1,0 +1,62 @@
+// ---------------------------------------------------------------
+// Auto Generated QPC Script - Fix if needed before using
+// ---------------------------------------------------------------
+macro PROJECT_NAME "stdshader_dx11"
+
+macro SRCDIR "../.."
+macro OUTBINDIR "$BINDEFAULT"
+
+include "$SRCDIR/_qpc_scripts/source_dll_base.qpc"
+
+configuration
+{
+	general
+	{
+		int_dir "$CONFIG/$PLATFORM/dx11"
+
+		include_directories
+		{
+			"fxctmp9" "vshtmp9"
+		}
+	}
+
+	compiler
+	{
+		preprocessor_definitions
+		{
+			"STDSHADER_DX11_DLL_EXPORT"
+			"FAST_MATERIALVAR_ACCESS"
+		}
+	}
+
+	linker
+	{
+		libraries
+		{
+			"version.lib" "winmm.lib" [$WIN32]
+			"mathlib"
+			"shaderlib"
+		}
+	}
+}
+
+dependencies
+{
+	"mathlib/mathlib.qpc"
+	"shaderlib"
+}
+
+files
+{
+	folder "Source Files"
+	{
+		"BaseVSShader.cpp"
+		"test_dx11.cpp"
+		"bik_dx11.cpp"
+	}
+
+	folder "Header Files"
+	{
+		"BaseVSShader.h"
+	}
+}

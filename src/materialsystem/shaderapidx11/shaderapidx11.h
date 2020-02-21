@@ -18,12 +18,14 @@
 #include "shaderapidx9/shaderapibase.h"
 #include "shaderapi/ishadershadow.h"
 #include "materialsystem/idebugtextureinfo.h"
+#include "shaderapidx9/hardwareconfig.h"
 #include "imaterialinternal.h"
 #include "meshdx11.h"
 #include "ShaderConstantBufferDx11.h"
 #include "utllinkedlist.h"
 #include "StatesDx11.h"
 #include "TextureDx11.h"
+#include "meshdx11.h"
 
 //-----------------------------------------------------------------------------
 // Forward declarations
@@ -92,9 +94,24 @@ struct ShaderStateDx11_t
 
 struct DynamicStateDx11_t
 {
+	DirectX::XMMATRIX m_Matrices[NUM_MATRIX_MODES];
+	bool m_ChangedMatrices[NUM_MATRIX_MODES];
+
+	MaterialFogMode_t m_FogMode;
+	float m_flFogStart;
+	float m_flFogEnd;
+	float m_flFogZ;
+	float m_flFogMaxDensity;
+
 	Vector4D m_AmbientLightCube[6];
 	LightDesc_t m_Lights[MAX_NUM_LIGHTS];
 	int m_NumLights;
+
+	DynamicStateDx11_t()
+	{
+		memset( m_ChangedMatrices, 0, NUM_MATRIX_MODES );
+		//m_bMatricesChanged = true;
+	}
 };
 
 //-----------------------------------------------------------------------------
@@ -124,6 +141,8 @@ public:
 	virtual void BindVertexBuffer( int nStreamID, IVertexBuffer *pVertexBuffer, int nOffsetInBytes, int nFirstVertex, int nVertexCount, VertexFormat_t fmt, int nRepetitions = 1 );
 	virtual void BindIndexBuffer( IIndexBuffer *pIndexBuffer, int nOffsetInBytes );
 	virtual void Draw( MaterialPrimitiveType_t primitiveType, int nFirstIndex, int nIndexCount );
+
+	virtual void UpdateConstantBuffer( ConstantBuffer_t cbuffer, void *pNewData );
 
 	FORCEINLINE bool TextureIsAllocated( ShaderAPITextureHandle_t hTexture )
 	{
@@ -342,13 +361,14 @@ private:
 	IMesh *GetDynamicMeshEx( IMaterial *pMaterial, VertexFormat_t fmt, int nHWSkinBoneCount, bool buffered, IMesh *pVertexOverride, IMesh *pIndexOverride );
 	IVertexBuffer *GetDynamicVertexBuffer( IMaterial *pMaterial, bool buffered )
 	{
-		Assert( 0 );
-		return NULL;
+		//Assert( 0 );
+		//return NULL;
+		return m_DynamicMesh.GetVertexBuffer();
 	}
 	IIndexBuffer *GetDynamicIndexBuffer( IMaterial *pMaterial, bool buffered )
 	{
-		Assert( 0 );
-		return NULL;
+		//Assert( 0 );
+		return m_DynamicMesh.GetIndexBuffer();
 	}
 	IMesh *GetFlexMesh();
 
@@ -376,9 +396,6 @@ private:
 	void Translate( float x, float y, float z );
 	void Scale( float x, float y, float z );
 	void ScaleXY( float x, float y );
-
-	void Viewport( int x, int y, int width, int height );
-	void GetViewport( int &x, int &y, int &width, int &height ) const;
 
 	// Fog methods...
 	void FogMode( MaterialFogMode_t fogMode );
@@ -989,25 +1006,39 @@ private:
 	void DoIssueInputLayout();
 	void DoIssueTopology();
 	void DoIssueViewports();
+	void DoIssueConstantBufferUpdates();
+	void DoIssueTransform();
+
+	bool MatrixIsChanging() const;
+	bool IsDeactivated() const;
+	DirectX::XMMATRIX &GetMatrix( MaterialMatrixMode_t mode );
+	DirectX::XMMATRIX &GetCurrentMatrix();
+	void HandleMatrixModified();
 
 private:
-	// The mesh we are currently rendering
-	CMeshDx11 *m_pRenderingMesh;
 	// Current material
 	IMaterialInternal *m_pMaterial;
+
+	// Dynamic meshes
+	CMeshDx11 m_DynamicMesh;
+	CMeshDx11 m_DynamicFlexMesh;
 
 	// Members related to textures
 	CUtlFixedLinkedList<CTextureDx11> m_Textures;
 	char m_ModifyTextureLockedLevel;
 	ShaderAPITextureHandle_t m_ModifyTextureHandle;
 
+	// Current and target states
+	StateSnapshot_t m_CurrentSnapshot;
 	bool m_bResettingRenderState : 1;
-
 	StatesDx11::RenderState m_TargetState;
 	StatesDx11::RenderState m_State;
 	ShaderStateDx11_t m_DX11TargetState;
 	ShaderStateDx11_t m_DX11State;
 	DynamicStateDx11_t m_DynamicState;
+
+	// Setting matrices
+	MaterialMatrixMode_t m_MatrixMode;
 
 };
 

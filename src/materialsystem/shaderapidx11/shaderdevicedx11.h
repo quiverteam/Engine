@@ -128,6 +128,7 @@ public:
 	virtual void DestroyIndexBuffer( IIndexBuffer *pIndexBuffer );
 	virtual ConstantBuffer_t CreateConstantBuffer( size_t nBufSize );
 	virtual void UpdateConstantBuffer( ConstantBuffer_t hBuffer, void *pData );
+	virtual void UploadConstantBuffers( ConstantBuffer_t *pBuffers, int nBuffers );
 	virtual void DestroyConstantBuffer( ConstantBuffer_t hBuffer );
 	virtual ConstantBufferHandle_t GetConstantBuffer( ConstantBuffer_t buffer );
 	virtual IVertexBuffer *GetDynamicVertexBuffer( int nStreamID, VertexFormat_t vertexFormat, bool bBuffered = true );
@@ -149,6 +150,10 @@ public:
 	ID3D11GeometryShader* GetGeometryShader( GeometryShaderHandle_t hShader ) const;
 	ID3D11PixelShader* GetPixelShader( PixelShaderHandle_t hShader ) const;
 	ID3D11InputLayout* GetInputLayout( VertexShaderHandle_t hShader, VertexFormat_t format );
+
+	ConstantBuffer_t GetTransformConstantBuffer() const;
+	ConstantBuffer_t GetLightingConstantBuffer() const;
+	ConstantBuffer_t GetFogConstantBuffer() const;
 
 private:
 	struct InputLayout_t
@@ -203,8 +208,9 @@ private:
 	CUtlFixedLinkedList<CShaderConstantBufferDx11> m_ConstantBuffers;
 
 	// Common constant buffers
-	ConstantBufferHandle_t m_hTransformBuffer;
-	ConstantBufferHandle_t m_hLightingBuffer;
+	ConstantBuffer_t m_hTransformBuffer;
+	ConstantBuffer_t m_hLightingBuffer;
+	ConstantBuffer_t m_hFogBuffer;
 
 	CUtlFixedLinkedList< VertexShader_t > m_VertexShaderDict;
 	CUtlFixedLinkedList< GeometryShader_t > m_GeometryShaderDict;
@@ -216,6 +222,20 @@ private:
 	friend ID3D11RenderTargetView *D3D11RenderTargetView();
 };
 
+inline ConstantBuffer_t CShaderDeviceDx11::GetLightingConstantBuffer() const
+{
+	return m_hLightingBuffer;
+}
+
+inline ConstantBuffer_t CShaderDeviceDx11::GetTransformConstantBuffer() const
+{
+	return m_hTransformBuffer;
+}
+
+inline ConstantBuffer_t CShaderDeviceDx11::GetFogConstantBuffer() const
+{
+	return m_hFogBuffer;
+}
 
 //-----------------------------------------------------------------------------
 // Inline methods of CShaderDeviceDx11

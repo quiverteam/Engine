@@ -7,19 +7,33 @@ class CShaderConstantBufferDx11 : public IShaderConstantBuffer
 {
 public:
 	CShaderConstantBufferDx11();
-	virtual void Create( size_t nBufSize );
-	virtual void Update( void* pNewData );
+	virtual void Create( size_t nBufferSize );
+	virtual void Update( void *pNewData );
 	virtual void Destroy();
-	//virtual void Bind();
+	virtual bool NeedsUpdate() const;
+	virtual void UploadToGPU();
+	virtual ConstantBufferHandle_t GetBuffer() const;
 
-	ID3D11Buffer *GetBuffer() const;
+	ID3D11Buffer *GetD3DBuffer() const;
 
 private:
 	ID3D11Buffer* m_pCBuffer;
 	size_t m_nBufSize;
+	bool m_bNeedsUpdate;
+	void *m_pData;
 };
 
-FORCEINLINE ID3D11Buffer *CShaderConstantBufferDx11::GetBuffer() const
+FORCEINLINE ID3D11Buffer *CShaderConstantBufferDx11::GetD3DBuffer() const
 {
 	return m_pCBuffer;
+}
+
+FORCEINLINE bool CShaderConstantBufferDx11::NeedsUpdate() const
+{
+	return m_bNeedsUpdate;
+}
+
+FORCEINLINE ConstantBufferHandle_t CShaderConstantBufferDx11::GetBuffer() const
+{
+	return (ConstantBufferHandle_t)m_pCBuffer;
 }

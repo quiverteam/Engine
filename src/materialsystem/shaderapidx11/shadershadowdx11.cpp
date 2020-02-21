@@ -10,8 +10,9 @@
 #include "utlvector.h"
 #include "materialsystem/imaterialsystem.h"
 #include "IHardwareConfigInternal.h"
-#include "shadersystem.h"
-#include "shaderapi/ishaderutil.h"
+//#include "shadersystem.h"
+//#include "shaderapi/ishaderutil.h"
+#include "shaderapidx11_global.h"
 #include "materialsystem/imesh.h"
 #include "tier0/dbg.h"
 #include "materialsystem/idebugtextureinfo.h"
@@ -232,6 +233,7 @@ void CShaderShadowDx11::EnableBlendingSeparateAlpha( bool bEnable )
 {
 	// DX11FIXME
 	//m_ShadowState.m_SeparateAlphaBlendEnable = bEnable;
+	m_ShadowState.colorBlendAttrib.bIndependentAlphaBlend = bEnable;
 }
 
 void CShaderShadowDx11::SetPixelShader( const char *pShaderName, int pshIndex )
@@ -295,6 +297,27 @@ void CShaderShadowDx11::BlendFuncSeparateAlpha( ShaderBlendFactor_t srcFactor, S
 void CShaderShadowDx11::SetConstantBuffer( ConstantBuffer_t cbuffer )
 {
 	m_ShadowShaderState.shaderAttrib.AddConstantBuffer( cbuffer );
+}
+
+void CShaderShadowDx11::SetTransformConstantBuffer()
+{
+	SetConstantBuffer( g_pShaderDeviceDx11->GetTransformConstantBuffer() );
+}
+
+void CShaderShadowDx11::SetLightingConstantBuffer()
+{
+	SetConstantBuffer( g_pShaderDeviceDx11->GetLightingConstantBuffer() );
+}
+
+void CShaderShadowDx11::SetFogConstantBuffer()
+{
+	SetConstantBuffer( g_pShaderDeviceDx11->GetFogConstantBuffer() );
+}
+
+// Alpha to coverage
+void CShaderShadowDx11::EnableAlphaToCoverage( bool bEnable )
+{
+	m_ShadowState.colorBlendAttrib.bAlphaToCoverage = bEnable;
 }
 
 StateSnapshot_t CShaderShadowDx11::FindOrCreateSnapshot()
@@ -410,13 +433,6 @@ void CShaderShadowDx11::DisableFogGammaCorrection( bool bDisable )
 void CShaderShadowDx11::EnableSpecular( bool bEnable )
 {
 	Warning( "Unsupported CShaderShadowDx11::EnableSpecular() called!\n" );
-}
-
-// Alpha to coverage
-void CShaderShadowDx11::EnableAlphaToCoverage( bool bEnable )
-{
-	Warning( "Unsupported CShaderShadowDx11::EnableAlphaToCoverage() called\n" );
-	//m_ShadowState.m_EnableAlphaToCoverage = bEnable;
 }
 
 // indicates what per-vertex data we're providing

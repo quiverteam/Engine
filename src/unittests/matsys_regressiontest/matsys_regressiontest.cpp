@@ -256,7 +256,7 @@ void Shader_Init( HWND mainWindow )
 
 	// FIXME: Where do we put this?
 	const char* pDLLName;
-	pDLLName = "shaderapidx9";
+	pDLLName = "shaderapidx11";
 
 	// assume that IFileSystem paths have already been set via g_pFileSystem 
 	g_MaterialSystemClientFactory = g_pMaterialSystem->Init( 

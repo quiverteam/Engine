@@ -13,7 +13,7 @@ set TTEXE=time /t
 rem ===================================
 rem ====== LAUNCH CONFIGURATIONS ======
 
-set "GAMEDIR=%cd%\..\..\..\game\mod_hl2"
+set "GAMEDIR=%cd%\..\..\..\game\hl2"
 set "ENGINEDIR=..\..\..\game"
 set "SOURCEDIR=..\.."
 set "BUILD_SHADER=call %cd%\_buildshaders.bat"
@@ -37,6 +37,8 @@ REM ****************
 REM BUILD SHADERS
 REM ****************
 @REM  >_log_shaderlist_dx9_20b.log
+echo --------------------------------------------------------------------------------------------
+%BUILD_SHADER% _shaderlist_dx11				    -game %GAMEDIR% -source %SOURCEDIR% %dynamic_shaders% 0 -dx11
 echo --------------------------------------------------------------------------------------------
 %BUILD_SHADER% _shaderlist_dx9_20b				-game %GAMEDIR% -source %SOURCEDIR% %dynamic_shaders% 0
 echo --------------------------------------------------------------------------------------------

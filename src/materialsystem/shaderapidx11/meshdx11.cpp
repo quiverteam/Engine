@@ -23,6 +23,165 @@
 #include "materialsystem/idebugtextureinfo.h"
 #include "materialsystem/ivballoctracker.h"
 #include "tier2/tier2.h"
+#include "shaderapidx11.h"
+#include "VertexBufferDx11.h"
+#include "IndexBufferDx11.h"
+
+//-----------------------------------------------------------------------------
+// Dx11 implementation of a mesh
+//-----------------------------------------------------------------------------
+class CMeshDx11 : public CMeshBase
+{
+public:
+	CMeshDx11( const char *pTextureGroupName );
+	virtual ~CMeshDx11();
+
+	// FIXME: Make this work! Unsupported methods of IIndexBuffer
+	virtual bool Lock( int nMaxIndexCount, bool bAppend, IndexDesc_t &desc )
+	{
+		return false;
+	}
+	virtual void Unlock( int nWrittenIndexCount, IndexDesc_t &desc )
+	{
+	}
+	virtual int GetRoomRemaining() const;
+	virtual void ModifyBegin( bool bReadOnly, int nFirstIndex, int nIndexCount, IndexDesc_t &desc );
+	virtual void ModifyEnd( IndexDesc_t &desc );
+	virtual void Spew( int nIndexCount, const IndexDesc_t &desc );
+	virtual void ValidateData( int nIndexCount, const IndexDesc_t &desc );
+	virtual bool Lock( int nVertexCount, bool bAppend, VertexDesc_t &desc );
+	virtual void Unlock( int nVertexCount, VertexDesc_t &desc );
+	virtual void Spew( int nVertexCount, const VertexDesc_t &desc );
+	virtual void ValidateData( int nVertexCount, const VertexDesc_t &desc );
+	virtual bool IsDynamic() const;
+	virtual void BeginCastBuffer( MaterialIndexFormat_t format );
+	virtual void BeginCastBuffer( VertexFormat_t format );
+	virtual void EndCastBuffer();
+
+	// Locks/unlocks the index buffer
+	// Pass in nFirstIndex=-1 to lock wherever the index buffer is. Pass in a value 
+	// >= 0 to specify where to lock.
+	int  Lock( bool bReadOnly, int nFirstIndex, int nIndexCount, IndexDesc_t &pIndices );
+	void Unlock( int nIndexCount, IndexDesc_t &desc );
+
+	void LockMesh( int numVerts, int numIndices, MeshDesc_t &desc );
+	void UnlockMesh( int numVerts, int numIndices, MeshDesc_t &desc );
+
+	void ModifyBeginEx( bool bReadOnly, int firstVertex, int numVerts, int firstIndex, int numIndices, MeshDesc_t &desc );
+	void ModifyBegin( int firstVertex, int numVerts, int firstIndex, int numIndices, MeshDesc_t &desc );
+	void ModifyEnd( MeshDesc_t &desc );
+
+	// returns the # of vertices (static meshes only)
+	int  VertexCount() const;
+
+	// returns the # of indices 
+	virtual int IndexCount() const;
+
+	virtual bool HasColorMesh() const;
+	virtual bool IsUsingMorphData() const;
+	virtual bool HasFlexMesh() const;
+
+	// Sets up the vertex and index buffers
+	void UseIndexBuffer( IIndexBuffer *pBuffer );
+	void UseVertexBuffer( IVertexBuffer *pBuffer );
+
+	// Sets the primitive type
+	void SetPrimitiveType( MaterialPrimitiveType_t type );
+	MaterialPrimitiveType_t GetPrimitiveType() const;
+
+	virtual void BeginPass();
+	virtual void RenderPass();
+	// Draws the entire mesh
+	void Draw( int firstIndex, int numIndices );
+	void Draw( CPrimList *pPrims, int nPrims );
+
+	// Copy verts and/or indices to a mesh builder. This only works for temp meshes!
+	virtual void CopyToMeshBuilder(
+		int iStartVert,		// Which vertices to copy.
+		int nVerts,
+		int iStartIndex,	// Which indices to copy.
+		int nIndices,
+		int indexOffset,	// This is added to each index.
+		CMeshBuilder &builder );
+
+	// Spews the mesh data
+	void Spew( int numVerts, int numIndices, const MeshDesc_t &desc );
+
+	void ValidateData( int numVerts, int numIndices, const MeshDesc_t &desc );
+
+	// gets the associated material
+	IMaterial *GetMaterial();
+
+	void SetColorMesh( IMesh *pColorMesh, int nVertexOffset );
+	void SetFlexMesh( IMesh *pMesh, int nVertexOffset );
+
+	virtual MaterialIndexFormat_t IndexFormat() const;
+
+	virtual void DisableFlexMesh();
+
+	virtual void MarkAsDrawn();
+
+	virtual VertexFormat_t GetVertexFormat() const;
+
+	virtual IMesh *GetMesh()
+	{
+		return this;
+	}
+
+	CVertexBufferDx11 *GetVertexBuffer() const
+	{
+		return m_pVertexBuffer;
+	}
+
+	CIndexBufferDx11 *GetIndexBuffer() const
+	{
+		return m_pIndexBuffer;
+	}
+
+public:
+	static VertexFormat_t ComputeVertexFormat( int nFlags, int nTexCoords, int *pTexCoordDimensions,
+						   int nBoneWeights, int nUserDataSize );
+
+protected:
+	const char *m_pTextureGroupName;
+
+	CVertexBufferDx11 *m_pVertexBuffer;
+	CIndexBufferDx11 *m_pIndexBuffer;
+
+	CMeshDx11 *m_pColorMesh;
+	int m_nColorMeshOffset;
+
+	IVertexBuffer *m_pFlexVertexBuffer;
+	bool m_bHasFlexVerts;
+	int m_nFlexOffset;
+	int m_flexVertCount;
+
+	bool m_bMeshLocked;
+
+	// The vertex format we're using...
+	VertexFormat_t m_VertexFormat;
+
+	// The morph format we're using
+	MorphFormat_t m_MorphFormat;
+
+	// Primitive type
+	MaterialPrimitiveType_t m_Type;
+
+	// Number of primitives
+	unsigned short m_NumVertices;
+	unsigned short m_NumIndices;
+
+	// Is it locked?
+	bool m_IsVBLocked;
+	bool m_IsIBLocked;
+
+	// Used in rendering sub-parts of the mesh
+	static CPrimList *s_pPrims;
+	static int s_nPrims;
+	static unsigned int s_FirstVertex; // Gets reset during CMeshDX8::DrawInternal
+	static unsigned int s_NumVertices;
+	int	m_FirstIndex;
+};
 
 
 //-----------------------------------------------------------------------------
@@ -30,86 +189,236 @@
 // The empty mesh...
 //
 //-----------------------------------------------------------------------------
-CMeshDx11::CMeshDx11()
+CMeshDx11::CMeshDx11( const char *pTextureGroupName ) :
+	m_NumVertices( 0 ),
+	m_NumIndices( 0 ),
+	m_pVertexBuffer( 0 ),
+	m_pColorMesh( 0 ),
+	m_nColorMeshOffset( 0 ),
+	m_pIndexBuffer( 0 ),
+	m_Type( MATERIAL_TRIANGLES ),
+	m_IsVBLocked( false ),
+	m_IsIBLocked( false ),
+	m_pTextureGroupName( pTextureGroupName ),
+	m_bHasFlexVerts( false ),
+	m_pFlexVertexBuffer( NULL ),
+	m_nFlexOffset( 0 )
 {
-	m_pVertexMemory = new unsigned char[VERTEX_BUFFER_SIZE];
 }
 
 CMeshDx11::~CMeshDx11()
 {
-	delete[] m_pVertexMemory;
+}
+
+void CMeshDx11::SetFlexMesh( IMesh *pMesh, int nVertexOffsetInBytes )
+{
+	if ( !ShaderUtil()->OnSetFlexMesh( this, pMesh, nVertexOffsetInBytes ) )
+		return;
+
+	LOCK_SHADERAPI();
+	m_nFlexOffset = nVertexOffsetInBytes;
+
+	if ( pMesh )
+	{
+		m_flexVertCount = pMesh->VertexCount();
+		pMesh->MarkAsDrawn();
+
+		CMeshDx11 *pMeshDx11 = static_cast<CMeshDx11 *>( pMesh );
+		m_pFlexVertexBuffer = pMeshDx11->GetVertexBuffer();
+
+		m_bHasFlexVerts = true;
+	}
+	else
+	{
+		m_flexVertCount = 0;
+		m_pFlexVertexBuffer = NULL;
+		m_bHasFlexVerts = false;
+	}
+}
+
+void CMeshDx11::DisableFlexMesh()
+{
+	SetFlexMesh( NULL, 0 );
+}
+
+bool CMeshDx11::HasFlexMesh() const
+{
+	LOCK_SHADERAPI();
+	return m_bHasFlexVerts;
+}
+
+void CMeshDx11::SetColorMesh( IMesh *pColorMesh, int nVertexOffsetInBytes )
+{
+	if ( !ShaderUtil()->OnSetColorMesh( this, pColorMesh, nVertexOffsetInBytes ) )
+		return;
+
+	LOCK_SHADERAPI();
+	m_pColorMesh = (CMeshDx11 *)pColorMesh; // dangerous conversion! garymcthack
+	m_nColorMeshOffset = nVertexOffsetInBytes;
+	Assert( m_pColorMesh || ( nVertexOffsetInBytes == 0 ) );
+
+#ifdef _DEBUG
+	if ( pColorMesh )
+	{
+		int nVertexCount = VertexCount();
+		int numVertsColorMesh = m_pColorMesh->VertexCount();
+		Assert( numVertsColorMesh >= nVertexCount );
+	}
+#endif
+}
+
+bool CMeshDx11::HasColorMesh() const
+{
+	LOCK_SHADERAPI();
+	return ( m_pColorMesh != NULL );
+}
+
+bool CMeshDx11::Lock( int nVertexCount, bool bAppend, VertexDesc_t &desc )
+{
+	Assert( !m_IsVBLocked );
+
+	if ( g_pShaderDeviceDx11->IsDeactivated() || ( nVertexCount == 0 ) )
+	{
+		// Set up the vertex descriptor
+		CVertexBufferBase::ComputeVertexDescription( 0, 0, desc );
+		desc.m_nFirstVertex = 0;
+		return false;
+	}
+
+	// Static vertex buffer case
+	if ( !m_pVertexBuffer )
+	{
+		int size = 0;//VertexFormatSize(m_VertexFormat);
+		m_pVertexBuffer = static_cast<CVertexBufferDx11 *>(
+			g_pShaderDeviceDx11->CreateVertexBuffer( ShaderBufferType_t::SHADER_BUFFER_TYPE_STATIC,
+								 m_VertexFormat, size, m_pTextureGroupName ) );
+	}
+
+	// Lock it baby
+	int nMaxVerts, nMaxIndices;
+	//GetMaxToRender(this, false &nMaxVerts, &nMaxIndices);
+	if ( !g_pHardwareConfig->SupportsStreamOffset() )
+	{
+		// Without stream offset, we can't use VBs greater than 65535 verts (due to our using 16-bit indices)
+		Assert( nVertexCount <= nMaxVerts );
+	}
+
+	bool ret = m_pVertexBuffer->Lock( nMaxVerts, bAppend, desc );
+	if ( !ret )
+	{
+		if ( nVertexCount > nMaxVerts )
+		{
+			Assert( 0 );
+			Error( "Too many verts for a dynamic vertex buffer (%d>%d) Tell a programmer to up VERTEX_BUFFER_SIZE.\n",
+				(int)nVertexCount, (int)nMaxVerts );
+		}
+		return false;
+	}
+
+	return true;
+}
+
+void CMeshDx11::Unlock( int nVertexCount, VertexDesc_t &desc )
+{
+	// NOTE: This can happen if another application finishes
+	// initializing during the construction of a mesh
+	if ( !m_IsVBLocked )
+		return;
+
+	Assert( m_pVertexBuffer );
+	m_pVertexBuffer->Unlock( nVertexCount, desc );
+	m_IsVBLocked = false;
+}
+
+//-----------------------------------------------------------------------------
+// Locks/unlocks the index buffer
+//-----------------------------------------------------------------------------
+int CMeshDx11::Lock( bool bReadOnly, int nFirstIndex, int nIndexCount, IndexDesc_t &desc )
+{
+	Assert( !m_IsIBLocked );
+
+	if ( !m_pIndexBuffer )
+	{
+		m_pIndexBuffer = static_cast<CIndexBufferDx11 *>(
+			g_pShaderDeviceDx11->CreateIndexBuffer( SHADER_BUFFER_TYPE_DYNAMIC,
+								MATERIAL_INDEX_FORMAT_16BIT,
+								nIndexCount, m_pTextureGroupName ) );
+	}
+
+	bool ret = m_pIndexBuffer->Lock( nIndexCount, false/*bAppend*/, desc );
+	if ( !ret )
+	{
+		return false;
+	}
+	m_IsIBLocked = true;
+	return true;
+}
+
+void CMeshDx11::Unlock( int nIndexCount, IndexDesc_t &desc )
+{
+	// NOTE: This can happen if another application finishes
+	// initializing during the construction of a mesh
+	if ( !m_IsIBLocked )
+		return;
+
+	Assert( m_pIndexBuffer );
+
+	// Unlock, and indicate how many vertices we actually used
+	m_pIndexBuffer->Unlock( nIndexCount, desc );
+	m_IsIBLocked = false;
 }
 
 void CMeshDx11::LockMesh( int numVerts, int numIndices, MeshDesc_t& desc )
 {
-	// Who cares about the data?
-	desc.m_pPosition = (float*)m_pVertexMemory;
-	desc.m_pNormal = (float*)m_pVertexMemory;
-	desc.m_pColor = m_pVertexMemory;
-	int i;
-	for ( i = 0; i < VERTEX_MAX_TEXTURE_COORDINATES; ++i)
-		desc.m_pTexCoord[i] = (float*)m_pVertexMemory;
-	desc.m_pIndices = (unsigned short*)m_pVertexMemory;
+	ShaderUtil()->SyncMatrices();
 
-	desc.m_pBoneWeight = (float*)m_pVertexMemory;
-	desc.m_pBoneMatrixIndex = (unsigned char*)m_pVertexMemory;
-	desc.m_pTangentS = (float*)m_pVertexMemory;
-	desc.m_pTangentT = (float*)m_pVertexMemory;
-	desc.m_pUserData = (float*)m_pVertexMemory;
-	desc.m_NumBoneWeights = 2;
-
-	desc.m_VertexSize_Position = 0;
-	desc.m_VertexSize_BoneWeight = 0;
-	desc.m_VertexSize_BoneMatrixIndex = 0;
-	desc.m_VertexSize_Normal = 0;
-	desc.m_VertexSize_Color = 0;
-	for( i=0; i < VERTEX_MAX_TEXTURE_COORDINATES; i++ )
-		desc.m_VertexSize_TexCoord[i] = 0;
-	desc.m_VertexSize_TangentS = 0;
-	desc.m_VertexSize_TangentT = 0;
-	desc.m_VertexSize_UserData = 0;
-	desc.m_ActualVertexSize = 0;	// Size of the vertices.. Some of the m_VertexSize_ elements above
-
-	desc.m_nFirstVertex = 0;
-	desc.m_nIndexSize = 0;
+	g_ShaderMutex.Lock();
+	VPROF( "CMeshDx11::LockMesh" );
+	// Lock vertex buffer
+	Lock( numVerts, false, *static_cast<VertexDesc_t *>( &desc ) );
+	// Lock index buffer
+	Lock( false, -1, numIndices, *static_cast<IndexDesc_t *>( &desc ) );
+	m_bMeshLocked = true;
 }
 
 void CMeshDx11::UnlockMesh( int numVerts, int numIndices, MeshDesc_t& desc )
 {
+	VPROF( "CMeshDx11::UnlockMesh" );
+
+	Assert( m_bMeshLocked );
+
+	Unlock( numVerts, *static_cast<VertexDesc_t *>( &desc ) );
+	//if ( m_Type != MATERIAL_POINTS )
+	//{
+		Unlock( numIndices, *static_cast<IndexDesc_t *>( &desc ) );
+	//}
+
+	// The actual # we wrote
+	m_NumVertices = numVerts;
+	m_NumIndices = numIndices;
+
+	m_bMeshLocked = false;
+	g_ShaderMutex.Unlock();
 }
 
 void CMeshDx11::ModifyBeginEx( bool bReadOnly, int firstVertex, int numVerts, int firstIndex, int numIndices, MeshDesc_t& desc )
 {
-	// Who cares about the data?
-	desc.m_pPosition = (float*)m_pVertexMemory;
-	desc.m_pNormal = (float*)m_pVertexMemory;
-	desc.m_pColor = m_pVertexMemory;
-	int i;
-	for ( i = 0; i < VERTEX_MAX_TEXTURE_COORDINATES; ++i)
-		desc.m_pTexCoord[i] = (float*)m_pVertexMemory;
-	desc.m_pIndices = (unsigned short*)m_pVertexMemory;
+	VPROF( "CMeshDX8::ModifyBegin" );
 
-	desc.m_pBoneWeight = (float*)m_pVertexMemory;
-	desc.m_pBoneMatrixIndex = (unsigned char*)m_pVertexMemory;
-	desc.m_pTangentS = (float*)m_pVertexMemory;
-	desc.m_pTangentT = (float*)m_pVertexMemory;
-	desc.m_pUserData = (float*)m_pVertexMemory;
-	desc.m_NumBoneWeights = 2;
+	// Just give the app crap buffers to fill up while we're suppressed...
 
-	desc.m_VertexSize_Position = 0;
-	desc.m_VertexSize_BoneWeight = 0;
-	desc.m_VertexSize_BoneMatrixIndex = 0;
-	desc.m_VertexSize_Normal = 0;
-	desc.m_VertexSize_Color = 0;
-	for( i=0; i < VERTEX_MAX_TEXTURE_COORDINATES; i++ )
-		desc.m_VertexSize_TexCoord[i] = 0;
-	desc.m_VertexSize_TangentS = 0;
-	desc.m_VertexSize_TangentT = 0;
-	desc.m_VertexSize_UserData = 0;
-	desc.m_ActualVertexSize = 0;	// Size of the vertices.. Some of the m_VertexSize_ elements above
+	Assert( m_pVertexBuffer );
 
-	desc.m_nFirstVertex = 0;
-	desc.m_nIndexSize = 0;
+	// Lock it baby
+	bool pVertexMemory = Lock( bReadOnly, firstIndex, numIndices, *static_cast<IndexDesc_t *>( &desc ) );
+	if ( pVertexMemory )
+	{
+		m_IsVBLocked = true;
+	}
+
+	desc.m_nFirstVertex = firstVertex;
+
+	Lock( bReadOnly, firstIndex, numIndices, *static_cast<IndexDesc_t *>( &desc ) );
 }
 
 void CMeshDx11::ModifyBegin( int firstVertex, int numVerts, int firstIndex, int numIndices, MeshDesc_t& desc )
@@ -119,26 +428,67 @@ void CMeshDx11::ModifyBegin( int firstVertex, int numVerts, int firstIndex, int 
 
 void CMeshDx11::ModifyEnd( MeshDesc_t& desc )
 {
+	VPROF( "CMeshDx11::ModifyEnd" );
+	Unlock( 0, *static_cast<IndexDesc_t *>( &desc ) );
+	Unlock( 0, *static_cast<VertexDesc_t *>( &desc ) );
 }
 
 // returns the # of vertices (static meshes only)
 int CMeshDx11::VertexCount() const
 {
-	return 0;
+	return m_pVertexBuffer ? m_pVertexBuffer->VertexCount() : 0;
+}
+
+//-----------------------------------------------------------------------------
+// returns the # of indices 
+//-----------------------------------------------------------------------------
+int CMeshDx11::IndexCount() const
+{
+	return m_pIndexBuffer ? m_pIndexBuffer->IndexCount() : 0;
+}
+
+//-----------------------------------------------------------------------------
+// Sets up the vertex and index buffers
+//-----------------------------------------------------------------------------
+void CMeshDx11::UseIndexBuffer( IIndexBuffer *pBuffer )
+{
+	m_pIndexBuffer = static_cast<CIndexBufferDx11 *>( pBuffer );
+}
+
+void CMeshDx11::UseVertexBuffer( IVertexBuffer *pBuffer )
+{
+	m_pVertexBuffer = static_cast<CVertexBufferDx11 *>( pBuffer );;
 }
 
 // Sets the primitive type
 void CMeshDx11::SetPrimitiveType( MaterialPrimitiveType_t type )
 {
+	Assert( IsX360() || ( type != MATERIAL_INSTANCED_QUADS ) );
+	if ( !ShaderUtil()->OnSetPrimitiveType( this, type ) )
+	{
+		return;
+	}
+	m_Type = type;
+}
+
+MaterialPrimitiveType_t CMeshDx11::GetPrimitiveType() const
+{
+	return m_Type;
 }
 
 // Draws the entire mesh
 void CMeshDx11::Draw( int firstIndex, int numIndices )
 {
+	g_pShaderAPI->Draw( m_Type, firstIndex, numIndices );
 }
 
 void CMeshDx11::Draw(CPrimList *pPrims, int nPrims)
 {
+	for ( int i = 0; i < nPrims; i++ )
+	{
+		CPrimList *prim = &pPrims[i];
+		g_pShaderAPI->Draw( m_Type, prim->m_FirstIndex, prim->m_NumIndices );
+	}
 }
 
 // Copy verts and/or indices to a mesh builder. This only works for temp meshes!

@@ -1,0 +1,4 @@
+Unused shaderAPI functions:
+
+IShaderDevice::GetDynamicVertexBuffer
+IShaderDevice::GetDynamicIndexBuffer

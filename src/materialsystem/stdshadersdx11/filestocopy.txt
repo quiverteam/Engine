@@ -1,0 +1,15 @@
+bik_ps40.fxc
+common_pragmas.h
+common_hlsl_cpp_consts.h
+common_fxc.h
+common_ps_fxc.h
+bik_ps40.fxc
+common_pragmas.h
+common_hlsl_cpp_consts.h
+common_fxc.h
+common_ps_fxc.h
+..\..\dx_proxy\dx11_00\win32\dx_proxy.dll 
+../../../game/bin/win32\shadercompile.exe 
+../../../game/bin/win32\shadercompile_dll.dll 
+../../../game/bin/win32\vstdlib.dll 
+../../../game/bin/win32\tier0.dll 

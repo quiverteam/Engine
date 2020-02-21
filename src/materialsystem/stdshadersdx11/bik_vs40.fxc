@@ -1,0 +1,35 @@
+//	DYNAMIC: "DOWATERFOG"			"0..1"
+
+#include "common_vs_fxc.h"
+ 
+static const int  g_FogType			= DOWATERFOG;
+
+struct VS_INPUT
+{
+	float4 vPos				: POSITION;
+	float4 vTexCoord0		: TEXCOORD0;
+};
+
+struct VS_OUTPUT
+{
+    float4 projPos					: SV_POSITION;			// Projection-space position	
+	//float  fog						: FOG;
+	HALF2 baseTexCoord				: TEXCOORD0;		// Base texture coordinate
+	//float4 worldPos_projPosZ		: TEXCOORD1;		// Necessary for water fog dest alpha
+	//float4 fogFactorW				: COLOR1;
+};
+
+VS_OUTPUT main( const VS_INPUT v )
+{
+	VS_OUTPUT o = ( VS_OUTPUT )0;
+
+	float4 projPos;
+
+	projPos = mul( float4( v.vPos.xyz, 1 ), cModelViewProjMatrix );
+	o.projPos = projPos;
+
+	o.baseTexCoord.xy = v.vTexCoord0;
+	return o;
+}
+
+

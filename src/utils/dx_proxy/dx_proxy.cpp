@@ -102,6 +102,39 @@ typedef void* LPD3DXCONSTANTTABLE;
 
 #endif // #ifdef DX10_V00_PC
 
+//
+// DX11_V00_PC
+//
+// 1. D3DX static import library
+// 2. resource dynamic library d3dx10.dll
+//
+// MSFT file version: 9.16.843.0000
+// Distribution: Dec 2006 DirectX SDK
+//
+// Implementation note: need to delayload d3dx10
+// because the module should be extracted from resources first.
+// Make sure "/DELAYLOAD:d3dx10.dll" is passed to linker.
+//
+#ifdef DX11_V00_PC
+#ifdef DX_PROXY_INC_CONFIG
+#	error "DX10_V00_PC: Multiple DX_PROXY configurations disallowed!"
+#endif
+#define DX_PROXY_INC_CONFIG
+#pragma message ( "Compiling DX_PROXY for DX11_V00_PC" )
+
+#pragma comment( lib, "delayimp" )
+
+#pragma comment ( lib, "d3dcompiler.lib" )
+#include <d3dcompiler.h>
+
+typedef D3D_SHADER_MACRO D3DXMACRO;
+typedef LPD3DINCLUDE LPD3DXINCLUDE;
+typedef ID3DInclude ID3DXInclude;
+typedef D3D_INCLUDE_TYPE D3DXINCLUDE_TYPE;
+typedef ID3DBlob *LPD3DXBUFFER;
+typedef void *LPD3DXCONSTANTTABLE;
+#endif // #ifdef DX11_V00_PC
+
 
 //
 // No DX configuration
@@ -235,6 +268,14 @@ const char * WINAPI GetDllVersionLong( void )
 #if defined( DX10_V00_PC ) && defined( NDEBUG )
 	return "{DX_PROXY for DX10_V00_PC RELEASE}";
 #endif
+
+#if defined( DX11_V00_PC ) && defined( _DEBUG )
+	return "{DX_PROXY for DX11_V00_PC DEBUG}";
+#endif
+
+#if defined( DX11_V00_PC ) && defined( NDEBUG )
+	return "{DX_PROXY for DX11_V00_PC RELEASE}";
+#endif
 }
 
 
@@ -263,6 +304,14 @@ const char * WINAPI GetDllVersion( void )
 
 #if defined( DX10_V00_PC ) && defined( NDEBUG )
 	return "DXPRX_DX10_V00_PC_r";
+#endif
+
+#if defined( DX11_V00_PC ) && defined( _DEBUG )
+	return "DXPRX_DX11_V00_PC_d";
+#endif
+
+#if defined( DX11_V00_PC ) && defined( NDEBUG )
+	return "DXPRX_DX11_V00_PC_r";
 #endif
 }
 
@@ -307,6 +356,11 @@ Proxy_D3DXCompileShaderFromFile(
 #if defined( DX10_V00_PC )
 	#pragma comment(linker, "/EXPORT:Proxy_D3DXCompileShaderFromFile=?Proxy_D3DXCompileShaderFromFile@@YGJPBDPBU_D3D10_SHADER_MACRO@@PAUID3D10Include@@00KPAPAUID3D10Blob@@3PAPAX@Z")
 	hr = D3DX10CompileFromMemory( pShaderData, numBytes, pSrcFile, pDefines, pInclude, pFunctionName, pProfile, Flags, 0, NULL, ppShader, ppErrorMsgs, NULL );
+#endif
+
+#if defined(DX11_V00_PC)
+	#pragma comment(linker, "/EXPORT:Proxy_D3DXCompileShaderFromFile=?Proxy_D3DXCompileShaderFromFile@@YGJPBDPBU_D3D_SHADER_MACRO@@PAUID3DInclude@@00KPAPAUID3D10Blob@@3PAPAX@Z")
+	hr = D3DCompile( (LPCVOID)pShaderData, numBytes, pSrcFile, pDefines, pInclude, pFunctionName, pProfile, Flags, 0, ppShader, ppErrorMsgs );
 #endif
 
 	// Close the file

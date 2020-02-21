@@ -1,0 +1,56 @@
+// DYNAMIC: "PIXELFOGTYPE"				"0..1"
+
+// STATIC: "CONVERT_TO_SRGB" "0..1"	[ps20b][= g_pHardwareConfig->NeedsShaderSRGBConversion()]
+
+#include "common_ps_fxc.h"
+
+cbuffer BikTest_t
+{
+	float btR;
+	float btG;
+	float btB;
+	float btA;
+};
+
+Texture2D YTexture;
+SamplerState YSampler;
+Texture2D cRTexture;
+SamplerState cRSampler;
+Texture2D cBTexture;
+SamplerState cBSampler;
+
+struct PS_INPUT
+{
+	HALF2 baseTexCoord : TEXCOORD0;
+	//HALF4 worldPos_projPosZ : TEXCOORD1;
+	//float4 fogFactorW : COLOR1;
+};
+
+float4 main( PS_INPUT i ) : SV_TARGET
+{
+	half y, cR, cB;
+	y = YTexture.Sample( YSampler, i.baseTexCoord.xy );
+	cR = cRTexture.Sample( cRSampler, i.baseTexCoord.xy );
+	cB = cBTexture.Sample( cBSampler, i.baseTexCoord.xy );
+
+	HALF4 c;
+	c = float4( y, cR, cB, 1.0f );
+
+	float4 tor = float4( 1.164123535f,  1.595794678f,  0.0f,         -0.87065506f );
+	float4 tog = float4( 1.164123535f, -0.813476563f, -0.391448975f,  0.529705048f );
+	float4 tob = float4( 1.164123535f,  0.0f,          2.017822266f, -1.081668854f );
+
+	HALF4 rgba;
+
+	rgba.r = dot( c, tor );
+	rgba.g = dot( c, tog );
+	rgba.b = dot( c, tob );
+	rgba.a = 1.0f;
+
+	rgba.rgb *= float3(btR, btG, btB);
+
+	//float fogFactor = CalcPixelFogFactor( PIXELFOGTYPE, g_FogParams, g_EyePos_SpecExponent.z, i.worldPos_projPosZ.z, i.worldPos_projPosZ.w );
+	float4 result = FinalOutput( rgba, /*fogFactor*/0, /*PIXELFOGTYPE*/0, TONEMAP_SCALE_NONE );
+
+	return result;
+}

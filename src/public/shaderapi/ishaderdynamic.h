@@ -19,6 +19,7 @@
 
 
 typedef int ShaderAPITextureHandle_t;
+typedef int ConstantBuffer_t;
 
 //-----------------------------------------------------------------------------
 // forward declarations
@@ -295,6 +296,8 @@ public:
 	virtual void GetCurrentColorCorrection( ShaderColorCorrectionInfo_t* pInfo ) = 0;
 
 	virtual void SetDepthFeatheringPixelShaderConstant( int iConstant, float fDepthBlendScale ) = 0;
+
+	virtual void UpdateConstantBuffer( ConstantBuffer_t cbuffer, void *pNewData ) = 0;
 };
 // end class IShaderDynamicAPI
 

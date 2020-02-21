@@ -6,7 +6,7 @@ if exist "%ProgramFiles(x86)%\Microsoft Visual Studio\Installer\vswhere.exe" (
 		if /i "%%i"=="installationPath" (
 			set VSDIR=%%j
 			call "!VSDIR!\Common7\Tools\VsDevCmd.bat" >nul
-			@REM echo Using Visual Studio 2017+ nmake
+			echo Using Visual Studio 2017+ nmake
 			goto :start
 		)
 	)	
@@ -71,6 +71,7 @@ set DIRECTX_SDK_BIN_DIR=dx_proxy\dx9_00\%platform%
 
 if /i "%8" == "-dx9_30" goto dx_sdk_dx9_30
 if /i "%8" == "-dx10" goto dx_sdk_dx10
+if /i "%8" == "-dx11" goto dx_sdk_dx11
 goto dx_sdk_end
 :dx_sdk_dx9_30
 			set DIRECTX_SDK_VER=pc09.30
@@ -79,6 +80,10 @@ goto dx_sdk_end
 :dx_sdk_dx10
 			set DIRECTX_SDK_VER=pc10.00
 			set DIRECTX_SDK_BIN_DIR=dx_proxy\dx10_40\%platform%
+			goto dx_sdk_end
+:dx_sdk_dx11
+			set DIRECTX_SDK_VER=pc11.00
+			set DIRECTX_SDK_BIN_DIR=dx_proxy\dx11_00\%platform%
 			goto dx_sdk_end
 :dx_sdk_end
 

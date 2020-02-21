@@ -1,0 +1,7 @@
+// vs 4.0   ps 4.0   shaders collection
+
+//test_ps40.fxc
+//test_vs40.fxc
+
+bik_vs40.fxc
+bik_ps40.fxc

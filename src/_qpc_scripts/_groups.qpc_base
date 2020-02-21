@@ -48,6 +48,7 @@ group "shaders"
 	"shaderlib"
 	"stdshader_dbg"
 	"stdshader_dx9"
+	"stdshader_dx11"
 }
 
 group "tools"
@@ -97,6 +98,7 @@ group "utils" "everything"
 		{
 			"dx_proxy_dx9_v00_pc"
 			"dx_proxy_dx9_v30_pc"
+			"dx_proxy_dx11_v00_pc"
 			"shadercompile_dll"
 			"shadercompile_launcher"
 			"mysql_wrapper"
@@ -215,6 +217,7 @@ group "game" "everything"
 		"shaderapidx11"
 		"stdshader_dbg"
 		"stdshader_dx9"
+		"stdshader_dx11"
 	}
 
 	folder "Game"
@@ -299,6 +302,7 @@ group "core"
 		{
 			"dx_proxy_dx9_v00_pc"
 			"dx_proxy_dx9_v30_pc"
+			"dx_proxy_dx11_v00_pc"
 			"shadercompile_dll"
 			"shadercompile_launcher"
 			"mysql_wrapper"

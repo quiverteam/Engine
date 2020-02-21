@@ -54,6 +54,8 @@ project "dmxtest" 					"unittests/dmxtest/dmxtest.qpc" [$WINDOWS]
 project "dx_proxy_dx9_v00_pc"		"utils/dx_proxy/dx_proxy_dx9_v00_pc.qpc"
 
 project "dx_proxy_dx9_v30_pc"		"utils/dx_proxy/dx_proxy_dx9_v30_pc.qpc"
+
+project "dx_proxy_dx11_v00_pc"		"utils/dx_proxy/dx_proxy_dx11_v00_pc.qpc"
  
 project "elementviewer" 			"utils/elementviewer/elementviewer.qpc"
 
@@ -200,6 +202,8 @@ project "soundtest"					"unittests/soundtest/soundtest.qpc" [$WINDOWS]
 project "stdshader_dbg"				"materialsystem/stdshaders/stdshader_dbg.qpc"
 
 project "stdshader_dx9"				"materialsystem/stdshaders/stdshader_dx9.qpc"
+
+project "stdshader_dx11"			"materialsystem/stdshadersdx11/stdshader_dx11.qpc"
 
 project "studiomdl"					"utils/studiomdl/studiomdl.qpc" [$WINDOWS]
 

@@ -44,6 +44,10 @@ configuration
 			"$LIBPUBLIC/bitmap"
 			"$LIBPUBLIC/mathlib"
 			"$LIBCOMMON/bzip2"
+			"dxgi.lib"
+			"d3d11.lib"
+			"D3DCompiler.lib"
+			"dxguid.lib"
 		}
 	}
 }
@@ -65,16 +69,19 @@ files
 		"$DX9DIR\shaderdevicebase.cpp"
 		"$DX9DIR\shaderapibase.cpp"
 		"$DX9DIR\meshbase.cpp"
+		"$DX9DIR\hardwareconfig.cpp"
 
-		"vertexshaderdx11.cpp"
-		
 		// DX11 related files
+		"vertexshaderdx11.cpp"
 		"ShaderDeviceDx11.cpp"
 		"ShaderAPIDx11.cpp"
 		"MeshDx11.cpp"
 		"InputLayoutDx11.cpp"
 		"ShaderShadowDx11.cpp"
-		"TransitionTableDx11.cpp"
+		"IndexBufferDx11.cpp"
+		"VertexBufferDx11.cpp"
+		"ShaderConstantBufferDx11.cpp"
+		"TextureDx11.cpp"
 	}
 
 	folder	"Public Header Files"
@@ -106,6 +113,11 @@ files
 		"shaderapidx11_global.h"
 		"inputlayoutdx11.h"
 		"vertexshaderdx11.h"
-		"TransitionTableDx11.h"
+		"StatesDx11.h"
+		"Dx11Global.h"
+		"IndexBufferDx11.h"
+		"ShaderConstantBufferDx11.h"
+		"TextureDx11.h"
+		"VertexBufferDx11.h"
 	}
 }

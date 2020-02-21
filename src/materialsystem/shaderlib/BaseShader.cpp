@@ -1679,3 +1679,23 @@ bool CBaseShader::IsHDREnabled( void )
 	return false;
 }
 
+// Called from SHADER_INIT
+ConstantBuffer_t CBaseShader::CreateConstantBuffer( size_t nBufSize )
+{
+	Assert( s_pShaderInit );
+	return s_pShaderInit->ShaderDevice()->CreateConstantBuffer( nBufSize );
+}
+
+// Called from DYNAMIC_STATE
+void CBaseShader::UpdateConstantBuffer( ConstantBuffer_t cbuffer, void *pNewData )
+{
+	Assert( s_pShaderAPI );
+	s_pShaderAPI->UpdateConstantBuffer( cbuffer, pNewData );
+}
+
+// Called from SHADOW_STATE
+void CBaseShader::SetConstantBuffer( ConstantBuffer_t cbuffer )
+{
+	Assert( s_pShaderShadow );
+	s_pShaderShadow->SetConstantBuffer( cbuffer );
+}

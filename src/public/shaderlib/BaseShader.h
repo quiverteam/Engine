@@ -17,7 +17,6 @@
 #include "materialsystem/imaterialvar.h"
 #include "materialsystem/ishaderapi.h"
 #include "materialsystem/imaterialsystemhardwareconfig.h"
-#include "shaderlib/BaseShader.h"
 
 //-----------------------------------------------------------------------------
 // Forward declarations
@@ -117,6 +116,10 @@ public:
 	virtual bool NeedsPowerOfTwoFrameBufferTexture( IMaterialVar **params, bool bCheckSpecificToThisFrame = true ) const;
 	virtual bool NeedsFullFrameBufferTexture( IMaterialVar **params, bool bCheckSpecificToThisFrame = true ) const;
 	virtual bool IsTranslucent( IMaterialVar **params ) const;
+
+	virtual ConstantBuffer_t CreateConstantBuffer( size_t nBufSize );
+	virtual void SetConstantBuffer( ConstantBuffer_t cbuffer );
+	virtual void UpdateConstantBuffer( ConstantBuffer_t cbuffer, void *pNewData );
 
 public:
 	// These functions must be implemented by the shader

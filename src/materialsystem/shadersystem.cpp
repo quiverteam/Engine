@@ -89,6 +89,10 @@ public:
 	virtual void		LoadBumpMap( IMaterialVar *pTextureVar, const char *pTextureGroupName );
 	virtual void		LoadCubeMap( IMaterialVar **ppParams, IMaterialVar *pTextureVar );
 
+	virtual IShaderDevice *ShaderDevice();
+	virtual IShaderAPI *ShaderAPI();
+	virtual IShaderShadow *ShaderShadow();
+
 	// Used to prevent re-entrant rendering from warning messages
 	void				BufferSpew( SpewType_t spewType, const Color &c, const char *pMsg );
 
@@ -236,6 +240,21 @@ const char *CShaderSystem::s_pDebugShaderName[MATERIAL_DEBUG_COUNT]	=
 //-----------------------------------------------------------------------------
 CShaderSystem::CShaderSystem() : m_StoredSpew( 0, 512, 0 ), m_bForceUsingGraphicsReturnTrue( false )
 {
+}
+
+IShaderShadow *CShaderSystem::ShaderShadow()
+{
+	return g_pShaderShadow;
+}
+
+IShaderAPI *CShaderSystem::ShaderAPI()
+{
+	return g_pShaderAPI;
+}
+
+IShaderDevice *CShaderSystem::ShaderDevice()
+{
+	return g_pShaderDevice;
 }
 
 

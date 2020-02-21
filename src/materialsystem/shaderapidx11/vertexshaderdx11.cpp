@@ -370,7 +370,7 @@ private:
 		ShaderCreationData_t *m_pCreationData;
 	};
 	
-	struct ShaderLookup_t
+	struct ShaderLookupDx11_t
 	{
 		CUtlSymbol				m_Name;
 		int						m_nStaticIndex;
@@ -385,7 +385,18 @@ private:
 		// diff version, valid during load only
 		ShaderDictionaryEntry_t	*m_pComboDictionary;
 
-		ShaderLookup_t()
+		bool operator=( const ShaderLookupDx11_t &other )
+		{
+			m_Name = other.m_Name;
+			m_nStaticIndex = other.m_nStaticIndex;
+			m_ShaderStaticCombos = other.m_ShaderStaticCombos;
+			m_Flags = other.m_Flags;
+			m_nRefCount = other.m_nRefCount;
+			m_hShaderFileCache = other.m_hShaderFileCache;
+			m_nDataOffset = other.m_nDataOffset;
+			m_pComboDictionary = other.m_pComboDictionary;
+		}
+		ShaderLookupDx11_t()
 		{
 			m_Flags = 0;
 			m_nRefCount = 0;
@@ -398,7 +409,7 @@ private:
 		{
 			m_nRefCount++;
 		}
-		bool operator==( const ShaderLookup_t& a ) const
+		bool operator==( const ShaderLookupDx11_t& a ) const
 		{
 			return m_Name == a.m_Name && m_nStaticIndex == a.m_nStaticIndex;
 		}
@@ -457,19 +468,19 @@ private:
 	// Destroy a particular pixel shader
 	void					DestroyPixelShader( PixelShader_t shader );
 
-	bool					LoadAndCreateShaders( ShaderLookup_t &lookup, bool bVertexShader );
+	bool					LoadAndCreateShaders( ShaderLookupDx11_t &lookup, bool bVertexShader );
 	FileHandle_t			OpenFileAndLoadHeader( const char *pFileName, ShaderHeader_t *pHeader );
 
 #ifdef DYNAMIC_SHADER_COMPILE
-	bool					LoadAndCreateShaders_Dynamic( ShaderLookup_t &lookup, bool bVertexShader );
+	bool					LoadAndCreateShaders_Dynamic( ShaderLookupDx11_t &lookup, bool bVertexShader );
 	const ShaderCombos_t	*FindOrCreateShaderCombos( const char *pShaderName );
 	HardwareShader_t		CompileShader( const char *pShaderName, int nStaticIndex, int nDynamicIndex, bool bVertexShader );
 #endif
 
-	void					DisassembleShader( ShaderLookup_t *pLookup, int dynamicCombo, uint8 *pByteCode );
+	void					DisassembleShader( ShaderLookupDx11_t *pLookup, int dynamicCombo, uint8 *pByteCode );
 
-	CUtlFixedLinkedList< ShaderLookup_t > m_VertexShaderDict;
-	CUtlFixedLinkedList< ShaderLookup_t > m_PixelShaderDict;
+	CUtlFixedLinkedList< ShaderLookupDx11_t > m_VertexShaderDict;
+	CUtlFixedLinkedList< ShaderLookupDx11_t > m_PixelShaderDict;
 
 	CUtlSymbolTable m_ShaderSymbolTable;
 
@@ -506,6 +517,7 @@ private:
 //-----------------------------------------------------------------------------
 static CShaderManager s_ShaderManager;
 IShaderManager *g_pShaderManager = &s_ShaderManager;
+IShaderManager *g_pShaderManagerDx11 = g_pShaderManager;
 
 //-----------------------------------------------------------------------------
 // Constructor, destructor
@@ -1340,7 +1352,7 @@ retry_compile:
 #endif
 
 #ifdef DYNAMIC_SHADER_COMPILE	
-bool CShaderManager::LoadAndCreateShaders_Dynamic( ShaderLookup_t &lookup, bool bVertexShader )
+bool CShaderManager::LoadAndCreateShaders_Dynamic( ShaderLookupDx11_t &lookup, bool bVertexShader )
 {	
 	const char *pName = m_ShaderSymbolTable.String( lookup.m_Name );
 	const ShaderCombos_t *pCombos = FindOrCreateShaderCombos( pName );
@@ -1406,7 +1418,7 @@ FileHandle_t CShaderManager::OpenFileAndLoadHeader( const char *pFileName, Shade
 //-----------------------------------------------------------------------------
 // Disassemble a shader for debugging. Writes .asm files.
 //-----------------------------------------------------------------------------
-void CShaderManager::DisassembleShader( ShaderLookup_t *pLookup, int dynamicCombo, uint8 *pByteCode )
+void CShaderManager::DisassembleShader( ShaderLookupDx11_t *pLookup, int dynamicCombo, uint8 *pByteCode )
 {
 #if defined( WRITE_ASSEMBLY )
 	const char *pName = m_ShaderSymbolTable.String( pLookup->m_Name );
@@ -1433,7 +1445,7 @@ void CShaderManager::DisassembleShader( ShaderLookup_t *pLookup, int dynamicComb
 //-----------------------------------------------------------------------------
 bool CShaderManager::CreateDynamicCombos_Ver4( void *pContext, uint8 *pComboBuffer )
 {
-	ShaderLookup_t* pLookup = (ShaderLookup_t *)pContext;
+	ShaderLookupDx11_t* pLookup = (ShaderLookupDx11_t *)pContext;
 
 	ShaderFileCache_t *pFileCache = &m_ShaderFileCache[pLookup->m_hShaderFileCache];
 	ShaderHeader_t *pHeader = &pFileCache->m_Header;
@@ -1549,7 +1561,7 @@ static uint32 NextULONG( uint8 * &pData )
 }
 bool CShaderManager::CreateDynamicCombos_Ver5( void *pContext, uint8 *pComboBuffer )
 {
-	ShaderLookup_t* pLookup = (ShaderLookup_t *)pContext;
+	ShaderLookupDx11_t* pLookup = (ShaderLookupDx11_t *)pContext;
 	ShaderFileCache_t *pFileCache = &m_ShaderFileCache[pLookup->m_hShaderFileCache];
 	uint8 *pCompressedShaders = pComboBuffer + pLookup->m_nDataOffset;
 
@@ -1674,7 +1686,7 @@ bool CShaderManager::CreateDynamicCombos_Ver5( void *pContext, uint8 *pComboBuff
 //-----------------------------------------------------------------------------
 void CShaderManager::QueuedLoaderCallback( void *pContext, void *pContext2, const void *pData, int nSize, LoaderError_t loaderError )
 {
-	ShaderLookup_t* pLookup = (ShaderLookup_t *)pContext;
+	ShaderLookupDx11_t* pLookup = (ShaderLookupDx11_t *)pContext;
 
 	bool bOK = ( loaderError == LOADERERROR_NONE );
 	if ( bOK )
@@ -1698,7 +1710,7 @@ void CShaderManager::QueuedLoaderCallback( void *pContext, void *pContext2, cons
 //-----------------------------------------------------------------------------
 // Loads all shaders
 //-----------------------------------------------------------------------------
-bool CShaderManager::LoadAndCreateShaders( ShaderLookup_t &lookup, bool bVertexShader )
+bool CShaderManager::LoadAndCreateShaders( ShaderLookupDx11_t &lookup, bool bVertexShader )
 {
 #ifdef DYNAMIC_SHADER_COMPILE
 	lookup.m_Flags &= ~SHADER_DYNAMIC_COMPILE_IS_HLSL;
@@ -1935,7 +1947,7 @@ VertexShader_t CShaderManager::CreateVertexShader( const char *pFileName, int nS
 	}
 
 	VertexShader_t shader;
-	ShaderLookup_t lookup;
+	ShaderLookupDx11_t lookup;
 	lookup.m_Name = m_ShaderSymbolTable.AddString( pFileName );
 	lookup.m_nStaticIndex = nStaticVshIndex;
 	shader = m_VertexShaderDict.Find( lookup );
@@ -1964,7 +1976,7 @@ PixelShader_t CShaderManager::CreatePixelShader( const char *pFileName, int nSta
 	}
 
 	PixelShader_t shader;
-	ShaderLookup_t lookup;
+	ShaderLookupDx11_t lookup;
 	lookup.m_Name = m_ShaderSymbolTable.AddString( pFileName );
 	lookup.m_nStaticIndex = nStaticPshIndex;
 	shader = m_PixelShaderDict.Find( lookup );
@@ -2092,14 +2104,14 @@ void CShaderManager::SetVertexShader( VertexShader_t shader )
 	if ( dxshader == INVALID_HARDWARE_SHADER )
 	{
 		// compile it since we haven't already!
-		ShaderLookup_t &vshLookup = m_VertexShaderDict[shader];
+		ShaderLookupDx11_t &vshLookup = m_VertexShaderDict[shader];
 		dxshader = CompileShader( m_ShaderSymbolTable.String( vshLookup.m_Name ), 
 			vshLookup.m_nStaticIndex, vshIndex, true );
 		Assert( dxshader != INVALID_HARDWARE_SHADER );
 	}
 #else
-	ShaderLookup_t &lookup = m_VertexShaderDict[shader];
-	if ( lookup.m_Flags & SHADER_FAILED_LOAD )
+	CShaderManager::ShaderLookupDx11_t *lookup = (ShaderLookupDx11_t *)&m_VertexShaderDict[shader];
+	if ( lookup->m_Flags & SHADER_FAILED_LOAD )
 	{
 		Assert( 0 );
 		return;
@@ -2108,7 +2120,7 @@ void CShaderManager::SetVertexShader( VertexShader_t shader )
 	vshDebugIndex = (vshDebugIndex + 1) % MAX_SHADER_HISTORY;
 	Q_strncpy( vshDebugName[vshDebugIndex], m_ShaderSymbolTable.String( lookup.m_Name ), sizeof( vshDebugName[0] ) );
 #endif
-	HardwareShader_t dxshader = lookup.m_ShaderStaticCombos.m_pHardwareShaders[vshIndex];
+	HardwareShader_t dxshader = lookup->m_ShaderStaticCombos.m_pHardwareShaders[vshIndex];
 #endif
 
 	if ( IsPC() && ( dxshader == INVALID_HARDWARE_SHADER ) && m_bCreateShadersOnDemand )
@@ -2116,7 +2128,7 @@ void CShaderManager::SetVertexShader( VertexShader_t shader )
 #ifdef DYNAMIC_SHADER_COMPILE
 		ShaderStaticCombos_t::ShaderCreationData_t *pCreationData = &m_VertexShaderDict[shader].m_ShaderStaticCombos.m_pCreationData[vshIndex];
 #else
-		ShaderStaticCombos_t::ShaderCreationData_t *pCreationData = &lookup.m_ShaderStaticCombos.m_pCreationData[vshIndex];
+		ShaderStaticCombos_t::ShaderCreationData_t *pCreationData = &lookup->m_ShaderStaticCombos.m_pCreationData[vshIndex];
 #endif
 
 		dxshader = g_pShaderDeviceDx11->CreateVertexShader( ( DWORD * )pCreationData->ByteCode.Base(), pCreationData->ByteCode.Count() );
@@ -2125,7 +2137,7 @@ void CShaderManager::SetVertexShader( VertexShader_t shader )
 		// copy the compiled shader handle back to wherever it's supposed to be stored
 		m_VertexShaderDict[shader].m_ShaderStaticCombos.m_pHardwareShaders[vshIndex] = dxshader;
 #else
-		lookup.m_ShaderStaticCombos.m_pHardwareShaders[vshIndex] = dxshader;
+		lookup->m_ShaderStaticCombos.m_pHardwareShaders[vshIndex] = dxshader;
 #endif
 	}
 
@@ -2179,7 +2191,7 @@ void CShaderManager::SetPixelShader( PixelShader_t shader )
 	if ( dxshader == INVALID_HARDWARE_SHADER )
 	{
 		// compile it since we haven't already!
-		ShaderLookup_t &vshLookup = m_PixelShaderDict[shader];
+		ShaderLookupDx11_t &vshLookup = m_PixelShaderDict[shader];
 		dxshader = CompileShader( m_ShaderSymbolTable.String( vshLookup.m_Name ), 
 			vshLookup.m_nStaticIndex, pshIndex, false );
 //		Assert( dxshader != INVALID_HARDWARE_SHADER );
@@ -2197,8 +2209,8 @@ void CShaderManager::SetPixelShader( PixelShader_t shader )
 		}
 	}
 #else
-	ShaderLookup_t &lookup = m_PixelShaderDict[shader];
-	if ( lookup.m_Flags & SHADER_FAILED_LOAD )
+	ShaderLookupDx11_t *lookup = (ShaderLookupDx11_t *)&m_PixelShaderDict[shader];
+	if ( lookup->m_Flags & SHADER_FAILED_LOAD )
 	{
 		Assert( 0 );
 		return;
@@ -2207,7 +2219,7 @@ void CShaderManager::SetPixelShader( PixelShader_t shader )
 	pshDebugIndex = (pshDebugIndex + 1) % MAX_SHADER_HISTORY;
 	Q_strncpy( pshDebugName[pshDebugIndex], m_ShaderSymbolTable.String( lookup.m_Name ), sizeof( pshDebugName[0] ) );
 #endif
-	HardwareShader_t dxshader = lookup.m_ShaderStaticCombos.m_pHardwareShaders[pshIndex];
+	HardwareShader_t dxshader = lookup->m_ShaderStaticCombos.m_pHardwareShaders[pshIndex];
 #endif
 
 	if ( IsPC() && ( dxshader == INVALID_HARDWARE_SHADER ) && m_bCreateShadersOnDemand )
@@ -2215,7 +2227,7 @@ void CShaderManager::SetPixelShader( PixelShader_t shader )
 #ifdef DYNAMIC_SHADER_COMPILE
 		ShaderStaticCombos_t::ShaderCreationData_t *pCreationData = &m_PixelShaderDict[shader].m_ShaderStaticCombos.m_pCreationData[pshIndex];
 #else
-		ShaderStaticCombos_t::ShaderCreationData_t *pCreationData = &lookup.m_ShaderStaticCombos.m_pCreationData[pshIndex];
+		ShaderStaticCombos_t::ShaderCreationData_t *pCreationData = &lookup->m_ShaderStaticCombos.m_pCreationData[pshIndex];
 #endif
 
 		dxshader = g_pShaderDeviceDx11->CreatePixelShader( ( DWORD * )pCreationData->ByteCode.Base(), pCreationData->ByteCode.Count() );
@@ -2224,7 +2236,7 @@ void CShaderManager::SetPixelShader( PixelShader_t shader )
 		// copy the compiled shader handle back to wherever it's supposed to be stored
 		m_PixelShaderDict[shader].m_ShaderStaticCombos.m_pHardwareShaders[pshIndex] = dxshader;
 #else
-		lookup.m_ShaderStaticCombos.m_pHardwareShaders[pshIndex] = dxshader;
+		lookup->m_ShaderStaticCombos.m_pHardwareShaders[pshIndex] = dxshader;
 #endif
 	}
 
@@ -2366,7 +2378,7 @@ void CShaderManager::SpewVertexAndPixelShaders( void )
 		 vshIndex != m_VertexShaderDict.InvalidIndex();
 		 vshIndex = m_VertexShaderDict.Next( vshIndex ) )
 	{
-		const ShaderLookup_t &lookup = m_VertexShaderDict[vshIndex];
+		const auto &lookup = m_VertexShaderDict[vshIndex];
 		const char *pName = m_ShaderSymbolTable.String( lookup.m_Name );
 		Msg( "vsh 0x%8.8x: static combo:%9d dynamic combos:%6d refcount:%4d \"%s\"\n", vshIndex,
 			( int )lookup.m_nStaticIndex, ( int )lookup.m_ShaderStaticCombos.m_nCount,
@@ -2382,7 +2394,7 @@ void CShaderManager::SpewVertexAndPixelShaders( void )
 		 pshIndex != m_PixelShaderDict.InvalidIndex();
 		 pshIndex = m_PixelShaderDict.Next( pshIndex ) )
 	{
-		const ShaderLookup_t &lookup = m_PixelShaderDict[pshIndex];
+		const auto &lookup = m_PixelShaderDict[pshIndex];
 		const char *pName = m_ShaderSymbolTable.String( lookup.m_Name );
 		Msg( "psh 0x%8.8x: static combo:%9d dynamic combos:%6d refcount:%4d \"%s\"\n", pshIndex,
 			( int )lookup.m_nStaticIndex, ( int )lookup.m_ShaderStaticCombos.m_nCount,
@@ -2492,7 +2504,3 @@ CON_COMMAND( mat_flushshaders, "flush all hardware shaders when using DYNAMIC_SH
 	( ( CShaderManager * )ShaderManager() )->FlushShaders();
 }
 #endif
-
-static CShaderManager g_sShaderManagerDx11;
-IShaderManager* g_pShaderManagerDx11 = &g_sShaderManagerDx11;
-IShaderManager *g_pShaderManager = g_pShaderManagerDx11;

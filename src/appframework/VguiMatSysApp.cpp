@@ -65,7 +65,7 @@ bool CVguiMatSysApp::Create()
 		return false;
 	}
 
-	pMaterialSystem->SetShaderAPI( "shaderapidx9.dll" );
+	pMaterialSystem->SetShaderAPI( "shaderapidx11.dll" );
 	return true;
 }
 

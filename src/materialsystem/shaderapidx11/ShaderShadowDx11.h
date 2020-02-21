@@ -24,9 +24,10 @@
 
 ALIGN16 struct TransformBuffer_t
 {
-	DirectX::XMFLOAT4X4 modelTransform;
-	DirectX::XMFLOAT4X4 viewTransform;
-	DirectX::XMFLOAT4X4 projTransform;
+	DirectX::XMMATRIX modelTransform;
+	DirectX::XMMATRIX viewTransform;
+	DirectX::XMMATRIX projTransform;
+	DirectX::XMMATRIX modelViewProj;
 };
 
 ALIGN16 struct LightingBuffer_t
@@ -120,6 +121,9 @@ public:
 	virtual void StencilWriteMask( int nMask );
 
 	virtual void SetConstantBuffer( ConstantBuffer_t cbuffer );
+	virtual void SetTransformConstantBuffer();
+	virtual void SetLightingConstantBuffer();
+	virtual void SetFogConstantBuffer();
 
 	StateSnapshot_t FindOrCreateSnapshot();
 

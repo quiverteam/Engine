@@ -264,6 +264,7 @@ public:
 
 	virtual ConstantBuffer_t CreateConstantBuffer( size_t nBufSize )		 = 0;
 	virtual void UpdateConstantBuffer( ConstantBuffer_t hBuffer, void *pData ) = 0;
+	virtual void UploadConstantBuffers( ConstantBuffer_t *pBuffers, int nBuffers ) = 0;
 	virtual void DestroyConstantBuffer( ConstantBuffer_t hBuffer )		 = 0;
 	virtual ConstantBufferHandle_t GetConstantBuffer( ConstantBuffer_t buffer ) = 0;
 
@@ -275,7 +276,6 @@ public:
 	virtual void EnableNonInteractiveMode( MaterialNonInteractiveMode_t mode, ShaderNonInteractiveInfo_t *pInfo = NULL ) = 0;
 	virtual void RefreshFrontBufferNonInteractive( ) = 0;
 };
-
 
 //-----------------------------------------------------------------------------
 // Helper wrapper for IShaderBuffer for reading precompiled shader files

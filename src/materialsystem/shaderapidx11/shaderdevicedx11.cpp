@@ -26,7 +26,7 @@
 //-----------------------------------------------------------------------------
 // Explicit instantiation of shader buffer implementation
 //-----------------------------------------------------------------------------
-template class CShaderBuffer< ID3D11Buffer >;
+template class CShaderBuffer< ID3DBlob >;
 
 
 //-----------------------------------------------------------------------------
@@ -41,6 +41,9 @@ EXPOSE_SINGLE_INTERFACE_GLOBALVAR( CShaderDeviceMgrDx11, IShaderDeviceMgr,
 
 static CShaderDeviceDx11 g_ShaderDeviceDx11;
 CShaderDeviceDx11* g_pShaderDeviceDx11 = &g_ShaderDeviceDx11;
+
+EXPOSE_SINGLE_INTERFACE_GLOBALVAR( CShaderDeviceDx11, IShaderDevice,
+				   SHADER_DEVICE_INTERFACE_VERSION, g_ShaderDeviceDx11 )
 
 //-----------------------------------------------------------------------------
 // constructor, destructor
@@ -62,6 +65,8 @@ CShaderDeviceMgrDx11::~CShaderDeviceMgrDx11()
 bool CShaderDeviceMgrDx11::Connect( CreateInterfaceFn factory )
 {
 	LOCK_SHADERAPI();
+
+	Log("Connecting CShaderDeviceMgrDx11...\n");
 
 	if ( !BaseClass::Connect( factory ) )
 		return false;
@@ -437,6 +442,8 @@ CreateInterfaceFn CShaderDeviceMgrDx11::SetMode( void *hWnd, int nAdapter, const
 {
 	LOCK_SHADERAPI();
 
+	Log("Calling CShaderDeviceMgrDx11::SetMode()\n");
+
 	Assert( nAdapter < GetAdapterCount() );
 	int nDXLevel = mode.m_nDXLevel != 0 ? mode.m_nDXLevel : m_Adapters[nAdapter].m_ActualCaps.m_nDXSupportLevel;
 	if ( m_bObeyDxCommandlineOverride )
@@ -449,7 +456,7 @@ CreateInterfaceFn CShaderDeviceMgrDx11::SetMode( void *hWnd, int nAdapter, const
 		nDXLevel = m_Adapters[nAdapter].m_ActualCaps.m_nMaxDXSupportLevel;
 	}
 	nDXLevel = GetClosestActualDXLevel( nDXLevel );
-
+	Log("nDXLevel: %i\n", nDXLevel);
 	if ( nDXLevel < 110 )
 	{
 		// Fall back to the Dx9 implementations
@@ -843,7 +850,7 @@ void CShaderDeviceDx11::DestroyVertexShader( VertexShaderHandle_t hShader )
 //-----------------------------------------------------------------------------
 GeometryShaderHandle_t CShaderDeviceDx11::CreateGeometryShader( IShaderBuffer* pShaderBuffer )
 {
-	CreateGeometryShader( pShaderBuffer->GetBits(), pShaderBuffer->GetSize() );
+	return CreateGeometryShader( pShaderBuffer->GetBits(), pShaderBuffer->GetSize() );
 }
 
 GeometryShaderHandle_t CShaderDeviceDx11::CreateGeometryShader( const void* pBuffer, size_t nBufLen )
@@ -890,7 +897,7 @@ void CShaderDeviceDx11::DestroyGeometryShader( GeometryShaderHandle_t hShader )
 //-----------------------------------------------------------------------------
 PixelShaderHandle_t CShaderDeviceDx11::CreatePixelShader( IShaderBuffer* pShaderBuffer )
 {
-	CreatePixelShader( pShaderBuffer->GetBits(), pShaderBuffer->GetSize() );
+	return CreatePixelShader( pShaderBuffer->GetBits(), pShaderBuffer->GetSize() );
 }
 
 PixelShaderHandle_t CShaderDeviceDx11::CreatePixelShader( const void* pBuffer, size_t nBufLen )
@@ -1026,6 +1033,15 @@ void CShaderDeviceDx11::UpdateConstantBuffer( ConstantBuffer_t hBuffer, void *pD
 	buf.Update( pData );
 }
 
+void CShaderDeviceDx11::UploadConstantBuffers( ConstantBuffer_t *pBuffers, int nBuffers )
+{
+	for ( int i = 0; i < nBuffers; i++ )
+	{
+		CShaderConstantBufferDx11 &buf = m_ConstantBuffers.Element( pBuffers[i] );
+		buf.UploadToGPU();
+	}
+}
+
 ConstantBufferHandle_t CShaderDeviceDx11::GetConstantBuffer( ConstantBuffer_t iBuffer )
 {
 	return (ConstantBufferHandle_t)&m_ConstantBuffers.Element( iBuffer );
@@ -1039,6 +1055,7 @@ void CShaderDeviceDx11::DestroyConstantBuffer( ConstantBuffer_t hBuffer )
 	m_ConstantBuffers.Remove( hBuffer );
 }
 
+// NOTE: I don't see these functions being called by anybody. I think they should be removed.
 IVertexBuffer *CShaderDeviceDx11::GetDynamicVertexBuffer( int nStreamID, VertexFormat_t vertexFormat, bool bBuffered )
 {
 	LOCK_SHADERAPI();

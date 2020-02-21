@@ -359,6 +359,9 @@ public:
 
 	// Sets the constant buffer structure that will be used for the shader.
 	virtual void SetConstantBuffer( ConstantBuffer_t cbuffer ) = 0;
+	virtual void SetTransformConstantBuffer() = 0;
+	virtual void SetLightingConstantBuffer() = 0;
+	virtual void SetFogConstantBuffer() = 0;
 };
 // end class IShaderShadow
 

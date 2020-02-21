@@ -40,7 +40,6 @@
 extern IMaterialSystemHardwareConfig *g_pHardwareConfig;
 extern const MaterialSystem_Config_t *g_pConfig;
 
-
 // Helper method
 bool IsUsingGraphics();
 
@@ -176,6 +175,14 @@ inline bool CShader_IsFlag2Set( IMaterialVar **params, MaterialVarFlags2_t _flag
 
 #define BEGIN_SHADER(name,help)	__BEGIN_SHADER_INTERNAL( CBaseShader, name, help, 0 )
 #define BEGIN_SHADER_FLAGS(name,help,flags)	__BEGIN_SHADER_INTERNAL( CBaseShader, name, help, flags )
+
+#define CONSTANT_BUFFER_TYPE(name) name##_CBuffer_t
+#define CREATE_CONSTANT_BUFFER(name) ALIGN16 struct name##_CBuffer_t
+#define DECLARE_CONSTANT_BUFFER(name) ConstantBuffer_t m_CB##name;
+#define CONSTANT_BUFFER(name) m_CB##name
+#define INIT_CONSTANT_BUFFER(name) m_CB##name = CreateConstantBuffer(sizeof( name##_CBuffer_t ))
+#define SET_CONSTANT_BUFFER(name) SetConstantBuffer( m_CB##name )
+#define UPDATE_CONSTANT_BUFFER(name, newData) UpdateConstantBuffer( m_CB##name, &newData )
 
 #define BEGIN_SHADER_PARAMS
 

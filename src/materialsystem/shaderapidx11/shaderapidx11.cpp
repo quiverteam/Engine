@@ -121,7 +121,7 @@ static void GenerateBlendDesc( D3D11_BLEND_DESC *pDesc, const StatesDx11::Render
 
 	memset( pDesc, 0, sizeof( D3D11_BLEND_DESC ) );
 
-	pDesc->AlphaToCoverageEnable		     = FALSE;
+	pDesc->AlphaToCoverageEnable		     = cba.bAlphaToCoverage;
 	pDesc->IndependentBlendEnable		     = cba.bIndependentAlphaBlend ? TRUE : FALSE;
 	pDesc->RenderTarget[0].BlendEnable	     = cba.bBlendEnable ? TRUE : FALSE;
 	pDesc->RenderTarget[0].BlendOp		     = (D3D11_BLEND_OP)cba.blendOp;
@@ -201,6 +201,11 @@ CShaderAPIDx11::~CShaderAPIDx11()
 {
 }
 
+void CShaderAPIDx11::UpdateConstantBuffer( ConstantBuffer_t cbuffer, void *pNewData )
+{
+	g_pShaderDevice->UpdateConstantBuffer( cbuffer, pNewData );
+}
+
 //-----------------------------------------------------------------------------
 // Clears the shader state to a well-defined value
 //-----------------------------------------------------------------------------
@@ -263,6 +268,18 @@ void CShaderAPIDx11::IssueStateChanges( bool bForce )
 	// Don't bother committing anything if we're deactivated
 	if ( g_pShaderDevice->IsDeactivated() )
 		return;
+
+	// Update transform
+	if ( m_DynamicState.m_ChangedMatrices[MATERIAL_MODEL] ||
+	     m_DynamicState.m_ChangedMatrices[MATERIAL_VIEW] ||
+	     m_DynamicState.m_ChangedMatrices[MATERIAL_PROJECTION] )
+	{
+		DoIssueTransform();
+	}
+	
+	// If any of the constant buffers used by the target state have been modified,
+	// upload the new data to the GPU.
+	DoIssueConstantBufferUpdates();
 
 	bool bStateChanged = false;
 
@@ -375,6 +392,33 @@ void CShaderAPIDx11::IssueStateChanges( bool bForce )
 // Issue state changes
 //------------------------------
 
+void CShaderAPIDx11::DoIssueTransform()
+{
+	TransformBuffer_t tmp;
+	tmp.modelTransform = GetMatrix( MATERIAL_MODEL );
+	tmp.viewTransform = GetMatrix( MATERIAL_VIEW );
+	tmp.projTransform = GetMatrix( MATERIAL_PROJECTION );
+	tmp.modelViewProj = DirectX::XMMatrixMultiply( tmp.modelTransform, DirectX::XMMatrixMultiply( tmp.viewTransform, tmp.projTransform ) );
+	m_DynamicState.m_ChangedMatrices[MATERIAL_MODEL] = false;
+	m_DynamicState.m_ChangedMatrices[MATERIAL_VIEW] = false;
+	m_DynamicState.m_ChangedMatrices[MATERIAL_PROJECTION] = false;
+	g_pShaderDeviceDx11->UpdateConstantBuffer( g_pShaderDeviceDx11->GetTransformConstantBuffer(), &tmp );
+}
+
+void CShaderAPIDx11::DoIssueConstantBufferUpdates()
+{
+	for ( int i = 0; i < m_TargetState.shaderState.shaderAttrib.numConstantBuffers; i++ )
+	{
+		// Yeesh, this is ugly.
+		IShaderConstantBuffer *pIBuf = (IShaderConstantBuffer *)g_pShaderDevice->GetConstantBuffer(
+			m_TargetState.shaderState.shaderAttrib.constantBuffers[i] );
+
+		// This will check if the data has been changed.
+		// If so, it will upload the new data to the GPU.
+		pIBuf->UploadToGPU();
+	}
+}
+
 void CShaderAPIDx11::DoIssueVertexShader()
 {
 	D3D11DeviceContext()->VSSetShader( m_DX11TargetState.m_pVertexShader, NULL, 0 );
@@ -394,16 +438,28 @@ void CShaderAPIDx11::DoIssueConstantBuffers()
 {
 	for ( int i = 0; i < TargetShaderVar( numConstantBuffers ); i++ )
 	{
+		// Yeesh, this is ugly.
+		IShaderConstantBuffer *pIBuf = (IShaderConstantBuffer *)g_pShaderDevice->GetConstantBuffer( TargetShaderVar( constantBuffers )[i] );
+
 		m_DX11TargetState.m_pPSConstantBuffers[i] =
-			(ID3D11Buffer *)g_pShaderDevice->GetConstantBuffer( TargetShaderVar( constantBuffers )[i] );
+			(ID3D11Buffer *)pIBuf->GetBuffer();
 	}
 
-	D3D11DeviceContext()->VSSetConstantBuffers( 0, TargetShaderVar( numConstantBuffers ),
-						    m_DX11TargetState.m_pPSConstantBuffers );
-	D3D11DeviceContext()->GSSetConstantBuffers( 0, TargetShaderVar( numConstantBuffers ),
-						    m_DX11TargetState.m_pPSConstantBuffers );
-	D3D11DeviceContext()->PSSetConstantBuffers( 0, TargetShaderVar( numConstantBuffers ),
-						    m_DX11TargetState.m_pPSConstantBuffers );
+	if ( m_DX11TargetState.m_pVertexShader )
+	{
+		D3D11DeviceContext()->VSSetConstantBuffers( 0, TargetShaderVar( numConstantBuffers ),
+							    m_DX11TargetState.m_pPSConstantBuffers );
+	}
+	if ( m_DX11TargetState.m_pGeometryShader )
+	{
+		D3D11DeviceContext()->GSSetConstantBuffers( 0, TargetShaderVar( numConstantBuffers ),
+							    m_DX11TargetState.m_pPSConstantBuffers );
+	}
+	if ( m_DX11TargetState.m_pPixelShader )
+	{
+		D3D11DeviceContext()->PSSetConstantBuffers( 0, TargetShaderVar( numConstantBuffers ),
+							    m_DX11TargetState.m_pPSConstantBuffers );
+	}
 }
 
 void CShaderAPIDx11::DoIssueTexture()
@@ -623,14 +679,6 @@ int CShaderAPIDx11::GetViewports( ShaderViewport_t *pViewports, int nMax ) const
 }
 
 //-----------------------------------------------------------------------------
-// Methods related to state objects
-//-----------------------------------------------------------------------------
-void CShaderAPIDx11::SetRasterState( const ShaderRasterState_t &state )
-{
-	Warning( "Unsupported CShaderAPIDx11::SetRasterState() called!\n" );
-}
-
-//-----------------------------------------------------------------------------
 // Methods related to clearing buffers
 //-----------------------------------------------------------------------------
 void CShaderAPIDx11::ClearColor3ub( unsigned char r, unsigned char g, unsigned char b )
@@ -655,7 +703,7 @@ void CShaderAPIDx11::ClearBuffers( bool bClearColor, bool bClearDepth, bool bCle
 	//	IssueStateChanges();
 
 	// FIXME: This implementation is totally bust0red [doesn't guarantee exact color specified]
-	if ( bClearColor )
+	if ( bClearColor && D3D11DeviceContext() )
 	{
 		D3D11DeviceContext()->ClearRenderTargetView( D3D11RenderTargetView(), m_DX11TargetState.m_ClearColor );
 	}
@@ -983,20 +1031,35 @@ void CShaderAPIDx11::GetStandardTextureDimensions( int *pWidth, int *pHeight, St
 	ShaderUtil()->GetStandardTextureDimensions( pWidth, pHeight, id );
 }
 
-// The shade mode
-void CShaderAPIDx11::ShadeMode( ShaderShadeMode_t mode )
-{
-}
-
 // Binds a particular material to render with
 void CShaderAPIDx11::Bind( IMaterial *pMaterial )
 {
-	//m_pMaterial = pMaterial->Get;
+	LOCK_SHADERAPI();
+
+	IMaterialInternal *pMatInt = static_cast<IMaterialInternal *>( pMaterial );
+
+	bool bMaterialChanged;
+	if ( m_pMaterial && pMatInt && m_pMaterial->InMaterialPage() && pMatInt->InMaterialPage() )
+	{
+		bMaterialChanged = ( m_pMaterial->GetMaterialPage() != pMatInt->GetMaterialPage() );
+	}
+	else
+	{
+		bMaterialChanged = ( m_pMaterial != pMatInt ) || ( m_pMaterial && m_pMaterial->InMaterialPage() ) || ( pMatInt && pMatInt->InMaterialPage() );
+	}
+
+	if ( bMaterialChanged )
+	{
+		FlushBufferedPrimitives();
+		m_pMaterial = pMatInt;
+	}
 }
 
 // Cull mode
 void CShaderAPIDx11::CullMode( MaterialCullMode_t cullMode )
 {
+	m_TargetState.shadowState.cullFaceAttrib.bEnable = true;
+	m_TargetState.shadowState.cullFaceAttrib.cullMode = cullMode;
 }
 
 void CShaderAPIDx11::ForceDepthFuncEquals( bool bEnable )
@@ -1030,11 +1093,6 @@ void CShaderAPIDx11::SetLight( int lightNum, const LightDesc_t &desc )
 	
 }
 
-void CShaderAPIDx11::SetAmbientLight( float r, float g, float b )
-{
-	Warning( "Unsupported CShaderAPIDx11::SetAmbientLight() called!\n" );
-}
-
 void CShaderAPIDx11::SetAmbientLightCube( Vector4D cube[6] )
 {
 	LOCK_SHADERAPI();
@@ -1056,37 +1114,7 @@ const LightDesc_t &CShaderAPIDx11::GetLight( int lightNum ) const
 	return m_DynamicState.m_Lights[lightNum];
 }
 
-// Render state for the ambient light cube (vertex shaders)
-void CShaderAPIDx11::SetVertexShaderStateAmbientLightCube()
-{
-}
-
 void CShaderAPIDx11::SetSkinningMatrices()
-{
-}
-
-// Lightmap texture binding
-void CShaderAPIDx11::BindLightmap( TextureStage_t stage )
-{
-}
-
-void CShaderAPIDx11::BindBumpLightmap( TextureStage_t stage )
-{
-}
-
-void CShaderAPIDx11::BindFullbrightLightmap( TextureStage_t stage )
-{
-}
-
-void CShaderAPIDx11::BindWhite( TextureStage_t stage )
-{
-}
-
-void CShaderAPIDx11::BindBlack( TextureStage_t stage )
-{
-}
-
-void CShaderAPIDx11::BindGrey( TextureStage_t stage )
 {
 }
 
@@ -1094,23 +1122,6 @@ void CShaderAPIDx11::BindGrey( TextureStage_t stage )
 void CShaderAPIDx11::GetLightmapDimensions( int *w, int *h )
 {
 	g_pShaderUtil->GetLightmapDimensions( w, h );
-}
-
-// Special system flat normal map binding.
-void CShaderAPIDx11::BindFlatNormalMap( TextureStage_t stage )
-{
-}
-
-void CShaderAPIDx11::BindNormalizationCubeMap( TextureStage_t stage )
-{
-}
-
-void CShaderAPIDx11::BindSignedNormalizationCubeMap( TextureStage_t stage )
-{
-}
-
-void CShaderAPIDx11::BindFBTexture( TextureStage_t stage, int textureIndex )
-{
 }
 
 // Flushes any primitives that are buffered
@@ -1121,7 +1132,9 @@ void CShaderAPIDx11::FlushBufferedPrimitives()
 // Creates/destroys Mesh
 IMesh *CShaderAPIDx11::CreateStaticMesh( VertexFormat_t fmt, const char *pTextureBudgetGroup, IMaterial *pMaterial )
 {
-	return m_pRenderingMesh;
+	//CMeshDx11 *pNewMesh = new CMeshDx11;
+	//return pNewMesh;
+	return NULL;
 }
 
 void CShaderAPIDx11::DestroyStaticMesh( IMesh *mesh )
@@ -1134,7 +1147,8 @@ void CShaderAPIDx11::DestroyStaticMesh( IMesh *mesh )
 IMesh *CShaderAPIDx11::GetDynamicMesh( IMaterial *pMaterial, int nHWSkinBoneCount, bool buffered, IMesh *pVertexOverride, IMesh *pIndexOverride )
 {
 	Assert( ( pMaterial == NULL ) || ( (IMaterialInternal *)pMaterial )->IsRealTimeVersion() );
-	return m_pRenderingMesh;
+	return &m_DynamicMesh;
+	//return 0;
 }
 
 IMesh *CShaderAPIDx11::GetDynamicMeshEx( IMaterial *pMaterial, VertexFormat_t fmt, int nHWSkinBoneCount, bool buffered, IMesh *pVertexOverride, IMesh *pIndexOverride )
@@ -1142,116 +1156,293 @@ IMesh *CShaderAPIDx11::GetDynamicMeshEx( IMaterial *pMaterial, VertexFormat_t fm
 	// UNDONE: support compressed dynamic meshes if needed (pro: less VB memory, con: time spent compressing)
 	Assert( CompressionType( pVertexOverride->GetVertexFormat() ) != VERTEX_COMPRESSION_NONE );
 	Assert( ( pMaterial == NULL ) || ( (IMaterialInternal *)pMaterial )->IsRealTimeVersion() );
-	return m_pRenderingMesh;
+	return &m_DynamicMesh;
+	//return 0;
 }
 
 IMesh *CShaderAPIDx11::GetFlexMesh()
 {
-	return m_pRenderingMesh;
+	//return m_pRenderingMesh;
+	return &m_DynamicFlexMesh;
+	//return 0;
 }
 
 // Begins a rendering pass that uses a state snapshot
 void CShaderAPIDx11::BeginPass( StateSnapshot_t snapshot )
 {
+	m_CurrentSnapshot = snapshot;
+
+	// Apply the snapshot state
+	if ( snapshot != -1 )
+		UseSnapshot( m_CurrentSnapshot );
 }
+
+// Between BeginPass and RenderPass, the shader's DrawElements() function
+// is called, allowing the shader to adjust the target render state.
 
 // Renders a single pass of a material
 void CShaderAPIDx11::RenderPass( int nPass, int nPassCount )
 {
+	if ( g_pShaderDevice->IsDeactivated() )
+		return;
+
+	// Now actually render
+
+	m_CurrentSnapshot = -1;
+}
+
+bool CShaderAPIDx11::IsDeactivated() const
+{
+	return g_pShaderDevice->IsDeactivated();
 }
 
 // stuff related to matrix stacks
+//
+// Note Dx11 doesn't have a matrix stack, you just supply
+// the matrices to the shader in a constant buffer, so we will
+// not break compatibility with Dx9 and just emulate the behavior.
+
+bool CShaderAPIDx11::MatrixIsChanging() const
+{
+	if ( IsDeactivated() )
+	{
+		return false;
+	}
+
+	return false;
+}
+
+void CShaderAPIDx11::HandleMatrixModified()
+{
+	char materialname[20];
+	switch ( m_MatrixMode )
+	{
+	case MATERIAL_MODEL:
+		sprintf( materialname, "Model" );
+		break;
+	case MATERIAL_VIEW:
+		sprintf( materialname, "View" );
+		break;
+	case MATERIAL_PROJECTION:
+		sprintf( materialname, "Projection" );
+		break;
+	default:
+		sprintf( materialname, "Other: %i", m_MatrixMode );
+		break;
+	}
+	Log( "Matrix modified: %s\n", materialname );
+	m_DynamicState.m_ChangedMatrices[m_MatrixMode] = true;
+}
+
+DirectX::XMMATRIX &CShaderAPIDx11::GetMatrix( MaterialMatrixMode_t mode )
+{
+	return m_DynamicState.m_Matrices[mode];
+}
+
+DirectX::XMMATRIX &CShaderAPIDx11::GetCurrentMatrix()
+{
+	return m_DynamicState.m_Matrices[m_MatrixMode];
+}
+
 void CShaderAPIDx11::MatrixMode( MaterialMatrixMode_t matrixMode )
 {
+	m_MatrixMode = matrixMode;
 }
 
 void CShaderAPIDx11::PushMatrix()
 {
+	// Does nothing in Dx11
 }
 
 void CShaderAPIDx11::PopMatrix()
 {
+	// Reset the matrix to identity
+	GetCurrentMatrix() = DirectX::XMMatrixIdentity();
+	HandleMatrixModified();
 }
 
 void CShaderAPIDx11::LoadMatrix( float *m )
 {
+	GetCurrentMatrix() = DirectX::XMMATRIX( m );
+	HandleMatrixModified();
 }
 
 void CShaderAPIDx11::MultMatrix( float *m )
 {
+	GetCurrentMatrix() = DirectX::XMMatrixMultiply( GetCurrentMatrix(), DirectX::XMMATRIX( m ) );
+	HandleMatrixModified();
 }
 
 void CShaderAPIDx11::MultMatrixLocal( float *m )
 {
+	// DX11FIXME: Local multiply
+	GetCurrentMatrix() = DirectX::XMMatrixMultiply( DirectX::XMMATRIX( m ), GetCurrentMatrix() );
+	HandleMatrixModified();
 }
 
 void CShaderAPIDx11::GetMatrix( MaterialMatrixMode_t matrixMode, float *dst )
 {
+	memcpy( dst, &GetCurrentMatrix(), sizeof( DirectX::XMMATRIX ) );
+	HandleMatrixModified();
 }
 
 void CShaderAPIDx11::LoadIdentity( void )
 {
+	GetCurrentMatrix() = DirectX::XMMatrixIdentity();
+	HandleMatrixModified();
 }
 
 void CShaderAPIDx11::LoadCameraToWorld( void )
 {
+	DirectX::XMVECTOR det;
+	DirectX::XMMATRIX inv;
+	inv = DirectX::XMMatrixInverse( &det, GetMatrix( MATERIAL_VIEW ) );
+
+	// Kill translation
+	// DX11FIXME
+	//inv.r[3].m128_f32[0] = inv.r[3].m128_f32[1] = inv.r[3].m128_f32[2] = 0.0f;
+	inv = DirectX::XMMatrixMultiply( inv, DirectX::XMMatrixTranslation( 0, 0, 0 ) );
+
+	GetCurrentMatrix() = inv;
+
+	HandleMatrixModified();
 }
 
 void CShaderAPIDx11::Ortho( double left, double top, double right, double bottom, double zNear, double zFar )
 {
+	DirectX::XMMATRIX mat = DirectX::XMMatrixOrthographicOffCenterRH( left, right, bottom, top, zNear, zFar );
+
+	// DX11FIXME: Local multiply
+	GetCurrentMatrix() = DirectX::XMMatrixMultiply( mat, GetCurrentMatrix() );
+
+	HandleMatrixModified();
 }
 
 void CShaderAPIDx11::PerspectiveX( double fovx, double aspect, double zNear, double zFar )
 {
+	float width = 2 * zNear * tan( fovx * M_PI / 360.0 );
+	float height = width / aspect;
+	DirectX::XMMATRIX mat;
+	mat = DirectX::XMMatrixPerspectiveRH( width, height, zNear, zFar );
+
+	// DX11FIXME: Local multiply
+	GetCurrentMatrix() = DirectX::XMMatrixMultiply( mat, GetCurrentMatrix() );
+
+	HandleMatrixModified();
 }
 
 void CShaderAPIDx11::PerspectiveOffCenterX( double fovx, double aspect, double zNear, double zFar, double bottom, double top, double left, double right )
 {
+	float width = 2 * zNear * tan( fovx * M_PI / 360.0 );
+	float height = width / aspect;
+
+	// bottom, top, left, right are 0..1 so convert to -1..1
+	float flFrontPlaneLeft = -( width / 2.0f ) * ( 1.0f - left ) + left * ( width / 2.0f );
+	float flFrontPlaneRight = -( width / 2.0f ) * ( 1.0f - right ) + right * ( width / 2.0f );
+	float flFrontPlaneBottom = -( height / 2.0f ) * ( 1.0f - bottom ) + bottom * ( height / 2.0f );
+	float flFrontPlaneTop = -( height / 2.0f ) * ( 1.0f - top ) + top * ( height / 2.0f );
+
+	DirectX::XMMATRIX mat;
+	mat = DirectX::XMMatrixPerspectiveOffCenterRH( flFrontPlaneLeft, flFrontPlaneRight, flFrontPlaneBottom,
+						       flFrontPlaneTop, zNear, zFar );
+
+	// DX11FIXME: Local multiply
+	GetCurrentMatrix() = DirectX::XMMatrixMultiply( mat, GetCurrentMatrix() );
+
+	HandleMatrixModified();
 }
 
 void CShaderAPIDx11::PickMatrix( int x, int y, int width, int height )
 {
+	ShaderViewport_t viewport;
+	GetViewports( &viewport, 1 );
+
+	int vx = viewport.m_nTopLeftX;
+	int vy = viewport.m_nTopLeftX;
+	int vwidth = viewport.m_nWidth;
+	int vheight = viewport.m_nHeight;
+
+	// Compute the location of the pick region in projection space...
+	float px = 2.0 * (float)( x - vx ) / (float)vwidth - 1;
+	float py = 2.0 * (float)( y - vy ) / (float)vheight - 1;
+	float pw = 2.0 * (float)width / (float)vwidth;
+	float ph = 2.0 * (float)height / (float)vheight;
+
+	// we need to translate (px, py) to the origin
+	// and scale so (pw,ph) -> (2, 2)
+	DirectX::XMMATRIX mat;
+	mat = DirectX::XMMatrixTranslation( -2.0f * py / ph, -2.0f * px / pw, 0.0f );
+	mat = DirectX::XMMatrixMultiply( mat, DirectX::XMMatrixScaling( 2.0f / pw, 2.0f / ph, 1.0f ) );
+
+	// DX11FIXME: Local multiply
+	GetCurrentMatrix() = DirectX::XMMatrixMultiply( mat, GetCurrentMatrix() );
+
+	HandleMatrixModified();
 }
 
 void CShaderAPIDx11::Rotate( float angle, float x, float y, float z )
 {
+	DirectX::XMVECTOR axis;
+	axis = DirectX::XMVectorSet( x, y, z, 0 );
+
+	// DX11FIXME: Local multiply
+	GetCurrentMatrix() = DirectX::XMMatrixMultiply( DirectX::XMMatrixRotationAxis( axis, M_PI * angle / 180.0f ), GetCurrentMatrix() );
+
+	HandleMatrixModified();
 }
 
 void CShaderAPIDx11::Translate( float x, float y, float z )
 {
+	// DX11FIXME: Local multiply
+	GetCurrentMatrix() = DirectX::XMMatrixMultiply( DirectX::XMMatrixTranslation( x, y, z ), GetCurrentMatrix() );
+	HandleMatrixModified();
 }
 
 void CShaderAPIDx11::Scale( float x, float y, float z )
 {
+	// DX11FIXME: Local multiply
+	GetCurrentMatrix() = DirectX::XMMatrixMultiply( DirectX::XMMatrixScaling( x, y, z ), GetCurrentMatrix() );
+	HandleMatrixModified();
 }
 
 void CShaderAPIDx11::ScaleXY( float x, float y )
 {
+	// DX11FIXME: Local multiply
+	GetCurrentMatrix() = DirectX::XMMatrixMultiply( DirectX::XMMatrixScaling( x, y, 1.0f ), GetCurrentMatrix() );
+	HandleMatrixModified();
 }
 
 // Fog methods...
 void CShaderAPIDx11::FogMode( MaterialFogMode_t fogMode )
 {
+	m_DynamicState.m_FogMode = fogMode;
 }
 
 void CShaderAPIDx11::FogStart( float fStart )
 {
+	m_DynamicState.m_flFogStart = fStart;
 }
 
 void CShaderAPIDx11::FogEnd( float fEnd )
 {
+	m_DynamicState.m_flFogStart = fEnd;
 }
 
 void CShaderAPIDx11::SetFogZ( float fogZ )
 {
+	m_DynamicState.m_flFogZ = fogZ;
 }
 
 void CShaderAPIDx11::FogMaxDensity( float flMaxDensity )
 {
+	m_DynamicState.m_flFogMaxDensity = flMaxDensity;
 }
 
 void CShaderAPIDx11::GetFogDistances( float *fStart, float *fEnd, float *fFogZ )
 {
+	*fStart = m_DynamicState.m_flFogStart;
+	*fEnd = m_DynamicState.m_flFogEnd;
+	*fFogZ = m_DynamicState.m_flFogZ;
 }
 
 void CShaderAPIDx11::SceneFogColor3ub( unsigned char r, unsigned char g, unsigned char b )
@@ -1264,6 +1455,9 @@ void CShaderAPIDx11::SceneFogMode( MaterialFogMode_t fogMode )
 
 void CShaderAPIDx11::GetSceneFogColor( unsigned char *rgb )
 {
+	rgb[0] = 0;
+	rgb[1] = 0;
+	rgb[2] = 0;
 }
 
 MaterialFogMode_t CShaderAPIDx11::GetSceneFogMode()
@@ -1292,43 +1486,15 @@ void CShaderAPIDx11::FogColor3ubv( unsigned char const *rgb )
 {
 }
 
-void CShaderAPIDx11::Viewport( int x, int y, int width, int height )
-{
-}
-
-void CShaderAPIDx11::GetViewport( int &x, int &y, int &width, int &height ) const
-{
-}
-
 // Sets the vertex and pixel shaders
 void CShaderAPIDx11::SetVertexShaderIndex( int vshIndex )
 {
+	ShaderManager()->SetVertexShaderIndex( vshIndex );
 }
 
 void CShaderAPIDx11::SetPixelShaderIndex( int pshIndex )
 {
-}
-
-// Sets the constant register for vertex and pixel shaders
-void CShaderAPIDx11::SetVertexShaderConstant( int var, float const *pVec, int numConst, bool bForce )
-{
-	Warning( "Unsupported CShaderAPIDx11::SetVertexShaderConstant() called!\n" );
-}
-
-void CShaderAPIDx11::SetPixelShaderConstant( int var, float const *pVec, int numConst, bool bForce )
-{
-	Warning( "Unsupported CShaderAPIDx11::SetPixelShaderConstant() called!\n" );
-}
-
-void CShaderAPIDx11::InvalidateDelayedShaderConstants( void )
-{
-	Warning( "Unsupported CShaderAPIDx11::InvalidateDelayedShaderConstants() called!\n" );
-}
-
-//Set's the linear->gamma conversion textures to use for this hardware for both srgb writes enabled and disabled(identity)
-void CShaderAPIDx11::SetLinearToGammaConversionTextures( ShaderAPITextureHandle_t hSRGBWriteEnabledTexture, ShaderAPITextureHandle_t hIdentityTexture )
-{
-	Warning( "Unsupported CShaderAPIDx11::SetLinearToGammaConversionTextures() called!\n" );
+	ShaderManager()->SetPixelShaderIndex( pshIndex );
 }
 
 // Returns the nearest supported format
@@ -1423,11 +1589,6 @@ void CShaderAPIDx11::TexWrap( ShaderTexCoordComponent_t coord, ShaderTexWrapMode
 		return;
 
 	GetTexture( hModifyTexture ).SetWrap( coord, wrapMode );
-}
-
-void CShaderAPIDx11::TexSetPriority( int priority )
-{
-	Warning( "Unsupported CShaderAPIDx11::SetTexPriority() called!\n" );
 }
 
 ShaderAPITextureHandle_t CShaderAPIDx11::CreateTexture(
@@ -1741,16 +1902,6 @@ void CShaderAPIDx11::RestoreShaderObjects()
 {
 }
 
-void CShaderAPIDx11::SetTextureTransformDimension( TextureStage_t textureStage, int dimension, bool projected )
-{
-	Warning( "Unsupported CShaderAPIDx11::SetTextureTransformDimension() called!\n" );
-}
-
-void CShaderAPIDx11::SetBumpEnvMatrix( TextureStage_t textureStage, float m00, float m01, float m10, float m11 )
-{
-	Warning( "Unsupported CShaderAPIDx11::SetBumpEnvMatrix() called!\n" );
-}
-
 void CShaderAPIDx11::SyncToken( const char *pToken )
 {
 }
@@ -1807,4 +1958,122 @@ IDirect3DBaseTexture *CShaderAPIDx11::GetD3DTexture( ShaderAPITextureHandle_t ha
 		return tex.GetTexture();
 	else
 		return tex.GetTexture( tex.m_CurrentCopy );
+}
+
+//------------------------------------------------------------------------------------
+// UNUSED/UNSUPPORTED FUNCTIONS!!!
+//------------------------------------------------------------------------------------
+
+// Lightmap texture binding
+void CShaderAPIDx11::BindLightmap( TextureStage_t stage )
+{
+	// Unused
+}
+
+void CShaderAPIDx11::BindBumpLightmap( TextureStage_t stage )
+{
+	// Unused
+}
+
+void CShaderAPIDx11::BindFullbrightLightmap( TextureStage_t stage )
+{
+	// Unused
+}
+
+void CShaderAPIDx11::BindWhite( TextureStage_t stage )
+{
+	// Unused
+}
+
+void CShaderAPIDx11::BindBlack( TextureStage_t stage )
+{
+	// Unused
+}
+
+void CShaderAPIDx11::BindGrey( TextureStage_t stage )
+{
+	// Unused
+}
+
+void CShaderAPIDx11::SetTextureTransformDimension( TextureStage_t textureStage, int dimension, bool projected )
+{
+	Warning( "Unsupported CShaderAPIDx11::SetTextureTransformDimension() called!\n" );
+}
+
+void CShaderAPIDx11::SetBumpEnvMatrix( TextureStage_t textureStage, float m00, float m01, float m10, float m11 )
+{
+	Warning( "Unsupported CShaderAPIDx11::SetBumpEnvMatrix() called!\n" );
+}
+
+void CShaderAPIDx11::SetAmbientLight( float r, float g, float b )
+{
+	Warning( "Unsupported CShaderAPIDx11::SetAmbientLight() called!\n" );
+}
+
+//-----------------------------------------------------------------------------
+// Methods related to state objects
+//-----------------------------------------------------------------------------
+void CShaderAPIDx11::SetRasterState( const ShaderRasterState_t &state )
+{
+	Warning( "Unsupported CShaderAPIDx11::SetRasterState() called!\n" );
+}
+
+// The shade mode
+void CShaderAPIDx11::ShadeMode( ShaderShadeMode_t mode )
+{
+	Warning( "Unsupported CShaderAPIDx11::ShadeMode() called!\n" );
+}
+
+void CShaderAPIDx11::TexSetPriority( int priority )
+{
+	Warning( "Unsupported CShaderAPIDx11::SetTexPriority() called!\n" );
+}
+
+// Sets the constant register for vertex and pixel shaders
+void CShaderAPIDx11::SetVertexShaderConstant( int var, float const *pVec, int numConst, bool bForce )
+{
+	Warning( "Unsupported CShaderAPIDx11::SetVertexShaderConstant() called!\n" );
+}
+
+void CShaderAPIDx11::SetPixelShaderConstant( int var, float const *pVec, int numConst, bool bForce )
+{
+	Warning( "Unsupported CShaderAPIDx11::SetPixelShaderConstant() called!\n" );
+}
+
+void CShaderAPIDx11::InvalidateDelayedShaderConstants( void )
+{
+	Warning( "Unsupported CShaderAPIDx11::InvalidateDelayedShaderConstants() called!\n" );
+}
+
+//Set's the linear->gamma conversion textures to use for this hardware for both srgb writes enabled and disabled(identity)
+void CShaderAPIDx11::SetLinearToGammaConversionTextures( ShaderAPITextureHandle_t hSRGBWriteEnabledTexture, ShaderAPITextureHandle_t hIdentityTexture )
+{
+	Warning( "Unsupported CShaderAPIDx11::SetLinearToGammaConversionTextures() called!\n" );
+}
+
+// Special system flat normal map binding.
+void CShaderAPIDx11::BindFlatNormalMap( TextureStage_t stage )
+{
+	// Unused
+}
+
+void CShaderAPIDx11::BindNormalizationCubeMap( TextureStage_t stage )
+{
+	// Unused
+}
+
+void CShaderAPIDx11::BindSignedNormalizationCubeMap( TextureStage_t stage )
+{
+	// Unused
+}
+
+void CShaderAPIDx11::BindFBTexture( TextureStage_t stage, int textureIndex )
+{
+	// Unused
+}
+
+// Render state for the ambient light cube (vertex shaders)
+void CShaderAPIDx11::SetVertexShaderStateAmbientLightCube()
+{
+	Warning( "Unsupported CShaderAPIDx11::SetVertexShaderStateAmbientLightCube() called!\n" );
 }

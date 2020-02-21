@@ -3,16 +3,18 @@
 
 CShaderConstantBufferDx11::CShaderConstantBufferDx11() :
 	m_pCBuffer( NULL ),
-	m_nBufSize( 0 )
+	m_nBufSize( 0 ),
+	m_bNeedsUpdate( true ),
+	m_pData( NULL )
 {
 }
 
-void CShaderConstantBufferDx11::Create( size_t nBufSize )
+void CShaderConstantBufferDx11::Create( size_t nBufferSize )
 {
-	m_nBufSize = nBufSize;
+	m_nBufSize = nBufferSize;
 
 	D3D11_BUFFER_DESC cbDesc;
-	cbDesc.ByteWidth = nBufSize;
+	cbDesc.ByteWidth = m_nBufSize;
 	cbDesc.Usage = D3D11_USAGE_DYNAMIC;
 	cbDesc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
 	cbDesc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
@@ -29,17 +31,38 @@ void CShaderConstantBufferDx11::Create( size_t nBufSize )
 
 void CShaderConstantBufferDx11::Update( void *pNewData )
 {
-	if ( !pNewData || !m_pCBuffer )
+	if ( !pNewData )
 		return;
 
-	D3D11DeviceContext()->UpdateSubresource( m_pCBuffer, 0, 0, pNewData, 0, 0 );
+	// If this new data is not the same as the data
+	// the GPU currently has, we need to update.
+	if ( !m_pData || memcmp( m_pData, pNewData, m_nBufSize ) )
+	{
+		if ( m_pData )
+			free( m_pData );
+		m_pData = malloc( m_nBufSize );
+		memcpy( m_pData, pNewData, m_nBufSize );
+		m_bNeedsUpdate = true;
+	}
+}
+
+void CShaderConstantBufferDx11::UploadToGPU()
+{
+	if ( !m_pCBuffer || !m_bNeedsUpdate )
+		return;
+
+	D3D11DeviceContext()->UpdateSubresource( m_pCBuffer, 0, 0, m_pData, 0, 0 );
+	m_bNeedsUpdate = false;
 }
 
 void CShaderConstantBufferDx11::Destroy()
 {
-	if ( !m_pCBuffer )
-		return;
-
-	m_pCBuffer->Release();
+	if ( m_pCBuffer )
+		m_pCBuffer->Release();
+	
 	m_pCBuffer = NULL;
+
+	if ( m_pData )
+		free( m_pData );
+	m_pData = NULL;
 }

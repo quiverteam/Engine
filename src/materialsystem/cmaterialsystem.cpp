@@ -453,6 +453,8 @@ CreateInterfaceFn CMaterialSystem::CreateShaderAPI( char const* pShaderDLL )
 	// Clean up the old shader
 	DestroyShaderAPI();
 
+	Log("Creating shader API...\n");
+
 	// Load the new shader
 	m_ShaderHInst = Sys_LoadModule( pShaderDLL );
 
@@ -490,7 +492,7 @@ void CMaterialSystem::SetShaderAPI( char const *pShaderAPIDLL )
 
 	if ( !pShaderAPIDLL )
 	{
-		pShaderAPIDLL = "shaderapidx9";
+		pShaderAPIDLL = "shaderapidx11";
 	}
 
 	// m_pShaderDLL is needed to spew driver info
@@ -526,6 +528,7 @@ bool CMaterialSystem::Connect( CreateInterfaceFn factory )
 
 	// Get at the interfaces exported by the shader DLL
 	g_pShaderDeviceMgr = (IShaderDeviceMgr*)m_ShaderAPIFactory( SHADER_DEVICE_MGR_INTERFACE_VERSION, 0 );
+	Log("g_pShaderDeviceMgr: %i\n", g_pShaderDeviceMgr);
 	if ( !g_pShaderDeviceMgr )
 		return false;
 	g_pHWConfig = (IHardwareConfigInternal*)m_ShaderAPIFactory( MATERIALSYSTEM_HARDWARECONFIG_INTERFACE_VERSION, 0 );
@@ -534,12 +537,15 @@ bool CMaterialSystem::Connect( CreateInterfaceFn factory )
 
 	// FIXME: ShaderAPI, ShaderDevice, and ShaderShadow should only come in after setting mode
 	g_pShaderAPI = (IShaderAPI*)m_ShaderAPIFactory( SHADERAPI_INTERFACE_VERSION, 0 );
+	Log( "g_pShaderAPI: %i\n", g_pShaderAPI );
 	if ( !g_pShaderAPI )
 		return false;
 	g_pShaderDevice = (IShaderDevice*)m_ShaderAPIFactory( SHADER_DEVICE_INTERFACE_VERSION, 0 );
+	Log( "g_pShaderDevice: %i\n", g_pShaderDevice );
 	if ( !g_pShaderDevice )
 		return false;
 	g_pShaderShadow = (IShaderShadow*)m_ShaderAPIFactory( SHADERSHADOW_INTERFACE_VERSION, 0 );
+	Log( "g_pShaderShadow: %i\n", g_pShaderShadow );
 	if ( !g_pShaderShadow )
 		return false;
 

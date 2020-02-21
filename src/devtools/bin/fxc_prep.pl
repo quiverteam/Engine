@@ -544,6 +544,14 @@ sub GetShaderType
 	{
 		return "vs_1_1";
 	}
+	elsif( $shadername =~ m/vs40/i )
+	{
+		return "vs_4_0";
+	}
+	elsif( $shadername =~ m/ps40/i )
+	{
+		return "ps_4_0";
+	}
 	else
 	{
 		die "\n\nSHADERNAME = $shadername\n\n";

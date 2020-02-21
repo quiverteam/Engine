@@ -133,6 +133,7 @@ namespace StatesDx11
 	{
 		bool bBlendEnable;
 		bool bIndependentAlphaBlend;
+		bool bAlphaToCoverage;
 
 		ShaderBlendFactor_t srcBlend;
 		ShaderBlendFactor_t destBlend;
@@ -148,6 +149,7 @@ namespace StatesDx11
 
 		ColorBlendAttrib()
 		{
+			bAlphaToCoverage = false;
 			bBlendEnable = false;
 			bIndependentAlphaBlend = false;
 			srcBlend = SHADER_BLEND_ONE;

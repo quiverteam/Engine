@@ -150,6 +150,10 @@ public:
 
 	virtual int GetFlags() const = 0;
 
+	virtual ConstantBuffer_t CreateConstantBuffer( size_t nBufSize ) = 0;
+	virtual void SetConstantBuffer( ConstantBuffer_t cbuffer ) = 0;
+	virtual void UpdateConstantBuffer( ConstantBuffer_t cbuffer, void *pNewData ) = 0;
+
 	// FIXME: Remove GetParamName, etc. above
 //	virtual const ShaderParamInfo_t& GetParamInfo( int paramIndex ) const = 0;
 };

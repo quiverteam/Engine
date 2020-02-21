@@ -39,6 +39,7 @@ set DIRECTX_SDK_BIN_DIR=dx9sdk\utilities
 if /i "%2" == "-x360" goto dx_sdk_x360
 if /i "%2" == "-dx9_30" goto dx_sdk_dx9_30
 if /i "%2" == "-dx10" goto dx_sdk_dx10
+if /i "%2" == "-dx11" goto dx_sdk_dx11
 goto dx_sdk_end
 :dx_sdk_x360
 			set DIRECTX_SDK_VER=x360.00
@@ -51,6 +52,10 @@ goto dx_sdk_end
 :dx_sdk_dx10
 			set DIRECTX_SDK_VER=pc10.00
 			set DIRECTX_SDK_BIN_DIR=dx10sdk\utilities\dx10_40
+			goto dx_sdk_end
+:dx_sdk_dx11
+			set DIRECTX_SDK_VER=pc11.00
+			set DIRECTX_SDK_BIN_DIR=.\
 			goto dx_sdk_end
 :dx_sdk_end
 
