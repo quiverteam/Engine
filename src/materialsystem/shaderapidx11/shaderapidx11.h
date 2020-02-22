@@ -996,7 +996,7 @@ private:
 	void DoIssueVertexShader();
 	void DoIssuePixelShader();
 	void DoIssueGeometryShader();
-	void DoIssueConstantBuffers();
+	bool DoIssueConstantBuffers( bool bForce );
 	void DoIssueTexture();
 	void DoIssueRasterState();
 	void DoIssueBlendState();

@@ -335,12 +335,9 @@ void CShaderAPIDx11::IssueStateChanges( bool bForce )
 		bStateChanged = true;
 	}
 
-	if ( bForce || ShaderAttribChanged( numConstantBuffers ) ||
-	     memcmp( TargetShaderVar( constantBuffers ), CurrentShaderVar( constantBuffers ), sizeof( ConstantBuffer_t ) * MAX_DX11_CBUFFERS ) )
-	{
-		DoIssueConstantBuffers();
+	bool bCBsChanged = DoIssueConstantBuffers( bForce );
+	if ( bCBsChanged )
 		bStateChanged = true;
-	}
 	
 	if ( bForce || memcmp( m_TargetState.shadowState.samplerAttrib.textures,
 		     m_State.shadowState.samplerAttrib.textures,
@@ -434,32 +431,65 @@ void CShaderAPIDx11::DoIssueGeometryShader()
 	D3D11DeviceContext()->GSSetShader( m_DX11TargetState.m_pGeometryShader, NULL, 0 );
 }
 
-void CShaderAPIDx11::DoIssueConstantBuffers()
+bool CShaderAPIDx11::DoIssueConstantBuffers( bool bForce )
 {
-	for ( int i = 0; i < TargetShaderVar( numConstantBuffers ); i++ )
-	{
-		// Yeesh, this is ugly.
-		IShaderConstantBuffer *pIBuf = (IShaderConstantBuffer *)g_pShaderDevice->GetConstantBuffer( TargetShaderVar( constantBuffers )[i] );
+	bool bChanged = false;
 
-		m_DX11TargetState.m_pPSConstantBuffers[i] =
-			(ID3D11Buffer *)pIBuf->GetBuffer();
+	for ( int i = 0; i < MAX_DX11_CBUFFERS; i++ )
+	{
+		IShaderConstantBuffer *pIBuf;
+
+		if ( bForce ||
+		     memcmp( TargetShaderVar( vsConstantBuffers ),
+			     CurrentShaderVar( vsConstantBuffers ),
+			     sizeof( ConstantBuffer_t ) * MAX_DX11_CBUFFERS ) )
+		{
+			pIBuf = (IShaderConstantBuffer *)g_pShaderDevice->GetConstantBuffer( TargetShaderVar( vsConstantBuffers )[i] );
+			m_DX11TargetState.m_pVSConstantBuffers[i] =
+				(ID3D11Buffer *)pIBuf->GetBuffer();
+			bChanged = true;
+		}
+
+		if ( bForce ||
+		     memcmp( TargetShaderVar( gsConstantBuffers ),
+			     CurrentShaderVar( gsConstantBuffers ),
+			     sizeof( ConstantBuffer_t ) * MAX_DX11_CBUFFERS ) )
+		{
+			pIBuf = (IShaderConstantBuffer *)g_pShaderDevice->GetConstantBuffer( TargetShaderVar( gsConstantBuffers )[i] );
+			m_DX11TargetState.m_pGSConstantBuffers[i] =
+				(ID3D11Buffer *)pIBuf->GetBuffer();
+			bChanged = true;
+		}
+
+		if ( bForce ||
+		     memcmp( TargetShaderVar( psConstantBuffers ),
+			     CurrentShaderVar( psConstantBuffers ),
+			     sizeof( ConstantBuffer_t ) * MAX_DX11_CBUFFERS ) )
+		{
+			pIBuf = (IShaderConstantBuffer *)g_pShaderDevice->GetConstantBuffer( TargetShaderVar( psConstantBuffers )[i] );
+			m_DX11TargetState.m_pPSConstantBuffers[i] =
+				(ID3D11Buffer *)pIBuf->GetBuffer();
+			bChanged = true;
+		}
 	}
 
-	if ( m_DX11TargetState.m_pVertexShader )
+	if ( bChanged && m_DX11TargetState.m_pVertexShader )
 	{
-		D3D11DeviceContext()->VSSetConstantBuffers( 0, TargetShaderVar( numConstantBuffers ),
+		D3D11DeviceContext()->VSSetConstantBuffers( 0, MAX_DX11_CBUFFERS,
 							    m_DX11TargetState.m_pPSConstantBuffers );
 	}
-	if ( m_DX11TargetState.m_pGeometryShader )
+	if ( bChanged && m_DX11TargetState.m_pGeometryShader )
 	{
-		D3D11DeviceContext()->GSSetConstantBuffers( 0, TargetShaderVar( numConstantBuffers ),
+		D3D11DeviceContext()->GSSetConstantBuffers( 0, MAX_DX11_CBUFFERS,
 							    m_DX11TargetState.m_pPSConstantBuffers );
 	}
-	if ( m_DX11TargetState.m_pPixelShader )
+	if ( bChanged && m_DX11TargetState.m_pPixelShader )
 	{
-		D3D11DeviceContext()->PSSetConstantBuffers( 0, TargetShaderVar( numConstantBuffers ),
+		D3D11DeviceContext()->PSSetConstantBuffers( 0, MAX_DX11_CBUFFERS,
 							    m_DX11TargetState.m_pPSConstantBuffers );
 	}
+
+	return bChanged;
 }
 
 void CShaderAPIDx11::DoIssueTexture()

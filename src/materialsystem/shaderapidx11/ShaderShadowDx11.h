@@ -120,7 +120,9 @@ public:
 	virtual void StencilMask( int nMask );
 	virtual void StencilWriteMask( int nMask );
 
-	virtual void SetConstantBuffer( ConstantBuffer_t cbuffer );
+	virtual void SetPixelShaderConstantBuffer( ConstantBuffer_t cbuffer, int psReg );
+	virtual void SetVertexShaderConstantBuffer( ConstantBuffer_t cbuffer, int vsReg );
+	virtual void SetGeometryShaderConstantBuffer( ConstantBuffer_t cbuffer, int gsReg );
 	virtual void SetTransformConstantBuffer();
 	virtual void SetLightingConstantBuffer();
 	virtual void SetFogConstantBuffer();

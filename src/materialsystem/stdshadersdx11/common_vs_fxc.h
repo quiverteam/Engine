@@ -49,10 +49,10 @@
 
 
 // -------------------------
-// CONSTANTS
+// CONSTANT BUFFERS
 // -------------------------
 
-cbuffer TransformBuffer_t
+cbuffer TransformBuffer_t : register( SHADER_CBREG_TRANSFORM )
 {
 	float4x4 cModelMatrix;
 	float4x4 cViewMatrix;

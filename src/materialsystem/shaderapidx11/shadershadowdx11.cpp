@@ -294,14 +294,24 @@ void CShaderShadowDx11::BlendFuncSeparateAlpha( ShaderBlendFactor_t srcFactor, S
 	m_ShadowState.colorBlendAttrib.destBlendAlpha = dstFactor;
 }
 
-void CShaderShadowDx11::SetConstantBuffer( ConstantBuffer_t cbuffer )
+void CShaderShadowDx11::SetVertexShaderConstantBuffer( ConstantBuffer_t cbuffer, int vsReg )
 {
-	m_ShadowShaderState.shaderAttrib.AddConstantBuffer( cbuffer );
+	m_ShadowShaderState.shaderAttrib.vsConstantBuffers[vsReg] = cbuffer;
+}
+
+void CShaderShadowDx11::SetPixelShaderConstantBuffer( ConstantBuffer_t cbuffer, int psReg )
+{
+	m_ShadowShaderState.shaderAttrib.vsConstantBuffers[psReg] = cbuffer;
+}
+
+void CShaderShadowDx11::SetGeometryShaderConstantBuffer( ConstantBuffer_t cbuffer, int gsReg )
+{
+	m_ShadowShaderState.shaderAttrib.gsConstantBuffers[gsReg] = cbuffer;
 }
 
 void CShaderShadowDx11::SetTransformConstantBuffer()
 {
-	SetConstantBuffer( g_pShaderDeviceDx11->GetTransformConstantBuffer() );
+	SetVertexShaderConstantBuffer( g_pShaderDeviceDx11->GetTransformConstantBuffer(), SHADER_PSREG );
 }
 
 void CShaderShadowDx11::SetLightingConstantBuffer()

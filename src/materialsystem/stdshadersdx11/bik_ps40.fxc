@@ -4,7 +4,7 @@
 
 #include "common_ps_fxc.h"
 
-cbuffer BikTest_t
+cbuffer BikTest_t : register( SHADER_CBREG_0 )
 {
 	float btR;
 	float btG;
@@ -12,12 +12,14 @@ cbuffer BikTest_t
 	float btA;
 };
 
-Texture2D YTexture;
-SamplerState YSampler;
-Texture2D cRTexture;
-SamplerState cRSampler;
-Texture2D cBTexture;
-SamplerState cBSampler;
+Texture2D YTexture : register( SHADER_TEXREG_0 );
+SamplerState YSampler : register( SHADER_SAMPREG_0 );
+
+Texture2D cRTexture : register( SHADER_TEXREG_1 );
+SamplerState cRSampler : register( SHADER_SAMPREG_1 );
+
+Texture2D cBTexture : register( SHADER_TEXREG_2 );
+SamplerState cBSampler : register( SHADER_SAMPREG_2 );
 
 struct PS_INPUT
 {
