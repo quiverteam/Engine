@@ -363,6 +363,8 @@ void CTextureDx11::SetWrap( ShaderTexCoordComponent_t coord, ShaderTexWrapMode_t
 		Warning( "CTextureDx11::SetWrap: unknown coord %i\n", coord );
 		break;
 	}
+
+	AdjustSamplerState();
 }
 
 void CTextureDx11::AdjustD3DFilter()
@@ -452,6 +454,8 @@ void CTextureDx11::AdjustD3DFilter()
 		Warning( "CTextureDx11::AdjustD3DFilter: Invalid combination of min and mag filter. Min: %i, Mag: %i\n",
 			 m_MinFilter, m_MagFilter );
 	}
+
+	AdjustSamplerState();
 }
 
 void CTextureDx11::SetAnisotropicLevel( int level )

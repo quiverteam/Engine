@@ -131,6 +131,7 @@ public:
 	virtual void UploadConstantBuffers( ConstantBuffer_t *pBuffers, int nBuffers );
 	virtual void DestroyConstantBuffer( ConstantBuffer_t hBuffer );
 	virtual ConstantBufferHandle_t GetConstantBuffer( ConstantBuffer_t buffer );
+	virtual ConstantBuffer_t GetInternalConstantBuffer( int type );
 	virtual IVertexBuffer *GetDynamicVertexBuffer( int nStreamID, VertexFormat_t vertexFormat, bool bBuffered = true );
 	virtual IIndexBuffer *GetDynamicIndexBuffer( MaterialIndexFormat_t fmt, bool bBuffered = true );
 	virtual void SetHardwareGammaRamp( float fGamma, float fGammaTVRangeMin, float fGammaTVRangeMax, float fGammaTVExponent, bool bTVEnabled );

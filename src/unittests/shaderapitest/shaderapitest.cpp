@@ -217,6 +217,9 @@ private:
 	VertexShaderHandle_t m_hVertexShader;
 	GeometryShaderHandle_t m_hGeometryShader;
 	PixelShaderHandle_t m_hPixelShader;
+	ConstantBuffer_t m_hTestCBuffer;
+
+	bool m_bIsDx11;
 };
 
 DEFINE_WINDOWED_STEAM_APPLICATION_OBJECT( CShaderAPITestApp );
@@ -241,10 +244,10 @@ bool CShaderAPITestApp::Create()
 	const char *pShaderDLL = CommandLine()->ParmValue( "-shaderdll" );
 	if ( !pShaderDLL )
 	{
-		pShaderDLL = "shaderapidx10.dll";
+		pShaderDLL = "shaderapidx9.dll";
 	}
 
-	if ( !bIsVistaOrHigher && !Q_stricmp( pShaderDLL, "shaderapidx10.dll" ) )
+	if ( !bIsVistaOrHigher && !Q_stricmp( pShaderDLL, "shaderapidx11.dll" ) )
 	{
 		pShaderDLL = "shaderapidx9.dll";
 	}
@@ -264,6 +267,15 @@ bool CShaderAPITestApp::Create()
 					return false;
 			}
 		}
+	}
+
+	if ( !Q_stricmp( pShaderDLL, "shaderapidx11.dll" ) )
+	{
+		m_bIsDx11 = true;
+	}
+	else
+	{
+		m_bIsDx11 = false;
 	}
 	
 	g_pShaderDeviceMgr = (IShaderDeviceMgr*)AddSystem( module, SHADER_DEVICE_MGR_INTERFACE_VERSION );
@@ -650,14 +662,73 @@ static const char s_pSimplePixelShader[] =
 	"}																			"
 	"";
 
+static const char s_pSimpleDx11VertexShader[] =
+"cbuffer Transform_t : register(b0)"
+"{"
+"       matrix modelMatrix;"
+"       matrix viewMatrix;"
+"       matrix projectionMatrix;"
+"       matrix modelViewProjectionMatrix;"
+"}"
+"struct VS_INPUT															"
+"{																			"
+"	float3 vPos						: POSITION0;							"
+"	float4 vColor					: COLOR0;								"
+"};																			"
+"																			"
+"struct VS_OUTPUT															"
+"{																			"
+"	float4 projPos					: POSITION0;							"
+"	float4 vertexColor				: COLOR0;								"
+"};																			"
+"																			"
+"VS_OUTPUT main( const VS_INPUT v )											"
+"{																			"
+"	VS_OUTPUT o = ( VS_OUTPUT )0;											"
+"																			"
+//"       matrix mvp = mul(projectionMatrix, mul(viewMatrix, modelMatrix));"
+"	o.projPos = mul(modelViewProjectionMatrix, float4(v.vPos.xyz, 1.0f));													"
+//"       o.projPos.xyz = v.vPos.xyz; o.projPos.w = 1.0f;"
+"	o.vertexColor = v.vColor;												"
+"	return o;																"
+"}																			"
+"";
+
+static const char s_pSimpleDx11PixelShader[] =
+"cbuffer SimpleTest_t : register(b0)"
+"{"
+"       float r;"
+"       float g;"
+"       float b;"
+"}"
+"struct PS_INPUT															"
+"{																			"
+"	float4 projPos					: POSITION0;							"
+"	float4 vColor					: COLOR0;								"
+"};																			"
+"																			"
+"float4 main( const PS_INPUT i ) : SV_TARGET									"
+"{																			"
+"	return i.vColor * float4(r, g, b, 1);														"
+"}																			"
+"";
+
+ALIGN16 struct SimpleTest_t
+{
+	float r;
+	float g;
+	float b;
+};
 
 //-----------------------------------------------------------------------------
 // Create, destroy shaders
 //-----------------------------------------------------------------------------
 void CShaderAPITestApp::CreateShaders( const char *pVShader, int nVBufLen, const char *pGShader, int nGBufLen, const char *pPShader, int nPBufLen )
 {
-	const char *pVertexShaderVersion = g_pMaterialSystemHardwareConfig->GetDXSupportLevel() == 100 ? "vs_4_0" : "vs_2_0";
-	const char *pPixelShaderVersion = g_pMaterialSystemHardwareConfig->GetDXSupportLevel() == 100 ? "ps_4_0" : "ps_2_0";
+	m_pShaderAPI->SetDefaultState();
+
+	const char *pVertexShaderVersion = g_pMaterialSystemHardwareConfig->GetDXSupportLevel() == 110 ? "vs_4_0" : "vs_2_0";
+	const char *pPixelShaderVersion = g_pMaterialSystemHardwareConfig->GetDXSupportLevel() == 110 ? "ps_4_0" : "ps_2_0";
 
 	// Compile shaders
 	m_hVertexShader = m_pShaderDevice->CreateVertexShader( pVShader, nVBufLen, pVertexShaderVersion );
@@ -676,6 +747,34 @@ void CShaderAPITestApp::CreateShaders( const char *pVShader, int nVBufLen, const
 	m_pShaderAPI->BindVertexShader( m_hVertexShader );
 	m_pShaderAPI->BindGeometryShader( m_hGeometryShader );
 	m_pShaderAPI->BindPixelShader( m_hPixelShader );
+
+	if ( m_bIsDx11 )
+	{
+		m_hTestCBuffer = m_pShaderDevice->CreateConstantBuffer( sizeof( SimpleTest_t ) );
+		SimpleTest_t tmp;
+		tmp.r = 0.5f;
+		tmp.g = 0.5f;
+		tmp.b = 1.0f;
+		m_pShaderAPI->UpdateConstantBuffer( m_hTestCBuffer, &tmp );
+		m_pShaderAPI->BindPixelShaderConstantBuffer( m_hTestCBuffer );
+		m_pShaderAPI->BindVertexShaderConstantBuffer( m_pShaderAPI->GetInternalConstantBuffer( SHADER_INTERNAL_CONSTANTBUFFER_TRANSFORM ) );
+	}
+
+	m_pShaderAPI->MatrixMode( MATERIAL_VIEW );
+	m_pShaderAPI->LoadIdentity();
+	m_pShaderAPI->PushMatrix();
+
+	m_pShaderAPI->MatrixMode( MATERIAL_PROJECTION );
+	m_pShaderAPI->LoadIdentity();
+	m_pShaderAPI->PerspectiveX( 70.0f, ( 4. / 3. ), 0.1f, 1000.0f );
+	m_pShaderAPI->PushMatrix();
+
+	m_pShaderAPI->MatrixMode( MATERIAL_MODEL );
+	m_pShaderAPI->LoadIdentity();
+	m_pShaderAPI->Translate( 0, 0.1, -10 );
+	m_pShaderAPI->Scale( 0.5, 0.5, 0.5 );
+	m_pShaderAPI->Rotate( 45, 0, 1, 0 );
+	m_pShaderAPI->PushMatrix();
 }
 
 void CShaderAPITestApp::DestroyShaders()
@@ -687,6 +786,12 @@ void CShaderAPITestApp::DestroyShaders()
 	m_hVertexShader = VERTEX_SHADER_HANDLE_INVALID;
 	m_hGeometryShader = GEOMETRY_SHADER_HANDLE_INVALID;
 	m_hPixelShader = PIXEL_SHADER_HANDLE_INVALID;
+
+	if ( m_bIsDx11 )
+	{
+		m_pShaderDevice->DestroyConstantBuffer( m_hTestCBuffer );
+		m_hTestCBuffer = CONSTANT_BUFFER_INVALID;
+	}
 }
 
 
@@ -702,8 +807,12 @@ void CShaderAPITestApp::TestColoredQuad( ShaderBufferType_t nVBType, ShaderBuffe
 	CreateSimpleBuffers( nVBType, nIBType, bBuffered );
 
 	// Draw a quad!
-	CreateShaders( s_pSimpleVertexShader, sizeof(s_pSimpleVertexShader), 
-		NULL, 0, s_pSimplePixelShader, sizeof(s_pSimplePixelShader) );
+	if (!m_bIsDx11 )
+		CreateShaders( s_pSimpleVertexShader, sizeof(s_pSimpleVertexShader), 
+			NULL, 0, s_pSimplePixelShader, sizeof(s_pSimplePixelShader) );
+	else
+		CreateShaders( s_pSimpleDx11VertexShader, sizeof( s_pSimpleDx11VertexShader ),
+			       NULL, 0, s_pSimpleDx11PixelShader, sizeof( s_pSimpleDx11PixelShader ) );
 
 	m_pShaderAPI->Draw( MATERIAL_TRIANGLES, 0, 6 );
 	m_pShaderDevice->Present();
@@ -962,7 +1071,15 @@ int CShaderAPITestApp::Main()
 		return 0;
 
 	// Test buffer clearing
-	m_pShaderAPI->ClearColor3ub( RandomInt( 0, 100 ), RandomInt( 0, 100 ), RandomInt( 190, 255 ) );
+	int r = 255;//RandomInt( 0, 255 );
+	int g = 0; //RandomInt( 0, 255 );
+	int b = 0;// RandomInt( 0, 255 );
+	char text[100];
+	sprintf( text, "Clearing to R: %i G: %i B: %i\n", r, g, b );
+	SetWindowText( m_HWnd, text );
+	if ( !WaitForKeypress() )
+		return 1;
+	m_pShaderAPI->ClearColor3ub( r, g, b );
 	m_pShaderAPI->ClearBuffers( true, false, false, -1, -1 );
 	m_pShaderDevice->Present();
 
@@ -973,6 +1090,7 @@ int CShaderAPITestApp::Main()
 
 	// Test viewport
 	int nMaxViewports = g_pMaterialSystemHardwareConfig->MaxViewports();
+	Log( "nMaxViewports: %i\n", nMaxViewports );
 	ShaderViewport_t* pViewports = ( ShaderViewport_t* )_alloca( nMaxViewports * sizeof(ShaderViewport_t) );
 	for ( int i = 0; i < nMaxViewports; ++i )
 	{
@@ -984,6 +1102,7 @@ int CShaderAPITestApp::Main()
 
 		m_pShaderAPI->SetViewports( i+1, pViewports );
 	}
+	m_pShaderDevice->Present();
 
 	SetWindowText( m_HWnd, "SetViewports test results . . hit a key" );
 

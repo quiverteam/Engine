@@ -181,7 +181,6 @@ inline bool CShader_IsFlag2Set( IMaterialVar **params, MaterialVarFlags2_t _flag
 #define DECLARE_CONSTANT_BUFFER(name) ConstantBuffer_t m_CB##name;
 #define CONSTANT_BUFFER(name) m_CB##name
 #define INIT_CONSTANT_BUFFER(name) m_CB##name = CreateConstantBuffer(sizeof( name##_CBuffer_t ))
-#define SET_CONSTANT_BUFFER(name) SetConstantBuffer( m_CB##name )
 #define UPDATE_CONSTANT_BUFFER(name, newData) UpdateConstantBuffer( m_CB##name, &newData )
 
 #define BEGIN_SHADER_PARAMS

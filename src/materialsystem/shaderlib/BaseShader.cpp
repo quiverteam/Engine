@@ -1686,16 +1686,33 @@ ConstantBuffer_t CBaseShader::CreateConstantBuffer( size_t nBufSize )
 	return s_pShaderInit->ShaderDevice()->CreateConstantBuffer( nBufSize );
 }
 
+ConstantBuffer_t CBaseShader::GetInternalConstantBuffer( int type )
+{
+	Assert( s_pShaderAPI );
+	return s_pShaderAPI->GetInternalConstantBuffer( type );
+}
+
+void CBaseShader::BindPixelShaderConstantBuffer( ConstantBuffer_t cbuffer )
+{
+	Assert( s_pShaderAPI );
+	s_pShaderAPI->BindPixelShaderConstantBuffer( cbuffer );
+}
+
+void CBaseShader::BindVertexShaderConstantBuffer( ConstantBuffer_t cbuffer )
+{
+	Assert( s_pShaderAPI );
+	s_pShaderAPI->BindVertexShaderConstantBuffer( cbuffer );
+}
+
+void CBaseShader::BindGeometryShaderConstantBuffer( ConstantBuffer_t cbuffer )
+{
+	Assert( s_pShaderAPI );
+	s_pShaderAPI->BindGeometryShaderConstantBuffer( cbuffer );
+}
+
 // Called from DYNAMIC_STATE
 void CBaseShader::UpdateConstantBuffer( ConstantBuffer_t cbuffer, void *pNewData )
 {
 	Assert( s_pShaderAPI );
 	s_pShaderAPI->UpdateConstantBuffer( cbuffer, pNewData );
-}
-
-// Called from SHADOW_STATE
-void CBaseShader::SetConstantBuffer( ConstantBuffer_t cbuffer )
-{
-	Assert( s_pShaderShadow );
-	s_pShaderShadow->SetConstantBuffer( cbuffer );
 }

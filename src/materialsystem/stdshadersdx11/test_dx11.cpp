@@ -21,7 +21,7 @@ BEGIN_VS_SHADER( TestDX11, "Help for TestDX11" )
 	{
 		SHADOW_STATE
 		{
-			SET_CONSTANT_BUFFER( Test );
+			//SET_CONSTANT_BUFFER( Test );
 		}
 
 		DYNAMIC_STATE

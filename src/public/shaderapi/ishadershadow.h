@@ -356,14 +356,6 @@ public:
 
 	// Shadow map filtering
 	virtual void SetShadowDepthFiltering( Sampler_t stage ) = 0;
-
-	// Sets the constant buffer structure that will be used for the shader.
-	virtual void SetPixelShaderConstantBuffer( ConstantBuffer_t cbuffer, int psReg ) = 0;
-	virtual void SetVertexShaderConstantBuffer( ConstantBuffer_t cbuffer, int vsReg ) = 0;
-	virtual void SetGeometryShaderConstantBuffer( ConstantBuffer_t cbuffer, int gsReg ) = 0;
-	virtual void SetTransformConstantBuffer() = 0;
-	virtual void SetLightingConstantBuffer() = 0;
-	virtual void SetFogConstantBuffer() = 0;
 };
 // end class IShaderShadow
 

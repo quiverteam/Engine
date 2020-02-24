@@ -47,6 +47,8 @@ CIndexBufferDx11::CIndexBufferDx11( ShaderBufferType_t type, MaterialIndexFormat
 		m_IndexFormat = MATERIAL_INDEX_FORMAT_UNKNOWN;
 		m_nIndexCount = 0;
 	}
+
+	Allocate();
 }
 
 CIndexBufferDx11::~CIndexBufferDx11()

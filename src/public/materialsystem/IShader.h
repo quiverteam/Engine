@@ -151,7 +151,10 @@ public:
 	virtual int GetFlags() const = 0;
 
 	virtual ConstantBuffer_t CreateConstantBuffer( size_t nBufSize ) = 0;
-	virtual void SetConstantBuffer( ConstantBuffer_t cbuffer ) = 0;
+	virtual ConstantBuffer_t GetInternalConstantBuffer( int type ) = 0;
+	virtual void BindPixelShaderConstantBuffer( ConstantBuffer_t cbuffer ) = 0;
+	virtual void BindVertexShaderConstantBuffer( ConstantBuffer_t cbuffer ) = 0;
+	virtual void BindGeometryShaderConstantBuffer( ConstantBuffer_t cbuffer ) = 0;
 	virtual void UpdateConstantBuffer( ConstantBuffer_t cbuffer, void *pNewData ) = 0;
 
 	// FIXME: Remove GetParamName, etc. above

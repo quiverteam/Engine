@@ -120,13 +120,6 @@ public:
 	virtual void StencilMask( int nMask );
 	virtual void StencilWriteMask( int nMask );
 
-	virtual void SetPixelShaderConstantBuffer( ConstantBuffer_t cbuffer, int psReg );
-	virtual void SetVertexShaderConstantBuffer( ConstantBuffer_t cbuffer, int vsReg );
-	virtual void SetGeometryShaderConstantBuffer( ConstantBuffer_t cbuffer, int gsReg );
-	virtual void SetTransformConstantBuffer();
-	virtual void SetLightingConstantBuffer();
-	virtual void SetFogConstantBuffer();
-
 	StateSnapshot_t FindOrCreateSnapshot();
 
 	// ---------------------------------------------------
@@ -162,10 +155,9 @@ public:
 	void DrawFlags( unsigned int drawFlags );
 
 public:
-	StatesDx11::ShadowRenderState m_ShadowState;
-	StatesDx11::ShadowShaderState m_ShadowShaderState;
+	StatesDx11::ShadowState m_ShadowState;
 
-	CUtlFixedLinkedList<StatesDx11::RenderState> m_ShadowStateCache;
+	CUtlFixedLinkedList<StatesDx11::ShadowState> m_ShadowStateCache;
 };
 
 

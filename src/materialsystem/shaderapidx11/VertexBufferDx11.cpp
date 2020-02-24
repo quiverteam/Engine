@@ -38,6 +38,8 @@ CVertexBufferDx11::CVertexBufferDx11( ShaderBufferType_t type, VertexFormat_t fm
 	m_bIsLocked = false;
 	m_bIsDynamic = ( type == SHADER_BUFFER_TYPE_DYNAMIC ) || ( type == SHADER_BUFFER_TYPE_DYNAMIC_TEMP );
 	m_bFlush = false;
+
+	Allocate();
 }
 
 CVertexBufferDx11::~CVertexBufferDx11()

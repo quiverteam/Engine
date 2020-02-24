@@ -164,6 +164,25 @@ public:
 	// Alpha to coverage
 	void EnableAlphaToCoverage( bool bEnable );
 
+	virtual void SetPixelShaderConstantBuffer( ConstantBuffer_t cbuffer, int psReg )
+	{
+	}
+	virtual void SetVertexShaderConstantBuffer( ConstantBuffer_t cbuffer, int vsReg )
+	{
+	}
+	virtual void SetGeometryShaderConstantBuffer( ConstantBuffer_t cbuffer, int gsReg )
+	{
+	}
+	virtual void SetTransformConstantBuffer()
+	{
+	}
+	virtual void SetLightingConstantBuffer()
+	{
+	}
+	virtual void SetFogConstantBuffer()
+	{
+	}
+
 private:
 	struct TextureStageState_t
 	{

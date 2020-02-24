@@ -21,148 +21,6 @@
 #include "VertexBufferDx11.h"
 #include "IndexBufferDx11.h"
 
-#define AttribsDiffer(var, type) memcmp(&m_TargetState.shadowState.##var, &m_State.shadowState.##var, sizeof(##type))
-
-//-----------------------------------------------------------------------------
-// Rasterizer state
-//-----------------------------------------------------------------------------
-
-static void GenerateRasterizerDesc( D3D11_RASTERIZER_DESC *pDesc, const StatesDx11::RenderState &state )
-{
-	const StatesDx11::RenderModeAttrib &rma = state.shadowState.renderModeAttrib;
-	const StatesDx11::CullFaceAttrib &cfa = state.shadowState.cullFaceAttrib;
-	const StatesDx11::DepthOffsetAttrib &doa = state.shadowState.depthOffsetAttrib;
-	const StatesDx11::ScissorAttrib &sa = state.shadowState.scissorAttrib;
-	const StatesDx11::AntialiasAttrib &aa = state.shadowState.antialiasAttrib;
-
-	pDesc->FillMode = ( rma.faceMode == SHADER_POLYMODE_LINE ) ? D3D11_FILL_WIREFRAME : D3D11_FILL_SOLID;
-
-	// Cull state
-	if ( !cfa.bEnable )
-	{
-		pDesc->CullMode = D3D11_CULL_NONE;
-	}
-	else
-	{
-		pDesc->CullMode = ( cfa.cullMode == MATERIAL_CULLMODE_CW ) ? D3D11_CULL_BACK : D3D11_CULL_FRONT;
-	}
-	pDesc->FrontCounterClockwise = TRUE;
-
-	// Depth bias state
-	if ( !doa.bEnable )
-	{
-		pDesc->DepthBias	    = 0;
-		pDesc->DepthBiasClamp	    = 0.0f;
-		pDesc->SlopeScaledDepthBias = 0.0f;
-		pDesc->DepthClipEnable	    = FALSE;
-	}
-	else
-	{
-		// FIXME: Implement! Read ConVars
-		pDesc->DepthBias = doa.offset;
-		pDesc->DepthBiasClamp = 0.0f;
-		pDesc->SlopeScaledDepthBias = 0.0f;
-		pDesc->DepthClipEnable = FALSE;
-	}
-
-	pDesc->ScissorEnable	     = sa.bScissorEnable ? TRUE : FALSE;
-	pDesc->MultisampleEnable     = aa.bMultisampleEnable ? TRUE : FALSE;
-	pDesc->AntialiasedLineEnable = FALSE;
-}
-
-//-----------------------------------------------------------------------------
-// Blend state
-//-----------------------------------------------------------------------------
-
-FORCEINLINE static D3D11_BLEND TranslateBlendFunc( ShaderBlendFactor_t blend )
-{
-	switch ( blend )
-	{
-	case SHADER_BLEND_ZERO:
-		return D3D11_BLEND_ZERO;
-
-	case SHADER_BLEND_ONE:
-		return D3D11_BLEND_ONE;
-
-	case SHADER_BLEND_DST_COLOR:
-		return D3D11_BLEND_DEST_COLOR;
-
-	case SHADER_BLEND_ONE_MINUS_DST_COLOR:
-		return D3D11_BLEND_INV_DEST_COLOR;
-
-	case SHADER_BLEND_SRC_ALPHA:
-		return D3D11_BLEND_SRC_ALPHA;
-
-	case SHADER_BLEND_ONE_MINUS_SRC_ALPHA:
-		return D3D11_BLEND_INV_SRC_ALPHA;
-
-	case SHADER_BLEND_DST_ALPHA:
-		return D3D11_BLEND_DEST_ALPHA;
-
-	case SHADER_BLEND_ONE_MINUS_DST_ALPHA:
-		return D3D11_BLEND_INV_DEST_ALPHA;
-
-	case SHADER_BLEND_SRC_COLOR:
-		return D3D11_BLEND_SRC_COLOR;
-
-	case SHADER_BLEND_ONE_MINUS_SRC_COLOR:
-		return D3D11_BLEND_INV_SRC_COLOR;
-
-	default:
-		// Impossible
-		return D3D11_BLEND_ZERO;
-	}
-}
-
-static void GenerateBlendDesc( D3D11_BLEND_DESC *pDesc, const StatesDx11::RenderState &newState )
-{
-	const StatesDx11::ColorBlendAttrib &cba = newState.shadowState.colorBlendAttrib;
-	const StatesDx11::ColorWriteAttrib &cwa = newState.shadowState.colorWriteAttrib;
-
-	memset( pDesc, 0, sizeof( D3D11_BLEND_DESC ) );
-
-	pDesc->AlphaToCoverageEnable		     = cba.bAlphaToCoverage;
-	pDesc->IndependentBlendEnable		     = cba.bIndependentAlphaBlend ? TRUE : FALSE;
-	pDesc->RenderTarget[0].BlendEnable	     = cba.bBlendEnable ? TRUE : FALSE;
-	pDesc->RenderTarget[0].BlendOp		     = (D3D11_BLEND_OP)cba.blendOp;
-	pDesc->RenderTarget[0].BlendOpAlpha	     = (D3D11_BLEND_OP)cba.blendOpAlpha;
-	pDesc->RenderTarget[0].DestBlend	     = TranslateBlendFunc( cba.destBlend );
-	pDesc->RenderTarget[0].SrcBlend		     = TranslateBlendFunc( cba.srcBlend );
-	pDesc->RenderTarget[0].DestBlendAlpha	     = TranslateBlendFunc( cba.destBlendAlpha );
-	pDesc->RenderTarget[0].SrcBlendAlpha	     = TranslateBlendFunc( cba.srcBlendAlpha );
-	pDesc->RenderTarget[0].RenderTargetWriteMask = cwa.colorWriteMask;
-}
-
-//-----------------------------------------------------------------------------
-// Depth/Stencil state
-//-----------------------------------------------------------------------------
-
-static void GenerateDepthStencilDesc( D3D11_DEPTH_STENCIL_DESC *pDesc, const StatesDx11::RenderState &newState )
-{
-	const StatesDx11::StencilAttrib &stencil = newState.shadowState.stencilAttrib;
-	const StatesDx11::DepthTestAttrib &depthTest = newState.shadowState.depthTestAttrib;
-	const StatesDx11::DepthWriteAttrib &depthWrite = newState.shadowState.depthWriteAttrib;
-
-	pDesc->FrontFace.StencilDepthFailOp = (D3D11_STENCIL_OP)stencil.stencilDepthFailOp;
-	pDesc->FrontFace.StencilFailOp	    = (D3D11_STENCIL_OP)stencil.stencilFailOp;
-	pDesc->FrontFace.StencilPassOp	    = (D3D11_STENCIL_OP)stencil.stencilPassOp;
-	pDesc->FrontFace.StencilFunc	    = (D3D11_COMPARISON_FUNC)stencil.stencilFunc;
-
-	// UNDONE: Backface?
-	pDesc->BackFace.StencilFunc	   = D3D11_COMPARISON_ALWAYS;
-	pDesc->BackFace.StencilFailOp	   = D3D11_STENCIL_OP_KEEP;
-	pDesc->BackFace.StencilPassOp	   = D3D11_STENCIL_OP_KEEP;
-	pDesc->BackFace.StencilDepthFailOp = D3D11_STENCIL_OP_INCR;
-
-	pDesc->StencilEnable	= stencil.bStencilEnable ? TRUE : FALSE;
-	pDesc->StencilReadMask	= stencil.stencilReadMask;
-	pDesc->StencilWriteMask = stencil.stencilWriteMask;
-
-	pDesc->DepthEnable    = depthTest.bEnableDepthTest ? TRUE : FALSE;
-	pDesc->DepthFunc      = (D3D11_COMPARISON_FUNC)depthTest.depthFunc;
-	pDesc->DepthWriteMask = depthWrite.bEnableDepthWrite ? D3D11_DEPTH_WRITE_MASK_ALL : D3D11_DEPTH_WRITE_MASK_ZERO;
-}
-
 //-----------------------------------------------------------------------------
 //
 // Shader API Dx11
@@ -193,8 +51,6 @@ CShaderAPIDx11::CShaderAPIDx11() :
 	m_TargetState = StatesDx11::RenderState();
 	m_State = m_TargetState;
 	m_DynamicState = DynamicStateDx11_t();
-	ClearShaderState( &m_DX11TargetState );
-	ClearShaderState( &m_DX11State );
 }
 
 CShaderAPIDx11::~CShaderAPIDx11()
@@ -206,12 +62,31 @@ void CShaderAPIDx11::UpdateConstantBuffer( ConstantBuffer_t cbuffer, void *pNewD
 	g_pShaderDevice->UpdateConstantBuffer( cbuffer, pNewData );
 }
 
-//-----------------------------------------------------------------------------
-// Clears the shader state to a well-defined value
-//-----------------------------------------------------------------------------
-void CShaderAPIDx11::ClearShaderState( ShaderStateDx11_t *pState )
+ConstantBuffer_t CShaderAPIDx11::GetInternalConstantBuffer( int type )
 {
-	memset( pState, 0, sizeof( ShaderStateDx11_t ) );
+	return g_pShaderDevice->GetInternalConstantBuffer( type );
+}
+
+void CShaderAPIDx11::BindPixelShaderConstantBuffer( ConstantBuffer_t cbuffer )
+{
+	// God awful
+	m_TargetState.dynamic.m_ppPSConstantBuffers
+		[m_TargetState.dynamic.m_nPSConstantBuffers++] =
+		(CShaderConstantBufferDx11 *)g_pShaderDeviceDx11->GetConstantBuffer( cbuffer );
+}
+
+void CShaderAPIDx11::BindVertexShaderConstantBuffer( ConstantBuffer_t cbuffer )
+{
+	m_TargetState.dynamic.m_ppVSConstantBuffers
+		[m_TargetState.dynamic.m_nVSConstantBuffers++] =
+		(CShaderConstantBufferDx11 *)g_pShaderDeviceDx11->GetConstantBuffer( cbuffer );
+}
+
+void CShaderAPIDx11::BindGeometryShaderConstantBuffer( ConstantBuffer_t cbuffer )
+{
+	m_TargetState.dynamic.m_ppGSConstantBuffers
+		[m_TargetState.dynamic.m_nGSConstantBuffers++] =
+		(CShaderConstantBufferDx11 *)g_pShaderDeviceDx11->GetConstantBuffer( cbuffer );
 }
 
 //-----------------------------------------------------------------------------
@@ -254,11 +129,10 @@ void CShaderAPIDx11::ResetRenderState( bool bFullReset )
 	hr = D3D11Device()->CreateBlendState( &bDesc, &pBlendState );
 	Assert( !FAILED( hr ) );
 	D3D11DeviceContext()->OMSetBlendState( pBlendState, pBlendFactor, 0xFFFFFFFF );
-}
 
-#define ShaderAttribChanged(varname) m_TargetState.shaderState.shaderAttrib.##varname != m_State.shaderState.shaderAttrib.##varname
-#define TargetShaderVar(varname) m_TargetState.shaderState.shaderAttrib.##varname
-#define CurrentShaderVar(varname) m_State.shaderState.shaderAttrib.##varname
+	m_State = StatesDx11::RenderState();
+	m_TargetState = StatesDx11::RenderState();
+}
 
 //-----------------------------------------------------------------------------
 // Issues state changes to D3D for states that have been modified
@@ -269,322 +143,393 @@ void CShaderAPIDx11::IssueStateChanges( bool bForce )
 	if ( g_pShaderDevice->IsDeactivated() )
 		return;
 
+	float flStart = Plat_FloatTime();
+
+	////Log( "ShaderAPIDx11: Issuing state changes\n" );
+
+	const StatesDx11::DynamicState &targetDynamic = m_TargetState.dynamic;
+	const StatesDx11::ShadowState &targetShadow = m_TargetState.shadow;
+	
+	const StatesDx11::DynamicState &dynamic = m_State.dynamic;
+	const StatesDx11::ShadowState &shadow = m_State.shadow;
+
 	// Update transform
 	if ( m_DynamicState.m_ChangedMatrices[MATERIAL_MODEL] ||
 	     m_DynamicState.m_ChangedMatrices[MATERIAL_VIEW] ||
 	     m_DynamicState.m_ChangedMatrices[MATERIAL_PROJECTION] )
 	{
+		//Log( "\tIssuing transform\n" );
 		DoIssueTransform();
 	}
 	
 	// If any of the constant buffers used by the target state have been modified,
 	// upload the new data to the GPU.
+	//Log( "\tUploading changed constant buffers...\n" );
 	DoIssueConstantBufferUpdates();
 
 	bool bStateChanged = false;
 
-	bool bViewportsChanged = bForce || ( m_DX11TargetState.m_nViewportCount != m_DX11State.m_nViewportCount );
-	if ( !bViewportsChanged && m_DX11TargetState.m_nViewportCount > 0 )
+	bool bViewportsChanged = bForce || ( targetDynamic.m_nViewportCount != dynamic.m_nViewportCount );
+	if ( !bViewportsChanged && targetDynamic.m_nViewportCount > 0 )
 	{
-		bViewportsChanged = memcmp( m_DX11TargetState.m_pViewports, m_DX11State.m_pViewports,
-					    sizeof( D3D11_VIEWPORT ) * m_DX11TargetState.m_nViewportCount ) != 0;
+		bViewportsChanged = memcmp( targetDynamic.m_pViewports, dynamic.m_pViewports,
+					    sizeof( D3D11_VIEWPORT ) * targetDynamic.m_nViewportCount ) != 0;
 	}
-	if ( bViewportsChanged );
+	if ( bViewportsChanged )
 	{
+		//Log( "\tIssuing viewports\n" );
 		DoIssueViewports();
 		bStateChanged = true;
 	}
 
-	if ( bForce || memcmp( &m_DX11TargetState.m_InputLayout, &m_DX11State.m_InputLayout, sizeof( ShaderInputLayoutStateDx11_t ) ) )
+	if ( bForce || memcmp( &targetDynamic.m_InputLayout, &dynamic.m_InputLayout, sizeof( StatesDx11::InputLayoutState ) ) )
 	{
+		//Log( "\tIssuing input layout\n" );
 		DoIssueInputLayout();
 		bStateChanged = true;
 	}
 
 	bool bVertexBufferChanged = DoIssueVertexBuffer( bForce );
 	if ( bVertexBufferChanged )
-		bStateChanged = true;
-
-	if ( bForce || memcmp( &m_DX11TargetState.m_IndexBuffer, &m_DX11State.m_IndexBuffer, sizeof( ShaderIndexBufferStateDx11_t ) ) )
 	{
+		//Log( "\tIssued vertex buffer\n" );
+		bStateChanged = true;
+	}
+		
+
+	if ( bForce || memcmp( &targetDynamic.m_IndexBuffer, &dynamic.m_IndexBuffer, sizeof( StatesDx11::IndexBufferState ) ) )
+	{
+		//Log( "\tIssuing index buffer\n" );
 		DoIssueIndexBuffer();
 		bStateChanged = true;
 	}
 
-	if ( bForce || m_DX11TargetState.m_Topology != m_DX11State.m_Topology )
+	if ( bForce || targetDynamic.m_Topology != dynamic.m_Topology )
 	{
+		//Log( "\tIssuing topology\n" );
 		DoIssueTopology();
 		bStateChanged = true;
 	}
 
-	if ( bForce || m_DX11TargetState.m_pVertexShader != m_DX11State.m_pVertexShader )
+	if ( bForce || targetDynamic.m_pVertexShader != dynamic.m_pVertexShader )
 	{
+		//Log( "\tIssuing vertex shader\n" );
 		DoIssueVertexShader();
 		bStateChanged = true;
 	}
 
-	if ( bForce || m_DX11TargetState.m_pGeometryShader != m_DX11State.m_pGeometryShader )
+	if ( bForce || targetDynamic.m_pGeometryShader != dynamic.m_pGeometryShader )
 	{
+		//Log( "\tIssuing geometry shader\n" );
 		DoIssueGeometryShader();
 		bStateChanged = true;
 	}
 
-	if ( bForce || m_DX11TargetState.m_pPixelShader != m_DX11State.m_pPixelShader )
+	if ( bForce || targetDynamic.m_pPixelShader != dynamic.m_pPixelShader )
 	{
+		//Log( "\tIssuing pixel shader\n" );
 		DoIssuePixelShader();
 		bStateChanged = true;
 	}
 
 	bool bCBsChanged = DoIssueConstantBuffers( bForce );
 	if ( bCBsChanged )
-		bStateChanged = true;
-	
-	if ( bForce || memcmp( m_TargetState.shadowState.samplerAttrib.textures,
-		     m_State.shadowState.samplerAttrib.textures,
-		     sizeof( ShaderAPITextureHandle_t ) * MAX_DX11_SAMPLERS ) )
 	{
+		//Log( "\tIssued constant buffers\n" );
+		bStateChanged = true;
+	}
+	
+	if ( bForce ||
+	     memcmp( targetDynamic.m_ppTextureViews,
+		     dynamic.m_ppTextureViews,
+		     sizeof( ID3D11ShaderResourceView * ) * MAX_DX11_SAMPLERS ) )
+	{
+		//Log( "\tIssuing textures\n" );
 		DoIssueTexture();
+		bStateChanged = true;
+	}
+
+	if ( bForce ||
+	     memcmp( targetDynamic.m_ppSamplers,
+		     dynamic.m_ppSamplers,
+		     sizeof( ID3D11SamplerState * ) * MAX_DX11_SAMPLERS ) )
+	{
+		//Log( "\tIssuing samplers\n" );
+		DoIssueSampler();
 		bStateChanged = true;
 	}
 
 	// DepthStencilState is affected by DepthTestAttrib, DepthWriteAttrib, and StencilAttrib
 	if ( bForce ||
-	     AttribsDiffer( depthTestAttrib, StatesDx11::DepthTestAttrib ) ||
-	     AttribsDiffer( depthWriteAttrib, StatesDx11::DepthWriteAttrib ) ||
-	     AttribsDiffer( stencilAttrib, StatesDx11::StencilAttrib ) )
+	     m_State.shadow.DepthStencilStateChanged( m_TargetState.shadow ) )
 	{
+		//Log( "\tIssuing depth stencil\n" );
 		DoIssueDepthStencilState();
 		bStateChanged = true;
 	}
 
 	// BlendState
 	if ( bForce ||
-	     AttribsDiffer( colorBlendAttrib, StatesDx11::ColorBlendAttrib ) ||
-	     AttribsDiffer( colorWriteAttrib, StatesDx11::ColorWriteAttrib ) )
+	     m_State.shadow.BlendStateChanged( m_TargetState.shadow ) )
 	{
+		//Log( "\tIssuing blend\n" );
 		DoIssueBlendState();
 		bStateChanged = true;
 	}
 
 	// Raster state - RenderModeAttrib, CullFaceAttrib, DepthOffsetAttrib, ScissorAttrib, AntialiasAttrib
 	if ( bForce ||
-	     AttribsDiffer( renderModeAttrib, StatesDx11::RenderModeAttrib ) ||
-	     AttribsDiffer( cullFaceAttrib, StatesDx11::CullFaceAttrib ) ||
-	     AttribsDiffer( depthOffsetAttrib, StatesDx11::DepthOffsetAttrib ) ||
-	     AttribsDiffer( scissorAttrib, StatesDx11::ScissorAttrib ) ||
-	     AttribsDiffer( antialiasAttrib, StatesDx11::AntialiasAttrib ) )
+	     m_State.shadow.RasterStateChanged( m_TargetState.shadow ) )
 	{
+		//Log( "\tIssuing raster\n" );
 		DoIssueRasterState();
 		bStateChanged = true;
 	}
 
 	if ( bStateChanged )
 	{
+		//Log( "Done, state was changed\n" );
 		m_State = m_TargetState;
-		m_DX11State = m_DX11TargetState;
 	}
+	else
+	{
+		//Log( "Done, state not changed\n" );
+	}
+
+	float flEnd = Plat_FloatTime();
+
+	//Log( "Took %f seconds issuing state changes\n", flEnd - flStart );
 }
 
 //------------------------------
 // Issue state changes
 //------------------------------
 
+FORCEINLINE static void OutputMatrixRow( const DirectX::XMFLOAT4X4 &mat, int r )
+{
+	Log( "\t%f\t%f\t%f\t%f\n", mat.m[r][0], mat.m[r][1], mat.m[r][2], mat.m[r][3] );
+}
+
+FORCEINLINE static void OutputMatrix( const DirectX::XMFLOAT4X4 &mat, const char *pszMatName )
+{
+	Log( "%s Matrix:\n", pszMatName );
+	
+	for ( int i = 0; i < 4; i++ )
+	{
+		OutputMatrixRow( mat, i );
+	}
+}
+
 void CShaderAPIDx11::DoIssueTransform()
 {
 	TransformBuffer_t tmp;
-	tmp.modelTransform = GetMatrix( MATERIAL_MODEL );
-	tmp.viewTransform = GetMatrix( MATERIAL_VIEW );
-	tmp.projTransform = GetMatrix( MATERIAL_PROJECTION );
-	tmp.modelViewProj = DirectX::XMMatrixMultiply( tmp.modelTransform, DirectX::XMMatrixMultiply( tmp.viewTransform, tmp.projTransform ) );
+	tmp.modelTransform = DirectX::XMMatrixTranspose( GetMatrix( MATERIAL_MODEL ) );
+	tmp.viewTransform = DirectX::XMMatrixTranspose( GetMatrix( MATERIAL_VIEW ) );
+	tmp.projTransform = DirectX::XMMatrixTranspose( GetMatrix( MATERIAL_PROJECTION ) );
+	tmp.modelViewProj = DirectX::XMMatrixTranspose(
+		tmp.projTransform *
+		tmp.viewTransform *
+		tmp.modelTransform
+	);
+
 	m_DynamicState.m_ChangedMatrices[MATERIAL_MODEL] = false;
 	m_DynamicState.m_ChangedMatrices[MATERIAL_VIEW] = false;
 	m_DynamicState.m_ChangedMatrices[MATERIAL_PROJECTION] = false;
-	g_pShaderDeviceDx11->UpdateConstantBuffer( g_pShaderDeviceDx11->GetTransformConstantBuffer(), &tmp );
+	ConstantBuffer_t tbuffer = g_pShaderDeviceDx11->GetTransformConstantBuffer();
+	IShaderConstantBuffer *pIBuf = (IShaderConstantBuffer *)g_pShaderDeviceDx11->GetConstantBuffer( tbuffer );
+	//Log( "\tUpdating transform constant buffer at %p\n", pIBuf->GetBuffer() );
+	g_pShaderDeviceDx11->UpdateConstantBuffer( tbuffer, &tmp );
+}
+
+FORCEINLINE static void UploadConstantBuffer( CShaderConstantBufferDx11 *pBuffer )
+{
+	if ( pBuffer )
+	{
+		// This will check if the data has been changed.
+		// If so, it will upload the new data to the GPU.
+		pBuffer->UploadToGPU();
+	}
 }
 
 void CShaderAPIDx11::DoIssueConstantBufferUpdates()
 {
-	for ( int i = 0; i < m_TargetState.shaderState.shaderAttrib.numConstantBuffers; i++ )
+	for ( int i = 0; i < m_TargetState.dynamic.m_nVSConstantBuffers; i++ )
 	{
-		// Yeesh, this is ugly.
-		IShaderConstantBuffer *pIBuf = (IShaderConstantBuffer *)g_pShaderDevice->GetConstantBuffer(
-			m_TargetState.shaderState.shaderAttrib.constantBuffers[i] );
-
-		// This will check if the data has been changed.
-		// If so, it will upload the new data to the GPU.
-		pIBuf->UploadToGPU();
+		UploadConstantBuffer( m_TargetState.dynamic.m_ppVSConstantBuffers[i] );
+	}
+	for ( int i = 0; i < m_TargetState.dynamic.m_nGSConstantBuffers; i++ )
+	{
+		UploadConstantBuffer( m_TargetState.dynamic.m_ppGSConstantBuffers[i] );
+	}
+	for ( int i = 0; i < m_TargetState.dynamic.m_nPSConstantBuffers; i++ )
+	{
+		UploadConstantBuffer( m_TargetState.dynamic.m_ppPSConstantBuffers[i] );
 	}
 }
 
 void CShaderAPIDx11::DoIssueVertexShader()
 {
-	D3D11DeviceContext()->VSSetShader( m_DX11TargetState.m_pVertexShader, NULL, 0 );
+	D3D11DeviceContext()->VSSetShader( m_TargetState.dynamic.m_pVertexShader, NULL, 0 );
 }
 
 void CShaderAPIDx11::DoIssuePixelShader()
 {
-	D3D11DeviceContext()->PSSetShader( m_DX11TargetState.m_pPixelShader, NULL, 0 );
+	D3D11DeviceContext()->PSSetShader( m_TargetState.dynamic.m_pPixelShader, NULL, 0 );
 }
 
 void CShaderAPIDx11::DoIssueGeometryShader()
 {
-	D3D11DeviceContext()->GSSetShader( m_DX11TargetState.m_pGeometryShader, NULL, 0 );
+	D3D11DeviceContext()->GSSetShader( m_TargetState.dynamic.m_pGeometryShader, NULL, 0 );
 }
 
 bool CShaderAPIDx11::DoIssueConstantBuffers( bool bForce )
 {
-	bool bChanged = false;
+	bool bPSChanged = false;
+	bool bVSChanged = false;
+	bool bGSChanged = false;
 
-	for ( int i = 0; i < MAX_DX11_CBUFFERS; i++ )
+	const StatesDx11::DynamicState &targetDynamic = m_TargetState.dynamic;
+	const StatesDx11::DynamicState &dynamic = m_State.dynamic;
+
+	if ( m_TargetState.dynamic.m_pVertexShader &&
+		( targetDynamic.m_nVSConstantBuffers != dynamic.m_nVSConstantBuffers ||
+		  memcmp( targetDynamic.m_ppVSConstantBuffers, dynamic.m_ppVSConstantBuffers,
+			  sizeof( CShaderConstantBufferDx11 * ) * MAX_DX11_CBUFFERS ) ) )
 	{
-		IShaderConstantBuffer *pIBuf;
-
-		if ( bForce ||
-		     memcmp( TargetShaderVar( vsConstantBuffers ),
-			     CurrentShaderVar( vsConstantBuffers ),
-			     sizeof( ConstantBuffer_t ) * MAX_DX11_CBUFFERS ) )
+		ID3D11Buffer *ppBufs[MAX_DX11_CBUFFERS];
+		for ( int i = 0; i < targetDynamic.m_nVSConstantBuffers; i++ )
 		{
-			pIBuf = (IShaderConstantBuffer *)g_pShaderDevice->GetConstantBuffer( TargetShaderVar( vsConstantBuffers )[i] );
-			m_DX11TargetState.m_pVSConstantBuffers[i] =
-				(ID3D11Buffer *)pIBuf->GetBuffer();
-			bChanged = true;
+			//Log( "\tUsing constant buffer %p for vertex shader\n", targetDynamic.m_ppVSConstantBuffers[i]->GetD3DBuffer() );
+			ppBufs[i] = targetDynamic.m_ppVSConstantBuffers[i]->GetD3DBuffer();
 		}
+		D3D11DeviceContext()->VSSetConstantBuffers( 0, targetDynamic.m_nVSConstantBuffers,
+							    ppBufs );
 
-		if ( bForce ||
-		     memcmp( TargetShaderVar( gsConstantBuffers ),
-			     CurrentShaderVar( gsConstantBuffers ),
-			     sizeof( ConstantBuffer_t ) * MAX_DX11_CBUFFERS ) )
+		bVSChanged = true;
+	}
+
+	if ( m_TargetState.dynamic.m_pGeometryShader &&
+		( targetDynamic.m_nGSConstantBuffers != dynamic.m_nGSConstantBuffers ||
+		  memcmp( targetDynamic.m_ppGSConstantBuffers, dynamic.m_ppGSConstantBuffers,
+			  sizeof( CShaderConstantBufferDx11 * ) * MAX_DX11_CBUFFERS ) ) )
+	{
+		ID3D11Buffer *ppBufs[MAX_DX11_CBUFFERS];
+		for ( int i = 0; i < targetDynamic.m_nGSConstantBuffers; i++ )
 		{
-			pIBuf = (IShaderConstantBuffer *)g_pShaderDevice->GetConstantBuffer( TargetShaderVar( gsConstantBuffers )[i] );
-			m_DX11TargetState.m_pGSConstantBuffers[i] =
-				(ID3D11Buffer *)pIBuf->GetBuffer();
-			bChanged = true;
+			ppBufs[i] = targetDynamic.m_ppGSConstantBuffers[i]->GetD3DBuffer();
 		}
+		D3D11DeviceContext()->GSSetConstantBuffers( 0, targetDynamic.m_nGSConstantBuffers,
+							    ppBufs );
 
-		if ( bForce ||
-		     memcmp( TargetShaderVar( psConstantBuffers ),
-			     CurrentShaderVar( psConstantBuffers ),
-			     sizeof( ConstantBuffer_t ) * MAX_DX11_CBUFFERS ) )
+		bGSChanged = true;
+	}
+
+	if ( m_TargetState.dynamic.m_pVertexShader &&
+		( targetDynamic.m_nPSConstantBuffers != dynamic.m_nPSConstantBuffers ||
+		  memcmp( targetDynamic.m_ppPSConstantBuffers, dynamic.m_ppPSConstantBuffers,
+			  sizeof( CShaderConstantBufferDx11 * ) * MAX_DX11_CBUFFERS ) ) )
+	{
+		ID3D11Buffer *ppBufs[MAX_DX11_CBUFFERS];
+		for ( int i = 0; i < targetDynamic.m_nPSConstantBuffers; i++ )
 		{
-			pIBuf = (IShaderConstantBuffer *)g_pShaderDevice->GetConstantBuffer( TargetShaderVar( psConstantBuffers )[i] );
-			m_DX11TargetState.m_pPSConstantBuffers[i] =
-				(ID3D11Buffer *)pIBuf->GetBuffer();
-			bChanged = true;
+			ppBufs[i] = targetDynamic.m_ppPSConstantBuffers[i]->GetD3DBuffer();
 		}
+		D3D11DeviceContext()->PSSetConstantBuffers( 0, targetDynamic.m_nPSConstantBuffers,
+							    ppBufs );
+
+		bPSChanged = true;
 	}
 
-	if ( bChanged && m_DX11TargetState.m_pVertexShader )
-	{
-		D3D11DeviceContext()->VSSetConstantBuffers( 0, MAX_DX11_CBUFFERS,
-							    m_DX11TargetState.m_pPSConstantBuffers );
-	}
-	if ( bChanged && m_DX11TargetState.m_pGeometryShader )
-	{
-		D3D11DeviceContext()->GSSetConstantBuffers( 0, MAX_DX11_CBUFFERS,
-							    m_DX11TargetState.m_pPSConstantBuffers );
-	}
-	if ( bChanged && m_DX11TargetState.m_pPixelShader )
-	{
-		D3D11DeviceContext()->PSSetConstantBuffers( 0, MAX_DX11_CBUFFERS,
-							    m_DX11TargetState.m_pPSConstantBuffers );
-	}
+	return bPSChanged || bVSChanged || bGSChanged;
+}
 
-	return bChanged;
+void CShaderAPIDx11::DoIssueSampler()
+{
+	D3D11DeviceContext()->PSSetSamplers( 0, m_TargetState.dynamic.m_nSamplers,
+					     m_TargetState.dynamic.m_ppSamplers );
 }
 
 void CShaderAPIDx11::DoIssueTexture()
 {
-	int nMaxSamplers = g_pHardwareConfig->GetSamplerCount();
-	for ( int i = 0; i < nMaxSamplers; i++ )
-	{
-		ShaderAPITextureHandle_t handle = m_TargetState.shadowState.samplerAttrib.textures[i];
-		if ( handle == INVALID_SHADERAPI_TEXTURE_HANDLE )
-		{
-			m_DX11TargetState.m_pSamplers[i] = NULL;
-			m_DX11TargetState.m_pTextureViews[i] = NULL;
-		}
-		else
-		{
-			CTextureDx11 &tex = GetTexture( handle );
-			m_DX11TargetState.m_pSamplers[i] = tex.GetSamplerState();
-			m_DX11TargetState.m_pTextureViews[i] = tex.GetView();
-		}
-	}
-	D3D11DeviceContext()->PSSetSamplers( 0, nMaxSamplers, m_DX11TargetState.m_pSamplers );
-	D3D11DeviceContext()->PSSetShaderResources( 0, nMaxSamplers, m_DX11TargetState.m_pTextureViews );
+	D3D11DeviceContext()->PSSetShaderResources( 0, m_TargetState.dynamic.m_nTextures,
+						    m_TargetState.dynamic.m_ppTextureViews );
 }
 
 void CShaderAPIDx11::DoIssueRasterState()
 {
-	m_DX11TargetState.m_pRasterState = NULL;
+	m_TargetState.dynamic.m_pRasterState = NULL;
 
 	// Clear out the existing state
-	if ( m_DX11State.m_pRasterState )
+	if ( m_State.dynamic.m_pRasterState )
 	{
-		m_DX11State.m_pRasterState->Release();
-		m_DX11State.m_pRasterState = NULL;
+		m_State.dynamic.m_pRasterState->Release();
+		m_State.dynamic.m_pRasterState = NULL;
 	}
 
-	D3D11_RASTERIZER_DESC desc;
-	GenerateRasterizerDesc( &desc, m_TargetState );
+	//D3D11_RASTERIZER_DESC desc;
+	//GenerateRasterizerDesc( &desc, m_TargetState );
 
 	// NOTE: This does a search for existing matching state objects
-	HRESULT hr = D3D11Device()->CreateRasterizerState( &desc, &m_DX11TargetState.m_pRasterState );
+	HRESULT hr = D3D11Device()->CreateRasterizerState( &m_TargetState.shadow.rasterizer,
+							   &m_TargetState.dynamic.m_pRasterState );
 	if ( FAILED( hr ) )
 	{
 		Warning( "Unable to create rasterizer state object!\n" );
 	}
 
-	D3D11DeviceContext()->RSSetState( m_DX11TargetState.m_pRasterState );
+	D3D11DeviceContext()->RSSetState( m_TargetState.dynamic.m_pRasterState );
 }
 
 void CShaderAPIDx11::DoIssueBlendState()
 {
-	m_DX11TargetState.m_pBlendState = NULL;
+	m_TargetState.dynamic.m_pBlendState = NULL;
 
 	// Clear out existing blend state
-	if ( m_DX11State.m_pBlendState )
+	if ( m_State.dynamic.m_pBlendState )
 	{
-		m_DX11State.m_pBlendState->Release();
-		m_DX11State.m_pBlendState = NULL;
+		m_State.dynamic.m_pBlendState->Release();
+		m_State.dynamic.m_pBlendState = NULL;
 	}
 
-	D3D11_BLEND_DESC desc;
-	GenerateBlendDesc( &desc, m_TargetState );
+	//D3D11_BLEND_DESC desc;
+	//GenerateBlendDesc( &desc, m_TargetState );
 
 	// NOTE: This does a search for existing matching state objects
-	HRESULT hr = D3D11Device()->CreateBlendState( &desc, &m_DX11TargetState.m_pBlendState );
+	HRESULT hr = D3D11Device()->CreateBlendState( &m_TargetState.shadow.blend, &m_TargetState.dynamic.m_pBlendState );
 	if ( FAILED( hr ) )
 	{
 		Warning( "Unable to create Dx11 blend state object!\n" );
 	}
 
-	D3D11DeviceContext()->OMSetBlendState( m_DX11TargetState.m_pBlendState, m_TargetState.shadowState.colorBlendAttrib.blendColor,
-					       m_TargetState.shadowState.colorBlendAttrib.sampleMask );
+	D3D11DeviceContext()->OMSetBlendState( m_TargetState.dynamic.m_pBlendState,
+					       m_TargetState.shadow.blend.BlendColor,
+					       m_TargetState.shadow.blend.SampleMask );
 }
 
 void CShaderAPIDx11::DoIssueDepthStencilState()
 {
-	m_DX11TargetState.m_pDepthStencilState = NULL;
+	m_TargetState.dynamic.m_pDepthStencilState = NULL;
 
 	// Clear out current state
-	if ( m_DX11State.m_pDepthStencilState )
+	if ( m_State.dynamic.m_pDepthStencilState )
 	{
-		m_DX11State.m_pDepthStencilState->Release();
-		m_DX11State.m_pDepthStencilState = NULL;
+		m_State.dynamic.m_pDepthStencilState->Release();
+		m_State.dynamic.m_pDepthStencilState = NULL;
 	}
 
-	D3D11_DEPTH_STENCIL_DESC desc;
-	GenerateDepthStencilDesc( &desc, m_TargetState );
+	//D3D11_DEPTH_STENCIL_DESC desc;
+	//GenerateDepthStencilDesc( &desc, m_TargetState );
 
 	// NOTE: This does a search for existing matching state objects
-	HRESULT hr = D3D11Device()->CreateDepthStencilState( &desc, &m_DX11TargetState.m_pDepthStencilState );
+	HRESULT hr = D3D11Device()->CreateDepthStencilState( &m_TargetState.shadow.depthStencil,
+							     &m_TargetState.dynamic.m_pDepthStencilState );
 	if ( FAILED( hr ) )
 	{
 		Warning( "Unable to create depth/stencil object!\n" );
 	}
 
-	D3D11DeviceContext()->OMSetDepthStencilState( m_DX11TargetState.m_pDepthStencilState, m_TargetState.shadowState.stencilAttrib.stencilRef );
+	D3D11DeviceContext()->OMSetDepthStencilState( m_TargetState.dynamic.m_pDepthStencilState,
+						      m_TargetState.shadow.depthStencil.StencilRef );
 }
 
 bool CShaderAPIDx11::DoIssueVertexBuffer( bool bForce )
@@ -600,15 +545,16 @@ bool CShaderAPIDx11::DoIssueVertexBuffer( bool bForce )
 	bool bInMatch = true;
 	for ( int i = 0; i < MAX_DX11_STREAMS; ++i )
 	{
-		const ShaderVertexBufferStateDx11_t &newState = m_DX11TargetState.m_pVertexBuffer[i];
-		bool bMatch = !bForce && !memcmp( &newState, &m_DX11State.m_pVertexBuffer[i], sizeof( ShaderVertexBufferStateDx11_t ) );
+		const StatesDx11::VertexBufferState &newState = m_TargetState.dynamic.m_pVertexBuffer[i];
+		bool bMatch = !bForce && !memcmp( &newState, &m_State.dynamic.m_pVertexBuffer[i],
+						  sizeof( StatesDx11::VertexBufferState ) );
 		if ( !bMatch )
 		{
 			ppVertexBuffers[i] = newState.m_pBuffer;
 			pStrides[i] = newState.m_nStride;
 			pOffsets[i] = newState.m_nOffset;
 			++nBufferCount;
-			memcpy( &m_DX11State.m_pVertexBuffer[i], &newState, sizeof( ShaderVertexBufferStateDx11_t ) );
+			memcpy( &m_State.dynamic.m_pVertexBuffer[i], &newState, sizeof( StatesDx11::VertexBufferState ) );
 		}
 
 		if ( bInMatch )
@@ -643,26 +589,30 @@ bool CShaderAPIDx11::DoIssueVertexBuffer( bool bForce )
 
 void CShaderAPIDx11::DoIssueIndexBuffer()
 {
-	D3D11DeviceContext()->IASetIndexBuffer( m_DX11TargetState.m_IndexBuffer.m_pBuffer, m_DX11TargetState.m_IndexBuffer.m_Format,
-						m_DX11TargetState.m_IndexBuffer.m_nOffset );
+	StatesDx11::DynamicState &dynamic = m_TargetState.dynamic;
+	D3D11DeviceContext()->IASetIndexBuffer( dynamic.m_IndexBuffer.m_pBuffer,
+						dynamic.m_IndexBuffer.m_Format,
+						dynamic.m_IndexBuffer.m_nOffset );
 }
 
 void CShaderAPIDx11::DoIssueInputLayout()
 {
 	// FIXME: Deal with multiple streams
 	ID3D11InputLayout *pInputLayout = g_pShaderDeviceDx11->GetInputLayout(
-		m_DX11TargetState.m_InputLayout.m_hVertexShader, m_DX11TargetState.m_InputLayout.m_pVertexDecl[0] );
+		m_TargetState.dynamic.m_InputLayout.m_hVertexShader,
+		m_TargetState.dynamic.m_InputLayout.m_pVertexDecl[0] );
 	D3D11DeviceContext()->IASetInputLayout( pInputLayout );
 }
 
 void CShaderAPIDx11::DoIssueTopology()
 {
-	D3D11DeviceContext()->IASetPrimitiveTopology( m_DX11TargetState.m_Topology );
+	D3D11DeviceContext()->IASetPrimitiveTopology( m_TargetState.dynamic.m_Topology );
 }
 
 void CShaderAPIDx11::DoIssueViewports()
 {
-	D3D11DeviceContext()->RSSetViewports( m_DX11TargetState.m_nViewportCount, m_DX11TargetState.m_pViewports );
+	D3D11DeviceContext()->RSSetViewports( m_TargetState.dynamic.m_nViewportCount,
+					      m_TargetState.dynamic.m_pViewports );
 }
 
 //-------------------------------------------------------------------//
@@ -681,13 +631,13 @@ void CShaderAPIDx11::GetBackBufferDimensions( int &nWidth, int &nHeight ) const
 void CShaderAPIDx11::SetViewports( int nCount, const ShaderViewport_t *pViewports )
 {
 	nCount	= min( nCount, MAX_DX11_VIEWPORTS );
-	m_DX11TargetState.m_nViewportCount = nCount;
+	m_TargetState.dynamic.m_nViewportCount = nCount;
 
 	for ( int i = 0; i < nCount; ++i )
 	{
 		Assert( pViewports[i].m_nVersion == SHADER_VIEWPORT_VERSION );
 
-		D3D11_VIEWPORT &viewport = m_DX11TargetState.m_pViewports[i];
+		D3D11_VIEWPORT &viewport = m_TargetState.dynamic.m_pViewports[i];
 		viewport.TopLeftX	 = pViewports[i].m_nTopLeftX;
 		viewport.TopLeftY	 = pViewports[i].m_nTopLeftY;
 		viewport.Width		 = pViewports[i].m_nWidth;
@@ -699,11 +649,11 @@ void CShaderAPIDx11::SetViewports( int nCount, const ShaderViewport_t *pViewport
 
 int CShaderAPIDx11::GetViewports( ShaderViewport_t *pViewports, int nMax ) const
 {
-	int nCount = m_DX11State.m_nViewportCount;
+	int nCount = m_State.dynamic.m_nViewportCount;
 	if ( pViewports && nMax )
 	{
 		nCount = min( nCount, nMax );
-		memcpy( pViewports, m_DX11State.m_pViewports, nCount * sizeof( ShaderViewport_t ) );
+		memcpy( pViewports, m_State.dynamic.m_pViewports, nCount * sizeof( ShaderViewport_t ) );
 	}
 	return nCount;
 }
@@ -713,18 +663,18 @@ int CShaderAPIDx11::GetViewports( ShaderViewport_t *pViewports, int nMax ) const
 //-----------------------------------------------------------------------------
 void CShaderAPIDx11::ClearColor3ub( unsigned char r, unsigned char g, unsigned char b )
 {
-	m_DX11TargetState.m_ClearColor[0] = r / 255.0f;
-	m_DX11TargetState.m_ClearColor[1] = g / 255.0f;
-	m_DX11TargetState.m_ClearColor[2] = b / 255.0f;
-	m_DX11TargetState.m_ClearColor[3] = 1.0f;
+	m_TargetState.dynamic.m_ClearColor[0] = r / 255.0f;
+	m_TargetState.dynamic.m_ClearColor[1] = g / 255.0f;
+	m_TargetState.dynamic.m_ClearColor[2] = b / 255.0f;
+	m_TargetState.dynamic.m_ClearColor[3] = 1.0f;
 }
 
 void CShaderAPIDx11::ClearColor4ub( unsigned char r, unsigned char g, unsigned char b, unsigned char a )
 {
-	m_DX11TargetState.m_ClearColor[0] = r / 255.0f;
-	m_DX11TargetState.m_ClearColor[1] = g / 255.0f;
-	m_DX11TargetState.m_ClearColor[2] = b / 255.0f;
-	m_DX11TargetState.m_ClearColor[3] = a / 255.0f;
+	m_TargetState.dynamic.m_ClearColor[0] = r / 255.0f;
+	m_TargetState.dynamic.m_ClearColor[1] = g / 255.0f;
+	m_TargetState.dynamic.m_ClearColor[2] = b / 255.0f;
+	m_TargetState.dynamic.m_ClearColor[3] = a / 255.0f;
 }
 
 void CShaderAPIDx11::ClearBuffers( bool bClearColor, bool bClearDepth, bool bClearStencil, int renderTargetWidth, int renderTargetHeight )
@@ -735,7 +685,7 @@ void CShaderAPIDx11::ClearBuffers( bool bClearColor, bool bClearDepth, bool bCle
 	// FIXME: This implementation is totally bust0red [doesn't guarantee exact color specified]
 	if ( bClearColor && D3D11DeviceContext() )
 	{
-		D3D11DeviceContext()->ClearRenderTargetView( D3D11RenderTargetView(), m_DX11TargetState.m_ClearColor );
+		D3D11DeviceContext()->ClearRenderTargetView( D3D11RenderTargetView(), m_TargetState.dynamic.m_ClearColor );
 	}
 }
 
@@ -745,20 +695,20 @@ void CShaderAPIDx11::ClearBuffers( bool bClearColor, bool bClearDepth, bool bCle
 void CShaderAPIDx11::BindVertexShader( VertexShaderHandle_t hVertexShader )
 {
 	ID3D11VertexShader *pVertexShader = g_pShaderDeviceDx11->GetVertexShader( hVertexShader );
-	m_DX11TargetState.m_pVertexShader = pVertexShader;
-	m_DX11TargetState.m_InputLayout.m_hVertexShader = hVertexShader;
+	m_TargetState.dynamic.m_pVertexShader = pVertexShader;
+	m_TargetState.dynamic.m_InputLayout.m_hVertexShader = hVertexShader;
 }
 
 void CShaderAPIDx11::BindGeometryShader( GeometryShaderHandle_t hGeometryShader )
 {
 	ID3D11GeometryShader *pGeometryShader = g_pShaderDeviceDx11->GetGeometryShader( hGeometryShader );
-	m_DX11TargetState.m_pGeometryShader = pGeometryShader;
+	m_TargetState.dynamic.m_pGeometryShader = pGeometryShader;
 }
 
 void CShaderAPIDx11::BindPixelShader( PixelShaderHandle_t hPixelShader )
 {
 	ID3D11PixelShader *pPixelShader = g_pShaderDeviceDx11->GetPixelShader( hPixelShader );
-	m_DX11TargetState.m_pPixelShader = pPixelShader;
+	m_TargetState.dynamic.m_pPixelShader = pPixelShader;
 }
 
 void CShaderAPIDx11::BindVertexBuffer( int nStreamID, IVertexBuffer *pVertexBuffer, int nOffsetInBytes, int nFirstVertex, int nVertexCount, VertexFormat_t fmt, int nRepetitions )
@@ -766,7 +716,7 @@ void CShaderAPIDx11::BindVertexBuffer( int nStreamID, IVertexBuffer *pVertexBuff
 	// FIXME: What to do about repetitions?
 	CVertexBufferDx11 *pVertexBufferDx11 = static_cast<CVertexBufferDx11 *>( pVertexBuffer );
 
-	ShaderVertexBufferStateDx11_t state;
+	StatesDx11::VertexBufferState state;
 	if ( pVertexBufferDx11 )
 	{
 		state.m_pBuffer = pVertexBufferDx11->GetDx11Buffer();
@@ -779,15 +729,15 @@ void CShaderAPIDx11::BindVertexBuffer( int nStreamID, IVertexBuffer *pVertexBuff
 	}
 	state.m_nOffset = nOffsetInBytes;
 
-	m_DX11TargetState.m_pVertexBuffer[nStreamID] = state;
-	m_DX11TargetState.m_InputLayout.m_pVertexDecl[nStreamID] = fmt;
+	m_TargetState.dynamic.m_pVertexBuffer[nStreamID] = state;
+	m_TargetState.dynamic.m_InputLayout.m_pVertexDecl[nStreamID] = fmt;
 }
 
 void CShaderAPIDx11::BindIndexBuffer( IIndexBuffer *pIndexBuffer, int nOffsetInBytes )
 {
 	CIndexBufferDx11 *pIndexBufferDx11 = static_cast<CIndexBufferDx11 *>( pIndexBuffer );
 
-	ShaderIndexBufferStateDx11_t state;
+	StatesDx11::IndexBufferState state;
 	if ( pIndexBufferDx11 )
 	{
 		state.m_pBuffer = pIndexBufferDx11->GetDx11Buffer();
@@ -800,7 +750,7 @@ void CShaderAPIDx11::BindIndexBuffer( IIndexBuffer *pIndexBuffer, int nOffsetInB
 	}
 	state.m_nOffset = nOffsetInBytes;
 
-	m_DX11TargetState.m_IndexBuffer = state;
+	m_TargetState.dynamic.m_IndexBuffer = state;
 }
 
 //-----------------------------------------------------------------------------
@@ -810,42 +760,42 @@ void CShaderAPIDx11::Unbind( VertexShaderHandle_t hShader )
 {
 	ID3D11VertexShader *pShader = g_pShaderDeviceDx11->GetVertexShader( hShader );
 	Assert( pShader );
-	if ( m_DX11TargetState.m_pVertexShader == pShader )
+	if ( m_TargetState.dynamic.m_pVertexShader == pShader )
 	{
 		BindVertexShader( VERTEX_SHADER_HANDLE_INVALID );
 	}
-	if ( m_DX11State.m_pVertexShader == pShader )
-	{
-		IssueStateChanges();
-	}
+	//if ( m_DX11State.m_pVertexShader == pShader )
+	//{
+	//	IssueStateChanges();
+	//}
 }
 
 void CShaderAPIDx11::Unbind( GeometryShaderHandle_t hShader )
 {
 	ID3D11GeometryShader *pShader = g_pShaderDeviceDx11->GetGeometryShader( hShader );
 	Assert( pShader );
-	if ( m_DX11TargetState.m_pGeometryShader == pShader )
+	if ( m_TargetState.dynamic.m_pGeometryShader == pShader )
 	{
 		BindGeometryShader( GEOMETRY_SHADER_HANDLE_INVALID );
 	}
-	if ( m_DX11State.m_pGeometryShader == pShader )
-	{
-		IssueStateChanges();
-	}
+	//if ( m_DX11State.m_pGeometryShader == pShader )
+	//{
+	//	IssueStateChanges();
+	//}
 }
 
 void CShaderAPIDx11::Unbind( PixelShaderHandle_t hShader )
 {
 	ID3D11PixelShader *pShader = g_pShaderDeviceDx11->GetPixelShader( hShader );
 	Assert( pShader );
-	if ( m_DX11TargetState.m_pPixelShader == pShader )
+	if ( m_TargetState.dynamic.m_pPixelShader == pShader )
 	{
 		BindPixelShader( PIXEL_SHADER_HANDLE_INVALID );
 	}
-	if ( m_DX11State.m_pPixelShader == pShader )
-	{
-		IssueStateChanges();
-	}
+	//if ( m_DX11State.m_pPixelShader == pShader )
+	//{
+	//	IssueStateChanges();
+	//}
 }
 
 void CShaderAPIDx11::UnbindVertexBuffer( ID3D11Buffer *pBuffer )
@@ -854,33 +804,33 @@ void CShaderAPIDx11::UnbindVertexBuffer( ID3D11Buffer *pBuffer )
 
 	for ( int i = 0; i < MAX_DX11_STREAMS; ++i )
 	{
-		if ( m_DX11TargetState.m_pVertexBuffer[i].m_pBuffer == pBuffer )
+		if ( m_TargetState.dynamic.m_pVertexBuffer[i].m_pBuffer == pBuffer )
 		{
 			BindVertexBuffer( i, NULL, 0, 0, 0, VERTEX_POSITION, 0 );
 		}
 	}
-	for ( int i = 0; i < MAX_DX11_STREAMS; ++i )
-	{
-		if ( m_DX11State.m_pVertexBuffer[i].m_pBuffer == pBuffer )
-		{
-			IssueStateChanges();
-			break;
-		}
-	}
+	//for ( int i = 0; i < MAX_DX11_STREAMS; ++i )
+	//{
+	//	if ( m_DX11State.m_pVertexBuffer[i].m_pBuffer == pBuffer )
+	//	{
+	//		IssueStateChanges();
+	//		break;
+	//	}
+	//}
 }
 
 void CShaderAPIDx11::UnbindIndexBuffer( ID3D11Buffer *pBuffer )
 {
 	Assert( pBuffer );
 
-	if ( m_DX11TargetState.m_IndexBuffer.m_pBuffer == pBuffer )
+	if ( m_TargetState.dynamic.m_IndexBuffer.m_pBuffer == pBuffer )
 	{
 		BindIndexBuffer( NULL, 0 );
 	}
-	if ( m_DX11State.m_IndexBuffer.m_pBuffer == pBuffer )
-	{
-		IssueStateChanges();
-	}
+	//if ( m_DX11State.m_IndexBuffer.m_pBuffer == pBuffer )
+	//{
+	//	IssueStateChanges();
+	//}
 }
 
 //-----------------------------------------------------------------------------
@@ -920,7 +870,8 @@ void CShaderAPIDx11::SetTopology( MaterialPrimitiveType_t topology )
 		break;
 	}
 
-	m_DX11TargetState.m_Topology = d3dTopology;
+	////Log( "Set topology to %i\n", d3dTopology );
+	m_TargetState.dynamic.m_Topology = d3dTopology;
 }
 
 //-----------------------------------------------------------------------------
@@ -928,6 +879,8 @@ void CShaderAPIDx11::SetTopology( MaterialPrimitiveType_t topology )
 //-----------------------------------------------------------------------------
 void CShaderAPIDx11::Draw( MaterialPrimitiveType_t primitiveType, int nFirstIndex, int nIndexCount )
 {
+	////Log( "ShaderAPIDx11: Draw\n" );
+
 	SetTopology( primitiveType );
 
 	IssueStateChanges();
@@ -968,6 +921,26 @@ void CShaderAPIDx11::ClearSnapshots()
 // Sets the default *dynamic* state
 void CShaderAPIDx11::SetDefaultState()
 {
+	m_TargetState.dynamic.m_nVSConstantBuffers = 0;
+	m_TargetState.dynamic.m_nGSConstantBuffers = 0;
+	m_TargetState.dynamic.m_nPSConstantBuffers = 0;
+
+	ZeroMemory( m_TargetState.dynamic.m_ppVSConstantBuffers, sizeof( CShaderConstantBufferDx11 * ) * MAX_DX11_CBUFFERS );
+	ZeroMemory( m_TargetState.dynamic.m_ppGSConstantBuffers, sizeof( CShaderConstantBufferDx11 * ) * MAX_DX11_CBUFFERS );
+	ZeroMemory( m_TargetState.dynamic.m_ppPSConstantBuffers, sizeof( CShaderConstantBufferDx11 * ) * MAX_DX11_CBUFFERS );
+
+	m_TargetState.dynamic.m_nSamplers = 0;
+	m_TargetState.dynamic.m_nTextures = 0;
+
+	ZeroMemory( m_TargetState.dynamic.m_ppSamplers, sizeof( ID3D11SamplerState * ) * MAX_DX11_SAMPLERS );
+	ZeroMemory( m_TargetState.dynamic.m_ppTextureViews, sizeof( ID3D11ShaderResourceView * ) * MAX_DX11_SAMPLERS );
+
+	m_TargetState.dynamic.m_pVertexShader = 0;
+	m_TargetState.dynamic.m_pGeometryShader = 0;
+	m_TargetState.dynamic.m_pPixelShader = 0;
+	m_TargetState.dynamic.m_iVertexShader = -1;
+	m_TargetState.dynamic.m_iGeometryShader = -1;
+	m_TargetState.dynamic.m_iPixelShader = -1;
 }
 
 // Returns the snapshot id for the current shadow state
@@ -1012,14 +985,14 @@ VertexFormat_t CShaderAPIDx11::ComputeVertexUsage( int numSnapshots, StateSnapsh
 // Uses a state snapshot
 void CShaderAPIDx11::UseSnapshot( StateSnapshot_t snapshot )
 {
-	StatesDx11::RenderState entry = g_pShaderShadowDx11->m_ShadowStateCache.Element( snapshot );
-	m_TargetState = entry;
+	StatesDx11::ShadowState entry = g_pShaderShadowDx11->m_ShadowStateCache.Element( snapshot );
+	m_TargetState.shadow = entry;
 
-	ShaderManager()->SetVertexShaderIndex( entry.shaderState.shaderAttrib.vertexShaderIndex );
-	ShaderManager()->SetVertexShader( entry.shaderState.shaderAttrib.vertexShader );
+	ShaderManager()->SetVertexShaderIndex( entry.vertexShaderIndex );
+	ShaderManager()->SetVertexShader( entry.vertexShader );
 
-	ShaderManager()->SetPixelShaderIndex( entry.shaderState.shaderAttrib.pixelShaderIndex );
-	ShaderManager()->SetPixelShader( entry.shaderState.shaderAttrib.pixelShader );
+	ShaderManager()->SetPixelShaderIndex( entry.pixelShaderIndex );
+	ShaderManager()->SetPixelShader( entry.pixelShader );
 }
 
 // Sets the color to modulate by
@@ -1088,8 +1061,20 @@ void CShaderAPIDx11::Bind( IMaterial *pMaterial )
 // Cull mode
 void CShaderAPIDx11::CullMode( MaterialCullMode_t cullMode )
 {
-	m_TargetState.shadowState.cullFaceAttrib.bEnable = true;
-	m_TargetState.shadowState.cullFaceAttrib.cullMode = cullMode;
+	D3D11_CULL_MODE d3dCull;
+	switch ( cullMode )
+	{
+	case MATERIAL_CULLMODE_CCW:
+		d3dCull = D3D11_CULL_BACK;
+		break;
+	case MATERIAL_CULLMODE_CW:
+		d3dCull = D3D11_CULL_FRONT;
+		break;
+	default:
+		d3dCull = D3D11_CULL_NONE;
+		break;
+	}
+	m_TargetState.shadow.rasterizer.CullMode = d3dCull;
 }
 
 void CShaderAPIDx11::ForceDepthFuncEquals( bool bEnable )
@@ -1162,13 +1147,12 @@ void CShaderAPIDx11::FlushBufferedPrimitives()
 // Creates/destroys Mesh
 IMesh *CShaderAPIDx11::CreateStaticMesh( VertexFormat_t fmt, const char *pTextureBudgetGroup, IMaterial *pMaterial )
 {
-	//CMeshDx11 *pNewMesh = new CMeshDx11;
-	//return pNewMesh;
-	return NULL;
+	return MeshMgr()->CreateStaticMesh( fmt, pTextureBudgetGroup, pMaterial );
 }
 
 void CShaderAPIDx11::DestroyStaticMesh( IMesh *mesh )
 {
+	MeshMgr()->DestroyStaticMesh( mesh );
 }
 
 // Gets the dynamic mesh; note that you've got to render the mesh
@@ -1176,25 +1160,27 @@ void CShaderAPIDx11::DestroyStaticMesh( IMesh *mesh )
 // call DestroyStaticMesh on the mesh returned by this call.
 IMesh *CShaderAPIDx11::GetDynamicMesh( IMaterial *pMaterial, int nHWSkinBoneCount, bool buffered, IMesh *pVertexOverride, IMesh *pIndexOverride )
 {
-	Assert( ( pMaterial == NULL ) || ( (IMaterialInternal *)pMaterial )->IsRealTimeVersion() );
-	return &m_DynamicMesh;
-	//return 0;
+	return MeshMgr()->GetDynamicMesh( pMaterial, nHWSkinBoneCount, buffered, pVertexOverride, pIndexOverride );
 }
 
 IMesh *CShaderAPIDx11::GetDynamicMeshEx( IMaterial *pMaterial, VertexFormat_t fmt, int nHWSkinBoneCount, bool buffered, IMesh *pVertexOverride, IMesh *pIndexOverride )
 {
-	// UNDONE: support compressed dynamic meshes if needed (pro: less VB memory, con: time spent compressing)
-	Assert( CompressionType( pVertexOverride->GetVertexFormat() ) != VERTEX_COMPRESSION_NONE );
-	Assert( ( pMaterial == NULL ) || ( (IMaterialInternal *)pMaterial )->IsRealTimeVersion() );
-	return &m_DynamicMesh;
-	//return 0;
+	return MeshMgr()->GetDynamicMeshEx( pMaterial, fmt, nHWSkinBoneCount, buffered, pVertexOverride, pIndexOverride );
+}
+
+IVertexBuffer *CShaderAPIDx11::GetDynamicVertexBuffer( IMaterial *pMaterial, bool buffered )
+{
+	return MeshMgr()->GetDynamicVertexBuffer( pMaterial, buffered );
+}
+
+IIndexBuffer *CShaderAPIDx11::GetDynamicIndexBuffer( IMaterial *pMaterial, bool buffered )
+{
+	return MeshMgr()->GetDynamicIndexBuffer( pMaterial, buffered );
 }
 
 IMesh *CShaderAPIDx11::GetFlexMesh()
 {
-	//return m_pRenderingMesh;
-	return &m_DynamicFlexMesh;
-	//return 0;
+	return MeshMgr()->GetFlexMesh();
 }
 
 // Begins a rendering pass that uses a state snapshot
@@ -1260,7 +1246,7 @@ void CShaderAPIDx11::HandleMatrixModified()
 		sprintf( materialname, "Other: %i", m_MatrixMode );
 		break;
 	}
-	Log( "Matrix modified: %s\n", materialname );
+	//Log( "Matrix modified: %s\n", materialname );
 	m_DynamicState.m_ChangedMatrices[m_MatrixMode] = true;
 }
 
@@ -1282,6 +1268,7 @@ void CShaderAPIDx11::MatrixMode( MaterialMatrixMode_t matrixMode )
 void CShaderAPIDx11::PushMatrix()
 {
 	// Does nothing in Dx11
+	//GetCurrentMatrix() = DirectX::XMMatrixTranspose( GetCurrentMatrix() );
 }
 
 void CShaderAPIDx11::PopMatrix()
@@ -1356,7 +1343,7 @@ void CShaderAPIDx11::PerspectiveX( double fovx, double aspect, double zNear, dou
 	mat = DirectX::XMMatrixPerspectiveRH( width, height, zNear, zFar );
 
 	// DX11FIXME: Local multiply
-	GetCurrentMatrix() = DirectX::XMMatrixMultiply( mat, GetCurrentMatrix() );
+	GetCurrentMatrix() = DirectX::XMMatrixMultiply( GetCurrentMatrix(), mat );
 
 	HandleMatrixModified();
 }
@@ -1541,7 +1528,11 @@ ImageFormat CShaderAPIDx11::GetNearestRenderTargetFormat( ImageFormat fmt ) cons
 // Sets the texture state
 void CShaderAPIDx11::BindTexture( Sampler_t stage, ShaderAPITextureHandle_t textureHandle )
 {
-	m_TargetState.shadowState.samplerAttrib.textures[stage] = textureHandle;
+	CTextureDx11 *pTex = &GetTexture( textureHandle );
+	int iTex = m_TargetState.dynamic.m_nTextures++;
+	int iSamp = m_TargetState.dynamic.m_nSamplers++;
+	m_TargetState.dynamic.m_ppTextureViews[iTex] = pTex->GetView();
+	m_TargetState.dynamic.m_ppSamplers[iSamp] = pTex->GetSamplerState();
 }
 
 // Indicates we're going to be modifying this texture
@@ -1566,10 +1557,57 @@ void CShaderAPIDx11::ModifyTexture( ShaderAPITextureHandle_t textureHandle )
 	}
 }
 
-// Texture management methods
+void CShaderAPIDx11::AdvanceCurrentTextureCopy( ShaderAPITextureHandle_t texture )
+{
+	// May need to switch textures....
+	CTextureDx11 &tex = GetTexture( texture );
+	if ( tex.m_NumCopies > 1 )
+	{
+		if ( ++tex.m_CurrentCopy >= tex.m_NumCopies )
+			tex.m_CurrentCopy = 0;
+
+		// When the current copy changes, we need to make sure this texture
+		// isn't bound to any stages any more; thereby guaranteeing the new
+		// copy will be re-bound.
+		UnbindTexture( texture );
+	}
+}
+
+//-----------------------------------------------------------------------------
+// Texture image upload
+//-----------------------------------------------------------------------------
 void CShaderAPIDx11::TexImage2D( int level, int cubeFace, ImageFormat dstFormat, int zOffset, int width, int height,
 				 ImageFormat srcFormat, bool bSrcIsTiled, void *imageData )
 {
+	LOCK_SHADERAPI();
+	Assert( imageData );
+	ShaderAPITextureHandle_t hModifyTexture = m_ModifyTextureHandle;
+	if ( !m_Textures.IsValidIndex( hModifyTexture ) )
+		return;
+
+	Assert( ( width <= g_pHardwareConfig->Caps().m_MaxTextureWidth ) &&
+		( height <= g_pHardwareConfig->Caps().m_MaxTextureHeight ) );
+
+	// Blow off mip levels if we don't support mipmapping
+	if ( !g_pHardwareConfig->SupportsMipmapping() && ( level > 0 ) )
+	{
+		return;
+	}
+
+	// This test here just makes sure we don't try to download mipmap levels
+	// if we weren't able to create them in the first place
+	CTextureDx11 &tex = GetTexture( hModifyTexture );
+	if ( level >= tex.m_NumLevels )
+	{
+		return;
+	}
+
+	// May need to switch textures....
+	if ( tex.m_SwitchNeeded )
+	{
+		AdvanceCurrentCopy( GetModifyTextureHandle() );
+		tex.m_SwitchNeeded = false;
+	}
 }
 
 void CShaderAPIDx11::TexSubImage2D( int level, int cubeFace, int xOffset, int yOffset, int zOffset, int width, int height,
@@ -1940,42 +1978,42 @@ void CShaderAPIDx11::SyncToken( const char *pToken )
 
 void CShaderAPIDx11::SetStencilEnable( bool onoff )
 {
-	m_TargetState.shadowState.stencilAttrib.bStencilEnable = onoff;
+	m_TargetState.shadow.depthStencil.StencilEnable = onoff;
 }
 
 void CShaderAPIDx11::SetStencilFailOperation( StencilOperation_t op )
 {
-	m_TargetState.shadowState.stencilAttrib.stencilFailOp = (ShaderStencilOp_t)op;
+	m_TargetState.shadow.depthStencil.FrontFace.StencilFailOp = (D3D11_STENCIL_OP)op;
 }
 
 void CShaderAPIDx11::SetStencilZFailOperation( StencilOperation_t op )
 {
-	m_TargetState.shadowState.stencilAttrib.stencilDepthFailOp = (ShaderStencilOp_t)op;
+	m_TargetState.shadow.depthStencil.FrontFace.StencilDepthFailOp = (D3D11_STENCIL_OP)op;
 }
 
 void CShaderAPIDx11::SetStencilPassOperation( StencilOperation_t op )
 {
-	m_TargetState.shadowState.stencilAttrib.stencilPassOp = (ShaderStencilOp_t)op;
+	m_TargetState.shadow.depthStencil.FrontFace.StencilPassOp = (D3D11_STENCIL_OP)op;
 }
 
 void CShaderAPIDx11::SetStencilCompareFunction( StencilComparisonFunction_t cmpfn )
 {
-	m_TargetState.shadowState.stencilAttrib.stencilFunc = (ShaderStencilFunc_t)cmpfn;
+	m_TargetState.shadow.depthStencil.FrontFace.StencilFunc = (D3D11_COMPARISON_FUNC)cmpfn;
 }
 
 void CShaderAPIDx11::SetStencilReferenceValue( int ref )
 {
-	m_TargetState.shadowState.stencilAttrib.stencilRef = ref;
+	m_TargetState.shadow.depthStencil.StencilRef = ref;
 }
 
 void CShaderAPIDx11::SetStencilTestMask( uint32 msk )
 {
-	m_TargetState.shadowState.stencilAttrib.stencilReadMask = msk;
+	m_TargetState.shadow.depthStencil.StencilReadMask = msk;
 }
 
 void CShaderAPIDx11::SetStencilWriteMask( uint32 msk )
 {
-	m_TargetState.shadowState.stencilAttrib.stencilWriteMask = msk;
+	m_TargetState.shadow.depthStencil.StencilWriteMask = msk;
 }
 
 IDirect3DBaseTexture *CShaderAPIDx11::GetD3DTexture( ShaderAPITextureHandle_t handle )

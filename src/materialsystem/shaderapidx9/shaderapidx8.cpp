@@ -1095,6 +1095,24 @@ public:
 	// Gets at the shadow state for a particular state snapshot
 	virtual bool IsDepthWriteEnabled( StateSnapshot_t id ) const;
 
+	virtual void UpdateConstantBuffer( ConstantBuffer_t cbuffer, void *pNewData )
+	{
+	}
+	virtual ConstantBuffer_t CreateConstantBuffer( size_t nBufSize )
+	{
+		return 0;
+	}
+	virtual void UploadConstantBuffers( ConstantBuffer_t *pBuffers, int nBuffers )
+	{
+	}
+	virtual void DestroyConstantBuffer( ConstantBuffer_t hBuffer )
+	{
+	}
+	virtual ConstantBufferHandle_t GetConstantBuffer( ConstantBuffer_t buffer )
+	{
+		return 0;
+	}
+
 // IDebugTextureInfo implementation.
 
 	virtual bool IsDebugTextureListFresh( int numFramesAllowed = 1 );

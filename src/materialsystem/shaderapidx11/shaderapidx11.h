@@ -32,65 +32,11 @@
 //-----------------------------------------------------------------------------
 struct MaterialSystemHardwareIdentifier_t;
 
-//-----------------------------------------------------------------------------
-// DX11 enumerations that don't appear to exist
-//-----------------------------------------------------------------------------
-#define MAX_DX11_VIEWPORTS 16
-#define MAX_DX11_STREAMS 16
+
 
 //-----------------------------------------------------------------------------
 // A record describing the state on the board
 //-----------------------------------------------------------------------------
-struct ShaderIndexBufferStateDx11_t
-{
-	ID3D11Buffer *m_pBuffer;
-	DXGI_FORMAT m_Format;
-	UINT m_nOffset;
-
-	bool operator!=( const ShaderIndexBufferStateDx11_t &src ) const
-	{
-		return memcmp( this, &src, sizeof( ShaderIndexBufferStateDx11_t ) ) != 0;
-	}
-};
-
-struct ShaderVertexBufferStateDx11_t
-{
-	ID3D11Buffer *m_pBuffer;
-	UINT m_nStride;
-	UINT m_nOffset;
-};
-
-struct ShaderInputLayoutStateDx11_t
-{
-	VertexShaderHandle_t m_hVertexShader;
-	VertexFormat_t m_pVertexDecl[MAX_DX11_STREAMS];
-};
-
-struct ShaderStateDx11_t
-{
-	int m_nViewportCount;
-	D3D11_VIEWPORT m_pViewports[MAX_DX11_VIEWPORTS];
-	FLOAT m_ClearColor[4];
-
-	ShaderVertexBufferStateDx11_t m_pVertexBuffer[MAX_DX11_STREAMS];
-	ShaderIndexBufferStateDx11_t m_IndexBuffer;
-	ShaderInputLayoutStateDx11_t m_InputLayout;
-	D3D11_PRIMITIVE_TOPOLOGY m_Topology;
-
-	// These are changed when the RenderState is changed.
-
-	ID3D11BlendState *m_pBlendState;
-	ID3D11DepthStencilState *m_pDepthStencilState;
-	ID3D11RasterizerState *m_pRasterState;
-	ID3D11VertexShader *m_pVertexShader;
-	ID3D11GeometryShader *m_pGeometryShader;
-	ID3D11PixelShader *m_pPixelShader;
-	ID3D11Buffer *m_pVSConstantBuffers[MAX_DX11_CBUFFERS];
-	ID3D11Buffer *m_pPSConstantBuffers[MAX_DX11_CBUFFERS];
-	ID3D11Buffer *m_pGSConstantBuffers[MAX_DX11_CBUFFERS];
-	ID3D11SamplerState *m_pSamplers[MAX_DX11_SAMPLERS];
-	ID3D11ShaderResourceView *m_pTextureViews[MAX_DX11_SAMPLERS];
-};
 
 struct DynamicStateDx11_t
 {
@@ -143,6 +89,10 @@ public:
 	virtual void Draw( MaterialPrimitiveType_t primitiveType, int nFirstIndex, int nIndexCount );
 
 	virtual void UpdateConstantBuffer( ConstantBuffer_t cbuffer, void *pNewData );
+	virtual ConstantBuffer_t GetInternalConstantBuffer( int type );
+	virtual void BindPixelShaderConstantBuffer( ConstantBuffer_t );
+	virtual void BindVertexShaderConstantBuffer( ConstantBuffer_t );
+	virtual void BindGeometryShaderConstantBuffer( ConstantBuffer_t );
 
 	FORCEINLINE bool TextureIsAllocated( ShaderAPITextureHandle_t hTexture )
 	{
@@ -359,17 +309,8 @@ private:
 	// call DestroyStaticMesh on the mesh returned by this call.
 	IMesh *GetDynamicMesh( IMaterial *pMaterial, int nHWSkinBoneCount, bool buffered, IMesh *pVertexOverride, IMesh *pIndexOverride );
 	IMesh *GetDynamicMeshEx( IMaterial *pMaterial, VertexFormat_t fmt, int nHWSkinBoneCount, bool buffered, IMesh *pVertexOverride, IMesh *pIndexOverride );
-	IVertexBuffer *GetDynamicVertexBuffer( IMaterial *pMaterial, bool buffered )
-	{
-		//Assert( 0 );
-		//return NULL;
-		return m_DynamicMesh.GetVertexBuffer();
-	}
-	IIndexBuffer *GetDynamicIndexBuffer( IMaterial *pMaterial, bool buffered )
-	{
-		//Assert( 0 );
-		return m_DynamicMesh.GetIndexBuffer();
-	}
+	IVertexBuffer *GetDynamicVertexBuffer( IMaterial *pMaterial, bool buffered );
+	IIndexBuffer *GetDynamicIndexBuffer( IMaterial *pMaterial, bool buffered );
 	IMesh *GetFlexMesh();
 
 	// Renders a single pass of a material
@@ -986,7 +927,7 @@ private:
 	// above is stuff I still have to port over.
 	//
 private:
-	void ClearShaderState( ShaderStateDx11_t *pState );
+	//void ClearShaderState( ShaderStateDx11_t *pState );
 	void IssueStateChanges( bool bForce = false );
 
 	void CreateTextureHandles( ShaderAPITextureHandle_t *handles, int count );
@@ -998,6 +939,7 @@ private:
 	void DoIssueGeometryShader();
 	bool DoIssueConstantBuffers( bool bForce );
 	void DoIssueTexture();
+	void DoIssueSampler();
 	void DoIssueRasterState();
 	void DoIssueBlendState();
 	void DoIssueDepthStencilState();
@@ -1009,6 +951,8 @@ private:
 	void DoIssueConstantBufferUpdates();
 	void DoIssueTransform();
 
+	void AdvanceCurrentTextureCopy( ShaderAPITextureHandle_t handle );
+
 	bool MatrixIsChanging() const;
 	bool IsDeactivated() const;
 	DirectX::XMMATRIX &GetMatrix( MaterialMatrixMode_t mode );
@@ -1019,10 +963,6 @@ private:
 	// Current material
 	IMaterialInternal *m_pMaterial;
 
-	// Dynamic meshes
-	CMeshDx11 m_DynamicMesh;
-	CMeshDx11 m_DynamicFlexMesh;
-
 	// Members related to textures
 	CUtlFixedLinkedList<CTextureDx11> m_Textures;
 	char m_ModifyTextureLockedLevel;
@@ -1031,10 +971,10 @@ private:
 	// Current and target states
 	StateSnapshot_t m_CurrentSnapshot;
 	bool m_bResettingRenderState : 1;
+
 	StatesDx11::RenderState m_TargetState;
 	StatesDx11::RenderState m_State;
-	ShaderStateDx11_t m_DX11TargetState;
-	ShaderStateDx11_t m_DX11State;
+
 	DynamicStateDx11_t m_DynamicState;
 
 	// Setting matrices

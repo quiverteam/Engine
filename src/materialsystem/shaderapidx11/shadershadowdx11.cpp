@@ -20,6 +20,7 @@
 
 #include "shaderapidx11.h"
 #include "shaderdevicedx11.h"
+#include "meshdx11.h"
 
 
 //-----------------------------------------------------------------------------
@@ -46,29 +47,28 @@ CShaderShadowDx11::~CShaderShadowDx11()
 // Sets the default *shadow* state
 void CShaderShadowDx11::SetDefaultState()
 {
-	m_ShadowState = StatesDx11::ShadowRenderState();
-	m_ShadowShaderState = StatesDx11::ShadowShaderState();
+	m_ShadowState = StatesDx11::ShadowState();
 }
 
 // Methods related to depth buffering
 void CShaderShadowDx11::DepthFunc( ShaderDepthFunc_t depthFunc )
 {
-	m_ShadowState.depthTestAttrib.depthFunc = depthFunc;
+	m_ShadowState.depthStencil.DepthFunc = (D3D11_COMPARISON_FUNC)depthFunc;
 }
 
 void CShaderShadowDx11::EnableDepthWrites( bool bEnable )
 {
-	m_ShadowState.depthWriteAttrib.bEnableDepthWrite = bEnable;
+	m_ShadowState.depthStencil.DepthWriteMask = bEnable ? D3D11_DEPTH_WRITE_MASK_ALL : D3D11_DEPTH_WRITE_MASK_ZERO;
 }
 
 void CShaderShadowDx11::EnableDepthTest( bool bEnable )
 {
-	m_ShadowState.depthTestAttrib.bEnableDepthTest = bEnable;
+	m_ShadowState.depthStencil.DepthEnable = bEnable;
 }
 
 void CShaderShadowDx11::EnablePolyOffset( PolygonOffsetMode_t nOffsetMode )
 {
-	m_ShadowState.depthOffsetAttrib.bEnable = nOffsetMode != SHADER_POLYOFFSET_DISABLE;
+	//m_ShadowState.rasterizer.DepthBias = 
 }
 
 // Suppresses/activates color writing 
@@ -76,11 +76,15 @@ void CShaderShadowDx11::EnableColorWrites( bool bEnable )
 {
 	if ( bEnable )
 	{
-		m_ShadowState.colorWriteAttrib.colorWriteMask |= StatesDx11::ColorWriteAttrib::COLORWRITE_RGB;
+		m_ShadowState.blend.RenderTarget[0].RenderTargetWriteMask |=
+			D3D11_COLOR_WRITE_ENABLE_RED | D3D11_COLOR_WRITE_ENABLE_GREEN |
+			D3D11_COLOR_WRITE_ENABLE_BLUE;
 	}
 	else
 	{
-		m_ShadowState.colorWriteAttrib.colorWriteMask &= ~StatesDx11::ColorWriteAttrib::COLORWRITE_RGB;
+		m_ShadowState.blend.RenderTarget[0].RenderTargetWriteMask &=
+			~( D3D11_COLOR_WRITE_ENABLE_RED | D3D11_COLOR_WRITE_ENABLE_GREEN |
+			   D3D11_COLOR_WRITE_ENABLE_BLUE );
 	}
 	
 }
@@ -90,49 +94,45 @@ void CShaderShadowDx11::EnableAlphaWrites( bool bEnable )
 {
 	if ( bEnable )
 	{
-		m_ShadowState.colorWriteAttrib.colorWriteMask |= StatesDx11::ColorWriteAttrib::COLORWRITE_ALPHA;
+		m_ShadowState.blend.RenderTarget[0].RenderTargetWriteMask |= D3D11_COLOR_WRITE_ENABLE_ALPHA;
 	}
 	else
 	{
-		m_ShadowState.colorWriteAttrib.colorWriteMask &= ~StatesDx11::ColorWriteAttrib::COLORWRITE_ALPHA;
+		m_ShadowState.blend.RenderTarget[0].RenderTargetWriteMask &= ~D3D11_COLOR_WRITE_ENABLE_ALPHA;
 	}
 }
 
 // Methods related to alpha blending
 void CShaderShadowDx11::EnableBlending( bool bEnable )
 {
-	m_ShadowState.transparencyAttrib.bTranslucent = bEnable;
+	m_ShadowState.blend.RenderTarget[0].BlendEnable = bEnable;
 }
 
 void CShaderShadowDx11::BlendFunc( ShaderBlendFactor_t srcFactor, ShaderBlendFactor_t dstFactor )
 {
-	m_ShadowState.colorBlendAttrib.bBlendEnable = true;
-	if ( !m_ShadowState.colorBlendAttrib.bIndependentAlphaBlend )
-	{
-		m_ShadowState.colorBlendAttrib.srcBlendAlpha = srcFactor;
-		m_ShadowState.colorBlendAttrib.destBlendAlpha = dstFactor;
-	}
-	m_ShadowState.colorBlendAttrib.srcBlend = srcFactor;
-	m_ShadowState.colorBlendAttrib.destBlend = dstFactor;
+	m_ShadowState.blend.RenderTarget[0].SrcBlend = TranslateD3D11BlendFunc( srcFactor );
+	m_ShadowState.blend.RenderTarget[0].DestBlend = TranslateD3D11BlendFunc( dstFactor );
 }
 
 // Alpha testing
 void CShaderShadowDx11::EnableAlphaTest( bool bEnable )
 {
-	m_ShadowState.alphaTestAttrib.bEnable = bEnable;
+	m_ShadowState.bEnableAlphaTest = bEnable;
 }
 
 void CShaderShadowDx11::AlphaFunc( ShaderAlphaFunc_t alphaFunc, float alphaRef /* [0-1] */ )
 {
-	m_ShadowState.alphaTestAttrib.alphaFunc = alphaFunc;
-	m_ShadowState.alphaTestAttrib.alphaTestRef = alphaRef;
+	m_ShadowState.alphaTestFunc = alphaFunc;
+	m_ShadowState.alphaTestRef = alphaRef;
 }
 
 // Wireframe/filled polygons
 void CShaderShadowDx11::PolyMode( ShaderPolyModeFace_t face, ShaderPolyMode_t polyMode )
 {
-	m_ShadowState.renderModeAttrib.polyMode = polyMode;
-	m_ShadowState.renderModeAttrib.faceMode = face;
+	m_ShadowState.rasterizer.FillMode = (D3D11_FILL_MODE)( polyMode + 1 );
+	//m_ShadowState.rasterizer.CullMode = 
+	//m_ShadowState.renderModeAttrib.polyMode = polyMode;
+//	m_ShadowState.renderModeAttrib.faceMode = face;
 }
 
 
@@ -140,14 +140,15 @@ void CShaderShadowDx11::PolyMode( ShaderPolyModeFace_t face, ShaderPolyMode_t po
 void CShaderShadowDx11::EnableCulling( bool bEnable )
 {
 	// DX11FIXME
-	m_ShadowState.cullFaceAttrib.bEnable = bEnable;
+	//m_ShadowState.cullFaceAttrib.bEnable = bEnable;
+	m_ShadowState.rasterizer.CullMode = bEnable ? D3D11_CULL_BACK : D3D11_CULL_NONE;
 	//m_ShadowState.cullFaceAttrib.cullMode = MATERIAL_CULLMODE_CCW;
 }
 
 // constant color + transparency
 void CShaderShadowDx11::EnableConstantColor( bool bEnable )
 {
-	m_ShadowState.colorAttrib.bEnable = bEnable;
+	m_ShadowState.bConstantColor = bEnable;
 }
 
 
@@ -165,10 +166,10 @@ void CShaderShadowDx11::VertexShaderVertexFormat( unsigned int flags,
 
 	// This indicates we're using a vertex shader
 	flags |= VERTEX_FORMAT_VERTEX_SHADER;
-	m_ShadowShaderState.shaderAttrib.vertexFormat = CMeshDx11::ComputeVertexFormat( flags, numTexCoords,
+	m_ShadowState.vertexFormat = MeshMgr()->ComputeVertexFormat( flags, numTexCoords,
 									    pTexCoordDimensions, 0, userDataSize );
 	// Avoid an error if vertex stream 0 is too narrow
-	if ( CVertexBufferBase::VertexFormatSize( m_ShadowShaderState.shaderAttrib.vertexFormat ) <= 16 )
+	if ( CVertexBufferBase::VertexFormatSize( m_ShadowState.vertexFormat ) <= 16 )
 	{
 		// FIXME: this is only necessary because we
 		//          (a) put the flex normal/position stream in ALL vertex decls
@@ -187,7 +188,7 @@ void CShaderShadowDx11::VertexShaderVertexFormat( unsigned int flags,
 		Assert( ( nTexCoordCount == 0 ) ||
 			( ( nTexCoordCount == 1 ) && pTexCoordDimensions && ( pTexCoordDimensions[0] == 1 ) ) );
 		numTexCoords			  = 1;
-		m_ShadowShaderState.shaderAttrib.vertexFormat = CMeshDx11::ComputeVertexFormat(
+		m_ShadowState.vertexFormat = MeshMgr()->ComputeVertexFormat(
 			flags, numTexCoords, NULL, 0, userDataSize );
 	}
 }
@@ -195,7 +196,7 @@ void CShaderShadowDx11::VertexShaderVertexFormat( unsigned int flags,
 // Indicates we're going to light the model
 void CShaderShadowDx11::EnableLighting( bool bEnable )
 {
-	m_ShadowState.lightAttrib.bEnable = bEnable;
+	m_ShadowState.bLighting = bEnable;
 }
 
 // Activate/deactivate skinning
@@ -206,128 +207,98 @@ void CShaderShadowDx11::EnableVertexBlend( bool bEnable )
 	// we allocate enough room for 3 weights (max allowed)
 	if ( ( HardwareConfig()->MaxBlendMatrices() > 0 ) || ( !bEnable ) )
 	{
-		m_ShadowState.vertexBlendAttrib.bEnable = bEnable;
+		m_ShadowState.bVertexBlend = bEnable;
 	}
 }
 
 void CShaderShadowDx11::EnableTexture( Sampler_t sampler, bool bEnable )
 {
-	if ( sampler < HardwareConfig()->GetSamplerCount() )
-	{
-		m_ShadowState.samplerAttrib.samplers[sampler] = bEnable;
-	}
-	else
-	{
-		Warning( "Attempting to bind a texture to an invalid sampler (%d)!\n", sampler );
-	}
+	//if ( sampler < HardwareConfig()->GetSamplerCount() )
+	//{
+	//	m_ShadowState.samplerAttrib.EnableTexture( sampler, bEnable );
+	//}
+	//else
+	//{
+	//	Warning( "Attempting to bind a texture to an invalid sampler (%d)!\n", sampler );
+	//}
 }
 
 // Sets the vertex and pixel shaders
 void CShaderShadowDx11::SetVertexShader( const char *pShaderName, int vshIndex )
 {
-	m_ShadowShaderState.shaderAttrib.vertexShader = ShaderManager()->CreateVertexShader( pShaderName, vshIndex );
-	m_ShadowShaderState.shaderAttrib.vertexShaderIndex = vshIndex;
+	m_ShadowState.vertexShader = ShaderManager()->CreateVertexShader( pShaderName, vshIndex );
+	m_ShadowState.vertexShaderIndex = vshIndex;
 }
 
 void CShaderShadowDx11::EnableBlendingSeparateAlpha( bool bEnable )
 {
 	// DX11FIXME
 	//m_ShadowState.m_SeparateAlphaBlendEnable = bEnable;
-	m_ShadowState.colorBlendAttrib.bIndependentAlphaBlend = bEnable;
+	//m_ShadowState.colorBlendAttrib.bIndependentAlphaBlend = bEnable;
 }
 
 void CShaderShadowDx11::SetPixelShader( const char *pShaderName, int pshIndex )
 {
-	m_ShadowShaderState.shaderAttrib.pixelShader = ShaderManager()->CreatePixelShader( pShaderName, pshIndex );
-	m_ShadowShaderState.shaderAttrib.pixelShaderIndex = pshIndex;
+	m_ShadowState.pixelShader = ShaderManager()->CreatePixelShader( pShaderName, pshIndex );
+	m_ShadowState.pixelShaderIndex = pshIndex;
 }
 
 void CShaderShadowDx11::SetMorphFormat( MorphFormat_t flags )
 {
-	m_ShadowShaderState.shaderAttrib.morphFormat = flags;
+	m_ShadowState.morphFormat = flags;
 }
 
 void CShaderShadowDx11::EnableStencil( bool bEnable )
 {
-	m_ShadowState.stencilAttrib.bStencilEnable = bEnable;
+	m_ShadowState.depthStencil.StencilEnable = bEnable;
 }
 
 void CShaderShadowDx11::StencilFunc( ShaderStencilFunc_t stencilFunc )
 {
-	m_ShadowState.stencilAttrib.stencilFunc = stencilFunc;
+	m_ShadowState.depthStencil.FrontFace.StencilFunc = (D3D11_COMPARISON_FUNC)stencilFunc;
 }
 
 void CShaderShadowDx11::StencilPassOp( ShaderStencilOp_t stencilOp )
 {
-	m_ShadowState.stencilAttrib.stencilPassOp = stencilOp;
+	m_ShadowState.depthStencil.FrontFace.StencilPassOp = (D3D11_STENCIL_OP)stencilOp;
 }
 
 void CShaderShadowDx11::StencilFailOp( ShaderStencilOp_t stencilOp )
 {
-	m_ShadowState.stencilAttrib.stencilFailOp = stencilOp;
+	m_ShadowState.depthStencil.FrontFace.StencilFailOp = (D3D11_STENCIL_OP)stencilOp;
 }
 
 void CShaderShadowDx11::StencilDepthFailOp( ShaderStencilOp_t stencilOp )
 {
-	m_ShadowState.stencilAttrib.stencilDepthFailOp = stencilOp;
+	m_ShadowState.depthStencil.FrontFace.StencilDepthFailOp = (D3D11_STENCIL_OP)stencilOp;
 }
 
 void CShaderShadowDx11::StencilReference( int nReference )
 {
-	m_ShadowState.stencilAttrib.stencilRef = nReference;
+	m_ShadowState.depthStencil.StencilRef = nReference;
 }
 
 void CShaderShadowDx11::StencilMask( int nMask )
 {
-	m_ShadowState.stencilAttrib.stencilWriteMask = nMask;
+	m_ShadowState.depthStencil.StencilWriteMask = nMask;
 }
 
 void CShaderShadowDx11::StencilWriteMask( int nMask )
 {
-	m_ShadowState.stencilAttrib.stencilReadMask = nMask;
+	m_ShadowState.depthStencil.StencilReadMask = nMask;
 }
 
 void CShaderShadowDx11::BlendFuncSeparateAlpha( ShaderBlendFactor_t srcFactor, ShaderBlendFactor_t dstFactor )
 {
-	m_ShadowState.colorBlendAttrib.bIndependentAlphaBlend = true;
-	m_ShadowState.colorBlendAttrib.srcBlendAlpha = srcFactor;
-	m_ShadowState.colorBlendAttrib.destBlendAlpha = dstFactor;
-}
-
-void CShaderShadowDx11::SetVertexShaderConstantBuffer( ConstantBuffer_t cbuffer, int vsReg )
-{
-	m_ShadowShaderState.shaderAttrib.vsConstantBuffers[vsReg] = cbuffer;
-}
-
-void CShaderShadowDx11::SetPixelShaderConstantBuffer( ConstantBuffer_t cbuffer, int psReg )
-{
-	m_ShadowShaderState.shaderAttrib.vsConstantBuffers[psReg] = cbuffer;
-}
-
-void CShaderShadowDx11::SetGeometryShaderConstantBuffer( ConstantBuffer_t cbuffer, int gsReg )
-{
-	m_ShadowShaderState.shaderAttrib.gsConstantBuffers[gsReg] = cbuffer;
-}
-
-void CShaderShadowDx11::SetTransformConstantBuffer()
-{
-	SetVertexShaderConstantBuffer( g_pShaderDeviceDx11->GetTransformConstantBuffer(), SHADER_PSREG );
-}
-
-void CShaderShadowDx11::SetLightingConstantBuffer()
-{
-	SetConstantBuffer( g_pShaderDeviceDx11->GetLightingConstantBuffer() );
-}
-
-void CShaderShadowDx11::SetFogConstantBuffer()
-{
-	SetConstantBuffer( g_pShaderDeviceDx11->GetFogConstantBuffer() );
+	//m_ShadowState.colorBlendAttrib.bIndependentAlphaBlend = true;
+	m_ShadowState.blend.RenderTarget[0].SrcBlendAlpha = TranslateD3D11BlendFunc( srcFactor );
+	m_ShadowState.blend.RenderTarget[0].DestBlendAlpha = TranslateD3D11BlendFunc( dstFactor );
 }
 
 // Alpha to coverage
 void CShaderShadowDx11::EnableAlphaToCoverage( bool bEnable )
 {
-	m_ShadowState.colorBlendAttrib.bAlphaToCoverage = bEnable;
+	m_ShadowState.blend.AlphaToCoverageEnable = bEnable;
 }
 
 StateSnapshot_t CShaderShadowDx11::FindOrCreateSnapshot()
@@ -337,8 +308,8 @@ StateSnapshot_t CShaderShadowDx11::FindOrCreateSnapshot()
 	      i != m_ShadowStateCache.InvalidIndex();
 	      i = m_ShadowStateCache.Next( i ) )
 	{
-		StatesDx11::RenderState entry = m_ShadowStateCache.Element( i );
-		if ( !memcmp( &entry.shadowState, &m_ShadowState, sizeof( StatesDx11::ShadowRenderState ) ) )
+		const StatesDx11::ShadowState &entry = m_ShadowStateCache.Element( i );
+		if ( !memcmp( &entry, &m_ShadowState, sizeof( StatesDx11::ShadowState ) ) )
 		{
 			// Matching states
 			return i;
@@ -346,10 +317,7 @@ StateSnapshot_t CShaderShadowDx11::FindOrCreateSnapshot()
 	}
 
 	// Didn't find it, add entry
-	StatesDx11::RenderState rs;
-	rs.shadowState = m_ShadowState;
-	rs.shaderState = m_ShadowShaderState;
-	return m_ShadowStateCache.AddToTail( rs );
+	return m_ShadowStateCache.AddToTail( m_ShadowState );
 }
 
 // ---------------------------------------------------

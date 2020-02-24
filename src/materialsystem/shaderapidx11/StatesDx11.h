@@ -5,181 +5,60 @@
 #include "shaderapi/ishaderapi.h"
 #include "materialsystem/imaterialsystem.h"
 
+#include <d3d11.h>
+
+class CShaderConstantBufferDx11;
+
+//-----------------------------------------------------------------------------
+// DX11 enumerations that don't appear to exist
+//-----------------------------------------------------------------------------
+#define MAX_DX11_VIEWPORTS 16
+#define MAX_DX11_STREAMS 16
 #define MAX_DX11_CBUFFERS	15
 #define MAX_DX11_SAMPLERS	16
 
-namespace StatesDx11
+FORCEINLINE static D3D11_BLEND TranslateD3D11BlendFunc( ShaderBlendFactor_t blend )
 {
-	// The shader state is not part of the shadow state.
-	struct ShaderAttrib
+	switch ( blend )
 	{
-		ConstantBuffer_t psConstantBuffers[MAX_DX11_CBUFFERS];
-		ConstantBuffer_t vsConstantBuffers[MAX_DX11_CBUFFERS];
-		ConstantBuffer_t gsConstantBuffers[MAX_DX11_CBUFFERS];
+	case SHADER_BLEND_ZERO:
+		return D3D11_BLEND_ZERO;
 
-		VertexShader_t vertexShader;
-		PixelShader_t pixelShader;
-		GeometryShader_t geometryShader;
+	case SHADER_BLEND_ONE:
+		return D3D11_BLEND_ONE;
 
-		int vertexShaderIndex;
-		int pixelShaderIndex;
-		int geometryShaderIndex;
+	case SHADER_BLEND_DST_COLOR:
+		return D3D11_BLEND_DEST_COLOR;
 
-		// Vertex data used by this snapshot
-		// Note that the vertex format actually used will be the
-		// aggregate of the vertex formats used by all snapshots in a material
-		VertexFormat_t vertexFormat;
+	case SHADER_BLEND_ONE_MINUS_DST_COLOR:
+		return D3D11_BLEND_INV_DEST_COLOR;
 
-		// Morph data used by this snapshot
-		// Note that the morph format actually used will be the
-		// aggregate of the morph formats used by all snapshots in a material
-		MorphFormat_t morphFormat;
+	case SHADER_BLEND_SRC_ALPHA:
+		return D3D11_BLEND_SRC_ALPHA;
 
-		ShaderAttrib()
-		{
-			memset( psConstantBuffers, 0, sizeof( ConstantBuffer_t ) * MAX_DX11_CBUFFERS );
-			memset( vsConstantBuffers, 0, sizeof( ConstantBuffer_t ) * MAX_DX11_CBUFFERS );
-			memset( gsConstantBuffers, 0, sizeof( ConstantBuffer_t ) * MAX_DX11_CBUFFERS );
-			vertexShader = 0;
-			pixelShader = 0;
-			geometryShader = 0;
-			vertexShaderIndex = -1;
-			pixelShaderIndex = -1;
-			geometryShaderIndex = -1;
-			vertexFormat = 0;
-			morphFormat = 0;
-		}
-	};
+	case SHADER_BLEND_ONE_MINUS_SRC_ALPHA:
+		return D3D11_BLEND_INV_SRC_ALPHA;
 
-	//
-	// Below are states part of the shadow state.
-	//
+	case SHADER_BLEND_DST_ALPHA:
+		return D3D11_BLEND_DEST_ALPHA;
 
-	struct SamplerAttrib
-	{
-		bool samplers[MAX_DX11_SAMPLERS];
-		ShaderAPITextureHandle_t textures[MAX_DX11_SAMPLERS];
+	case SHADER_BLEND_ONE_MINUS_DST_ALPHA:
+		return D3D11_BLEND_INV_DEST_ALPHA;
 
-		SamplerAttrib()
-		{
-			memset( samplers, 0, MAX_DX11_SAMPLERS );
-			memset( textures, INVALID_SHADERAPI_TEXTURE_HANDLE,
-				sizeof( ShaderAPITextureHandle_t ) * MAX_DX11_SAMPLERS );
-		}
-	};
+	case SHADER_BLEND_SRC_COLOR:
+		return D3D11_BLEND_SRC_COLOR;
 
-	struct StencilAttrib
-	{
-		bool bStencilEnable;
-		ShaderStencilOp_t stencilPassOp;
-		ShaderStencilOp_t stencilFailOp;
-		ShaderStencilOp_t stencilDepthFailOp;
-		ShaderStencilFunc_t stencilFunc;
-		uint8 stencilReadMask;
-		uint8 stencilWriteMask;
-		uint stencilRef;
+	case SHADER_BLEND_ONE_MINUS_SRC_COLOR:
+		return D3D11_BLEND_INV_SRC_COLOR;
 
-		StencilAttrib()
-		{
-			bStencilEnable = false;
-			stencilPassOp = SHADER_STENCILOP_KEEP;
-			stencilFailOp = SHADER_STENCILOP_KEEP;
-			stencilDepthFailOp = SHADER_STENCILOP_KEEP;
-			stencilFunc = SHADER_STENCILFUNC_ALWAYS;
-			stencilReadMask = 0;
-			stencilWriteMask = 0;
-			stencilRef = 0;
-		}
-	};
+	default:
+		// Impossible
+		return D3D11_BLEND_ZERO;
+	}
+}
 
-	struct DepthTestAttrib
-	{
-		bool bEnableDepthTest;
-		ShaderDepthFunc_t depthFunc;
-
-		DepthTestAttrib()
-		{
-			bEnableDepthTest = true;
-			depthFunc = SHADER_DEPTHFUNC_NEARER;
-		}
-	};
-
-	struct DepthOffsetAttrib
-	{
-		bool bEnable;
-		int offset;
-
-		DepthOffsetAttrib()
-		{
-			bEnable = false;
-			offset = 0;
-		}
-	};
-
-	struct DepthWriteAttrib
-	{
-		bool bEnableDepthWrite;
-
-		DepthWriteAttrib()
-		{
-			bEnableDepthWrite = true;
-		}
-	};
-
-	struct ColorBlendAttrib
-	{
-		bool bBlendEnable;
-		bool bIndependentAlphaBlend;
-		bool bAlphaToCoverage;
-
-		ShaderBlendFactor_t srcBlend;
-		ShaderBlendFactor_t destBlend;
-		ShaderBlendOp_t blendOp;
-
-		ShaderBlendFactor_t srcBlendAlpha;
-		ShaderBlendFactor_t destBlendAlpha;
-		ShaderBlendOp_t blendOpAlpha;
-
-		float blendColor[4];
-
-		uint sampleMask;
-
-		ColorBlendAttrib()
-		{
-			bAlphaToCoverage = false;
-			bBlendEnable = false;
-			bIndependentAlphaBlend = false;
-			srcBlend = SHADER_BLEND_ONE;
-			destBlend = SHADER_BLEND_ZERO;
-			blendOp = SHADER_BLENDOP_ADD;
-			srcBlendAlpha = SHADER_BLEND_ONE;
-			destBlendAlpha = SHADER_BLEND_ZERO;
-			blendOpAlpha = SHADER_BLENDOP_ADD;
-			memset( blendColor, 0, sizeof( float ) * 4 );
-		}
-	};
-
-	struct ColorWriteAttrib
-	{
-		enum
-		{
-			COLORWRITE_OFF = 0,
-			COLORWRITE_RED = 1 << 0,
-			COLORWRITE_GREEN = 1 << 1,
-			COLORWRITE_BLUE = 1 << 2,
-			COLORWRITE_ALPHA = 1 << 3,
-
-			COLORWRITE_RGB = COLORWRITE_RED | COLORWRITE_GREEN | COLORWRITE_BLUE,
-			COLORWRITE_RGBA = COLORWRITE_RGB | COLORWRITE_ALPHA,
-		};
-
-		uint8 colorWriteMask;
-
-		ColorWriteAttrib()
-		{
-			colorWriteMask = COLORWRITE_RGBA;
-		}
-	};
+namespace ShadowStatesDx11
+{
 
 	struct AlphaTestAttrib
 	{
@@ -192,50 +71,6 @@ namespace StatesDx11
 			bEnable = false;
 			alphaFunc = SHADER_ALPHAFUNC_LESS;
 			alphaTestRef = 0.0f;
-		}
-	};
-
-	struct AntialiasAttrib
-	{
-		bool bMultisampleEnable;
-
-		AntialiasAttrib()
-		{
-			bMultisampleEnable = false;
-		}
-	};
-
-	struct RenderModeAttrib
-	{
-		ShaderPolyMode_t polyMode;
-		ShaderPolyModeFace_t faceMode;
-
-		RenderModeAttrib()
-		{
-			polyMode = SHADER_POLYMODE_FILL;
-			faceMode = SHADER_POLYMODEFACE_FRONT;
-		}
-	};
-
-	struct CullFaceAttrib
-	{
-		MaterialCullMode_t cullMode;
-		bool bEnable;
-
-		CullFaceAttrib()
-		{
-			bEnable = true;
-			cullMode = MATERIAL_CULLMODE_CCW;
-		}
-	};
-
-	struct ScissorAttrib
-	{
-		bool bScissorEnable;
-
-		ScissorAttrib()
-		{
-			bScissorEnable = false;
 		}
 	};
 
@@ -278,47 +113,178 @@ namespace StatesDx11
 			bEnable = false;
 		}
 	};
+}
 
-	struct ShadowRenderState
+
+namespace StatesDx11
+{
+	//
+	// Things that are set once on SHADOW_STATE and don't
+	// change per-mesh or per-frame (in DYNAMIC_STATE)
+	//
+
+	struct DepthStencilState : public CD3D11_DEPTH_STENCIL_DESC
 	{
-		SamplerAttrib samplerAttrib;
-		StencilAttrib stencilAttrib;
-		AntialiasAttrib antialiasAttrib;
-		CullFaceAttrib cullFaceAttrib;
-		ScissorAttrib scissorAttrib;
-		AlphaTestAttrib alphaTestAttrib;
-		ColorWriteAttrib colorWriteAttrib;
-		ColorBlendAttrib colorBlendAttrib;
-		DepthTestAttrib depthTestAttrib;
-		DepthWriteAttrib depthWriteAttrib;
-		DepthOffsetAttrib depthOffsetAttrib;
-		RenderModeAttrib renderModeAttrib;
-		TransparencyAttrib transparencyAttrib;
-		ColorAttrib colorAttrib;
-		LightAttrib lightAttrib;
-		VertexBlendAttrib vertexBlendAttrib;
+		int StencilRef;
 
-		ShadowRenderState()
+		DepthStencilState()
+		{
+			StencilRef = 0;
+		}
+	};
+
+	struct BlendState : public CD3D11_BLEND_DESC
+	{
+		float BlendColor[4];
+		uint SampleMask;
+
+		BlendState()
+		{
+			BlendColor[0] = BlendColor[1] = BlendColor[2] = BlendColor[3] = 1.0f;
+			SampleMask = 1;
+		}
+	};
+
+	struct RasterState : public CD3D11_RASTERIZER_DESC
+	{
+		RasterState()
 		{
 		}
 	};
 
-	struct ShadowShaderState
+	struct ShadowState
 	{
-		ShaderAttrib shaderAttrib;
+		BlendState blend;
+		DepthStencilState depthStencil;
+		RasterState rasterizer;
 
-		ShadowShaderState()
+		bool bEnableAlphaTest;
+		ShaderAlphaFunc_t alphaTestFunc;
+		float alphaTestRef;
+
+		bool bLighting;
+		bool bConstantColor;
+		bool bVertexBlend;
+
+		VertexShader_t vertexShader;
+		int vertexShaderIndex;
+		PixelShader_t pixelShader;
+		int pixelShaderIndex;
+		GeometryShader_t geometryShader;
+		int geometryShaderIndex;
+
+		// Vertex data used by this snapshot
+		// Note that the vertex format actually used will be the
+		// aggregate of the vertex formats used by all snapshots in a material
+		VertexFormat_t vertexFormat;
+
+		// Morph data used by this snapshot
+		// Note that the morph format actually used will be the
+		// aggregate of the morph formats used by all snapshots in a material
+		MorphFormat_t morphFormat;
+
+		bool BlendStateChanged( const ShadowState &other )
 		{
+			return memcmp( &blend, &other.blend, sizeof( BlendState ) ) != 0;
+		}
+
+		bool DepthStencilStateChanged( const ShadowState &other )
+		{
+			return memcmp( &depthStencil, &other.depthStencil, sizeof( DepthStencilState ) ) != 0;
+		}
+
+		bool RasterStateChanged( const ShadowState &other )
+		{
+			return memcmp( &rasterizer, &other.rasterizer, sizeof( RasterState ) ) != 0;
+		}
+
+		ShadowState()
+		{
+			vertexShader = -1;
+			pixelShader = -1;
+			geometryShader = -1;
+			vertexFormat = 0;
+			morphFormat = 0;
+		}
+	};
+
+	//
+	// Things that can change per-mesh or per-frame (in DYNAMIC_STATE)
+	//
+
+	struct IndexBufferState
+	{
+		ID3D11Buffer *m_pBuffer;
+		DXGI_FORMAT m_Format;
+		UINT m_nOffset;
+
+		bool operator!=( const IndexBufferState &src ) const
+		{
+			return memcmp( this, &src, sizeof( IndexBufferState ) ) != 0;
+		}
+	};
+
+	struct VertexBufferState
+	{
+		ID3D11Buffer *m_pBuffer;
+		UINT m_nStride;
+		UINT m_nOffset;
+	};
+
+	struct InputLayoutState
+	{
+		VertexShaderHandle_t m_hVertexShader;
+		VertexFormat_t m_pVertexDecl[MAX_DX11_STREAMS];
+	};
+
+	struct DynamicState
+	{
+		int m_nViewportCount;
+		D3D11_VIEWPORT m_pViewports[MAX_DX11_VIEWPORTS];
+		FLOAT m_ClearColor[4];
+
+		InputLayoutState m_InputLayout;
+		IndexBufferState m_IndexBuffer;
+		VertexBufferState m_pVertexBuffer[MAX_DX11_STREAMS];
+
+		D3D11_PRIMITIVE_TOPOLOGY m_Topology;
+
+		ID3D11BlendState *m_pBlendState;
+		ID3D11DepthStencilState *m_pDepthStencilState;
+		ID3D11RasterizerState *m_pRasterState;
+
+		ID3D11VertexShader *m_pVertexShader;
+		int m_iVertexShader;
+		ID3D11GeometryShader *m_pGeometryShader;
+		int m_iGeometryShader;
+		ID3D11PixelShader *m_pPixelShader;
+		int m_iPixelShader;
+
+		CShaderConstantBufferDx11 *m_ppVSConstantBuffers[MAX_DX11_CBUFFERS];
+		int m_nVSConstantBuffers;
+		CShaderConstantBufferDx11 *m_ppGSConstantBuffers[MAX_DX11_CBUFFERS];
+		int m_nGSConstantBuffers;
+		CShaderConstantBufferDx11 *m_ppPSConstantBuffers[MAX_DX11_CBUFFERS];
+		int m_nPSConstantBuffers;
+		
+		ID3D11SamplerState *m_ppSamplers[MAX_DX11_SAMPLERS];
+		int m_nSamplers;
+		ID3D11ShaderResourceView *m_ppTextureViews[MAX_DX11_SAMPLERS];
+		int m_nTextures;
+
+		DynamicState()
+		{
+			ZeroMemory( this, sizeof( DynamicState ) );
+			m_iVertexShader = -1;
+			m_iPixelShader = -1;
+			m_iGeometryShader = -1;
+			m_Topology = D3D11_PRIMITIVE_TOPOLOGY_UNDEFINED;
 		}
 	};
 
 	struct RenderState
 	{
-		ShadowRenderState shadowState;
-		ShadowShaderState shaderState;
-
-		RenderState()
-		{
-		}
+		ShadowState shadow;
+		DynamicState dynamic;
 	};
 }

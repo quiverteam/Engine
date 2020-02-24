@@ -66,7 +66,7 @@ bool CShaderDeviceMgrDx11::Connect( CreateInterfaceFn factory )
 {
 	LOCK_SHADERAPI();
 
-	Log("Connecting CShaderDeviceMgrDx11...\n");
+	//Log("Connecting CShaderDeviceMgrDx11...\n");
 
 	if ( !BaseClass::Connect( factory ) )
 		return false;
@@ -132,6 +132,11 @@ void CShaderDeviceMgrDx11::InitAdapterInfo()
 	IDXGIAdapter *pAdapter;
 	for( UINT nCount = 0; m_pDXGIFactory->EnumAdapters( nCount, &pAdapter ) != DXGI_ERROR_NOT_FOUND; ++nCount )
 	{
+		IDXGIOutput *pOutput = GetAdapterOutput( nCount );
+		//Log( "pOutput: %p\n", pAdapter );
+		if ( !pOutput )
+			break;
+
 		int j = m_Adapters.AddToTail();
 		AdapterInfo_t &info = m_Adapters[j];
 
@@ -139,7 +144,7 @@ void CShaderDeviceMgrDx11::InitAdapterInfo()
 		memset( &info.m_ActualCaps, 0xDD, sizeof(info.m_ActualCaps) );
 #endif
 
-		IDXGIOutput *pOutput = GetAdapterOutput( nCount );
+		
 		info.m_ActualCaps.m_bDeviceOk = ComputeCapsFromD3D( &info.m_ActualCaps, pAdapter, pOutput );
 		if ( !info.m_ActualCaps.m_bDeviceOk )
 			continue;
@@ -164,18 +169,15 @@ void CShaderDeviceMgrDx11::InitAdapterInfo()
 //-----------------------------------------------------------------------------
 bool CShaderDeviceMgrDx11::ComputeCapsFromD3D( HardwareCaps_t *pCaps, IDXGIAdapter *pAdapter, IDXGIOutput *pOutput )
 {
-	HRESULT hr = pAdapter->CheckInterfaceSupport( __uuidof(ID3D11Device), NULL );
-	if ( hr != S_OK )
+	DXGI_ADAPTER_DESC desc;
+	HRESULT hr = pAdapter->GetDesc( &desc );
+	Assert( !FAILED( hr ) );
+	if ( FAILED( hr ) )
 	{
-		// Fall back to Dx9
+		Warning( "Dx11: Couldn't get adapter desc\n" );
 		return false;
 	}
-
-	DXGI_ADAPTER_DESC desc;
-	hr = pAdapter->GetDesc( &desc );
-	Assert( !FAILED( hr ) );
-	if ( FAILED(hr) )
-		return false;
+		
 
 	bool bForceFloatHDR = ( CommandLine()->CheckParm( "-floathdr" ) != NULL );
 
@@ -276,6 +278,7 @@ void CShaderDeviceMgrDx11::GetAdapterInfo( int nAdapter, MaterialAdapterInfo_t& 
 {
 	Assert( ( nAdapter >= 0 ) && ( nAdapter < m_Adapters.Count() ) );
 	const HardwareCaps_t &caps = m_Adapters[ nAdapter ].m_ActualCaps;
+	//Log( "Driver name: %s\n", caps.m_pDriverName );
 	memcpy( &info, &caps, sizeof(MaterialAdapterInfo_t) );
 }
 
@@ -442,7 +445,7 @@ CreateInterfaceFn CShaderDeviceMgrDx11::SetMode( void *hWnd, int nAdapter, const
 {
 	LOCK_SHADERAPI();
 
-	Log("Calling CShaderDeviceMgrDx11::SetMode()\n");
+	//Log("Calling CShaderDeviceMgrDx11::SetMode()\n");
 
 	Assert( nAdapter < GetAdapterCount() );
 	int nDXLevel = mode.m_nDXLevel != 0 ? mode.m_nDXLevel : m_Adapters[nAdapter].m_ActualCaps.m_nDXSupportLevel;
@@ -456,7 +459,7 @@ CreateInterfaceFn CShaderDeviceMgrDx11::SetMode( void *hWnd, int nAdapter, const
 		nDXLevel = m_Adapters[nAdapter].m_ActualCaps.m_nMaxDXSupportLevel;
 	}
 	nDXLevel = GetClosestActualDXLevel( nDXLevel );
-	Log("nDXLevel: %i\n", nDXLevel);
+	//Log("nDXLevel: %i\n", nDXLevel);
 	if ( nDXLevel < 110 )
 	{
 		// Fall back to the Dx9 implementations
@@ -563,11 +566,11 @@ bool CShaderDeviceDx11::InitDevice( void *hWnd, int nAdapter, const ShaderDevice
 	sd.SampleDesc.Quality = mode.m_nAAQuality;
 
 	UINT nDeviceFlags = 0;
-#ifdef _DEBUG
+//#ifdef _DEBUG
 	nDeviceFlags |= D3D11_CREATE_DEVICE_DEBUG;
-#endif
+//#endif
 
-	HRESULT hr = D3D11CreateDeviceAndSwapChain( pAdapter, D3D_DRIVER_TYPE_HARDWARE,
+	HRESULT hr = D3D11CreateDeviceAndSwapChain( pAdapter, D3D_DRIVER_TYPE_UNKNOWN,
 						    NULL, nDeviceFlags, NULL, 0, D3D11_SDK_VERSION, &sd, &m_pSwapChain,
 						    &m_pDevice, NULL, &m_pDeviceContext );
 
@@ -1045,6 +1048,21 @@ void CShaderDeviceDx11::UploadConstantBuffers( ConstantBuffer_t *pBuffers, int n
 ConstantBufferHandle_t CShaderDeviceDx11::GetConstantBuffer( ConstantBuffer_t iBuffer )
 {
 	return (ConstantBufferHandle_t)&m_ConstantBuffers.Element( iBuffer );
+}
+
+ConstantBuffer_t CShaderDeviceDx11::GetInternalConstantBuffer( int buffer )
+{
+	switch ( buffer )
+	{
+	case SHADER_INTERNAL_CONSTANTBUFFER_TRANSFORM:
+		return m_hTransformBuffer;
+	case SHADER_INTERNAL_CONSTANTBUFFER_LIGHTING:
+		return m_hLightingBuffer;
+	case SHADER_INTERNAL_CONSTANTBUFFER_FOG:
+		return m_hFogBuffer;
+	default:
+		return CONSTANT_BUFFER_INVALID;
+	}
 }
 
 void CShaderDeviceDx11::DestroyConstantBuffer( ConstantBuffer_t hBuffer )

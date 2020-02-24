@@ -33,7 +33,7 @@
 class CMeshDx11 : public CMeshBase
 {
 public:
-	CMeshDx11( const char *pTextureGroupName );
+	CMeshDx11( const char *pTextureGroupName = NULL );
 	virtual ~CMeshDx11();
 
 	// FIXME: Make this work! Unsupported methods of IIndexBuffer
@@ -41,9 +41,9 @@ public:
 	{
 		return false;
 	}
-	virtual void Unlock( int nWrittenIndexCount, IndexDesc_t &desc )
-	{
-	}
+	//virtual void Unlock( int nWrittenIndexCount, IndexDesc_t &desc )
+	//{
+	//}
 	virtual int GetRoomRemaining() const;
 	virtual void ModifyBegin( bool bReadOnly, int nFirstIndex, int nIndexCount, IndexDesc_t &desc );
 	virtual void ModifyEnd( IndexDesc_t &desc );
@@ -138,10 +138,6 @@ public:
 		return m_pIndexBuffer;
 	}
 
-public:
-	static VertexFormat_t ComputeVertexFormat( int nFlags, int nTexCoords, int *pTexCoordDimensions,
-						   int nBoneWeights, int nUserDataSize );
-
 protected:
 	const char *m_pTextureGroupName;
 
@@ -183,6 +179,126 @@ protected:
 	int	m_FirstIndex;
 };
 
+class CMeshMgrDx11 : public IMeshMgrDx11
+{
+public:
+	virtual IMesh *GetDynamicMesh( IMaterial *pMaterial, int nHWSkinBoneCount,
+				       bool buffered, IMesh *pVertexOverride, IMesh *pIndexOverride );
+	virtual IMesh *GetDynamicMeshEx( IMaterial *pMaterial, VertexFormat_t fmt, int nHWSkinBoneCount,
+					 bool buffered, IMesh *pVertexOverride, IMesh *pIndexOverride );
+	virtual IVertexBuffer *GetDynamicVertexBuffer( IMaterial *pMaterial, bool buffered );
+	virtual IIndexBuffer *GetDynamicIndexBuffer( IMaterial *pMaterial, bool buffered );
+	virtual IMesh *GetFlexMesh();
+
+	virtual IMesh *CreateStaticMesh( VertexFormat_t fmt, const char *pTextureBudgetGroup, IMaterial *pMaterial );
+	virtual void DestroyStaticMesh( IMesh *mesh );
+
+	virtual VertexFormat_t ComputeVertexFormat( int nFlags, int nTexCoords, int *pTexCoordDimensions,
+						    int nBoneWeights, int nUserDataSize );
+
+public:
+	CMeshDx11 m_DynamicMesh;
+	CMeshDx11 m_DynamicFlexMesh;
+
+	
+
+};
+
+//-----------------------------------------------------------------------------
+// Singleton Dx11 Mesh manager
+//-----------------------------------------------------------------------------
+static CMeshMgrDx11 s_MeshMgrDx11;
+IMeshMgrDx11 *MeshMgr()
+{
+	return &s_MeshMgrDx11;
+}
+
+IMesh *CMeshMgrDx11::GetDynamicMesh( IMaterial *pMaterial, int nHWSkinBoneCount,
+				     bool buffered, IMesh *pVertexOverride, IMesh *pIndexOverride )
+{
+	// DX11FIXME
+	Assert( ( pMaterial == NULL ) || ( (IMaterialInternal *)pMaterial )->IsRealTimeVersion() );
+	return &m_DynamicMesh;
+}
+
+IMesh *CMeshMgrDx11::GetDynamicMeshEx( IMaterial *pMaterial, VertexFormat_t fmt, int nHWSkinBoneCount, bool buffered, IMesh *pVertexOverride, IMesh *pIndexOverride )
+{
+	// DX11FIXME
+	// UNDONE: support compressed dynamic meshes if needed (pro: less VB memory, con: time spent compressing)
+	Assert( CompressionType( pVertexOverride->GetVertexFormat() ) != VERTEX_COMPRESSION_NONE );
+	Assert( ( pMaterial == NULL ) || ( (IMaterialInternal *)pMaterial )->IsRealTimeVersion() );
+	return &m_DynamicMesh;
+}
+
+IVertexBuffer *CMeshMgrDx11::GetDynamicVertexBuffer( IMaterial *pMaterial, bool buffered )
+{
+	// DX11FIXME
+	return m_DynamicMesh.GetVertexBuffer();
+}
+
+IIndexBuffer *CMeshMgrDx11::GetDynamicIndexBuffer( IMaterial *pMaterial, bool buffered )
+{
+	// DX11FIXME
+	return m_DynamicMesh.GetIndexBuffer();
+}
+
+IMesh *CMeshMgrDx11::GetFlexMesh()
+{
+	// DX11FIXME
+	return &m_DynamicFlexMesh;
+}
+
+IMesh *CMeshMgrDx11::CreateStaticMesh( VertexFormat_t fmt, const char *pTextureBudgetGroup, IMaterial *pMaterial )
+{
+	// DX11FIXME
+	CMeshDx11 *mesh = new CMeshDx11( pTextureBudgetGroup );
+	return mesh;
+}
+
+void CMeshMgrDx11::DestroyStaticMesh( IMesh *mesh )
+{
+	// DX11FIXME
+	delete mesh;
+}
+
+VertexFormat_t CMeshMgrDx11::ComputeVertexFormat( int nFlags, int nTexCoords, int *pTexCoordDimensions,
+						  int nBoneWeights, int nUserDataSize )
+{
+	// Construct a bitfield that makes sense and is unique from the standard FVF formats
+	VertexFormat_t fmt = nFlags & ~VERTEX_FORMAT_USE_EXACT_FORMAT;
+
+	if ( g_pHardwareConfig->SupportsCompressedVertices() == VERTEX_COMPRESSION_NONE )
+	{
+		// Vertex compression is disabled - make sure all materials
+		// say "No!" to compressed verts ( tested in IsValidVertexFormat() )
+		fmt &= ~VERTEX_FORMAT_COMPRESSED;
+	}
+
+	// This'll take 3 bits at most
+	Assert( nBoneWeights <= 4 );
+
+	// Size is measured in # of floats
+	Assert( userDataSize <= 4 );
+	fmt |= VERTEX_USERDATA_SIZE( nUserDataSize );
+
+	// NOTE: If pTexCoordDimensions isn't specified, then nTexCoordArraySize
+	// is interpreted as meaning that we have n 2D texcoords in the first N texcoord slots
+	nTexCoords = min( nTexCoords, VERTEX_MAX_TEXTURE_COORDINATES );
+	for ( int i = 0; i < nTexCoords; ++i )
+	{
+		if ( pTexCoordDimensions )
+		{
+			Assert( pTexCoordDimensions[i] >= 0 && pTexCoordDimensions[i] <= 4 );
+			fmt |= VERTEX_TEXCOORD_SIZE( (TextureStage_t)i, pTexCoordDimensions[i] );
+		}
+		else
+		{
+			fmt |= VERTEX_TEXCOORD_SIZE( (TextureStage_t)i, 2 );
+		}
+	}
+
+	return fmt;
+}
 
 //-----------------------------------------------------------------------------
 //
@@ -236,9 +352,23 @@ void CMeshDx11::SetFlexMesh( IMesh *pMesh, int nVertexOffsetInBytes )
 	}
 }
 
+MaterialIndexFormat_t CMeshDx11::IndexFormat() const
+{
+	return MaterialIndexFormat_t();
+}
+
 void CMeshDx11::DisableFlexMesh()
 {
 	SetFlexMesh( NULL, 0 );
+}
+
+void CMeshDx11::MarkAsDrawn()
+{
+}
+
+VertexFormat_t CMeshDx11::GetVertexFormat() const
+{
+	return VertexFormat_t();
 }
 
 bool CMeshDx11::HasFlexMesh() const
@@ -271,6 +401,32 @@ bool CMeshDx11::HasColorMesh() const
 {
 	LOCK_SHADERAPI();
 	return ( m_pColorMesh != NULL );
+}
+
+bool CMeshDx11::IsUsingMorphData() const
+{
+	return false;
+}
+
+int CMeshDx11::GetRoomRemaining() const
+{
+	return 0;
+}
+
+void CMeshDx11::ModifyBegin( bool bReadOnly, int nFirstIndex, int nIndexCount, IndexDesc_t &desc )
+{
+}
+
+void CMeshDx11::ModifyEnd( IndexDesc_t &desc )
+{
+}
+
+void CMeshDx11::Spew( int nIndexCount, const IndexDesc_t &desc )
+{
+}
+
+void CMeshDx11::ValidateData( int nIndexCount, const IndexDesc_t &desc )
+{
 }
 
 bool CMeshDx11::Lock( int nVertexCount, bool bAppend, VertexDesc_t &desc )
@@ -328,6 +484,31 @@ void CMeshDx11::Unlock( int nVertexCount, VertexDesc_t &desc )
 	Assert( m_pVertexBuffer );
 	m_pVertexBuffer->Unlock( nVertexCount, desc );
 	m_IsVBLocked = false;
+}
+
+void CMeshDx11::Spew( int nVertexCount, const VertexDesc_t &desc )
+{
+}
+
+void CMeshDx11::ValidateData( int nVertexCount, const VertexDesc_t &desc )
+{
+}
+
+bool CMeshDx11::IsDynamic() const
+{
+	return false;
+}
+
+void CMeshDx11::BeginCastBuffer( MaterialIndexFormat_t format )
+{
+}
+
+void CMeshDx11::BeginCastBuffer( VertexFormat_t format )
+{
+}
+
+void CMeshDx11::EndCastBuffer()
+{
 }
 
 //-----------------------------------------------------------------------------
@@ -476,6 +657,14 @@ MaterialPrimitiveType_t CMeshDx11::GetPrimitiveType() const
 	return m_Type;
 }
 
+void CMeshDx11::BeginPass()
+{
+}
+
+void CMeshDx11::RenderPass()
+{
+}
+
 // Draws the entire mesh
 void CMeshDx11::Draw( int firstIndex, int numIndices )
 {
@@ -517,43 +706,4 @@ IMaterial* CMeshDx11::GetMaterial()
 	// umm. this don't work none
 	Assert(0);
 	return 0;
-}
-
-VertexFormat_t CMeshDx11::ComputeVertexFormat( int nFlags, int nTexCoords, int* pTexCoordDimensions,
-					      int nBoneWeights, int nUserDataSize )
-{
-	// Construct a bitfield that makes sense and is unique from the standard FVF formats
-	VertexFormat_t fmt = nFlags & ~VERTEX_FORMAT_USE_EXACT_FORMAT;
-
-	if ( g_pHardwareConfig->SupportsCompressedVertices() == VERTEX_COMPRESSION_NONE )
-	{
-		// Vertex compression is disabled - make sure all materials
-		// say "No!" to compressed verts ( tested in IsValidVertexFormat() )
-		fmt &= ~VERTEX_FORMAT_COMPRESSED;
-	}
-
-	// This'll take 3 bits at most
-	Assert( nBoneWeights <= 4 );
-
-	// Size is measured in # of floats
-	Assert( userDataSize <= 4 );
-	fmt |= VERTEX_USERDATA_SIZE( nUserDataSize );
-
-	// NOTE: If pTexCoordDimensions isn't specified, then nTexCoordArraySize
-	// is interpreted as meaning that we have n 2D texcoords in the first N texcoord slots
-	nTexCoords = min( nTexCoords, VERTEX_MAX_TEXTURE_COORDINATES );
-	for ( int i = 0; i < nTexCoords; ++i )
-	{
-		if ( pTexCoordDimensions )
-		{
-			Assert( pTexCoordDimensions[i] >= 0 && pTexCoordDimensions[i] <= 4 );
-			fmt |= VERTEX_TEXCOORD_SIZE( (TextureStage_t)i, pTexCoordDimensions[i] );
-		}
-		else
-		{
-			fmt |= VERTEX_TEXCOORD_SIZE( (TextureStage_t)i, 2 );
-		}
-	}
-
-	return fmt;
 }

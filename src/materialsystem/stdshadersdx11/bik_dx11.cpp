@@ -67,9 +67,6 @@ BEGIN_VS_SHADER( Bik, "Help for Bik" )
 			int numTexCoords = 1;
 			pShaderShadow->VertexShaderVertexFormat( flags, numTexCoords, 0, 0 );
 
-			pShaderShadow->SetTransformConstantBuffer();
-			pShaderShadow->SetConstantBuffer(CONSTANT_BUFFER(BikTest));
-
 			DECLARE_STATIC_VERTEX_SHADER( bik_vs40 );
 			SET_STATIC_VERTEX_SHADER( bik_vs40 );
 
@@ -85,12 +82,16 @@ BEGIN_VS_SHADER( Bik, "Help for Bik" )
 			BindTexture( SHADER_SAMPLER1, CRTEXTURE, FRAME );
 			BindTexture( SHADER_SAMPLER2, CBTEXTURE, FRAME );
 
+			BindVertexShaderConstantBuffer(
+				GetInternalConstantBuffer( SHADER_INTERNAL_CONSTANTBUFFER_TRANSFORM ) );
+			BindPixelShaderConstantBuffer( CONSTANT_BUFFER( BikTest ) );
+
 			CONSTANT_BUFFER_TYPE(BikTest) tmp;
 			tmp.r = 0.5;
 			tmp.g = 1.0;
 			tmp.b = 0.5;
 			tmp.a = 1.0;
-			UpdateConstantBuffer(CONSTANT_BUFFER(BikTest), &tmp);
+			UpdateConstantBuffer( CONSTANT_BUFFER( BikTest ), &tmp );
 
 			DECLARE_DYNAMIC_VERTEX_SHADER( bik_vs40 );
 			SET_DYNAMIC_VERTEX_SHADER_COMBO( DOWATERFOG,  0 );

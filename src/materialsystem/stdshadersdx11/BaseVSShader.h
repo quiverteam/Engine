@@ -15,6 +15,7 @@
 
 #include "shaderlib/cshader.h"
 #include "shaderlib/baseshader.h"
+#include "shader_register_map.h"
 #include "ConVar.h"
 #include <renderparm.h>
 

@@ -118,7 +118,10 @@ public:
 	virtual bool IsTranslucent( IMaterialVar **params ) const;
 
 	virtual ConstantBuffer_t CreateConstantBuffer( size_t nBufSize );
-	virtual void SetConstantBuffer( ConstantBuffer_t cbuffer );
+	virtual ConstantBuffer_t GetInternalConstantBuffer( int type );
+	virtual void BindPixelShaderConstantBuffer( ConstantBuffer_t cbuffer );
+	virtual void BindVertexShaderConstantBuffer( ConstantBuffer_t cbuffer );
+	virtual void BindGeometryShaderConstantBuffer( ConstantBuffer_t cbuffer );
 	virtual void UpdateConstantBuffer( ConstantBuffer_t cbuffer, void *pNewData );
 
 public:

@@ -399,8 +399,8 @@ void CHardwareConfig::SetupHardwareCaps( int nDXLevel, const HardwareCaps_t &act
 	memcpy( &m_UnOverriddenCaps, &actualCaps, sizeof(HardwareCaps_t) );
 
 	// Don't bother with fallbacks for DX10 or consoles
-	if ( !IsPC() || nDXLevel >= 100 )
-		return;
+	//if ( !IsPC() || nDXLevel >= 100 )
+	//	return;
 
 	// Slam the support level to what we were requested
 	m_Caps.m_nDXSupportLevel = nDXLevel;

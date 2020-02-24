@@ -298,6 +298,10 @@ public:
 	virtual void SetDepthFeatheringPixelShaderConstant( int iConstant, float fDepthBlendScale ) = 0;
 
 	virtual void UpdateConstantBuffer( ConstantBuffer_t cbuffer, void *pNewData ) = 0;
+	virtual ConstantBuffer_t GetInternalConstantBuffer( int type ) = 0;
+	virtual void BindPixelShaderConstantBuffer( ConstantBuffer_t ) = 0;
+	virtual void BindVertexShaderConstantBuffer( ConstantBuffer_t ) = 0;
+	virtual void BindGeometryShaderConstantBuffer( ConstantBuffer_t ) = 0;
 };
 // end class IShaderDynamicAPI
 

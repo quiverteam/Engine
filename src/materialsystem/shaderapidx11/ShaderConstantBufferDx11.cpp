@@ -13,11 +13,13 @@ void CShaderConstantBufferDx11::Create( size_t nBufferSize )
 {
 	m_nBufSize = nBufferSize;
 
+	//Log( "Creating constant buffer of size %u\n", nBufferSize );
+
 	D3D11_BUFFER_DESC cbDesc;
 	cbDesc.ByteWidth = m_nBufSize;
-	cbDesc.Usage = D3D11_USAGE_DYNAMIC;
+	cbDesc.Usage = D3D11_USAGE_DEFAULT;
 	cbDesc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
-	cbDesc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
+	cbDesc.CPUAccessFlags = 0;
 	cbDesc.MiscFlags = 0;
 	cbDesc.StructureByteStride = 0;
 
@@ -40,9 +42,10 @@ void CShaderConstantBufferDx11::Update( void *pNewData )
 	{
 		if ( m_pData )
 			free( m_pData );
-		m_pData = malloc( m_nBufSize );
+		m_pData = _aligned_malloc( m_nBufSize, 16 );
 		memcpy( m_pData, pNewData, m_nBufSize );
 		m_bNeedsUpdate = true;
+		//Log( "Updated data for CBuffer with %p with len %u, needs to be uploaded to GPU\n", this, m_nBufSize );
 	}
 }
 
@@ -53,6 +56,7 @@ void CShaderConstantBufferDx11::UploadToGPU()
 
 	D3D11DeviceContext()->UpdateSubresource( m_pCBuffer, 0, 0, m_pData, 0, 0 );
 	m_bNeedsUpdate = false;
+	//Log( "Uploaded CBuffer %p with len %u to GPU\n", this, m_nBufSize );
 }
 
 void CShaderConstantBufferDx11::Destroy()
