@@ -10,7 +10,8 @@
 
 #include "common_pragmas.h"
 #include "common_hlsl_cpp_consts.h"
-#incldue "shader_register_map.h"
+#include "shader_register_map.h"
+#include "common_cbuffers.h"
 
 #ifdef NV3X
 #	define HALF half

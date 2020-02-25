@@ -1,0 +1,1 @@
+C:\Users\brian\Desktop\apitrace-msvc\x86\bin\apitrace trace --api d3d11 bin\win32\shaderapitest.exe -game hl2 -windowed -w 640 -h 480 -shaderdll shaderapidx11.dll

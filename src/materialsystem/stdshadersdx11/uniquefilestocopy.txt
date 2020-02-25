@@ -4,7 +4,13 @@
 ../../../game/bin/win32\vstdlib.dll 
 ..\..\dx_proxy\dx11_00\win32\dx_proxy.dll 
 bik_ps40.fxc
+bik_vs40.fxc
+common_cbuffers.h
 common_fxc.h
 common_hlsl_cpp_consts.h
 common_pragmas.h
 common_ps_fxc.h
+common_vs_fxc.h
+shader_register_map.h
+unlitgeneric_ps40.fxc
+unlitgeneric_vs40.fxc

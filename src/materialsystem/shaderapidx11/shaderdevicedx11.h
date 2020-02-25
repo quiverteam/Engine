@@ -86,6 +86,8 @@ private:
 
 	bool m_bObeyDxCommandlineOverride: 1;
 
+	bool m_bSetupAdapters;
+
 	friend class CShaderDeviceDx11;
 };
 

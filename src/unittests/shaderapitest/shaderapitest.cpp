@@ -45,7 +45,7 @@ public:
 		unsigned char *dst, enum ImageFormat dstImageFormat, 
 		int width, int height, int srcStride = 0, int dstStride = 0 ) 
 	{
-		return true;
+		return ImageLoader::ConvertImageFormat( src, srcImageFormat, dst, dstImageFormat, width, height, srcStride, dstStride );
 	}
 
 	// Figures out the amount of memory needed by a bitmap
@@ -201,6 +201,11 @@ private:
 	// DrawUsingShaders
 	void TestColoredQuad( ShaderBufferType_t nVBType, ShaderBufferType_t nIBType, bool bBuffered );
 
+	void TestTexturedQuad();
+	
+	void CreateTestTexture();
+	void DestroyTestTexture();
+
 	// Tests dynamic buffers
 	void TestDynamicBuffers();
 
@@ -218,6 +223,7 @@ private:
 	GeometryShaderHandle_t m_hGeometryShader;
 	PixelShaderHandle_t m_hPixelShader;
 	ConstantBuffer_t m_hTestCBuffer;
+	ShaderAPITextureHandle_t m_hTestTexture;
 
 	bool m_bIsDx11;
 };
@@ -528,7 +534,7 @@ bool CShaderAPITestApp::SetMode()
 //-----------------------------------------------------------------------------
 void CShaderAPITestApp::CreateSimpleBuffers( ShaderBufferType_t nVBType, ShaderBufferType_t nIBType, bool bBuffered )
 {
-	VertexFormat_t fmt = VERTEX_POSITION | VERTEX_NORMAL | VERTEX_COLOR;
+	VertexFormat_t fmt = VERTEX_POSITION | VERTEX_NORMAL | VERTEX_COLOR | VERTEX_TEXCOORD_SIZE( 0, 4 );
 	if ( IsDynamicBufferType( nVBType ) )
 	{
 		m_pVertexBuffer = m_pShaderDevice->CreateVertexBuffer( 
@@ -556,21 +562,25 @@ void CShaderAPITestApp::CreateSimpleBuffers( ShaderBufferType_t nVBType, ShaderB
 	vb.Position3f( -1.0f, -1.0f, 0.5f );
 	vb.Normal3f( 0.0f, 0.0f, 1.0f );
 	vb.Color4ubv( s_pColors[nCount++ % 4] );
+	vb.TexCoord2f( 0, -1.0f, -1.0f );
 	vb.AdvanceVertex();
 
 	vb.Position3f(  1.0f, -1.0f, 0.5f );
 	vb.Normal3f( 0.0f, 0.0f, 1.0f );
 	vb.Color4ubv( s_pColors[nCount++ % 4] );
+	vb.TexCoord2f( 0, 1.0f, -1.0f );
 	vb.AdvanceVertex();
 
 	vb.Position3f(  1.0f,  1.0f, 0.5f );
 	vb.Normal3f( 0.0f, 0.0f, 1.0f );
 	vb.Color4ubv( s_pColors[nCount++ % 4] );
+	vb.TexCoord2f( 0, 1.0f, 1.0f );
 	vb.AdvanceVertex();
 
 	vb.Position3f( -1.0f,  1.0f, 0.5f );
 	vb.Normal3f( 0.0f, 0.0f, 1.0f );
 	vb.Color4ubv( s_pColors[nCount++ % 4] );
+	vb.TexCoord2f( 0, -1.0f, 1.0f );
 	vb.AdvanceVertex();
 
 	vb.SpewData( );
@@ -673,12 +683,14 @@ static const char s_pSimpleDx11VertexShader[] =
 "struct VS_INPUT															"
 "{																			"
 "	float3 vPos						: POSITION0;							"
+"       float4 vTexCoord				: TEXCOORD0;"
 "	float4 vColor					: COLOR0;								"
 "};																			"
 "																			"
 "struct VS_OUTPUT															"
 "{																			"
 "	float4 projPos					: POSITION0;							"
+"       float2 vTexCoord                                : TEXCOORD0;"
 "	float4 vertexColor				: COLOR0;								"
 "};																			"
 "																			"
@@ -689,6 +701,7 @@ static const char s_pSimpleDx11VertexShader[] =
 //"       matrix mvp = mul(projectionMatrix, mul(viewMatrix, modelMatrix));"
 "	o.projPos = mul(modelViewProjectionMatrix, float4(v.vPos.xyz, 1.0f));													"
 //"       o.projPos.xyz = v.vPos.xyz; o.projPos.w = 1.0f;"
+"       o.vTexCoord = v.vTexCoord.xy;"
 "	o.vertexColor = v.vColor;												"
 "	return o;																"
 "}																			"
@@ -704,12 +717,15 @@ static const char s_pSimpleDx11PixelShader[] =
 "struct PS_INPUT															"
 "{																			"
 "	float4 projPos					: POSITION0;							"
+"       float2 vTexCoord                                : TEXCOORD0;"
 "	float4 vColor					: COLOR0;								"
 "};																			"
 "																			"
+"Texture2D testTexture : register(t0);"
+"SamplerState testSampler : register(s0);"
 "float4 main( const PS_INPUT i ) : SV_TARGET									"
 "{																			"
-"	return i.vColor * float4(r, g, b, 1);														"
+"	return i.vColor * float4(r, g, b, 1.0f) * testTexture.Sample(testSampler, i.vTexCoord);														"
 "}																			"
 "";
 
@@ -771,9 +787,9 @@ void CShaderAPITestApp::CreateShaders( const char *pVShader, int nVBufLen, const
 
 	m_pShaderAPI->MatrixMode( MATERIAL_MODEL );
 	m_pShaderAPI->LoadIdentity();
-	m_pShaderAPI->Translate( 0, 0.1, -10 );
-	m_pShaderAPI->Scale( 0.5, 0.5, 0.5 );
-	m_pShaderAPI->Rotate( 45, 0, 1, 0 );
+	m_pShaderAPI->Translate( 0, 0.0, -10 );
+	//m_pShaderAPI->Scale( 0.5, 0.5, 0.5 );
+	//m_pShaderAPI->Rotate( 45, 0, 1, 0 );
 	m_pShaderAPI->PushMatrix();
 }
 
@@ -792,6 +808,79 @@ void CShaderAPITestApp::DestroyShaders()
 		m_pShaderDevice->DestroyConstantBuffer( m_hTestCBuffer );
 		m_hTestCBuffer = CONSTANT_BUFFER_INVALID;
 	}
+}
+
+void CShaderAPITestApp::CreateTestTexture()
+{
+	constexpr int pixels = 6;
+
+	unsigned char array[] = { 0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,
+		0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,
+		0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,
+		0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,
+		0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,
+		0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,
+		0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,
+		0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,
+		0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0x9f,
+		0x9f,0x9f,0x20,0x20,0x20,0x00,0x00,0x00,0x00,0x00,0x00,
+		0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,
+		0x00,0xb7,0xb7,0xb7,0x20,0x20,0x20,0x00,0x00,0x00,0x00,
+		0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,
+		0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x20,0x20,
+		0x20,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,
+		0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,
+		0x00,0x00,0x00,0x00,0x00,0x00,0x87,0x87,0x87,0x00,0x00,
+		0x00,0x00,0x00,0x00,0x58,0x58,0x58,0xf7,0xf7,0xf7,0xff,
+		0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,
+		0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,
+		0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,
+		0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,
+		0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,
+		0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,
+		0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,
+		0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,
+		0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,
+		0xff,0xff };
+
+	m_hTestTexture = m_pShaderAPI->CreateTexture( 10, 10, 1, ImageFormat::IMAGE_FORMAT_RGBA8888, 2, 1, 0, "TestTexture", "Tests" );
+	Log( "m_hTestTexture: %i\n", m_hTestTexture );
+	m_pShaderAPI->ModifyTexture( m_hTestTexture );
+	m_pShaderAPI->TexImage2D( 0, 0, ImageFormat::IMAGE_FORMAT_RGBA8888, 0, 10, 10, ImageFormat::IMAGE_FORMAT_RGB888, false, array );
+}
+
+void CShaderAPITestApp::DestroyTestTexture()
+{
+	m_pShaderAPI->DeleteTexture( m_hTestTexture );
+	m_hTestTexture = INVALID_SHADERAPI_TEXTURE_HANDLE;
+}
+
+void CShaderAPITestApp::TestTexturedQuad()
+{
+	// clear (so that we can make sure that we aren't getting results from the previous quad)
+	m_pShaderAPI->ClearColor3ub( RandomInt( 0, 100 ), RandomInt( 0, 100 ), RandomInt( 190, 255 ) );
+	m_pShaderAPI->ClearBuffers( true, false, false, -1, -1 );
+
+	CreateSimpleBuffers( SHADER_BUFFER_TYPE_STATIC, SHADER_BUFFER_TYPE_STATIC, false );
+
+	// Draw a quad!
+	if ( !m_bIsDx11 )
+		CreateShaders( s_pSimpleVertexShader, sizeof( s_pSimpleVertexShader ),
+			       NULL, 0, s_pSimplePixelShader, sizeof( s_pSimplePixelShader ) );
+	else
+		CreateShaders( s_pSimpleDx11VertexShader, sizeof( s_pSimpleDx11VertexShader ),
+			       NULL, 0, s_pSimpleDx11PixelShader, sizeof( s_pSimpleDx11PixelShader ) );
+
+	CreateTestTexture();
+
+	m_pShaderAPI->BindTexture( SHADER_SAMPLER0, m_hTestTexture );
+
+	m_pShaderAPI->Draw( MATERIAL_TRIANGLES, 0, 6 );
+	m_pShaderDevice->Present();
+
+	DestroyShaders();
+
+	DestroyBuffers();
 }
 
 
@@ -1116,6 +1205,12 @@ int CShaderAPITestApp::Main()
 	ShaderViewport_t viewport;
 	viewport.Init( 0, 0, w, h );
 	m_pShaderAPI->SetViewports( 1, &viewport );
+
+	TestTexturedQuad();
+	SetWindowText( m_HWnd, "TestTexturedQuad test results . . hit a key" );
+
+	if ( !WaitForKeypress() )
+		return 1;
 
 	// Test drawing a full-screen quad with interpolated vertex colors for every combo of static/dynamic VB, static dynamic IB, buffered/non-buffered.
 	char buf[1024];

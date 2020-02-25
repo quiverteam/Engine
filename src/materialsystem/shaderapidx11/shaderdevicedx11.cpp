@@ -51,6 +51,7 @@ EXPOSE_SINGLE_INTERFACE_GLOBALVAR( CShaderDeviceDx11, IShaderDevice,
 CShaderDeviceMgrDx11::CShaderDeviceMgrDx11()
 {
 	m_pDXGIFactory = NULL;
+	m_bSetupAdapters = false;
 	m_bObeyDxCommandlineOverride = true;
 }
 
@@ -66,7 +67,7 @@ bool CShaderDeviceMgrDx11::Connect( CreateInterfaceFn factory )
 {
 	LOCK_SHADERAPI();
 
-	//Log("Connecting CShaderDeviceMgrDx11...\n");
+	Log("Connecting CShaderDeviceMgrDx11...\n");
 
 	if ( !BaseClass::Connect( factory ) )
 		return false;
@@ -103,6 +104,8 @@ InitReturnVal_t CShaderDeviceMgrDx11::Init( )
 {
 	LOCK_SHADERAPI();
 
+	InitAdapterInfo();
+
 	return INIT_OK;
 }
 
@@ -127,6 +130,9 @@ void CShaderDeviceMgrDx11::Shutdown( )
 //-----------------------------------------------------------------------------
 void CShaderDeviceMgrDx11::InitAdapterInfo()
 {
+	if ( m_bSetupAdapters )
+		return;
+
 	m_Adapters.RemoveAll();
 
 	IDXGIAdapter *pAdapter;
@@ -161,6 +167,8 @@ void CShaderDeviceMgrDx11::InitAdapterInfo()
 			Q_strncpy( info.m_ActualCaps.m_pShaderDLL, pShaderParam, sizeof( info.m_ActualCaps.m_pShaderDLL ) );
 		}
 	}
+
+	m_bSetupAdapters = true;
 }
 
 
@@ -252,11 +260,16 @@ bool CShaderDeviceMgrDx11::ComputeCapsFromD3D( HardwareCaps_t *pCaps, IDXGIAdapt
 	pCaps->m_ShadowDepthTextureFormat = IMAGE_FORMAT_UNKNOWN;
 	pCaps->m_nMaxViewports = 4;
 
-	DXGI_GAMMA_CONTROL_CAPABILITIES gammaCaps;
-	pOutput->GetGammaControlCapabilities( &gammaCaps );
-	pCaps->m_flMinGammaControlPoint = gammaCaps.MinConvertedValue;
-	pCaps->m_flMaxGammaControlPoint = gammaCaps.MaxConvertedValue;
-	pCaps->m_nGammaControlPointCount = gammaCaps.NumGammaControlPoints;
+
+	//DXGI_GAMMA_CONTROL_CAPABILITIES gammaCaps;
+	//pOutput->GetGammaControlCapabilities( &gammaCaps );
+	//pCaps->m_flMinGammaControlPoint = gammaCaps.MinConvertedValue;
+	//pCaps->m_flMaxGammaControlPoint = gammaCaps.MaxConvertedValue;
+	//pCaps->m_nGammaControlPointCount = gammaCaps.NumGammaControlPoints;
+	pCaps->m_flMinGammaControlPoint = 0.0f;
+	pCaps->m_flMaxGammaControlPoint = 65535.0f;
+	pCaps->m_nGammaControlPointCount = 256;
+	Log( "Set gamma control capabilities %f %f %i\n", pCaps->m_flMaxGammaControlPoint, pCaps->m_flMaxGammaControlPoint, pCaps->m_nGammaControlPointCount );
 
 	return true;
 }
@@ -424,16 +437,18 @@ void CShaderDeviceMgrDx11::GetCurrentModeInfo( ShaderDisplayMode_t* pInfo, int n
 //-----------------------------------------------------------------------------
 bool CShaderDeviceMgrDx11::SetAdapter( int nAdapter, int nFlags )
 {
-	/*
-	if ( !g_pShaderDeviceDx10->Init() )
+	HardwareCaps_t &actualCaps = g_pHardwareConfig->ActualCapsForEdit();
+	ComputeCapsFromD3D( &actualCaps, GetAdapter( nAdapter ), GetAdapterOutput( nAdapter ) );
+	ReadDXSupportLevels( actualCaps );
+	ReadHardwareCaps( actualCaps, actualCaps.m_nMaxDXSupportLevel );
+
+	// What's in "-shader" overrides dxsupport.cfg
+	const char *pShaderParam = CommandLine()->ParmValue( "-shader" );
+	if ( pShaderParam )
 	{
-	Warning( "Unable to initialize dx10 device!\n" );
-	return false;
+		Q_strncpy( actualCaps.m_pShaderDLL, pShaderParam, sizeof( actualCaps.m_pShaderDLL ) );
 	}
 
-	g_pMaterialSystemHardwareConfig = g_pShaderDeviceDx10;
-	g_pShaderDevice = g_pShaderDeviceDx10;
-	*/
 	return true;
 }
 
@@ -597,7 +612,9 @@ bool CShaderDeviceDx11::InitDevice( void *hWnd, int nAdapter, const ShaderDevice
 	m_ViewHWnd = hWnd;
 	GetWindowSize( m_nWindowWidth, m_nWindowHeight );
 
-	g_pHardwareConfig->SetupHardwareCaps( mode, g_ShaderDeviceMgrDx11.GetHardwareCaps( nAdapter ) );
+	Log( "InitDevice: setupHardwareCaps\n" );
+	const HardwareCaps_t &caps = g_ShaderDeviceMgrDx11.GetHardwareCaps( nAdapter );
+	g_pHardwareConfig->SetupHardwareCaps( mode, caps );
 
 	// Create shared constant buffers
 	m_hTransformBuffer = CreateConstantBuffer( sizeof( TransformBuffer_t ) );
@@ -669,8 +686,12 @@ ImageFormat CShaderDeviceDx11::GetBackBufferFormat() const
 
 void CShaderDeviceDx11::GetBackBufferDimensions( int& width, int& height ) const
 {
-	width = 1024;
-	height = 768;
+	//width = 1024;
+	//height = 768;
+	DXGI_SWAP_CHAIN_DESC desc;
+	m_pSwapChain->GetDesc( &desc );
+	width = desc.BufferDesc.Width;
+	height = desc.BufferDesc.Height;
 }
 
 

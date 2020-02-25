@@ -1,2 +1,4 @@
 ..\..\..\game\core\shaders\fxc\bik_vs40.vcs
 ..\..\..\game\core\shaders\fxc\bik_ps40.vcs
+..\..\..\game\core\shaders\fxc\unlitgeneric_ps40.vcs
+..\..\..\game\core\shaders\fxc\unlitgeneric_vs40.vcs

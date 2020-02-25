@@ -5,3 +5,6 @@
 
 bik_vs40.fxc
 bik_ps40.fxc
+
+unlitgeneric_ps40.fxc
+unlitgeneric_vs40.fxc

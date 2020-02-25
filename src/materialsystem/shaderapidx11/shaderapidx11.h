@@ -175,10 +175,7 @@ private:
 	void ClearSnapshots();
 
 	// Sets the mode...
-	bool SetMode( void *hwnd, int nAdapter, const ShaderDeviceInfo_t &info )
-	{
-		return true;
-	}
+	bool SetMode( void *hwnd, int nAdapter, const ShaderDeviceInfo_t &info );
 
 	void ChangeVideoMode( const ShaderDeviceInfo_t &info )
 	{
@@ -441,6 +438,7 @@ private:
 
 	// Sets the texture state
 	void BindTexture( Sampler_t stage, ShaderAPITextureHandle_t textureHandle );
+	void UnbindTexture( ShaderAPITextureHandle_t textureHandle );
 
 	void SetRenderTarget( ShaderAPITextureHandle_t colorTextureHandle, ShaderAPITextureHandle_t depthTextureHandle )
 	{

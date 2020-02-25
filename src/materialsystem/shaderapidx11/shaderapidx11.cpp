@@ -1535,6 +1535,57 @@ void CShaderAPIDx11::BindTexture( Sampler_t stage, ShaderAPITextureHandle_t text
 	m_TargetState.dynamic.m_ppSamplers[iSamp] = pTex->GetSamplerState();
 }
 
+void CShaderAPIDx11::UnbindTexture( ShaderAPITextureHandle_t textureHandle )
+{
+	CTextureDx11 *pTex = &GetTexture( textureHandle );
+
+	// Unbind the texture
+
+	int iTex = -1;
+	for ( int i = 0; i < m_TargetState.dynamic.m_nTextures; i++ )
+	{
+		if ( m_TargetState.dynamic.m_ppTextureViews[i] == pTex->GetView() )
+		{
+			iTex = i;
+			break;
+		}
+	}
+
+	if ( iTex == -1 )
+		return;
+
+	m_TargetState.dynamic.m_ppTextureViews[iTex] = NULL;
+	for ( int i = iTex; i < m_TargetState.dynamic.m_nTextures - 1; i++ )
+	{
+		m_TargetState.dynamic.m_ppTextureViews[i] =
+			m_TargetState.dynamic.m_ppTextureViews[i + 1];
+	}
+	m_TargetState.dynamic.m_ppTextureViews[m_TargetState.dynamic.m_nTextures--] = NULL;
+
+	// Unbind the matching sampler
+
+	int iSampler = -1;
+	for ( int i = 0; i < m_TargetState.dynamic.m_nSamplers; i++ )
+	{
+		if ( m_TargetState.dynamic.m_ppSamplers[i] == pTex->GetSamplerState() )
+		{
+			iSampler = i;
+			break;
+		}
+	}
+
+	if ( iSampler == -1 )
+		return;
+
+	m_TargetState.dynamic.m_ppSamplers[iSampler] = NULL;
+	for ( int i = iSampler; i < m_TargetState.dynamic.m_nSamplers - 1; i++ )
+	{
+		m_TargetState.dynamic.m_ppSamplers[i] =
+			m_TargetState.dynamic.m_ppSamplers[i + 1];
+	}
+	m_TargetState.dynamic.m_ppSamplers[m_TargetState.dynamic.m_nSamplers--] = NULL;
+}
+
 // Indicates we're going to be modifying this texture
 // TexImage2D, TexSubImage2D, TexWrap, TexMinFilter, and TexMagFilter
 // all use the texture specified by this function.
@@ -1583,7 +1634,12 @@ void CShaderAPIDx11::TexImage2D( int level, int cubeFace, ImageFormat dstFormat,
 	Assert( imageData );
 	ShaderAPITextureHandle_t hModifyTexture = m_ModifyTextureHandle;
 	if ( !m_Textures.IsValidIndex( hModifyTexture ) )
+	{
+		Log( "Invalid modify texture handle!\n" );
 		return;
+
+	}
+		
 
 	Assert( ( width <= g_pHardwareConfig->Caps().m_MaxTextureWidth ) &&
 		( height <= g_pHardwareConfig->Caps().m_MaxTextureHeight ) );
@@ -1591,6 +1647,7 @@ void CShaderAPIDx11::TexImage2D( int level, int cubeFace, ImageFormat dstFormat,
 	// Blow off mip levels if we don't support mipmapping
 	if ( !g_pHardwareConfig->SupportsMipmapping() && ( level > 0 ) )
 	{
+		Log( "Trying to image mip but we don't support mips!\n" );
 		return;
 	}
 
@@ -1599,15 +1656,29 @@ void CShaderAPIDx11::TexImage2D( int level, int cubeFace, ImageFormat dstFormat,
 	CTextureDx11 &tex = GetTexture( hModifyTexture );
 	if ( level >= tex.m_NumLevels )
 	{
+		Log( "level >= tex.m_NumLevels\n" );
 		return;
 	}
 
 	// May need to switch textures....
 	if ( tex.m_SwitchNeeded )
 	{
-		AdvanceCurrentCopy( GetModifyTextureHandle() );
+		AdvanceCurrentTextureCopy( hModifyTexture );
 		tex.m_SwitchNeeded = false;
 	}
+
+	CTextureDx11::TextureLoadInfo_t info;
+	info.m_TextureHandle = hModifyTexture;
+	info.m_pTexture = GetD3DTexture( hModifyTexture );
+	info.m_nLevel = level;
+	info.m_nCopy = tex.m_CurrentCopy;
+	info.m_CubeFaceID = (D3D11_TEXTURECUBE_FACE)cubeFace;
+	info.m_nWidth = width;
+	info.m_nHeight = height;
+	info.m_nZOffset = zOffset;
+	info.m_SrcFormat = srcFormat;
+	info.m_pSrcData = (unsigned char *)imageData;
+	tex.LoadTexImage( info );
 }
 
 void CShaderAPIDx11::TexSubImage2D( int level, int cubeFace, int xOffset, int yOffset, int zOffset, int width, int height,
@@ -2026,6 +2097,11 @@ IDirect3DBaseTexture *CShaderAPIDx11::GetD3DTexture( ShaderAPITextureHandle_t ha
 		return tex.GetTexture();
 	else
 		return tex.GetTexture( tex.m_CurrentCopy );
+}
+
+bool CShaderAPIDx11::SetMode( void *hwnd, int nAdapter, const ShaderDeviceInfo_t &mode )
+{
+	return g_pShaderDeviceMgr->SetMode( hwnd, nAdapter, mode ) != NULL;
 }
 
 //------------------------------------------------------------------------------------

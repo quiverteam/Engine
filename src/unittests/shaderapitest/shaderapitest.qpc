@@ -17,6 +17,7 @@ configuration
 			"$LIBPUBLIC/appframework"
 			"$LIBPUBLIC/tier2"
 			"$LIBCOMMON/bzip2"
+			"$LIBCOMMON/bitmap"
 		}
 	}
 }
@@ -26,6 +27,7 @@ dependencies
 	"appframework"
 	"tier2"
 	"bzip2"
+	"bitmap"
 }
 
 files

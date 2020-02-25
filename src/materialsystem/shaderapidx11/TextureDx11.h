@@ -5,10 +5,28 @@
 #include "Dx11Global.h"
 #include "shaderapi/shareddefs.h"
 #include "tier0/dbg.h"
+#include "shaderapi/ishaderapi.h"
 
 class CTextureDx11
 {
 public:
+	//-----------------------------------------------------------------------------
+	// Info for texture loading
+	//-----------------------------------------------------------------------------
+	struct TextureLoadInfo_t
+	{
+		ShaderAPITextureHandle_t	m_TextureHandle;
+		int							m_nCopy;
+		ID3D11Resource *m_pTexture;
+		int							m_nLevel;
+		D3D11_TEXTURECUBE_FACE			m_CubeFaceID;
+		int							m_nWidth;
+		int							m_nHeight;
+		int							m_nZOffset;				// What z-slice of the volume texture are we loading?
+		ImageFormat					m_SrcFormat;
+		unsigned char *m_pSrcData;
+	};
+
 	enum
 	{
 		TEXTURE_1D,
@@ -42,6 +60,7 @@ public:
 	void Delete();
 
 	void AdjustSamplerState();
+	void MakeView();
 
 	void SetAnisotropicLevel( int level );
 	void SetMinFilter( ShaderTexFilterMode_t texFilterMode );
@@ -60,6 +79,10 @@ public:
 	bool Is2D() const;
 	bool Is3D() const;
 
+	void LoadTexImage( TextureLoadInfo_t &info );
+	void BlitTextureBits( TextureLoadInfo_t &info, int xOffset, int yOffset, int srcStride );
+	void BlitSurfaceBits( TextureLoadInfo_t &info, int xOffset, int yOffset, int srcStride );
+
 	void SetTexture( ID3D11Resource *tex );
 	void SetTexture( int n, ID3D11Resource *tex );
 	//void SetView( ID3D11ShaderResourceView *view );
@@ -76,6 +99,7 @@ private:
 	union
 	{
 		ID3D11ShaderResourceView *m_pView;
+		ID3D11ShaderResourceView **m_ppView;
 		ID3D11DepthStencilView *m_pDepthStencilView;
 		ID3D11RenderTargetView *m_pRenderTargetView;
 	};

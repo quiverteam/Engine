@@ -52,14 +52,6 @@
 // CONSTANT BUFFERS
 // -------------------------
 
-cbuffer TransformBuffer_t : register( SHADER_CBREG_TRANSFORM )
-{
-	float4x4 cModelMatrix;
-	float4x4 cViewMatrix;
-	float4x4 cProjMatrix;
-	float4x4 cModelViewProjMatrix;
-}
-
 /*
 #pragma def ( vs, c0, 0.0f, 1.0f, 2.0f, 0.5f )
 
