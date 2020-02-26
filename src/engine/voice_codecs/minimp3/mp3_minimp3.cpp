@@ -106,7 +106,18 @@ unsigned int CMiniMP3AudioStream::GetPosition()
 void CMiniMP3AudioStream::SetPosition( unsigned int position )
 {
 	m_FilePos = position;
-	m_BufferPos = sizeof( m_Buffer ); //Force refresh of the buffer data
+	m_BufferPos = m_Info.frame_bytes;
+
+	int ReadBytes = m_pHandler->StreamRequestData( m_Buffer, sizeof( m_Buffer ), m_FilePos - m_BufferPos );
+	if ( ReadBytes < sizeof( m_Buffer ) )
+	{
+		m_EndOfBufferPos = ReadBytes;
+	}
+
+	//Due to bit-reservoir we decode a previous frame first, otherwise the frame we want will fail to decode
+	short TmpBuffer[MINIMP3_MAX_SAMPLES_PER_FRAME];
+	mp3dec_init( &m_Decoder );
+	mp3dec_decode_frame( &m_Decoder, ( const uint8_t* )m_Buffer, sizeof( m_Buffer ), TmpBuffer, &m_Info );
 }
 
 
