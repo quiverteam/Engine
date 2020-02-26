@@ -67,7 +67,7 @@ int	CMiniMP3AudioStream::Decode( void* pBuffer, unsigned int bufferSize )
 
 		m_BufferPos = 0;
 	}
-	if ( m_EndOfBufferPos >= 0 && m_BufferPos >= m_EndOfBufferPos )
+	if ( m_EndOfBufferPos >= 0 && (int)m_BufferPos >= m_EndOfBufferPos )
 	{
 		return 0;
 	}
