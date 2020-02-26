@@ -22,6 +22,9 @@
 #include "shaderdevicedx11.h"
 #include "meshdx11.h"
 
+// NOTE: This has to be the last file included!
+#include "tier0/memdbgon.h"
+
 
 //-----------------------------------------------------------------------------
 // Class Factory
@@ -182,11 +185,11 @@ void CShaderShadowDx11::VertexShaderVertexFormat( unsigned int flags,
 			bComplained = true;
 		}
 		// All vertex formats should contain position...
-		Assert( nFlags & VERTEX_POSITION );
+		Assert( flags & VERTEX_POSITION );
 		flags |= VERTEX_POSITION;
 		// This error should occur only if we have zero texcoords, or if we have a single, 1-D texcoord
-		Assert( ( nTexCoordCount == 0 ) ||
-			( ( nTexCoordCount == 1 ) && pTexCoordDimensions && ( pTexCoordDimensions[0] == 1 ) ) );
+		Assert( ( userDataSize == 0 ) ||
+			( ( userDataSize == 1 ) && pTexCoordDimensions && ( pTexCoordDimensions[0] == 1 ) ) );
 		numTexCoords			  = 1;
 		m_ShadowState.vertexFormat = MeshMgr()->ComputeVertexFormat(
 			flags, numTexCoords, NULL, 0, userDataSize );

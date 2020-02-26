@@ -492,7 +492,7 @@ void CMaterialSystem::SetShaderAPI( char const *pShaderAPIDLL )
 
 	if ( !pShaderAPIDLL )
 	{
-		pShaderAPIDLL = "shaderapidx11";
+		pShaderAPIDLL = "shaderapidx9";
 	}
 
 	// m_pShaderDLL is needed to spew driver info

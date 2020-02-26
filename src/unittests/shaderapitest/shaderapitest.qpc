@@ -17,7 +17,7 @@ configuration
 			"$LIBPUBLIC/appframework"
 			"$LIBPUBLIC/tier2"
 			"$LIBCOMMON/bzip2"
-			"$LIBCOMMON/bitmap"
+			"$LIBPUBLIC/bitmap"
 		}
 	}
 }

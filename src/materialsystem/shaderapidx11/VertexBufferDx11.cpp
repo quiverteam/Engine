@@ -8,6 +8,9 @@
 #include "materialsystem/ivballoctracker.h"
 #include "tier2/tier2.h"
 
+// NOTE: This has to be the last file included!
+#include "tier0/memdbgon.h"
+
 //-----------------------------------------------------------------------------
 //
 // Dx11 implementation of a vertex buffer
@@ -38,8 +41,6 @@ CVertexBufferDx11::CVertexBufferDx11( ShaderBufferType_t type, VertexFormat_t fm
 	m_bIsLocked = false;
 	m_bIsDynamic = ( type == SHADER_BUFFER_TYPE_DYNAMIC ) || ( type == SHADER_BUFFER_TYPE_DYNAMIC_TEMP );
 	m_bFlush = false;
-
-	Allocate();
 }
 
 CVertexBufferDx11::~CVertexBufferDx11()
@@ -63,6 +64,15 @@ bool CVertexBufferDx11::Allocate()
 	bd.BindFlags = D3D11_BIND_VERTEX_BUFFER;
 	bd.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
 	bd.MiscFlags = 0;
+
+	Log( "Creating D3D vertex buffer: size: %i\n", m_nBufferSize );
+
+	//if ( m_nBufferSize <= 0 )
+	//{
+	//	int *p = 0;
+	//	*p = 1;
+	//}
+		
 
 	HRESULT hr = D3D11Device()->CreateBuffer( &bd, NULL, &m_pVertexBuffer );
 	bool bOk = !FAILED( hr ) && ( m_pVertexBuffer != 0 );
@@ -197,6 +207,8 @@ int CVertexBufferDx11::GetRoomRemaining() const
 //-----------------------------------------------------------------------------
 bool CVertexBufferDx11::Lock( int nMaxVertexCount, bool bAppend, VertexDesc_t& desc )
 {
+	Log( "Locking vertex buffer %p\n", m_pVertexBuffer );
+
 	Assert( !m_bIsLocked && ( nMaxVertexCount != 0 ) && ( nMaxVertexCount <= m_nVertexCount ) );
 	Assert( m_VertexFormat != 0 );
 
@@ -209,7 +221,11 @@ bool CVertexBufferDx11::Lock( int nMaxVertexCount, bool bAppend, VertexDesc_t& d
 
 	// This can happen if the buffer was locked but a type wasn't bound
 	if ( m_VertexFormat == 0 )
+	{
+		Log( "No vertex format!\n" );
 		goto vertexBufferLockFailed;
+	}
+		
 
 	// Just give the app crap buffers to fill up while we're suppressed...
 	if ( g_pShaderDevice->IsDeactivated() || ( nMaxVertexCount == 0 ) )
@@ -226,7 +242,11 @@ bool CVertexBufferDx11::Lock( int nMaxVertexCount, bool bAppend, VertexDesc_t& d
 	if ( !m_pVertexBuffer )
 	{
 		if ( !Allocate() )
+		{
+			Log( "Couldn't allocate vertex buffer\n" );
 			goto vertexBufferLockFailed;
+		}
+			
 	}
 
 	// Check to see if we have enough memory 

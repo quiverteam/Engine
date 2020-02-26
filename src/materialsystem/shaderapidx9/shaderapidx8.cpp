@@ -1112,6 +1112,19 @@ public:
 	{
 		return 0;
 	}
+	virtual ConstantBuffer_t GetInternalConstantBuffer( int type )
+	{
+		return 0;
+	}
+	virtual void BindPixelShaderConstantBuffer( ConstantBuffer_t )
+	{
+	}
+	virtual void BindVertexShaderConstantBuffer( ConstantBuffer_t )
+	{
+	}
+	virtual void BindGeometryShaderConstantBuffer( ConstantBuffer_t )
+	{
+	}
 
 // IDebugTextureInfo implementation.
 

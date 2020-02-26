@@ -1206,6 +1206,7 @@ size_t __cdecl _CrtSetDebugFillThreshold( size_t _NewDebugFillThreshold)
 //===========================================
 // NEW!!! 64-bit
 
+#ifndef _DEBUG
 #ifndef PROTECTED_THINGS_DISABLE
 char * __cdecl _strdup ( const char * string )
 {
@@ -1218,6 +1219,7 @@ char * __cdecl _strdup ( const char * string )
 		memcpy( pCopy, string, nSize );
 	return pCopy;
 }
+#endif
 #endif
 
 #if 0

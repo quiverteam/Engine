@@ -27,6 +27,9 @@
 #include "VertexBufferDx11.h"
 #include "IndexBufferDx11.h"
 
+// NOTE: This has to be the last file included!
+#include "tier0/memdbgon.h"
+
 //-----------------------------------------------------------------------------
 // Dx11 implementation of a mesh
 //-----------------------------------------------------------------------------
@@ -85,6 +88,9 @@ public:
 	void UseIndexBuffer( IIndexBuffer *pBuffer );
 	void UseVertexBuffer( IVertexBuffer *pBuffer );
 
+	void SetVertexFormat( VertexFormat_t fmt );
+	VertexFormat_t GetVertexFormat() const;
+
 	// Sets the primitive type
 	void SetPrimitiveType( MaterialPrimitiveType_t type );
 	MaterialPrimitiveType_t GetPrimitiveType() const;
@@ -109,6 +115,8 @@ public:
 
 	void ValidateData( int numVerts, int numIndices, const MeshDesc_t &desc );
 
+	int NumPrimitives( int nVertexCount, int nIndexCount ) const;
+
 	// gets the associated material
 	IMaterial *GetMaterial();
 
@@ -120,8 +128,6 @@ public:
 	virtual void DisableFlexMesh();
 
 	virtual void MarkAsDrawn();
-
-	virtual VertexFormat_t GetVertexFormat() const;
 
 	virtual IMesh *GetMesh()
 	{
@@ -137,6 +143,10 @@ public:
 	{
 		return m_pIndexBuffer;
 	}
+
+protected:
+	virtual void DrawInternal( CPrimList *pPrims, int nPrims );
+	virtual void DrawMesh();
 
 protected:
 	const char *m_pTextureGroupName;
@@ -171,20 +181,22 @@ protected:
 	bool m_IsVBLocked;
 	bool m_IsIBLocked;
 
-	// Used in rendering sub-parts of the mesh
+	// Used to keep track of the current set of primitives we are rendering.
 	static CPrimList *s_pPrims;
 	static int s_nPrims;
-	static unsigned int s_FirstVertex; // Gets reset during CMeshDX8::DrawInternal
+	static unsigned int s_FirstVertex; // Gets reset during CMeshDx11::DrawInternal
 	static unsigned int s_NumVertices;
+
 	int	m_FirstIndex;
 };
 
 class CMeshMgrDx11 : public IMeshMgrDx11
 {
 public:
-	virtual IMesh *GetDynamicMesh( IMaterial *pMaterial, int nHWSkinBoneCount,
-				       bool buffered, IMesh *pVertexOverride, IMesh *pIndexOverride );
-	virtual IMesh *GetDynamicMeshEx( IMaterial *pMaterial, VertexFormat_t fmt, int nHWSkinBoneCount,
+	CMeshMgrDx11();
+	virtual ~CMeshMgrDx11();
+
+	virtual IMesh *GetDynamicMesh( IMaterial *pMaterial, VertexFormat_t fmt, int nHWSkinBoneCount,
 					 bool buffered, IMesh *pVertexOverride, IMesh *pIndexOverride );
 	virtual IVertexBuffer *GetDynamicVertexBuffer( IMaterial *pMaterial, bool buffered );
 	virtual IIndexBuffer *GetDynamicIndexBuffer( IMaterial *pMaterial, bool buffered );
@@ -196,12 +208,16 @@ public:
 	virtual VertexFormat_t ComputeVertexFormat( int nFlags, int nTexCoords, int *pTexCoordDimensions,
 						    int nBoneWeights, int nUserDataSize );
 
+	virtual int VertexFormatSize( VertexFormat_t fmt );
+
+	virtual void RenderPass( IMesh *pMesh );
+
 public:
 	CMeshDx11 m_DynamicMesh;
 	CMeshDx11 m_DynamicFlexMesh;
 
-	
-
+	CVertexBufferDx11 m_DynamicVertexBuffer;
+	CIndexBufferDx11 m_DynamicIndexBuffer;
 };
 
 //-----------------------------------------------------------------------------
@@ -213,33 +229,104 @@ IMeshMgrDx11 *MeshMgr()
 	return &s_MeshMgrDx11;
 }
 
-IMesh *CMeshMgrDx11::GetDynamicMesh( IMaterial *pMaterial, int nHWSkinBoneCount,
+CMeshMgrDx11::CMeshMgrDx11() :
+	m_DynamicVertexBuffer( SHADER_BUFFER_TYPE_DYNAMIC, VERTEX_FORMAT_UNKNOWN, DYNAMIC_VERTEX_BUFFER_MEMORY, "dynamic" ),
+	m_DynamicIndexBuffer( SHADER_BUFFER_TYPE_DYNAMIC, MATERIAL_INDEX_FORMAT_16BIT, INDEX_BUFFER_SIZE, "dynamic" )
+{
+}
+
+CMeshMgrDx11::~CMeshMgrDx11()
+{
+}
+
+void CMeshMgrDx11::RenderPass( IMesh *pMesh )
+{
+	static_cast<CMeshDx11 *>( pMesh )->RenderPass();
+}
+
+int CMeshMgrDx11::VertexFormatSize( VertexFormat_t fmt )
+{
+	return CVertexBufferBase::VertexFormatSize( fmt );
+}
+
+IMesh *CMeshMgrDx11::GetDynamicMesh( IMaterial *pMaterial, VertexFormat_t vertexFormat, int nHWSkinBoneCount,
 				     bool buffered, IMesh *pVertexOverride, IMesh *pIndexOverride )
 {
 	// DX11FIXME
 	Assert( ( pMaterial == NULL ) || ( (IMaterialInternal *)pMaterial )->IsRealTimeVersion() );
-	return &m_DynamicMesh;
-}
 
-IMesh *CMeshMgrDx11::GetDynamicMeshEx( IMaterial *pMaterial, VertexFormat_t fmt, int nHWSkinBoneCount, bool buffered, IMesh *pVertexOverride, IMesh *pIndexOverride )
-{
-	// DX11FIXME
-	// UNDONE: support compressed dynamic meshes if needed (pro: less VB memory, con: time spent compressing)
-	Assert( CompressionType( pVertexOverride->GetVertexFormat() ) != VERTEX_COMPRESSION_NONE );
-	Assert( ( pMaterial == NULL ) || ( (IMaterialInternal *)pMaterial )->IsRealTimeVersion() );
-	return &m_DynamicMesh;
+	IMaterialInternal *pMatInternal = static_cast<IMaterialInternal *>( pMaterial );
+
+	CMeshDx11 *pMesh = NULL;
+	pMesh = &m_DynamicMesh;
+
+	if ( pMesh )
+	{
+		if ( !pVertexOverride )
+		{
+			// Remove VERTEX_FORMAT_COMPRESSED from the material's format (dynamic meshes don't
+			// support compression, and all materials should support uncompressed verts too)
+			VertexFormat_t materialFormat = pMatInternal->GetVertexFormat() & ~VERTEX_FORMAT_COMPRESSED;
+			VertexFormat_t fmt = ( vertexFormat != 0 ) ? vertexFormat : materialFormat;
+			if ( vertexFormat != 0 )
+			{
+				int nVertexFormatBoneWeights = NumBoneWeights( vertexFormat );
+				if ( nHWSkinBoneCount < nVertexFormatBoneWeights )
+				{
+					nHWSkinBoneCount = nVertexFormatBoneWeights;
+				}
+			}
+
+			// Force the requested number of bone weights
+			fmt &= ~VERTEX_BONE_WEIGHT_MASK;
+			if ( nHWSkinBoneCount > 0 )
+			{
+				fmt |= VERTEX_BONEWEIGHT( 2 );
+				fmt |= VERTEX_BONE_INDEX;
+			}
+
+			pMesh->SetVertexFormat( fmt );
+		}
+		else
+		{
+			CMeshDx11 *pMeshVertOverride = static_cast<CMeshDx11 *>( pVertexOverride );
+			pMesh->SetVertexFormat( pMeshVertOverride->GetVertexFormat() );
+		}
+
+		//pMesh->SetMorphFormat( pMatInternal->GetMorphFormat() );
+		//pMesh->SetMaterial( pMatInternal );
+
+		// Note this works because we're guaranteed to not be using a buffered mesh
+		// when we have overrides on
+		// FIXME: Make work for temp meshes
+		//if ( pMesh == &m_DynamicMesh )
+		//{
+		//	CMeshDx11 *pBaseVertex = static_cast<CMeshDx11 *>( pVertexOverride );
+		//	if ( pBaseVertex )
+		//	{
+		//		m_DynamicMesh.OverrideVertexBuffer( pBaseVertex->GetVertexBuffer() );
+		//	}
+		//
+		//	CMeshDx11 *pBaseIndex = static_cast<CMeshDx11 *>( pIndexOverride );
+		//	if ( pBaseIndex )
+		//	{
+		//		m_DynamicMesh.OverrideIndexBuffer( pBaseIndex->GetIndexBuffer() );
+		//	}
+		//}
+	}
+	return pMesh;
 }
 
 IVertexBuffer *CMeshMgrDx11::GetDynamicVertexBuffer( IMaterial *pMaterial, bool buffered )
 {
 	// DX11FIXME
-	return m_DynamicMesh.GetVertexBuffer();
+	return &m_DynamicVertexBuffer;
 }
 
 IIndexBuffer *CMeshMgrDx11::GetDynamicIndexBuffer( IMaterial *pMaterial, bool buffered )
 {
 	// DX11FIXME
-	return m_DynamicMesh.GetIndexBuffer();
+	return &m_DynamicIndexBuffer;
 }
 
 IMesh *CMeshMgrDx11::GetFlexMesh()
@@ -278,7 +365,7 @@ VertexFormat_t CMeshMgrDx11::ComputeVertexFormat( int nFlags, int nTexCoords, in
 	Assert( nBoneWeights <= 4 );
 
 	// Size is measured in # of floats
-	Assert( userDataSize <= 4 );
+	Assert( nUserDataSize <= 4 );
 	fmt |= VERTEX_USERDATA_SIZE( nUserDataSize );
 
 	// NOTE: If pTexCoordDimensions isn't specified, then nTexCoordArraySize
@@ -305,6 +392,11 @@ VertexFormat_t CMeshMgrDx11::ComputeVertexFormat( int nFlags, int nTexCoords, in
 // The empty mesh...
 //
 //-----------------------------------------------------------------------------
+CPrimList *CMeshDx11::s_pPrims = NULL;
+int CMeshDx11::s_nPrims = 0;
+unsigned int CMeshDx11::s_NumVertices = 0;
+unsigned int CMeshDx11::s_FirstVertex = 0;
+
 CMeshDx11::CMeshDx11( const char *pTextureGroupName ) :
 	m_NumVertices( 0 ),
 	m_NumIndices( 0 ),
@@ -324,6 +416,16 @@ CMeshDx11::CMeshDx11( const char *pTextureGroupName ) :
 
 CMeshDx11::~CMeshDx11()
 {
+}
+
+void CMeshDx11::SetVertexFormat( VertexFormat_t fmt )
+{
+	m_VertexFormat = fmt;
+}
+
+VertexFormat_t CMeshDx11::GetVertexFormat() const
+{
+	return m_VertexFormat;
 }
 
 void CMeshDx11::SetFlexMesh( IMesh *pMesh, int nVertexOffsetInBytes )
@@ -364,11 +466,6 @@ void CMeshDx11::DisableFlexMesh()
 
 void CMeshDx11::MarkAsDrawn()
 {
-}
-
-VertexFormat_t CMeshDx11::GetVertexFormat() const
-{
-	return VertexFormat_t();
 }
 
 bool CMeshDx11::HasFlexMesh() const
@@ -433,8 +530,11 @@ bool CMeshDx11::Lock( int nVertexCount, bool bAppend, VertexDesc_t &desc )
 {
 	Assert( !m_IsVBLocked );
 
+	Log( "MeshDx11::Lock(): nVertexCount = %i, bAppend = %i\n", nVertexCount, (int)bAppend );
+
 	if ( g_pShaderDeviceDx11->IsDeactivated() || ( nVertexCount == 0 ) )
 	{
+		Log( "Deactivated or no verts\n" );
 		// Set up the vertex descriptor
 		CVertexBufferBase::ComputeVertexDescription( 0, 0, desc );
 		desc.m_nFirstVertex = 0;
@@ -444,15 +544,18 @@ bool CMeshDx11::Lock( int nVertexCount, bool bAppend, VertexDesc_t &desc )
 	// Static vertex buffer case
 	if ( !m_pVertexBuffer )
 	{
-		int size = 0;//VertexFormatSize(m_VertexFormat);
+		//int size = MeshMgr()->VertexFormatSize(m_VertexFormat);
 		m_pVertexBuffer = static_cast<CVertexBufferDx11 *>(
 			g_pShaderDeviceDx11->CreateVertexBuffer( ShaderBufferType_t::SHADER_BUFFER_TYPE_STATIC,
-								 m_VertexFormat, size, m_pTextureGroupName ) );
+								 m_VertexFormat, nVertexCount, m_pTextureGroupName ) );
 	}
 
 	// Lock it baby
 	int nMaxVerts, nMaxIndices;
+	// DX11FIXME
 	//GetMaxToRender(this, false &nMaxVerts, &nMaxIndices);
+	nMaxVerts = 65535;
+	nMaxIndices = 65535;
 	if ( !g_pHardwareConfig->SupportsStreamOffset() )
 	{
 		// Without stream offset, we can't use VBs greater than 65535 verts (due to our using 16-bit indices)
@@ -462,6 +565,7 @@ bool CMeshDx11::Lock( int nVertexCount, bool bAppend, VertexDesc_t &desc )
 	bool ret = m_pVertexBuffer->Lock( nMaxVerts, bAppend, desc );
 	if ( !ret )
 	{
+		Log( "Couldn't lock vertex buffer\n" );
 		if ( nVertexCount > nMaxVerts )
 		{
 			Assert( 0 );
@@ -501,14 +605,31 @@ bool CMeshDx11::IsDynamic() const
 
 void CMeshDx11::BeginCastBuffer( MaterialIndexFormat_t format )
 {
+	if ( m_pIndexBuffer )
+	{
+		m_pIndexBuffer->BeginCastBuffer( format );
+	}
 }
 
 void CMeshDx11::BeginCastBuffer( VertexFormat_t format )
 {
+	m_VertexFormat = format;
+	if ( m_pVertexBuffer )
+	{
+		m_pVertexBuffer->BeginCastBuffer( format );
+	}
 }
 
 void CMeshDx11::EndCastBuffer()
 {
+	if ( m_pVertexBuffer )
+	{
+		m_pVertexBuffer->EndCastBuffer();
+	}
+	if ( m_pIndexBuffer )
+	{
+		m_pIndexBuffer->EndCastBuffer();
+	}
 }
 
 //-----------------------------------------------------------------------------
@@ -555,9 +676,11 @@ void CMeshDx11::LockMesh( int numVerts, int numIndices, MeshDesc_t& desc )
 
 	g_ShaderMutex.Lock();
 	VPROF( "CMeshDx11::LockMesh" );
+	Log( "Locking vertex buffer\n" );
 	// Lock vertex buffer
 	Lock( numVerts, false, *static_cast<VertexDesc_t *>( &desc ) );
 	// Lock index buffer
+	Log( "Locking index buffer\n" );
 	Lock( false, -1, numIndices, *static_cast<IndexDesc_t *>( &desc ) );
 	m_bMeshLocked = true;
 }
@@ -661,23 +784,189 @@ void CMeshDx11::BeginPass()
 {
 }
 
+// Draws the specified primitives on the mesh
 void CMeshDx11::RenderPass()
 {
+	if ( !s_pPrims )
+	{
+		Warning( "CMeshDx11::RenderPass(): s_pPrims is NULL!\n" );
+		return;
+	}
+
+	if ( m_Type == MATERIAL_HETEROGENOUS )
+	{
+		Warning( "CMeshDx11::RenderPass() m_Type is MATERIAL_HETEROGENOUS\n" );
+		return;
+	}
+
+	// make sure the vertex format is a superset of the current material's
+	// vertex format...
+	//if ( !IsValidVertexFormat( g_LastVertexFormat ) )
+	//{
+	//	Warning( "Material %s does not support vertex format used by the mesh (maybe missing fields or mismatched vertex compression?), mesh will not be rendered. Grab a programmer!\n",
+	//		 ShaderAPI()->GetBoundMaterial()->GetName() );
+	//	return;
+	//}
+
+	// Set the state and transform
+	g_pShaderAPIDx11->IssueStateChanges();
+
+	// Now draw our primitives
+	for ( int i = 0; i < s_nPrims; i++ )
+	{
+		CPrimList *pPrim = &s_pPrims[i];
+		if ( pPrim->m_NumIndices == 0 )
+			return;
+
+		if ( ( m_Type == MATERIAL_POINTS ) || ( m_Type == MATERIAL_INSTANCED_QUADS ) )
+		{
+			// (For point/instanced-quad lists, we don't actually fill in indices, but we treat it as
+			// though there are indices for the list up until here).
+			g_pShaderAPIDx11->DrawNotIndexed( s_FirstVertex, pPrim->m_NumIndices );
+		}
+		else
+		{
+			//int numPrimitives = NumPrimitives( s_NumVertices, pPrim->m_NumIndices );
+			g_pShaderAPIDx11->DrawIndexed( pPrim->m_FirstIndex, pPrim->m_NumIndices, 0 );
+		}
+	}
 }
 
-// Draws the entire mesh
+//------------------------------------------------------------------
+// Mesh rendering begins here. Here's the annoyingly complex
+// process:
+//
+// Before the Draw() function below is called, the user should've
+// binded an IMaterial to the Shader API using g_pShaderAPI->Bind().
+//
+// So, the Shader API currently has a material to use.
+//
+// The user then calls the Draw() function below on the mesh they
+// want to render. By default, firstIndex = -1 and numIndices = 0,
+// causing the entire mesh to draw. The user can specify which
+// which vertex indices on the mesh to draw.
+//
+// DrawInternal() is then called from Draw(), passing the list of
+// primitives on the mesh to draw. Each primitive in the list is
+// simply a first index and an index count. The primitive list is
+// then stored statically on CMeshDx11, so we only have one list
+// of primitives to render floating around.
+//
+// DrawInternal() then calls DrawMesh(), which binds the mesh's
+// vertex buffer, index buffer, and primitive topology type to the.
+// Shader API. Finally, we call DrawMesh() on the Shader API,
+// passing our mesh pointer.
+//
+// Shader API's DrawMesh() will then store our mesh pointer, and
+// call DrawMesh() on the currently bound material, which will do
+// the work of setting the snapshot state, binding the constant
+// buffers and shaders, and setting other dynamic states.
+//
+// Each pass of a material will call Shader API's RenderPass()
+// function. In this function, Shader API calls RenderPass() on the
+// mesh pointer that we gave it, which tells the Shader API to
+// actually issue the queued up state changes to D3D, and actually
+// draw the individual primitives.
+//
+// Done!
+//------------------------------------------------------------------
+
+// Draws a part of or the entire mesh
 void CMeshDx11::Draw( int firstIndex, int numIndices )
 {
-	g_pShaderAPI->Draw( m_Type, firstIndex, numIndices );
+	if ( !ShaderUtil()->OnDrawMesh( this, firstIndex, numIndices ) )
+	{
+		MarkAsDrawn();
+		return;
+	}
+
+	CPrimList primList;
+	if ( firstIndex == -1 || numIndices == 0 )
+	{
+		primList.m_FirstIndex = 0;
+		primList.m_NumIndices = m_NumIndices;
+	}
+	else
+	{
+		primList.m_FirstIndex = firstIndex;
+		primList.m_NumIndices = numIndices;
+	}
+
+	DrawInternal( &primList, 1 );
 }
 
 void CMeshDx11::Draw(CPrimList *pPrims, int nPrims)
 {
-	for ( int i = 0; i < nPrims; i++ )
+	if ( !ShaderUtil()->OnDrawMesh( this, pPrims, nPrims ) )
 	{
-		CPrimList *prim = &pPrims[i];
-		g_pShaderAPI->Draw( m_Type, prim->m_FirstIndex, prim->m_NumIndices );
+		MarkAsDrawn();
+		return;
 	}
+
+	DrawInternal( pPrims, nPrims );
+}
+
+void CMeshDx11::DrawInternal( CPrimList *pPrims, int nPrims )
+{
+	Log( "CMeshDx11: DrawInternal(%p, %i)\n", pPrims, nPrims );
+	// Make sure there's something to draw..
+	int i;
+	for ( i = 0; i < nPrims; i++ )
+	{
+		if ( pPrims[i].m_NumIndices > 0 )
+			break;
+	}
+	if ( i == nPrims )
+		return;
+
+	// can't do these in selection mode!
+	//Assert( !g_pShaderAPI->IsInSelectionMode() );
+
+	s_pPrims = pPrims;
+	s_nPrims = nPrims;
+	s_NumVertices = m_pVertexBuffer->VertexCount();
+	s_FirstVertex = 0;
+
+	DrawMesh();
+}
+
+void CMeshDx11::DrawMesh()
+{
+	// Bind the mesh's buffers
+	g_pShaderAPIDx11->SetTopology( m_Type );
+	g_pShaderAPIDx11->BindVertexBuffer( 0, GetVertexBuffer(), 0, 0, m_NumVertices, GetVertexFormat() );
+	g_pShaderAPIDx11->BindIndexBuffer( GetIndexBuffer(), 0 );
+
+	// Draw it
+	g_pShaderAPIDx11->DrawMesh( this );
+}
+
+int CMeshDx11::NumPrimitives( int nVertexCount, int nIndexCount ) const
+{
+	switch ( m_Type )
+	{
+	case MATERIAL_POINTS:
+		// D3D11_PRIMITIVE_TOPOLOGY_POINTLIST
+		return nVertexCount;
+
+	case MATERIAL_LINES:
+		// D3D11_PRIMITIVE_TOPOLOGY_LINELIST
+		return nIndexCount / 2;
+
+	case MATERIAL_TRIANGLES:
+		// D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST
+		return nIndexCount / 3;
+
+	case MATERIAL_TRIANGLE_STRIP:
+		// D3D11_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP
+		return nIndexCount - 2;
+
+	default:
+		// Invalid type!
+		Assert( 0 );
+	}
+
+	return 0;
 }
 
 // Copy verts and/or indices to a mesh builder. This only works for temp meshes!

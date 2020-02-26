@@ -22,6 +22,9 @@
 #include "inputlayoutdx11.h"
 #include "shaderapidx9/shaderapibase.h"
 
+// NOTE: This has to be the last file included!
+#include "tier0/memdbgon.h"
+
 
 //-----------------------------------------------------------------------------
 // Explicit instantiation of shader buffer implementation
@@ -301,7 +304,7 @@ void CShaderDeviceMgrDx11::GetAdapterInfo( int nAdapter, MaterialAdapterInfo_t& 
 //-----------------------------------------------------------------------------
 IDXGIAdapter* CShaderDeviceMgrDx11::GetAdapter( int nAdapter ) const
 {
-	Assert( m_pDXGIFactory && ( nAdapter < GetAdapterCount() ) );
+	Assert( m_pDXGIFactory );
 
 	IDXGIAdapter *pAdapter;
 	HRESULT hr = m_pDXGIFactory->EnumAdapters( nAdapter, &pAdapter );
@@ -437,6 +440,7 @@ void CShaderDeviceMgrDx11::GetCurrentModeInfo( ShaderDisplayMode_t* pInfo, int n
 //-----------------------------------------------------------------------------
 bool CShaderDeviceMgrDx11::SetAdapter( int nAdapter, int nFlags )
 {
+	Assert( m_bSetupAdapters && nAdapter < m_Adapters.Count() );
 	HardwareCaps_t &actualCaps = g_pHardwareConfig->ActualCapsForEdit();
 	ComputeCapsFromD3D( &actualCaps, GetAdapter( nAdapter ), GetAdapterOutput( nAdapter ) );
 	ReadDXSupportLevels( actualCaps );
@@ -448,6 +452,10 @@ bool CShaderDeviceMgrDx11::SetAdapter( int nAdapter, int nFlags )
 	{
 		Q_strncpy( actualCaps.m_pShaderDLL, pShaderParam, sizeof( actualCaps.m_pShaderDLL ) );
 	}
+
+	g_pHardwareConfig->SetupHardwareCaps( actualCaps.m_nDXSupportLevel, actualCaps );
+
+	g_pShaderDeviceDx11->m_nAdapter = nAdapter;
 
 	return true;
 }
@@ -474,7 +482,7 @@ CreateInterfaceFn CShaderDeviceMgrDx11::SetMode( void *hWnd, int nAdapter, const
 		nDXLevel = m_Adapters[nAdapter].m_ActualCaps.m_nMaxDXSupportLevel;
 	}
 	nDXLevel = GetClosestActualDXLevel( nDXLevel );
-	//Log("nDXLevel: %i\n", nDXLevel);
+	Log("nDXLevel: %i\n", nDXLevel);
 	if ( nDXLevel < 110 )
 	{
 		// Fall back to the Dx9 implementations
@@ -531,6 +539,7 @@ CShaderDeviceDx11::CShaderDeviceDx11() :
 	m_pOutput = NULL;
 	m_pSwapChain = NULL;
 	m_pRenderTargetView = NULL;
+	m_bDeviceInitialized = false;
 }
 
 CShaderDeviceDx11::~CShaderDeviceDx11()
@@ -544,7 +553,7 @@ CShaderDeviceDx11::~CShaderDeviceDx11()
 bool CShaderDeviceDx11::InitDevice( void *hWnd, int nAdapter, const ShaderDeviceInfo_t& mode )
 {
 	// Make sure we've been shutdown previously
-	if ( m_nAdapter != -1 )
+	if ( m_bDeviceInitialized )
 	{
 		Warning( "CShaderDeviceDx11::SetMode: Previous mode has not been shut down!\n" );
 		return false;
@@ -620,6 +629,8 @@ bool CShaderDeviceDx11::InitDevice( void *hWnd, int nAdapter, const ShaderDevice
 	m_hTransformBuffer = CreateConstantBuffer( sizeof( TransformBuffer_t ) );
 	m_hLightingBuffer = CreateConstantBuffer( sizeof( LightingBuffer_t ) );
 
+	m_bDeviceInitialized = true;
+
 	return true;
 }
 
@@ -654,7 +665,8 @@ void CShaderDeviceDx11::ShutdownDevice()
 	}
 
 	m_hWnd = NULL;
-	m_nAdapter = -1;
+	//m_nAdapter = -1;
+	m_bDeviceInitialized = false;
 }
 
 
@@ -663,7 +675,7 @@ void CShaderDeviceDx11::ShutdownDevice()
 //-----------------------------------------------------------------------------
 bool CShaderDeviceDx11::IsUsingGraphics() const
 {
-	return ( m_nAdapter >= 0 );
+	return m_bDeviceInitialized;
 }
 
 
@@ -828,10 +840,14 @@ VertexShaderHandle_t CShaderDeviceDx11::CreateVertexShader( const void* pBuffer,
 {
 	// Create the vertex shader
 	ID3D11VertexShader* pShader = NULL;
+	Log( "Creating vertex shader with len %u\n", nBufLen );
 	HRESULT hr = m_pDevice->CreateVertexShader( pBuffer, nBufLen, NULL, &pShader );
 
 	if ( FAILED( hr ) || !pShader )
+	{
+		Log( "D3D11Device->CreateVertexShader() failed: error %i\n", hr );
 		return VERTEX_SHADER_HANDLE_INVALID;
+	}
 
 	ID3D11ShaderReflection* pInfo;
 	hr = D3DReflect( pBuffer, nBufLen, IID_ID3D11ShaderReflection, (void**)&pInfo );
@@ -926,6 +942,7 @@ PixelShaderHandle_t CShaderDeviceDx11::CreatePixelShader( IShaderBuffer* pShader
 
 PixelShaderHandle_t CShaderDeviceDx11::CreatePixelShader( const void* pBuffer, size_t nBufLen )
 {
+	Log( "Creating pixel shader with len %u\n", nBufLen );
 	// Create the pixel shader
 	ID3D11PixelShader* pShader = NULL;
 	HRESULT hr = m_pDevice->CreatePixelShader( pBuffer,
@@ -1052,7 +1069,7 @@ ConstantBuffer_t CShaderDeviceDx11::CreateConstantBuffer( size_t nBufLen )
 
 void CShaderDeviceDx11::UpdateConstantBuffer( ConstantBuffer_t hBuffer, void *pData )
 {
-	Assert( m_ConstantBuffers.Find( hBuffer ) != m_ConstantBuffers.InvalidIndex() );
+	Assert( m_ConstantBuffers.IsValidIndex( hBuffer ) );
 	CShaderConstantBufferDx11 &buf = m_ConstantBuffers.Element( hBuffer );
 	buf.Update( pData );
 }
@@ -1088,7 +1105,7 @@ ConstantBuffer_t CShaderDeviceDx11::GetInternalConstantBuffer( int buffer )
 
 void CShaderDeviceDx11::DestroyConstantBuffer( ConstantBuffer_t hBuffer )
 {
-	Assert( m_ConstantBuffers.Find( hBuffer ) != m_ConstantBuffers.InvalidIndex() );
+	Assert( m_ConstantBuffers.IsValidIndex( hBuffer ) );
 	CShaderConstantBufferDx11 &buf = m_ConstantBuffers.Element( hBuffer );
 	buf.Destroy();
 	m_ConstantBuffers.Remove( hBuffer );

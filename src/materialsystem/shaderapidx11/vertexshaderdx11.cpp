@@ -49,7 +49,7 @@
 // uncomment to get dynamic compilation for HLSL shaders
 // i don't think this works atm, but im probably using this wrong
 // X360 NOTE: By default, the system looks for a shared folder named "stdshaders" on the host machine and is completely compatible with -dvd. Ensure that the share is writable if you plan on generating UPDB's.
-//#define DYNAMIC_SHADER_COMPILE
+#define DYNAMIC_SHADER_COMPILE
 
 // uncomment to get spew about what combos are being compiled.
 //#define DYNAMIC_SHADER_COMPILE_VERBOSE
@@ -483,11 +483,11 @@ private:
 	CUtlFixedLinkedList< ShaderLookupDx11_t > m_PixelShaderDict;
 
 	CUtlSymbolTable m_ShaderSymbolTable;
-
+	
 #ifdef DYNAMIC_SHADER_COMPILE	
-	typedef HRESULT (__stdcall *ShaderCompileFromFileFunc_t)( LPCSTR pSrcFile, CONST D3DXMACRO* pDefines,
-		LPD3DXINCLUDE pInclude,	LPCSTR pFunctionName, LPCSTR pProfile, DWORD Flags,
-		LPD3DXBUFFER* ppShader, LPD3DXBUFFER * ppErrorMsgs,	LPD3DXCONSTANTTABLE * ppConstantTable );
+	//typedef HRESULT (__stdcall *ShaderCompileFromFileFunc_t)( LPCSTR pSrcFile, CONST D3DXMACRO* pDefines,
+	//	LPD3DXINCLUDE pInclude,	LPCSTR pFunctionName, LPCSTR pProfile, DWORD Flags,
+	//	LPD3DXBUFFER* ppShader, LPD3DXBUFFER * ppErrorMsgs,	LPD3DXCONSTANTTABLE * ppConstantTable );
 	CUtlStringMap<ShaderCombos_t>	 m_ShaderNameToCombos;
 #endif
 	
@@ -671,7 +671,7 @@ static const char *GetShaderSourcePath( void )
 				Q_strncpy( shaderDir, __FILE__, MAX_PATH );
 				Q_StripFilename( shaderDir );
 				Q_StripLastDir( shaderDir, MAX_PATH );
-				Q_strncat( shaderDir, "stdshaders", MAX_PATH, COPY_ALL_CHARACTERS );
+				Q_strncat( shaderDir, "stdshadersdx11", MAX_PATH, COPY_ALL_CHARACTERS );
 			}
 #			endif
 		}

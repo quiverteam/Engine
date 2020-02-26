@@ -5,6 +5,9 @@
 #include "shaderapi/ishaderutil.h"
 #include "tier0/vprof.h"
 
+// NOTE: This has to be the last file included!
+#include "tier0/memdbgon.h"
+
 //-----------------------------------------------------------------------------
 //
 // Dx11 implementation of an index buffer
@@ -47,8 +50,6 @@ CIndexBufferDx11::CIndexBufferDx11( ShaderBufferType_t type, MaterialIndexFormat
 		m_IndexFormat = MATERIAL_INDEX_FORMAT_UNKNOWN;
 		m_nIndexCount = 0;
 	}
-
-	Allocate();
 }
 
 CIndexBufferDx11::~CIndexBufferDx11()
@@ -65,6 +66,8 @@ bool CIndexBufferDx11::Allocate()
 	Assert( !m_pIndexBuffer );
 
 	m_nFirstUnwrittenOffset = 0;
+
+	Log( "Creating D3D index buffer: size: %i\n", m_nBufferSize );
 
 	D3D11_BUFFER_DESC bd;
 	bd.Usage = D3D11_USAGE_DYNAMIC;
@@ -198,6 +201,7 @@ int CIndexBufferDx11::GetRoomRemaining() const
 //-----------------------------------------------------------------------------
 bool CIndexBufferDx11::Lock( int nMaxIndexCount, bool bAppend, IndexDesc_t& desc )
 {
+	Log( "Locking index buffer %p\n", m_pIndexBuffer );
 	Assert( !m_bIsLocked && ( nMaxIndexCount != 0 ) && ( nMaxIndexCount <= m_nIndexCount ) );
 	Assert( m_IndexFormat != MATERIAL_INDEX_FORMAT_UNKNOWN );
 

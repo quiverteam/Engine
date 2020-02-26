@@ -4,27 +4,39 @@
 #include "shaderapidx11_global.h"
 #include "shaderapi/ishaderutil.h"
 
+// NOTE: This has to be the last file included!
+#include "tier0/memdbgon.h"
+
+// We will have to convert srcFormat into what this function
+// returns for use in D3D11.
+ImageFormat GetClosestSupportedImageFormatForD3D11( ImageFormat srcFormat )
+{
+	switch ( srcFormat )
+	{
+	case IMAGE_FORMAT_BGR888:
+		return IMAGE_FORMAT_BGRA8888;
+	default:
+		return srcFormat;
+	}
+}
+
 DXGI_FORMAT GetD3DFormat( ImageFormat format )
 {
 	switch ( format )
 	{
-
-	// I have no fucking idea about these formats
-	// (check if they are unused)
-	case IMAGE_FORMAT_BGR888:
-		return DXGI_FORMAT_UNKNOWN;
+	// These are not exact but have the same number
+	// of channels and bits-per-channel.
 	case IMAGE_FORMAT_I8:
-		return DXGI_FORMAT_UNKNOWN;
+		return DXGI_FORMAT_R8_UNORM;
 	case IMAGE_FORMAT_IA88:
-		return DXGI_FORMAT_UNKNOWN;
+		return DXGI_FORMAT_R8G8_UNORM;
 	case IMAGE_FORMAT_UV88:
-		return DXGI_FORMAT_UNKNOWN;
+		return DXGI_FORMAT_R8G8_UNORM;
 	case IMAGE_FORMAT_UVWQ8888:
-		return DXGI_FORMAT_UNKNOWN;
 	case IMAGE_FORMAT_UVLX8888:
-		return DXGI_FORMAT_UNKNOWN;
+		return DXGI_FORMAT_R8G8B8A8_UNORM;
 
-	// These ones are good as-is
+	// These ones match D3D.
 	case IMAGE_FORMAT_A8:
 		return DXGI_FORMAT_A8_UNORM;
 	case IMAGE_FORMAT_DXT1:
@@ -63,6 +75,17 @@ ImageFormat GetImageFormat( DXGI_FORMAT d3dFormat )
 	{
 	case DXGI_FORMAT_UNKNOWN:
 		return IMAGE_FORMAT_UNKNOWN;
+
+	// These are not exact but have the same number
+	// of channels and bits-per-channel.
+	case DXGI_FORMAT_R8_UNORM:
+		return IMAGE_FORMAT_I8;
+	case DXGI_FORMAT_R8G8_UNORM:
+		return IMAGE_FORMAT_IA88;
+	//case DXGI_FORMAT_R8G8_UNORM:
+	//	return IMAGE_FORMAT_UV88;
+	case DXGI_FORMAT_R8G8B8A8_UNORM:
+		return IMAGE_FORMAT_UVWQ8888;
 
 	case DXGI_FORMAT_A8_UNORM:
 		return IMAGE_FORMAT_A8;
@@ -117,6 +140,7 @@ ID3D11Resource *CreateD3DTexture( int width, int height, int nDepth,
 	// NOTE: This function shouldn't be used for creating depth buffers!
 	Assert( !bIsDepthBuffer );
 
+	dstFormat = GetClosestSupportedImageFormatForD3D11( dstFormat );
 	DXGI_FORMAT d3dFormat = DXGI_FORMAT_UNKNOWN;
 	d3dFormat = GetD3DFormat( dstFormat );
 
@@ -195,7 +219,7 @@ void DestroyD3DTexture( ID3D11Resource *pD3DTex )
 	if ( pD3DTex )
 	{
 		int ref = pD3DTex->Release();
-		Assert( ret == 0 );
+		Assert( ref == 0 );
 		//s_TextureCount--;
 	}
 }
@@ -553,18 +577,18 @@ void CTextureDx11::BlitSurfaceBits( CTextureDx11::TextureLoadInfo_t &info, int x
 	box.front = 0;
 	box.back = 1;
 	
+	Log( "BlitSurfaceBits: m_Format = %i, info.m_SrcFormat = %i\n", m_Format, info.m_SrcFormat );
 	int mem = ImageLoader::GetMemRequired( info.m_nWidth, info.m_nHeight, 0, m_Format, false );
 	Log( "Mem required for %ix%i image: %i bytes\n", info.m_nWidth, info.m_nHeight, mem );
 	unsigned char *pNewImage = (unsigned char *)malloc( mem );
 	int dstStride = ImageLoader::SizeInBytes( m_Format );
 	Log( "Size in bytes: %i\n", dstStride );
-	
 
 	ShaderUtil()->ConvertImageFormat( info.m_pSrcData, info.m_SrcFormat, pNewImage, m_Format, info.m_nWidth, info.m_nHeight, srcStride, 0 );
 
 	D3D11_SUBRESOURCE_DATA imageData;
 
-	UINT subresource = D3D11CalcSubresource( info.m_nLevel, 0, m_NumLevels );
+	UINT subresource = D3D11CalcSubresource( info.m_nLevel, info.m_CubeFaceID, m_NumLevels );
 	Log( "subresource: %u\n", subresource );
 
 	D3D11DeviceContext()->UpdateSubresource( info.m_pTexture, subresource, &box, pNewImage, dstStride * m_nWidth, 0 );

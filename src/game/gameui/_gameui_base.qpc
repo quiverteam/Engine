@@ -52,6 +52,7 @@ configuration
 		libraries
 		{
 			"Ws2_32.lib" "odbc32.lib" "odbccp32.lib" "Shlwapi.lib" "winmm.lib" [$WINDOWS]
+			"msvcrt.lib" [$DEBUG && $WINDOWS]
 			"$LIBCOMMON/jpeglib"
 			"$LIBPUBLIC/bitmap"
 			"$LIBPUBLIC/mathlib"
@@ -69,7 +70,7 @@ configuration
 			"libc"
 			"libcd"
 			"libcmtd"
-			"msvcrt"
+			"msvcrt" [$RELEASE]
 		}
 	}
 }

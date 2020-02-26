@@ -20,6 +20,10 @@
 #include "vertexshaderdx11.h"
 #include "VertexBufferDx11.h"
 #include "IndexBufferDx11.h"
+#include "tier0/vprof.h"
+
+// NOTE: This has to be the last file included!
+#include "tier0/memdbgon.h"
 
 //-----------------------------------------------------------------------------
 //
@@ -875,19 +879,78 @@ void CShaderAPIDx11::SetTopology( MaterialPrimitiveType_t topology )
 }
 
 //-----------------------------------------------------------------------------
-// Main entry point for rendering
+// Mesh/Material rendering
 //-----------------------------------------------------------------------------
+void CShaderAPIDx11::DrawMesh( IMesh *pMesh )
+{
+	VPROF( "CShaderAPIDx11::DrawMesh" );
+	if ( ShaderUtil()->GetConfig().m_bSuppressRendering )
+		return;
+
+	Log( "CShaderAPIDx11::DrawMesh %p\n", pMesh );
+
+	m_pMesh = pMesh;
+	if ( !m_pMesh || !m_pMaterial )
+	{
+		Warning( "Tried to render mesh with NULL mesh or NULL material!\n" );
+		return;
+	}
+	m_pMaterial->DrawMesh( CompressionType( pMesh->GetVertexFormat() ) );
+	m_pMesh = NULL;
+}
+
+static int s_nPassesRendered = 0;
+
+// Begins a rendering pass that uses a state snapshot
+void CShaderAPIDx11::BeginPass( StateSnapshot_t snapshot )
+{
+	m_CurrentSnapshot = snapshot;
+
+	// Apply the snapshot state
+	if ( snapshot != -1 )
+		UseSnapshot( m_CurrentSnapshot );
+}
+
+// Renders a single pass of a material
+void CShaderAPIDx11::RenderPass( int nPass, int nPassCount )
+{
+	if ( g_pShaderDevice->IsDeactivated() )
+		return;
+
+	// Now actually render
+
+	if ( m_pMesh )
+	{
+		MeshMgr()->RenderPass( m_pMesh );
+	}
+
+	m_CurrentSnapshot = -1;
+}
+
+// Draws primitives
 void CShaderAPIDx11::Draw( MaterialPrimitiveType_t primitiveType, int nFirstIndex, int nIndexCount )
 {
-	////Log( "ShaderAPIDx11: Draw\n" );
+	Log( "ShaderAPIDx11: Draw\n" );
 
 	SetTopology( primitiveType );
 
 	IssueStateChanges();
 
 	// FIXME: How do I set the base vertex location!?
-	D3D11DeviceContext()->DrawIndexed( (UINT)nIndexCount, (UINT)nFirstIndex, 0 );
+	DrawIndexed( nFirstIndex, nIndexCount, 0 );
 }
+
+void CShaderAPIDx11::DrawIndexed( int nFirstIndex, int nIndexCount, int nBaseVertexLocation )
+{
+	D3D11DeviceContext()->DrawIndexed( (UINT)nIndexCount, (UINT)nFirstIndex, (UINT)nBaseVertexLocation );
+}
+
+void CShaderAPIDx11::DrawNotIndexed( int nFirstVertex, int nVertCount )
+{
+	D3D11DeviceContext()->Draw( (UINT)nVertCount, (UINT)nFirstVertex );
+}
+
+//-----------------------------------------------------------------------------//
 
 bool CShaderAPIDx11::OnDeviceInit()
 {
@@ -1160,12 +1223,12 @@ void CShaderAPIDx11::DestroyStaticMesh( IMesh *mesh )
 // call DestroyStaticMesh on the mesh returned by this call.
 IMesh *CShaderAPIDx11::GetDynamicMesh( IMaterial *pMaterial, int nHWSkinBoneCount, bool buffered, IMesh *pVertexOverride, IMesh *pIndexOverride )
 {
-	return MeshMgr()->GetDynamicMesh( pMaterial, nHWSkinBoneCount, buffered, pVertexOverride, pIndexOverride );
+	return MeshMgr()->GetDynamicMesh( pMaterial, 0, nHWSkinBoneCount, buffered, pVertexOverride, pIndexOverride );
 }
 
 IMesh *CShaderAPIDx11::GetDynamicMeshEx( IMaterial *pMaterial, VertexFormat_t fmt, int nHWSkinBoneCount, bool buffered, IMesh *pVertexOverride, IMesh *pIndexOverride )
 {
-	return MeshMgr()->GetDynamicMeshEx( pMaterial, fmt, nHWSkinBoneCount, buffered, pVertexOverride, pIndexOverride );
+	return MeshMgr()->GetDynamicMesh( pMaterial, fmt, nHWSkinBoneCount, buffered, pVertexOverride, pIndexOverride );
 }
 
 IVertexBuffer *CShaderAPIDx11::GetDynamicVertexBuffer( IMaterial *pMaterial, bool buffered )
@@ -1181,30 +1244,6 @@ IIndexBuffer *CShaderAPIDx11::GetDynamicIndexBuffer( IMaterial *pMaterial, bool 
 IMesh *CShaderAPIDx11::GetFlexMesh()
 {
 	return MeshMgr()->GetFlexMesh();
-}
-
-// Begins a rendering pass that uses a state snapshot
-void CShaderAPIDx11::BeginPass( StateSnapshot_t snapshot )
-{
-	m_CurrentSnapshot = snapshot;
-
-	// Apply the snapshot state
-	if ( snapshot != -1 )
-		UseSnapshot( m_CurrentSnapshot );
-}
-
-// Between BeginPass and RenderPass, the shader's DrawElements() function
-// is called, allowing the shader to adjust the target render state.
-
-// Renders a single pass of a material
-void CShaderAPIDx11::RenderPass( int nPass, int nPassCount )
-{
-	if ( g_pShaderDevice->IsDeactivated() )
-		return;
-
-	// Now actually render
-
-	m_CurrentSnapshot = -1;
 }
 
 bool CShaderAPIDx11::IsDeactivated() const
@@ -1786,7 +1825,7 @@ void CShaderAPIDx11::CreateTextures(
 
 	// Create a set of texture handles
 	CreateTextureHandles( pHandles, count );
-	CTextureDx11 **arrTxp = (CTextureDx11 **)stackalloc( count * sizeof( CTextureDx11 * ) );
+	CTextureDx11 **arrTxp = new CTextureDx11 *[count];
 
 	for ( int idxFrame = 0; idxFrame < count; ++idxFrame )
 	{
@@ -1796,6 +1835,8 @@ void CShaderAPIDx11::CreateTextures(
 					  numCopies, numMipLevels, dstImageFormat );
 
 	}
+
+	delete[] arrTxp;
 }
 
 CTextureDx11 &CShaderAPIDx11::GetTexture( ShaderAPITextureHandle_t handle )

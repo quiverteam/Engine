@@ -990,6 +990,8 @@ const char *COM_DXLevelToString( int dxlevel )
 			{
 				return "9.0 (full-precision)";
 			}
+		case 110:
+			return "11.0";
 		default:
 			return "UNKNOWN";
 		}

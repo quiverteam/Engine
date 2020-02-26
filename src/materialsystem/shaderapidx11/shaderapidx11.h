@@ -87,6 +87,9 @@ public:
 	virtual void BindVertexBuffer( int nStreamID, IVertexBuffer *pVertexBuffer, int nOffsetInBytes, int nFirstVertex, int nVertexCount, VertexFormat_t fmt, int nRepetitions = 1 );
 	virtual void BindIndexBuffer( IIndexBuffer *pIndexBuffer, int nOffsetInBytes );
 	virtual void Draw( MaterialPrimitiveType_t primitiveType, int nFirstIndex, int nIndexCount );
+	void DrawIndexed( int nFirstIndex, int nIndexCount, int nBaseVertexLocation );
+	void DrawNotIndexed( int nFirstVertex, int nVertCount );
+	void DrawMesh( IMesh *pMesh );
 
 	virtual void UpdateConstantBuffer( ConstantBuffer_t cbuffer, void *pNewData );
 	virtual ConstantBuffer_t GetInternalConstantBuffer( int type );
@@ -155,6 +158,10 @@ public:
 	void UnbindVertexBuffer( ID3D11Buffer *pBuffer );
 	void UnbindIndexBuffer( ID3D11Buffer *pBuffer );
 
+	void SetTopology( MaterialPrimitiveType_t topology );
+
+	void IssueStateChanges( bool bForce = false );
+
 private:
 	// Returns a d3d texture associated with a texture handle
 	virtual IDirect3DBaseTexture *GetD3DTexture( ShaderAPITextureHandle_t hTexture );
@@ -162,8 +169,6 @@ private:
 	virtual void QueueResetRenderState()
 	{
 	}
-
-	void SetTopology( MaterialPrimitiveType_t topology );
 
 	virtual bool DoRenderTargetsNeedSeparateDepthBuffer() const;
 
@@ -926,7 +931,6 @@ private:
 	//
 private:
 	//void ClearShaderState( ShaderStateDx11_t *pState );
-	void IssueStateChanges( bool bForce = false );
 
 	void CreateTextureHandles( ShaderAPITextureHandle_t *handles, int count );
 	CTextureDx11 &GetTexture(ShaderAPITextureHandle_t handle);
@@ -958,8 +962,9 @@ private:
 	void HandleMatrixModified();
 
 private:
-	// Current material
+	// Current material + mesh
 	IMaterialInternal *m_pMaterial;
+	IMesh *m_pMesh;
 
 	// Members related to textures
 	CUtlFixedLinkedList<CTextureDx11> m_Textures;

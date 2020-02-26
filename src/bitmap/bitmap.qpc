@@ -24,8 +24,14 @@ configuration
 		{
 			"$LIBPUBLIC/nvtc"
 			"$LIBPUBLIC/ATI_Compress_MT_VC8"
+			"$LIBPUBLIC/mathlib"
 		}
 	}
+}
+
+dependencies
+{
+	"mathlib/mathlib.qpc"
 }
 
 files

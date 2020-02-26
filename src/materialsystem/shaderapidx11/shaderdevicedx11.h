@@ -146,7 +146,7 @@ public:
 	// Methods of CShaderDeviceBase
 	virtual bool InitDevice( void *hWnd, int nAdapter, const ShaderDeviceInfo_t& mode );
 	virtual void ShutdownDevice();
-	virtual bool IsDeactivated() const { return false; }
+	virtual bool IsDeactivated() const { return !m_bDeviceInitialized; }
 
 	// Other public methods
 	ID3D11VertexShader* GetVertexShader( VertexShaderHandle_t hShader ) const;
@@ -202,6 +202,8 @@ private:
 	void SetupHardwareCaps();
 	void ReleaseInputLayouts( VertexShaderIndex_t nIndex );
 
+	bool m_bDeviceInitialized;
+
 	IDXGIOutput *m_pOutput;
 	ID3D11Device *m_pDevice;
 	ID3D11DeviceContext* m_pDeviceContext;
@@ -223,6 +225,8 @@ private:
 	friend ID3D11DeviceContext *D3D11DeviceContext();
 	friend IDXGISwapChain *D3D11SwapChain();
 	friend ID3D11RenderTargetView *D3D11RenderTargetView();
+
+	friend class CShaderDeviceMgrDx11;
 };
 
 inline ConstantBuffer_t CShaderDeviceDx11::GetLightingConstantBuffer() const
