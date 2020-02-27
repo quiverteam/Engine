@@ -36,6 +36,7 @@ CVertexBufferDx11::CVertexBufferDx11( ShaderBufferType_t type, VertexFormat_t fm
 	m_pVertexBuffer = NULL;
 	m_VertexFormat = fmt;
 	m_nVertexCount = ( fmt == VERTEX_FORMAT_UNKNOWN ) ? 0 : nVertexCount;
+	m_VertexSize = VertexFormatSize( m_VertexFormat );
 	m_nBufferSize = ( fmt == VERTEX_FORMAT_UNKNOWN ) ? nVertexCount : nVertexCount * VertexSize();
 	m_nFirstUnwrittenOffset = 0;
 	m_bIsLocked = false;
@@ -46,6 +47,11 @@ CVertexBufferDx11::CVertexBufferDx11( ShaderBufferType_t type, VertexFormat_t fm
 CVertexBufferDx11::~CVertexBufferDx11()
 {
 	Free();
+}
+
+bool CVertexBufferDx11::HasEnoughRoom( int nVertCount ) const
+{
+	return ( GetRoomRemaining() - nVertCount ) >= 0;
 }
 
 
@@ -135,7 +141,7 @@ void CVertexBufferDx11::Free()
 //-----------------------------------------------------------------------------
 int CVertexBufferDx11::VertexCount() const
 {
-	Assert( !m_bIsDynamic );
+	//Assert( !m_bIsDynamic );
 	return m_nVertexCount;
 }
 
@@ -145,7 +151,7 @@ int CVertexBufferDx11::VertexCount() const
 //-----------------------------------------------------------------------------
 VertexFormat_t CVertexBufferDx11::GetVertexFormat() const
 {
-	Assert( !m_bIsDynamic );
+	//Assert( !m_bIsDynamic );
 	return m_VertexFormat;
 }
 
@@ -207,8 +213,6 @@ int CVertexBufferDx11::GetRoomRemaining() const
 //-----------------------------------------------------------------------------
 bool CVertexBufferDx11::Lock( int nMaxVertexCount, bool bAppend, VertexDesc_t& desc )
 {
-	Log( "Locking vertex buffer %p\n", m_pVertexBuffer );
-
 	Assert( !m_bIsLocked && ( nMaxVertexCount != 0 ) && ( nMaxVertexCount <= m_nVertexCount ) );
 	Assert( m_VertexFormat != 0 );
 
@@ -249,6 +253,8 @@ bool CVertexBufferDx11::Lock( int nMaxVertexCount, bool bAppend, VertexDesc_t& d
 			
 	}
 
+	Log( "Locking vertex buffer %p\n", m_pVertexBuffer );
+
 	// Check to see if we have enough memory 
 	int nMemoryRequired = nMaxVertexCount * VertexSize();
 	bool bHasEnoughMemory = ( m_nFirstUnwrittenOffset + nMemoryRequired <= m_nBufferSize );
@@ -279,7 +285,7 @@ bool CVertexBufferDx11::Lock( int nMaxVertexCount, bool bAppend, VertexDesc_t& d
 			m_bFlush = false;
 		}
 	}
-
+	//goto vertexBufferLockFailed;
 	hr = D3D11DeviceContext()->Map( m_pVertexBuffer, 0, map, 0, &lockedData );
 	if ( FAILED( hr ) )
 	{
@@ -305,6 +311,7 @@ vertexBufferLockFailed:
 
 void CVertexBufferDx11::Unlock( int nWrittenVertexCount, VertexDesc_t& desc )
 {
+	Log( "Unlocking vertex buffer %p\n", m_pVertexBuffer );
 	Assert( nWrittenVertexCount <= m_nVertexCount );
 
 	// NOTE: This can happen if the lock occurs during alt-tab
@@ -316,6 +323,8 @@ void CVertexBufferDx11::Unlock( int nWrittenVertexCount, VertexDesc_t& desc )
 	{
 		D3D11DeviceContext()->Unmap( m_pVertexBuffer, 0 );
 	}
+
+	Spew( nWrittenVertexCount, desc );
 
 	m_nFirstUnwrittenOffset += nWrittenVertexCount * VertexSize();
 	m_bIsLocked = false;

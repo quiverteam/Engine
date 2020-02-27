@@ -4,7 +4,7 @@ CBUFFER_TRANSFORM( register( b0 ) )
 
 struct VS_INPUT
 {
-	float4 vPos	: POSITION0;
+	float4 vPos	: SV_POSITION;
 	float2 vTexCoord : TEXCOORD0;
 };
 

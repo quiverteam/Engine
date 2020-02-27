@@ -20,12 +20,14 @@
 #include "materialsystem/idebugtextureinfo.h"
 #include "shaderapidx9/hardwareconfig.h"
 #include "imaterialinternal.h"
-#include "meshdx11.h"
+#include "shaderapidx9/meshbase.h"
 #include "ShaderConstantBufferDx11.h"
 #include "utllinkedlist.h"
 #include "StatesDx11.h"
 #include "TextureDx11.h"
 #include "meshdx11.h"
+#include "materialsystem/imesh.h"
+#include "utlstack.h"
 
 //-----------------------------------------------------------------------------
 // Forward declarations
@@ -161,6 +163,10 @@ public:
 	void SetTopology( MaterialPrimitiveType_t topology );
 
 	void IssueStateChanges( bool bForce = false );
+	IMaterialInternal *GetBoundMaterial() const;
+
+	void GetMatrix( MaterialMatrixMode_t matrixMode, DirectX::XMMATRIX &dst );
+	D3D11_CULL_MODE GetCullMode() const;
 
 private:
 	// Returns a d3d texture associated with a texture handle
@@ -514,6 +520,9 @@ private:
 	void LoadSelectionName( int name );
 	void PushSelectionName( int name );
 	void PopSelectionName();
+	void WriteHitRecord();
+	bool IsInSelectionMode() const;
+	void RegisterSelectionHit( float minz, float maxz );
 
 	void FlushHardware();
 	void ResetRenderState( bool bFullReset = true );
@@ -652,16 +661,10 @@ private:
 	}
 
 	// What fields in the morph do we actually use?
-	virtual MorphFormat_t ComputeMorphFormat( int numSnapshots, StateSnapshot_t *pIds ) const
-	{
-		return 0;
-	}
+	virtual MorphFormat_t ComputeMorphFormat( int numSnapshots, StateSnapshot_t *pIds ) const;
 
 	// Gets the bound morph's vertex format; returns 0 if no morph is bound
-	virtual MorphFormat_t GetBoundMorphFormat()
-	{
-		return 0;
-	}
+	virtual MorphFormat_t GetBoundMorphFormat();
 
 	void GetStandardTextureDimensions( int *pWidth, int *pHeight, StandardTextureId_t id );
 
@@ -961,10 +964,13 @@ private:
 	DirectX::XMMATRIX &GetCurrentMatrix();
 	void HandleMatrixModified();
 
+	void RenderPassWithVertexAndIndexBuffers();
+
 private:
 	// Current material + mesh
 	IMaterialInternal *m_pMaterial;
-	IMesh *m_pMesh;
+	CMeshBase *m_pMesh;
+	int m_nDynamicVBSize;
 
 	// Members related to textures
 	CUtlFixedLinkedList<CTextureDx11> m_Textures;
@@ -982,6 +988,27 @@ private:
 
 	// Setting matrices
 	MaterialMatrixMode_t m_MatrixMode;
+
+	bool m_bSelectionMode;
+
+	// Mesh builder used to modify vertex data
+	CMeshBuilder m_ModifyBuilder;
+
+	// Selection name stack
+	CUtlStack< int >	m_SelectionNames;
+	bool				m_InSelectionMode;
+	unsigned int *m_pSelectionBufferEnd;
+	unsigned int *m_pSelectionBuffer;
+	unsigned int *m_pCurrSelectionRecord;
+	float				m_SelectionMinZ;
+	float				m_SelectionMaxZ;
+	int					m_NumHits;
+
+	friend class CTempMeshDX11;
+	friend class CMeshDX11;
+	friend class CDynamicMeshDX11;
+	friend class CBufferedMeshDX11;
+	friend class CMeshMgr;
 
 };
 

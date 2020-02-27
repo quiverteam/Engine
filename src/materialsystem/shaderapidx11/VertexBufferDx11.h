@@ -25,6 +25,16 @@ public:
 	virtual void BeginCastBuffer( VertexFormat_t format );
 	virtual	void EndCastBuffer();
 	virtual int GetRoomRemaining() const;
+	bool HasEnoughRoom( int nVertCount ) const;
+
+	// used to alter the characteristics after creation
+	// allows one dynamic vb to be shared for multiple formats
+	void ChangeConfiguration( int vertexSize, int totalSize )
+	{
+		Assert( m_bIsDynamic && !m_bIsLocked && vertexSize );
+		m_VertexSize = vertexSize;
+		m_nVertexCount = m_nBufferSize / vertexSize;
+	}
 
 	// Other public methods
 public:
@@ -45,6 +55,7 @@ protected:
 
 	ID3D11Buffer* m_pVertexBuffer;
 	VertexFormat_t m_VertexFormat;
+	int m_VertexSize;
 	int m_nVertexCount;
 	int m_nBufferSize;
 	int m_nFirstUnwrittenOffset;
@@ -67,5 +78,5 @@ inline ID3D11Buffer* CVertexBufferDx11::GetDx11Buffer() const
 
 inline int CVertexBufferDx11::VertexSize() const
 {
-	return VertexFormatSize( m_VertexFormat );
+	return m_VertexSize;
 }

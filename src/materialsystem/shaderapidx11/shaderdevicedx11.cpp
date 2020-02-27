@@ -25,6 +25,9 @@
 // NOTE: This has to be the last file included!
 #include "tier0/memdbgon.h"
 
+// this is hooked into the engines convar
+ConVar mat_debugalttab( "mat_debugalttab", "0", FCVAR_CHEAT );
+
 
 //-----------------------------------------------------------------------------
 // Explicit instantiation of shader buffer implementation
@@ -455,6 +458,7 @@ bool CShaderDeviceMgrDx11::SetAdapter( int nAdapter, int nFlags )
 
 	g_pHardwareConfig->SetupHardwareCaps( actualCaps.m_nDXSupportLevel, actualCaps );
 
+	g_pShaderDevice = g_pShaderDeviceDx11;
 	g_pShaderDeviceDx11->m_nAdapter = nAdapter;
 
 	return true;
@@ -726,6 +730,7 @@ void CShaderDeviceDx11::Present()
 	HRESULT hr = m_pSwapChain->Present( 0, 0 );
 	if ( FAILED(hr) )
 	{
+		HRESULT removed = D3D11Device()->GetDeviceRemovedReason();
 		Assert( 0 );
 	}
 }

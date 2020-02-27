@@ -49,7 +49,7 @@
 // uncomment to get dynamic compilation for HLSL shaders
 // i don't think this works atm, but im probably using this wrong
 // X360 NOTE: By default, the system looks for a shared folder named "stdshaders" on the host machine and is completely compatible with -dvd. Ensure that the share is writable if you plan on generating UPDB's.
-#define DYNAMIC_SHADER_COMPILE
+//#define DYNAMIC_SHADER_COMPILE
 
 // uncomment to get spew about what combos are being compiled.
 //#define DYNAMIC_SHADER_COMPILE_VERBOSE
@@ -1264,19 +1264,21 @@ retry_compile:
 	}
 
 	wchar_t wfilename[MAX_PATH];
-	mbtowc( wfilename, filename, strlen( filename ) );
+	memset( wfilename, 0, MAX_PATH );
+	//mbtowc( wfilename, filename, strlen( filename ) );
 
 	LPD3DBLOB pShader;
 	LPD3DBLOB pErrorMessages;
 	HRESULT hr;
 	CDxInclude dxInclude( filename );
+	MultiByteToWideChar( CP_ACP, MB_PRECOMPOSED, filename, V_strlen( filename ), wfilename, V_strlen(filename) );
 	hr = D3DCompileFromFile( wfilename, macros.Base(), &dxInclude /* LPD3DXINCLUDE */,
 		"main",	pShaderModel, 0 /* DWORD Flags */, 0, 	&pShader, &pErrorMessages/*, NULL LPD3DXCONSTANTTABLE *ppConstantTable */ );
 
 	if ( hr != S_OK )
 	{
-		const char *pErrorMessageString = ( const char * )pErrorMessages->GetBufferPointer();
-		Plat_DebugString( pErrorMessageString );
+		//const char *pErrorMessageString = ( const char * )pErrorMessages->GetBufferPointer();
+		//Plat_DebugString( pErrorMessageString );
 		Plat_DebugString( "\n" );
 
 #ifndef _DEBUG
@@ -2118,7 +2120,7 @@ void CShaderManager::SetVertexShader( VertexShader_t shader )
 	}
 #ifdef _DEBUG
 	vshDebugIndex = (vshDebugIndex + 1) % MAX_SHADER_HISTORY;
-	Q_strncpy( vshDebugName[vshDebugIndex], m_ShaderSymbolTable.String( lookup.m_Name ), sizeof( vshDebugName[0] ) );
+	Q_strncpy( vshDebugName[vshDebugIndex], m_ShaderSymbolTable.String( lookup->m_Name ), sizeof( vshDebugName[0] ) );
 #endif
 	HardwareShader_t dxshader = lookup->m_ShaderStaticCombos.m_pHardwareShaders[vshIndex];
 #endif
@@ -2217,7 +2219,7 @@ void CShaderManager::SetPixelShader( PixelShader_t shader )
 	}
 #ifdef _DEBUG
 	pshDebugIndex = (pshDebugIndex + 1) % MAX_SHADER_HISTORY;
-	Q_strncpy( pshDebugName[pshDebugIndex], m_ShaderSymbolTable.String( lookup.m_Name ), sizeof( pshDebugName[0] ) );
+	Q_strncpy( pshDebugName[pshDebugIndex], m_ShaderSymbolTable.String( lookup->m_Name ), sizeof( pshDebugName[0] ) );
 #endif
 	HardwareShader_t dxshader = lookup->m_ShaderStaticCombos.m_pHardwareShaders[pshIndex];
 #endif

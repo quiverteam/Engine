@@ -2,3 +2,5 @@ fxctmp9_tmp\bik_vs40.inc
 fxctmp9_tmp\bik_ps40.inc
 fxctmp9_tmp\unlitgeneric_ps40.inc
 fxctmp9_tmp\unlitgeneric_vs40.inc
+fxctmp9_tmp\wireframe_ps40.inc
+fxctmp9_tmp\wireframe_vs40.inc

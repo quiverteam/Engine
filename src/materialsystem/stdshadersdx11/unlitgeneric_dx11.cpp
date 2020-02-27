@@ -12,6 +12,8 @@ BEGIN_VS_SHADER(UnlitGeneric, "Unlit shader")
 	{
 		if ( params[ALBEDO]->IsDefined() )
 			LoadTexture( ALBEDO );
+		if ( params[BASETEXTURE]->IsDefined() )
+			LoadTexture( BASETEXTURE );
 	}
 
 	SHADER_FALLBACK
@@ -37,7 +39,8 @@ BEGIN_VS_SHADER(UnlitGeneric, "Unlit shader")
 		}
 		DYNAMIC_STATE
 		{
-			BindTexture( SHADER_SAMPLER0, ALBEDO );
+			if ( params[BASETEXTURE]->IsTexture() )
+				BindTexture( SHADER_SAMPLER0, BASETEXTURE );
 			BindVertexShaderConstantBuffer(
 				GetInternalConstantBuffer( SHADER_INTERNAL_CONSTANTBUFFER_TRANSFORM ) );
 

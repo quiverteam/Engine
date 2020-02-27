@@ -1359,7 +1359,7 @@ KeyValues* CMaterial::InitializeShader( KeyValues &keyValues, KeyValues &patchKe
 		// I'm not quite sure how this can happen, but we'll see... 
 		Warning( "Shader not specified in material %s\nUsing wireframe instead...\n", GetName() );
 		Assert( 0 );
-		pShaderName = IsPC() ? "Wireframe_DX6" : "Wireframe_DX9";
+		pShaderName = IsPC() ? "Wireframe_DX11" : "Wireframe_DX9";
 	}
 	else
 	{
@@ -1390,7 +1390,7 @@ KeyValues* CMaterial::InitializeShader( KeyValues &keyValues, KeyValues &patchKe
 				Assert( 0 );
 			}
 
-			pShaderName = IsPC() ? "Wireframe_DX6" : "Wireframe_DX9";
+			pShaderName = "Wireframe_DX11";//IsPC() ? "Wireframe_DX11" : "Wireframe_DX9";
 			pShader = ShaderSystem()->FindShader( pShaderName );
 			Assert( pShader );
 		}
@@ -1487,7 +1487,7 @@ KeyValues* CMaterial::InitializeShader( KeyValues &keyValues, KeyValues &patchKe
 			if (!pShaderName)
 			{
 				Warning("Shader not specified in material %s (fallback %s)\nUsing wireframe instead...\n", GetName(), pFallbackMaterialNameBuf );
-				pShaderName = IsPC() ? "Wireframe_DX6" : "Wireframe_DX9";
+				pShaderName = IsPC() ? "Wireframe_DX11" : "Wireframe_DX9";
 			}
 		}
 	}
@@ -1585,7 +1585,7 @@ void CMaterial::SetupErrorShader()
 
 	// We had a failure; replace it with a valid shader...
 
-	m_pShader = ShaderSystem()->FindShader( IsPC() ? "Wireframe_DX6" : "Wireframe_DX9" );
+	m_pShader = ShaderSystem()->FindShader( IsPC() ? "Wireframe_DX11" : "Wireframe_DX9" );
 	Assert( m_pShader );
 
 	// Create undefined vars for all the actual material vars
@@ -2342,7 +2342,7 @@ void CMaterial::SetShader( const char *pShaderName )
 		{
 			// Couldn't find the shader we wanted to use; it's not defined...
 			Warning( "SetShader: Couldn't find shader %s for material %s!\n", pShaderName, GetName() );
-			pShaderName = IsPC() ? "Wireframe_DX6" : "Wireframe_DX9";
+			pShaderName = "Wireframe_DX11";//IsPC() ? "Wireframe_DX6" : "Wireframe_DX9";
 			pShader = ShaderSystem()->FindShader( pShaderName );
 			Assert( pShader );
 		}

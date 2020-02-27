@@ -47,7 +47,12 @@ EXPOSE_SINGLE_INTERFACE_GLOBALVAR( CShaderAPIDx11, IDebugTextureInfo,
 // Constructor, destructor
 //-----------------------------------------------------------------------------
 CShaderAPIDx11::CShaderAPIDx11() :
-	m_Textures( 32 )
+	m_Textures( 32 ),
+	m_SelectionMinZ( FLT_MAX ),
+	m_SelectionMaxZ( FLT_MIN ),
+	m_pSelectionBuffer( 0 ),
+	m_pSelectionBufferEnd( 0 ),
+	m_nDynamicVBSize( DYNAMIC_VERTEX_BUFFER_MEMORY )
 {
 	m_ModifyTextureHandle = INVALID_SHADERAPI_TEXTURE_HANDLE;
 	m_ModifyTextureLockedLevel = -1;
@@ -55,6 +60,7 @@ CShaderAPIDx11::CShaderAPIDx11() :
 	m_TargetState = StatesDx11::RenderState();
 	m_State = m_TargetState;
 	m_DynamicState = DynamicStateDx11_t();
+	m_bSelectionMode = false;
 }
 
 CShaderAPIDx11::~CShaderAPIDx11()
@@ -768,10 +774,10 @@ void CShaderAPIDx11::Unbind( VertexShaderHandle_t hShader )
 	{
 		BindVertexShader( VERTEX_SHADER_HANDLE_INVALID );
 	}
-	//if ( m_DX11State.m_pVertexShader == pShader )
-	//{
-	//	IssueStateChanges();
-	//}
+	if ( m_State.dynamic.m_pVertexShader == pShader )
+	{
+		IssueStateChanges();
+	}
 }
 
 void CShaderAPIDx11::Unbind( GeometryShaderHandle_t hShader )
@@ -782,10 +788,10 @@ void CShaderAPIDx11::Unbind( GeometryShaderHandle_t hShader )
 	{
 		BindGeometryShader( GEOMETRY_SHADER_HANDLE_INVALID );
 	}
-	//if ( m_DX11State.m_pGeometryShader == pShader )
-	//{
-	//	IssueStateChanges();
-	//}
+	if ( m_State.dynamic.m_pGeometryShader == pShader )
+	{
+		IssueStateChanges();
+	}
 }
 
 void CShaderAPIDx11::Unbind( PixelShaderHandle_t hShader )
@@ -796,10 +802,10 @@ void CShaderAPIDx11::Unbind( PixelShaderHandle_t hShader )
 	{
 		BindPixelShader( PIXEL_SHADER_HANDLE_INVALID );
 	}
-	//if ( m_DX11State.m_pPixelShader == pShader )
-	//{
-	//	IssueStateChanges();
-	//}
+	if ( m_State.dynamic.m_pPixelShader == pShader )
+	{
+		IssueStateChanges();
+	}
 }
 
 void CShaderAPIDx11::UnbindVertexBuffer( ID3D11Buffer *pBuffer )
@@ -813,14 +819,14 @@ void CShaderAPIDx11::UnbindVertexBuffer( ID3D11Buffer *pBuffer )
 			BindVertexBuffer( i, NULL, 0, 0, 0, VERTEX_POSITION, 0 );
 		}
 	}
-	//for ( int i = 0; i < MAX_DX11_STREAMS; ++i )
-	//{
-	//	if ( m_DX11State.m_pVertexBuffer[i].m_pBuffer == pBuffer )
-	//	{
-	//		IssueStateChanges();
-	//		break;
-	//	}
-	//}
+	for ( int i = 0; i < MAX_DX11_STREAMS; ++i )
+	{
+		if ( m_State.dynamic.m_pVertexBuffer[i].m_pBuffer == pBuffer )
+		{
+			IssueStateChanges();
+			break;
+		}
+	}
 }
 
 void CShaderAPIDx11::UnbindIndexBuffer( ID3D11Buffer *pBuffer )
@@ -831,10 +837,10 @@ void CShaderAPIDx11::UnbindIndexBuffer( ID3D11Buffer *pBuffer )
 	{
 		BindIndexBuffer( NULL, 0 );
 	}
-	//if ( m_DX11State.m_IndexBuffer.m_pBuffer == pBuffer )
-	//{
-	//	IssueStateChanges();
-	//}
+	if ( m_State.dynamic.m_IndexBuffer.m_pBuffer == pBuffer )
+	{
+		IssueStateChanges();
+	}
 }
 
 //-----------------------------------------------------------------------------
@@ -889,7 +895,7 @@ void CShaderAPIDx11::DrawMesh( IMesh *pMesh )
 
 	Log( "CShaderAPIDx11::DrawMesh %p\n", pMesh );
 
-	m_pMesh = pMesh;
+	m_pMesh = static_cast<CMeshBase *>( pMesh );
 	if ( !m_pMesh || !m_pMaterial )
 	{
 		Warning( "Tried to render mesh with NULL mesh or NULL material!\n" );
@@ -917,14 +923,33 @@ void CShaderAPIDx11::RenderPass( int nPass, int nPassCount )
 	if ( g_pShaderDevice->IsDeactivated() )
 		return;
 
+	IssueStateChanges();
+
 	// Now actually render
 
 	if ( m_pMesh )
 	{
-		MeshMgr()->RenderPass( m_pMesh );
+		m_pMesh->RenderPass();
+	}
+	else
+	{
+		Assert( 0 );
+		RenderPassWithVertexAndIndexBuffers();
 	}
 
 	m_CurrentSnapshot = -1;
+}
+
+void CShaderAPIDx11::RenderPassWithVertexAndIndexBuffers()
+{
+	if ( m_State.dynamic.m_Topology == D3D11_PRIMITIVE_TOPOLOGY_POINTLIST )
+	{
+		Assert( 0 );
+	}
+	else
+	{
+		//DrawIndexed(m_State.dynamic.m_IndexBuffer.)
+	}
 }
 
 // Draws primitives
@@ -954,6 +979,8 @@ void CShaderAPIDx11::DrawNotIndexed( int nFirstVertex, int nVertCount )
 
 bool CShaderAPIDx11::OnDeviceInit()
 {
+	// Initialize the mesh manager
+	MeshMgr()->Init();
 	ResetRenderState();
 	return true;
 }
@@ -972,7 +999,10 @@ bool CShaderAPIDx11::DoRenderTargetsNeedSeparateDepthBuffer() const
 // Can we download textures?
 bool CShaderAPIDx11::CanDownloadTextures() const
 {
-	return false;
+	if ( IsDeactivated() )
+		return false;
+
+	return true;
 }
 
 // Used to clear the transition table when we know it's become invalid.
@@ -998,12 +1028,12 @@ void CShaderAPIDx11::SetDefaultState()
 	ZeroMemory( m_TargetState.dynamic.m_ppSamplers, sizeof( ID3D11SamplerState * ) * MAX_DX11_SAMPLERS );
 	ZeroMemory( m_TargetState.dynamic.m_ppTextureViews, sizeof( ID3D11ShaderResourceView * ) * MAX_DX11_SAMPLERS );
 
-	m_TargetState.dynamic.m_pVertexShader = 0;
-	m_TargetState.dynamic.m_pGeometryShader = 0;
-	m_TargetState.dynamic.m_pPixelShader = 0;
-	m_TargetState.dynamic.m_iVertexShader = -1;
-	m_TargetState.dynamic.m_iGeometryShader = -1;
-	m_TargetState.dynamic.m_iPixelShader = -1;
+	//m_TargetState.dynamic.m_pVertexShader = 0;
+	//m_TargetState.dynamic.m_pGeometryShader = 0;
+	////m_TargetState.dynamic.m_pPixelShader = 0;
+	//m_TargetState.dynamic.m_iVertexShader = -1;
+	//m_TargetState.dynamic.m_iGeometryShader = -1;
+	//m_TargetState.dynamic.m_iPixelShader = -1;
 }
 
 // Returns the snapshot id for the current shadow state
@@ -1033,16 +1063,117 @@ bool CShaderAPIDx11::UsesVertexAndPixelShaders( StateSnapshot_t id ) const
 	return ( id & VERTEX_AND_PIXEL_SHADERS ) != 0;
 }
 
-// Gets the vertex format for a set of snapshot ids
-VertexFormat_t CShaderAPIDx11::ComputeVertexFormat( int numSnapshots, StateSnapshot_t *pIds ) const
+//-----------------------------------------------------------------------------
+// Gets the bound morph's vertex format; returns 0 if no morph is bound
+//-----------------------------------------------------------------------------
+MorphFormat_t CShaderAPIDx11::GetBoundMorphFormat()
 {
-	return 0;
+	return ShaderUtil()->GetBoundMorphFormat();
+}
+
+//-----------------------------------------------------------------------------
+// What fields in the morph do we actually use?
+//-----------------------------------------------------------------------------
+MorphFormat_t CShaderAPIDx11::ComputeMorphFormat( int numSnapshots, StateSnapshot_t *pIds ) const
+{
+	LOCK_SHADERAPI();
+	MorphFormat_t format = 0;
+	for ( int i = 0; i < numSnapshots; ++i )
+	{
+		MorphFormat_t fmt = g_pShaderShadowDx11->GetShadowState( pIds[i] ).morphFormat;
+		format |= VertexFlags( fmt );
+	}
+	return format;
 }
 
 // Gets the vertex format for a set of snapshot ids
-VertexFormat_t CShaderAPIDx11::ComputeVertexUsage( int numSnapshots, StateSnapshot_t *pIds ) const
+VertexFormat_t CShaderAPIDx11::ComputeVertexFormat( int numSnapshots, StateSnapshot_t *pIds ) const
 {
-	return 0;
+	LOCK_SHADERAPI();
+	VertexFormat_t fmt = ComputeVertexUsage( numSnapshots, pIds );
+	return fmt;
+}
+
+// Gets the vertex format for a set of snapshot ids
+VertexFormat_t CShaderAPIDx11::ComputeVertexUsage( int num, StateSnapshot_t *pIds ) const
+{
+	LOCK_SHADERAPI();
+	if ( num == 0 )
+		return 0;
+
+	// We don't have to all sorts of crazy stuff if there's only one snapshot
+	if ( num == 1 )
+	{
+		const StatesDx11::ShadowState &state = g_pShaderShadowDx11->GetShadowState( pIds[0] );
+		return state.vertexFormat;
+	}
+
+	Assert( pIds );
+
+	// Aggregating vertex formats is a little tricky;
+	// For example, what do we do when two passes want user data? 
+	// Can we assume they are the same? For now, I'm going to
+	// just print a warning in debug.
+
+	VertexCompressionType_t compression = VERTEX_COMPRESSION_INVALID;
+	int userDataSize = 0;
+	int numBones = 0;
+	int texCoordSize[VERTEX_MAX_TEXTURE_COORDINATES] = { 0, 0, 0, 0, 0, 0, 0, 0 };
+	int flags = 0;
+
+	for ( int i = num; --i >= 0; )
+	{
+		Log( "Applying vertex format from snapshot num %i, %i\n", i, pIds[i] );
+		const StatesDx11::ShadowState &state = g_pShaderShadowDx11->GetShadowState( pIds[i] );
+		VertexFormat_t fmt = state.vertexFormat;
+		flags |= VertexFlags( fmt );
+
+		VertexCompressionType_t newCompression = CompressionType( fmt );
+		if ( ( compression != newCompression ) && ( compression != VERTEX_COMPRESSION_INVALID ) )
+		{
+			Warning( "Encountered a material with two passes that specify different vertex compression types!\n" );
+			compression = VERTEX_COMPRESSION_NONE; // Be safe, disable compression
+		}
+
+		int newNumBones = NumBoneWeights( fmt );
+		if ( ( numBones != newNumBones ) && ( newNumBones != 0 ) )
+		{
+			if ( numBones != 0 )
+			{
+				Warning( "Encountered a material with two passes that use different numbers of bones!\n" );
+			}
+			numBones = newNumBones;
+		}
+
+		int newUserSize = UserDataSize( fmt );
+		if ( ( userDataSize != newUserSize ) && ( newUserSize != 0 ) )
+		{
+			if ( userDataSize != 0 )
+			{
+				Warning( "Encountered a material with two passes that use different user data sizes!\n" );
+			}
+			userDataSize = newUserSize;
+		}
+
+		for ( int j = 0; j < VERTEX_MAX_TEXTURE_COORDINATES; ++j )
+		{
+			int newSize = TexCoordSize( (TextureStage_t)j, fmt );
+			if ( ( texCoordSize[j] != newSize ) && ( newSize != 0 ) )
+			{
+				if ( texCoordSize[j] != 0 )
+				{
+					Warning( "Encountered a material with two passes that use different texture coord sizes!\n" );
+				}
+				if ( texCoordSize[j] < newSize )
+				{
+					texCoordSize[j] = newSize;
+				}
+			}
+		}
+	}
+
+	return MeshMgr()->ComputeVertexFormat( flags, VERTEX_MAX_TEXTURE_COORDINATES,
+					       texCoordSize, numBones, userDataSize );
 }
 
 // Uses a state snapshot
@@ -1121,6 +1252,11 @@ void CShaderAPIDx11::Bind( IMaterial *pMaterial )
 	}
 }
 
+IMaterialInternal *CShaderAPIDx11::GetBoundMaterial() const
+{
+	return m_pMaterial;
+}
+
 // Cull mode
 void CShaderAPIDx11::CullMode( MaterialCullMode_t cullMode )
 {
@@ -1138,6 +1274,11 @@ void CShaderAPIDx11::CullMode( MaterialCullMode_t cullMode )
 		break;
 	}
 	m_TargetState.shadow.rasterizer.CullMode = d3dCull;
+}
+
+D3D11_CULL_MODE CShaderAPIDx11::GetCullMode() const
+{
+	return m_State.shadow.rasterizer.CullMode;
 }
 
 void CShaderAPIDx11::ForceDepthFuncEquals( bool bEnable )
@@ -1205,6 +1346,25 @@ void CShaderAPIDx11::GetLightmapDimensions( int *w, int *h )
 // Flushes any primitives that are buffered
 void CShaderAPIDx11::FlushBufferedPrimitives()
 {
+	if ( ShaderUtil() )
+	{
+		if ( !ShaderUtil()->OnFlushBufferedPrimitives() )
+		{
+			return;
+		}
+	}
+
+	LOCK_SHADERAPI();
+	// This shouldn't happen in the inner rendering loop!
+	Assert( m_pMesh == 0 );
+
+	// NOTE: We've gotta store off the matrix mode because
+	// it'll get reset by the default state application caused by the flush
+	MaterialMatrixMode_t oldMatMode = m_MatrixMode;
+
+	MeshMgr()->Flush();
+
+	m_MatrixMode = oldMatMode;
 }
 
 // Creates/destroys Mesh
@@ -1338,8 +1498,15 @@ void CShaderAPIDx11::MultMatrixLocal( float *m )
 
 void CShaderAPIDx11::GetMatrix( MaterialMatrixMode_t matrixMode, float *dst )
 {
-	memcpy( dst, &GetCurrentMatrix(), sizeof( DirectX::XMMATRIX ) );
+	memcpy( dst, &GetMatrix( matrixMode ), sizeof( DirectX::XMMATRIX ) );
 	HandleMatrixModified();
+}
+
+void CShaderAPIDx11::GetMatrix( MaterialMatrixMode_t matrixMode, DirectX::XMMATRIX &mat )
+{
+	mat = GetMatrix( matrixMode );
+	//memcpy( dst, &GetCurrentMatrix(), sizeof( DirectX::XMMATRIX ) );
+	//HandleMatrixModified();
 }
 
 void CShaderAPIDx11::LoadIdentity( void )
@@ -1546,11 +1713,13 @@ void CShaderAPIDx11::FogColor3ubv( unsigned char const *rgb )
 void CShaderAPIDx11::SetVertexShaderIndex( int vshIndex )
 {
 	ShaderManager()->SetVertexShaderIndex( vshIndex );
+	ShaderManager()->SetVertexShader( m_TargetState.shadow.vertexShader );
 }
 
 void CShaderAPIDx11::SetPixelShaderIndex( int pshIndex )
 {
 	ShaderManager()->SetPixelShaderIndex( pshIndex );
+	ShaderManager()->SetPixelShader( m_TargetState.shadow.pixelShader );
 }
 
 // Returns the nearest supported format
@@ -1665,6 +1834,16 @@ void CShaderAPIDx11::AdvanceCurrentTextureCopy( ShaderAPITextureHandle_t texture
 
 //-----------------------------------------------------------------------------
 // Texture image upload
+//
+// level: mipmap level we are writing to
+// cubeFace: face of the cubemap/array texture we are writing to
+// dstFormat: unused
+// zOffset: not sure
+// width: image width
+// height image height
+// srcFormat: format of the source image data
+// bSrcIsTiled: is the source image a tiled image
+// imageData: pointer to the beginning of the source image data
 //-----------------------------------------------------------------------------
 void CShaderAPIDx11::TexImage2D( int level, int cubeFace, ImageFormat dstFormat, int zOffset, int width, int height,
 				 ImageFormat srcFormat, bool bSrcIsTiled, void *imageData )
@@ -1678,6 +1857,9 @@ void CShaderAPIDx11::TexImage2D( int level, int cubeFace, ImageFormat dstFormat,
 		return;
 
 	}
+
+	//if ( zOffset != 0 )
+		//DebuggerBreak();
 		
 
 	Assert( ( width <= g_pHardwareConfig->Caps().m_MaxTextureWidth ) &&
@@ -1822,7 +2004,6 @@ void CShaderAPIDx11::CreateTextures(
     const char *pTextureGroupName )
 {
 	LOCK_SHADERAPI();
-
 	// Create a set of texture handles
 	CreateTextureHandles( pHandles, count );
 	CTextureDx11 **arrTxp = new CTextureDx11 *[count];
@@ -1956,36 +2137,119 @@ void CShaderAPIDx11::SetNumBoneWeights( int numBones )
 {
 }
 
+//-----------------------------------------------------------------------------
 // Selection mode methods
+//-----------------------------------------------------------------------------
 int CShaderAPIDx11::SelectionMode( bool selectionMode )
 {
-	return 0;
+	LOCK_SHADERAPI();
+	int numHits = m_NumHits;
+	if ( m_InSelectionMode )
+	{
+		WriteHitRecord();
+	}
+	m_InSelectionMode = selectionMode;
+	m_pCurrSelectionRecord = m_pSelectionBuffer;
+	m_NumHits = 0;
+	return numHits;
+}
+
+bool CShaderAPIDx11::IsInSelectionMode() const
+{
+	return m_InSelectionMode;
 }
 
 void CShaderAPIDx11::SelectionBuffer( unsigned int *pBuffer, int size )
 {
+	LOCK_SHADERAPI();
+	Assert( !m_InSelectionMode );
+	Assert( pBuffer && size );
+	m_pSelectionBufferEnd = pBuffer + size;
+	m_pSelectionBuffer = pBuffer;
+	m_pCurrSelectionRecord = pBuffer;
 }
 
 void CShaderAPIDx11::ClearSelectionNames()
 {
+	LOCK_SHADERAPI();
+	if ( m_InSelectionMode )
+	{
+		WriteHitRecord();
+	}
+	m_SelectionNames.Clear();
 }
 
 void CShaderAPIDx11::LoadSelectionName( int name )
 {
+	LOCK_SHADERAPI();
+	if ( m_InSelectionMode )
+	{
+		WriteHitRecord();
+		Assert( m_SelectionNames.Count() > 0 );
+		m_SelectionNames.Top() = name;
+	}
 }
 
 void CShaderAPIDx11::PushSelectionName( int name )
 {
+	LOCK_SHADERAPI();
+	if ( m_InSelectionMode )
+	{
+		WriteHitRecord();
+		m_SelectionNames.Push( name );
+	}
 }
 
 void CShaderAPIDx11::PopSelectionName()
 {
+	LOCK_SHADERAPI();
+	if ( m_InSelectionMode )
+	{
+		WriteHitRecord();
+		m_SelectionNames.Pop();
+	}
 }
+
+void CShaderAPIDx11::WriteHitRecord()
+{
+	FlushBufferedPrimitives();
+
+	if ( m_SelectionNames.Count() && ( m_SelectionMinZ != FLT_MAX ) )
+	{
+		Assert( m_pCurrSelectionRecord + m_SelectionNames.Count() + 3 < m_pSelectionBufferEnd );
+		*m_pCurrSelectionRecord++ = m_SelectionNames.Count();
+		*m_pCurrSelectionRecord++ = (int)( (double)m_SelectionMinZ * (double)0xFFFFFFFF );
+		*m_pCurrSelectionRecord++ = (int)( (double)m_SelectionMaxZ * (double)0xFFFFFFFF );
+		for ( int i = 0; i < m_SelectionNames.Count(); ++i )
+		{
+			*m_pCurrSelectionRecord++ = m_SelectionNames[i];
+		}
+
+		++m_NumHits;
+	}
+
+	m_SelectionMinZ = FLT_MAX;
+	m_SelectionMaxZ = FLT_MIN;
+}
+
+// We hit somefin in selection mode
+void CShaderAPIDx11::RegisterSelectionHit( float minz, float maxz )
+{
+	if ( minz < 0 )
+		minz = 0;
+	if ( maxz > 1 )
+		maxz = 1;
+	if ( m_SelectionMinZ > minz )
+		m_SelectionMinZ = minz;
+	if ( m_SelectionMaxZ < maxz )
+		m_SelectionMaxZ = maxz;
+}
+
 
 // Use this to get the mesh builder that allows us to modify vertex data
 CMeshBuilder *CShaderAPIDx11::GetVertexModifyBuilder()
 {
-	return 0;
+	return &m_ModifyBuilder;
 }
 
 // Board-independent calls, here to unify how shaders set state
@@ -2063,11 +2327,16 @@ void CShaderAPIDx11::RecordString( const char *pStr )
 
 void CShaderAPIDx11::DestroyVertexBuffers( bool bExitingLevel )
 {
+	LOCK_SHADERAPI();
+	MeshMgr()->DestroyVertexBuffers();
+	// After a map is shut down, we switch to using smaller dynamic VBs
+	// (VGUI shouldn't need much), so that we have more memory free during map loading
+	m_nDynamicVBSize = bExitingLevel ? DYNAMIC_VERTEX_BUFFER_MEMORY_SMALL : DYNAMIC_VERTEX_BUFFER_MEMORY;
 }
 
 int CShaderAPIDx11::GetCurrentDynamicVBSize( void )
 {
-	return 0;
+	return m_nDynamicVBSize;
 }
 
 void CShaderAPIDx11::EvictManagedResources()

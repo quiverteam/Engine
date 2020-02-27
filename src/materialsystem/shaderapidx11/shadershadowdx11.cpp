@@ -38,9 +38,11 @@ EXPOSE_SINGLE_INTERFACE_GLOBALVAR( CShaderShadowDx11, IShaderShadow,
 //-----------------------------------------------------------------------------
 // The shader shadow interface
 //-----------------------------------------------------------------------------
-CShaderShadowDx11::CShaderShadowDx11() :
-	m_ShadowStateCache( 4096 )
+CShaderShadowDx11::CShaderShadowDx11()
 {
+	m_ShadowStateCache.Purge();
+	m_ShadowStateCache.EnsureCapacity( 4096 );
+	m_ShadowStateCache.SetGrowSize( 128 );
 }
 
 CShaderShadowDx11::~CShaderShadowDx11()
@@ -306,21 +308,21 @@ void CShaderShadowDx11::EnableAlphaToCoverage( bool bEnable )
 
 StateSnapshot_t CShaderShadowDx11::FindOrCreateSnapshot()
 {
-	int i;
-	for ( i = m_ShadowStateCache.Head();
-	      i != m_ShadowStateCache.InvalidIndex();
-	      i = m_ShadowStateCache.Next( i ) )
+	int i = m_ShadowStateCache.Find( m_ShadowState );
+	if ( i != m_ShadowStateCache.InvalidIndex() )
 	{
-		const StatesDx11::ShadowState &entry = m_ShadowStateCache.Element( i );
-		if ( !memcmp( &entry, &m_ShadowState, sizeof( StatesDx11::ShadowState ) ) )
-		{
-			// Matching states
-			return i;
-		}
+		return i;
 	}
 
 	// Didn't find it, add entry
-	return m_ShadowStateCache.AddToTail( m_ShadowState );
+	StateSnapshot_t snap = m_ShadowStateCache.AddToTail( m_ShadowState );
+	Log( "Created snapshot id %i\n", snap );
+	return snap;
+}
+
+StatesDx11::ShadowState CShaderShadowDx11::GetShadowState( StateSnapshot_t id ) const
+{
+	return m_ShadowStateCache.Element( id );
 }
 
 // ---------------------------------------------------

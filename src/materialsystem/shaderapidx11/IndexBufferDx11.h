@@ -27,6 +27,12 @@ public:
 	virtual bool IsDynamic() const;
 	virtual void BeginCastBuffer( MaterialIndexFormat_t format );
 	virtual void EndCastBuffer();
+	bool HasEnoughRoom( int nVertCount ) const;
+
+	int IndexPosition() const
+	{
+		return m_nFirstUnwrittenOffset;
+	}
 
 	// Other public methods
 public:
@@ -40,16 +46,19 @@ public:
 	// Only used by dynamic buffers, indicates the next lock should perform a discard.
 	void Flush();
 
+	// Returns the size of the index in bytes
+	int IndexSize() const;
+
+	int SizeForIndex( MaterialIndexFormat_t fmt ) const;
+
 protected:
 	// Creates, destroys the index buffer
 	bool Allocate();
 	void Free();
 
-	// Returns the size of the index in bytes
-	int IndexSize() const;
-
 	ID3D11Buffer* m_pIndexBuffer;
 	MaterialIndexFormat_t m_IndexFormat;
+	int m_nIndexSize;
 	int m_nIndexCount;
 	int m_nBufferSize;
 	int m_nFirstUnwrittenOffset;	// Used only for dynamic buffers, indicates where it's safe to write (nooverwrite)
@@ -67,16 +76,7 @@ protected:
 //-----------------------------------------------------------------------------
 inline int CIndexBufferDx11::IndexSize() const
 {
-	switch ( m_IndexFormat )
-	{
-	default:
-	case MATERIAL_INDEX_FORMAT_UNKNOWN:
-		return 0;
-	case MATERIAL_INDEX_FORMAT_16BIT:
-		return 2;
-	case MATERIAL_INDEX_FORMAT_32BIT:
-		return 4;
-	}
+	return m_nIndexSize;
 }
 
 inline ID3D11Buffer* CIndexBufferDx11::GetDx11Buffer() const

@@ -2,6 +2,7 @@
 
 struct PS_INPUT
 {
+	float4 vPos : SV_POSITION;
 	float2 vTexCoord : TEXCOORD0;
 };
 

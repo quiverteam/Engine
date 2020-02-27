@@ -121,6 +121,7 @@ public:
 	virtual void StencilWriteMask( int nMask );
 
 	StateSnapshot_t FindOrCreateSnapshot();
+	StatesDx11::ShadowState GetShadowState( StateSnapshot_t id ) const;
 
 	// ---------------------------------------------------
 	// Below are unsupported by Dx11, only included to
@@ -157,7 +158,7 @@ public:
 public:
 	StatesDx11::ShadowState m_ShadowState;
 
-	CUtlFixedLinkedList<StatesDx11::ShadowState> m_ShadowStateCache;
+	CUtlVector<StatesDx11::ShadowState> m_ShadowStateCache;
 };
 
 

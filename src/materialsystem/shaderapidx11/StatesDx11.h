@@ -200,11 +200,19 @@ namespace StatesDx11
 
 		ShadowState()
 		{
+			ZeroMemory( this, sizeof( ShadowState ) );
+			rasterizer.FillMode = D3D11_FILL_SOLID;
+			rasterizer.CullMode = D3D11_CULL_BACK;
 			vertexShader = -1;
 			pixelShader = -1;
 			geometryShader = -1;
 			vertexFormat = 0;
 			morphFormat = 0;
+		}
+
+		bool operator==( const ShadowState &other ) const
+		{
+			return memcmp( this, &other, sizeof( ShadowState ) ) == 0;
 		}
 	};
 

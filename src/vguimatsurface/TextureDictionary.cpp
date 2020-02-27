@@ -438,7 +438,9 @@ void CMatSystemTexture::SetTextureRGBA( const char *rgba, int wide, int tall, Im
 		pMaterial->DecrementReferenceCount();
 	}
 
+	Log( "wide: %i, m_iWide: %i", wide, m_iWide );
 	Assert( wide <= m_iWide );
+	Log( "tall: %i, m_iTall: %i\n", tall, m_iTall );
 	Assert( tall <= m_iTall );
 
 	// Just replace the whole thing

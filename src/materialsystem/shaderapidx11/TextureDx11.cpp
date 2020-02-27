@@ -15,6 +15,8 @@ ImageFormat GetClosestSupportedImageFormatForD3D11( ImageFormat srcFormat )
 	{
 	case IMAGE_FORMAT_BGR888:
 		return IMAGE_FORMAT_BGRA8888;
+	case IMAGE_FORMAT_RGB888:
+		return IMAGE_FORMAT_RGBA8888;
 	default:
 		return srcFormat;
 	}
@@ -66,6 +68,9 @@ DXGI_FORMAT GetD3DFormat( ImageFormat format )
 		return DXGI_FORMAT_R32G32B32A32_FLOAT;
 	case IMAGE_FORMAT_RGBA8888:
 		return DXGI_FORMAT_R8G8B8A8_UNORM;
+
+	default:
+		return DXGI_FORMAT_UNKNOWN;
 	}
 }
 
@@ -251,6 +256,11 @@ CTextureDx11::CTextureDx11()
 	m_pRenderTargetView = NULL;
 }
 
+inline int CalcMipLevels( int w, int h )
+{
+	return ceil( log2( max( w, h ) ) ) + 1;
+}
+
 void CTextureDx11::SetupTexture2D( int width, int height, int depth, int count, int i,
 				   int flags, int numCopies, int numMipLevels, ImageFormat dstImageFormat )
 {
@@ -264,6 +274,11 @@ void CTextureDx11::SetupTexture2D( int width, int height, int depth, int count, 
 	bool bIsManaged = ( flags & TEXTURE_CREATE_MANAGED ) != 0;
 	bool bIsDepthBuffer = ( flags & TEXTURE_CREATE_DEPTHBUFFER ) != 0;
 	bool bIsDynamic = ( flags & TEXTURE_CREATE_DYNAMIC ) != 0;
+	bool bAutoMipMap = ( flags & TEXTURE_CREATE_AUTOMIPMAP ) != 0;
+	if ( bAutoMipMap && numMipLevels == 0 )
+	{
+		numMipLevels = CalcMipLevels( width, height );
+	}
 
 	// Can't be both managed + dynamic. Dynamic is an optimization, but
 	// if it's not managed, then we gotta do special client-specific stuff
@@ -532,6 +547,8 @@ void CTextureDx11::MakeView()
 		return;
 	}
 
+	bool bGenMipMap = ( m_CreationFlags & TEXTURE_CREATE_AUTOMIPMAP ) != 0;
+
 	if ( m_NumCopies > 1 )
 	{
 		if ( m_ppView )
@@ -545,6 +562,10 @@ void CTextureDx11::MakeView()
 			if ( FAILED( hr ) )
 			{
 				Warning( "Unable to create shader resource view for texture copy %i!\n", copy );
+			}
+			if ( bGenMipMap )
+			{
+				D3D11DeviceContext()->GenerateMips( m_ppView[copy] );
 			}
 		}
 
@@ -562,13 +583,17 @@ void CTextureDx11::MakeView()
 		{
 			Warning( "Unable to create D3D11 Texture view!\n" );
 		}
+		if ( bGenMipMap )
+		{
+			D3D11DeviceContext()->GenerateMips( m_pView );
+		}
 	}
 	
 }
 
 void CTextureDx11::BlitSurfaceBits( CTextureDx11::TextureLoadInfo_t &info, int xOffset, int yOffset, int srcStride )
 {
-	D3D11_SUBRESOURCE_DATA subdata;
+	//D3D11_SUBRESOURCE_DATA subdata;
 	CD3D11_BOX box;
 	box.left = xOffset;
 	box.right = xOffset + info.m_nWidth;
@@ -576,31 +601,56 @@ void CTextureDx11::BlitSurfaceBits( CTextureDx11::TextureLoadInfo_t &info, int x
 	box.bottom = yOffset + info.m_nHeight;
 	box.front = 0;
 	box.back = 1;
-	
+
+	Log( "Src image is %ix%i\n", info.m_nWidth, info.m_nHeight );
+	Log( "D3D texture is %ix%i\n\n", m_nWidth, m_nHeight );
+
+	if ( info.m_nWidth != m_nWidth )
+	{
+		Warning( "CTextureDx11::BlitSurfaceBits: src image is wider than D3D texture is allocated for\n" );
+	}
+	if ( info.m_nHeight != m_nHeight )
+	{
+		Warning( "CTextureDx11::BitSurfaceBits: src image is taller than D3D texture is allocated for\n" );
+	}
+
 	Log( "BlitSurfaceBits: m_Format = %i, info.m_SrcFormat = %i\n", m_Format, info.m_SrcFormat );
-	int mem = ImageLoader::GetMemRequired( info.m_nWidth, info.m_nHeight, 0, m_Format, false );
+	int mem = ImageLoader::GetMemRequired( info.m_nWidth, info.m_nHeight, info.m_nZOffset, m_Format, false );
 	Log( "Mem required for %ix%i image: %i bytes\n", info.m_nWidth, info.m_nHeight, mem );
-	unsigned char *pNewImage = (unsigned char *)malloc( mem );
+	unsigned char *pNewImage = new unsigned char[mem];
 	int dstStride = ImageLoader::SizeInBytes( m_Format );
 	Log( "Size in bytes: %i\n", dstStride );
 
-	ShaderUtil()->ConvertImageFormat( info.m_pSrcData, info.m_SrcFormat, pNewImage, m_Format, info.m_nWidth, info.m_nHeight, srcStride, 0 );
+	bool ret = 
+		ShaderUtil()->ConvertImageFormat( info.m_pSrcData, info.m_SrcFormat, pNewImage, m_Format,
+						  info.m_nWidth, info.m_nHeight, srcStride, dstStride );
+	if ( !ret )
+	{
+		Warning( "Couldn't convert texture for uploading to D3D!\n" );
+		return;
+	}
 
-	D3D11_SUBRESOURCE_DATA imageData;
+	//D3D11_SUBRESOURCE_DATA imageData;
 
+	//D3D11CalcSubresource()
 	UINT subresource = D3D11CalcSubresource( info.m_nLevel, info.m_CubeFaceID, m_NumLevels );
 	Log( "subresource: %u\n", subresource );
 
-	D3D11DeviceContext()->UpdateSubresource( info.m_pTexture, subresource, &box, pNewImage, dstStride * m_nWidth, 0 );
+	D3D11DeviceContext()->UpdateSubresource( info.m_pTexture, subresource, &box, pNewImage, dstStride * info.m_nWidth, dstStride * info.m_nWidth * info.m_nHeight );
 
-	free( pNewImage );
+	delete[] pNewImage;
+
 }
 
 void CTextureDx11::BlitTextureBits( CTextureDx11::TextureLoadInfo_t &info, int xOffset, int yOffset, int srcStride )
 {
 	// TODO: Volume texture?
 
-	Assert( info.m_nZOffset == 0 );
+	//Assert( info.m_nZOffset == 0 );
+	if ( info.m_nZOffset != 0 )
+	{
+		return;
+	}
 	BlitSurfaceBits( info, xOffset, yOffset, srcStride );
 }
 

@@ -32,29 +32,44 @@ int CIndexBufferDx11::s_nBufferCount = 0;
 CIndexBufferDx11::CIndexBufferDx11( ShaderBufferType_t type, MaterialIndexFormat_t fmt, int nIndexCount, const char* pBudgetGroupName ) :
 	BaseClass( pBudgetGroupName )
 {
+	// NOTE: MATERIAL_INDEX_FORMAT_UNKNOWN can't be dealt with under dx9
+	// because format is bound at buffer creation time. What we'll do 
+	// is just arbitrarily choose to use a 16-bit index buffer of the same size	
+	if ( fmt == MATERIAL_INDEX_FORMAT_UNKNOWN )
+	{
+		fmt = MATERIAL_INDEX_FORMAT_16BIT;
+		nIndexCount /= 2;
+	}
+
 	Assert( nIndexCount != 0 );
 	Assert( IsDynamicBufferType( type ) || ( fmt != MATERIAL_INDEX_FORMAT_UNKNOWN ) );
 
 	m_pIndexBuffer = NULL;
 	m_IndexFormat = fmt;
-	m_nIndexCount = ( fmt == MATERIAL_INDEX_FORMAT_UNKNOWN ) ? 0 : nIndexCount;
-	m_nBufferSize = ( fmt == MATERIAL_INDEX_FORMAT_UNKNOWN ) ? nIndexCount : nIndexCount * IndexSize();
+	m_nIndexSize = SizeForIndex( fmt );
+	m_nIndexCount = nIndexCount;
+	m_nBufferSize = nIndexCount * m_nIndexSize;
 	m_nFirstUnwrittenOffset = 0;
 	m_bIsLocked = false;
 	m_bIsDynamic = IsDynamicBufferType( type );
 	m_bFlush = false;
 
 	// NOTE: This has to happen at the end since m_IndexFormat must be valid for IndexSize() to work
-	if ( m_bIsDynamic )
-	{
-		m_IndexFormat = MATERIAL_INDEX_FORMAT_UNKNOWN;
-		m_nIndexCount = 0;
-	}
+	//if ( m_bIsDynamic )
+	//{
+	//	m_IndexFormat = MATERIAL_INDEX_FORMAT_UNKNOWN;
+	//	m_nIndexCount = 0;
+	//}
 }
 
 CIndexBufferDx11::~CIndexBufferDx11()
 {
 	Free();
+}
+
+bool CIndexBufferDx11::HasEnoughRoom( int nIndexCount ) const
+{
+	return ( GetRoomRemaining() - nIndexCount ) >= 0;
 }
 
 
@@ -129,7 +144,7 @@ void CIndexBufferDx11::Free()
 //-----------------------------------------------------------------------------
 int CIndexBufferDx11::IndexCount() const
 {
-	Assert( !m_bIsDynamic );
+	//Assert( !m_bIsDynamic );
 	return m_nIndexCount;
 }
 
@@ -139,7 +154,7 @@ int CIndexBufferDx11::IndexCount() const
 //-----------------------------------------------------------------------------
 MaterialIndexFormat_t CIndexBufferDx11::IndexFormat() const
 {
-	Assert( !m_bIsDynamic );
+	//Assert( !m_bIsDynamic );
 	return m_IndexFormat;
 }
 
@@ -162,6 +177,19 @@ void CIndexBufferDx11::Flush()
 	m_bFlush = m_bIsDynamic;
 }
 
+int CIndexBufferDx11::SizeForIndex( MaterialIndexFormat_t fmt ) const
+{
+	switch ( fmt )
+	{
+	default:
+	case MATERIAL_INDEX_FORMAT_UNKNOWN:
+		return 0;
+	case MATERIAL_INDEX_FORMAT_16BIT:
+		return 2;
+	case MATERIAL_INDEX_FORMAT_32BIT:
+		return 4;
+	}
+}
 
 //-----------------------------------------------------------------------------
 // Casts a dynamic buffer to be a particular index type
@@ -201,7 +229,6 @@ int CIndexBufferDx11::GetRoomRemaining() const
 //-----------------------------------------------------------------------------
 bool CIndexBufferDx11::Lock( int nMaxIndexCount, bool bAppend, IndexDesc_t& desc )
 {
-	Log( "Locking index buffer %p\n", m_pIndexBuffer );
 	Assert( !m_bIsLocked && ( nMaxIndexCount != 0 ) && ( nMaxIndexCount <= m_nIndexCount ) );
 	Assert( m_IndexFormat != MATERIAL_INDEX_FORMAT_UNKNOWN );
 
@@ -234,6 +261,8 @@ bool CIndexBufferDx11::Lock( int nMaxIndexCount, bool bAppend, IndexDesc_t& desc
 			goto indexBufferLockFailed;
 	}
 
+	Log( "Locking index buffer %p\n", m_pIndexBuffer );
+
 	// Check to see if we have enough memory 
 	int nMemoryRequired = nMaxIndexCount * IndexSize();
 	bool bHasEnoughMemory = ( m_nFirstUnwrittenOffset + nMemoryRequired <= m_nBufferSize );
@@ -263,7 +292,7 @@ bool CIndexBufferDx11::Lock( int nMaxIndexCount, bool bAppend, IndexDesc_t& desc
 			m_bFlush = false;
 		}
 	}
-
+	//goto indexBufferLockFailed;
 	hr = D3D11DeviceContext()->Map( m_pIndexBuffer, 0, map, 0, &lockedData );
 	if ( FAILED( hr ) )
 	{
@@ -291,12 +320,15 @@ indexBufferLockFailed:
 
 void CIndexBufferDx11::Unlock( int nWrittenIndexCount, IndexDesc_t& desc )
 {
+	Log( "Unlocking index buffer %p\n", m_pIndexBuffer );
 	Assert( nWrittenIndexCount <= m_nIndexCount );
 
 	// NOTE: This can happen if the lock occurs during alt-tab
 	// or if another application is initializing
 	if ( !m_bIsLocked )
 		return;
+
+	Spew( nWrittenIndexCount, desc );
 
 	if ( m_pIndexBuffer )
 	{
