@@ -4,7 +4,7 @@
 macro PROJECT_NAME "vaudio_speex"
 
 macro SRCDIR "../../.."
-macro OUTBINDIR "$SRCDIR/../game/bin"
+macro OUTBINDIR "$BINDEFAULT"
 
 include "$SRCDIR/_qpc_scripts/source_dll_base.qpc"
 
@@ -48,6 +48,11 @@ configuration
 			"$LIBPUBLIC/vstdlib"
 		}
 	}
+}
+
+dependencies
+{
+	"libspeex"
 }
 
 files

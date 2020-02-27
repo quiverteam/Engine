@@ -63,7 +63,7 @@ project "fgdlib" 					"fgdlib/fgdlib.qpc" [$WINDOWS]
 
 project "filesystem_stdio" 			"filesystem/filesystem_stdio.qpc"
 
-project "FileSystemOpenDialog" 		"utils/FileSystemOpenDialog/FileSystemOpenDialog.qpc" [$WINDOWS]
+project "FileSystemOpenDialog" 		"utils/FileSystemOpenDialog/filesystemopendialog.qpc" [$WINDOWS]
 
 project "gameui" 					"gameui/GameUI.qpc"
 
@@ -100,7 +100,11 @@ project "launcher"					"launcher/launcher.qpc"
 
 project "launcher_main"				"launcher_main/launcher_main.qpc"
 
+project "libspeex"					"thirdparty/libspeex/libspeex.qpc"
+
 project "localization_check"		"utils/localization_check/localization_check.qpc" [$WINDOWS]
+
+project "lua"						"thirdparty/lua-5.1.1/lua.qpc"
 
 project "lzma"						"thirdparty/lzma/lzma.qpc" [$WINDOWS]
 
@@ -223,7 +227,7 @@ project "unicode"					"unicode/unicode.qpc" [$WINDOWS]
 
 project "unitlib"					"unitlib/unitlib.qpc" [$WINDOWS]
 
-project "vaudio_miles"				"engine/voice_codecs/miles/vaudio_miles.qpc" [$WINDOWS]
+project "audio_minimp3"				"engine/voice_codecs/minimp3/audio_minimp3.qpc" 
 
 project "vaudio_speex"				"engine/voice_codecs/speex/vaudio_speex.qpc" [$WINDOWS]
 

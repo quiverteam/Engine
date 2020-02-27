@@ -1,7 +1,7 @@
 // ---------------------------------------------------------------
 // Auto Generated QPC Script - Fix if needed before using
 // ---------------------------------------------------------------
-macro PROJECT_NAME "VAudio_Miles"
+macro PROJECT_NAME "Audio_minimp3"
 
 macro SRCDIR "../../.."
 macro OUTBINDIR "$BINDEFAULT"
@@ -14,9 +14,7 @@ configuration
 	{
 		include_directories
 		{
-			"../frame_encoder"
 			"../.."
-			"../../move"
 		}
 	}
 
@@ -24,7 +22,6 @@ configuration
 	{
 		preprocessor_definitions
 		{
-			"MILES_EXPORTS"
 			"WINDOWS_IGNORE_PACKING_MISMATCH"	[$WINDOWS]
 		}
 	}
@@ -42,17 +39,12 @@ files
 {
 	folder "Source Files"
 	{
-		"milesbase.cpp"
-		"mp3_miles.cpp"
-		"../frame_encoder/voice_codec_frame.cpp"
-		"voice_codec_miles.cpp"
+		"mp3_minimp3.cpp"
 	}
 
 	folder "Header Files"
 	{
 		"$SRCDIR/public/tier1/interface.h"
 		"$SRCDIR/public/vaudio/ivaudio.h"
-		"milesbase.h"
-		"$SRCDIR/common/Miles/MSS.H"
 	}
 }

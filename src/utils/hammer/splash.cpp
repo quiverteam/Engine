@@ -17,6 +17,7 @@
 
 // Sorry Tom...   :(
 //#define HAMMER_TIME 1
+//#define ETERNAL_HAMMER_TIME 1
 #ifdef HAMMER_TIME
 #include <io.h>
 #include <fcntl.h>
@@ -140,7 +141,9 @@ void CantTouchThisThread( void * )
 
 void CantTouchThis()
 {
+#ifndef ETERNAL_HAMMER_TIME
 	if ( !AfxGetApp()->GetProfileInt("General", "Hammer time", 0))
+#endif
 	{
 		AfxGetApp()->WriteProfileInt("General", "Hammer time", 1);
 		_beginthread( CantTouchThisThread, 0, NULL );

@@ -106,7 +106,7 @@ group "utils" "everything"
 			"datamodel"
 			"hammer_dll"
 			"hammer_launcher"
-			"filesystemopendialog"
+			"FileSystemOpenDialog"
 		}
 
 		folder "Map Compilers"
@@ -231,7 +231,7 @@ group "game" "everything"
 		"studiorender"
 		"qvideo"
 		"vstdlib"
-		"vaudio_miles"
+		"audio_minimp3"
 		"unicode"
 	}
 }
@@ -278,6 +278,7 @@ group "libraries" "core" "everything"
 		"lzma"
 		"bzip2"
 		"mxtoolkitwin32"
+		"lua"
 	}
 }
 
@@ -337,6 +338,7 @@ group "everything"
 	"shaderapiempty"
 	"soundsystem"
 	"togl"
+	"libspeex"
 	"vaudio_speex"
 	"vlocalize"
 	"vphysics"

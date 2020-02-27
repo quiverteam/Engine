@@ -80,6 +80,7 @@
 #endif	//_WIN32
 
 #define MAX_FILEPATH 512 
+#define VPK_DEBUG 1
 
 extern CUtlSymbolTableMT g_PathIDTable;
 
@@ -106,6 +107,7 @@ class CPackFileHandle;
 class CPackFile;
 class IFileList;
 class CFileOpenInfo;
+struct PackFileFindData_t;
 
 class CWhitelistSpecs
 {
@@ -173,269 +175,6 @@ protected:
 	bool IsValid();
 };
 
-// A pack file handle - essentially represents a file inside the pack file.  
-// Note, there is no provision for compression here at the current time.
-class CPackFileHandle
-{
-public:
-	inline CPackFileHandle( CPackFile* pOwner, int64 nBase, unsigned int nLength, unsigned int nIndex = -1, unsigned int nFilePointer = 0 );
-	inline ~CPackFileHandle();
-
-	int				Read( void* pBuffer, int nDestSize, int nBytes );
-	int				Seek( int nOffset, int nWhence );
-	int				Tell() { return m_nFilePointer; }
-	int				Size() { return m_nLength; }
-
-	inline void		SetBufferSize( int nBytes );
-	inline int		GetSectorSize();
-	inline int64	AbsoluteBaseOffset();
-
-protected:
-	int64			m_nBase;			// Base offset of the file inside the pack file.
-	unsigned int	m_nFilePointer;		// Current seek pointer (0 based from the beginning of the file).
-	CPackFile*		m_pOwner;			// Pack file that owns this handle
-	unsigned int	m_nLength;			// Length of this file.
-	unsigned int	m_nIndex;			// Index into the pack's directory table
-};
-
-//-----------------------------------------------------------------------------
-
-class CPackFile : public CRefCounted<CRefCountServiceMT>
-{		
-public:
-
-	inline CPackFile();
-	inline virtual ~CPackFile();
-
-	// The means by which you open files:
-	virtual CFileHandle *OpenFile( const char *pFileName, const char *pOptions = "rb" );
-
-	// The two functions a pack file must provide
-	virtual bool Prepare( int64 fileLen = -1, int64 nFileOfs = 0 ) = 0;
-	virtual bool FindFile( const char *pFilename,  int &nIndex, int64 &nPosition, int &nLength ) = 0;
-
-	// Used by FindFirst and FindNext
-	virtual bool FindFirst( const char* pWildCard, WIN32_FIND_DATA* dat ) { return INVALID_HANDLE_VALUE; }
-	virtual bool FindNext( WIN32_FIND_DATA* dat ) { return false; }
-
-	// This is the core IO routine for reading anything from a pack file, everything should go through here at some point
-	virtual size_t ReadFromPack( int nIndex, void* buffer, int nDestBytes, int nBytes, int64 nOffset );
-	
-	// Returns the filename for a given file in the pack. Returns true if a filename is found, otherwise buffer is filled with "unknown"
-	virtual bool IndexToFilename( int nIndex, char* buffer, int nBufferSize ) = 0;
-
-	inline int GetSectorSize();
-
-	virtual void SetupPreloadData() {}
-	virtual void DiscardPreloadData() {}
-	virtual int64 GetPackFileBaseOffset() = 0;
-
-	// Note: threading model for pack files assumes that data
-	// is segmented into pack files that aggregate files
-	// meant to be read in one thread. Performance characteristics
-	// tuned for that case
-	CThreadFastMutex	m_mutex;
-
-	// Path management:
-	void SetPath( const CUtlSymbol &path ) { m_Path = path; }
-	const CUtlSymbol& GetPath() const	{ Assert( m_Path != UTL_INVAL_SYMBOL ); return m_Path; }
-	CUtlSymbol			m_Path;
-
-	// possibly embedded pack
-	int64				m_nBaseOffset;
-
-	CUtlString			m_PackName;
-
-	bool				m_bIsMapPath;
-	bool				m_bIsVPK;
-	long				m_lPackFileTime;
-
-	int					m_refCount;
-	int					m_nOpenFiles;
-
-	FILE				*m_hPackFileHandle;	
-
-protected:
-	int64				m_FileLength;
-	CBaseFileSystem		*m_fs;
-
-	friend class		CPackFileHandle;
-};
-
-class CZipPackFile : public CPackFile
-{
-public:
-	CZipPackFile( CBaseFileSystem* fs );
-	~CZipPackFile();
-
-	// Loads the pack file
-	virtual bool Prepare( int64 fileLen = -1, int64 nFileOfs = 0 );
-	virtual bool FindFile( const char *pFilename, int &nIndex, int64 &nOffset, int &nLength );
-	virtual size_t	ReadFromPack( int nIndex, void* buffer, int nDestBytes, int nBytes, int64 nOffset  );
-
-	int64 GetPackFileBaseOffset() { return m_nBaseOffset; }
-
-	bool	IndexToFilename( int nIndex, char *pBuffer, int nBufferSize );
-
-protected:
-	#pragma pack(1)
-
-	typedef struct
-	{
-		char name[ 112 ];
-		int64 filepos;
-		int64 filelen;
-	} packfile64_t;
-
-	typedef struct
-	{
-		char id[ 4 ];
-		int64 dirofs;
-		int64 dirlen;
-	} packheader64_t;
-
-	typedef struct
-	{
-		char id[ 8 ];
-		int64 packheaderpos;
-		int64 originalfilesize;
-	} packappenededheader_t;
-
-	#pragma pack()
-
-	// A Pack file directory entry:
-	class CPackFileEntry
-	{
-	public:
-		unsigned int		m_nPosition;
-		unsigned int		m_nLength;
-		unsigned int		m_HashName;
-		unsigned short		m_nPreloadIdx;
-		unsigned short		pad;
-#if !defined( _RETAIL )
-		FileNameHandle_t	m_hDebugFilename;
-#endif
-	};
-
-	class CPackFileLessFunc
-	{
-	public:
-		bool Less( CPackFileEntry const& src1, CPackFileEntry const& src2, void *pCtx );
-	};
-
-	// Find a file inside a pack file:
-	const CPackFileEntry* FindFile( const char* pFileName );
-
-	// Entries to the individual files stored inside the pack file.
-	CUtlSortVector< CPackFileEntry, CPackFileLessFunc > m_PackFiles;
-
-	bool						GetOffsetAndLength( const char *FileName, int &nBaseIndex, int64 &nFileOffset, int &nLength );
-
-	// Preload Support
-	void						SetupPreloadData();	
-	void						DiscardPreloadData();	
-	ZIP_PreloadDirectoryEntry*	GetPreloadEntry( int nEntryIndex );
-
-	int64						m_nPreloadSectionOffset;
-	unsigned int				m_nPreloadSectionSize;
-	ZIP_PreloadHeader			*m_pPreloadHeader;
-	unsigned short*				m_pPreloadRemapTable;
-	ZIP_PreloadDirectoryEntry	*m_pPreloadDirectory;
-	void*						m_pPreloadData;
-	CByteswap					m_swap;
-};
-
-class CVPKFileEntry
-{
-public:
-	unsigned int CRC; // A 32bit CRC of the file's data.
-	unsigned short PreloadBytes; // The number of bytes contained in the index file.
-
-								 // A zero based index of the archive this file's data is contained in.
-								 // If 0x7fff, the data follows the directory.
-	unsigned short ArchiveIndex;
-
-	// If ArchiveIndex is 0x7fff, the offset of the file data relative to the end of the directory (see the header for more details).
-	// Otherwise, the offset of the data from the start of the specified archive.
-	unsigned int EntryOffset;
-
-	// If zero, the entire file is stored in the preload data.
-	// Otherwise, the number of bytes stored starting at EntryOffset.
-	unsigned int EntryLength;
-
-	unsigned short Dummy; //This is always = 0xffff;
-};
-
-class CVPKFile : public CPackFile
-{
-public:
-	CVPKFile( CBaseFileSystem* fs, bool bVolumes, unsigned int nVersion );
-	~CVPKFile();
-
-	// Loads the pack file
-	virtual bool Prepare( int64 fileLen = -1, int64 nFileOfs = 0 );
-	virtual bool FindFile( const char *pFilename, int &nIndex, int64 &nOffset, int &nLength );
-	virtual bool FindFirst( const char* pWildCard, WIN32_FIND_DATA* dat );
-	virtual bool FindNext( WIN32_FIND_DATA* dat );
-	virtual size_t  ReadFromPack( int nIndex, void* buffer, int nDestBytes, int nBytes, int64 nOffset  );
-
-	int64 GetPackFileBaseOffset() { return m_nBaseOffset; }
-
-	bool	IndexToFilename( int nIndex, char *pBuffer, int nBufferSize ) { return true; };
-
-	inline bool	UsesVolumes()	{ return m_bVolumes; }
-
-private:
-	bool m_bVolumes;
-	unsigned int m_nVersion;
-	CVPKFileEntry* m_pLastRequest;
-	char m_pWildCard[MAX_FILEPATH];
-	UtlSymId_t m_iCurrentExtension;
-	UtlSymId_t m_iCurrentPath;
-	UtlSymId_t m_iCurrentFile;
-protected:
-	CUtlStringMap<CUtlStringMap<CUtlStringMap<CVPKFileEntry*>*>*> m_Entries;
-
-};
-
-//There is no actual version 0, we just use this struct to determine the actual version
-struct VPK0_t
-{
-	unsigned int Signature;
-	unsigned int Version;
-};
-
-//From VDC - https://developer.valvesoftware.com/wiki/VPK_File_Format#Header
-struct VPK1_t
-{
-	unsigned int Signature;
-	unsigned int Version;
-
-	// The size, in bytes, of the directory tree
-	unsigned int TreeSize;
-};
-
-struct VPK2_t
-{
-	unsigned int Signature;
-	unsigned int Version;
-
-	// The size, in bytes, of the directory tree
-	unsigned int TreeSize;
-
-	// How many bytes of file content are stored in this VPK file (0 in CSGO)
-	unsigned int FileDataSectionSize;
-
-	// The size, in bytes, of the section containing MD5 checksums for external archive content
-	unsigned int ArchiveMD5SectionSize;
-
-	// The size, in bytes, of the section containing MD5 checksums for content in this file (should always be 48)
-	unsigned int OtherMD5SectionSize;
-
-	// The size, in bytes, of the section containing the public key and signature. This is either 0 (CSGO & The Ship) or 296 (HL2, HL2:DM, HL2:EP1, HL2:EP2, HL2:LC, TF2, DOD:S & CS:S)
-	unsigned int SignatureSectionSize;
-};
-
 class CFileLoadInfo
 {
 public:
@@ -443,6 +182,15 @@ public:
 	bool	m_bLoadedFromSteamCache;	// If Steam, this tells whether the file was loaded off disk or the Steam cache.
 };
 
+struct PackFileFindData_t
+{
+	// Compiled list of files/folders based on wildcard input
+	CUtlStringList directoryList;
+	CUtlStringList fileList;
+
+	int currentDirectory = 0;
+	int currentFile = 0;
+};
 
 //-----------------------------------------------------------------------------
 
@@ -810,17 +558,7 @@ public:
 	private:
 		CSearchPathsIterator( const  CSearchPathsIterator & );
 		void operator=(const CSearchPathsIterator &);
-		void CopySearchPaths( const CUtlVector<CSearchPath>	&searchPaths )
-		{
-			m_SearchPaths = searchPaths;
-			for ( int i = 0; i <  m_SearchPaths.Count(); i++ )
-			{
-				if ( m_SearchPaths[i].GetPackFile() )
-				{
-					m_SearchPaths[i].GetPackFile()->AddRef();
-				}
-			}
-		}
+		void CopySearchPaths( const CUtlVector<CSearchPath>	&searchPaths );
 
 		int							m_iCurrent;
 		CUtlSymbol					m_pathID;
@@ -847,6 +585,8 @@ public:
 		
 		CUtlDict<int,int>	m_VisitedFiles;			// We go through the search paths in priority order, and we use this to make sure
 													// that we don't return the same file more than once.
+
+		PackFileFindData_t	pfFindData;
 	};
 
 	friend class CSearchPath;
@@ -955,7 +695,7 @@ protected:
 
 	FILE						*Trace_FOpen( const char *filename, const char *options, unsigned flags, int64 *size, CFileLoadInfo *pInfo=NULL );
 	void						Trace_FClose( FILE *fp );
-	void						Trace_FRead( size_t size, FILE* file );
+	void						Trace_FRead( int size, FILE* file );
 	void						Trace_FWrite( int size, FILE* file );
 
 	void						Trace_DumpUnclosedFiles( void );
@@ -1086,121 +826,6 @@ inline void CBaseFileSystem::CSearchPath::SetPath( CUtlSymbol id )
 inline const CUtlSymbol& CBaseFileSystem::CSearchPath::GetPath() const
 {
 	return m_Path;
-}
-
-
-inline bool CBaseFileSystem::FilterByPathID( const CSearchPath *pSearchPath, const CUtlSymbol &pathID )
-{
-	if ( (UtlSymId_t)pathID == UTL_INVAL_SYMBOL )
-	{
-		// They didn't specify a specific search path, so if this search path's path ID is by
-		// request only, then ignore it.
-		return pSearchPath->m_pPathIDInfo->m_bByRequestOnly;
-	}
-	else
-	{
-		// Bit of a hack, but specifying "BSP" as the search path will search in "GAME" for only the map/.bsp pack file path
-		if ( pathID == m_BSPPathID )
-		{
-			if ( pSearchPath->GetPathID() != m_GamePathID )
-				return true;
-
-			if ( !pSearchPath->GetPackFile() )
-				return true;
-
-			if ( !pSearchPath->GetPackFile()->m_bIsMapPath )
-				return true;
-
-			return false;
-		}
-		else
-		{
-			return (pSearchPath->GetPathID() != pathID);
-		}
-	}
-}
-
-
-// Pack file handle implementation:
-                 
-inline CPackFileHandle::CPackFileHandle( CPackFile* pOwner, int64 nBase, unsigned int nLength, unsigned int nIndex, unsigned int nFilePointer )
-{
-	m_pOwner = pOwner;
-	m_nBase = nBase;
-	m_nLength = nLength;
-	m_nIndex = nIndex;
-	m_nFilePointer = nFilePointer;
-	pOwner->AddRef();
-}
-
-inline CPackFileHandle::~CPackFileHandle()
-{
-	m_pOwner->m_mutex.Lock();
-	--m_pOwner->m_nOpenFiles;
-	if ( m_pOwner->m_nOpenFiles == 0 && m_pOwner->m_bIsMapPath )
-	{
-		m_pOwner->m_fs->Trace_FClose( m_pOwner->m_hPackFileHandle );
-		m_pOwner->m_hPackFileHandle = NULL;
-	}
-	m_pOwner->Release();
-	m_pOwner->m_mutex.Unlock();
-}
-
-inline void CPackFileHandle::SetBufferSize( int nBytes ) 
-{
-	m_pOwner->m_fs->FS_setbufsize( m_pOwner->m_hPackFileHandle, nBytes );
-}
-
-inline int CPackFileHandle::GetSectorSize() 
-{ 
-	return m_pOwner->GetSectorSize(); 
-}
-
-inline int64 CPackFileHandle::AbsoluteBaseOffset() 
-{ 
-	return m_pOwner->GetPackFileBaseOffset() + m_nBase;
-}
-
-// Pack file implementation:
-inline CPackFile::CPackFile()
-{
-	m_FileLength = 0;
-	m_hPackFileHandle = NULL;
-	m_fs = NULL;
-	m_nBaseOffset = 0;
-	m_bIsMapPath = false;
-	m_lPackFileTime = 0L;
-	m_refCount = 0;
-	m_nOpenFiles = 0;
-}
-
-inline CPackFile::~CPackFile()
-{
-	if ( m_nOpenFiles )
-	{
-		Error( "Closing pack file with open files!\n" );
-	}
-
-	if ( m_hPackFileHandle )
-	{
-		m_fs->FS_fclose( m_hPackFileHandle );
-		m_hPackFileHandle = NULL;
-	}
-
-	m_fs->m_ZipFiles.FindAndRemove( this );
-}
-
-
-inline int CPackFile::GetSectorSize()
-{
-	if ( m_hPackFileHandle )
-	{
-		return m_fs->FS_GetSectorSize( m_hPackFileHandle );
-	}
-	else
-	{
-		return -1;
-	}
 }
 
 

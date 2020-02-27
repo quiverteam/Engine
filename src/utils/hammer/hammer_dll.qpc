@@ -42,6 +42,8 @@ configuration
 	{
 		libraries
 		{
+			"nafxcwd.lib" "libcmtd.lib" [$DEBUG]
+			"nafxcw.lib" "libcmt.lib" [$RELEASE]
 			"winmm.lib"
 			"rpcrt4.lib"
 			"$LIBCOMMON/jpeglib"
@@ -60,6 +62,12 @@ configuration
 			"tier3"
 			"vgui_controls"
 			"dmxloader"
+		}
+		
+		ignore_libraries
+		{
+			"nafxcw.lib" "libcmt.lib" [$DEBUG]
+			"nafxcwd.lib" "libcmtd.lib" [$RELEASE]
 		}
 	}
 }
