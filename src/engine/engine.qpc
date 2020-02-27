@@ -30,7 +30,8 @@ configuration
 
 		library_directories
 		{
-			"$LIBCOMMON/vc7" "$SRCDIR/dx9sdk/lib" [$WINDOWS]
+			"$LIBCOMMON/vc7" "$SRCDIR/dx9sdk/lib" [$WIN32]
+			"$LIBCOMMON/vc7" "$SRCDIR/dx9sdk/lib/x64" [$WIN64]
 		}
 	}
 
@@ -50,7 +51,7 @@ configuration
 
 		options
 		{
-			"/arch:SSE" [$WIN32]
+			"/arch:SSE" [$WINDOWS]
 		}
 	}
 
@@ -58,7 +59,7 @@ configuration
 	{
 		libraries
 		{
-			"dinput8.lib" "winmm.lib" "wsock32.lib" "ws2_32.lib" "wininet.lib" "vfw32.lib" "Rpcrt4.lib" "$SRCDIR/dx9sdk/lib/dsound" "$SRCDIR/dx9sdk/lib/dxguid" [$WINDOWS]
+			"dinput8.lib" "winmm.lib" "wsock32.lib" "ws2_32.lib" "wininet.lib" "vfw32.lib" "Rpcrt4.lib" "dsound" "dxguid" [$WINDOWS]
 			"$LIBPUBLIC/appframework"
 			"$LIBPUBLIC/bitmap"
 			"$LIBPUBLIC/Dmxloader"
@@ -411,8 +412,8 @@ files
 		"EngineSoundClient.cpp"
 		"EngSoundService.cpp"
 		"audio/private/voice_wavefile.cpp"
-		"audio/private/MPAFile.cpp" [$WIN32]
-		"audio/private/MPAHeader.cpp" [$WIN32]
+		"audio/private/MPAFile.cpp" [$WINDOWS]
+		"audio/private/MPAHeader.cpp" [$WINDOWS]
 		"audio/private/CircularBuffer.cpp"
 		"audio/audio_pch.cpp"
 		{
@@ -460,7 +461,7 @@ files
 		"audio/private/voice.cpp"	\
 		"audio/private/voice_mixer_controls.cpp"	\
 		"audio/private/voice_record_dsound.cpp"	\
-		"audio/private/voice_sound_engine_interface.cpp" [$WIN32]
+		"audio/private/voice_sound_engine_interface.cpp" [$WINDOWS]
 		{
 			configuration
 			{
@@ -499,16 +500,16 @@ files
 			"audio/public/SoundService.h"
 			"audio/public/Voice.h"
 			"audio/public/vox.h"
-			"audio/private/MPAFile.h" [$WIN32]
-			"audio/private/MPAHeader.h" [$WIN32]
-			"audio/private/VBRHeader.h" [$WIN32]
+			"audio/private/MPAFile.h" [$WINDOWS]
+			"audio/private/MPAHeader.h" [$WINDOWS]
+			"audio/private/VBRHeader.h" [$WINDOWS]
 			"audio/private/CircularBuffer.h"
 			"audio/private/EAX.H"
 			"audio/private/snd_channels.h"
 			"audio/private/snd_convars.h"
 			"audio/private/snd_dev_common.h"
-			"audio/private/snd_dev_direct.h" [$WIN32]
-			"audio/private/snd_dev_wave.h" [$WIN32]
+			"audio/private/snd_dev_direct.h" [$WINDOWS]
+			"audio/private/snd_dev_wave.h" [$WINDOWS]
 			"audio/private/snd_dev_xaudio.h"
 			"audio/private/snd_dma.h"
 			"audio/private/snd_env_fx.h"
