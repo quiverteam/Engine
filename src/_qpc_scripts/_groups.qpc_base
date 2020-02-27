@@ -231,7 +231,7 @@ group "game" "everything"
 		"studiorender"
 		"qvideo"
 		"vstdlib"
-		"vaudio_miles"
+		"audio_minimp3"
 		"unicode"
 	}
 }
