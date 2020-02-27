@@ -72,7 +72,7 @@ int	CMiniMP3AudioStream::Decode( void* pBuffer, unsigned int bufferSize )
 		return 0;
 	}
 
-	int samples = mp3dec_decode_frame( &m_Decoder, ( const uint8_t* )m_Buffer + ( size_t )m_BufferPos, sizeof( m_Buffer ), ( short* )pBuffer, &m_Info );
+	int samples = mp3dec_decode_frame( &m_Decoder, ( const uint8_t* )m_Buffer + ( size_t )m_BufferPos, sizeof( m_Buffer ) - ( size_t )m_BufferPos, ( short* )pBuffer, &m_Info );
 	m_BufferPos += m_Info.frame_bytes;
 	m_FilePos += m_Info.frame_bytes;
 
