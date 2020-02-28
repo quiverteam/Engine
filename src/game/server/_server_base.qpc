@@ -47,7 +47,7 @@ configuration
 			"$LIBPUBLIC/particles"
 			"$LIBPUBLIC/tier2"
 			"$LIBPUBLIC/tier3"
-			"$LIBPUBLIC/steam_api"
+			"$LIB_STEAM_API"
 		}
 	}
 }

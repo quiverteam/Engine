@@ -40,7 +40,7 @@ configuration
 			"$LIBPUBLIC/tier3"
 			"$LIBPUBLIC/vgui_controls"
 			"$LIBPUBLIC/vtf"
-			"$LIBPUBLIC/steam_api"
+			"$LIB_STEAM_API"
 		}
 	}
 }
