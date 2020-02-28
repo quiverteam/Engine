@@ -692,8 +692,8 @@ InitReturnVal_t CMaterialSystem::Init()
 	}
 
 	// Set up a default material system config
-//	GenerateConfigFromConfigKeyValues( &g_config, false );
-//	UpdateConfig( false );
+	GenerateConfigFromConfigKeyValues( &g_config, false );
+	UpdateConfig( false );
 
 	return m_HardwareRenderContext.Init( this );
 }

@@ -2070,11 +2070,11 @@ void CShaderManager::SetVertexShaderState( HardwareShader_t shader, DataCacheHan
 
 void CShaderManager::BindVertexShader( VertexShaderHandle_t hVertexShader )
 {
-	if ( m_HardwareVertexShader != hVertexShader )
-	{
+	//if ( m_HardwareVertexShader != hVertexShader )
+	//{
 		g_pShaderAPIDx11->BindVertexShader( hVertexShader );
-		m_HardwareVertexShader = hVertexShader;
-	}
+		//m_HardwareVertexShader = hVertexShader;
+	//}
 }
 
 
@@ -2164,11 +2164,11 @@ void CShaderManager::SetPixelShaderState( HardwareShader_t shader, DataCacheHand
 
 void CShaderManager::BindPixelShader( PixelShaderHandle_t hPixelShader )
 {
-	if ( m_HardwarePixelShader != hPixelShader )
-	{
+	//if ( m_HardwarePixelShader != hPixelShader )
+	//{
 		g_pShaderAPIDx11->BindPixelShader( hPixelShader );
-		m_HardwarePixelShader = hPixelShader;
-	}
+	//	m_HardwarePixelShader = hPixelShader;
+	//}
 }
 
 

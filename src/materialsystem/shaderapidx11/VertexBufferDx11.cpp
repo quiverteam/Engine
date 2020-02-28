@@ -180,12 +180,13 @@ void CVertexBufferDx11::Flush()
 //-----------------------------------------------------------------------------
 void CVertexBufferDx11::BeginCastBuffer( VertexFormat_t format )
 {
-	Assert( format != MATERIAL_INDEX_FORMAT_UNKNOWN );
-	Assert( m_bIsDynamic && ( m_VertexFormat == 0 || m_VertexFormat == format ) );
+	Assert( format != VERTEX_FORMAT_UNKNOWN );
+	Assert( m_bIsDynamic && ( m_VertexFormat == VERTEX_FORMAT_UNKNOWN || m_VertexFormat == format ) );
 	if ( !m_bIsDynamic )
 		return;
 
 	m_VertexFormat = format;
+	m_VertexSize = VertexFormatSize( m_VertexFormat );
 	m_nVertexCount = m_nBufferSize / VertexSize();
 }
 
@@ -196,6 +197,7 @@ void CVertexBufferDx11::EndCastBuffer()
 		return;
 	m_VertexFormat = 0;
 	m_nVertexCount = 0;
+	m_VertexSize = 0;
 }
 
 
@@ -294,7 +296,7 @@ bool CVertexBufferDx11::Lock( int nMaxVertexCount, bool bAppend, VertexDesc_t& d
 	}
 
 	ComputeVertexDescription( (unsigned char*)lockedData.pData + m_nFirstUnwrittenOffset, m_VertexFormat, desc );
-	desc.m_nFirstVertex = 0;
+	desc.m_nFirstVertex = m_nFirstUnwrittenOffset / VertexSize();
 	desc.m_nOffset = m_nFirstUnwrittenOffset;
 	m_bIsLocked = true;
 	return true;

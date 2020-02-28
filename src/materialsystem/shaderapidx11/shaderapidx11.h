@@ -111,9 +111,7 @@ public:
 public:
 	// Methods of CShaderAPIBase
 	virtual bool OnDeviceInit();
-	virtual void OnDeviceShutdown()
-	{
-	}
+	virtual void OnDeviceShutdown();
 	virtual void ReleaseShaderObjects();
 	virtual void RestoreShaderObjects();
 	virtual void BeginPIXEvent( unsigned long color, const char *szName )
@@ -453,11 +451,10 @@ private:
 
 	void SetRenderTarget( ShaderAPITextureHandle_t colorTextureHandle, ShaderAPITextureHandle_t depthTextureHandle )
 	{
+		SetRenderTargetEx( 0, colorTextureHandle, depthTextureHandle );
 	}
 
-	void SetRenderTargetEx( int nRenderTargetID, ShaderAPITextureHandle_t colorTextureHandle, ShaderAPITextureHandle_t depthTextureHandle )
-	{
-	}
+	void SetRenderTargetEx( int nRenderTargetID, ShaderAPITextureHandle_t colorTextureHandle, ShaderAPITextureHandle_t depthTextureHandle );
 
 	// Indicates we're going to be modifying this texture
 	// TexImage2D, TexSubImage2D, TexWrap, TexMinFilter, and TexMagFilter
@@ -801,19 +798,18 @@ private:
 
 	virtual void GetMaxToRender( IMesh *pMesh, bool bMaxUntilFlush, int *pMaxVerts, int *pMaxIndices )
 	{
-		*pMaxVerts   = 32768;
-		*pMaxIndices = 32768;
+		MeshMgr()->GetMaxToRender( pMesh, bMaxUntilFlush, pMaxVerts, pMaxIndices );
 	}
 
 	// Returns the max possible vertices + indices to render in a single draw call
 	virtual int GetMaxVerticesToRender( IMaterial *pMaterial )
 	{
-		return 32768;
+		return MeshMgr()->GetMaxVerticesToRender( pMaterial );
 	}
 
 	virtual int GetMaxIndicesToRender()
 	{
-		return 32768;
+		return MeshMgr()->GetMaxIndicesToRender();
 	}
 	virtual int CompareSnapshots( StateSnapshot_t snapshot0, StateSnapshot_t snapshot1 )
 	{
@@ -836,6 +832,7 @@ private:
 
 	virtual void ComputeVertexDescription( unsigned char *pBuffer, VertexFormat_t vertexFormat, MeshDesc_t &desc ) const
 	{
+		return MeshMgr()->ComputeVertexDescription( pBuffer, vertexFormat, desc );
 	}
 
 	virtual bool SupportsShadowDepthTextures()
@@ -955,6 +952,7 @@ private:
 	void DoIssueViewports();
 	void DoIssueConstantBufferUpdates();
 	void DoIssueTransform();
+	void DoIssueRenderTargets();
 
 	void AdvanceCurrentTextureCopy( ShaderAPITextureHandle_t handle );
 
@@ -973,9 +971,12 @@ private:
 	int m_nDynamicVBSize;
 
 	// Members related to textures
+	// UNDONE: Should this stuff be in ShaderDeviceDx11?
 	CUtlFixedLinkedList<CTextureDx11> m_Textures;
 	char m_ModifyTextureLockedLevel;
 	ShaderAPITextureHandle_t m_ModifyTextureHandle;
+	ShaderAPITextureHandle_t m_hBackBuffer;
+	ShaderAPITextureHandle_t m_hDepthBuffer;
 
 	// Current and target states
 	StateSnapshot_t m_CurrentSnapshot;
@@ -1009,6 +1010,7 @@ private:
 	friend class CDynamicMeshDX11;
 	friend class CBufferedMeshDX11;
 	friend class CMeshMgr;
+	friend class CShaderDeviceDx11;
 
 };
 

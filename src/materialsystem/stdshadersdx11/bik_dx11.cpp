@@ -1,3 +1,4 @@
+#if 0
 //========= Copyright © 1996-2006, Valve Corporation, All rights reserved. ============//
 //
 // Purpose: 
@@ -104,3 +105,4 @@ BEGIN_VS_SHADER( Bik, "Help for Bik" )
 		Draw();
 	}
 END_SHADER
+#endif

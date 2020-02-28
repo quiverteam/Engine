@@ -134,7 +134,19 @@ void CShaderShadowDx11::AlphaFunc( ShaderAlphaFunc_t alphaFunc, float alphaRef /
 // Wireframe/filled polygons
 void CShaderShadowDx11::PolyMode( ShaderPolyModeFace_t face, ShaderPolyMode_t polyMode )
 {
-	m_ShadowState.rasterizer.FillMode = (D3D11_FILL_MODE)( polyMode + 1 );
+	D3D11_FILL_MODE mode;
+	switch ( polyMode )
+	{
+	case SHADER_POLYMODE_FILL:
+		mode = D3D11_FILL_SOLID;
+		break;
+	case SHADER_POLYMODE_LINE:
+	case SHADER_POLYMODE_POINT:
+	default:
+		mode = D3D11_FILL_WIREFRAME;
+		break;
+	}
+	m_ShadowState.rasterizer.FillMode = mode;
 	//m_ShadowState.rasterizer.CullMode = 
 	//m_ShadowState.renderModeAttrib.polyMode = polyMode;
 //	m_ShadowState.renderModeAttrib.faceMode = face;

@@ -54,6 +54,11 @@ CIndexBufferDx11::CIndexBufferDx11( ShaderBufferType_t type, MaterialIndexFormat
 	m_bIsDynamic = IsDynamicBufferType( type );
 	m_bFlush = false;
 
+#ifdef _DEBUG
+	m_pShadowIndices = new unsigned short[m_nIndexCount];
+	m_NumIndices = nIndexCount;
+#endif
+
 	// NOTE: This has to happen at the end since m_IndexFormat must be valid for IndexSize() to work
 	//if ( m_bIsDynamic )
 	//{
@@ -64,6 +69,13 @@ CIndexBufferDx11::CIndexBufferDx11( ShaderBufferType_t type, MaterialIndexFormat
 
 CIndexBufferDx11::~CIndexBufferDx11()
 {
+#ifdef _DEBUG
+	if ( m_pShadowIndices )
+	{
+		delete[] m_pShadowIndices;
+		m_pShadowIndices = NULL;
+	}
+#endif
 	Free();
 }
 
@@ -202,6 +214,7 @@ void CIndexBufferDx11::BeginCastBuffer( MaterialIndexFormat_t format )
 		return;
 
 	m_IndexFormat = format;
+	m_nIndexSize = SizeForIndex( m_IndexFormat );
 	m_nIndexCount = m_nBufferSize / IndexSize();
 }
 
@@ -212,6 +225,7 @@ void CIndexBufferDx11::EndCastBuffer()
 		return;
 	m_IndexFormat = MATERIAL_INDEX_FORMAT_UNKNOWN;
 	m_nIndexCount = 0;
+	m_nIndexSize = 0;
 }
 
 
@@ -231,6 +245,11 @@ bool CIndexBufferDx11::Lock( int nMaxIndexCount, bool bAppend, IndexDesc_t& desc
 {
 	Assert( !m_bIsLocked && ( nMaxIndexCount != 0 ) && ( nMaxIndexCount <= m_nIndexCount ) );
 	Assert( m_IndexFormat != MATERIAL_INDEX_FORMAT_UNKNOWN );
+
+	if ( m_bIsDynamic )
+	{
+		nMaxIndexCount = ALIGN_VALUE( nMaxIndexCount, 2 );
+	}
 
 	// FIXME: Why do we need to sync matrices now?
 	ShaderUtil()->SyncMatrices();
@@ -299,11 +318,15 @@ bool CIndexBufferDx11::Lock( int nMaxIndexCount, bool bAppend, IndexDesc_t& desc
 		Warning( "Failed to lock index buffer in CIndexBufferDx11::Lock\n" );
 		goto indexBufferLockFailed;
 	}
-
+	Log( "LOcking index buffer at %i\n", m_nFirstUnwrittenOffset );
 	desc.m_pIndices = (unsigned short*)( (unsigned char*)lockedData.pData + m_nFirstUnwrittenOffset );
 	desc.m_nIndexSize = IndexSize() >> 1;
-	desc.m_nFirstIndex = 0;
 	desc.m_nOffset = m_nFirstUnwrittenOffset;
+	desc.m_nFirstIndex = desc.m_nOffset / IndexSize();
+#ifdef _DEBUG
+	m_LockedStartIndex = desc.m_nFirstIndex;
+	m_LockedNumIndices = nMaxIndexCount;
+#endif
 	m_bIsLocked = true;
 	return true;
 
@@ -323,6 +346,12 @@ void CIndexBufferDx11::Unlock( int nWrittenIndexCount, IndexDesc_t& desc )
 	Log( "Unlocking index buffer %p\n", m_pIndexBuffer );
 	Assert( nWrittenIndexCount <= m_nIndexCount );
 
+	// For write-combining, ensure we always have locked memory aligned to 4-byte boundaries
+	if ( m_bIsDynamic )
+		nWrittenIndexCount = ALIGN_VALUE( nWrittenIndexCount, 2 );
+
+	Log( "Wrote %i indices\n", nWrittenIndexCount );
+
 	// NOTE: This can happen if the lock occurs during alt-tab
 	// or if another application is initializing
 	if ( !m_bIsLocked )
@@ -334,6 +363,11 @@ void CIndexBufferDx11::Unlock( int nWrittenIndexCount, IndexDesc_t& desc )
 	{
 		D3D11DeviceContext()->Unmap( m_pIndexBuffer, 0 );
 	}
+
+#ifdef _DEBUG
+	m_LockedStartIndex = 0;
+	m_LockedNumIndices = 0;
+#endif
 
 	m_nFirstUnwrittenOffset += nWrittenIndexCount * IndexSize();
 	m_bIsLocked = false;

@@ -30,6 +30,10 @@
 #include "IndexBufferDx11.h"
 #include "shaderapi/ishaderutil.h"
 
+#ifdef _DEBUG
+#define CHECK_INDICES
+#endif
+
 //-----------------------------------------------------------------------------
 // Important enumerations
 //-----------------------------------------------------------------------------
@@ -403,6 +407,8 @@ public:
 	{
 		return false;
 	}
+
+	void CheckIndices( CPrimList *pPrim, int numPrimitives );
 
 protected:
 	// Sets the render state.
@@ -940,6 +946,10 @@ IMeshMgrDx11 *MeshMgr()
 	return &g_MeshMgr;
 }
 
+static CIndexBufferDx11 *g_pLastIndex = NULL;
+static CVertexBufferDx11 *g_pLastVertex = NULL;
+static CMeshDX11 *g_pLastColorMesh = NULL;
+
 //-----------------------------------------------------------------------------
 //
 // Base mesh
@@ -1418,6 +1428,10 @@ void CMeshDX11::Unlock( int nVertexCount, VertexDesc_t &desc )
 	if ( !m_IsVBLocked )
 		return;
 
+#ifdef CHECK_INDICES
+	m_pIndexBuffer->UpdateShadowIndices( (unsigned short *)m_LockIndexBuffer );
+#endif // CHECK_INDICES
+
 	Assert( m_pVertexBuffer );
 	m_pVertexBuffer->Unlock( nVertexCount, desc );
 	m_IsVBLocked = false;
@@ -1441,10 +1455,16 @@ int CMeshDX11::Lock( bool bReadOnly, int nFirstIndex, int nIndexCount, IndexDesc
 	bool ret = m_pIndexBuffer->Lock( nIndexCount, false/*bAppend*/, desc );
 	if ( !ret )
 	{
-		return false;
+		return desc.m_nFirstIndex;
 	}
+
+#if defined( RECORDING ) || defined( CHECK_INDICES )
+	m_LockIndexBufferSize = nIndexCount * 2;
+	m_LockIndexBuffer = desc.m_pIndices;
+#endif
+
 	m_IsIBLocked = true;
-	return true;
+	return desc.m_nFirstIndex;
 }
 
 void CMeshDX11::Unlock( int nIndexCount, IndexDesc_t &desc )
@@ -1790,26 +1810,26 @@ bool CMeshDX11::SetRenderState( int nVertexOffsetInBytes, int nFirstVertexIdx, V
 	}
 	else
 	{
-		Assert( nVertexOffsetInBytes == 0 );
-		Assert( m_pVertexBuffer );
-
+		//Assert( nVertexOffsetInBytes == 0 );
+		//Assert( m_pVertexBuffer );
+		
 		// HACK...point stream 2 at the same VB which is bound to stream 0...
 		// NOTE: D3D debug DLLs will RIP if stream 0 has a smaller stride than the largest
 		//       offset in the stream 2 vertex decl elements (which are position(12)+wrinkle(4)+normal(12))
 		// If this fires, go find the material/shader which is requesting a really 'thin'
 		// stream 0 vertex, and fatten it up slightly (e.g. add a D3DCOLOR element)
-		int minimumStreamZeroStride = 4 * sizeof( float );
-		Assert( m_pVertexBuffer->VertexSize() >= minimumStreamZeroStride );
-		if ( m_pVertexBuffer->VertexSize() < minimumStreamZeroStride )
-		{
-			static bool bWarned = false;
-			if ( !bWarned )
-			{
-				Warning( "Shader specifying too-thin vertex format, should be at least %d bytes! (Supressing further warnings)\n", minimumStreamZeroStride );
-				bWarned = true;
-			}
-		}
-		g_pShaderAPIDx11->BindVertexBuffer( 2, GetVertexBuffer(), nVertexOffsetInBytes, nFirstVertexIdx, m_NumVertices, GetVertexFormat() );
+		//int minimumStreamZeroStride = 4 * sizeof( float );
+		//Assert( m_pVertexBuffer->VertexSize() >= minimumStreamZeroStride );
+		//if ( m_pVertexBuffer->VertexSize() < minimumStreamZeroStride )
+		//{
+		//	static bool bWarned = false;
+		//	if ( !bWarned )
+		//	{
+		//		Warning( "Shader specifying too-thin vertex format, should be at least %d bytes! (Supressing further warnings)\n", minimumStreamZeroStride );
+		//		bWarned = true;
+		//	}
+		//}
+		//g_pShaderAPIDx11->BindVertexBuffer( 2, GetVertexBuffer(), nVertexOffsetInBytes, nFirstVertexIdx, m_NumVertices, GetVertexFormat() );
 	}
 
 	Assert( m_pVertexBuffer );
@@ -1817,6 +1837,9 @@ bool CMeshDX11::SetRenderState( int nVertexOffsetInBytes, int nFirstVertexIdx, V
 	
 	Assert( m_pIndexBuffer );
 	g_pShaderAPIDx11->BindIndexBuffer( GetIndexBuffer(), nVertexOffsetInBytes );
+
+	g_pLastIndex = GetIndexBuffer();
+	g_pLastVertex = GetVertexBuffer();
 	
 
 	return true;
@@ -1893,6 +1916,64 @@ void CMeshDX11::DrawInternal( CPrimList *pLists, int nLists )
 	DrawMesh();
 }
 
+#ifdef CHECK_INDICES
+void CMeshDX11::CheckIndices( CPrimList *pPrim, int numPrimitives )
+{
+	// g_pLastVertex - this is the current vertex buffer
+	// g_pLastColorMesh - this is the current color mesh, if there is one.
+	// g_pLastIndex - this is the current index buffer.
+	// vertoffset : m_FirstIndex
+	if ( m_Type == MATERIAL_TRIANGLES || m_Type == MATERIAL_TRIANGLE_STRIP )
+	{
+		Assert( pPrim->m_FirstIndex >= 0 && pPrim->m_FirstIndex < g_pLastIndex->IndexCount() );
+		int i;
+		for ( i = 0; i < 2; i++ )
+		{
+			CVertexBufferDx11 *pMesh;
+			if ( i == 0 )
+			{
+				pMesh = g_pLastVertex;
+				Assert( pMesh );
+			}
+			else
+			{
+				if ( !g_pLastColorMesh )
+				{
+					continue;
+				}
+				pMesh = g_pLastColorMesh->m_pVertexBuffer;
+				if ( !pMesh )
+				{
+					continue;
+				}
+			}
+			Assert( s_FirstVertex >= 0 &&
+				(int)( s_FirstVertex + m_FirstIndex ) < pMesh->VertexCount() );
+			int nIndexCount = 0;
+			if ( m_Type == MATERIAL_TRIANGLES )
+			{
+				nIndexCount = numPrimitives * 3;
+			}
+			else if ( m_Type == MATERIAL_TRIANGLE_STRIP )
+			{
+				nIndexCount = numPrimitives + 2;
+			}
+			else
+			{
+				Assert( 0 );
+			}
+			int j;
+			for ( j = 0; j < nIndexCount; j++ )
+			{
+				int index = g_pLastIndex->GetShadowIndex( j + pPrim->m_FirstIndex );
+				Assert( index >= (int)s_FirstVertex );
+				Assert( index < (int)( s_FirstVertex + s_NumVertices ) );
+			}
+		}
+	}
+}
+#endif // CHECK_INDICES
+
 // Draws the specified primitives on the mesh
 void CMeshDX11::RenderPass()
 {
@@ -1935,7 +2016,10 @@ void CMeshDX11::RenderPass()
 		}
 		else
 		{
-			//int numPrimitives = NumPrimitives( s_NumVertices, pPrim->m_NumIndices );
+			int numPrimitives = NumPrimitives( s_NumVertices, pPrim->m_NumIndices );
+#ifdef CHECK_INDICES
+			CheckIndices( pPrim, numPrimitives );
+#endif // CHECK_INDICES
 			g_pShaderAPIDx11->DrawIndexed( pPrim->m_FirstIndex, pPrim->m_NumIndices, 0 );
 		}
 	}
@@ -3437,13 +3521,15 @@ void CMeshMgr::DiscardVertexBuffers()
 	// It helps when running WC and the engine simultaneously.
 	//ResetMeshRenderState();
 
+	// Flush all dynamic vertex and index buffers the next time
+	// Lock() is called on them.
 	if ( !g_pShaderDeviceDx11->IsDeactivated() )
 	{
 		for ( int i = m_DynamicVertexBuffers.Count(); --i >= 0; )
 		{
-			//m_DynamicVertexBuffers[i].m_pBuffer->FlushAtFrameStart();
+			m_DynamicVertexBuffers[i].m_pBuffer->Flush();
 		}
-		//m_pDynamicIndexBuffer->FlushAtFrameStart();
+		m_pDynamicIndexBuffer->Flush();
 	}
 }
 

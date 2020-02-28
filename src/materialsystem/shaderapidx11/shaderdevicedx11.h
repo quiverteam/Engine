@@ -208,7 +208,6 @@ private:
 	ID3D11Device *m_pDevice;
 	ID3D11DeviceContext* m_pDeviceContext;
 	IDXGISwapChain *m_pSwapChain;
-	ID3D11RenderTargetView *m_pRenderTargetView;
 
 	CUtlFixedLinkedList<CShaderConstantBufferDx11> m_ConstantBuffers;
 
@@ -224,7 +223,6 @@ private:
 	friend ID3D11Device *D3D11Device();
 	friend ID3D11DeviceContext *D3D11DeviceContext();
 	friend IDXGISwapChain *D3D11SwapChain();
-	friend ID3D11RenderTargetView *D3D11RenderTargetView();
 
 	friend class CShaderDeviceMgrDx11;
 };
@@ -291,11 +289,5 @@ inline IDXGISwapChain *D3D11SwapChain()
 {
 	return g_pShaderDeviceDx11->m_pSwapChain;	
 }
-
-inline ID3D11RenderTargetView *D3D11RenderTargetView()
-{
-	return g_pShaderDeviceDx11->m_pRenderTargetView;	
-}
-
 
 #endif // SHADERDEVICEDX11_H

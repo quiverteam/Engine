@@ -76,6 +76,7 @@ private:
 
 	// Tests dynamic buffers
 	void TestDynamicBuffers( IMatRenderContext *pRenderContext, bool bBuffered );
+	void TestStaticBuffers( IMatRenderContext *pRenderContext );
 
 	// Creates, destroys a test material
 	void CreateWireframeMaterial();
@@ -126,10 +127,10 @@ bool CMaterialSystemTestApp::Create()
 	const char *pShaderDLL = CommandLine()->ParmValue( "-shaderdll" );
 	if ( !pShaderDLL )
 	{
-		pShaderDLL = "shaderapidx10.dll";
+		pShaderDLL = "shaderapidx11.dll";
 	}
 
-	if ( !bIsVistaOrHigher && !Q_stricmp( pShaderDLL, "shaderapidx10.dll" ) )
+	if ( !bIsVistaOrHigher && !Q_stricmp( pShaderDLL, "shaderapidx11.dll" ) )
 	{
 		pShaderDLL = "shaderapidx9.dll";
 	}
@@ -367,11 +368,85 @@ void CMaterialSystemTestApp::CreateWireframeMaterial()
 	pVMTKeyValues->SetInt( "$nocull", 1 );
 	pVMTKeyValues->SetInt( "$ignorez", 1 );
 	m_pMaterial.Init( "__test", pVMTKeyValues );
+	m_pMaterial->Refresh();
+	VertexFormat_t fmt = m_pMaterial->GetVertexFormat();
+	fmt;
 }
 
 void CMaterialSystemTestApp::DestroyMaterial()
 {
 	m_pMaterial.Shutdown();
+}
+
+void CMaterialSystemTestApp::TestStaticBuffers( IMatRenderContext *pMatRenderContext )
+{
+	CreateWireframeMaterial();
+
+	g_pMaterialSystem->BeginFrame( 0 );
+
+	pMatRenderContext->MatrixMode( MATERIAL_VIEW );
+	pMatRenderContext->LoadIdentity();
+	pMatRenderContext->PushMatrix();
+
+	pMatRenderContext->MatrixMode( MATERIAL_PROJECTION );
+	pMatRenderContext->LoadIdentity();
+	pMatRenderContext->PerspectiveX( 70.0, ( 4. / 3. ), 0.1f, 50000.0f );
+	pMatRenderContext->PushMatrix();
+
+	pMatRenderContext->MatrixMode( MATERIAL_MODEL );
+	pMatRenderContext->LoadIdentity();
+	pMatRenderContext->Translate( 0, 0, -10 );
+	pMatRenderContext->PushMatrix();
+
+	pMatRenderContext->Bind( m_pMaterial );
+
+	VertexFormat_t fmt = VERTEX_POSITION | VERTEX_COLOR;
+	IVertexBuffer *vbuf = pMatRenderContext->CreateStaticVertexBuffer( fmt, 4, "static" );
+	IIndexBuffer *ibuf = pMatRenderContext->CreateStaticIndexBuffer( MATERIAL_INDEX_FORMAT_16BIT, 6, "static" );
+
+	CVertexBuilder vbuilder;
+	vbuilder.Begin( vbuf, 4 );
+
+	vbuilder.Position3f( -1.0f, -1.0f, 0.0f );
+	vbuilder.Color3f( 1.0f, 0.0f, 0.0f );
+
+	vbuilder.AdvanceVertex();
+
+	vbuilder.Position3f( 1.0f, -1.0f, 0.0f );
+	vbuilder.Color3f( 0.0f, 1.0f, 0.0f );
+
+	vbuilder.AdvanceVertex();
+
+	vbuilder.Position3f( 1.0f, 1.0f, 0.0f );
+	vbuilder.Color3f( 0.0f, 0.0f, 1.0f );
+
+	vbuilder.AdvanceVertex();
+
+	vbuilder.Position3f( -1.0f, 1.0f, 0.0f );
+	vbuilder.Color3f( 1.0f, 1.0f, 0.0f );
+
+	vbuilder.End();
+
+	CIndexBuilder ibuilder;
+	ibuilder.Begin( ibuf, 6 );
+
+	ibuilder.FastIndex( 0 );
+	ibuilder.FastIndex( 2 );
+	ibuilder.FastIndex( 1 );
+
+	ibuilder.FastIndex( 0 );
+	ibuilder.FastIndex( 3 );
+	ibuilder.FastIndex( 2 );
+	
+	ibuilder.End();
+
+	pMatRenderContext->BindVertexBuffer( 0, vbuf, 0, 0, 4, vbuf->GetVertexFormat() );
+	pMatRenderContext->BindIndexBuffer( ibuf, 0 );
+	pMatRenderContext->Draw( MATERIAL_TRIANGLES, 0, 6 );
+
+	g_pMaterialSystem->EndFrame();
+	g_pMaterialSystem->SwapBuffers();
+
 }
 
 
@@ -383,6 +458,20 @@ void CMaterialSystemTestApp::TestDynamicBuffers( IMatRenderContext *pMatRenderCo
 	CreateWireframeMaterial();
 
 	g_pMaterialSystem->BeginFrame( 0 );
+
+	pMatRenderContext->MatrixMode( MATERIAL_VIEW );
+	pMatRenderContext->LoadIdentity();
+	pMatRenderContext->PushMatrix();
+
+	pMatRenderContext->MatrixMode( MATERIAL_PROJECTION );
+	pMatRenderContext->LoadIdentity();
+	pMatRenderContext->PerspectiveX( 70.0, (4. / 3.), 0.1f, 50000.0f );
+	pMatRenderContext->PushMatrix();
+
+	pMatRenderContext->MatrixMode( MATERIAL_MODEL );
+	pMatRenderContext->LoadIdentity();
+	pMatRenderContext->Translate( 0, 0, -10 );
+	pMatRenderContext->PushMatrix();
 
 	pMatRenderContext->Bind( m_pMaterial );
 	IMesh *pMesh = pMatRenderContext->GetDynamicMesh( bBuffered );
@@ -471,12 +560,18 @@ int CMaterialSystemTestApp::Main()
 	g_pMaterialSystem->BeginFrame( 0 );
 	pRenderContext->ClearColor4ub( 76, 88, 68, 255 ); 
 	pRenderContext->ClearBuffers( true, true );
+
 	g_pMaterialSystem->EndFrame();
 	g_pMaterialSystem->SwapBuffers();
 
 	SetWindowText( m_HWnd, "Buffer clearing . . hit a key" );
 	if ( !WaitForKeypress() )
 		return 1;
+
+	//SetWindowText( m_HWnd, "Static buffers . . hit a key" );
+	//TestStaticBuffers( pRenderContext );
+	//if ( !WaitForKeypress() )
+	//	return 1;
 
 	SetWindowText( m_HWnd, "Dynamic buffer test.. hit a key" );
 	TestDynamicBuffers( pRenderContext, false );

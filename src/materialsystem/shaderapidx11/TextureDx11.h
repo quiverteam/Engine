@@ -61,6 +61,8 @@ public:
 
 	void AdjustSamplerState();
 	void MakeView();
+	void MakeRenderTargetView();
+	void MakeDepthStencilView();
 
 	void SetAnisotropicLevel( int level );
 	void SetMinFilter( ShaderTexFilterMode_t texFilterMode );
@@ -74,6 +76,7 @@ public:
 			     int numMipLevels, ImageFormat dstImageFormat );
 	void SetupDepthTexture( ImageFormat renderFormat, int width, int height,
 				const char *pDebugName, bool bTexture );
+	void SetupBackBuffer( ID3D11Texture2D *pBackBuffer, int width, int height, const char *pDebugName, bool bTexture );
 
 	bool Is1D() const;
 	bool Is2D() const;

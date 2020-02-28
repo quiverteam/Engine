@@ -1,3 +1,4 @@
+#if 0
 #include "BaseVSShader.h"
 
 CREATE_CONSTANT_BUFFER( Test )
@@ -35,3 +36,4 @@ BEGIN_VS_SHADER( TestDX11, "Help for TestDX11" )
 	}
 
 END_SHADER
+#endif

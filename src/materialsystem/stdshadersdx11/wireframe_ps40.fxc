@@ -3,9 +3,10 @@
 struct PS_INPUT
 {
 	float4 vPos : SV_POSITION;
+	float4 vColor : COLOR;
 };
 
 float4 main(PS_INPUT i) : SV_TARGET
 {
-	return float4(1.0f, 1.0f, 1.0f, 1.0f);
+	return i.vColor;
 }

@@ -1,3 +1,4 @@
+#if 0
 #include "BaseVSShader.h"
 
 #include "unlitgeneric_ps40.inc"
@@ -55,3 +56,4 @@ BEGIN_VS_SHADER(UnlitGeneric, "Unlit shader")
 	}
 
 END_SHADER
+#endif

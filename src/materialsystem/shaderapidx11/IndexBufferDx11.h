@@ -29,6 +29,20 @@ public:
 	virtual void EndCastBuffer();
 	bool HasEnoughRoom( int nVertCount ) const;
 
+#ifdef _DEBUG
+	void UpdateShadowIndices( unsigned short *pData )
+	{
+		Assert( m_LockedStartIndex + m_LockedNumIndices <= m_NumIndices );
+		memcpy( m_pShadowIndices + m_LockedStartIndex, pData, m_LockedNumIndices * IndexSize() );
+	}
+
+	unsigned short GetShadowIndex( int i )
+	{
+		Assert( i >= 0 && i < (int)m_NumIndices );
+		return m_pShadowIndices[i];
+	}
+#endif
+
 	int IndexPosition() const
 	{
 		return m_nFirstUnwrittenOffset;
@@ -55,6 +69,13 @@ protected:
 	// Creates, destroys the index buffer
 	bool Allocate();
 	void Free();
+
+#ifdef _DEBUG
+	unsigned short *m_pShadowIndices;
+	unsigned int m_NumIndices;
+	unsigned int m_LockedStartIndex;
+	unsigned int m_LockedNumIndices;
+#endif
 
 	ID3D11Buffer* m_pIndexBuffer;
 	MaterialIndexFormat_t m_IndexFormat;

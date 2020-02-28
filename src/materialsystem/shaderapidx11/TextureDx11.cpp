@@ -37,6 +37,8 @@ DXGI_FORMAT GetD3DFormat( ImageFormat format )
 	case IMAGE_FORMAT_UVWQ8888:
 	case IMAGE_FORMAT_UVLX8888:
 		return DXGI_FORMAT_R8G8B8A8_UNORM;
+	case IMAGE_FORMAT_NV_DST24:
+		return DXGI_FORMAT_D24_UNORM_S8_UINT;
 
 	// These ones match D3D.
 	case IMAGE_FORMAT_A8:
@@ -143,7 +145,7 @@ ID3D11Resource *CreateD3DTexture( int width, int height, int nDepth,
 	bool bNoD3DBits = ( nCreationFlags & TEXTURE_CREATE_NOD3DMEMORY ) != 0;
 
 	// NOTE: This function shouldn't be used for creating depth buffers!
-	Assert( !bIsDepthBuffer );
+	//Assert( !bIsDepthBuffer );
 
 	dstFormat = GetClosestSupportedImageFormatForD3D11( dstFormat );
 	DXGI_FORMAT d3dFormat = DXGI_FORMAT_UNKNOWN;
@@ -175,10 +177,18 @@ ID3D11Resource *CreateD3DTexture( int width, int height, int nDepth,
 	UINT bindFlags = D3D11_BIND_SHADER_RESOURCE;
 	if ( bIsRenderTarget )
 	{
-		bindFlags |= D3D11_BIND_RENDER_TARGET;
+		bindFlags = D3D11_BIND_RENDER_TARGET;
+	}
+	if ( bIsDepthBuffer )
+	{
+		bindFlags = D3D11_BIND_DEPTH_STENCIL;
 	}
 
-	UINT cpuAccessFlags = D3D11_CPU_ACCESS_WRITE;
+	UINT cpuAccessFlags = 0;
+	if ( !bIsDepthBuffer && !bIsRenderTarget )
+	{
+		cpuAccessFlags = D3D11_CPU_ACCESS_WRITE;
+	}
 
 	ID3D11Resource *pBaseTexture = NULL;
 	HRESULT hr = S_OK;
@@ -244,6 +254,10 @@ CTextureDx11::CTextureDx11()
 	m_Format	       = IMAGE_FORMAT_RGBA8888;
 	m_MinFilter = SHADER_TEXFILTERMODE_LINEAR;
 	m_MagFilter = SHADER_TEXFILTERMODE_LINEAR;
+	m_UTexWrap = D3D11_TEXTURE_ADDRESS_CLAMP;
+	m_VTexWrap = D3D11_TEXTURE_ADDRESS_CLAMP;
+	m_WTexWrap = D3D11_TEXTURE_ADDRESS_CLAMP;
+	m_Filter = D3D11_FILTER_MIN_MAG_MIP_LINEAR;
 
 	m_pTexture = NULL;
 	m_ppTexture = NULL;
@@ -360,16 +374,40 @@ void CTextureDx11::SetupDepthTexture( ImageFormat renderFormat, int width, int h
 	m_Depth = 1;
 	m_Count = 1;
 	m_CountIndex = 0;
-	m_CreationFlags = 0;
+	m_CreationFlags = TEXTURE_CREATE_DEPTHBUFFER;
 	m_NumCopies = 1;
 	m_CurrentCopy = 0;
 
 	if ( bTexture )
 	{
+		m_pTexture = CreateD3DTexture(
+			width, height, m_Depth, renderFormat, 1, m_CreationFlags );
 		AdjustSamplerState();
-		MakeView();
+		MakeDepthStencilView();
 	}
 		
+}
+
+void CTextureDx11::SetupBackBuffer( ID3D11Texture2D *pBackBuffer, int width, int height, const char *pDebugName, bool bTexture )
+{
+	m_nFlags = CTextureDx11::IS_ALLOCATED;
+
+	m_nWidth = width;
+	m_nHeight = height;
+	m_Depth = 1;
+	m_Count = 1;
+	m_CountIndex = 0;
+	m_CreationFlags = TEXTURE_CREATE_RENDERTARGET;
+	m_NumCopies = 1;
+	m_CurrentCopy = 0;
+
+	m_pTexture = pBackBuffer;
+
+	if ( bTexture )
+	{
+		AdjustSamplerState();
+		MakeRenderTargetView();
+	}
 }
 
 void CTextureDx11::SetMinFilter( ShaderTexFilterMode_t texFilterMode )
@@ -540,6 +578,39 @@ void CTextureDx11::AdjustSamplerState()
 	}
 }
 
+void CTextureDx11::MakeRenderTargetView()
+{
+	if ( m_pRenderTargetView )
+	{
+		int ref = m_pRenderTargetView->Release();
+		Assert( ref == 0 );
+	}
+	HRESULT hr = D3D11Device()->CreateRenderTargetView( m_pTexture, NULL, &m_pRenderTargetView );
+	if ( FAILED( hr ) )
+	{
+		Warning( "Failed to make D3D render target view!\n" );
+	}
+}
+
+void CTextureDx11::MakeDepthStencilView()
+{
+	if ( m_nFlags & IS_DEPTH_STENCIL )
+	{
+		return;
+	}
+
+	if ( m_pDepthStencilView )
+	{
+		int ref = m_pDepthStencilView->Release();
+		Assert( ref == 0 );
+	}
+	HRESULT hr = D3D11Device()->CreateDepthStencilView( m_pTexture, NULL, &m_pDepthStencilView );
+	if ( FAILED( hr ) )
+	{
+		Warning( "Failed to make D3D depth stencil view!\n" );
+	}
+}
+
 void CTextureDx11::MakeView()
 {
 	if ( m_nFlags & IS_DEPTH_STENCIL )
@@ -563,7 +634,7 @@ void CTextureDx11::MakeView()
 			{
 				Warning( "Unable to create shader resource view for texture copy %i!\n", copy );
 			}
-			if ( bGenMipMap )
+			if ( bGenMipMap && m_ppView[copy] )
 			{
 				D3D11DeviceContext()->GenerateMips( m_ppView[copy] );
 			}
@@ -583,7 +654,7 @@ void CTextureDx11::MakeView()
 		{
 			Warning( "Unable to create D3D11 Texture view!\n" );
 		}
-		if ( bGenMipMap )
+		if ( bGenMipMap && m_pView )
 		{
 			D3D11DeviceContext()->GenerateMips( m_pView );
 		}
@@ -593,7 +664,6 @@ void CTextureDx11::MakeView()
 
 void CTextureDx11::BlitSurfaceBits( CTextureDx11::TextureLoadInfo_t &info, int xOffset, int yOffset, int srcStride )
 {
-	//D3D11_SUBRESOURCE_DATA subdata;
 	CD3D11_BOX box;
 	box.left = xOffset;
 	box.right = xOffset + info.m_nWidth;
@@ -602,24 +672,9 @@ void CTextureDx11::BlitSurfaceBits( CTextureDx11::TextureLoadInfo_t &info, int x
 	box.front = 0;
 	box.back = 1;
 
-	Log( "Src image is %ix%i\n", info.m_nWidth, info.m_nHeight );
-	Log( "D3D texture is %ix%i\n\n", m_nWidth, m_nHeight );
-
-	if ( info.m_nWidth != m_nWidth )
-	{
-		Warning( "CTextureDx11::BlitSurfaceBits: src image is wider than D3D texture is allocated for\n" );
-	}
-	if ( info.m_nHeight != m_nHeight )
-	{
-		Warning( "CTextureDx11::BitSurfaceBits: src image is taller than D3D texture is allocated for\n" );
-	}
-
-	Log( "BlitSurfaceBits: m_Format = %i, info.m_SrcFormat = %i\n", m_Format, info.m_SrcFormat );
 	int mem = ImageLoader::GetMemRequired( info.m_nWidth, info.m_nHeight, info.m_nZOffset, m_Format, false );
-	Log( "Mem required for %ix%i image: %i bytes\n", info.m_nWidth, info.m_nHeight, mem );
 	unsigned char *pNewImage = new unsigned char[mem];
 	int dstStride = ImageLoader::SizeInBytes( m_Format );
-	Log( "Size in bytes: %i\n", dstStride );
 
 	bool ret = 
 		ShaderUtil()->ConvertImageFormat( info.m_pSrcData, info.m_SrcFormat, pNewImage, m_Format,
@@ -630,11 +685,7 @@ void CTextureDx11::BlitSurfaceBits( CTextureDx11::TextureLoadInfo_t &info, int x
 		return;
 	}
 
-	//D3D11_SUBRESOURCE_DATA imageData;
-
-	//D3D11CalcSubresource()
 	UINT subresource = D3D11CalcSubresource( info.m_nLevel, info.m_CubeFaceID, m_NumLevels );
-	Log( "subresource: %u\n", subresource );
 
 	D3D11DeviceContext()->UpdateSubresource( info.m_pTexture, subresource, &box, pNewImage, dstStride * info.m_nWidth, dstStride * info.m_nWidth * info.m_nHeight );
 
@@ -721,29 +772,36 @@ void CTextureDx11::Delete()
 	}
 	else
 	{
-		if ( m_pRenderTargetView )
+		if ( m_CreationFlags & TEXTURE_CREATE_RENDERTARGET )
 		{
-			int refCount = m_pRenderTargetView->Release();
-			Assert( refCount == 0 );
-			m_pRenderTargetView = 0;
-			nDeallocated++;
+			if ( m_pRenderTargetView )
+			{
+				int refCount = m_pRenderTargetView->Release();
+				Assert( refCount == 0 );
+				m_pRenderTargetView = 0;
+				nDeallocated++;
+			}
 		}
-
-		if ( m_pDepthStencilView )
+		else if ( m_nFlags & IS_DEPTH_STENCIL_TEXTURE )
 		{
-			int refCount = m_pDepthStencilView->Release();
-			Assert( refCount == 0 );
-			m_pDepthStencilView = 0;
-			nDeallocated++;
+			if ( m_pDepthStencilView )
+			{
+				int refCount = m_pDepthStencilView->Release();
+				Assert( refCount == 0 );
+				m_pDepthStencilView = 0;
+				nDeallocated++;
+			}
 		}
-
-		if ( m_pView )
+		else
 		{
-			int refCount = m_pView->Release();
-			Assert( refCount == 0 );
-			m_pView = 0;
-			nDeallocated++;
-		}
+			if ( m_pView )
+			{
+				int refCount = m_pView->Release();
+				Assert( refCount == 0 );
+				m_pView = 0;
+				nDeallocated++;
+			}
+		}		
 	}
 
 	if ( m_pSamplerState )

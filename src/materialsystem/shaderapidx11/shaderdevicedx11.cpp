@@ -21,6 +21,7 @@
 #include "tier0/icommandline.h"
 #include "inputlayoutdx11.h"
 #include "shaderapidx9/shaderapibase.h"
+#include "meshdx11.h"
 
 // NOTE: This has to be the last file included!
 #include "tier0/memdbgon.h"
@@ -542,7 +543,6 @@ CShaderDeviceDx11::CShaderDeviceDx11() :
 	m_pDevice = NULL;
 	m_pOutput = NULL;
 	m_pSwapChain = NULL;
-	m_pRenderTargetView = NULL;
 	m_bDeviceInitialized = false;
 }
 
@@ -605,19 +605,6 @@ bool CShaderDeviceDx11::InitDevice( void *hWnd, int nAdapter, const ShaderDevice
 	if ( FAILED( hr ) )
 		return false;
 
-	// Create a render target view
-	ID3D11Texture2D *pBackBuffer;
-	hr = m_pSwapChain->GetBuffer( 0, __uuidof( ID3D11Texture2D ), (LPVOID*)&pBackBuffer );
-	if ( FAILED( hr ) )
-		return FALSE;
-
-	hr = m_pDevice->CreateRenderTargetView( pBackBuffer, NULL, &m_pRenderTargetView );
-	pBackBuffer->Release();
-	if( FAILED( hr ) )
-		return FALSE;
-
-	m_pDeviceContext->OMSetRenderTargets( 1, &m_pRenderTargetView, NULL );
-
 	m_hWnd = hWnd;
 	m_nAdapter = nAdapter;
 
@@ -644,11 +631,6 @@ bool CShaderDeviceDx11::InitDevice( void *hWnd, int nAdapter, const ShaderDevice
 //-----------------------------------------------------------------------------
 void CShaderDeviceDx11::ShutdownDevice() 
 {
-	if ( m_pRenderTargetView )
-	{
-		m_pRenderTargetView->Release();
-		m_pRenderTargetView = NULL;
-	}
 
 	if ( m_pDevice )
 	{
@@ -726,6 +708,9 @@ void CShaderDeviceDx11::SpewDriverInfo() const
 //-----------------------------------------------------------------------------
 void CShaderDeviceDx11::Present()
 {
+	// Draw buffered primitives
+	g_pShaderAPIDx11->FlushBufferedPrimitives();
+
 	// FIXME: Deal with window occlusion, alt-tab, etc.
 	HRESULT hr = m_pSwapChain->Present( 0, 0 );
 	if ( FAILED(hr) )
@@ -733,6 +718,10 @@ void CShaderDeviceDx11::Present()
 		HRESULT removed = D3D11Device()->GetDeviceRemovedReason();
 		Assert( 0 );
 	}
+
+	// Make all vertex and index buffers flush
+	// the next time they are locked.
+	MeshMgr()->DiscardVertexBuffers();
 }
 
 

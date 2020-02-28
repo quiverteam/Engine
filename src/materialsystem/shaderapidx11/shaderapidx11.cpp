@@ -69,12 +69,12 @@ CShaderAPIDx11::~CShaderAPIDx11()
 
 void CShaderAPIDx11::UpdateConstantBuffer( ConstantBuffer_t cbuffer, void *pNewData )
 {
-	g_pShaderDevice->UpdateConstantBuffer( cbuffer, pNewData );
+	g_pShaderDeviceDx11->UpdateConstantBuffer( cbuffer, pNewData );
 }
 
 ConstantBuffer_t CShaderAPIDx11::GetInternalConstantBuffer( int type )
 {
-	return g_pShaderDevice->GetInternalConstantBuffer( type );
+	return g_pShaderDeviceDx11->GetInternalConstantBuffer( type );
 }
 
 void CShaderAPIDx11::BindPixelShaderConstantBuffer( ConstantBuffer_t cbuffer )
@@ -104,44 +104,44 @@ void CShaderAPIDx11::BindGeometryShaderConstantBuffer( ConstantBuffer_t cbuffer 
 //-----------------------------------------------------------------------------
 void CShaderAPIDx11::ResetRenderState( bool bFullReset )
 {
-	D3D11_RASTERIZER_DESC rDesc;
-	memset( &rDesc, 0, sizeof( rDesc ) );
-	rDesc.FillMode		    = D3D11_FILL_SOLID;
-	rDesc.CullMode		    = D3D11_CULL_NONE;
-	rDesc.FrontCounterClockwise = TRUE; // right-hand rule
+	m_TargetState.dynamic.SetDefault();
+	m_TargetState.shadow.SetDefault();
+	m_TargetState.dynamic.m_pRenderTargetView = GetTexture( m_hBackBuffer ).GetRenderTargetView();
+	m_TargetState.dynamic.m_pDepthStencilView = GetTexture( m_hDepthBuffer ).GetDepthStencilView();
+	IssueStateChanges( bFullReset );
+}
 
-	ID3D11RasterizerState *pRasterizerState;
-	HRESULT hr = D3D11Device()->CreateRasterizerState( &rDesc, &pRasterizerState );
-	Assert( !FAILED( hr ) );
-	D3D11DeviceContext()->RSSetState( pRasterizerState );
+void CShaderAPIDx11::SetRenderTargetEx( int id, ShaderAPITextureHandle_t colorTextureHandle,
+					ShaderAPITextureHandle_t depthTextureHandle )
+{
+	if ( colorTextureHandle == SHADER_RENDERTARGET_BACKBUFFER )
+	{
+		colorTextureHandle = m_hBackBuffer;
+	}
+	if ( depthTextureHandle == SHADER_RENDERTARGET_DEPTHBUFFER )
+	{
+		depthTextureHandle = m_hDepthBuffer;
+	}
 
-	D3D11_DEPTH_STENCIL_DESC dsDesc;
-	memset( &dsDesc, 0, sizeof( dsDesc ) );
+	if ( colorTextureHandle != INVALID_SHADERAPI_TEXTURE_HANDLE )
+	{
+		CTextureDx11 *pRT = &GetTexture( colorTextureHandle );
+		m_TargetState.dynamic.m_pRenderTargetView = pRT->GetRenderTargetView();
+	}
+	else
+	{
+		m_TargetState.dynamic.m_pRenderTargetView = NULL;
+	}
 
-	ID3D11DepthStencilState *pDepthStencilState;
-	hr = D3D11Device()->CreateDepthStencilState( &dsDesc, &pDepthStencilState );
-	Assert( !FAILED( hr ) );
-	D3D11DeviceContext()->OMSetDepthStencilState( pDepthStencilState, 0 );
-
-	D3D11_BLEND_DESC bDesc;
-	memset( &bDesc, 0, sizeof( bDesc ) );
-	D3D11_RENDER_TARGET_BLEND_DESC *rtbDesc = &bDesc.RenderTarget[0];
-	rtbDesc->SrcBlend			= D3D11_BLEND_ONE;
-	rtbDesc->DestBlend			= D3D11_BLEND_ZERO;
-	rtbDesc->BlendOp			= D3D11_BLEND_OP_ADD;
-	rtbDesc->SrcBlendAlpha			= D3D11_BLEND_ONE;
-	rtbDesc->DestBlendAlpha			= D3D11_BLEND_ZERO;
-	rtbDesc->BlendOpAlpha			= D3D11_BLEND_OP_ADD;
-	rtbDesc->RenderTargetWriteMask		= D3D11_COLOR_WRITE_ENABLE_ALL;
-
-	FLOAT pBlendFactor[4] = { 1.0f, 1.0f, 1.0f, 1.0f };
-	ID3D11BlendState *pBlendState;
-	hr = D3D11Device()->CreateBlendState( &bDesc, &pBlendState );
-	Assert( !FAILED( hr ) );
-	D3D11DeviceContext()->OMSetBlendState( pBlendState, pBlendFactor, 0xFFFFFFFF );
-
-	m_State = StatesDx11::RenderState();
-	m_TargetState = StatesDx11::RenderState();
+	if ( depthTextureHandle != INVALID_SHADERAPI_TEXTURE_HANDLE )
+	{
+		CTextureDx11 *pDT = &GetTexture( depthTextureHandle );
+		m_TargetState.dynamic.m_pDepthStencilView = pDT->GetDepthStencilView();
+	}
+	else
+	{
+		m_TargetState.dynamic.m_pDepthStencilView = NULL;
+	}
 }
 
 //-----------------------------------------------------------------------------
@@ -150,7 +150,7 @@ void CShaderAPIDx11::ResetRenderState( bool bFullReset )
 void CShaderAPIDx11::IssueStateChanges( bool bForce )
 {
 	// Don't bother committing anything if we're deactivated
-	if ( g_pShaderDevice->IsDeactivated() )
+	if ( g_pShaderDeviceDx11->IsDeactivated() )
 		return;
 
 	float flStart = Plat_FloatTime();
@@ -178,6 +178,13 @@ void CShaderAPIDx11::IssueStateChanges( bool bForce )
 	DoIssueConstantBufferUpdates();
 
 	bool bStateChanged = false;
+
+	if ( m_TargetState.dynamic.m_pRenderTargetView != m_State.dynamic.m_pRenderTargetView ||
+	     m_TargetState.dynamic.m_pDepthStencilView != m_State.dynamic.m_pDepthStencilView )
+	{
+		DoIssueRenderTargets();
+		bStateChanged = true;
+	}
 
 	bool bViewportsChanged = bForce || ( targetDynamic.m_nViewportCount != dynamic.m_nViewportCount );
 	if ( !bViewportsChanged && targetDynamic.m_nViewportCount > 0 )
@@ -322,7 +329,7 @@ FORCEINLINE static void OutputMatrixRow( const DirectX::XMFLOAT4X4 &mat, int r )
 
 FORCEINLINE static void OutputMatrix( const DirectX::XMFLOAT4X4 &mat, const char *pszMatName )
 {
-	Log( "%s Matrix:\n", pszMatName );
+	Log( "DX11 %s Matrix:\n", pszMatName );
 	
 	for ( int i = 0; i < 4; i++ )
 	{
@@ -336,11 +343,12 @@ void CShaderAPIDx11::DoIssueTransform()
 	tmp.modelTransform = DirectX::XMMatrixTranspose( GetMatrix( MATERIAL_MODEL ) );
 	tmp.viewTransform = DirectX::XMMatrixTranspose( GetMatrix( MATERIAL_VIEW ) );
 	tmp.projTransform = DirectX::XMMatrixTranspose( GetMatrix( MATERIAL_PROJECTION ) );
-	tmp.modelViewProj = DirectX::XMMatrixTranspose(
-		tmp.projTransform *
-		tmp.viewTransform *
-		tmp.modelTransform
-	);
+
+	DirectX::XMMATRIX modelViewProj;
+	modelViewProj = DirectX::XMMatrixMultiply( GetMatrix( MATERIAL_MODEL ), GetMatrix( MATERIAL_VIEW ) );
+	modelViewProj = DirectX::XMMatrixMultiply( modelViewProj, GetMatrix( MATERIAL_PROJECTION ) );
+	modelViewProj = DirectX::XMMatrixTranspose( modelViewProj );
+	tmp.modelViewProj = modelViewProj;
 
 	m_DynamicState.m_ChangedMatrices[MATERIAL_MODEL] = false;
 	m_DynamicState.m_ChangedMatrices[MATERIAL_VIEW] = false;
@@ -349,6 +357,16 @@ void CShaderAPIDx11::DoIssueTransform()
 	IShaderConstantBuffer *pIBuf = (IShaderConstantBuffer *)g_pShaderDeviceDx11->GetConstantBuffer( tbuffer );
 	//Log( "\tUpdating transform constant buffer at %p\n", pIBuf->GetBuffer() );
 	g_pShaderDeviceDx11->UpdateConstantBuffer( tbuffer, &tmp );
+
+	DirectX::XMFLOAT4X4 flt4x4;
+	DirectX::XMStoreFloat4x4( &flt4x4, GetMatrix( MATERIAL_MODEL ) );
+	OutputMatrix( flt4x4, "Model" );
+	DirectX::XMStoreFloat4x4( &flt4x4, GetMatrix( MATERIAL_VIEW ) );
+	OutputMatrix( flt4x4, "View" );
+	DirectX::XMStoreFloat4x4( &flt4x4, GetMatrix( MATERIAL_PROJECTION ) );
+	OutputMatrix( flt4x4, "Projection" );
+	DirectX::XMStoreFloat4x4( &flt4x4, modelViewProj );
+	OutputMatrix( flt4x4, "ModelViewProj" );
 }
 
 FORCEINLINE static void UploadConstantBuffer( CShaderConstantBufferDx11 *pBuffer )
@@ -625,6 +643,18 @@ void CShaderAPIDx11::DoIssueViewports()
 					      m_TargetState.dynamic.m_pViewports );
 }
 
+void CShaderAPIDx11::DoIssueRenderTargets()
+{
+	if ( !m_TargetState.dynamic.m_pRenderTargetView )
+	{
+		return;
+	}
+
+	D3D11DeviceContext()->OMSetRenderTargets(
+		1, &m_TargetState.dynamic.m_pRenderTargetView,
+		m_TargetState.dynamic.m_pDepthStencilView );
+}
+
 //-------------------------------------------------------------------//
 
 //-----------------------------------------------------------------------------
@@ -655,6 +685,7 @@ void CShaderAPIDx11::SetViewports( int nCount, const ShaderViewport_t *pViewport
 		viewport.MinDepth	 = pViewports[i].m_flMinZ;
 		viewport.MaxDepth	 = pViewports[i].m_flMaxZ;
 	}
+	Log( "CShaderAPIDx11::SetViewports\n" );
 }
 
 int CShaderAPIDx11::GetViewports( ShaderViewport_t *pViewports, int nMax ) const
@@ -692,10 +723,26 @@ void CShaderAPIDx11::ClearBuffers( bool bClearColor, bool bClearDepth, bool bCle
 	// NOTE: State change commit isn't necessary since clearing doesn't use state
 	//	IssueStateChanges();
 
+	m_TargetState;
+
 	// FIXME: This implementation is totally bust0red [doesn't guarantee exact color specified]
-	if ( bClearColor && D3D11DeviceContext() )
+	if ( bClearColor && D3D11DeviceContext() && m_TargetState.dynamic.m_pRenderTargetView )
 	{
-		D3D11DeviceContext()->ClearRenderTargetView( D3D11RenderTargetView(), m_TargetState.dynamic.m_ClearColor );
+		D3D11DeviceContext()->ClearRenderTargetView( m_TargetState.dynamic.m_pRenderTargetView, m_TargetState.dynamic.m_ClearColor );
+	}
+
+	if ( bClearDepth && D3D11DeviceContext() && m_TargetState.dynamic.m_pDepthStencilView )
+	{
+		UINT clearFlags = 0;
+		if ( bClearDepth )
+		{
+			clearFlags |= D3D11_CLEAR_DEPTH;
+		}
+		if ( bClearStencil )
+		{
+			clearFlags |= D3D11_CLEAR_STENCIL;
+		}
+		D3D11DeviceContext()->ClearDepthStencilView( m_TargetState.dynamic.m_pDepthStencilView, clearFlags, 1.0f, 0 );
 	}
 }
 
@@ -774,10 +821,10 @@ void CShaderAPIDx11::Unbind( VertexShaderHandle_t hShader )
 	{
 		BindVertexShader( VERTEX_SHADER_HANDLE_INVALID );
 	}
-	if ( m_State.dynamic.m_pVertexShader == pShader )
-	{
-		IssueStateChanges();
-	}
+	//if ( m_State.dynamic.m_pVertexShader == pShader )
+	//{
+	//	IssueStateChanges();
+	//}
 }
 
 void CShaderAPIDx11::Unbind( GeometryShaderHandle_t hShader )
@@ -788,10 +835,10 @@ void CShaderAPIDx11::Unbind( GeometryShaderHandle_t hShader )
 	{
 		BindGeometryShader( GEOMETRY_SHADER_HANDLE_INVALID );
 	}
-	if ( m_State.dynamic.m_pGeometryShader == pShader )
-	{
-		IssueStateChanges();
-	}
+	//if ( m_State.dynamic.m_pGeometryShader == pShader )
+	//{
+	//	IssueStateChanges();
+	//}
 }
 
 void CShaderAPIDx11::Unbind( PixelShaderHandle_t hShader )
@@ -802,10 +849,10 @@ void CShaderAPIDx11::Unbind( PixelShaderHandle_t hShader )
 	{
 		BindPixelShader( PIXEL_SHADER_HANDLE_INVALID );
 	}
-	if ( m_State.dynamic.m_pPixelShader == pShader )
-	{
-		IssueStateChanges();
-	}
+	//if ( m_State.dynamic.m_pPixelShader == pShader )
+	//{
+	//	IssueStateChanges();
+	//}
 }
 
 void CShaderAPIDx11::UnbindVertexBuffer( ID3D11Buffer *pBuffer )
@@ -819,14 +866,14 @@ void CShaderAPIDx11::UnbindVertexBuffer( ID3D11Buffer *pBuffer )
 			BindVertexBuffer( i, NULL, 0, 0, 0, VERTEX_POSITION, 0 );
 		}
 	}
-	for ( int i = 0; i < MAX_DX11_STREAMS; ++i )
-	{
-		if ( m_State.dynamic.m_pVertexBuffer[i].m_pBuffer == pBuffer )
-		{
-			IssueStateChanges();
-			break;
-		}
-	}
+	//for ( int i = 0; i < MAX_DX11_STREAMS; ++i )
+	//{
+	//	if ( m_State.dynamic.m_pVertexBuffer[i].m_pBuffer == pBuffer )
+	//	{
+	//		IssueStateChanges();
+	//		break;
+	//	}
+	//}
 }
 
 void CShaderAPIDx11::UnbindIndexBuffer( ID3D11Buffer *pBuffer )
@@ -837,10 +884,10 @@ void CShaderAPIDx11::UnbindIndexBuffer( ID3D11Buffer *pBuffer )
 	{
 		BindIndexBuffer( NULL, 0 );
 	}
-	if ( m_State.dynamic.m_IndexBuffer.m_pBuffer == pBuffer )
-	{
-		IssueStateChanges();
-	}
+	//if ( m_State.dynamic.m_IndexBuffer.m_pBuffer == pBuffer )
+	//{
+	//	IssueStateChanges();
+	//}
 }
 
 //-----------------------------------------------------------------------------
@@ -920,7 +967,7 @@ void CShaderAPIDx11::BeginPass( StateSnapshot_t snapshot )
 // Renders a single pass of a material
 void CShaderAPIDx11::RenderPass( int nPass, int nPassCount )
 {
-	if ( g_pShaderDevice->IsDeactivated() )
+	if ( g_pShaderDeviceDx11->IsDeactivated() )
 		return;
 
 	IssueStateChanges();
@@ -981,8 +1028,39 @@ bool CShaderAPIDx11::OnDeviceInit()
 {
 	// Initialize the mesh manager
 	MeshMgr()->Init();
+
+	int w, h;
+	g_pShaderDeviceDx11->GetBackBufferDimensions( w, h );
+	
+	{
+		LOCK_SHADERAPI();
+		// Create a the back buffer view
+		// UNDONE: Should texture creation and access be moved to ShaderDeviceDx11?
+		ID3D11Texture2D *pBackBuffer;
+		HRESULT hr = D3D11SwapChain()->GetBuffer( 0, __uuidof( ID3D11Texture2D ), (LPVOID *)&pBackBuffer );
+		if ( FAILED( hr ) )
+			return FALSE;
+		m_hBackBuffer = CreateTextureHandle();
+		CTextureDx11 *pTex = &GetTexture( m_hBackBuffer );
+		pTex->SetupBackBuffer( pBackBuffer, w, h, "dx11BackBuffer", true );
+	}
+
+	// Create the depth buffer
+	m_hDepthBuffer = CreateDepthTexture( IMAGE_FORMAT_NV_DST24, w, h, "dx11DepthBuffer", true );
+
 	ResetRenderState();
+
 	return true;
+}
+
+void CShaderAPIDx11::OnDeviceShutdown()
+{
+	for ( int i = m_Textures.Head(); i != m_Textures.InvalidIndex(); i = m_Textures.Next( i ) )
+	{
+		CTextureDx11 *pTex = &m_Textures[i];
+		pTex->Delete();
+	}
+	m_Textures.RemoveAll();
 }
 
 //-----------------------------------------------------------------------------
@@ -1408,7 +1486,7 @@ IMesh *CShaderAPIDx11::GetFlexMesh()
 
 bool CShaderAPIDx11::IsDeactivated() const
 {
-	return g_pShaderDevice->IsDeactivated();
+	return g_pShaderDeviceDx11->IsDeactivated();
 }
 
 // stuff related to matrix stacks
@@ -1498,15 +1576,14 @@ void CShaderAPIDx11::MultMatrixLocal( float *m )
 
 void CShaderAPIDx11::GetMatrix( MaterialMatrixMode_t matrixMode, float *dst )
 {
-	memcpy( dst, &GetMatrix( matrixMode ), sizeof( DirectX::XMMATRIX ) );
-	HandleMatrixModified();
+	DirectX::XMFLOAT4X4 flt4x4;
+	DirectX::XMStoreFloat4x4( &flt4x4, m_DynamicState.m_Matrices[matrixMode] );
+	memcpy( dst, &flt4x4, sizeof( DirectX::XMFLOAT4X4 ) );
 }
 
 void CShaderAPIDx11::GetMatrix( MaterialMatrixMode_t matrixMode, DirectX::XMMATRIX &mat )
 {
 	mat = GetMatrix( matrixMode );
-	//memcpy( dst, &GetCurrentMatrix(), sizeof( DirectX::XMMATRIX ) );
-	//HandleMatrixModified();
 }
 
 void CShaderAPIDx11::LoadIdentity( void )
@@ -1549,7 +1626,7 @@ void CShaderAPIDx11::PerspectiveX( double fovx, double aspect, double zNear, dou
 	mat = DirectX::XMMatrixPerspectiveRH( width, height, zNear, zFar );
 
 	// DX11FIXME: Local multiply
-	GetCurrentMatrix() = DirectX::XMMatrixMultiply( GetCurrentMatrix(), mat );
+	GetCurrentMatrix() = DirectX::XMMatrixMultiply( mat, GetCurrentMatrix() );
 
 	HandleMatrixModified();
 }
@@ -2273,6 +2350,9 @@ double CShaderAPIDx11::CurrentTime() const
 // Get the current camera position in world space.
 void CShaderAPIDx11::GetWorldSpaceCameraPosition( float *pPos ) const
 {
+	DirectX::XMFLOAT4X4 flt4x4;
+	DirectX::XMStoreFloat4x4( &flt4x4, m_DynamicState.m_Matrices[MATERIAL_VIEW] );
+	memcpy( pPos, &flt4x4, sizeof( DirectX::XMFLOAT4X4 ) );
 }
 
 void CShaderAPIDx11::ForceHardwareSync( void )

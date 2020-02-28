@@ -126,30 +126,16 @@ namespace StatesDx11
 	struct DepthStencilState : public CD3D11_DEPTH_STENCIL_DESC
 	{
 		int StencilRef;
-
-		DepthStencilState()
-		{
-			StencilRef = 0;
-		}
 	};
 
 	struct BlendState : public CD3D11_BLEND_DESC
 	{
 		float BlendColor[4];
 		uint SampleMask;
-
-		BlendState()
-		{
-			BlendColor[0] = BlendColor[1] = BlendColor[2] = BlendColor[3] = 1.0f;
-			SampleMask = 1;
-		}
 	};
 
 	struct RasterState : public CD3D11_RASTERIZER_DESC
 	{
-		RasterState()
-		{
-		}
 	};
 
 	struct ShadowState
@@ -198,16 +184,38 @@ namespace StatesDx11
 			return memcmp( &rasterizer, &other.rasterizer, sizeof( RasterState ) ) != 0;
 		}
 
-		ShadowState()
+		// Sets the default shadow state
+		void SetDefault()
 		{
 			ZeroMemory( this, sizeof( ShadowState ) );
+
+			blend.BlendColor[0] = blend.BlendColor[1] =
+				blend.BlendColor[2] = blend.BlendColor[3] = 1.0f;
+			blend.SampleMask = 1;
+
 			rasterizer.FillMode = D3D11_FILL_SOLID;
-			rasterizer.CullMode = D3D11_CULL_BACK;
+			rasterizer.CullMode = D3D11_CULL_NONE;
+			rasterizer.FrontCounterClockwise = TRUE; // right-hand rule
+
+			D3D11_RENDER_TARGET_BLEND_DESC *rtbDesc = &blend.RenderTarget[0];
+			rtbDesc->SrcBlend = D3D11_BLEND_ONE;
+			rtbDesc->DestBlend = D3D11_BLEND_ZERO;
+			rtbDesc->BlendOp = D3D11_BLEND_OP_ADD;
+			rtbDesc->SrcBlendAlpha = D3D11_BLEND_ONE;
+			rtbDesc->DestBlendAlpha = D3D11_BLEND_ZERO;
+			rtbDesc->BlendOpAlpha = D3D11_BLEND_OP_ADD;
+			rtbDesc->RenderTargetWriteMask = D3D11_COLOR_WRITE_ENABLE_ALL;
+
+			alphaTestFunc = SHADER_ALPHAFUNC_GEQUAL;
+
 			vertexShader = -1;
 			pixelShader = -1;
 			geometryShader = -1;
-			vertexFormat = 0;
-			morphFormat = 0;
+		}
+
+		ShadowState()
+		{
+			SetDefault();
 		}
 
 		bool operator==( const ShadowState &other ) const
@@ -245,6 +253,12 @@ namespace StatesDx11
 		VertexFormat_t m_pVertexDecl[MAX_DX11_STREAMS];
 	};
 
+	struct RenderTargetState
+	{
+		ShaderAPITextureHandle_t m_RenderTarget;
+		ShaderAPITextureHandle_t m_DepthTarget;
+	};
+
 	struct DynamicState
 	{
 		int m_nViewportCount;
@@ -280,13 +294,22 @@ namespace StatesDx11
 		ID3D11ShaderResourceView *m_ppTextureViews[MAX_DX11_SAMPLERS];
 		int m_nTextures;
 
-		DynamicState()
+		ID3D11RenderTargetView *m_pRenderTargetView;
+		ID3D11DepthStencilView *m_pDepthStencilView;
+
+		// Sets the default dynamic state
+		void SetDefault()
 		{
 			ZeroMemory( this, sizeof( DynamicState ) );
 			m_iVertexShader = -1;
 			m_iPixelShader = -1;
 			m_iGeometryShader = -1;
 			m_Topology = D3D11_PRIMITIVE_TOPOLOGY_UNDEFINED;
+		}
+
+		DynamicState()
+		{
+			SetDefault();
 		}
 	};
 

@@ -250,7 +250,7 @@ bool CShaderAPITestApp::Create()
 	const char *pShaderDLL = CommandLine()->ParmValue( "-shaderdll" );
 	if ( !pShaderDLL )
 	{
-		pShaderDLL = "shaderapidx9.dll";
+		pShaderDLL = "shaderapidx11.dll";
 	}
 
 	if ( !bIsVistaOrHigher && !Q_stricmp( pShaderDLL, "shaderapidx11.dll" ) )
@@ -682,14 +682,14 @@ static const char s_pSimpleDx11VertexShader[] =
 "}"
 "struct VS_INPUT															"
 "{																			"
-"	float3 vPos						: POSITION0;							"
+"	float3 vPos						: SV_POSITION;							"
 "       float4 vTexCoord				: TEXCOORD0;"
 "	float4 vColor					: COLOR0;								"
 "};																			"
 "																			"
 "struct VS_OUTPUT															"
 "{																			"
-"	float4 projPos					: POSITION0;							"
+"	float4 projPos					: SV_POSITION;							"
 "       float2 vTexCoord                                : TEXCOORD0;"
 "	float4 vertexColor				: COLOR0;								"
 "};																			"
@@ -716,7 +716,7 @@ static const char s_pSimpleDx11PixelShader[] =
 "}"
 "struct PS_INPUT															"
 "{																			"
-"	float4 projPos					: POSITION0;							"
+"	float4 projPos					: SV_POSITION;							"
 "       float2 vTexCoord                                : TEXCOORD0;"
 "	float4 vColor					: COLOR0;								"
 "};																			"
@@ -922,8 +922,12 @@ void CShaderAPITestApp::TestDynamicBuffers()
 	m_pIndexBuffer = m_pShaderDevice->CreateIndexBuffer( 
 		SHADER_BUFFER_TYPE_DYNAMIC, MATERIAL_INDEX_FORMAT_UNKNOWN, 30, "test" );
 
-	CreateShaders( s_pSimpleVertexShader, sizeof(s_pSimpleVertexShader), 
-		NULL, 0, s_pSimplePixelShader, sizeof(s_pSimplePixelShader) );
+	if ( !m_bIsDx11 )
+		CreateShaders( s_pSimpleVertexShader, sizeof( s_pSimpleVertexShader ),
+			       NULL, 0, s_pSimplePixelShader, sizeof( s_pSimplePixelShader ) );
+	else
+		CreateShaders( s_pSimpleDx11VertexShader, sizeof( s_pSimpleDx11VertexShader ),
+			       NULL, 0, s_pSimpleDx11PixelShader, sizeof( s_pSimpleDx11PixelShader ) );
 
 	// clear (so that we can make sure that we aren't getting results from the previous quad)
 	m_pShaderAPI->ClearColor3ub( RandomInt( 0, 100 ), RandomInt( 0, 100 ), RandomInt( 190, 255 ) );

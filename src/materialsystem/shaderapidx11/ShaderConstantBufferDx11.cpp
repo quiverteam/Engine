@@ -7,7 +7,7 @@
 CShaderConstantBufferDx11::CShaderConstantBufferDx11() :
 	m_pCBuffer( NULL ),
 	m_nBufSize( 0 ),
-	m_bNeedsUpdate( true ),
+	m_bNeedsUpdate( false ),
 	m_pData( NULL )
 {
 }
@@ -73,6 +73,6 @@ void CShaderConstantBufferDx11::Destroy()
 	m_pCBuffer = NULL;
 
 	if ( m_pData )
-		free( m_pData );
+		_aligned_free( m_pData );
 	m_pData = NULL;
 }

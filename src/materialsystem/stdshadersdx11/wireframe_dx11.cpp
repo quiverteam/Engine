@@ -15,6 +15,7 @@
 #include "tier0/memdbgon.h"
 
 #ifdef _WIN32
+DEFINE_FALLBACK_SHADER(Wireframe, Wireframe_DX11)
 BEGIN_SHADER( Wireframe_DX11,
 	      "Help for Wireframe_DX11" )
 
@@ -27,6 +28,8 @@ BEGIN_SHADER( Wireframe_DX11,
 
 	SHADER_INIT
 	{
+		if ( params[BASETEXTURE]->IsDefined() )
+			LoadTexture( BASETEXTURE );
 	}
 
 	SHADER_DRAW
@@ -34,6 +37,11 @@ BEGIN_SHADER( Wireframe_DX11,
 		SHADOW_STATE
 		{
 			pShaderShadow->PolyMode( SHADER_POLYMODEFACE_FRONT_AND_BACK, SHADER_POLYMODE_LINE );
+			pShaderShadow->EnableCulling( false );
+
+			VertexFormat_t format = VERTEX_POSITION | VERTEX_COLOR;
+			int dimensions[] = { 2 };
+			pShaderShadow->VertexShaderVertexFormat( format, 1, dimensions, 0 );
 
 			DECLARE_STATIC_VERTEX_SHADER( wireframe_vs40 );
 			SET_STATIC_VERTEX_SHADER( wireframe_vs40 );
@@ -43,6 +51,8 @@ BEGIN_SHADER( Wireframe_DX11,
 		}
 		DYNAMIC_STATE
 		{
+
+			BindVertexShaderConstantBuffer( GetInternalConstantBuffer( SHADER_INTERNAL_CONSTANTBUFFER_TRANSFORM ) );
 			DECLARE_DYNAMIC_VERTEX_SHADER( wireframe_vs40 );
 			SET_DYNAMIC_VERTEX_SHADER( wireframe_vs40 );
 
