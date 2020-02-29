@@ -1404,7 +1404,7 @@ bool CMeshDX11::Lock( int nVertexCount, bool bAppend, VertexDesc_t &desc )
 		Assert( nVertexCount <= nMaxVerts );
 	}
 
-	bool ret = m_pVertexBuffer->Lock( nMaxVerts, bAppend, desc );
+	bool ret = m_pVertexBuffer->Lock( nVertexCount, bAppend, desc );
 	if ( !ret )
 	{
 		Log( "Couldn't lock vertex buffer\n" );

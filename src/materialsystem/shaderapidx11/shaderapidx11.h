@@ -42,9 +42,6 @@ struct MaterialSystemHardwareIdentifier_t;
 
 struct DynamicStateDx11_t
 {
-	DirectX::XMMATRIX m_Matrices[NUM_MATRIX_MODES];
-	bool m_ChangedMatrices[NUM_MATRIX_MODES];
-
 	MaterialFogMode_t m_FogMode;
 	float m_flFogStart;
 	float m_flFogEnd;
@@ -54,12 +51,12 @@ struct DynamicStateDx11_t
 	Vector4D m_AmbientLightCube[6];
 	LightDesc_t m_Lights[MAX_NUM_LIGHTS];
 	int m_NumLights;
+};
 
-	DynamicStateDx11_t()
-	{
-		memset( m_ChangedMatrices, 0, NUM_MATRIX_MODES );
-		//m_bMatricesChanged = true;
-	}
+struct MatrixItemDx11_t
+{
+	DirectX::XMMATRIX m_Matrix;
+	int m_Flags;
 };
 
 //-----------------------------------------------------------------------------
@@ -945,6 +942,8 @@ private:
 	bool IsDeactivated() const;
 	DirectX::XMMATRIX &GetMatrix( MaterialMatrixMode_t mode );
 	DirectX::XMMATRIX &GetCurrentMatrix();
+	DirectX::XMMATRIX GetMatrixCopy( MaterialMatrixMode_t mode ) const;
+	DirectX::XMMATRIX GetCurrentMatrixCopy() const;
 	void HandleMatrixModified();
 
 	void RenderPassWithVertexAndIndexBuffers();
@@ -974,6 +973,9 @@ private:
 
 	// Setting matrices
 	MaterialMatrixMode_t m_MatrixMode;
+	MatrixItemDx11_t *m_pCurMatrixItem;
+	CUtlStack<MatrixItemDx11_t> m_MatrixStacks[NUM_MATRIX_MODES];
+	bool m_ChangedMatrices[NUM_MATRIX_MODES];
 
 	bool m_bSelectionMode;
 

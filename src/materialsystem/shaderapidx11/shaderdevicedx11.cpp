@@ -541,6 +541,7 @@ CShaderDeviceDx11::CShaderDeviceDx11() :
 	m_ConstantBuffers( 32 )
 {
 	m_pDevice = NULL;
+	m_pDeviceContext = NULL;
 	m_pOutput = NULL;
 	m_pSwapChain = NULL;
 	m_bDeviceInitialized = false;
@@ -594,9 +595,9 @@ bool CShaderDeviceDx11::InitDevice( void *hWnd, int nAdapter, const ShaderDevice
 	sd.SampleDesc.Quality = mode.m_nAAQuality;
 
 	UINT nDeviceFlags = 0;
-//#ifdef _DEBUG
+#ifdef _DEBUG
 	nDeviceFlags |= D3D11_CREATE_DEVICE_DEBUG;
-//#endif
+#endif
 
 	HRESULT hr = D3D11CreateDeviceAndSwapChain( pAdapter, D3D_DRIVER_TYPE_UNKNOWN,
 						    NULL, nDeviceFlags, NULL, 0, D3D11_SDK_VERSION, &sd, &m_pSwapChain,
@@ -631,6 +632,11 @@ bool CShaderDeviceDx11::InitDevice( void *hWnd, int nAdapter, const ShaderDevice
 //-----------------------------------------------------------------------------
 void CShaderDeviceDx11::ShutdownDevice() 
 {
+	if ( m_pDeviceContext )
+	{
+		m_pDeviceContext->Release();
+		m_pDeviceContext = NULL;
+	}
 
 	if ( m_pDevice )
 	{

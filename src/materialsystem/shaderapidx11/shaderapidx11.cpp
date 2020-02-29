@@ -25,6 +25,12 @@
 // NOTE: This has to be the last file included!
 #include "tier0/memdbgon.h"
 
+enum
+{
+	MATRIXDX11_DIRTY,
+	MATRIXDX11_IDENTITY,
+};
+
 //-----------------------------------------------------------------------------
 //
 // Shader API Dx11
@@ -61,6 +67,15 @@ CShaderAPIDx11::CShaderAPIDx11() :
 	m_State = m_TargetState;
 	m_DynamicState = DynamicStateDx11_t();
 	m_bSelectionMode = false;
+
+	for ( int i = 0; i < NUM_MATRIX_MODES; i++ )
+	{
+		m_MatrixStacks[i].Push();
+		m_MatrixStacks[i].Top().m_Matrix = DirectX::XMMatrixIdentity();
+		m_MatrixStacks[i].Top().m_Flags = ( MATRIXDX11_DIRTY | MATRIXDX11_IDENTITY );
+		m_ChangedMatrices[i] = true;
+	}
+	m_pCurMatrixItem = &m_MatrixStacks[0].Top();
 }
 
 CShaderAPIDx11::~CShaderAPIDx11()
@@ -118,9 +133,18 @@ void CShaderAPIDx11::SetRenderTargetEx( int id, ShaderAPITextureHandle_t colorTe
 	{
 		colorTextureHandle = m_hBackBuffer;
 	}
+	else if ( colorTextureHandle == SHADER_RENDERTARGET_NONE )
+	{
+		colorTextureHandle = INVALID_SHADERAPI_TEXTURE_HANDLE;
+	}
+
 	if ( depthTextureHandle == SHADER_RENDERTARGET_DEPTHBUFFER )
 	{
 		depthTextureHandle = m_hDepthBuffer;
+	}
+	else if ( depthTextureHandle == SHADER_RENDERTARGET_NONE )
+	{
+		depthTextureHandle = INVALID_SHADERAPI_TEXTURE_HANDLE;
 	}
 
 	if ( colorTextureHandle != INVALID_SHADERAPI_TEXTURE_HANDLE )
@@ -164,9 +188,9 @@ void CShaderAPIDx11::IssueStateChanges( bool bForce )
 	const StatesDx11::ShadowState &shadow = m_State.shadow;
 
 	// Update transform
-	if ( m_DynamicState.m_ChangedMatrices[MATERIAL_MODEL] ||
-	     m_DynamicState.m_ChangedMatrices[MATERIAL_VIEW] ||
-	     m_DynamicState.m_ChangedMatrices[MATERIAL_PROJECTION] )
+	if ( m_ChangedMatrices[MATERIAL_MODEL] ||
+	     m_ChangedMatrices[MATERIAL_VIEW] ||
+	     m_ChangedMatrices[MATERIAL_PROJECTION] )
 	{
 		//Log( "\tIssuing transform\n" );
 		DoIssueTransform();
@@ -339,20 +363,23 @@ FORCEINLINE static void OutputMatrix( const DirectX::XMFLOAT4X4 &mat, const char
 
 void CShaderAPIDx11::DoIssueTransform()
 {
-	TransformBuffer_t tmp;
-	tmp.modelTransform = DirectX::XMMatrixTranspose( GetMatrix( MATERIAL_MODEL ) );
-	tmp.viewTransform = DirectX::XMMatrixTranspose( GetMatrix( MATERIAL_VIEW ) );
-	tmp.projTransform = DirectX::XMMatrixTranspose( GetMatrix( MATERIAL_PROJECTION ) );
+	ALIGN16 TransformBuffer_t tmp;
+	const DirectX::XMMATRIX model = GetMatrix( MATERIAL_MODEL );
+	const DirectX::XMMATRIX view = GetMatrix( MATERIAL_VIEW );
+	const DirectX::XMMATRIX projection = GetMatrix( MATERIAL_PROJECTION );
+	tmp.modelTransform = DirectX::XMMatrixTranspose( model );
+	tmp.viewTransform = DirectX::XMMatrixTranspose( view );
+	tmp.projTransform = DirectX::XMMatrixTranspose( projection );
 
 	DirectX::XMMATRIX modelViewProj;
-	modelViewProj = DirectX::XMMatrixMultiply( GetMatrix( MATERIAL_MODEL ), GetMatrix( MATERIAL_VIEW ) );
-	modelViewProj = DirectX::XMMatrixMultiply( modelViewProj, GetMatrix( MATERIAL_PROJECTION ) );
+	modelViewProj = DirectX::XMMatrixMultiply( model, view );
+	modelViewProj = DirectX::XMMatrixMultiply( modelViewProj, projection );
 	modelViewProj = DirectX::XMMatrixTranspose( modelViewProj );
 	tmp.modelViewProj = modelViewProj;
 
-	m_DynamicState.m_ChangedMatrices[MATERIAL_MODEL] = false;
-	m_DynamicState.m_ChangedMatrices[MATERIAL_VIEW] = false;
-	m_DynamicState.m_ChangedMatrices[MATERIAL_PROJECTION] = false;
+	m_ChangedMatrices[MATERIAL_MODEL] = false;
+	m_ChangedMatrices[MATERIAL_VIEW] = false;
+	m_ChangedMatrices[MATERIAL_PROJECTION] = false;
 	ConstantBuffer_t tbuffer = g_pShaderDeviceDx11->GetTransformConstantBuffer();
 	IShaderConstantBuffer *pIBuf = (IShaderConstantBuffer *)g_pShaderDeviceDx11->GetConstantBuffer( tbuffer );
 	//Log( "\tUpdating transform constant buffer at %p\n", pIBuf->GetBuffer() );
@@ -1524,60 +1551,99 @@ void CShaderAPIDx11::HandleMatrixModified()
 		break;
 	}
 	//Log( "Matrix modified: %s\n", materialname );
-	m_DynamicState.m_ChangedMatrices[m_MatrixMode] = true;
+	m_ChangedMatrices[m_MatrixMode] = true;
 }
 
 DirectX::XMMATRIX &CShaderAPIDx11::GetMatrix( MaterialMatrixMode_t mode )
 {
-	return m_DynamicState.m_Matrices[mode];
+	CUtlStack<MatrixItemDx11_t> &curStack = m_MatrixStacks[mode];
+	if ( !curStack.Count() )
+	{
+		return DirectX::XMMatrixIdentity();
+	}
+
+	return m_MatrixStacks[mode].Top().m_Matrix;
 }
 
 DirectX::XMMATRIX &CShaderAPIDx11::GetCurrentMatrix()
 {
-	return m_DynamicState.m_Matrices[m_MatrixMode];
+	return m_pCurMatrixItem->m_Matrix;
+}
+
+DirectX::XMMATRIX CShaderAPIDx11::GetMatrixCopy( MaterialMatrixMode_t mode ) const
+{
+	const CUtlStack<MatrixItemDx11_t> &curStack = m_MatrixStacks[mode];
+	if ( !curStack.Count() )
+	{
+		return DirectX::XMMatrixIdentity();
+	}
+
+	return m_MatrixStacks[mode].Top().m_Matrix;
+}
+
+DirectX::XMMATRIX CShaderAPIDx11::GetCurrentMatrixCopy() const
+{
+	return m_pCurMatrixItem->m_Matrix;
 }
 
 void CShaderAPIDx11::MatrixMode( MaterialMatrixMode_t matrixMode )
 {
+	Assert( m_MatrixStacks[matrixMode].Count() );
 	m_MatrixMode = matrixMode;
+	m_pCurMatrixItem = &m_MatrixStacks[matrixMode].Top();
 }
 
 void CShaderAPIDx11::PushMatrix()
 {
 	// Does nothing in Dx11
 	//GetCurrentMatrix() = DirectX::XMMatrixTranspose( GetCurrentMatrix() );
+
+	CUtlStack<MatrixItemDx11_t> &curStack = m_MatrixStacks[m_MatrixMode];
+	Assert( curStack.Count() );
+	int iNew = m_MatrixStacks[m_MatrixMode].Push();
+	curStack[iNew] = curStack[iNew - 1];
+	m_pCurMatrixItem = &m_MatrixStacks[m_MatrixMode].Top();
+
+	HandleMatrixModified();
 }
 
 void CShaderAPIDx11::PopMatrix()
 {
-	// Reset the matrix to identity
-	GetCurrentMatrix() = DirectX::XMMatrixIdentity();
+	Assert( m_MatrixStacks[m_MatrixMode].Count() > 1 );
+	m_MatrixStacks[m_MatrixMode].Pop();
+	m_pCurMatrixItem = &m_MatrixStacks[m_MatrixMode].Top();
+
 	HandleMatrixModified();
 }
 
 void CShaderAPIDx11::LoadMatrix( float *m )
 {
-	GetCurrentMatrix() = DirectX::XMMATRIX( m );
+	DirectX::XMFLOAT4X4 flt4x4( m );
+	GetCurrentMatrix() = DirectX::XMLoadFloat4x4( &flt4x4 );
 	HandleMatrixModified();
 }
 
 void CShaderAPIDx11::MultMatrix( float *m )
 {
-	GetCurrentMatrix() = DirectX::XMMatrixMultiply( GetCurrentMatrix(), DirectX::XMMATRIX( m ) );
+	DirectX::XMFLOAT4X4 flt4x4( m );
+	GetCurrentMatrix() = DirectX::XMMatrixMultiply(
+		GetCurrentMatrix(), DirectX::XMLoadFloat4x4( &flt4x4 ) );
 	HandleMatrixModified();
 }
 
 void CShaderAPIDx11::MultMatrixLocal( float *m )
 {
 	// DX11FIXME: Local multiply
-	GetCurrentMatrix() = DirectX::XMMatrixMultiply( DirectX::XMMATRIX( m ), GetCurrentMatrix() );
+	DirectX::XMFLOAT4X4 flt4x4( m );
+	GetCurrentMatrix() = DirectX::XMMatrixMultiply(
+		DirectX::XMLoadFloat4x4( &flt4x4 ), GetCurrentMatrix() );
 	HandleMatrixModified();
 }
 
 void CShaderAPIDx11::GetMatrix( MaterialMatrixMode_t matrixMode, float *dst )
 {
 	DirectX::XMFLOAT4X4 flt4x4;
-	DirectX::XMStoreFloat4x4( &flt4x4, m_DynamicState.m_Matrices[matrixMode] );
+	DirectX::XMStoreFloat4x4( &flt4x4, GetMatrix( matrixMode ) );
 	memcpy( dst, &flt4x4, sizeof( DirectX::XMFLOAT4X4 ) );
 }
 
@@ -1588,7 +1654,8 @@ void CShaderAPIDx11::GetMatrix( MaterialMatrixMode_t matrixMode, DirectX::XMMATR
 
 void CShaderAPIDx11::LoadIdentity( void )
 {
-	GetCurrentMatrix() = DirectX::XMMatrixIdentity();
+	m_MatrixStacks;
+	m_pCurMatrixItem->m_Matrix = DirectX::XMMatrixIdentity();
 	HandleMatrixModified();
 }
 
@@ -1603,9 +1670,18 @@ void CShaderAPIDx11::LoadCameraToWorld( void )
 	//inv.r[3].m128_f32[0] = inv.r[3].m128_f32[1] = inv.r[3].m128_f32[2] = 0.0f;
 	inv = DirectX::XMMatrixMultiply( inv, DirectX::XMMatrixTranslation( 0, 0, 0 ) );
 
-	GetCurrentMatrix() = inv;
+	m_pCurMatrixItem->m_Matrix = inv;
 
 	HandleMatrixModified();
+}
+
+// Get the current camera position in world space.
+void CShaderAPIDx11::GetWorldSpaceCameraPosition( float *pPos ) const
+{
+	DirectX::XMFLOAT4X4 flt4x4;
+	const DirectX::XMMATRIX &view = GetMatrixCopy( MATERIAL_VIEW );
+	DirectX::XMStoreFloat4x4( &flt4x4, view );
+	memcpy( pPos, &flt4x4, sizeof( DirectX::XMFLOAT4X4 ) );
 }
 
 void CShaderAPIDx11::Ortho( double left, double top, double right, double bottom, double zNear, double zFar )
@@ -2345,14 +2421,6 @@ void CShaderAPIDx11::EndFrame()
 double CShaderAPIDx11::CurrentTime() const
 {
 	return Sys_FloatTime();
-}
-
-// Get the current camera position in world space.
-void CShaderAPIDx11::GetWorldSpaceCameraPosition( float *pPos ) const
-{
-	DirectX::XMFLOAT4X4 flt4x4;
-	DirectX::XMStoreFloat4x4( &flt4x4, m_DynamicState.m_Matrices[MATERIAL_VIEW] );
-	memcpy( pPos, &flt4x4, sizeof( DirectX::XMFLOAT4X4 ) );
 }
 
 void CShaderAPIDx11::ForceHardwareSync( void )
