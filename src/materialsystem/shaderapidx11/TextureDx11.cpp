@@ -3,6 +3,8 @@
 #include "shaderdevicedx11.h"
 #include "shaderapidx11_global.h"
 #include "shaderapi/ishaderutil.h"
+#include "filesystem.h"
+#include "bitmap/tgawriter.h"
 
 // NOTE: This has to be the last file included!
 #include "tier0/memdbgon.h"
@@ -278,19 +280,24 @@ inline int CalcMipLevels( int w, int h )
 void CTextureDx11::SetupTexture2D( int width, int height, int depth, int count, int i,
 				   int flags, int numCopies, int numMipLevels, ImageFormat dstImageFormat )
 {
+	Log( "Making texture2D\n" );
 	bool bIsRenderTarget = ( flags & TEXTURE_CREATE_RENDERTARGET ) != 0;
 	bool bIsDepthBuffer = ( flags & TEXTURE_CREATE_DEPTHBUFFER ) != 0;
 
 	if ( bIsDepthBuffer )
 	{
+		Log( "Making depth buffer\n" );
 		SetupDepthTexture( dstImageFormat, width, height, "depth", true );
 		return;
 	}
 	else if ( bIsRenderTarget )
 	{
+		Log( "Making render target\n" );
 		SetupBackBuffer( width, height, "rendertarget", NULL, dstImageFormat );
 		return;
 	}
+
+	dstImageFormat = IMAGE_FORMAT_RGBA8888;
 
 	//---------------------------------------------------------------------------------
 
@@ -397,7 +404,11 @@ void CTextureDx11::SetupDepthTexture( ImageFormat renderFormat, int width, int h
 	m_pTexture = CreateD3DTexture(
 		width, height, m_Depth, renderFormat, m_NumLevels, m_CreationFlags );
 	AdjustSamplerState();
-	MakeDepthStencilView();		
+	MakeDepthStencilView();	
+	if ( bTexture )
+	{
+		MakeView();
+	}
 }
 
 void CTextureDx11::SetupBackBuffer( int width, int height, const char *pDebugName,
@@ -426,6 +437,7 @@ void CTextureDx11::SetupBackBuffer( int width, int height, const char *pDebugNam
 
 	AdjustSamplerState();
 	MakeRenderTargetView();
+	MakeView();
 }
 
 void CTextureDx11::SetMinFilter( ShaderTexFilterMode_t texFilterMode )
@@ -636,11 +648,6 @@ void CTextureDx11::MakeDepthStencilView()
 
 void CTextureDx11::MakeView()
 {
-	if ( m_iTextureType != TEXTURE_STANDARD )
-	{
-		return;
-	}
-
 	bool bGenMipMap = ( m_CreationFlags & TEXTURE_CREATE_AUTOMIPMAP ) != 0;
 
 	if ( m_NumCopies > 1 )
@@ -685,6 +692,8 @@ void CTextureDx11::MakeView()
 	
 }
 
+static int s_NumBlits = 0;
+
 void CTextureDx11::BlitSurfaceBits( CTextureDx11::TextureLoadInfo_t &info, int xOffset, int yOffset, int srcStride )
 {
 	CD3D11_BOX box;
@@ -701,19 +710,35 @@ void CTextureDx11::BlitSurfaceBits( CTextureDx11::TextureLoadInfo_t &info, int x
 
 	bool ret = 
 		ShaderUtil()->ConvertImageFormat( info.m_pSrcData, info.m_SrcFormat, pNewImage, m_Format,
-						  info.m_nWidth, info.m_nHeight, srcStride, dstStride );
+						  info.m_nWidth, info.m_nHeight, srcStride );
 	if ( !ret )
 	{
 		Warning( "Couldn't convert texture for uploading to D3D!\n" );
 		return;
 	}
 
+#if 0
+	{
+		int debugMem = ImageLoader::GetMemRequired( info.m_nWidth, info.m_nHeight, info.m_nZOffset, IMAGE_FORMAT_BGRA8888, false );
+		unsigned char *pDebugImage = new unsigned char[debugMem];
+		int debugStride = ImageLoader::SizeInBytes( IMAGE_FORMAT_BGRA8888 );
+		ShaderUtil()->ConvertImageFormat( info.m_pSrcData, info.m_SrcFormat, pDebugImage, IMAGE_FORMAT_BGRA8888,
+						  info.m_nWidth, info.m_nHeight, srcStride, debugStride );
+		char filename[50];
+		memset( filename, 0, 50 );
+		sprintf( filename, "C:\\Users\\Brian\\Desktop\\SourceDX11Debug\\BlitSurfaceBitsDebug-%i.tga", s_NumBlits++ );
+		TGAWriter::WriteTGAFile( filename, info.m_nWidth, info.m_nHeight, IMAGE_FORMAT_BGRA8888, pDebugImage, debugStride );
+		delete[] pDebugImage;
+	}
+#endif
+	
+
+	Log( "CalcSubresource: level %i, face %i, num levels %i\n", info.m_nLevel, info.m_CubeFaceID, m_NumLevels );
 	UINT subresource = D3D11CalcSubresource( info.m_nLevel, info.m_CubeFaceID, m_NumLevels );
 
 	D3D11DeviceContext()->UpdateSubresource( info.m_pTexture, subresource, &box, pNewImage, dstStride * info.m_nWidth, dstStride * info.m_nWidth * info.m_nHeight );
 
 	delete[] pNewImage;
-
 }
 
 void CTextureDx11::BlitTextureBits( CTextureDx11::TextureLoadInfo_t &info, int xOffset, int yOffset, int srcStride )
@@ -728,7 +753,7 @@ void CTextureDx11::BlitTextureBits( CTextureDx11::TextureLoadInfo_t &info, int x
 	BlitSurfaceBits( info, xOffset, yOffset, srcStride );
 }
 
-void CTextureDx11::LoadTexImage( CTextureDx11::TextureLoadInfo_t &info )
+void CTextureDx11::LoadTexImage( CTextureDx11::TextureLoadInfo_t &info, int xOffset, int yOffset, int srcStride )
 {
 	MEM_ALLOC_CREDIT();
 
@@ -736,7 +761,7 @@ void CTextureDx11::LoadTexImage( CTextureDx11::TextureLoadInfo_t &info )
 	Assert( info.m_pTexture );
 
 	// Copy in the bits...
-	BlitTextureBits( info, 0, 0, 0 );
+	BlitTextureBits( info, xOffset, yOffset, srcStride );
 }
 
 void CTextureDx11::Delete()
@@ -745,6 +770,14 @@ void CTextureDx11::Delete()
 
 	if ( m_NumCopies == 1 )
 	{
+		if ( m_pView )
+		{
+			int refCount = m_pView->Release();
+			Assert( refCount == 0 );
+			m_pView = 0;
+			nDeallocated++;
+		}
+
 		if ( m_pTexture )
 		{
 			DestroyD3DTexture( m_pTexture );
@@ -754,6 +787,22 @@ void CTextureDx11::Delete()
 	}
 	else
 	{
+		if ( m_ppView )
+		{
+			for ( int i = 0; i < m_NumCopies; i++ )
+			{
+				if ( m_ppView[i] )
+				{
+					int refCount = m_ppView[i]->Release();
+					Assert( refCount == 0 );
+					nDeallocated++;
+				}
+			}
+
+			delete[] m_ppView;
+			m_ppView = NULL;
+		}
+
 		if ( m_ppTexture )
 		{
 			// Multiple copy texture
@@ -767,8 +816,8 @@ void CTextureDx11::Delete()
 				}
 			}
 			delete[] m_ppTexture;
+			m_ppTexture = NULL;
 		}			
-		m_ppTexture = 0;
 	}
 
 	if ( m_iTextureType == TEXTURE_RENDERTARGET )
@@ -790,40 +839,7 @@ void CTextureDx11::Delete()
 			m_pDepthStencilView = 0;
 			nDeallocated++;
 		}
-	}
-	else
-	{
-		if ( m_NumCopies > 1 )
-		{
-			if ( m_ppView )
-			{
-				for ( int i = 0; i < m_NumCopies; i++ )
-				{
-					if ( m_ppView[i] )
-					{
-						int refCount = m_ppView[i]->Release();
-						Assert( refCount == 0 );
-						nDeallocated++;
-					}
-				}
-
-				delete[] m_ppView;
-			}
-
-			m_ppView = NULL;
-		}
-		else
-		{
-			if ( m_pView )
-			{
-				int refCount = m_pView->Release();
-				Assert( refCount == 0 );
-				m_pView = 0;
-				nDeallocated++;
-			}
-		}
-		
-	}		
+	}	
 
 	if ( m_pSamplerState )
 	{

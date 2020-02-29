@@ -8,8 +8,6 @@ common_cbuffers.h
 common_fxc.h
 common_hlsl_cpp_consts.h
 common_pragmas.h
-common_ps_fxc.h
 common_vs_fxc.h
 shader_register_map.h
-wireframe_ps40.fxc
-wireframe_vs40.fxc
+unlitgeneric_vs40.fxc

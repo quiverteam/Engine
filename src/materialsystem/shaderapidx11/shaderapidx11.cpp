@@ -363,7 +363,7 @@ FORCEINLINE static void OutputMatrix( const DirectX::XMFLOAT4X4 &mat, const char
 
 void CShaderAPIDx11::DoIssueTransform()
 {
-	ALIGN16 TransformBuffer_t tmp;
+	TransformBuffer_t tmp;
 	const DirectX::XMMATRIX model = GetMatrix( MATERIAL_MODEL );
 	const DirectX::XMMATRIX view = GetMatrix( MATERIAL_VIEW );
 	const DirectX::XMMATRIX projection = GetMatrix( MATERIAL_PROJECTION );
@@ -506,8 +506,9 @@ void CShaderAPIDx11::DoIssueSampler()
 
 void CShaderAPIDx11::DoIssueTexture()
 {
-	D3D11DeviceContext()->PSSetShaderResources( 0, m_TargetState.dynamic.m_nTextures,
-						    m_TargetState.dynamic.m_ppTextureViews );
+	ID3D11DeviceContext *ctx = D3D11DeviceContext();
+	ctx->PSSetShaderResources( 0, m_TargetState.dynamic.m_nTextures,
+					m_TargetState.dynamic.m_ppTextureViews );
 }
 
 void CShaderAPIDx11::DoIssueRasterState()
@@ -1132,6 +1133,7 @@ void CShaderAPIDx11::SetDefaultState()
 
 	ZeroMemory( m_TargetState.dynamic.m_ppSamplers, sizeof( ID3D11SamplerState * ) * MAX_DX11_SAMPLERS );
 	ZeroMemory( m_TargetState.dynamic.m_ppTextureViews, sizeof( ID3D11ShaderResourceView * ) * MAX_DX11_SAMPLERS );
+	ZeroMemory( m_TargetState.dynamic.m_ppTextures, sizeof( CTextureDx11 * ) * MAX_DX11_SAMPLERS );
 
 	//m_TargetState.dynamic.m_pVertexShader = 0;
 	//m_TargetState.dynamic.m_pGeometryShader = 0;
@@ -1892,6 +1894,7 @@ void CShaderAPIDx11::BindTexture( Sampler_t stage, ShaderAPITextureHandle_t text
 	CTextureDx11 *pTex = &GetTexture( textureHandle );
 	int iTex = m_TargetState.dynamic.m_nTextures++;
 	int iSamp = m_TargetState.dynamic.m_nSamplers++;
+	m_TargetState.dynamic.m_ppTextures[iTex] = pTex;
 	m_TargetState.dynamic.m_ppTextureViews[iTex] = pTex->GetView();
 	m_TargetState.dynamic.m_ppSamplers[iSamp] = pTex->GetSamplerState();
 }
@@ -2058,6 +2061,68 @@ void CShaderAPIDx11::TexImage2D( int level, int cubeFace, ImageFormat dstFormat,
 void CShaderAPIDx11::TexSubImage2D( int level, int cubeFace, int xOffset, int yOffset, int zOffset, int width, int height,
 				    ImageFormat srcFormat, int srcStride, bool bSrcIsTiled, void *imageData )
 {
+	Log( "TexSubImage2D!\n" );
+
+	LOCK_SHADERAPI();
+	Assert( imageData );
+	ShaderAPITextureHandle_t hModifyTexture = m_ModifyTextureHandle;
+	if ( !m_Textures.IsValidIndex( hModifyTexture ) )
+	{
+		Log( "Invalid modify texture handle!\n" );
+		return;
+
+	}
+
+	//if ( zOffset != 0 )
+		//DebuggerBreak();
+
+	// Blow off mip levels if we don't support mipmapping
+	if ( !g_pHardwareConfig->SupportsMipmapping() && ( level > 0 ) )
+	{
+		Log( "Trying to image mip but we don't support mips!\n" );
+		return;
+	}
+
+	CTextureDx11 &tex = GetTexture( hModifyTexture );
+
+	// NOTE: This can only be done with procedural textures if this method is
+	// being used to download the entire texture, cause last frame's partial update
+	// may be in a completely different texture! Sadly, I don't have all of the
+	// information I need, but I can at least check a couple things....
+#ifdef _DEBUG
+	if ( tex.m_NumCopies > 1 )
+	{
+		Assert( ( xOffset == 0 ) && ( yOffset == 0 ) );
+	}
+#endif
+
+	// This test here just makes sure we don't try to download mipmap levels
+	// if we weren't able to create them in the first place
+	if ( level >= tex.m_NumLevels )
+	{
+		Log( "level >= tex.m_NumLevels\n" );
+		return;
+	}
+
+	// May need to switch textures....
+	if ( tex.m_SwitchNeeded )
+	{
+		AdvanceCurrentTextureCopy( hModifyTexture );
+		tex.m_SwitchNeeded = false;
+	}
+
+	CTextureDx11::TextureLoadInfo_t info;
+	info.m_TextureHandle = hModifyTexture;
+	info.m_pTexture = GetD3DTexture( hModifyTexture );
+	info.m_nLevel = level;
+	info.m_nCopy = tex.m_CurrentCopy;
+	info.m_CubeFaceID = (D3D11_TEXTURECUBE_FACE)cubeFace;
+	info.m_nWidth = width;
+	info.m_nHeight = height;
+	info.m_nZOffset = zOffset;
+	info.m_SrcFormat = srcFormat;
+	info.m_pSrcData = (unsigned char *)imageData;
+	tex.LoadTexImage( info, xOffset, yOffset, srcStride );
 }
 
 bool CShaderAPIDx11::TexLock( int level, int cubeFaceID, int xOffset, int yOffset,

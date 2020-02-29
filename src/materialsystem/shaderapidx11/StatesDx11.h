@@ -8,6 +8,7 @@
 #include <d3d11.h>
 
 class CShaderConstantBufferDx11;
+class CTextureDx11;
 
 //-----------------------------------------------------------------------------
 // DX11 enumerations that don't appear to exist
@@ -293,6 +294,7 @@ namespace StatesDx11
 		int m_nSamplers;
 		ID3D11ShaderResourceView *m_ppTextureViews[MAX_DX11_SAMPLERS];
 		int m_nTextures;
+		CTextureDx11 *m_ppTextures[MAX_DX11_SAMPLERS];
 
 		ID3D11RenderTargetView *m_pRenderTargetView;
 		ID3D11DepthStencilView *m_pDepthStencilView;

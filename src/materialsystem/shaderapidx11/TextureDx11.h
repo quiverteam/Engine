@@ -53,6 +53,7 @@ public:
 	CTextureDx11();
 	ID3D11Resource *GetTexture() const;
 	ID3D11Resource *GetTexture( int n ) const;
+	ID3D11ShaderResourceView *GetView( int n ) const;
 	ID3D11ShaderResourceView *GetView() const;
 	ID3D11DepthStencilView *GetDepthStencilView() const;
 	ID3D11RenderTargetView *GetRenderTargetView() const;
@@ -90,7 +91,7 @@ public:
 	bool Is2D() const;
 	bool Is3D() const;
 
-	void LoadTexImage( TextureLoadInfo_t &info );
+	void LoadTexImage( TextureLoadInfo_t &info, int xOffset = 0, int yOffset = 0, int srcStride = 0 );
 	void BlitTextureBits( TextureLoadInfo_t &info, int xOffset, int yOffset, int srcStride );
 	void BlitSurfaceBits( TextureLoadInfo_t &info, int xOffset, int yOffset, int srcStride );
 
@@ -99,23 +100,27 @@ public:
 	//void SetView( ID3D11ShaderResourceView *view );
 
 private:
+	// Can either have a single texture or an array of texture copies
 	union
 	{
 		ID3D11Resource *m_pTexture;
 		ID3D11Resource **m_ppTexture;
 	};
 
+	// One sampler state
 	ID3D11SamplerState *m_pSamplerState;
 
-	// A texture can have either
-	// - A single ShaderResourceView: one standard texture copy
-	// - An array of ShaderResourceViews: multiple standard texture copies
-	// - A single DepthStencilView: for a depth texture
-	// - A single RenderTargetView: for a render target texture
+	// Can either have a single view or array of views (for copies)
 	union
 	{
 		ID3D11ShaderResourceView *m_pView;
 		ID3D11ShaderResourceView **m_ppView;
+	};
+
+	// Can either have a depth stencil view (for depth buffers) or
+	// a render target view (for render targets/back buffer)
+	union
+	{
 		ID3D11DepthStencilView *m_pDepthStencilView;
 		ID3D11RenderTargetView *m_pRenderTargetView;
 	};
@@ -214,16 +219,29 @@ FORCEINLINE bool CTextureDx11::Is3D() const
 
 FORCEINLINE ID3D11ShaderResourceView *CTextureDx11::GetView() const
 {
+	if ( m_NumCopies > 1 )
+	{
+		return GetView( m_CurrentCopy );
+	}
+
 	return m_pView;
+}
+
+FORCEINLINE ID3D11ShaderResourceView *CTextureDx11::GetView( int n ) const
+{
+	Assert( m_NumCopies > 1 );
+	return m_ppView[n];
 }
 
 FORCEINLINE ID3D11DepthStencilView *CTextureDx11::GetDepthStencilView() const
 {
+	Assert( m_iTextureType == TEXTURE_DEPTHSTENCIL );
 	return m_pDepthStencilView;
 }
 
 FORCEINLINE ID3D11RenderTargetView *CTextureDx11::GetRenderTargetView() const
 {
+	Assert( m_iTextureType == TEXTURE_RENDERTARGET );
 	return m_pRenderTargetView;
 }
 

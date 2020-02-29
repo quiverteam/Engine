@@ -1,4 +1,4 @@
-#if 0
+
 #include "BaseVSShader.h"
 
 #include "unlitgeneric_ps40.inc"
@@ -11,8 +11,8 @@ BEGIN_VS_SHADER(UnlitGeneric, "Unlit shader")
 
 	SHADER_INIT
 	{
-		if ( params[ALBEDO]->IsDefined() )
-			LoadTexture( ALBEDO );
+		//if ( params[ALBEDO]->IsDefined() )
+		//	LoadTexture( ALBEDO );
 		if ( params[BASETEXTURE]->IsDefined() )
 			LoadTexture( BASETEXTURE );
 	}
@@ -56,4 +56,3 @@ BEGIN_VS_SHADER(UnlitGeneric, "Unlit shader")
 	}
 
 END_SHADER
-#endif
