@@ -1042,7 +1042,7 @@ bool CShaderAPIDx11::OnDeviceInit()
 			return FALSE;
 		m_hBackBuffer = CreateTextureHandle();
 		CTextureDx11 *pTex = &GetTexture( m_hBackBuffer );
-		pTex->SetupBackBuffer( pBackBuffer, w, h, "dx11BackBuffer", true );
+		pTex->SetupBackBuffer( w, h, "dx11BackBuffer", pBackBuffer );
 	}
 
 	// Create the depth buffer
@@ -2493,6 +2493,61 @@ bool CShaderAPIDx11::SetMode( void *hwnd, int nAdapter, const ShaderDeviceInfo_t
 {
 	return g_pShaderDeviceMgr->SetMode( hwnd, nAdapter, mode ) != NULL;
 }
+
+
+//--------------------------------------------------------------------
+// Occlusion queries
+//--------------------------------------------------------------------
+
+ShaderAPIOcclusionQuery_t CShaderAPIDx11::CreateOcclusionQueryObject( void )
+{
+	return g_pShaderDeviceDx11->CreateOcclusionQuery();
+}
+
+void CShaderAPIDx11::DestroyOcclusionQueryObject( ShaderAPIOcclusionQuery_t handle )
+{
+	g_pShaderDeviceDx11->DestroyOcclusionQuery( handle );
+}
+
+void CShaderAPIDx11::BeginOcclusionQueryDrawing( ShaderAPIOcclusionQuery_t handle )
+{
+	if ( handle != INVALID_SHADERAPI_OCCLUSION_QUERY_HANDLE )
+	{
+		D3D11DeviceContext()->Begin( (ID3D11Query *)handle );
+	}
+}
+
+void CShaderAPIDx11::EndOcclusionQueryDrawing( ShaderAPIOcclusionQuery_t handle )
+{
+	if ( handle != INVALID_SHADERAPI_OCCLUSION_QUERY_HANDLE )
+	{
+		D3D11DeviceContext()->End( (ID3D11Query *)handle );
+	}
+}
+
+int CShaderAPIDx11::OcclusionQuery_GetNumPixelsRendered( ShaderAPIOcclusionQuery_t handle, bool bFlush )
+{
+	if ( handle == INVALID_SHADERAPI_OCCLUSION_QUERY_HANDLE )
+	{
+		return OCCLUSION_QUERY_RESULT_ERROR;
+	}
+
+	uint nPixels;
+	HRESULT hr = D3D11DeviceContext()->GetData( (ID3D11Query *)handle, &nPixels, sizeof( nPixels ),
+						    bFlush ? 0 : D3D11_ASYNC_GETDATA_DONOTFLUSH );
+	if ( FAILED( hr ) )
+	{
+		return OCCLUSION_QUERY_RESULT_ERROR;
+	}
+
+	if ( hr == S_FALSE ) // not ready yet
+	{
+		return OCCLUSION_QUERY_RESULT_PENDING;
+	}
+
+	return (int)nPixels;
+}
+
 
 //------------------------------------------------------------------------------------
 // UNUSED/UNSUPPORTED FUNCTIONS!!!

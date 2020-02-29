@@ -1118,5 +1118,24 @@ IIndexBuffer *CShaderDeviceDx11::GetDynamicIndexBuffer( MaterialIndexFormat_t fm
 	return NULL;
 }
 
+ShaderAPIOcclusionQuery_t CShaderDeviceDx11::CreateOcclusionQuery()
+{
+	CD3D11_QUERY_DESC desc;
+	desc.Query = D3D11_QUERY_OCCLUSION;
+	desc.MiscFlags = 0;
+	ID3D11Query *pQuery = NULL;
+	HRESULT hr = D3D11Device()->CreateQuery( &desc, &pQuery );
+	if ( FAILED( hr ) )
+	{
+		return INVALID_SHADERAPI_OCCLUSION_QUERY_HANDLE;
+	}
+	return (ShaderAPIOcclusionQuery_t)pQuery;
+}
 
-
+void CShaderDeviceDx11::DestroyOcclusionQuery( ShaderAPIOcclusionQuery_t hQuery )
+{
+	if ( hQuery != INVALID_SHADERAPI_OCCLUSION_QUERY_HANDLE )
+	{
+		( (ID3D11Query *)hQuery )->Release();
+	}
+}

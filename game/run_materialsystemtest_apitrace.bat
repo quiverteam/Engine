@@ -1,0 +1,1 @@
+C:\Users\brian\Desktop\apitrace-msvc\x86\bin\apitrace trace --api d3d11 bin\win32\materialsystemtest.exe -game hl2 -windowed -w 800 -h 600 -dxlevel 110

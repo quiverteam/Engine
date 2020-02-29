@@ -278,27 +278,45 @@ inline int CalcMipLevels( int w, int h )
 void CTextureDx11::SetupTexture2D( int width, int height, int depth, int count, int i,
 				   int flags, int numCopies, int numMipLevels, ImageFormat dstImageFormat )
 {
+	bool bIsRenderTarget = ( flags & TEXTURE_CREATE_RENDERTARGET ) != 0;
+	bool bIsDepthBuffer = ( flags & TEXTURE_CREATE_DEPTHBUFFER ) != 0;
+
+	if ( bIsDepthBuffer )
+	{
+		SetupDepthTexture( dstImageFormat, width, height, "depth", true );
+		return;
+	}
+	else if ( bIsRenderTarget )
+	{
+		SetupBackBuffer( width, height, "rendertarget", NULL, dstImageFormat );
+		return;
+	}
+
+	//---------------------------------------------------------------------------------
+
 	if ( depth == 0 )
 		depth == 1;
 
 	bool bIsCubeMap = ( flags & TEXTURE_CREATE_CUBEMAP ) != 0;
 	if ( bIsCubeMap )
 		depth = 6;
-	bool bIsRenderTarget = ( flags & TEXTURE_CREATE_RENDERTARGET ) != 0;
-	bool bIsManaged = ( flags & TEXTURE_CREATE_MANAGED ) != 0;
-	bool bIsDepthBuffer = ( flags & TEXTURE_CREATE_DEPTHBUFFER ) != 0;
 	bool bIsDynamic = ( flags & TEXTURE_CREATE_DYNAMIC ) != 0;
 	bool bAutoMipMap = ( flags & TEXTURE_CREATE_AUTOMIPMAP ) != 0;
-	if ( bAutoMipMap && numMipLevels == 0 )
-	{
-		numMipLevels = CalcMipLevels( width, height );
-	}
+	bool bIsManaged = ( flags & TEXTURE_CREATE_MANAGED ) != 0;
 
 	// Can't be both managed + dynamic. Dynamic is an optimization, but
 	// if it's not managed, then we gotta do special client-specific stuff
 	// So, managed wins out!
 	if ( bIsManaged )
 		bIsDynamic = false;
+
+	if ( bAutoMipMap && numMipLevels == 0 )
+	{
+		numMipLevels = CalcMipLevels( width, height );
+	}
+
+	m_iTextureType = TEXTURE_STANDARD;
+	m_iTextureDimensions = TEXTURE_2D;
 
 	unsigned short usSetFlags = 0;
 	usSetFlags |= ( flags & TEXTURE_CREATE_VERTEXTEXTURE ) ? CTextureDx11::IS_VERTEX_TEXTURE : 0;
@@ -343,18 +361,11 @@ void CTextureDx11::SetupTexture2D( int width, int height, int depth, int count, 
 	m_VTexWrap = D3D11_TEXTURE_ADDRESS_CLAMP;
 	m_WTexWrap = D3D11_TEXTURE_ADDRESS_CLAMP;
 
-	if ( bIsRenderTarget )
-	{
-		m_Filter = D3D11_FILTER_MIN_MAG_LINEAR_MIP_POINT;
-		m_NumLevels = 1;
-	}
-	else
-	{
-		m_NumLevels = numMipLevels;
-		m_Filter = ( numMipLevels != 1 ) ?
-			D3D11_FILTER_MIN_MAG_MIP_LINEAR :
-			D3D11_FILTER_MIN_MAG_LINEAR_MIP_POINT;
-	}
+	m_NumLevels = numMipLevels;
+	m_Filter = ( numMipLevels != 1 ) ?
+		D3D11_FILTER_MIN_MAG_MIP_LINEAR :
+		D3D11_FILTER_MIN_MAG_LINEAR_MIP_POINT;
+
 	m_SwitchNeeded = false;
 	
 	AdjustSamplerState();
@@ -369,28 +380,33 @@ void CTextureDx11::SetupDepthTexture( ImageFormat renderFormat, int width, int h
 	else
 		m_nFlags |= CTextureDx11::IS_DEPTH_STENCIL;
 
+	m_iTextureType = TEXTURE_DEPTHSTENCIL;
+	m_iTextureDimensions = TEXTURE_3D;
+
 	m_nWidth = width;
 	m_nHeight = height;
 	m_Depth = 1;
 	m_Count = 1;
 	m_CountIndex = 0;
 	m_CreationFlags = TEXTURE_CREATE_DEPTHBUFFER;
+	m_Filter = D3D11_FILTER_MIN_MAG_LINEAR_MIP_POINT;
+	m_NumLevels = 1;
 	m_NumCopies = 1;
 	m_CurrentCopy = 0;
 
-	if ( bTexture )
-	{
-		m_pTexture = CreateD3DTexture(
-			width, height, m_Depth, renderFormat, 1, m_CreationFlags );
-		AdjustSamplerState();
-		MakeDepthStencilView();
-	}
-		
+	m_pTexture = CreateD3DTexture(
+		width, height, m_Depth, renderFormat, m_NumLevels, m_CreationFlags );
+	AdjustSamplerState();
+	MakeDepthStencilView();		
 }
 
-void CTextureDx11::SetupBackBuffer( ID3D11Texture2D *pBackBuffer, int width, int height, const char *pDebugName, bool bTexture )
+void CTextureDx11::SetupBackBuffer( int width, int height, const char *pDebugName,
+				    ID3D11Texture2D *pBackBuffer, ImageFormat format )
 {
 	m_nFlags = CTextureDx11::IS_ALLOCATED;
+
+	m_iTextureType = TEXTURE_RENDERTARGET;
+	m_iTextureDimensions = TEXTURE_2D;
 
 	m_nWidth = width;
 	m_nHeight = height;
@@ -398,16 +414,18 @@ void CTextureDx11::SetupBackBuffer( ID3D11Texture2D *pBackBuffer, int width, int
 	m_Count = 1;
 	m_CountIndex = 0;
 	m_CreationFlags = TEXTURE_CREATE_RENDERTARGET;
+	m_Filter = D3D11_FILTER_MIN_MAG_LINEAR_MIP_POINT;
+	m_NumLevels = 1;
 	m_NumCopies = 1;
 	m_CurrentCopy = 0;
 
-	m_pTexture = pBackBuffer;
+	if ( pBackBuffer )
+		m_pTexture = pBackBuffer;
+	else
+		m_pTexture = CreateD3DTexture( width, height, m_Depth, format, m_NumLevels, m_CreationFlags );
 
-	if ( bTexture )
-	{
-		AdjustSamplerState();
-		MakeRenderTargetView();
-	}
+	AdjustSamplerState();
+	MakeRenderTargetView();
 }
 
 void CTextureDx11::SetMinFilter( ShaderTexFilterMode_t texFilterMode )
@@ -580,6 +598,11 @@ void CTextureDx11::AdjustSamplerState()
 
 void CTextureDx11::MakeRenderTargetView()
 {
+	if ( m_iTextureType != TEXTURE_RENDERTARGET )
+	{
+		return;
+	}
+
 	if ( m_pRenderTargetView )
 	{
 		int ref = m_pRenderTargetView->Release();
@@ -594,7 +617,7 @@ void CTextureDx11::MakeRenderTargetView()
 
 void CTextureDx11::MakeDepthStencilView()
 {
-	if ( m_nFlags & IS_DEPTH_STENCIL )
+	if ( m_iTextureType != TEXTURE_DEPTHSTENCIL )
 	{
 		return;
 	}
@@ -613,7 +636,7 @@ void CTextureDx11::MakeDepthStencilView()
 
 void CTextureDx11::MakeView()
 {
-	if ( m_nFlags & IS_DEPTH_STENCIL )
+	if ( m_iTextureType != TEXTURE_STANDARD )
 	{
 		return;
 	}
@@ -720,77 +743,74 @@ void CTextureDx11::Delete()
 {
 	int nDeallocated = 0;
 
-	if ( !( m_nFlags & IS_DEPTH_STENCIL ) )
+	if ( m_NumCopies == 1 )
 	{
-		if ( m_NumCopies == 1 )
+		if ( m_pTexture )
 		{
-			if ( m_pTexture )
-			{
-				DestroyD3DTexture( m_pTexture );
-				m_pTexture = 0;
-				nDeallocated = 1;
-			}
+			DestroyD3DTexture( m_pTexture );
+			m_pTexture = 0;
+			nDeallocated = 1;
 		}
-		else
-		{
-			if ( m_ppTexture )
-			{
-				// Multiple copy texture
-				for ( int j = 0; j < m_NumCopies; j++ )
-				{
-					if ( m_ppTexture[j] )
-					{
-						DestroyD3DTexture( m_ppTexture[j] );
-						m_ppTexture[j] = 0;
-						++nDeallocated;
-					}
-				}
-				delete[] m_ppTexture;
-			}			
-			m_ppTexture = 0;
-		}
-	}
-
-	if ( m_NumCopies > 1 )
-	{
-		if ( m_ppView )
-		{
-			for ( int i = 0; i < m_NumCopies; i++ )
-			{
-				if ( m_ppView[i] )
-				{
-					int refCount = m_ppView[i]->Release();
-					Assert( refCount == 0 );
-					nDeallocated++;
-				}
-			}
-
-			delete[] m_ppView;
-		}
-		
-		m_ppView = NULL;
 	}
 	else
 	{
-		if ( m_CreationFlags & TEXTURE_CREATE_RENDERTARGET )
+		if ( m_ppTexture )
 		{
-			if ( m_pRenderTargetView )
+			// Multiple copy texture
+			for ( int j = 0; j < m_NumCopies; j++ )
 			{
-				int refCount = m_pRenderTargetView->Release();
-				Assert( refCount == 0 );
-				m_pRenderTargetView = 0;
-				nDeallocated++;
+				if ( m_ppTexture[j] )
+				{
+					DestroyD3DTexture( m_ppTexture[j] );
+					m_ppTexture[j] = 0;
+					++nDeallocated;
+				}
 			}
+			delete[] m_ppTexture;
+		}			
+		m_ppTexture = 0;
+	}
+
+	if ( m_iTextureType == TEXTURE_RENDERTARGET )
+	{
+		if ( m_pRenderTargetView )
+		{
+			int refCount = m_pRenderTargetView->Release();
+			Assert( refCount == 0 );
+			m_pRenderTargetView = 0;
+			nDeallocated++;
 		}
-		else if ( m_nFlags & IS_DEPTH_STENCIL_TEXTURE )
+	}
+	else if ( m_iTextureType == TEXTURE_DEPTHSTENCIL )
+	{
+		if ( m_pDepthStencilView )
 		{
-			if ( m_pDepthStencilView )
+			int refCount = m_pDepthStencilView->Release();
+			Assert( refCount == 0 );
+			m_pDepthStencilView = 0;
+			nDeallocated++;
+		}
+	}
+	else
+	{
+		if ( m_NumCopies > 1 )
+		{
+			if ( m_ppView )
 			{
-				int refCount = m_pDepthStencilView->Release();
-				Assert( refCount == 0 );
-				m_pDepthStencilView = 0;
-				nDeallocated++;
+				for ( int i = 0; i < m_NumCopies; i++ )
+				{
+					if ( m_ppView[i] )
+					{
+						int refCount = m_ppView[i]->Release();
+						Assert( refCount == 0 );
+						nDeallocated++;
+					}
+				}
+
+				delete[] m_ppView;
 			}
+
+			m_ppView = NULL;
 		}
 		else
 		{
@@ -801,8 +821,9 @@ void CTextureDx11::Delete()
 				m_pView = 0;
 				nDeallocated++;
 			}
-		}		
-	}
+		}
+		
+	}		
 
 	if ( m_pSamplerState )
 	{

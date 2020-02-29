@@ -594,27 +594,12 @@ private:
 	{
 	}
 
-	ShaderAPIOcclusionQuery_t CreateOcclusionQueryObject( void )
-	{
-		return INVALID_SHADERAPI_OCCLUSION_QUERY_HANDLE;
-	}
-
-	void DestroyOcclusionQueryObject( ShaderAPIOcclusionQuery_t handle )
-	{
-	}
-
-	void BeginOcclusionQueryDrawing( ShaderAPIOcclusionQuery_t handle )
-	{
-	}
-
-	void EndOcclusionQueryDrawing( ShaderAPIOcclusionQuery_t handle )
-	{
-	}
-
-	int OcclusionQuery_GetNumPixelsRendered( ShaderAPIOcclusionQuery_t handle, bool bFlush )
-	{
-		return 0;
-	}
+	// Occlusion queries
+	ShaderAPIOcclusionQuery_t CreateOcclusionQueryObject( void );
+	void DestroyOcclusionQueryObject( ShaderAPIOcclusionQuery_t handle );
+	void BeginOcclusionQueryDrawing( ShaderAPIOcclusionQuery_t handle );
+	void EndOcclusionQueryDrawing( ShaderAPIOcclusionQuery_t handle );
+	int OcclusionQuery_GetNumPixelsRendered( ShaderAPIOcclusionQuery_t handle, bool bFlush );
 
 	virtual void AcquireThreadOwnership()
 	{

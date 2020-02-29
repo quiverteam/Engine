@@ -29,9 +29,16 @@ public:
 
 	enum
 	{
-		TEXTURE_1D,
+		TEXTURE_1D = 1,
 		TEXTURE_2D,
 		TEXTURE_3D,
+	};
+
+	enum
+	{
+		TEXTURE_STANDARD,
+		TEXTURE_DEPTHSTENCIL,
+		TEXTURE_RENDERTARGET,
 	};
 
 	enum
@@ -76,7 +83,8 @@ public:
 			     int numMipLevels, ImageFormat dstImageFormat );
 	void SetupDepthTexture( ImageFormat renderFormat, int width, int height,
 				const char *pDebugName, bool bTexture );
-	void SetupBackBuffer( ID3D11Texture2D *pBackBuffer, int width, int height, const char *pDebugName, bool bTexture );
+	void SetupBackBuffer( int width, int height, const char *pDebugName,
+			      ID3D11Texture2D *pBackBuffer = NULL, ImageFormat format = IMAGE_FORMAT_RGBA8888 );
 
 	bool Is1D() const;
 	bool Is2D() const;
@@ -99,6 +107,11 @@ private:
 
 	ID3D11SamplerState *m_pSamplerState;
 
+	// A texture can have either
+	// - A single ShaderResourceView: one standard texture copy
+	// - An array of ShaderResourceViews: multiple standard texture copies
+	// - A single DepthStencilView: for a depth texture
+	// - A single RenderTargetView: for a render target texture
 	union
 	{
 		ID3D11ShaderResourceView *m_pView;
@@ -124,6 +137,7 @@ public:
 	short m_CountIndex;
 	short m_Depth;
 	int m_iTextureType;
+	int m_iTextureDimensions;
 	int m_nWidth;
 	int m_nHeight;
 	
@@ -185,17 +199,17 @@ FORCEINLINE ID3D11Texture3D *CTextureDx11::GetTexture3D( int n ) const
 
 FORCEINLINE bool CTextureDx11::Is1D() const
 {
-	return m_iTextureType == TEXTURE_1D;
+	return m_iTextureDimensions == TEXTURE_1D;
 }
 
 FORCEINLINE bool CTextureDx11::Is2D() const
 {
-	return m_iTextureType == TEXTURE_2D;
+	return m_iTextureDimensions == TEXTURE_2D;
 }
 
 FORCEINLINE bool CTextureDx11::Is3D() const
 {
-	return m_iTextureType == TEXTURE_3D;
+	return m_iTextureDimensions == TEXTURE_3D;
 }
 
 FORCEINLINE ID3D11ShaderResourceView *CTextureDx11::GetView() const

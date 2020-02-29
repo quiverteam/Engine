@@ -142,6 +142,9 @@ public:
 	virtual void EnableNonInteractiveMode( MaterialNonInteractiveMode_t mode, ShaderNonInteractiveInfo_t *pInfo ) {}
 	virtual void RefreshFrontBufferNonInteractive( ) {}
 
+	ShaderAPIOcclusionQuery_t CreateOcclusionQuery();
+	void DestroyOcclusionQuery( ShaderAPIOcclusionQuery_t hQuery );
+
 public:
 	// Methods of CShaderDeviceBase
 	virtual bool InitDevice( void *hWnd, int nAdapter, const ShaderDeviceInfo_t& mode );
