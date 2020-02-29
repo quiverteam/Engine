@@ -52,6 +52,7 @@ files
 		"$SRCDIR/public/kevvaluescompiler.cpp"
 		"$SRCDIR/public/zip_utils.cpp"
 		"QueuedLoader.cpp"
+		"packfile.cpp"
 	}
 
 	folder "Header Files"
@@ -83,5 +84,6 @@ files
 		"$SRCDIR/public/vstdlib/vstdlib.h"
 		"$SRCDIR/public/keyvaluescompiler.h"
 		"$SRCDIR/public/filesystem/IQueuedLoader.h"
+		"packfile.h"
 	}
 }
