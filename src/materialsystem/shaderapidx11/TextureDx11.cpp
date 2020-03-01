@@ -280,19 +280,19 @@ inline int CalcMipLevels( int w, int h )
 void CTextureDx11::SetupTexture2D( int width, int height, int depth, int count, int i,
 				   int flags, int numCopies, int numMipLevels, ImageFormat dstImageFormat )
 {
-	Log( "Making texture2D\n" );
+	//Log( "Making texture2D\n" );
 	bool bIsRenderTarget = ( flags & TEXTURE_CREATE_RENDERTARGET ) != 0;
 	bool bIsDepthBuffer = ( flags & TEXTURE_CREATE_DEPTHBUFFER ) != 0;
 
 	if ( bIsDepthBuffer )
 	{
-		Log( "Making depth buffer\n" );
+		//Log( "Making depth buffer\n" );
 		SetupDepthTexture( dstImageFormat, width, height, "depth", true );
 		return;
 	}
 	else if ( bIsRenderTarget )
 	{
-		Log( "Making render target\n" );
+		//Log( "Making render target\n" );
 		SetupBackBuffer( width, height, "rendertarget", NULL, dstImageFormat );
 		return;
 	}
@@ -733,7 +733,7 @@ void CTextureDx11::BlitSurfaceBits( CTextureDx11::TextureLoadInfo_t &info, int x
 #endif
 	
 
-	Log( "CalcSubresource: level %i, face %i, num levels %i\n", info.m_nLevel, info.m_CubeFaceID, m_NumLevels );
+	//Log( "CalcSubresource: level %i, face %i, num levels %i\n", info.m_nLevel, info.m_CubeFaceID, m_NumLevels );
 	UINT subresource = D3D11CalcSubresource( info.m_nLevel, info.m_CubeFaceID, m_NumLevels );
 
 	D3D11DeviceContext()->UpdateSubresource( info.m_pTexture, subresource, &box, pNewImage, dstStride * info.m_nWidth, dstStride * info.m_nWidth * info.m_nHeight );

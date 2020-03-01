@@ -1012,12 +1012,13 @@ ID3D11InputLayout* CShaderDeviceDx11::GetInputLayout( VertexShaderHandle_t hShad
 IMesh* CShaderDeviceDx11::CreateStaticMesh( VertexFormat_t vertexFormat, const char *pBudgetGroup, IMaterial * pMaterial )
 {
 	LOCK_SHADERAPI();
-	return NULL;
+	return g_pShaderAPIDx11->CreateStaticMesh( vertexFormat, pBudgetGroup, pMaterial );
 }
 
 void CShaderDeviceDx11::DestroyStaticMesh( IMesh* pMesh )
 {
 	LOCK_SHADERAPI();
+	g_pShaderAPIDx11->DestroyStaticMesh( pMesh );
 }
 
 

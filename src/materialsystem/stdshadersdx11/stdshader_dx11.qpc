@@ -54,6 +54,7 @@ files
 		"test_dx11.cpp"
 		"bik_dx11.cpp"
 		"unlitgeneric_dx11.cpp"
+		"wireframe_dx11.cpp"
 	}
 
 	folder "Header Files"

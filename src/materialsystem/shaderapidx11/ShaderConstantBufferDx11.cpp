@@ -26,7 +26,7 @@ void CShaderConstantBufferDx11::Create( size_t nBufferSize )
 	cbDesc.MiscFlags = 0;
 	cbDesc.StructureByteStride = 0;
 
-	Log( "Creating D3D constant buffer: size: %i\n", m_nBufSize );
+	//Log( "Creating D3D constant buffer: size: %i\n", m_nBufSize );
 
 	HRESULT hr = D3D11Device()->CreateBuffer( &cbDesc, NULL, &m_pCBuffer );
 	if ( FAILED( hr ) )

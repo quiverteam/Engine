@@ -71,7 +71,7 @@ bool CVertexBufferDx11::Allocate()
 	bd.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
 	bd.MiscFlags = 0;
 
-	Log( "Creating D3D vertex buffer: size: %i\n", m_nBufferSize );
+	//Log( "Creating D3D vertex buffer: size: %i\n", m_nBufferSize );
 
 	//if ( m_nBufferSize <= 0 )
 	//{
@@ -220,7 +220,7 @@ bool CVertexBufferDx11::Lock( int nMaxVertexCount, bool bAppend, VertexDesc_t& d
 
 	// FIXME: Why do we need to sync matrices now?
 	ShaderUtil()->SyncMatrices();
-	g_ShaderMutex.Lock();
+	//g_ShaderMutex.Lock();
 
 	D3D11_MAPPED_SUBRESOURCE lockedData;
 	HRESULT hr;
@@ -228,7 +228,7 @@ bool CVertexBufferDx11::Lock( int nMaxVertexCount, bool bAppend, VertexDesc_t& d
 	// This can happen if the buffer was locked but a type wasn't bound
 	if ( m_VertexFormat == 0 )
 	{
-		Log( "No vertex format!\n" );
+		//Log( "No vertex format!\n" );
 		goto vertexBufferLockFailed;
 	}
 		
@@ -249,13 +249,13 @@ bool CVertexBufferDx11::Lock( int nMaxVertexCount, bool bAppend, VertexDesc_t& d
 	{
 		if ( !Allocate() )
 		{
-			Log( "Couldn't allocate vertex buffer\n" );
+			//Log( "Couldn't allocate vertex buffer\n" );
 			goto vertexBufferLockFailed;
 		}
 			
 	}
 
-	Log( "Locking vertex buffer %p\n", m_pVertexBuffer );
+	//Log( "Locking vertex buffer %p\n", m_pVertexBuffer );
 
 	// Check to see if we have enough memory 
 	int nMemoryRequired = nMaxVertexCount * VertexSize();
@@ -313,7 +313,7 @@ vertexBufferLockFailed:
 
 void CVertexBufferDx11::Unlock( int nWrittenVertexCount, VertexDesc_t& desc )
 {
-	Log( "Unlocking vertex buffer %p\n", m_pVertexBuffer );
+	//Log( "Unlocking vertex buffer %p\n", m_pVertexBuffer );
 	Assert( nWrittenVertexCount <= m_nVertexCount );
 
 	// NOTE: This can happen if the lock occurs during alt-tab
@@ -326,9 +326,32 @@ void CVertexBufferDx11::Unlock( int nWrittenVertexCount, VertexDesc_t& desc )
 		D3D11DeviceContext()->Unmap( m_pVertexBuffer, 0 );
 	}
 
-	Spew( nWrittenVertexCount, desc );
+	//Spew( nWrittenVertexCount, desc );
 
 	m_nFirstUnwrittenOffset += nWrittenVertexCount * VertexSize();
 	m_bIsLocked = false;
-	g_ShaderMutex.Unlock();
+	//g_ShaderMutex.Unlock();
+}
+
+unsigned char *CVertexBufferDx11::Modify( bool bReadOnly, int nFirstVertex, int nVertexCount )
+{
+	if ( nVertexCount == 0 )
+		return NULL;
+
+	Assert( m_pVertexBuffer && !m_bIsDynamic );
+
+	if ( nFirstVertex + nVertexCount > m_nVertexCount )
+	{
+		Assert( 0 );
+		return NULL;
+	}
+
+	D3D11_MAPPED_SUBRESOURCE lockedData;
+	HRESULT hr;
+	hr = D3D11DeviceContext()->Map( m_pVertexBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &lockedData );
+
+	m_nFirstUnwrittenOffset = nFirstVertex * m_VertexSize;
+	m_bIsLocked = true;
+
+	return (unsigned char*)lockedData.pData;
 }

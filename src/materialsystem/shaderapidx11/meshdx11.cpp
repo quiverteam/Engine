@@ -31,7 +31,7 @@
 #include "shaderapi/ishaderutil.h"
 
 #ifdef _DEBUG
-#define CHECK_INDICES
+//#define CHECK_INDICES
 #endif
 
 //-----------------------------------------------------------------------------
@@ -1374,11 +1374,11 @@ bool CMeshDX11::Lock( int nVertexCount, bool bAppend, VertexDesc_t &desc )
 {
 	Assert( !m_IsVBLocked );
 
-	Log( "MeshDx11::Lock(): nVertexCount = %i, bAppend = %i\n", nVertexCount, (int)bAppend );
+	//Log( "MeshDx11::Lock(): nVertexCount = %i, bAppend = %i\n", nVertexCount, (int)bAppend );
 
 	if ( g_pShaderDeviceDx11->IsDeactivated() || ( nVertexCount == 0 ) )
 	{
-		Log( "Deactivated or no verts\n" );
+		//Log( "Deactivated or no verts\n" );
 		// Set up the vertex descriptor
 		CVertexBufferBase::ComputeVertexDescription( 0, 0, desc );
 		desc.m_nFirstVertex = 0;
@@ -1407,7 +1407,7 @@ bool CMeshDX11::Lock( int nVertexCount, bool bAppend, VertexDesc_t &desc )
 	bool ret = m_pVertexBuffer->Lock( nVertexCount, bAppend, desc );
 	if ( !ret )
 	{
-		Log( "Couldn't lock vertex buffer\n" );
+		//Log( "Couldn't lock vertex buffer\n" );
 		if ( nVertexCount > nMaxVerts )
 		{
 			Assert( 0 );
@@ -1487,13 +1487,13 @@ void CMeshDX11::LockMesh( int numVerts, int numIndices, MeshDesc_t &desc )
 
 	g_ShaderMutex.Lock();
 	VPROF( "CMeshDx11::LockMesh" );
-	Log( "Locking vertex buffer\n" );
+	//Log( "Locking vertex buffer\n" );
 	// Lock vertex buffer
 	Lock( numVerts, false, *static_cast<VertexDesc_t *>( &desc ) );
 	if ( m_Type != MATERIAL_POINTS )
 	{
 		// Lock index buffer
-		Log( "Locking index buffer\n" );
+		//Log( "Locking index buffer\n" );
 		Lock( false, -1, numIndices, *static_cast<IndexDesc_t *>( &desc ) );
 	}
 
@@ -1529,10 +1529,11 @@ void CMeshDX11::ModifyBeginEx( bool bReadOnly, int firstVertex, int numVerts, in
 	Assert( m_pVertexBuffer );
 
 	// Lock it baby
-	bool pVertexMemory = Lock( bReadOnly, firstIndex, numIndices, *static_cast<IndexDesc_t *>( &desc ) );
+	unsigned char *pVertexMemory = m_pVertexBuffer->Modify( bReadOnly, firstVertex, numVerts );
 	if ( pVertexMemory )
 	{
 		m_IsVBLocked = true;
+		g_MeshMgr.ComputeVertexDescription( pVertexMemory, m_VertexFormat, desc );
 	}
 
 	desc.m_nFirstVertex = firstVertex;
@@ -2125,7 +2126,7 @@ void CDynamicMeshDX11::OverrideIndexBuffer( CIndexBufferDx11 *pIndexBuffer )
 //-----------------------------------------------------------------------------
 bool CDynamicMeshDX11::NeedsVertexFormatReset( VertexFormat_t fmt ) const
 {
-	Log( "Does CDynamicMeshDx11 need format reset? %i %i %i != %i\n", m_VertexOverride, m_IndexOverride, m_VertexFormat, fmt );
+	//Log( "Does CDynamicMeshDx11 need format reset? %i %i %i != %i\n", m_VertexOverride, m_IndexOverride, m_VertexFormat, fmt );
 	return m_VertexOverride || m_IndexOverride || ( m_VertexFormat != fmt ) || m_pVertexBuffer == 0 || m_pIndexBuffer == 0;
 }
 
@@ -3418,7 +3419,7 @@ void CMeshMgr::Init()
 	//m_pDynamicIndexBuffer = new CIndexBuffer( Dx9Device(), INDEX_BUFFER_SIZE, ShaderAPI()->UsingSoftwareVertexProcessing(), true );
 	m_pDynamicIndexBuffer = static_cast<CIndexBufferDx11 *>(
 		g_pShaderDeviceDx11->CreateIndexBuffer( SHADER_BUFFER_TYPE_DYNAMIC, MATERIAL_INDEX_FORMAT_16BIT, INDEX_BUFFER_SIZE, "dynamic" ) );
-	Log( "Dynamic ib index size: %i\n", m_pDynamicIndexBuffer->IndexSize() );
+	//Log( "Dynamic ib index size: %i\n", m_pDynamicIndexBuffer->IndexSize() );
 
 	// If we're running in vs3.0, allocate a vertexID buffer
 	//CreateVertexIDBuffer();

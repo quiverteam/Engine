@@ -258,13 +258,13 @@ if exist "filelist.txt" if exist "uniquefilestocopy.txt" if not "%dynamic_shader
 )
 
 @REM delete the temporary files
-REM if exist filelist.txt del /f /q filelist.txt
-REM if exist filestocopy.txt del /f /q filestocopy.txt
-REM if exist filelistgen.txt del /f /q filelistgen.txt
-REM if exist inclist.txt del /f /q inclist.txt
-REM if exist vcslist.txt del /f /q vcslist.txt
-REM if exist uniquefilestocopy.txt del /f /q uniquefilestocopy.txt
-REM if exist makefile.%inputbase% del /f /q makefile.%inputbase%
+if exist filelist.txt del /f /q filelist.txt
+if exist filestocopy.txt del /f /q filestocopy.txt
+if exist filelistgen.txt del /f /q filelistgen.txt
+if exist inclist.txt del /f /q inclist.txt
+if exist vcslist.txt del /f /q vcslist.txt
+if exist uniquefilestocopy.txt del /f /q uniquefilestocopy.txt
+if exist makefile.%inputbase% del /f /q makefile.%inputbase%
 
 REM ****************
 REM PC Shader copy

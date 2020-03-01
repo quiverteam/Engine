@@ -98,7 +98,7 @@ CShaderDeviceMgrBase::~CShaderDeviceMgrBase()
 static CreateInterfaceFn s_TempFactory;
 void *ShaderDeviceFactory( const char *pName, int *pReturnCode )
 {
-	Log("ShaderDeviceFactory: %s\n", pName);
+	//Log("ShaderDeviceFactory: %s\n", pName);
 	if (pReturnCode)
 	{
 		*pReturnCode = IFACE_OK;
@@ -125,7 +125,7 @@ void *ShaderDeviceFactory( const char *pName, int *pReturnCode )
 bool CShaderDeviceMgrBase::Connect( CreateInterfaceFn factory )
 {
 	LOCK_SHADERAPI();
-	Log("CShaderDeviceMgrBase::Connect()\n");
+	//Log("CShaderDeviceMgrBase::Connect()\n");
 	Assert( !g_pShaderDeviceMgr );
 
 	s_TempFactory = factory;

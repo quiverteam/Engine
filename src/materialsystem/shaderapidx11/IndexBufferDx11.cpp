@@ -41,13 +41,13 @@ CIndexBufferDx11::CIndexBufferDx11( ShaderBufferType_t type, MaterialIndexFormat
 		nIndexCount /= 2;
 	}
 
-	Assert( nIndexCount != 0 );
+	//Assert( nIndexCount != 0 );
 	Assert( IsDynamicBufferType( type ) || ( fmt != MATERIAL_INDEX_FORMAT_UNKNOWN ) );
 
 	m_pIndexBuffer = NULL;
 	m_IndexFormat = fmt;
 	m_nIndexSize = SizeForIndex( fmt );
-	m_nIndexCount = nIndexCount;
+	m_nIndexCount =  nIndexCount;
 	m_nBufferSize = nIndexCount * m_nIndexSize;
 	m_nFirstUnwrittenOffset = 0;
 	m_bIsLocked = false;
@@ -94,7 +94,7 @@ bool CIndexBufferDx11::Allocate()
 
 	m_nFirstUnwrittenOffset = 0;
 
-	Log( "Creating D3D index buffer: size: %i\n", m_nBufferSize );
+	//Log( "Creating D3D index buffer: size: %i\n", m_nBufferSize );
 
 	D3D11_BUFFER_DESC bd;
 	bd.Usage = D3D11_USAGE_DYNAMIC;
@@ -246,11 +246,6 @@ bool CIndexBufferDx11::Lock( int nMaxIndexCount, bool bAppend, IndexDesc_t& desc
 	Assert( !m_bIsLocked && ( nMaxIndexCount != 0 ) && ( nMaxIndexCount <= m_nIndexCount ) );
 	Assert( m_IndexFormat != MATERIAL_INDEX_FORMAT_UNKNOWN );
 
-	if ( m_bIsDynamic )
-	{
-		nMaxIndexCount = ALIGN_VALUE( nMaxIndexCount, 2 );
-	}
-
 	// FIXME: Why do we need to sync matrices now?
 	ShaderUtil()->SyncMatrices();
 	g_ShaderMutex.Lock();
@@ -270,6 +265,7 @@ bool CIndexBufferDx11::Lock( int nMaxIndexCount, bool bAppend, IndexDesc_t& desc
 	if ( nMaxIndexCount > m_nIndexCount )
 	{
 		Warning( "Too many indices for index buffer. . tell a programmer (%d>%d)\n", nMaxIndexCount, m_nIndexCount );
+		DebuggerBreak();
 		goto indexBufferLockFailed;
 	}
 
@@ -280,7 +276,7 @@ bool CIndexBufferDx11::Lock( int nMaxIndexCount, bool bAppend, IndexDesc_t& desc
 			goto indexBufferLockFailed;
 	}
 
-	Log( "Locking index buffer %p\n", m_pIndexBuffer );
+	//Log( "Locking index buffer %p\n", m_pIndexBuffer );
 
 	// Check to see if we have enough memory 
 	int nMemoryRequired = nMaxIndexCount * IndexSize();
@@ -318,7 +314,7 @@ bool CIndexBufferDx11::Lock( int nMaxIndexCount, bool bAppend, IndexDesc_t& desc
 		Warning( "Failed to lock index buffer in CIndexBufferDx11::Lock\n" );
 		goto indexBufferLockFailed;
 	}
-	Log( "LOcking index buffer at %i\n", m_nFirstUnwrittenOffset );
+	//Log( "LOcking index buffer at %i\n", m_nFirstUnwrittenOffset );
 	desc.m_pIndices = (unsigned short*)( (unsigned char*)lockedData.pData + m_nFirstUnwrittenOffset );
 	desc.m_nIndexSize = IndexSize() >> 1;
 	desc.m_nOffset = m_nFirstUnwrittenOffset;
@@ -343,21 +339,21 @@ indexBufferLockFailed:
 
 void CIndexBufferDx11::Unlock( int nWrittenIndexCount, IndexDesc_t& desc )
 {
-	Log( "Unlocking index buffer %p\n", m_pIndexBuffer );
+	//Log( "Unlocking index buffer %p\n", m_pIndexBuffer );
 	Assert( nWrittenIndexCount <= m_nIndexCount );
 
 	// For write-combining, ensure we always have locked memory aligned to 4-byte boundaries
 	if ( m_bIsDynamic )
-		nWrittenIndexCount = ALIGN_VALUE( nWrittenIndexCount, 2 );
+		nWrittenIndexCount = nWrittenIndexCount;
 
-	Log( "Wrote %i indices\n", nWrittenIndexCount );
+	//Log( "Wrote %i indices\n", nWrittenIndexCount );
 
 	// NOTE: This can happen if the lock occurs during alt-tab
 	// or if another application is initializing
 	if ( !m_bIsLocked )
 		return;
 
-	Spew( nWrittenIndexCount, desc );
+	//Spew( nWrittenIndexCount, desc );
 
 	if ( m_pIndexBuffer )
 	{

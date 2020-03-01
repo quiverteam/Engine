@@ -328,7 +328,7 @@ StateSnapshot_t CShaderShadowDx11::FindOrCreateSnapshot()
 
 	// Didn't find it, add entry
 	StateSnapshot_t snap = m_ShadowStateCache.AddToTail( m_ShadowState );
-	Log( "Created snapshot id %i\n", snap );
+	//Log( "Created snapshot id %i\n", snap );
 	return snap;
 }
 
@@ -345,93 +345,93 @@ StatesDx11::ShadowState CShaderShadowDx11::GetShadowState( StateSnapshot_t id ) 
 // A simpler method of dealing with alpha modulation
 void CShaderShadowDx11::EnableAlphaPipe( bool bEnable )
 {
-	Warning( "Unsupported CShaderShadowDx11::EnableAlphaPipe() called\n" );
+	//Warning( "Unsupported CShaderShadowDx11::EnableAlphaPipe() called\n" );
 }
 
 void CShaderShadowDx11::EnableConstantAlpha( bool bEnable )
 {
-	Warning( "Unsupported CShaderShadowDx11::EnableConstantAlpha() called\n" );
+	//Warning( "Unsupported CShaderShadowDx11::EnableConstantAlpha() called\n" );
 }
 
 void CShaderShadowDx11::EnableVertexAlpha( bool bEnable )
 {
-	Warning( "Unsupported CShaderShadowDx11::EnableVertexAlpha() called\n" );
+	//Warning( "Unsupported CShaderShadowDx11::EnableVertexAlpha() called\n" );
 }
 
 void CShaderShadowDx11::EnableTextureAlpha( TextureStage_t stage, bool bEnable )
 {
-	Warning( "Unsupported CShaderShadowDx11::EnableTextureAlpha() called\n" );
+	//Warning( "Unsupported CShaderShadowDx11::EnableTextureAlpha() called\n" );
 }
 
 void CShaderShadowDx11::SetShadowDepthFiltering( Sampler_t stage )
 {
-	Warning( "Unsupported CShaderShadowDx11::SetShadowDepthFiltering() called\n" );
+	//Warning( "Unsupported CShaderShadowDx11::SetShadowDepthFiltering() called\n" );
 }
 
 void CShaderShadowDx11::EnableCustomPixelPipe( bool bEnable )
 {
-	Warning( "Unsupported CShaderShadowDx11::EnableCustomPixelPipe() called\n" );
+	//Warning( "Unsupported CShaderShadowDx11::EnableCustomPixelPipe() called\n" );
 }
 
 void CShaderShadowDx11::CustomTextureStages( int stageCount )
 {
-	Warning( "Unsupported CShaderShadowDx11::CustomTextureStages() called\n" );
+	//Warning( "Unsupported CShaderShadowDx11::CustomTextureStages() called\n" );
 }
 
 void CShaderShadowDx11::CustomTextureOperation( TextureStage_t stage, ShaderTexChannel_t channel,
 						ShaderTexOp_t op, ShaderTexArg_t arg1, ShaderTexArg_t arg2 )
 {
-	Warning( "Unsupported CShaderShadowDx11::CustomTextureOperation() called\n" );
+	//Warning( "Unsupported CShaderShadowDx11::CustomTextureOperation() called\n" );
 }
 
 void CShaderShadowDx11::EnableSRGBWrite( bool bEnable )
 {
-	Warning( "Unsupported CShaderShadowDx11::EnableSRGBWrite() called\n" );
+	//Warning( "Unsupported CShaderShadowDx11::EnableSRGBWrite() called\n" );
 }
 
 void CShaderShadowDx11::EnableSRGBRead( Sampler_t stage, bool bEnable )
 {
-	Warning( "Unsupported CShaderShadowDx11::EnableSRGBRead() called\n" );
+	//Warning( "Unsupported CShaderShadowDx11::EnableSRGBRead() called\n" );
 }
 
 void CShaderShadowDx11::FogMode( ShaderFogMode_t fogMode )
 {
-	Warning( "Unsupported CShaderShadowDx11::FogMode() called\n" );
+	//Warning( "Unsupported CShaderShadowDx11::FogMode() called\n" );
 }
 
 void CShaderShadowDx11::SetDiffuseMaterialSource( ShaderMaterialSource_t materialSource )
 {
-	Warning( "Unsupported CShaderShadowDx11::SetDiffuseMaterialSource() called\n" );
+	//Warning( "Unsupported CShaderShadowDx11::SetDiffuseMaterialSource() called\n" );
 }
 
 void CShaderShadowDx11::EnableTexGen( TextureStage_t stage, bool bEnable )
 {
-	Warning( "Unsupported CShaderShadowDx11::EnableTexGen() called\n" );
+	//Warning( "Unsupported CShaderShadowDx11::EnableTexGen() called\n" );
 }
 
 void CShaderShadowDx11::TexGen( TextureStage_t stage, ShaderTexGenParam_t param )
 {
-	Warning( "Unsupported CShaderShadowDx11::TexGen() called\n" );
+	//Warning( "Unsupported CShaderShadowDx11::TexGen() called\n" );
 }
 
 // per texture unit stuff
 void CShaderShadowDx11::OverbrightValue( TextureStage_t stage, float value )
 {
-	Warning( "Unsupported CShaderShadowDx11::OverbrightValue() called\n" );
+	//Warning( "Unsupported CShaderShadowDx11::OverbrightValue() called\n" );
 }
 
 void CShaderShadowDx11::DisableFogGammaCorrection( bool bDisable )
 {
-	Warning( "Unsupported CShaderShadowDx11::DisableFogGammaCorrection() called\n" );
+	//Warning( "Unsupported CShaderShadowDx11::DisableFogGammaCorrection() called\n" );
 }
 
 void CShaderShadowDx11::EnableSpecular( bool bEnable )
 {
-	Warning( "Unsupported CShaderShadowDx11::EnableSpecular() called!\n" );
+	//Warning( "Unsupported CShaderShadowDx11::EnableSpecular() called!\n" );
 }
 
 // indicates what per-vertex data we're providing
 void CShaderShadowDx11::DrawFlags( unsigned int drawFlags )
 {
-	Warning( "Unsupported CShaderShadowDx11::DrawFlags() called!\n" );
+	//Warning( "Unsupported CShaderShadowDx11::DrawFlags() called!\n" );
 }

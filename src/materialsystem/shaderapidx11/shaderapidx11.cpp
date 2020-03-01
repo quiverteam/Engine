@@ -385,15 +385,15 @@ void CShaderAPIDx11::DoIssueTransform()
 	//Log( "\tUpdating transform constant buffer at %p\n", pIBuf->GetBuffer() );
 	g_pShaderDeviceDx11->UpdateConstantBuffer( tbuffer, &tmp );
 
-	DirectX::XMFLOAT4X4 flt4x4;
-	DirectX::XMStoreFloat4x4( &flt4x4, GetMatrix( MATERIAL_MODEL ) );
-	OutputMatrix( flt4x4, "Model" );
-	DirectX::XMStoreFloat4x4( &flt4x4, GetMatrix( MATERIAL_VIEW ) );
-	OutputMatrix( flt4x4, "View" );
-	DirectX::XMStoreFloat4x4( &flt4x4, GetMatrix( MATERIAL_PROJECTION ) );
-	OutputMatrix( flt4x4, "Projection" );
-	DirectX::XMStoreFloat4x4( &flt4x4, modelViewProj );
-	OutputMatrix( flt4x4, "ModelViewProj" );
+	//DirectX::XMFLOAT4X4 flt4x4;
+	//DirectX::XMStoreFloat4x4( &flt4x4, GetMatrix( MATERIAL_MODEL ) );
+	//OutputMatrix( flt4x4, "Model" );
+	//DirectX::XMStoreFloat4x4( &flt4x4, GetMatrix( MATERIAL_VIEW ) );
+	//OutputMatrix( flt4x4, "View" );
+	//DirectX::XMStoreFloat4x4( &flt4x4, GetMatrix( MATERIAL_PROJECTION ) );
+	//OutputMatrix( flt4x4, "Projection" );
+	//DirectX::XMStoreFloat4x4( &flt4x4, modelViewProj );
+	//OutputMatrix( flt4x4, "ModelViewProj" );
 }
 
 FORCEINLINE static void UploadConstantBuffer( CShaderConstantBufferDx11 *pBuffer )
@@ -713,7 +713,7 @@ void CShaderAPIDx11::SetViewports( int nCount, const ShaderViewport_t *pViewport
 		viewport.MinDepth	 = pViewports[i].m_flMinZ;
 		viewport.MaxDepth	 = pViewports[i].m_flMaxZ;
 	}
-	Log( "CShaderAPIDx11::SetViewports\n" );
+	//Log( "CShaderAPIDx11::SetViewports\n" );
 }
 
 int CShaderAPIDx11::GetViewports( ShaderViewport_t *pViewports, int nMax ) const
@@ -968,7 +968,7 @@ void CShaderAPIDx11::DrawMesh( IMesh *pMesh )
 	if ( ShaderUtil()->GetConfig().m_bSuppressRendering )
 		return;
 
-	Log( "CShaderAPIDx11::DrawMesh %p\n", pMesh );
+	//Log( "CShaderAPIDx11::DrawMesh %p\n", pMesh );
 
 	m_pMesh = static_cast<CMeshBase *>( pMesh );
 	if ( !m_pMesh || !m_pMaterial )
@@ -1030,7 +1030,7 @@ void CShaderAPIDx11::RenderPassWithVertexAndIndexBuffers()
 // Draws primitives
 void CShaderAPIDx11::Draw( MaterialPrimitiveType_t primitiveType, int nFirstIndex, int nIndexCount )
 {
-	Log( "ShaderAPIDx11: Draw\n" );
+	//Log( "ShaderAPIDx11: Draw\n" );
 
 	SetTopology( primitiveType );
 
@@ -1230,7 +1230,7 @@ VertexFormat_t CShaderAPIDx11::ComputeVertexUsage( int num, StateSnapshot_t *pId
 
 	for ( int i = num; --i >= 0; )
 	{
-		Log( "Applying vertex format from snapshot num %i, %i\n", i, pIds[i] );
+		//Log( "Applying vertex format from snapshot num %i, %i\n", i, pIds[i] );
 		const StatesDx11::ShadowState &state = g_pShaderShadowDx11->GetShadowState( pIds[i] );
 		VertexFormat_t fmt = state.vertexFormat;
 		flags |= VertexFlags( fmt );
@@ -2061,7 +2061,7 @@ void CShaderAPIDx11::TexImage2D( int level, int cubeFace, ImageFormat dstFormat,
 void CShaderAPIDx11::TexSubImage2D( int level, int cubeFace, int xOffset, int yOffset, int zOffset, int width, int height,
 				    ImageFormat srcFormat, int srcStride, bool bSrcIsTiled, void *imageData )
 {
-	Log( "TexSubImage2D!\n" );
+	//Log( "TexSubImage2D!\n" );
 
 	LOCK_SHADERAPI();
 	Assert( imageData );
@@ -2719,17 +2719,17 @@ void CShaderAPIDx11::BindGrey( TextureStage_t stage )
 
 void CShaderAPIDx11::SetTextureTransformDimension( TextureStage_t textureStage, int dimension, bool projected )
 {
-	Warning( "Unsupported CShaderAPIDx11::SetTextureTransformDimension() called!\n" );
+	//Warning( "Unsupported CShaderAPIDx11::SetTextureTransformDimension() called!\n" );
 }
 
 void CShaderAPIDx11::SetBumpEnvMatrix( TextureStage_t textureStage, float m00, float m01, float m10, float m11 )
 {
-	Warning( "Unsupported CShaderAPIDx11::SetBumpEnvMatrix() called!\n" );
+	//Warning( "Unsupported CShaderAPIDx11::SetBumpEnvMatrix() called!\n" );
 }
 
 void CShaderAPIDx11::SetAmbientLight( float r, float g, float b )
 {
-	Warning( "Unsupported CShaderAPIDx11::SetAmbientLight() called!\n" );
+	//Warning( "Unsupported CShaderAPIDx11::SetAmbientLight() called!\n" );
 }
 
 //-----------------------------------------------------------------------------
@@ -2737,40 +2737,40 @@ void CShaderAPIDx11::SetAmbientLight( float r, float g, float b )
 //-----------------------------------------------------------------------------
 void CShaderAPIDx11::SetRasterState( const ShaderRasterState_t &state )
 {
-	Warning( "Unsupported CShaderAPIDx11::SetRasterState() called!\n" );
+	//Warning( "Unsupported CShaderAPIDx11::SetRasterState() called!\n" );
 }
 
 // The shade mode
 void CShaderAPIDx11::ShadeMode( ShaderShadeMode_t mode )
 {
-	Warning( "Unsupported CShaderAPIDx11::ShadeMode() called!\n" );
+	//Warning( "Unsupported CShaderAPIDx11::ShadeMode() called!\n" );
 }
 
 void CShaderAPIDx11::TexSetPriority( int priority )
 {
-	Warning( "Unsupported CShaderAPIDx11::SetTexPriority() called!\n" );
+	//Warning( "Unsupported CShaderAPIDx11::SetTexPriority() called!\n" );
 }
 
 // Sets the constant register for vertex and pixel shaders
 void CShaderAPIDx11::SetVertexShaderConstant( int var, float const *pVec, int numConst, bool bForce )
 {
-	Warning( "Unsupported CShaderAPIDx11::SetVertexShaderConstant() called!\n" );
+	//Warning( "Unsupported CShaderAPIDx11::SetVertexShaderConstant() called!\n" );
 }
 
 void CShaderAPIDx11::SetPixelShaderConstant( int var, float const *pVec, int numConst, bool bForce )
 {
-	Warning( "Unsupported CShaderAPIDx11::SetPixelShaderConstant() called!\n" );
+	//Warning( "Unsupported CShaderAPIDx11::SetPixelShaderConstant() called!\n" );
 }
 
 void CShaderAPIDx11::InvalidateDelayedShaderConstants( void )
 {
-	Warning( "Unsupported CShaderAPIDx11::InvalidateDelayedShaderConstants() called!\n" );
+	//Warning( "Unsupported CShaderAPIDx11::InvalidateDelayedShaderConstants() called!\n" );
 }
 
 //Set's the linear->gamma conversion textures to use for this hardware for both srgb writes enabled and disabled(identity)
 void CShaderAPIDx11::SetLinearToGammaConversionTextures( ShaderAPITextureHandle_t hSRGBWriteEnabledTexture, ShaderAPITextureHandle_t hIdentityTexture )
 {
-	Warning( "Unsupported CShaderAPIDx11::SetLinearToGammaConversionTextures() called!\n" );
+	//Warning( "Unsupported CShaderAPIDx11::SetLinearToGammaConversionTextures() called!\n" );
 }
 
 // Special system flat normal map binding.
@@ -2797,5 +2797,5 @@ void CShaderAPIDx11::BindFBTexture( TextureStage_t stage, int textureIndex )
 // Render state for the ambient light cube (vertex shaders)
 void CShaderAPIDx11::SetVertexShaderStateAmbientLightCube()
 {
-	Warning( "Unsupported CShaderAPIDx11::SetVertexShaderStateAmbientLightCube() called!\n" );
+	//Warning( "Unsupported CShaderAPIDx11::SetVertexShaderStateAmbientLightCube() called!\n" );
 }

@@ -19,6 +19,7 @@ class CVertexBufferDx11 : public CVertexBufferBase
 public:
 	virtual int VertexCount() const;
 	virtual VertexFormat_t GetVertexFormat() const;
+	unsigned char *Modify( bool bReadOnly, int nFirstVertex, int nVertexCount );
 	virtual bool Lock( int nMaxVertexCount, bool bAppend, VertexDesc_t& desc );
 	virtual void Unlock( int nWrittenVertexCount, VertexDesc_t& desc );
 	virtual bool IsDynamic() const;
