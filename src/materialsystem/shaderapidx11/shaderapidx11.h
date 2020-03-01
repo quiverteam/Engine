@@ -324,9 +324,7 @@ private:
 	void PushMatrix();
 	void PopMatrix();
 	void LoadMatrix( float *m );
-	void LoadBoneMatrix( int boneIndex, const float *m )
-	{
-	}
+	void LoadBoneMatrix( int boneIndex, const float *m );
 	void MultMatrix( float *m );
 	void MultMatrixLocal( float *m );
 	void GetMatrix( MaterialMatrixMode_t matrixMode, float *dst );

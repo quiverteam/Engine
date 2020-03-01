@@ -9,6 +9,42 @@
 // NOTE: This has to be the last file included!
 #include "tier0/memdbgon.h"
 
+// Returns a matching ShaderResourceView format for the depth texture's format.
+FORCEINLINE DXGI_FORMAT GetDepthSRVFormat( DXGI_FORMAT depthResourceFormat )
+{
+	switch ( depthResourceFormat )
+	{
+	case DXGI_FORMAT_R16_TYPELESS:
+		return DXGI_FORMAT_R16_UNORM;
+	case DXGI_FORMAT_R24G8_TYPELESS:
+		return DXGI_FORMAT_R24_UNORM_X8_TYPELESS;
+	case DXGI_FORMAT_R32_TYPELESS:
+		return DXGI_FORMAT_R32_FLOAT;
+	case DXGI_FORMAT_R32G8X24_TYPELESS:
+		return DXGI_FORMAT_R32_FLOAT_X8X24_TYPELESS;
+	default:
+		return DXGI_FORMAT_UNKNOWN;
+	}
+}
+
+// Returns a matching DepthStencilView format for the depth texture's format.
+FORCEINLINE DXGI_FORMAT GetDepthStencilViewFormat( DXGI_FORMAT depthResourceFormat )
+{
+	switch ( depthResourceFormat )
+	{
+	case DXGI_FORMAT_R16_TYPELESS:
+		return DXGI_FORMAT_D16_UNORM;
+	case DXGI_FORMAT_R24G8_TYPELESS:
+		return DXGI_FORMAT_D24_UNORM_S8_UINT;
+	case DXGI_FORMAT_R32_TYPELESS:
+		return DXGI_FORMAT_D32_FLOAT;
+	case DXGI_FORMAT_R32G8X24_TYPELESS:
+		return DXGI_FORMAT_D32_FLOAT_S8X24_UINT;
+	default:
+		return DXGI_FORMAT_UNKNOWN;
+	}
+}
+
 // We will have to convert srcFormat into what this function
 // returns for use in D3D11.
 ImageFormat GetClosestSupportedImageFormatForD3D11( ImageFormat srcFormat )
@@ -39,8 +75,12 @@ DXGI_FORMAT GetD3DFormat( ImageFormat format )
 	case IMAGE_FORMAT_UVWQ8888:
 	case IMAGE_FORMAT_UVLX8888:
 		return DXGI_FORMAT_R8G8B8A8_UNORM;
+
+	// Depth buffer formats
 	case IMAGE_FORMAT_NV_DST24:
-		return DXGI_FORMAT_D24_UNORM_S8_UINT;
+		return DXGI_FORMAT_R24G8_TYPELESS;
+	case IMAGE_FORMAT_NV_DST16:
+		return DXGI_FORMAT_R16_TYPELESS;
 
 	// These ones match D3D.
 	case IMAGE_FORMAT_A8:
@@ -120,13 +160,16 @@ ImageFormat GetImageFormat( DXGI_FORMAT d3dFormat )
 		return IMAGE_FORMAT_R32F;
 	case DXGI_FORMAT_R32G32B32A32_FLOAT:
 		return IMAGE_FORMAT_RGBA32323232F;
+
+	default:
+		return IMAGE_FORMAT_UNKNOWN;
 	}
 }
 
 // Texture2D is used for regular 2D textures, cubemaps, and 2D texture arrays
 // TODO: Support 1D and 3D textures?
-ID3D11Resource *CreateD3DTexture( int width, int height, int nDepth,
-				  ImageFormat dstFormat, int numLevels, int nCreationFlags )
+ID3D11Resource *CTextureDx11::CreateD3DTexture( int width, int height, int nDepth,
+						ImageFormat dstFormat, int numLevels, int nCreationFlags )
 {
 	if ( nDepth <= 0 )
 		nDepth = 1;
@@ -160,6 +203,8 @@ ID3D11Resource *CreateD3DTexture( int width, int height, int nDepth,
 		return 0;
 	}
 
+	m_D3DFormat = d3dFormat;
+
 	D3D11_USAGE usage = D3D11_USAGE_DEFAULT;
 	if ( isDynamic )
 	{
@@ -179,11 +224,11 @@ ID3D11Resource *CreateD3DTexture( int width, int height, int nDepth,
 	UINT bindFlags = D3D11_BIND_SHADER_RESOURCE;
 	if ( bIsRenderTarget )
 	{
-		bindFlags = D3D11_BIND_RENDER_TARGET;
+		bindFlags |= D3D11_BIND_RENDER_TARGET;
 	}
 	if ( bIsDepthBuffer )
 	{
-		bindFlags = D3D11_BIND_DEPTH_STENCIL;
+		bindFlags |= D3D11_BIND_DEPTH_STENCIL;
 	}
 
 	UINT cpuAccessFlags = 0;
@@ -302,7 +347,7 @@ void CTextureDx11::SetupTexture2D( int width, int height, int depth, int count, 
 	//---------------------------------------------------------------------------------
 
 	if ( depth == 0 )
-		depth == 1;
+		depth = 1;
 
 	bool bIsCubeMap = ( flags & TEXTURE_CREATE_CUBEMAP ) != 0;
 	if ( bIsCubeMap )
@@ -379,7 +424,7 @@ void CTextureDx11::SetupTexture2D( int width, int height, int depth, int count, 
 	MakeView();
 }
 
-void CTextureDx11::SetupDepthTexture( ImageFormat renderFormat, int width, int height, const char *pDebugName, bool bTexture )
+void CTextureDx11::SetupDepthTexture( ImageFormat depthFormat, int width, int height, const char *pDebugName, bool bTexture )
 {
 	m_nFlags = CTextureDx11::IS_ALLOCATED;
 	if ( bTexture )
@@ -402,7 +447,7 @@ void CTextureDx11::SetupDepthTexture( ImageFormat renderFormat, int width, int h
 	m_CurrentCopy = 0;
 
 	m_pTexture = CreateD3DTexture(
-		width, height, m_Depth, renderFormat, m_NumLevels, m_CreationFlags );
+		width, height, m_Depth, depthFormat, m_NumLevels, m_CreationFlags );
 	AdjustSamplerState();
 	MakeDepthStencilView();	
 	if ( bTexture )
@@ -429,6 +474,8 @@ void CTextureDx11::SetupBackBuffer( int width, int height, const char *pDebugNam
 	m_NumLevels = 1;
 	m_NumCopies = 1;
 	m_CurrentCopy = 0;
+	m_Format = GetClosestSupportedImageFormatForD3D11( format );
+	m_D3DFormat = GetD3DFormat( m_Format );
 
 	if ( pBackBuffer )
 		m_pTexture = pBackBuffer;
@@ -615,12 +662,17 @@ void CTextureDx11::MakeRenderTargetView()
 		return;
 	}
 
+	D3D11_RENDER_TARGET_VIEW_DESC desc;
+	ZeroMemory( &desc, sizeof( D3D11_RENDER_TARGET_VIEW_DESC ) );
+	desc.Format = m_D3DFormat;
+	desc.ViewDimension = D3D11_RTV_DIMENSION_TEXTURE2D;
+
 	if ( m_pRenderTargetView )
 	{
 		int ref = m_pRenderTargetView->Release();
 		Assert( ref == 0 );
 	}
-	HRESULT hr = D3D11Device()->CreateRenderTargetView( m_pTexture, NULL, &m_pRenderTargetView );
+	HRESULT hr = D3D11Device()->CreateRenderTargetView( m_pTexture, &desc, &m_pRenderTargetView );
 	if ( FAILED( hr ) )
 	{
 		Warning( "Failed to make D3D render target view!\n" );
@@ -634,12 +686,18 @@ void CTextureDx11::MakeDepthStencilView()
 		return;
 	}
 
+	D3D11_DEPTH_STENCIL_VIEW_DESC desc;
+	ZeroMemory( &desc, sizeof( D3D11_DEPTH_STENCIL_VIEW_DESC ) );
+	desc.Format = GetDepthStencilViewFormat( m_D3DFormat );
+	desc.ViewDimension = D3D11_DSV_DIMENSION_TEXTURE2D;
+	desc.Flags = 0;
+
 	if ( m_pDepthStencilView )
 	{
 		int ref = m_pDepthStencilView->Release();
 		Assert( ref == 0 );
 	}
-	HRESULT hr = D3D11Device()->CreateDepthStencilView( m_pTexture, NULL, &m_pDepthStencilView );
+	HRESULT hr = D3D11Device()->CreateDepthStencilView( m_pTexture, &desc, &m_pDepthStencilView );
 	if ( FAILED( hr ) )
 	{
 		Warning( "Failed to make D3D depth stencil view!\n" );
@@ -650,6 +708,39 @@ void CTextureDx11::MakeView()
 {
 	bool bGenMipMap = ( m_CreationFlags & TEXTURE_CREATE_AUTOMIPMAP ) != 0;
 
+	D3D11_SHADER_RESOURCE_VIEW_DESC desc;
+	ZeroMemory( &desc, sizeof( D3D11_SHADER_RESOURCE_VIEW_DESC ) );
+		
+	if ( m_iTextureType == TEXTURE_DEPTHSTENCIL )
+	{
+		desc.Format = GetDepthSRVFormat( m_D3DFormat );
+	}
+	else
+	{
+		desc.Format = m_D3DFormat;
+	}
+	
+	if ( m_Depth == 6 && ( ( m_CreationFlags & TEXTURE_CREATE_CUBEMAP ) != 0 ) )
+	{
+		desc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURECUBE;
+		desc.TextureCube.MipLevels = m_NumLevels;
+		desc.TextureCube.MostDetailedMip = 0;
+	}
+	else if ( m_Depth > 1 )
+	{
+		desc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2DARRAY;
+		desc.Texture2DArray.MipLevels = m_NumLevels;
+		desc.Texture2DArray.MostDetailedMip = 0;
+		desc.Texture2DArray.ArraySize = m_Depth;
+		desc.Texture2DArray.FirstArraySlice = 0;
+	}
+	else
+	{
+		desc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2D;
+		desc.Texture2D.MipLevels = m_NumLevels;
+		desc.Texture2D.MostDetailedMip = 0;
+	}
+
 	if ( m_NumCopies > 1 )
 	{
 		if ( m_ppView )
@@ -659,7 +750,7 @@ void CTextureDx11::MakeView()
 		m_ppView = new ID3D11ShaderResourceView * [m_NumCopies];
 		for ( int copy = 0; copy < m_NumCopies; copy++ )
 		{
-			HRESULT hr = D3D11Device()->CreateShaderResourceView( m_ppTexture[copy], NULL, &m_ppView[copy] );
+			HRESULT hr = D3D11Device()->CreateShaderResourceView( m_ppTexture[copy], &desc, &m_ppView[copy] );
 			if ( FAILED( hr ) )
 			{
 				Warning( "Unable to create shader resource view for texture copy %i!\n", copy );
@@ -679,7 +770,7 @@ void CTextureDx11::MakeView()
 		}
 		m_pView = NULL;
 
-		HRESULT hr = D3D11Device()->CreateShaderResourceView( m_pTexture, NULL, &m_pView );
+		HRESULT hr = D3D11Device()->CreateShaderResourceView( m_pTexture, &desc, &m_pView );
 		if ( FAILED( hr ) )
 		{
 			Warning( "Unable to create D3D11 Texture view!\n" );

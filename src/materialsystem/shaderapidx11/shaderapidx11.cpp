@@ -751,8 +751,6 @@ void CShaderAPIDx11::ClearBuffers( bool bClearColor, bool bClearDepth, bool bCle
 	// NOTE: State change commit isn't necessary since clearing doesn't use state
 	//	IssueStateChanges();
 
-	m_TargetState;
-
 	// FIXME: This implementation is totally bust0red [doesn't guarantee exact color specified]
 	if ( bClearColor && D3D11DeviceContext() && m_TargetState.dynamic.m_pRenderTargetView )
 	{
@@ -1625,6 +1623,10 @@ void CShaderAPIDx11::LoadMatrix( float *m )
 	HandleMatrixModified();
 }
 
+void CShaderAPIDx11::LoadBoneMatrix( int boneIndex, const float *m )
+{
+}
+
 void CShaderAPIDx11::MultMatrix( float *m )
 {
 	DirectX::XMFLOAT4X4 flt4x4( m );
@@ -2332,6 +2334,20 @@ bool CShaderAPIDx11::IsTextureResident( ShaderAPITextureHandle_t textureHandle )
 // stuff that isn't to be used from within a shader
 void CShaderAPIDx11::ClearBuffersObeyStencil( bool bClearColor, bool bClearDepth )
 {
+	LOCK_SHADERAPI();
+
+	if ( !bClearColor && !bClearDepth )
+		return;
+
+	FlushBufferedPrimitives();
+
+	ShaderUtil()->DrawClearBufferQuad( m_TargetState.dynamic.m_ClearColor[0] * 255,
+					   m_TargetState.dynamic.m_ClearColor[1] * 255,
+					   m_TargetState.dynamic.m_ClearColor[2] * 255,
+					   m_TargetState.dynamic.m_ClearColor[3] * 255,
+					   bClearColor, bClearDepth );
+
+	FlushBufferedPrimitives();
 }
 
 void CShaderAPIDx11::PerformFullScreenStencilOperation( void )
@@ -2665,8 +2681,8 @@ int CShaderAPIDx11::OcclusionQuery_GetNumPixelsRendered( ShaderAPIOcclusionQuery
 		return OCCLUSION_QUERY_RESULT_ERROR;
 	}
 
-	uint nPixels;
-	HRESULT hr = D3D11DeviceContext()->GetData( (ID3D11Query *)handle, &nPixels, sizeof( nPixels ),
+	uint64 nPixels;
+	HRESULT hr = D3D11DeviceContext()->GetData( (ID3D11Query *)handle, &nPixels, sizeof( uint64 ),
 						    bFlush ? 0 : D3D11_ASYNC_GETDATA_DONOTFLUSH );
 	if ( FAILED( hr ) )
 	{

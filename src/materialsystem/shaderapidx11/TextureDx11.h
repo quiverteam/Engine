@@ -100,6 +100,10 @@ public:
 	//void SetView( ID3D11ShaderResourceView *view );
 
 private:
+	ID3D11Resource *CreateD3DTexture( int width, int height, int nDepth,
+					  ImageFormat dstFormat, int numLevels, int nCreationFlags );
+
+private:
 	// Can either have a single texture or an array of texture copies
 	union
 	{
@@ -147,6 +151,7 @@ public:
 	int m_nHeight;
 	
 	ImageFormat m_Format;
+	DXGI_FORMAT m_D3DFormat;
 	int m_nSizeTexels;
 	int m_nSizeBytes;
 	int m_LastBoundFrame;

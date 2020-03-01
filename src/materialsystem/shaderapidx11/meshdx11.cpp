@@ -1302,7 +1302,7 @@ CMeshDX11::~CMeshDX11()
 		}
 		if ( m_pIndexBuffer )
 		{
-			g_pShaderDevice->DestroyVertexBuffer( m_pVertexBuffer );
+			g_pShaderDevice->DestroyIndexBuffer( m_pIndexBuffer );
 		}
 	}
 }

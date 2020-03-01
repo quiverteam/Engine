@@ -190,6 +190,10 @@ namespace StatesDx11
 		{
 			ZeroMemory( this, sizeof( ShadowState ) );
 
+			depthStencil.DepthEnable = true;
+			depthStencil.DepthFunc = D3D11_COMPARISON_LESS;
+			depthStencil.DepthWriteMask = D3D11_DEPTH_WRITE_MASK_ALL;
+
 			blend.BlendColor[0] = blend.BlendColor[1] =
 				blend.BlendColor[2] = blend.BlendColor[3] = 1.0f;
 			blend.SampleMask = 1;
