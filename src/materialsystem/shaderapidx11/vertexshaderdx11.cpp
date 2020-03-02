@@ -49,7 +49,7 @@
 // uncomment to get dynamic compilation for HLSL shaders
 // i don't think this works atm, but im probably using this wrong
 // X360 NOTE: By default, the system looks for a shared folder named "stdshaders" on the host machine and is completely compatible with -dvd. Ensure that the share is writable if you plan on generating UPDB's.
-//#define DYNAMIC_SHADER_COMPILE
+#define DYNAMIC_SHADER_COMPILE
 
 // uncomment to get spew about what combos are being compiled.
 //#define DYNAMIC_SHADER_COMPILE_VERBOSE

@@ -1807,7 +1807,7 @@ bool CMeshDX11::SetRenderState( int nVertexOffsetInBytes, int nFirstVertexIdx, V
 
 	if ( HasFlexMesh() )
 	{
-		g_pShaderAPIDx11->BindVertexBuffer( 2, GetVertexBuffer(), m_nFlexVertOffsetInBytes, nFirstVertexIdx, m_flexVertCount, GetVertexFormat() );
+		g_pShaderAPIDx11->BindVertexBuffer( 1, GetVertexBuffer(), m_nFlexVertOffsetInBytes, nFirstVertexIdx, m_flexVertCount, GetVertexFormat() );
 	}
 	else
 	{

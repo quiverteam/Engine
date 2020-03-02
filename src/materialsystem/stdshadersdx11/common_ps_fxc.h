@@ -37,31 +37,25 @@
 
 // System defined pixel shader constants
 
-/*
-
-#if defined( _X360 )
-const bool g_bHighQualityShadows : register( b0 );
-#endif
+cbuffer PSLighting_t : register( b0 )
+{
+	float4 g_LinearFogColor;
+	float4 cLightScale;
+	float4 cFlashlightColor;
+	float4 cFlashLightScreenScale;
+};
 
 // NOTE: w == 1.0f / (Dest alpha compressed depth range).
-const float4 g_LinearFogColor : register( c29 );
 #define OO_DESTALPHA_DEPTH_RANGE (g_LinearFogColor.w)
 
 // Linear and gamma light scale values
-const float4 cLightScale : register( c30 );
 #define LINEAR_LIGHT_SCALE (cLightScale.x)
 #define LIGHT_MAP_SCALE (cLightScale.y)
 #define ENV_MAP_SCALE (cLightScale.z)
 #define GAMMA_LIGHT_SCALE (cLightScale.w)
 
 // Flashlight constants
-#if defined(SHADER_MODEL_PS_2_0) || defined(SHADER_MODEL_PS_2_B) || defined(SHADER_MODEL_PS_3_0)
- const float4 cFlashlightColor       : register( c28 );
- const float4 cFlashlightScreenScale : register( c31 ); // .zw are currently unused
- #define flFlashlightNoLambertValue cFlashlightColor.w // This is either 0.0 or 2.0
-#endif
-
-*/
+#define flFlashlightNoLambertValue cFlashlightColor.w // This is either 0.0 or 2.0
 
 #define HDR_INPUT_MAP_SCALE 16.0f
 
@@ -82,14 +76,6 @@ const float4 cLightScale : register( c30 );
 #define NVIDIA_RAWZ			5
 #define NVIDIA_RAWZ_ONETAP	6
 #define TEST				7
-
-struct LPREVIEW_PS_OUT
-{
-	float4 color : COLOR0;
-	float4 normal : COLOR1;
-	float4 position : COLOR2;
-	float4 flags : COLOR3;
-};
 
 /*
 // unused
@@ -167,9 +153,9 @@ HALF4 GetNormal( sampler normalSampler,
 #define NORM_DECODE_ATI2N			1
 #define NORM_DECODE_ATI2N_ALPHA		2
 
-float4 DecompressNormal( sampler NormalSampler, float2 tc, int nDecompressionMode, sampler AlphaSampler )
+float4 DecompressNormal( Texture2D NormalTex, SamplerState NormalSampler, float2 tc, int nDecompressionMode, Texture2D AlphaTexture, SamplerState AlphaSampler )
 {
-	float4 normalTexel = tex2D( NormalSampler, tc );
+	float4 normalTexel = NormalTex.Sample( NormalSampler, tc );
 	float4 result;
 
 	if ( nDecompressionMode == NORM_DECODE_NONE )
@@ -186,22 +172,22 @@ float4 DecompressNormal( sampler NormalSampler, float2 tc, int nDecompressionMod
 	{
 		result.xy = normalTexel.xy * 2.0f - 1.0f;
 		result.z = sqrt( 1.0f - dot(result.xy, result.xy) );
-		result.a = tex2D( AlphaSampler, tc ).x;					// Note that this comes in on the X channel
+		result.a = AlphaTexture.Sample( AlphaSampler, tc ).x;					// Note that this comes in on the X channel
 	}
 
 	return result;
 }
 
-float4 DecompressNormal( sampler NormalSampler, float2 tc, int nDecompressionMode )
+float4 DecompressNormal( Texture2D NormalTex, SamplerState NormalSampler, float2 tc, int nDecompressionMode )
 {
-	return DecompressNormal( NormalSampler, tc, nDecompressionMode, NormalSampler );
+	return DecompressNormal( NormalTex, NormalSampler, tc, nDecompressionMode, NormalTex, NormalSampler );
 }
 
 
-HALF3 NormalizeWithCubemap( sampler normalizeSampler, HALF3 input )
+HALF3 NormalizeWithCubemap( TextureCube normalizeTexture, SamplerState normalizeSampler, HALF3 input )
 {
 //	return texCUBE( normalizeSampler, input ) * 2.0f - 1.0f;
-	return texCUBE( normalizeSampler, input );
+	return normalizeTexture.Sample( normalizeSampler, input );
 }
 
 /*
@@ -310,6 +296,7 @@ float3 BlendPixelFog( const float3 vShaderColor, float pixelFogFactor, const flo
 	}
 }
 
+#if 0
 // i have NO CLUE why shader model 2.0b doesn't like result.g here
 // because this is the EXACT SAME in other branches (ASW and Source 2013)
 // and it works PERFECTLY FINE in those, so kill me now please
@@ -329,13 +316,15 @@ float3 SRGBOutput( const float3 vShaderColor )
 }
 
 #else
+#endif
+#endif
 	
 float3 SRGBOutput( const float3 vShaderColor )
 {
 	return vShaderColor; //ps 1.1, 1.4, and 2.0 never do srgb conversion in the pixel shader // maybe 2.0b as well?
 }
 
-#endif
+//#endif
 
 
 float SoftParticleDepth( float flDepth )
@@ -384,6 +373,14 @@ float4 FinalOutput( const float4 vShaderColor, float pixelFogFactor, const int i
 
 	return result;
 }
+
+struct LPREVIEW_PS_OUT
+{
+	float4 color : COLOR0;
+	float4 normal : COLOR1;
+	float4 position : COLOR2;
+	float4 flags : COLOR3;
+};
 
 LPREVIEW_PS_OUT FinalOutput( const LPREVIEW_PS_OUT vShaderColor, float pixelFogFactor, const int iPIXELFOGTYPE, const int iTONEMAP_SCALE_TYPE )
 {
@@ -436,7 +433,7 @@ float RemapValClamped( float val, float A, float B, float C, float D)
 // OUTPUT:
 //		the new texcoord after parallaxing
 float2 CalcParallaxedTexCoord( float2 inTexCoord, float2 vParallax, float3 vNormal, 
-							   float3 vViewW, sampler HeightMapSampler )
+							   float3 vViewW, Texture2D HeightMapTex, SamplerState HeightMapSampler )
 {
 	const int nMinSamples = 8;
 	const int nMaxSamples = 50;
@@ -484,7 +481,7 @@ float2 CalcParallaxedTexCoord( float2 inTexCoord, float2 vParallax, float3 vNorm
    {
       vTexCurrentOffset -= vTexOffsetPerStep;
       
-      fCurrHeight = tex2Dgrad( HeightMapSampler, vTexCurrentOffset, dx, dy ).r;
+      fCurrHeight = HeightMapTex.SampleGrad( HeightMapSampler, vTexCurrentOffset, dx, dy ).r;
             
       fCurrentBound -= fStepSize;
       
@@ -525,7 +522,7 @@ float2 CalcParallaxedTexCoord( float2 inTexCoord, float2 vParallax, float3 vNorm
    float2 vParallaxOffset = vParallax * (1 - fParallaxAmount );
 
    // Sample the height at the next possible step:
-   fNextHeight = tex2Dgrad( HeightMapSampler, texOffset2, dx, dy ).r;
+   fNextHeight = HeightMapTex.SampleGrad( HeightMapSampler, texOffset2, dx, dy ).r;
    
    // Original offset:
    float2 texSampleBase = inTexCoord - vParallaxOffset;
@@ -779,7 +776,7 @@ float3 TextureCombinePostLighting( float3 lit_baseColor, float4 detailColor, int
 }
 
 //NOTE: On X360. fProjZ is expected to be pre-reversed for cheaper math here in the pixel shader
-float DepthFeathering( sampler DepthSampler, const float2 vScreenPos, float fProjZ, float fProjW, float4 vDepthBlendConstants )
+float DepthFeathering( Texture2D DepthTex, SamplerState DepthSampler, const float2 vScreenPos, float fProjZ, float fProjW, float4 vDepthBlendConstants )
 {
 #	if ( !(defined(SHADER_MODEL_PS_1_1) || defined(SHADER_MODEL_PS_1_4) || defined(SHADER_MODEL_PS_2_0)) ) //minimum requirement of ps2b
 	{
@@ -812,7 +809,7 @@ float DepthFeathering( sampler DepthSampler, const float2 vScreenPos, float fPro
 		}
 #		else
 		{
-			flSceneDepth = tex2D( DepthSampler, vScreenPos ).a;	// PC uses dest alpha of the frame buffer
+			flSceneDepth = DepthTex.Sample( DepthSampler, vScreenPos ).a;	// PC uses dest alpha of the frame buffer
 			flSpriteDepth = SoftParticleDepth( fProjZ );
 
 			flFeatheredAlpha = abs(flSceneDepth - flSpriteDepth) * vDepthBlendConstants.x;

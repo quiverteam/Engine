@@ -18,33 +18,6 @@
 #include "shaderapidx11.h"
 #include "StatesDx11.h"
 
-//
-// Common constant buffers
-//
-
-ALIGN16 struct TransformBuffer_t
-{
-	DirectX::XMMATRIX modelTransform;
-	DirectX::XMMATRIX viewTransform;
-	DirectX::XMMATRIX projTransform;
-	DirectX::XMMATRIX modelViewProj;
-};
-
-ALIGN16 struct LightingBuffer_t
-{
-	DirectX::XMFLOAT4X4 lightData[MAX_NUM_LIGHTS];
-	DirectX::XMFLOAT4X4 lightData2[MAX_NUM_LIGHTS];
-	int lightTypes[MAX_NUM_LIGHTS];
-	int numLights;
-	DirectX::XMFLOAT3 ambientCube[6];	
-};
-
-ALIGN16 struct FogBuffer_t
-{
-	DirectX::XMFLOAT3 fogColor;
-	DirectX::XMFLOAT4 fogParams;
-};
-
 //-----------------------------------------------------------------------------
 // The empty shader shadow
 //-----------------------------------------------------------------------------

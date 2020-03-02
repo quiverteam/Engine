@@ -620,6 +620,9 @@ bool CShaderDeviceDx11::InitDevice( void *hWnd, int nAdapter, const ShaderDevice
 	// Create shared constant buffers
 	m_hTransformBuffer = CreateConstantBuffer( sizeof( TransformBuffer_t ) );
 	m_hLightingBuffer = CreateConstantBuffer( sizeof( LightingBuffer_t ) );
+	m_hSkinningBuffer = CreateConstantBuffer( sizeof( SkinningBuffer_t ) );
+	m_hMiscBuffer = CreateConstantBuffer( sizeof( MiscBuffer_t ) );
+	m_hPSLightingBuffer = CreateConstantBuffer( sizeof( PSLightingBuffer_t ) );
 
 	m_bDeviceInitialized = true;
 

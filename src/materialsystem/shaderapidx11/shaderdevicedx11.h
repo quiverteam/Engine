@@ -21,7 +21,6 @@
 #include "tier1/utlrbtree.h"
 #include "tier1/utllinkedlist.h"
 
-
 //-----------------------------------------------------------------------------
 // Forward declaration
 //-----------------------------------------------------------------------------
@@ -37,6 +36,53 @@ struct ID3D11GeometryShader;
 struct ID3D11InputLayout;
 struct ID3D11ShaderReflection;
 
+//-------------------------------------------------------------
+// Common constant buffers
+// NOTE: These need to match the cbuffers in common_vs_fxc.h!!!
+//-------------------------------------------------------------
+
+ALIGN16 struct TransformBuffer_t
+{
+	DirectX::XMMATRIX cModelViewProj;
+	DirectX::XMMATRIX cViewProj;
+	DirectX::XMMATRIX cViewModel;
+	DirectX::XMFLOAT4 cEyePosWaterZ;
+};
+
+ALIGN16 struct SkinningBuffer_t
+{
+	DirectX::XMFLOAT4X3 cModel[53];
+	DirectX::XMFLOAT4 cFlexWeights[512];
+	// Only cFlexScale.x is used
+	// It is a binary value used to switch on/off the addition of the flex delta stream
+	DirectX::XMFLOAT4 cFlexScale;
+};
+
+ALIGN16 struct MiscBuffer_t
+{
+	DirectX::XMFLOAT4 cConstants1;
+	DirectX::XMFLOAT4 cModulationColor;
+};
+
+ALIGN16 struct LightingBuffer_t
+{
+	bool g_bLightEnabled[4];
+	int g_nLightCountRegister;
+	DirectX::XMFLOAT3 cAmbientCubeX[2];
+	DirectX::XMFLOAT3 cAmbientCubeY[2];
+	DirectX::XMFLOAT3 cAmbientCubeZ[2];
+	// Four lights x 5 constants each = 20 constants
+	LightDesc_t cLightInfo[4];
+	DirectX::XMFLOAT4 cFogParams;
+};
+
+ALIGN16 struct PSLightingBuffer_t
+{
+	DirectX::XMFLOAT4 g_LinearFogColor;
+	DirectX::XMFLOAT4 cLightScale;
+	DirectX::XMFLOAT4 cFlashlightColor;
+	DirectX::XMFLOAT4 cFlashLightScreenScale;
+};
 
 //-----------------------------------------------------------------------------
 // The Base implementation of the shader device
@@ -217,7 +263,9 @@ private:
 	// Common constant buffers
 	ConstantBuffer_t m_hTransformBuffer;
 	ConstantBuffer_t m_hLightingBuffer;
-	ConstantBuffer_t m_hFogBuffer;
+	ConstantBuffer_t m_hSkinningBuffer;
+	ConstantBuffer_t m_hMiscBuffer;
+	ConstantBuffer_t m_hPSLightingBuffer;
 
 	CUtlFixedLinkedList< VertexShader_t > m_VertexShaderDict;
 	CUtlFixedLinkedList< GeometryShader_t > m_GeometryShaderDict;
@@ -242,7 +290,7 @@ inline ConstantBuffer_t CShaderDeviceDx11::GetTransformConstantBuffer() const
 
 inline ConstantBuffer_t CShaderDeviceDx11::GetFogConstantBuffer() const
 {
-	return m_hFogBuffer;
+	//return m_hFogBuffer;
 }
 
 //-----------------------------------------------------------------------------

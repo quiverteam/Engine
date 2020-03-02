@@ -1,7 +1,5 @@
 #include "common_vs_fxc.h"
 
-CBUFFER_TRANSFORM( register( b0 ) )
-
 struct VS_INPUT
 {
 	float4 vPos : SV_POSITION;
@@ -17,7 +15,7 @@ struct VS_OUTPUT
 VS_OUTPUT main( VS_INPUT i )
 {
 	VS_OUTPUT o = (VS_OUTPUT)0;
-	o.vPos = mul( i.vPos, cModelViewProjMatrix );
+	o.vPos = mul( i.vPos, cModelViewProj );
 	o.vColor = i.vColor;
 	
 	return o;

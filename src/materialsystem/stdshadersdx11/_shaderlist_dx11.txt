@@ -3,11 +3,14 @@
 //test_ps40.fxc
 //test_vs40.fxc
 
-bik_vs40.fxc
-bik_ps40.fxc
+//bik_vs40.fxc
+//bik_ps40.fxc
 
 unlitgeneric_ps40.fxc
 unlitgeneric_vs40.fxc
 
 wireframe_ps40.fxc
 wireframe_vs40.fxc
+
+lightmappedgeneric_ps40.fxc
+lightmappedgeneric_vs40.fxc

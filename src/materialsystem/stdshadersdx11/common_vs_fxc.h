@@ -47,66 +47,10 @@
 
 #define COMPILE_ERROR ( 1/0; )
 
-
-// -------------------------
-// CONSTANT BUFFERS
-// -------------------------
-
-/*
-#pragma def ( vs, c0, 0.0f, 1.0f, 2.0f, 0.5f )
-
-const float4 cConstants1				: register(c1);
-#define cOOGamma			cConstants1.x
-#define cOverbright			2.0f
-#define cOneThird			cConstants1.z
-#define cOOOverbright		( 1.0f / 2.0f )
-
-
-// The g_bLightEnabled registers and g_nLightCountRegister hold the same information regarding
-// enabling lights, but callers internal to this file tend to use the loops, while external
-// callers will end up using the booleans
-const bool g_bLightEnabled[4]			: register(b0);
-										// through b3
-
-const int g_nLightCountRegister			: register(i0);
-
-
-#define g_nLightCount					g_nLightCountRegister.x
-
-const float4 cEyePosWaterZ				: register(c2);
-#define cEyePos			cEyePosWaterZ.xyz
-
-// Only cFlexScale.x is used
-// It is a binary value used to switch on/off the addition of the flex delta stream
-// This is still used by asm stuff.
-const float4 cObsoleteLightIndex		: register(c3);
-
-const float4x4 cModelViewProj			: register(c4);
-const float4x4 cViewProj				: register(c8);
-
-// Only cFlexScale.x is used
-// It is a binary value used to switch on/off the addition of the flex delta stream
-const float4 cFlexScale					: register(c13);
-
-// More constants working back from the top...
-//const float4 cViewProjZ					: register(c13);
-
-const float4 cFogParams					: register(c16);
-#define cFogEndOverFogRange cFogParams.x
-#define cFogOne cFogParams.y
-#define cFogMaxDensity cFogParams.z
-#define cOOFogRange cFogParams.w
-
-const float4x4 cViewModel				: register(c17);
-
-const float3 cAmbientCubeX [ 2 ] : register ( c21 ) ;
-const float3 cAmbientCubeY [ 2 ] : register ( c23 ) ;
-const float3 cAmbientCubeZ [ 2 ] : register ( c25 ) ;
-
-#ifdef SHADER_MODEL_VS_3_0
-const float4 cFlexWeights [ 512 ] : register ( c1024 ) ;
-#endif
-
+// w components of color and dir indicate light type:
+// 1x - directional
+// 01 - spot
+// 00 - point
 struct LightInfo
 {
 	float4 color;						// {xyz} is color	w is light type code (see comment below)
@@ -116,67 +60,59 @@ struct LightInfo
 	float4 atten;
 };
 
-// w components of color and dir indicate light type:
-// 1x - directional
-// 01 - spot
-// 00 - point
+// ----------------------------------------------------------------------
+// CONSTANT BUFFERS
+// NOTE: These need to match the structs defined in ShaderDeviceDx11.h!!!
+// ----------------------------------------------------------------------
 
-// Four lights x 5 constants each = 20 constants
-LightInfo cLightInfo[4]					: register(c27);
-#define LIGHT_0_POSITION_REG					   c29
+cbuffer TransformBuffer_t : register( b0 )
+{
+	matrix cModelViewProj;
+	matrix cViewProj;
+	matrix cViewModel;
+	float4 cEyePosWaterZ;
+};
 
-#ifdef SHADER_MODEL_VS_1_1
+cbuffer SkinningBuffer_t : register( b1 )
+{
+	float4x3 cModel[53];
+	float4 cFlexWeights[512];
+	// Only cFlexScale.x is used
+	// It is a binary value used to switch on/off the addition of the flex delta stream
+	float4 cFlexScale;
+};
 
-const float4 cModulationColor			: register(c37);
+cbuffer MiscBuffer_t : register( b2 )
+{
+	float4 cConstants1;
+	float4 cModulationColor;
+};
 
-#define SHADER_SPECIFIC_CONST_0 c38
-#define SHADER_SPECIFIC_CONST_1 c39
-#define SHADER_SPECIFIC_CONST_2 c40
-#define SHADER_SPECIFIC_CONST_3 c41
-#define SHADER_SPECIFIC_CONST_4 c42
-#define SHADER_SPECIFIC_CONST_5 c43
-#define SHADER_SPECIFIC_CONST_6 c44
-#define SHADER_SPECIFIC_CONST_7 c45
-#define SHADER_SPECIFIC_CONST_8 c46
-#define SHADER_SPECIFIC_CONST_9 c47
-#define SHADER_SPECIFIC_CONST_10 c14
-#define SHADER_SPECIFIC_CONST_11 c15
+cbuffer LightingBuffer_t : register ( b3 )
+{
+	bool g_bLightEnabled[4];
+	int g_nLightCountRegister;
+	float3 cAmbientCubeX[2];
+	float3 cAmbientCubeY[2];
+	float3 cAmbientCubeZ[2];
+	// Four lights x 5 constants each = 20 constants
+	LightInfo cLightInfo[4];
+	float4 cFogParams;
+};
 
-static const int cModel0Index = 48;
-const float4x3 cModel[16]					: register(c48);
-// last cmodel is c105 for dx80, c214 for dx90
+#define cOOGamma			cConstants1.x
+#define cOverbright			2.0f
+#define cOneThird			cConstants1.z
+#define cOOOverbright		( 1.0f / 2.0f )
 
-#else // DX9 shaders (vs20 and beyond)
+#define g_nLightCount					g_nLightCountRegister.x
 
-const float4 cModulationColor			: register( c47 );
+#define cEyePos			cEyePosWaterZ.xyz
 
-#define SHADER_SPECIFIC_CONST_0 c48
-#define SHADER_SPECIFIC_CONST_1 c49
-#define SHADER_SPECIFIC_CONST_2 c50
-#define SHADER_SPECIFIC_CONST_3 c51
-#define SHADER_SPECIFIC_CONST_4 c52
-#define SHADER_SPECIFIC_CONST_5 c53
-#define SHADER_SPECIFIC_CONST_6 c54
-#define SHADER_SPECIFIC_CONST_7 c55
-#define SHADER_SPECIFIC_CONST_8 c56
-#define SHADER_SPECIFIC_CONST_9 c57
-#define SHADER_SPECIFIC_CONST_10 c14
-#define SHADER_SPECIFIC_CONST_11 c15
-
-static const int cModel0Index = 58;
-const float4x3 cModel[53]					: register( c58 );
-// last cmodel is c105 for dx80, c214 for dx90
-
-#define SHADER_SPECIFIC_BOOL_CONST_0 b4
-#define SHADER_SPECIFIC_BOOL_CONST_1 b5
-#define SHADER_SPECIFIC_BOOL_CONST_2 b6
-#define SHADER_SPECIFIC_BOOL_CONST_3 b7
-#define SHADER_SPECIFIC_BOOL_CONST_4 b8
-#define SHADER_SPECIFIC_BOOL_CONST_5 b9
-#define SHADER_SPECIFIC_BOOL_CONST_6 b10
-#define SHADER_SPECIFIC_BOOL_CONST_7 b11
-#endif // vertex shader model constant packing changes
-*/
+#define cFogEndOverFogRange cFogParams.x
+#define cFogOne cFogParams.y
+#define cFogMaxDensity cFogParams.z
+#define cOOFogRange cFogParams.w
 
 //=======================================================================================
 // Methods to decompress vertex normals
@@ -310,7 +246,7 @@ void DecompressVertex_NormalTangent( float4 inputNormal,  float4 inputTangent, o
 	}
 }
 
-/*
+
 #ifdef SHADER_MODEL_VS_3_0
 
 //-----------------------------------------------------------------------------
@@ -914,13 +850,13 @@ float3 DoLightingUnrolled( const float3 worldPos, const float3 worldNormal,
 
 	return linearColor;
 }
-*/
+
 int4 FloatToInt( in float4 floats )
 {
 	return D3DCOLORtoUBYTE4( floats.zyxw / 255.001953125 );
 }
 
-/*
+
 float2 ComputeSphereMapTexCoords( in float3 reflectionVector )
 {
 	// transform reflection vector into view space
@@ -938,7 +874,7 @@ float2 ComputeSphereMapTexCoords( in float3 reflectionVector )
 
 	return tmp.xy * 0.5f;
 }
-*/
+
 
 #define DEFORMATION_CLAMP_TO_BOX_IN_WORLDSPACE 1
 							// minxyz.minsoftness / maxxyz.maxsoftness

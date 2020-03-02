@@ -136,19 +136,19 @@ void CEvent::Term()
 
 void* CEvent::GetEventHandle() const
 {
-	Assert( m_hEvent );
+	//Assert( m_hEvent );
 	return m_hEvent;
 }
 
 bool CEvent::SetEvent()
 {
-	Assert( m_hEvent );
+	//Assert( m_hEvent );
 	return ::SetEvent( (HANDLE)m_hEvent ) != 0;
 }
 
 bool CEvent::ResetEvent()
 {
-	Assert( m_hEvent );
+	//Assert( m_hEvent );
 	return ::ResetEvent( (HANDLE)m_hEvent ) != 0;
 }
 
