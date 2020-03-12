@@ -1095,34 +1095,30 @@ public:
 	// Gets at the shadow state for a particular state snapshot
 	virtual bool IsDepthWriteEnabled( StateSnapshot_t id ) const;
 
-	virtual void UpdateConstantBuffer( ConstantBuffer_t cbuffer, void *pNewData )
+	virtual void UpdateConstantBuffer( ConstantBufferHandle_t cbuffer, void *pNewData )
 	{
 	}
-	virtual ConstantBuffer_t CreateConstantBuffer( size_t nBufSize )
-	{
-		return 0;
-	}
-	virtual void UploadConstantBuffers( ConstantBuffer_t *pBuffers, int nBuffers )
-	{
-	}
-	virtual void DestroyConstantBuffer( ConstantBuffer_t hBuffer )
-	{
-	}
-	virtual ConstantBufferHandle_t GetConstantBuffer( ConstantBuffer_t buffer )
+	virtual ConstantBufferHandle_t CreateConstantBuffer( size_t nBufSize )
 	{
 		return 0;
 	}
-	virtual ConstantBuffer_t GetInternalConstantBuffer( int type )
+	virtual void UploadConstantBuffers( ConstantBufferHandle_t *pBuffers, int nBuffers )
+	{
+	}
+	virtual void DestroyConstantBuffer( ConstantBufferHandle_t hBuffer )
+	{
+	}
+	virtual ConstantBufferHandle_t GetInternalConstantBuffer( int type )
 	{
 		return 0;
 	}
-	virtual void BindPixelShaderConstantBuffer( ConstantBuffer_t )
+	virtual void BindPixelShaderConstantBuffer( ConstantBufferHandle_t )
 	{
 	}
-	virtual void BindVertexShaderConstantBuffer( ConstantBuffer_t )
+	virtual void BindVertexShaderConstantBuffer( ConstantBufferHandle_t )
 	{
 	}
-	virtual void BindGeometryShaderConstantBuffer( ConstantBuffer_t )
+	virtual void BindGeometryShaderConstantBuffer( ConstantBufferHandle_t )
 	{
 	}
 

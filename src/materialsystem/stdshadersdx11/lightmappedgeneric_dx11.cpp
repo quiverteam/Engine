@@ -6,6 +6,7 @@
 // $NoKeywords: $
 //=============================================================================//
 
+#if 1
 #include "BaseVSShader.h"
 #include "convar.h"
 #include "lightmappedgeneric_dx11_helper.h"
@@ -164,6 +165,12 @@ SHADER_INIT_PARAMS()
 	InitParamsLightmappedGeneric_DX11( this, params, pMaterialName, s_info );
 }
 
+SHADER_INIT_GLOBAL
+{
+	g_hLightmappedGenericVS_CBuffer = pShaderDevice->CreateConstantBuffer( sizeof( LightmappedGeneric_VS_CBuffer_t ) );
+	g_hLightmappedGenericPS_CBuffer = pShaderDevice->CreateConstantBuffer( sizeof( LightmappedGeneric_PS_CBuffer_t ) );
+}
+
 SHADER_INIT
 {
 	SetupVars( s_info );
@@ -175,3 +182,5 @@ SHADER_DRAW
 	DrawLightmappedGeneric_DX11( this, params, pShaderAPI, pShaderShadow, s_info, pContextDataPtr );
 }
 END_SHADER
+
+#endif

@@ -3,113 +3,42 @@
 
 #ifdef __cplusplus
 
-#define SHADER_CBREG_0		0
-#define SHADER_CBREG_1		1
-#define SHADER_CBREG_2		2
-#define SHADER_CBREG_3		3
-#define SHADER_CBREG_4		4
-#define SHADER_CBREG_5		5
-#define SHADER_CBREG_6		6
-#define SHADER_CBREG_7		7
-#define SHADER_CBREG_8		8
-#define SHADER_CBREG_9		9
-#define SHADER_CBREG_10		10
-#define SHADER_CBREG_11		11
-#define SHADER_CBREG_12		12
-#define SHADER_CBREG_13		13
-#define SHADER_CBREG_14		14
+// Constant buffer registers delegated to engine
+#define INTERNAL_CBUFFER_REG_0 0
+#define INTERNAL_CBUFFER_REG_1 1
+#define INTERNAL_CBUFFER_REG_2 2
+#define INTERNAL_CBUFFER_REG_3 3
 
-#define SHADER_TEXREG_0		0
-#define SHADER_TEXREG_1		1
-#define SHADER_TEXREG_2		2
-#define SHADER_TEXREG_3		3
-#define SHADER_TEXREG_4		4
-#define SHADER_TEXREG_5		5
-#define SHADER_TEXREG_6		6
-#define SHADER_TEXREG_7		7
-#define SHADER_TEXREG_8		8
-#define SHADER_TEXREG_9		9
-#define SHADER_TEXREG_10	10
-#define SHADER_TEXREG_11	11
-#define SHADER_TEXREG_12	12
-#define SHADER_TEXREG_13	13
-#define SHADER_TEXREG_14	14
-#define SHADER_TEXREG_15	15
+// Constant buffer registers delegated to user shaders
+#define USER_CBUFFER_REG_0 4
+#define USER_CBUFFER_REG_1 5
+#define USER_CBUFFER_REG_2 6
+#define USER_CBUFFER_REG_3 7
+#define USER_CBUFFER_REG_4 8
+#define USER_CBUFFER_REG_5 9
+#define USER_CBUFFER_REG_6 10
+#define USER_CBUFFER_REG_7 11
+#define USER_CBUFFER_REG_8 12
 
-#define SHADER_SAMPREG_0	0
-#define SHADER_SAMPREG_1	1
-#define SHADER_SAMPREG_2	2
-#define SHADER_SAMPREG_3	3
-#define SHADER_SAMPREG_4	4
-#define SHADER_SAMPREG_5	5
-#define SHADER_SAMPREG_6	6
-#define SHADER_SAMPREG_7	7
-#define SHADER_SAMPREG_8	8
-#define SHADER_SAMPREG_9	9
-#define SHADER_SAMPREG_10	10
-#define SHADER_SAMPREG_11	11
-#define SHADER_SAMPREG_12	12
-#define SHADER_SAMPREG_13	13
-#define SHADER_SAMPREG_14	14
-#define SHADER_SAMPREG_15	15
+#else // Not C++, HLSL case
 
-#else
+// Constant buffer registers delegated to engine
+#define INTERNAL_CBUFFER_REG_0 register( b0 )
+#define INTERNAL_CBUFFER_REG_1 register( b1 )
+#define INTERNAL_CBUFFER_REG_2 register( b2 )
+#define INTERNAL_CBUFFER_REG_3 register( b3 )
 
-#define SHADER_CBREG_0		b0
-#define SHADER_CBREG_1		b1
-#define SHADER_CBREG_2		b2
-#define SHADER_CBREG_3		b3
-#define SHADER_CBREG_4		b4
-#define SHADER_CBREG_5		b5
-#define SHADER_CBREG_6		b6
-#define SHADER_CBREG_7		b7
-#define SHADER_CBREG_8		b8
-#define SHADER_CBREG_9		b9
-#define SHADER_CBREG_10		b10
-#define SHADER_CBREG_11		b11
-#define SHADER_CBREG_12		b12
-#define SHADER_CBREG_13		b13
-#define SHADER_CBREG_14		b14
-
-#define SHADER_TEXREG_0		t0
-#define SHADER_TEXREG_1		t1
-#define SHADER_TEXREG_2		t2
-#define SHADER_TEXREG_3		t3
-#define SHADER_TEXREG_4		t4
-#define SHADER_TEXREG_5		t5
-#define SHADER_TEXREG_6		t6
-#define SHADER_TEXREG_7		t7
-#define SHADER_TEXREG_8		t8
-#define SHADER_TEXREG_9		t9
-#define SHADER_TEXREG_10	t10
-#define SHADER_TEXREG_11	t11
-#define SHADER_TEXREG_12	t12
-#define SHADER_TEXREG_13	t13
-#define SHADER_TEXREG_14	t14
-#define SHADER_TEXREG_15	t15
-
-#define SHADER_SAMPREG_0	s0
-#define SHADER_SAMPREG_1	s1
-#define SHADER_SAMPREG_2	s2
-#define SHADER_SAMPREG_3	s3
-#define SHADER_SAMPREG_4	s4
-#define SHADER_SAMPREG_5	s5
-#define SHADER_SAMPREG_6	s6
-#define SHADER_SAMPREG_7	s7
-#define SHADER_SAMPREG_8	s8
-#define SHADER_SAMPREG_9	s9
-#define SHADER_SAMPREG_10	s10
-#define SHADER_SAMPREG_11	s11
-#define SHADER_SAMPREG_12	s12
-#define SHADER_SAMPREG_13	s13
-#define SHADER_SAMPREG_14	s14
-#define SHADER_SAMPREG_15	s15
+// Constant buffer registers delegated to user shaders
+#define USER_CBUFFER_REG_0 register( b4 )
+#define USER_CBUFFER_REG_1 register( b5 )
+#define USER_CBUFFER_REG_2 register( b6 )
+#define USER_CBUFFER_REG_3 register( b7 )
+#define USER_CBUFFER_REG_4 register( b8 )
+#define USER_CBUFFER_REG_5 register( b9 )
+#define USER_CBUFFER_REG_6 register( b10 )
+#define USER_CBUFFER_REG_7 register( b11 )
+#define USER_CBUFFER_REG_8 register( b12 )
 
 #endif
-
-#define SHADER_CBREG_TRANSFORM	SHADER_CBREG_0
-#define SHADER_CBREG_LIGHTING	SHADER_CBREG_1
-#define SHADER_CBREG_FOG	SHADER_CBREG_2
-#define SHADER_CBREG_ARME	SHADER_CBREG_3
 
 #endif // SHADER_REGISTER_MAP_H_

@@ -173,14 +173,14 @@ float DoShadowNvidiaPCF3x3Box( Texture2D DepthTex, SamplerState DepthSampler, co
 	vOneTaps.x = step(objDepth, DepthTex.Sample( DepthSampler, shadowMapCenter + float2(  fTexelEpsilon,  fTexelEpsilon )).x );
 	vOneTaps.y = step(objDepth, DepthTex.Sample( DepthSampler, shadowMapCenter + float2( -fTexelEpsilon,  fTexelEpsilon )).x );
 	vOneTaps.z = step( objDepth, DepthTex.Sample( DepthSampler, shadowMapCenter + float2( fTexelEpsilon, -fTexelEpsilon ) ).x );
-	vOneTaps.w = step( objDepth, DepthTex.Sample( DepthSampler, float4( shadowMapCenter + float2( -fTexelEpsilon, -fTexelEpsilon )).x );
+	vOneTaps.w = step( objDepth, DepthTex.Sample( DepthSampler, shadowMapCenter + float2( -fTexelEpsilon, -fTexelEpsilon )).x );
 	float flOneTaps = dot( vOneTaps, float4(1.0f / 9.0f, 1.0f / 9.0f, 1.0f / 9.0f, 1.0f / 9.0f));
 
 	float4 vTwoTaps;
 	vTwoTaps.x = step(objDepth, DepthTex.Sample( DepthSampler, shadowMapCenter + float2(  fTexelEpsilon,  0 )).x );
 	vTwoTaps.y = step(objDepth, DepthTex.Sample( DepthSampler, shadowMapCenter + float2( -fTexelEpsilon,  0 )).x );
 	vTwoTaps.z = step(objDepth, DepthTex.Sample( DepthSampler, shadowMapCenter + float2(  0, -fTexelEpsilon )).x );
-	vTwoTaps.w = step(objDepth, DepthTex.Sample( DepthSampler, float4( shadowMapCenter + float2(  0, -fTexelEpsilon )).x );
+	vTwoTaps.w = step(objDepth, DepthTex.Sample( DepthSampler, shadowMapCenter + float2(  0, -fTexelEpsilon )).x );
 	float flTwoTaps = dot( vTwoTaps, float4(1.0f / 9.0f, 1.0f / 9.0f, 1.0f / 9.0f, 1.0f / 9.0f));
 
 	float flCenterTap = step(objDepth, DepthTex.Sample( DepthSampler, shadowMapCenter).x ) * (1.0f / 9.0f);
@@ -284,7 +284,7 @@ float DoShadowPoisson16Sample( Texture2D DepthTex, SamplerState DepthSampler, Te
 
 	// 2D Rotation Matrix setup
 	float3 RMatTop = 0, RMatBottom = 0;
-#if defined(SHADER_MODEL_PS_2_0) || defined(SHADER_MODEL_PS_2_B) || defined(SHADER_MODEL_PS_3_0)
+#if defined(SHADER_MODEL_PS_2_0) || defined(SHADER_MODEL_PS_2_B) || defined(SHADER_MODEL_PS_3_0) || defined(SHADER_MODEL_PS_4_0)
 	RMatTop.xy = tex2D( RandomRotationSampler, cFlashlightScreenScale.xy * (vScreenPos * 0.5 + 0.5) + vNoiseOffset).xy * 2.0 - 1.0;
 	RMatBottom.xy = float2(-1.0, 1.0) * RMatTop.yx;	// 2x2 rotation matrix in 4-tuple
 #endif
@@ -378,7 +378,7 @@ float DoFlashlightShadow( Texture2D DepthTex, SamplerState DepthSampler, /*sampl
 	float flShadow = 1.0f;
 
 	//if( nShadowLevel == NVIDIA_PCF_POISSON )
-#if defined( SHADER_MODEL_PS_3_0 )
+#if defined( SHADER_MODEL_PS_3_0 ) || defined(SHADER_MODEL_PS_4_0)
 		flShadow = DoShadowNvidiaPCF5x5Gaussian( DepthTex, DepthSampler, vProjCoords, vShadowTweaks );
 #else		
 		flShadow = DoShadowNvidiaPCF3x3Box( DepthTex, DepthSampler, vProjCoords, vShadowTweaks );
@@ -420,11 +420,11 @@ void DoSpecularFlashlight( float3 flashlightPos, float3 worldPos, float4 flashli
 	float3 vProjCoords = flashlightSpacePosition.xyz / flashlightSpacePosition.w;
 	float3 flashlightColor = FlashlightTex.Sample( FlashlightSampler, vProjCoords.xy ).xyz;
 
-#if defined(SHADER_MODEL_PS_2_B) || defined(SHADER_MODEL_PS_3_0)
+#if defined(SHADER_MODEL_PS_2_B) || defined(SHADER_MODEL_PS_3_0) || defined(SHADER_MODEL_PS_4_0)
 	flashlightColor *= flashlightSpacePosition.w > 0;	// Catch back projection (PC-only, ps2b and up)
 #endif
 
-#if defined(SHADER_MODEL_PS_2_0) || defined(SHADER_MODEL_PS_2_B) || defined(SHADER_MODEL_PS_3_0)
+#if defined(SHADER_MODEL_PS_2_0) || defined(SHADER_MODEL_PS_2_B) || defined(SHADER_MODEL_PS_3_0) || defined(SHADER_MODEL_PS_4_0)
 	flashlightColor *= cFlashlightColor.xyz;						// Flashlight color
 #endif
 
@@ -439,7 +439,7 @@ void DoSpecularFlashlight( float3 flashlightPos, float3 worldPos, float4 flashli
 	float fAtten = saturate( dot( attenuationFactors, float3( 1.0f, 1.0f/dist, 1.0f/distSquared ) ) );
 
 	// Shadowing and coloring terms
-#if (defined(SHADER_MODEL_PS_2_B) || defined(SHADER_MODEL_PS_3_0))
+#if (defined(SHADER_MODEL_PS_2_B) || defined(SHADER_MODEL_PS_3_0) || defined(SHADER_MODEL_PS_4_0))
 	if ( bDoShadows )
 	{
 		float flShadow = DoFlashlightShadow( FlashlightDepthTex, FlashlightDepthSampler, /*RandomRotationSampler,*/ vProjCoords, vScreenPos, nShadowLevel, vShadowTweaks, bAllowHighQuality );
@@ -450,7 +450,7 @@ void DoSpecularFlashlight( float3 flashlightPos, float3 worldPos, float4 flashli
 #endif
 
 	diffuseLighting = fAtten;
-#if defined(SHADER_MODEL_PS_2_0) || defined(SHADER_MODEL_PS_2_B) || defined(SHADER_MODEL_PS_3_0)
+#if defined(SHADER_MODEL_PS_2_0) || defined(SHADER_MODEL_PS_2_B) || defined(SHADER_MODEL_PS_3_0) || defined(SHADER_MODEL_PS_4_0)
 		diffuseLighting *= saturate( dot( L.xyz, worldNormal.xyz ) + flFlashlightNoLambertValue ); // Lambertian term
 #else
 		diffuseLighting *= saturate( dot( L.xyz, worldNormal.xyz ) ); // Lambertian (not Half-Lambert) term
@@ -479,7 +479,7 @@ float3 DoFlashlight( float3 flashlightPos, float3 worldPos, float4 flashlightSpa
 	float3 vProjCoords = flashlightSpacePosition.xyz / flashlightSpacePosition.w;
 	float3 flashlightColor = FlashlightDepthTex.Sample( FlashlightSampler, vProjCoords.xy ).xyz;
 
-#if defined(SHADER_MODEL_PS_2_0) || defined(SHADER_MODEL_PS_2_B) || defined(SHADER_MODEL_PS_3_0)
+#if defined(SHADER_MODEL_PS_2_0) || defined(SHADER_MODEL_PS_2_B) || defined(SHADER_MODEL_PS_3_0) || defined(SHADER_MODEL_PS_4_0)
 	flashlightColor *= cFlashlightColor.xyz;						// Flashlight color
 #endif
 
@@ -494,7 +494,7 @@ float3 DoFlashlight( float3 flashlightPos, float3 worldPos, float4 flashlightSpa
 	float fAtten = saturate( dot( attenuationFactors, float3( 1.0f, 1.0f/dist, 1.0f/distSquared ) ) );
 
 	// Shadowing and coloring terms
-#if (defined(SHADER_MODEL_PS_2_B) || defined(SHADER_MODEL_PS_3_0))
+#if (defined(SHADER_MODEL_PS_2_B) || defined(SHADER_MODEL_PS_3_0) || defined(SHADER_MODEL_PS_4_0))
 	if ( bDoShadows )
 	{
 		float flShadow = DoFlashlightShadow( FlashlightDepthTex, FlashlightDepthSampler, /*RandomRotationSampler,*/ vProjCoords, vScreenPos, nShadowLevel, vShadowTweaks, bAllowHighQuality );
@@ -516,7 +516,7 @@ float3 DoFlashlight( float3 flashlightPos, float3 worldPos, float4 flashlightSpa
 		flLDotWorldNormal = 1.0f;
 	}
 
-#if defined(SHADER_MODEL_PS_2_0) || defined(SHADER_MODEL_PS_2_B) || defined(SHADER_MODEL_PS_3_0)
+#if defined(SHADER_MODEL_PS_2_0) || defined(SHADER_MODEL_PS_2_B) || defined(SHADER_MODEL_PS_3_0) || defined(SHADER_MODEL_PS_4_0)
 	diffuseLighting *= saturate( flLDotWorldNormal + flFlashlightNoLambertValue ); // Lambertian term
 #else
 	diffuseLighting *= saturate( flLDotWorldNormal ); // Lambertian (not Half-Lambert) term

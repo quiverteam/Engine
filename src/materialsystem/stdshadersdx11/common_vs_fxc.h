@@ -2,11 +2,13 @@
 //
 // Purpose: This is where all common code for vertex shaders go.
 //
+// NOTE: This file expects that you have included common_cbuffers_fxc.h and
+// defined the transform, skinning, lighting, and misc buffers before
+// including this file!
+//
 // $NoKeywords: $
 //
 //===========================================================================//
-
-
 
 #ifndef COMMON_VS_FXC_H_
 #define COMMON_VS_FXC_H_
@@ -26,7 +28,7 @@
 #define COMPRESSED_VERTS 0
 #endif
 
-#if ( !defined( SHADER_MODEL_VS_2_0 ) && !defined( SHADER_MODEL_VS_3_0 ) )
+#if ( !defined( SHADER_MODEL_VS_2_0 ) && !defined( SHADER_MODEL_VS_3_0 ) && !defined(SHADER_MODEL_VS_4_0) )
 #if COMPRESSED_VERTS == 1
 #error "Vertex compression is only for DX9 and up!"
 #endif
@@ -47,67 +49,17 @@
 
 #define COMPILE_ERROR ( 1/0; )
 
-// w components of color and dir indicate light type:
-// 1x - directional
-// 01 - spot
-// 00 - point
-struct LightInfo
-{
-	float4 color;						// {xyz} is color	w is light type code (see comment below)
-	float4 dir;							// {xyz} is dir		w is light type code
-	float4 pos;
-	float4 spotParams;
-	float4 atten;
-};
-
 // ----------------------------------------------------------------------
 // CONSTANT BUFFERS
 // NOTE: These need to match the structs defined in ShaderDeviceDx11.h!!!
 // ----------------------------------------------------------------------
-
-cbuffer TransformBuffer_t : register( b0 )
-{
-	matrix cModelViewProj;
-	matrix cViewProj;
-	matrix cViewModel;
-	float4 cEyePosWaterZ;
-};
-
-cbuffer SkinningBuffer_t : register( b1 )
-{
-	float4x3 cModel[53];
-	float4 cFlexWeights[512];
-	// Only cFlexScale.x is used
-	// It is a binary value used to switch on/off the addition of the flex delta stream
-	float4 cFlexScale;
-};
-
-cbuffer MiscBuffer_t : register( b2 )
-{
-	float4 cConstants1;
-	float4 cModulationColor;
-};
-
-cbuffer LightingBuffer_t : register ( b3 )
-{
-	bool g_bLightEnabled[4];
-	int g_nLightCountRegister;
-	float3 cAmbientCubeX[2];
-	float3 cAmbientCubeY[2];
-	float3 cAmbientCubeZ[2];
-	// Four lights x 5 constants each = 20 constants
-	LightInfo cLightInfo[4];
-	float4 cFogParams;
-};
 
 #define cOOGamma			cConstants1.x
 #define cOverbright			2.0f
 #define cOneThird			cConstants1.z
 #define cOOOverbright		( 1.0f / 2.0f )
 
-#define g_nLightCount					g_nLightCountRegister.x
-
-#define cEyePos			cEyePosWaterZ.xyz
+#define g_nLightCount					cLightCountRegister.x
 
 #define cFogEndOverFogRange cFogParams.x
 #define cFogOne cFogParams.y
@@ -247,14 +199,14 @@ void DecompressVertex_NormalTangent( float4 inputNormal,  float4 inputTangent, o
 }
 
 
-#ifdef SHADER_MODEL_VS_3_0
+#if defined(SHADER_MODEL_VS_3_0) || defined(SHADER_MODEL_VS_4_0)
 
 //-----------------------------------------------------------------------------
 // Methods to sample morph data from a vertex texture
 // NOTE: vMorphTargetTextureDim.x = width, cVertexTextureDim.y = height, cVertexTextureDim.z = # of float4 fields per vertex
 // For position + normal morph for example, there will be 2 fields.
 //-----------------------------------------------------------------------------
-float4 SampleMorphDelta( sampler2D vt, const float3 vMorphTargetTextureDim, const float4 vMorphSubrect, const float flVertexID, const float flField )
+float4 SampleMorphDelta( Texture2D vtt, SamplerState vt, const float3 vMorphTargetTextureDim, const float4 vMorphSubrect, const float flVertexID, const float flField )
 {
 	float flColumn = floor( flVertexID / vMorphSubrect.w );
 
@@ -264,11 +216,11 @@ float4 SampleMorphDelta( sampler2D vt, const float3 vMorphTargetTextureDim, cons
 	t.xy /= vMorphTargetTextureDim.xy;	
 	t.z = t.w = 0.f;
 
-	return tex2Dlod( vt, t );
+	return vtt.SampleLevel( vt, t.xy, t.z );
 }
 
 // Optimized version which reads 2 deltas
-void SampleMorphDelta2( sampler2D vt, const float3 vMorphTargetTextureDim, const float4 vMorphSubrect, const float flVertexID, out float4 delta1, out float4 delta2 )
+void SampleMorphDelta2( Texture2D vtt, SamplerState vt, const float3 vMorphTargetTextureDim, const float4 vMorphSubrect, const float flVertexID, out float4 delta1, out float4 delta2 )
 {
 	float flColumn = floor( flVertexID / vMorphSubrect.w );
 
@@ -278,9 +230,9 @@ void SampleMorphDelta2( sampler2D vt, const float3 vMorphTargetTextureDim, const
 	t.xy /= vMorphTargetTextureDim.xy;	
 	t.z = t.w = 0.f;
 
-	delta1 = tex2Dlod( vt, t );
+	delta1 = vtt.SampleLevel( vt, t.xy, t.z );
 	t.x += 1.0f / vMorphTargetTextureDim.x;
-	delta2 = tex2Dlod( vt, t );
+	delta2 = vtt.SampleLevel( vt, t.xy, t.z );
 }
 
 #endif // SHADER_MODEL_VS_3_0
@@ -331,9 +283,10 @@ bool ApplyMorph( float4 vPosFlex, float3 vNormalFlex,
 	return true;
 }
 
-#ifdef SHADER_MODEL_VS_3_0
+#if defined(SHADER_MODEL_VS_3_0) || defined(SHADER_MODEL_VS_4_0)
+#pragma message "We have sm 3.0 or 4.0"
 
-bool ApplyMorph( sampler2D morphSampler, const float3 vMorphTargetTextureDim, const float4 vMorphSubrect, 
+bool ApplyMorph( Texture2D morphTexture, SamplerState morphSampler, const float3 vMorphTargetTextureDim, const float4 vMorphSubrect, 
 				const float flVertexID, const float3 vMorphTexCoord,
 				inout float3 vPosition )
 {
@@ -341,11 +294,11 @@ bool ApplyMorph( sampler2D morphSampler, const float3 vMorphTargetTextureDim, co
 
 #if !DECAL
 	// Flexes coming in from a separate stream
-	float4 vPosDelta = SampleMorphDelta( morphSampler, vMorphTargetTextureDim, vMorphSubrect, flVertexID, 0 );
+	float4 vPosDelta = SampleMorphDelta( morphTexture, morphSampler, vMorphTargetTextureDim, vMorphSubrect, flVertexID, 0 );
 	vPosition	+= vPosDelta.xyz;
 #else
 	float4 t = float4( vMorphTexCoord.x, vMorphTexCoord.y, 0.0f, 0.0f );
-	float3 vPosDelta = tex2Dlod( morphSampler, t );
+	float3 vPosDelta = morphTexture.SampleLevel( morphSampler, t.xy, t.z );
 	vPosition	+= vPosDelta.xyz * vMorphTexCoord.z;
 #endif // DECAL
 
@@ -356,7 +309,7 @@ bool ApplyMorph( sampler2D morphSampler, const float3 vMorphTargetTextureDim, co
 #endif
 }
  
-bool ApplyMorph( sampler2D morphSampler, const float3 vMorphTargetTextureDim, const float4 vMorphSubrect, 
+bool ApplyMorph( Texture2D morphTexture, SamplerState morphSampler, const float3 vMorphTargetTextureDim, const float4 vMorphSubrect, 
 				const float flVertexID, const float3 vMorphTexCoord, 
 				inout float3 vPosition, inout float3 vNormal )
 {
@@ -364,14 +317,14 @@ bool ApplyMorph( sampler2D morphSampler, const float3 vMorphTargetTextureDim, co
 
 #if !DECAL
 	float4 vPosDelta, vNormalDelta;
-	SampleMorphDelta2( morphSampler, vMorphTargetTextureDim, vMorphSubrect, flVertexID, vPosDelta, vNormalDelta );
+	SampleMorphDelta2( morphTexture, morphSampler, vMorphTargetTextureDim, vMorphSubrect, flVertexID, vPosDelta, vNormalDelta );
 	vPosition	+= vPosDelta.xyz;
 	vNormal		+= vNormalDelta.xyz;
 #else
 	float4 t = float4( vMorphTexCoord.x, vMorphTexCoord.y, 0.0f, 0.0f );
-	float3 vPosDelta = tex2Dlod( morphSampler, t );
+	float3 vPosDelta = morphTexture.SampleLevel( morphSampler, t.xy, t.z );
 	t.x += 1.0f / vMorphTargetTextureDim.x;
-	float3 vNormalDelta = tex2Dlod( morphSampler, t );
+	float3 vNormalDelta = morphTexture.SampleLevel( morphSampler, t.xy, t.z );
 	vPosition	+= vPosDelta.xyz * vMorphTexCoord.z;
 	vNormal		+= vNormalDelta.xyz * vMorphTexCoord.z;
 #endif // DECAL
@@ -383,7 +336,7 @@ bool ApplyMorph( sampler2D morphSampler, const float3 vMorphTargetTextureDim, co
 #endif
 }
 
-bool ApplyMorph( sampler2D morphSampler, const float3 vMorphTargetTextureDim, const float4 vMorphSubrect, 
+bool ApplyMorph( Texture2D morphTexture, SamplerState morphSampler, const float3 vMorphTargetTextureDim, const float4 vMorphSubrect, 
 				const float flVertexID, const float3 vMorphTexCoord, 
 				inout float3 vPosition, inout float3 vNormal, inout float3 vTangent )
 {
@@ -391,15 +344,15 @@ bool ApplyMorph( sampler2D morphSampler, const float3 vMorphTargetTextureDim, co
 
 #if !DECAL
 	float4 vPosDelta, vNormalDelta;
-	SampleMorphDelta2( morphSampler, vMorphTargetTextureDim, vMorphSubrect, flVertexID, vPosDelta, vNormalDelta );
+	SampleMorphDelta2( morphTexture, morphSampler, vMorphTargetTextureDim, vMorphSubrect, flVertexID, vPosDelta, vNormalDelta );
 	vPosition	+= vPosDelta.xyz;
 	vNormal		+= vNormalDelta.xyz;
 	vTangent	+= vNormalDelta.xyz;
 #else
 	float4 t = float4( vMorphTexCoord.x, vMorphTexCoord.y, 0.0f, 0.0f );
-	float3 vPosDelta = tex2Dlod( morphSampler, t );
+	float3 vPosDelta = morphTexture.SampleLevel( morphSampler, t.xy, t.z );
 	t.x += 1.0f / vMorphTargetTextureDim.x;
-	float3 vNormalDelta = tex2Dlod( morphSampler, t );
+	float3 vNormalDelta = morphTexture.SampleLevel( morphSampler, t.xy, t.z );
 	vPosition	+= vPosDelta.xyz * vMorphTexCoord.z;
 	vNormal		+= vNormalDelta.xyz * vMorphTexCoord.z;
 	vTangent	+= vNormalDelta.xyz * vMorphTexCoord.z;
@@ -413,7 +366,7 @@ bool ApplyMorph( sampler2D morphSampler, const float3 vMorphTargetTextureDim, co
 #endif
 }
 
-bool ApplyMorph( sampler2D morphSampler, const float3 vMorphTargetTextureDim, const float4 vMorphSubrect,
+bool ApplyMorph( Texture2D morphTexture, SamplerState morphSampler, const float3 vMorphTargetTextureDim, const float4 vMorphSubrect,
 	const float flVertexID, const float3 vMorphTexCoord,
 	inout float3 vPosition, inout float3 vNormal, inout float3 vTangent, out float flWrinkle )
 {
@@ -421,16 +374,16 @@ bool ApplyMorph( sampler2D morphSampler, const float3 vMorphTargetTextureDim, co
 
 #if !DECAL
 	float4 vPosDelta, vNormalDelta;
-	SampleMorphDelta2( morphSampler, vMorphTargetTextureDim, vMorphSubrect, flVertexID, vPosDelta, vNormalDelta );
+	SampleMorphDelta2( morphTexture, morphSampler, vMorphTargetTextureDim, vMorphSubrect, flVertexID, vPosDelta, vNormalDelta );
 	vPosition	+= vPosDelta.xyz;
 	vNormal		+= vNormalDelta.xyz;
 	vTangent	+= vNormalDelta.xyz;
 	flWrinkle = vPosDelta.w;
 #else
 	float4 t = float4( vMorphTexCoord.x, vMorphTexCoord.y, 0.0f, 0.0f );
-	float4 vPosDelta = tex2Dlod( morphSampler, t );
+	float4 vPosDelta = morphTexture.SampleLevel( morphSampler, t.xy, t.z );
 	t.x += 1.0f / vMorphTargetTextureDim.x;
-	float3 vNormalDelta = tex2Dlod( morphSampler, t );
+	float3 vNormalDelta = morphTexture.SampleLevel( morphSampler, t.xy, t.z );
 
 	vPosition	+= vPosDelta.xyz * vMorphTexCoord.z;
 	vNormal		+= vNormalDelta.xyz * vMorphTexCoord.z;
@@ -460,7 +413,7 @@ float WaterFog( const float3 worldPos, const float3 projPos )
 {
 	float4 tmp;
 	
-	tmp.xy = cEyePosWaterZ.wz - worldPos.z;
+	tmp.xy = float2(cFogZ, cEyePos.z) - worldPos.z;
 
 	// tmp.x is the distance from the water surface to the vert
 	// tmp.y is the distance from the eye position to the vert
@@ -547,14 +500,9 @@ float4 DecompressBoneWeights( const float4 weights )
 
 
 void SkinPosition( bool bSkinning, const float4 modelPos, 
-                   const float4 boneWeights, float4 fBoneIndices,
+                   const float4 boneWeights, uint4 boneIndices,
 				   out float3 worldPos )
 {
-#if !defined( _X360 )
-	int3 boneIndices = D3DCOLORtoUBYTE4( fBoneIndices );
-#else
-	int3 boneIndices = fBoneIndices;
-#endif
 
 	// Needed for invariance issues caused by multipass rendering
 #if defined( _X360 )
@@ -563,13 +511,13 @@ void SkinPosition( bool bSkinning, const float4 modelPos,
 	{ 
 		if ( !bSkinning )
 		{
-			worldPos = mul4x3( modelPos, cModel[0] );
+			worldPos = mul4x3( modelPos, (float4x3)cModel[0] );
 		}
 		else // skinning - always three bones
 		{
-			float4x3 mat1 = cModel[boneIndices[0]];
-			float4x3 mat2 = cModel[boneIndices[1]];
-			float4x3 mat3 = cModel[boneIndices[2]];
+			float4x3 mat1 = (float4x3)cModel[boneIndices[0]];
+			float4x3 mat2 = (float4x3)cModel[boneIndices[1]];
+			float4x3 mat3 = (float4x3)cModel[boneIndices[2]];
 
 			float3 weights = DecompressBoneWeights( boneWeights ).xyz;
 			weights[2] = 1 - (weights[0] + weights[1]);
@@ -581,7 +529,7 @@ void SkinPosition( bool bSkinning, const float4 modelPos,
 }
 
 void SkinPositionAndNormal( bool bSkinning, const float4 modelPos, const float3 modelNormal,
-                            const float4 boneWeights, float4 fBoneIndices,
+                            const float4 boneWeights, uint4 boneIndices,
 						    out float3 worldPos, out float3 worldNormal )
 {
 	// Needed for invariance issues caused by multipass rendering
@@ -590,22 +538,16 @@ void SkinPositionAndNormal( bool bSkinning, const float4 modelPos, const float3 
 #endif
 	{ 
 
-#if !defined( _X360 )
-		int3 boneIndices = D3DCOLORtoUBYTE4( fBoneIndices );
-#else
-		int3 boneIndices = fBoneIndices;
-#endif
-
 		if ( !bSkinning )
 		{
-			worldPos = mul4x3( modelPos, cModel[0] );
+			worldPos = mul4x3( modelPos, (float4x3)cModel[0] );
 			worldNormal = mul3x3( modelNormal, ( const float3x3 )cModel[0] );
 		}
 		else // skinning - always three bones
 		{
-			float4x3 mat1 = cModel[boneIndices[0]];
-			float4x3 mat2 = cModel[boneIndices[1]];
-			float4x3 mat3 = cModel[boneIndices[2]];
+			float4x3 mat1 = (float4x3)cModel[boneIndices[0]];
+			float4x3 mat2 = (float4x3)cModel[boneIndices[1]];
+			float4x3 mat3 = (float4x3)cModel[boneIndices[2]];
 
 			float3 weights = DecompressBoneWeights( boneWeights ).xyz;
 			weights[2] = 1 - (weights[0] + weights[1]);
@@ -624,15 +566,10 @@ void SkinPositionNormalAndTangentSpace(
 							bool bSkinning,
 						    const float4 modelPos, const float3 modelNormal, 
 							const float4 modelTangentS,
-                            const float4 boneWeights, float4 fBoneIndices,
+                            const float4 boneWeights, uint4 boneIndices,
 						    out float3 worldPos, out float3 worldNormal, 
 							out float3 worldTangentS, out float3 worldTangentT )
 {
-#if !defined( _X360 )
-	int3 boneIndices = D3DCOLORtoUBYTE4( fBoneIndices );
-#else
-	int3 boneIndices = fBoneIndices;
-#endif
 
 	// Needed for invariance issues caused by multipass rendering
 #if defined( _X360 )
@@ -641,15 +578,15 @@ void SkinPositionNormalAndTangentSpace(
 	{ 
 		if ( !bSkinning )
 		{
-			worldPos = mul4x3( modelPos, cModel[0] );
+			worldPos = mul4x3( modelPos, (float4x3)cModel[0] );
 			worldNormal = mul3x3( modelNormal, ( const float3x3 )cModel[0] );
 			worldTangentS = mul3x3( ( float3 )modelTangentS, ( const float3x3 )cModel[0] );
 		}
 		else // skinning - always three bones
 		{
-			float4x3 mat1 = cModel[boneIndices[0]];
-			float4x3 mat2 = cModel[boneIndices[1]];
-			float4x3 mat3 = cModel[boneIndices[2]];
+			float4x3 mat1 = (float4x3)cModel[boneIndices[0]];
+			float4x3 mat2 = (float4x3)cModel[boneIndices[1]];
+			float4x3 mat3 = (float4x3)cModel[boneIndices[2]];
 
 			float3 weights = DecompressBoneWeights( boneWeights ).xyz;
 			weights[2] = 1 - (weights[0] + weights[1]);
@@ -672,10 +609,13 @@ float3 AmbientLight( const float3 worldNormal )
 {
 	float3 nSquared = worldNormal * worldNormal;
 	int3 isNegative = ( worldNormal < 0.0 );
+	int3 isPositive = 1 - isNegative;
+	isNegative *= nSquared;
+	isPositive *= nSquared;
 	float3 linearColor;
-	linearColor = nSquared.x * cAmbientCubeX[isNegative.x] +
-	              nSquared.y * cAmbientCubeY[isNegative.y] +
-	              nSquared.z * cAmbientCubeZ[isNegative.z];
+	linearColor = isPositive.x * cAmbientCube[0] + isNegative.x * cAmbientCube[1] +
+		isPositive.y * cAmbientCube[2] + isNegative.y * cAmbientCube[3] +
+		isPositive.z * cAmbientCube[4] + isNegative.z * cAmbientCube[5];
 	return linearColor;
 }
 
@@ -757,7 +697,7 @@ float CosineTermInternal( const float3 worldPos, const float3 worldNormal, int l
 float GetVertexAttenForLight( const float3 worldPos, int lightNum )
 {
 	float result = 0.0f;
-	if ( g_bLightEnabled[lightNum] )
+	if ( cLightEnabled[lightNum] )
 	{
 		result = VertexAttenInternal( worldPos, lightNum );
 	}
@@ -769,7 +709,7 @@ float GetVertexAttenForLight( const float3 worldPos, int lightNum )
 float CosineTerm( const float3 worldPos, const float3 worldNormal, int lightNum, bool bHalfLambert )
 {
 	float flResult = 0.0f;
-	if ( g_bLightEnabled[lightNum] )
+	if ( cLightEnabled[lightNum] )
 	{
 		flResult = CosineTermInternal( worldPos, worldNormal, lightNum, bHalfLambert );
 	}

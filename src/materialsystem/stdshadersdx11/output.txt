@@ -1,5 +1,0 @@
-C:\Users\brian\OneDrive\Documents\Projects\SourceEngine\src\materialsystem\stdshadersdx11\common_ps_fxc.h(204,2-43): warning X3206: implicit truncation of vector type
-C:\Users\brian\OneDrive\Documents\Projects\SourceEngine\src\materialsystem\stdshadersdx11\common_ps_fxc.h(343,19-42): error X3004: undeclared identifier 'OO_DESTALPHA_DEPTH_RANGE'
-C:\Users\brian\OneDrive\Documents\Projects\SourceEngine\src\materialsystem\stdshadersdx11\common_ps_fxc.h(343,2-43): error X3080: 'SoftParticleDepth': function must return a value
-
-compilation failed; no code produced

@@ -1,4 +1,5 @@
 
+#if 1
 #include "BaseVSShader.h"
 
 #include "unlitgeneric_ps40.inc"
@@ -15,6 +16,7 @@ BEGIN_VS_SHADER(UnlitGeneric, "Unlit shader")
 		//	LoadTexture( ALBEDO );
 		if ( params[BASETEXTURE]->IsDefined() )
 			LoadTexture( BASETEXTURE );
+		SET_FLAGS2( MATERIAL_VAR2_SUPPORTS_HW_SKINNING );
 	}
 
 	SHADER_FALLBACK
@@ -30,9 +32,19 @@ BEGIN_VS_SHADER(UnlitGeneric, "Unlit shader")
 
 			unsigned int flags = VERTEX_POSITION;
 			int numTexCoords = 1;
+			
+
+			SetDefaultBlendingShadowState( BASETEXTURE );
+
+			if ( IS_FLAG_SET( MATERIAL_VAR_VERTEXCOLOR ) )
+			{
+				flags |= VERTEX_COLOR;
+			}
+
 			pShaderShadow->VertexShaderVertexFormat( flags, numTexCoords, 0, 0 );
 
 			DECLARE_STATIC_VERTEX_SHADER( unlitgeneric_vs40 );
+			SET_STATIC_VERTEX_SHADER_COMBO( VERTEXCOLOR, IS_FLAG_SET( MATERIAL_VAR_VERTEXCOLOR ) );
 			SET_STATIC_VERTEX_SHADER( unlitgeneric_vs40 );
 
 			DECLARE_STATIC_PIXEL_SHADER( unlitgeneric_ps40 );
@@ -42,8 +54,14 @@ BEGIN_VS_SHADER(UnlitGeneric, "Unlit shader")
 		{
 			if ( params[BASETEXTURE]->IsTexture() )
 				BindTexture( SHADER_SAMPLER0, BASETEXTURE );
-			BindVertexShaderConstantBuffer(
-				GetInternalConstantBuffer( SHADER_INTERNAL_CONSTANTBUFFER_TRANSFORM ) );
+			BindInternalVertexShaderConstantBuffers();
+			BindPixelShaderConstantBuffer(
+				0,
+				GetInternalConstantBuffer( SHADER_CONSTANTBUFFER_PERMATERIAL ) );
+
+			float color[4] = { 1.0f, 1.0f, 1.0f, 1.0f };
+			ComputeModulationColor( color );
+			pShaderAPI->Color4f( color[0], color[1], color[2], color[3] );
 
 			DECLARE_DYNAMIC_VERTEX_SHADER( unlitgeneric_vs40 );
 			SET_DYNAMIC_VERTEX_SHADER( unlitgeneric_vs40 );
@@ -56,3 +74,4 @@ BEGIN_VS_SHADER(UnlitGeneric, "Unlit shader")
 	}
 
 END_SHADER
+#endif

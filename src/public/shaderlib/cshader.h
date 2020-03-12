@@ -178,9 +178,9 @@ inline bool CShader_IsFlag2Set( IMaterialVar **params, MaterialVarFlags2_t _flag
 
 #define CONSTANT_BUFFER_TYPE(name) name##_CBuffer_t
 #define CREATE_CONSTANT_BUFFER(name) ALIGN16 struct name##_CBuffer_t
-#define DECLARE_CONSTANT_BUFFER(name) ConstantBuffer_t m_CB##name;
+#define DECLARE_CONSTANT_BUFFER(name) ConstantBufferHandle_t m_CB##name;
 #define CONSTANT_BUFFER(name) m_CB##name
-#define INIT_CONSTANT_BUFFER(name) m_CB##name = CreateConstantBuffer(sizeof( name##_CBuffer_t ))
+#define INIT_CONSTANT_BUFFER(name) m_CB##name = pShaderDevice->CreateConstantBuffer(sizeof( name##_CBuffer_t ))
 #define UPDATE_CONSTANT_BUFFER(name, newData) UpdateConstantBuffer( m_CB##name, &newData )
 
 #define BEGIN_SHADER_PARAMS
@@ -276,6 +276,9 @@ inline bool CShader_IsFlag2Set( IMaterialVar **params, MaterialVarFlags2_t _flag
 
 #define SHADER_DRAW \
 	void OnDrawElements( IMaterialVar **params, IShaderShadow* pShaderShadow, IShaderDynamicAPI* pShaderAPI, VertexCompressionType_t vertexCompression, CBasePerMaterialContextData **pContextDataPtr )
+
+#define SHADER_INIT_GLOBAL \
+	virtual void OnInitShader( IShaderDevice *pShaderDevice )
 
 #define SHADOW_STATE if (pShaderShadow)
 #define DYNAMIC_STATE if (pShaderAPI)

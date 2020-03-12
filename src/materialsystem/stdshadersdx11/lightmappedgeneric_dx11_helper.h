@@ -20,34 +20,30 @@ class IMaterialVar;
 class IShaderDynamicAPI;
 class IShaderShadow;
 
-ALIGN16 struct LightmappedGeneric_PS40_FastPath
+ALIGN16 struct LightmappedGeneric_VS_CBuffer_t
 {
-	float g_EnvmapTint[4];
-	float g_OutlineParams[4];
-	float g_OutlineColor[4];
-	float g_EdgeSoftnessParms[4];
+	Vector4D cBaseTexCoordTransform[2];
+	Vector4D cDetailOrBumpTexCoordTransform[2];
+	Vector4D cEnvmapMaskOrBump2TexCoordTransform[2];
+	Vector4D cBlendMaskTexCoordTransform[2];
+	float cSeamlessMappingScale;
 };
 
-ALIGN16 struct LightmappedGeneric_PS40
+ALIGN16 struct LightmappedGeneric_PS_CBuffer_t
 {
-	float g_EnvmapTint[4];
-	float g_FresnelReflectionReg[4];
-	float g_SelfIllumTint[4];
-	float g_EnvmapContrast[3];
-	float g_EnvmapSaturation[3];
+	Vector4D g_OutlineParams[2];
+	Vector4D g_EnvmapTint;
+	Vector4D g_FresnelReflectionReg;
+	Vector4D g_SelfIllumTint;
+	Vector4D g_DetailTint_and_BlendFactor;
+	Vector4D g_TintValuesAndLightmapScale;
+	Vector4D g_SoftEdgeParams;
+	Vector4D g_EnvmapContrast;
+	Vector4D g_EnvmapSaturation;
 };
 
-ALIGN16 struct LightmappedGeneric_PS40_2
-{
-	VMatrix g_FlashlightWorldToTexture;
-	float g_DetailTint_and_BlendFactor[4];
-	float g_ShadowTweaks[4];
-	float g_FogParams[4];
-	float g_TintValuesAndLightmapScale[4];
-	float g_FlashlightAttenuationFactors[4];
-	Vector g_EyePos;
-	Vector g_FlashlightPos;
-};
+extern ALIGN16 ConstantBufferHandle_t g_hLightmappedGenericVS_CBuffer;
+extern ALIGN16 ConstantBufferHandle_t g_hLightmappedGenericPS_CBuffer;
 
 //-----------------------------------------------------------------------------
 // Init params/ init/ draw methods

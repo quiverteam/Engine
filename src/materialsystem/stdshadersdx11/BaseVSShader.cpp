@@ -192,7 +192,7 @@ float CBaseVSShader::GetAmbientLightCubeLuminance( )
 //-----------------------------------------------------------------------------
 // Sets up hw morphing state for the vertex shader
 //-----------------------------------------------------------------------------
-void CBaseVSShader::SetHWMorphVertexShaderState( int nDimConst, int nSubrectConst, VertexTextureSampler_t morphSampler )
+void CBaseVSShader::SetHWMorphVertexShaderState( Vector4D &dimensions, Vector4D &subrect, VertexTextureSampler_t morphSampler )
 {
 	if ( !s_pShaderAPI->IsHWMorphingEnabled() )
 		return;
@@ -202,14 +202,14 @@ void CBaseVSShader::SetHWMorphVertexShaderState( int nDimConst, int nSubrectCons
 
 	int nDim = s_pShaderAPI->GetIntRenderingParameter( INT_RENDERPARM_MORPH_ACCUMULATOR_4TUPLE_COUNT );
 	float pMorphAccumSize[4] = { nMorphWidth, nMorphHeight, nDim, 0.0f };
-	s_pShaderAPI->SetVertexShaderConstant( nDimConst, pMorphAccumSize );
+	dimensions.Init( pMorphAccumSize[0], pMorphAccumSize[1], pMorphAccumSize[2], pMorphAccumSize[3] );
 
 	int nXOffset = s_pShaderAPI->GetIntRenderingParameter( INT_RENDERPARM_MORPH_ACCUMULATOR_X_OFFSET );
 	int nYOffset = s_pShaderAPI->GetIntRenderingParameter( INT_RENDERPARM_MORPH_ACCUMULATOR_Y_OFFSET );
 	int nWidth = s_pShaderAPI->GetIntRenderingParameter( INT_RENDERPARM_MORPH_ACCUMULATOR_SUBRECT_WIDTH );
 	int nHeight = s_pShaderAPI->GetIntRenderingParameter( INT_RENDERPARM_MORPH_ACCUMULATOR_SUBRECT_HEIGHT );
 	float pMorphAccumSubrect[4] = { nXOffset, nYOffset, nWidth, nHeight };
-	s_pShaderAPI->SetVertexShaderConstant( nSubrectConst, pMorphAccumSubrect );
+	subrect.Init( pMorphAccumSubrect[0], pMorphAccumSubrect[1], pMorphAccumSubrect[2], pMorphAccumSubrect[3] );
 
 	s_pShaderAPI->BindStandardVertexTexture( morphSampler, TEXTURE_MORPH_ACCUMULATOR );
 }
@@ -559,7 +559,7 @@ void CBaseVSShader::HashShadow2DJitter( const float fJitterSeed, float *fU, floa
 
 void CBaseVSShader::DrawEqualDepthToDestAlpha( void )
 {
-#ifdef STDSHADER_DX9_DLL_EXPORT
+#ifdef STDSHADER_DX11_DLL_EXPORT
 //	if( g_pHardwareConfig->SupportsPixelShaders_2_b() )
 	{
 		bool bMakeActualDrawCall = false;
@@ -573,11 +573,12 @@ void CBaseVSShader::DrawEqualDepthToDestAlpha( void )
 
 			s_pShaderShadow->DepthFunc( SHADER_DEPTHFUNC_EQUAL );
 
-			s_pShaderShadow->SetVertexShader( "depthtodestalpha_vs20", 0 );
-			s_pShaderShadow->SetPixelShader( "depthtodestalpha_ps20b", 0 );
+			s_pShaderShadow->SetVertexShader( "depthtodestalpha_vs40", 0 );
+			s_pShaderShadow->SetPixelShader( "depthtodestalpha_ps40", 0 );
 		}
 		if( s_pShaderAPI )
 		{
+			BindInternalVertexShaderConstantBuffers();
 			s_pShaderAPI->SetVertexShaderIndex( 0 );
 			s_pShaderAPI->SetPixelShaderIndex( 0 );
 

@@ -105,6 +105,7 @@ public:
 	virtual char const* GetParamDefault( int paramIndex ) const;
 	virtual int GetParamFlags( int nParamIndex ) const;
 
+	virtual void InitShader( IShaderDevice *pDevice );
 	virtual void InitShaderParams( IMaterialVar** ppParams, const char *pMaterialName );
 	virtual void InitShaderInstance( IMaterialVar** ppParams, IShaderInit *pShaderInit, const char *pMaterialName, const char *pTextureGroupName );
 	virtual void DrawElements( IMaterialVar **params, int nModulationFlags, IShaderShadow* pShaderShadow, IShaderDynamicAPI* pShaderAPI,
@@ -117,16 +118,25 @@ public:
 	virtual bool NeedsFullFrameBufferTexture( IMaterialVar **params, bool bCheckSpecificToThisFrame = true ) const;
 	virtual bool IsTranslucent( IMaterialVar **params ) const;
 
-	virtual ConstantBuffer_t CreateConstantBuffer( size_t nBufSize );
-	virtual ConstantBuffer_t GetInternalConstantBuffer( int type );
-	virtual void BindPixelShaderConstantBuffer( ConstantBuffer_t cbuffer );
-	virtual void BindVertexShaderConstantBuffer( ConstantBuffer_t cbuffer );
-	virtual void BindGeometryShaderConstantBuffer( ConstantBuffer_t cbuffer );
-	virtual void UpdateConstantBuffer( ConstantBuffer_t cbuffer, void *pNewData );
+	virtual void StoreConstantGammaToLinear( float *pOut, int param );
+	virtual void StoreEnvmapTint( Vector4D &out, int param );
+	virtual void StoreEnvmapTintGammaToLinear( Vector4D &out, int param );
+	virtual void StoreVertexShaderTextureScaledTransform( Vector4D *pOut, int transformVar, int scaleVar );
+	virtual void StoreVertexShaderTextureTransform( Vector4D *pOut, int param );
+
+	virtual ConstantBufferHandle_t GetInternalConstantBuffer( int type );
+	virtual void BindInternalVertexShaderConstantBuffers();
+	virtual void BindInternalPixelShaderConstantBuffers();
+	virtual void BindInternalGeometryShaderConstantBuffers();
+	virtual void BindPixelShaderConstantBuffer( int slot, ConstantBufferHandle_t cbuffer );
+	virtual void BindVertexShaderConstantBuffer( int slot, ConstantBufferHandle_t cbuffer );
+	virtual void BindGeometryShaderConstantBuffer( int slot, ConstantBufferHandle_t cbuffer );
+	virtual void UpdateConstantBuffer( ConstantBufferHandle_t cbuffer, void *pNewData );
 
 public:
 	// These functions must be implemented by the shader
 	virtual void OnInitShaderParams( IMaterialVar** ppParams, const char *pMaterialName ) {}
+	virtual void OnInitShader( IShaderDevice *pShaderDevice ) {}
 	virtual void OnInitShaderInstance( IMaterialVar** ppParams, IShaderInit *pShaderInit, const char *pMaterialName ) = 0;
 	virtual void OnDrawElements( IMaterialVar **params, IShaderShadow* pShaderShadow, IShaderDynamicAPI* pShaderAPI, VertexCompressionType_t vertexCompression, CBasePerMaterialContextData **pContextDataPtr ) = 0;
 
@@ -277,11 +287,13 @@ public:
 
 protected:
 	SoftwareVertexShader_t m_SoftwareVertexShader;
+	bool m_bInitialized;
 
 	static const char *s_pTextureGroupName; // Current material's texture group name.
 	static IShaderShadow *s_pShaderShadow;
 	static IShaderDynamicAPI *s_pShaderAPI;
 	static IShaderInit *s_pShaderInit;
+	static IShaderDevice *s_pShaderDevice;
 
 private:
 	static int s_nModulationFlags;

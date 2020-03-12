@@ -130,6 +130,7 @@ public:
 	virtual int GetNumParams( ) const = 0;
 
 	// These functions must be implemented by the shader
+	virtual void InitShader( IShaderDevice *pShaderDevice ) = 0;
 	virtual void InitShaderParams( IMaterialVar** ppParams, const char *pMaterialName ) = 0;
 	virtual void InitShaderInstance( IMaterialVar** ppParams, IShaderInit *pShaderInit, const char *pMaterialName, const char *pTextureGroupName ) = 0;
 	virtual void DrawElements( IMaterialVar **params, int nModulationFlags,
@@ -150,12 +151,20 @@ public:
 
 	virtual int GetFlags() const = 0;
 
-	virtual ConstantBuffer_t CreateConstantBuffer( size_t nBufSize ) = 0;
-	virtual ConstantBuffer_t GetInternalConstantBuffer( int type ) = 0;
-	virtual void BindPixelShaderConstantBuffer( ConstantBuffer_t cbuffer ) = 0;
-	virtual void BindVertexShaderConstantBuffer( ConstantBuffer_t cbuffer ) = 0;
-	virtual void BindGeometryShaderConstantBuffer( ConstantBuffer_t cbuffer ) = 0;
-	virtual void UpdateConstantBuffer( ConstantBuffer_t cbuffer, void *pNewData ) = 0;
+	virtual void StoreConstantGammaToLinear( float *pOut, int param ) = 0;
+	virtual void StoreEnvmapTint( Vector4D &out, int param ) = 0;
+	virtual void StoreEnvmapTintGammaToLinear( Vector4D &out, int param ) = 0;
+	virtual void StoreVertexShaderTextureScaledTransform( Vector4D *pOut, int transformVar, int scaleVar ) = 0;
+	virtual void StoreVertexShaderTextureTransform( Vector4D *pOut, int param ) = 0;
+
+	virtual ConstantBufferHandle_t GetInternalConstantBuffer( int type ) = 0;
+	virtual void BindInternalVertexShaderConstantBuffers() = 0;
+	virtual void BindInternalPixelShaderConstantBuffers() = 0;
+	virtual void BindInternalGeometryShaderConstantBuffers() = 0;
+	virtual void BindPixelShaderConstantBuffer( int slot, ConstantBufferHandle_t cbuffer ) = 0;
+	virtual void BindVertexShaderConstantBuffer( int slot, ConstantBufferHandle_t cbuffer ) = 0;
+	virtual void BindGeometryShaderConstantBuffer( int slot, ConstantBufferHandle_t cbuffer ) = 0;
+	virtual void UpdateConstantBuffer( ConstantBufferHandle_t cbuffer, void *pNewData ) = 0;
 
 	// FIXME: Remove GetParamName, etc. above
 //	virtual const ShaderParamInfo_t& GetParamInfo( int paramIndex ) const = 0;

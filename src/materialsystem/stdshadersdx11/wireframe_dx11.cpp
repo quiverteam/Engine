@@ -6,6 +6,7 @@
 // $NoKeywords: $
 //===========================================================================//
 
+#if 1
 #include "shaderlib/cshader.h"
 
 #include "wireframe_vs40.inc"
@@ -30,6 +31,7 @@ BEGIN_SHADER( Wireframe_DX11,
 	{
 		if ( params[BASETEXTURE]->IsDefined() )
 			LoadTexture( BASETEXTURE );
+		SET_FLAGS2( MATERIAL_VAR2_SUPPORTS_HW_SKINNING );
 	}
 
 	SHADER_DRAW
@@ -52,7 +54,8 @@ BEGIN_SHADER( Wireframe_DX11,
 		DYNAMIC_STATE
 		{
 
-			BindVertexShaderConstantBuffer( GetInternalConstantBuffer( SHADER_INTERNAL_CONSTANTBUFFER_TRANSFORM ) );
+			BindInternalVertexShaderConstantBuffers();
+			
 			DECLARE_DYNAMIC_VERTEX_SHADER( wireframe_vs40 );
 			SET_DYNAMIC_VERTEX_SHADER( wireframe_vs40 );
 
@@ -62,4 +65,6 @@ BEGIN_SHADER( Wireframe_DX11,
 		Draw();
 	}
 END_SHADER
+#endif
+
 #endif

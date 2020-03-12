@@ -2,6 +2,9 @@
 //
 // Purpose: Common pixel shader code
 //
+// NOTE: This file expects that you have included common_cbuffers_fxc.h and
+// defined the lighting cbuffer before including this file!
+//
 // $NoKeywords: $
 //
 //=============================================================================//
@@ -37,16 +40,10 @@
 
 // System defined pixel shader constants
 
-cbuffer PSLighting_t : register( b0 )
-{
-	float4 g_LinearFogColor;
-	float4 cLightScale;
-	float4 cFlashlightColor;
-	float4 cFlashLightScreenScale;
-};
+#define sampler SamplerState
 
 // NOTE: w == 1.0f / (Dest alpha compressed depth range).
-#define OO_DESTALPHA_DEPTH_RANGE (g_LinearFogColor.w)
+#define OO_DESTALPHA_DEPTH_RANGE (cLinearFogColor.w)
 
 // Linear and gamma light scale values
 #define LINEAR_LIGHT_SCALE (cLightScale.x)

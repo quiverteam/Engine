@@ -1,9 +1,13 @@
+#include "common_cbuffers_fxc.h"
 #include "common_ps_fxc.h"
+
+CBUFFER_PERMATERIAL( register( b0 ) )
 
 struct PS_INPUT
 {
 	float4 vPos : SV_POSITION;
 	float2 vTexCoord : TEXCOORD0;
+	float4 vColor : COLOR;
 };
 
 Texture2D albedoTexture : register( t0 );
@@ -11,5 +15,5 @@ SamplerState albedoSampler : register( s0 );
 
 float4 main(PS_INPUT i) : SV_TARGET
 {
-	return albedoTexture.Sample(albedoSampler, i.vTexCoord);
+	return albedoTexture.Sample(albedoSampler, i.vTexCoord) * GammaToLinear(cModulationColor) * i.vColor;
 }

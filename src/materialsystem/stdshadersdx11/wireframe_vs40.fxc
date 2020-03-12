@@ -1,8 +1,10 @@
+#include "common_cbuffers_def_fxc.h"
+
 #include "common_vs_fxc.h"
 
 struct VS_INPUT
 {
-	float4 vPos : SV_POSITION;
+	float4 vPos : POSITION;
 	float4 vColor : COLOR;
 };
 

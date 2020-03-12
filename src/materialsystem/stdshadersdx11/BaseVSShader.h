@@ -159,7 +159,7 @@ public:
 		);*/
 	
 	// Sets up hw morphing state for the vertex shader
-	void SetHWMorphVertexShaderState( int nDimConst, int nSubrectConst, VertexTextureSampler_t morphSampler );
+	void SetHWMorphVertexShaderState( Vector4D &dimensions, Vector4D &subrect, VertexTextureSampler_t morphSampler );
 
 	// Computes the shader index for vertex lit materials
 	int ComputeVertexLitShaderIndex( bool bVertexLitGeneric, bool hasBump, bool hasEnvmap, bool hasVertexColor, bool bHasNormal ) const;
