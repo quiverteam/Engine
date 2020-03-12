@@ -6,6 +6,8 @@
 // $NoKeywords: $
 //===========================================================================//
 
+#if 0
+
 #include "shaderlib/cshader.h"
 
 // memdbgon must be the last include file in a .cpp file!!!
@@ -55,4 +57,6 @@ BEGIN_SHADER( Wireframe_DX6,
 		Draw();
 	}
 END_SHADER
+#endif
+
 #endif

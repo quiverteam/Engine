@@ -1014,6 +1014,8 @@ bool CMaterialSystem::SetMode( void* hwnd, const MaterialSystem_Config_t &config
 	if ( !bOk )
 		return false;
 
+	ShaderSystem()->InitShaders();
+
 	TextureManager()->FreeStandardRenderTargets();
 	TextureManager()->AllocateStandardRenderTargets();
 

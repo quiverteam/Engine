@@ -2449,6 +2449,7 @@ static void FillCompressedTextureWithSingleColor( int red, int green, int blue, 
 	switch( imageFormat )
 	{
 	case IMAGE_FORMAT_DXT1:
+	case IMAGE_FORMAT_DXT1_SRGB:
 	case IMAGE_FORMAT_ATI1N:	// Invalid block data, but correct memory footprint
 		{
 			int i;
@@ -2459,6 +2460,7 @@ static void FillCompressedTextureWithSingleColor( int red, int green, int blue, 
 		}
 		break;
 	case IMAGE_FORMAT_DXT5:
+	case IMAGE_FORMAT_DXT5_SRGB:
 	case IMAGE_FORMAT_ATI2N:
 		{
 			int i;
@@ -2506,7 +2508,8 @@ void CTexture::GenerateShowMipLevelsTextures( IVTFTexture *pTexture )
 
 					int nWidth, nHeight, nDepth;
 					pTexture->ComputeMipLevelDimensions( iMip, &nWidth, &nHeight, &nDepth );
-					if( pTexture->Format() == IMAGE_FORMAT_DXT1  || pTexture->Format() == IMAGE_FORMAT_DXT5 ||
+					if( pTexture->Format() == IMAGE_FORMAT_DXT1 || pTexture->Format() == IMAGE_FORMAT_DXT1_SRGB ||
+					    pTexture->Format() == IMAGE_FORMAT_DXT5 || pTexture->Format() == IMAGE_FORMAT_DXT5_SRGB ||
 					    pTexture->Format() == IMAGE_FORMAT_ATI1N || pTexture->Format() == IMAGE_FORMAT_ATI2N )
 					{
 						unsigned char *pImageData = pTexture->ImageData( iFrame, iFace, iMip, 0, 0, 0 );

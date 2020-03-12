@@ -455,7 +455,7 @@ void CMatLightmaps::AllocateLightmapTexture( int lightmap )
 
 	case HDR_TYPE_NONE:
 #if !defined( _X360 )
-		imageFormat = IMAGE_FORMAT_RGBA8888;
+		imageFormat = IMAGE_FORMAT_RGBA8888_SRGB; // LDR lightmaps are in gamma space
 #else
 		imageFormat = IMAGE_FORMAT_LINEAR_RGBA8888;
 #endif

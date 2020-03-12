@@ -34,7 +34,7 @@
 #include "cmaterial_queuefriendly.h"
 #include "ifilelist.h"
 
-#define FALLBACK_SHADER	"UnlitGeneric"
+#define FALLBACK_SHADER	"Wireframe"
 
 //-----------------------------------------------------------------------------
 // Material implementation

@@ -67,6 +67,7 @@ public:
 	virtual bool		LoadShaderDLL( const char *pFullPath );
 	virtual bool		LoadShaderDLL( const char *pFullPath, const char *pPathID, bool bModShaderDLL );
 	virtual void		UnloadShaderDLL( const char *pFullPath );
+	virtual void		InitShaders();
 
 	virtual IShader*	FindShader( char const* pShaderName );
 	virtual void		CreateDebugMaterials();
@@ -88,10 +89,6 @@ public:
 	virtual void		LoadTexture( IMaterialVar *pTextureVar, const char *pTextureGroupName );
 	virtual void		LoadBumpMap( IMaterialVar *pTextureVar, const char *pTextureGroupName );
 	virtual void		LoadCubeMap( IMaterialVar **ppParams, IMaterialVar *pTextureVar );
-
-	virtual IShaderDevice *ShaderDevice();
-	virtual IShaderAPI *ShaderAPI();
-	virtual IShaderShadow *ShaderShadow();
 
 	// Used to prevent re-entrant rendering from warning messages
 	void				BufferSpew( SpewType_t spewType, const Color &c, const char *pMsg );
@@ -240,21 +237,6 @@ const char *CShaderSystem::s_pDebugShaderName[MATERIAL_DEBUG_COUNT]	=
 //-----------------------------------------------------------------------------
 CShaderSystem::CShaderSystem() : m_StoredSpew( 0, 512, 0 ), m_bForceUsingGraphicsReturnTrue( false )
 {
-}
-
-IShaderShadow *CShaderSystem::ShaderShadow()
-{
-	return g_pShaderShadow;
-}
-
-IShaderAPI *CShaderSystem::ShaderAPI()
-{
-	return g_pShaderAPI;
-}
-
-IShaderDevice *CShaderSystem::ShaderDevice()
-{
-	return g_pShaderDevice;
 }
 
 
@@ -606,6 +588,25 @@ void CShaderSystem::UnloadShaderDLL( const char *pFullPath )
 		UnloadShaderDLL( nShaderDLLIndex );
 		delete[] m_ShaderDLLs[nShaderDLLIndex].m_pFileName;
 		m_ShaderDLLs.Remove( nShaderDLLIndex ); 
+	}
+}
+
+
+//-----------------------------------------------------------------------------
+// One-time initializes all shaders (called after the mode is set and device is
+// created.
+//-----------------------------------------------------------------------------
+void CShaderSystem::InitShaders()
+{
+	for ( int i = 0; i < m_ShaderDLLs.Count(); i++ )
+	{
+		ShaderDLLInfo_t &info = m_ShaderDLLs[i];
+		int shaderCount = info.m_pShaderDLL->ShaderCount();
+		for ( int j = 0; j < shaderCount; j++ )
+		{
+			IShader *pShader = info.m_pShaderDLL->GetShader( j );
+			pShader->InitShader( g_pShaderDevice );
+		}
 	}
 }
 
