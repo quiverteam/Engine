@@ -2129,7 +2129,7 @@ void CViewRender::RenderView( const CViewSetup &view, int nClearFlags, int whatT
 				pRenderContext.GetFrom( materials );
 				{
 					PIXEVENT( pRenderContext, "DoImageSpaceMotionBlur" );
-					DoImageSpaceMotionBlur( view, view.x, view.y, view.width, view.height );
+					//DoImageSpaceMotionBlur( view, view.x, view.y, view.width, view.height );
 				}
 				pRenderContext.SafeRelease();
 			}
@@ -2146,12 +2146,12 @@ void CViewRender::RenderView( const CViewSetup &view, int nClearFlags, int whatT
 		vieweffects->GetFadeParams( &color[0], &color[1], &color[2], &color[3], &blend );
 
 		// Draw an overlay to make it even harder to see inside smoke particle systems.
-		DrawSmokeFogOverlay();
+		//DrawSmokeFogOverlay();
 
 		// Overlay screen fade on entire screen
-		IMaterial* pMaterial = blend ? m_ModulateSingleColor : m_TranslucentSingleColor;
-		render->ViewDrawFade( color, pMaterial );
-		PerformScreenOverlay( view.x, view.y, view.width, view.height );
+		//IMaterial* pMaterial = blend ? m_ModulateSingleColor : m_TranslucentSingleColor;
+		//render->ViewDrawFade( color, pMaterial );
+		//PerformScreenOverlay( view.x, view.y, view.width, view.height );
 
 		// Prevent sound stutter if going slow
 		engine->Sound_ExtraUpdate();	
@@ -2168,7 +2168,7 @@ void CViewRender::RenderView( const CViewSetup &view, int nClearFlags, int whatT
 				{
 					bFlashlightIsOn = pLocal->IsEffectActive( EF_DIMLIGHT );
 				}
-				DoEnginePostProcessing( view.x, view.y, view.width, view.height, bFlashlightIsOn );
+				//DoEnginePostProcessing( view.x, view.y, view.width, view.height, bFlashlightIsOn );
 			}
 			pRenderContext.SafeRelease();
 		}
@@ -2181,7 +2181,7 @@ void CViewRender::RenderView( const CViewSetup &view, int nClearFlags, int whatT
 			engine->GrabPreColorCorrectedFrame( view.x, view.y, view.width, view.height );
 		}
 
-		PerformScreenSpaceEffects( view.x, view.y, view.width, view.height );
+		//PerformScreenSpaceEffects( view.x, view.y, view.width, view.height );
 
 		if ( g_pMaterialSystemHardwareConfig->GetHDRType() == HDR_TYPE_INTEGER )
 		{
