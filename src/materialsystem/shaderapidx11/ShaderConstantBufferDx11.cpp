@@ -26,14 +26,24 @@ void CShaderConstantBufferDx11::Create( size_t nBufferSize )
 	cbDesc.MiscFlags = 0;
 	cbDesc.StructureByteStride = 0;
 
+	// Fill the buffer with all zeros
+	void *pInitialMem = _aligned_malloc( nBufferSize, 16 );
+	ZeroMemory( pInitialMem, nBufferSize );
+	D3D11_SUBRESOURCE_DATA initialData;
+	initialData.pSysMem = pInitialMem;
+	initialData.SysMemPitch = 0;
+	initialData.SysMemSlicePitch = 0;
+
 	//Log( "Creating D3D constant buffer: size: %i\n", m_nBufSize );
 
-	HRESULT hr = D3D11Device()->CreateBuffer( &cbDesc, NULL, &m_pCBuffer );
+	HRESULT hr = D3D11Device()->CreateBuffer( &cbDesc, &initialData, &m_pCBuffer );
 	if ( FAILED( hr ) )
 	{
 		Warning( "Could not set constant buffer!" );
 		//return NULL;
 	}
+
+	_aligned_free( pInitialMem );
 }
 
 void CShaderConstantBufferDx11::Update( void *pNewData )

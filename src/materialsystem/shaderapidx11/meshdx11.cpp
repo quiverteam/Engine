@@ -854,6 +854,8 @@ public:
 		return CVertexBufferBase::VertexFormatSize( vertexFormat );
 	}
 
+	CVertexBufferDx11 *GetVertexIDBuffer();
+
 	// Computes the vertex buffer pointers 
 	void ComputeVertexDescription( unsigned char *pBuffer,
 				       VertexFormat_t vertexFormat, MeshDesc_t &desc ) const;
@@ -877,12 +879,17 @@ public:
 	}
 
 private:
+	void CreateVertexIDBuffer();
+	void DestroyVertexIDBuffer();
+	void FillVertexIDBuffer( CVertexBufferDx11 *pVertexIDBuffer, int nCount );
+
 	bool SetRenderState( int nVertexOffsetInBytes, int nFirstVertexIdx, VertexFormat_t vertexFormat, int nVertexStride );
 
 	struct VertexBufferLookup_t
 	{
 		CVertexBufferDx11 *m_pBuffer;
 		int				m_VertexSize;
+		VertexFormat_t m_VertexFormat;
 	};
 
 	void CopyStaticMeshIndexBufferToTempMeshIndexBuffer( CTempMeshDX11 *pDstIndexMesh, CMeshDX11 *pSrcIndexMesh );
@@ -1805,36 +1812,29 @@ bool CMeshDX11::SetRenderState( int nVertexOffsetInBytes, int nFirstVertexIdx, V
 	// Bind the mesh's buffers
 	g_pShaderAPIDx11->SetTopology( m_Type );
 
-	if ( HasFlexMesh() )
-	{
-		g_pShaderAPIDx11->BindVertexBuffer( 1, GetVertexBuffer(), m_nFlexVertOffsetInBytes, nFirstVertexIdx, m_flexVertCount, GetVertexFormat() );
-	}
-	else
-	{
-		//Assert( nVertexOffsetInBytes == 0 );
-		//Assert( m_pVertexBuffer );
-		
-		// HACK...point stream 2 at the same VB which is bound to stream 0...
-		// NOTE: D3D debug DLLs will RIP if stream 0 has a smaller stride than the largest
-		//       offset in the stream 2 vertex decl elements (which are position(12)+wrinkle(4)+normal(12))
-		// If this fires, go find the material/shader which is requesting a really 'thin'
-		// stream 0 vertex, and fatten it up slightly (e.g. add a D3DCOLOR element)
-		//int minimumStreamZeroStride = 4 * sizeof( float );
-		//Assert( m_pVertexBuffer->VertexSize() >= minimumStreamZeroStride );
-		//if ( m_pVertexBuffer->VertexSize() < minimumStreamZeroStride )
-		//{
-		//	static bool bWarned = false;
-		//	if ( !bWarned )
-		//	{
-		//		Warning( "Shader specifying too-thin vertex format, should be at least %d bytes! (Supressing further warnings)\n", minimumStreamZeroStride );
-		//		bWarned = true;
-		//	}
-		//}
-		//g_pShaderAPIDx11->BindVertexBuffer( 2, GetVertexBuffer(), nVertexOffsetInBytes, nFirstVertexIdx, m_NumVertices, GetVertexFormat() );
-	}
-
 	Assert( m_pVertexBuffer );
 	g_pShaderAPIDx11->BindVertexBuffer( 0, GetVertexBuffer(), nVertexOffsetInBytes, nFirstVertexIdx, m_NumVertices, GetVertexFormat() );
+
+	// Bind separate color vertex buffer
+	if ( HasColorMesh() )
+	{
+		g_pShaderAPIDx11->BindVertexBuffer( 1, m_pColorMesh->GetVertexBuffer(), m_nColorMeshVertOffsetInBytes,
+						    nFirstVertexIdx, m_pColorMesh->GetVertexBuffer()->VertexCount(),
+						    m_pColorMesh->GetVertexFormat() );
+	}
+
+	// Bind flex vertex buffer
+	if ( HasFlexMesh() )
+	{
+		g_pShaderAPIDx11->BindVertexBuffer( 2, GetVertexBuffer(), m_nFlexVertOffsetInBytes, nFirstVertexIdx, m_flexVertCount, GetVertexFormat() );
+	}
+
+	// Bind vertex ID buffer
+	bool bUsingVertexId = IsUsingVertexID();
+	if ( bUsingVertexId )
+	{
+		g_pShaderAPIDx11->BindVertexBuffer( 3, g_MeshMgr.GetVertexIDBuffer(), 0, 0, 0, g_MeshMgr.GetVertexIDBuffer()->GetVertexFormat() );
+	}
 	
 	Assert( m_pIndexBuffer );
 	g_pShaderAPIDx11->BindIndexBuffer( GetIndexBuffer(), nVertexOffsetInBytes );
@@ -2127,7 +2127,7 @@ void CDynamicMeshDX11::OverrideIndexBuffer( CIndexBufferDx11 *pIndexBuffer )
 bool CDynamicMeshDX11::NeedsVertexFormatReset( VertexFormat_t fmt ) const
 {
 	//Log( "Does CDynamicMeshDx11 need format reset? %i %i %i != %i\n", m_VertexOverride, m_IndexOverride, m_VertexFormat, fmt );
-	return m_VertexOverride || m_IndexOverride || ( m_VertexFormat != fmt ) || m_pVertexBuffer == 0 || m_pIndexBuffer == 0;
+	return m_VertexOverride || m_IndexOverride || ( m_VertexFormat != fmt );
 }
 
 //-----------------------------------------------------------------------------
@@ -2240,6 +2240,7 @@ void CDynamicMeshDX11::UnlockMesh( int nVertexCount, int nIndexCount, MeshDesc_t
 //-----------------------------------------------------------------------------
 void CDynamicMeshDX11::Draw( int nFirstIndex, int nIndexCount )
 {
+	//return;
 	if ( !ShaderUtil()->OnDrawMesh( this, nFirstIndex, nIndexCount ) )
 	{
 		MarkAsDrawn();
@@ -3344,6 +3345,8 @@ void CBufferedMeshDX11::RenderPass()
 
 void CBufferedMeshDX11::Flush()
 {
+	//return;
+
 	// If you are hitting this assert you are causing a flush between a 
 	// meshbuilder begin/end and you are more than likely losing rendering data.
 	AssertOnce( !m_bMeshLocked );
@@ -3422,7 +3425,7 @@ void CMeshMgr::Init()
 	//Log( "Dynamic ib index size: %i\n", m_pDynamicIndexBuffer->IndexSize() );
 
 	// If we're running in vs3.0, allocate a vertexID buffer
-	//CreateVertexIDBuffer();
+	CreateVertexIDBuffer();
 
 	m_BufferedMode = !IsX360();
 }
@@ -3430,6 +3433,59 @@ void CMeshMgr::Init()
 void CMeshMgr::Shutdown()
 {
 	CleanUp();
+}
+
+void CMeshMgr::CreateVertexIDBuffer()
+{
+	DestroyVertexIDBuffer();
+
+	// Track mesh allocations
+	g_VBAllocTracker->TrackMeshAllocations( "CreateVertexIDBuffer" );
+	if ( g_pHardwareConfig->HasFastVertexTextures() )
+	{
+		m_pVertexIDBuffer = static_cast<CVertexBufferDx11 *>(
+			g_pShaderDeviceDx11->CreateVertexBuffer( SHADER_BUFFER_TYPE_DYNAMIC, VERTEX_USERDATA_SIZE( 1 ), VERTEX_BUFFER_SIZE,
+								 TEXTURE_GROUP_STATIC_VERTEX_BUFFER_OTHER ) );
+		FillVertexIDBuffer( m_pVertexIDBuffer, VERTEX_BUFFER_SIZE );
+	}
+	g_VBAllocTracker->TrackMeshAllocations( NULL );
+}
+
+void CMeshMgr::DestroyVertexIDBuffer()
+{
+	if ( m_pVertexIDBuffer )
+	{
+		g_pShaderDeviceDx11->DestroyVertexBuffer( m_pVertexIDBuffer );
+		m_pVertexIDBuffer = NULL;
+	}
+}
+
+CVertexBufferDx11 *CMeshMgr::GetVertexIDBuffer()
+{
+	return m_pVertexIDBuffer;
+}
+
+//-----------------------------------------------------------------------------
+// Fills a vertexID buffer
+//-----------------------------------------------------------------------------
+void CMeshMgr::FillVertexIDBuffer( CVertexBufferDx11 *pVertexIDBuffer, int nCount )
+{
+	if ( IsX360() )
+		return;
+
+	// Fill the buffer with the values 0->(nCount-1)
+	int nBaseVertexIndex = 0;
+	VertexDesc_t desc;
+	bool ret = pVertexIDBuffer->Lock( nCount, nBaseVertexIndex, desc );
+	if ( ret )
+	{
+		for ( int i = 0; i < nCount; ++i )
+		{
+			*desc.m_pUserData++ = (float)i;
+		}
+	}
+	
+	pVertexIDBuffer->Unlock( nCount, desc );
 }
 
 //-----------------------------------------------------------------------------
@@ -3470,7 +3526,7 @@ void CMeshMgr::CleanUp()
 	DestroyVertexBuffers();
 
 	// If we're running in vs3.0, allocate a vertexID buffer
-	//DestroyVertexIDBuffer();
+	DestroyVertexIDBuffer();
 }
 
 //-----------------------------------------------------------------------------
@@ -3651,7 +3707,10 @@ IMesh *CMeshMgr::GetFlexMesh()
 IMesh *CMeshMgr::GetDynamicMesh( IMaterial *pMaterial, VertexFormat_t vertexFormat, int nHWSkinBoneCount,
 				 bool buffered, IMesh *pVertexOverride, IMesh *pIndexOverride )
 {
-	Assert( ( pMaterial == NULL ) || ( (IMaterialInternal *)pMaterial )->IsRealTimeVersion() );
+	if ( !( ( pMaterial == NULL ) || ( (IMaterialInternal *)pMaterial )->IsRealTimeVersion() ) )
+	{
+		DebuggerBreak();
+	}
 
 	if ( IsX360() )
 	{
@@ -3897,7 +3956,10 @@ void CMeshMgr::GetMaxToRender( IMesh *pMesh, bool bMaxUntilFlush, int *pMaxVerts
 
 int CMeshMgr::GetMaxVerticesToRender( IMaterial *pMaterial )
 {
-	Assert( ( pMaterial == NULL ) || ( (IMaterialInternal *)pMaterial )->IsRealTimeVersion() );
+	//if ( !( ( pMaterial == NULL ) || ( (IMaterialInternal *)pMaterial )->IsRealTimeVersion() ) )
+	//{
+	//	DebuggerBreak();
+	//}//
 
 	// Be conservative, assume no compression (in here, we don't know if the caller will used a compressed VB or not)
 	// FIXME: allow the caller to specify which compression type should be used to compute size from the vertex format
@@ -3935,22 +3997,23 @@ CVertexBufferDx11 *CMeshMgr::FindOrCreateVertexBuffer( int nDynamicBufferId, Ver
 		// NOTE: GetCurrentDynamicVBSize returns a smaller value during level transitions
 		int nBufferMemory = ShaderAPI()->GetCurrentDynamicVBSize();
 		int nIndex = m_DynamicVertexBuffers.AddToTail();
-		m_DynamicVertexBuffers[nIndex].m_VertexSize = 0;
-		//m_DynamicVertexBuffers[nIndex].m_pBuffer = new CVertexBuffer( Dx9Device(), 0, 0,
-		//							      nBufferMemory / VERTEX_BUFFER_SIZE, VERTEX_BUFFER_SIZE, TEXTURE_GROUP_STATIC_VERTEX_BUFFER_OTHER, ShaderAPI()->UsingSoftwareVertexProcessing(), true );
+		m_DynamicVertexBuffers[nIndex].m_VertexSize = vertexSize;
+		m_DynamicVertexBuffers[nIndex].m_VertexFormat = vertexFormat;
 		m_DynamicVertexBuffers[nIndex].m_pBuffer = static_cast<CVertexBufferDx11 *>(
 			g_pShaderDeviceDx11->CreateVertexBuffer( SHADER_BUFFER_TYPE_DYNAMIC, vertexFormat, nBufferMemory / vertexSize, "dynamicvb" ) );
 
 		g_VBAllocTracker->TrackMeshAllocations( NULL );
 	}
 
-	if ( m_DynamicVertexBuffers[nDynamicBufferId].m_VertexSize != vertexSize )
+	if ( m_DynamicVertexBuffers[nDynamicBufferId].m_VertexSize != vertexSize || 
+	     m_DynamicVertexBuffers[nDynamicBufferId].m_VertexFormat != vertexFormat )
 	{
 		// provide caller with dynamic vb in expected format
 		// NOTE: GetCurrentDynamicVBSize returns a smaller value during level transitions
 		int nBufferMemory = ShaderAPI()->GetCurrentDynamicVBSize();
 		m_DynamicVertexBuffers[nDynamicBufferId].m_VertexSize = vertexSize;
-		m_DynamicVertexBuffers[nDynamicBufferId].m_pBuffer->ChangeConfiguration( vertexSize, nBufferMemory );
+		m_DynamicVertexBuffers[nDynamicBufferId].m_VertexFormat = vertexFormat;
+		m_DynamicVertexBuffers[nDynamicBufferId].m_pBuffer->ChangeConfiguration( vertexSize, nBufferMemory, vertexFormat );
 
 		// size changed means stream stride needs update
 		// mark cached stream state as invalid to reset stream

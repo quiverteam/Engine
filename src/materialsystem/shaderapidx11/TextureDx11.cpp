@@ -53,8 +53,26 @@ ImageFormat GetClosestSupportedImageFormatForD3D11( ImageFormat srcFormat )
 	{
 	case IMAGE_FORMAT_BGR888:
 		return IMAGE_FORMAT_BGRA8888;
+
+	case IMAGE_FORMAT_BGR888_SRGB:
+	case IMAGE_FORMAT_BGR888_BLUESCREEN:
+		return IMAGE_FORMAT_BGRA8888_SRGB;
+
 	case IMAGE_FORMAT_RGB888:
 		return IMAGE_FORMAT_RGBA8888;
+
+	case IMAGE_FORMAT_DXT1_ONEBITALPHA:
+	case IMAGE_FORMAT_DXT1:
+	case IMAGE_FORMAT_DXT5:
+		return IMAGE_FORMAT_BGRA8888;
+	case IMAGE_FORMAT_DXT1_ONEBITALPHA_SRGB:
+	case IMAGE_FORMAT_DXT1_SRGB:
+	case IMAGE_FORMAT_DXT5_SRGB:
+		return IMAGE_FORMAT_BGRA8888_SRGB;	
+
+	case IMAGE_FORMAT_RGB888_SRGB:
+	case IMAGE_FORMAT_RGB888_BLUESCREEN:
+		return IMAGE_FORMAT_RGBA8888_SRGB;
 	default:
 		return srcFormat;
 	}
@@ -85,23 +103,41 @@ DXGI_FORMAT GetD3DFormat( ImageFormat format )
 	// These ones match D3D.
 	case IMAGE_FORMAT_A8:
 		return DXGI_FORMAT_A8_UNORM;
+
 	case IMAGE_FORMAT_DXT1:
 	case IMAGE_FORMAT_DXT1_ONEBITALPHA:
 		return DXGI_FORMAT_BC1_UNORM;
+	case IMAGE_FORMAT_DXT1_SRGB:
+	case IMAGE_FORMAT_DXT1_ONEBITALPHA_SRGB:
+		return DXGI_FORMAT_BC1_UNORM_SRGB;
+
 	case IMAGE_FORMAT_DXT3:
 		return DXGI_FORMAT_BC2_UNORM;
+	case IMAGE_FORMAT_DXT3_SRGB:
+		return DXGI_FORMAT_BC2_UNORM_SRGB;
+
 	case IMAGE_FORMAT_DXT5:
 		return DXGI_FORMAT_BC3_UNORM;
+	case IMAGE_FORMAT_DXT5_SRGB:
+		return DXGI_FORMAT_BC3_UNORM_SRGB;
+
 	case IMAGE_FORMAT_BGRA4444:
 		return DXGI_FORMAT_B4G4R4A4_UNORM;
 	case IMAGE_FORMAT_BGRX5551:
 		return DXGI_FORMAT_B5G5R5A1_UNORM;
 	case IMAGE_FORMAT_BGR565:
 		return DXGI_FORMAT_B5G6R5_UNORM;
+
 	case IMAGE_FORMAT_BGRX8888:
 		return DXGI_FORMAT_B8G8R8X8_UNORM;
+	case IMAGE_FORMAT_BGRX8888_SRGB:
+		return DXGI_FORMAT_B8G8R8X8_UNORM_SRGB;
+
 	case IMAGE_FORMAT_BGRA8888:
 		return DXGI_FORMAT_B8G8R8A8_UNORM;
+	case IMAGE_FORMAT_BGRA8888_SRGB:
+		return DXGI_FORMAT_B8G8R8A8_UNORM_SRGB;
+
 	case IMAGE_FORMAT_RGBA16161616F:
 		return DXGI_FORMAT_R16G16B16A16_FLOAT;
 	case IMAGE_FORMAT_RGBA16161616:
@@ -110,15 +146,18 @@ DXGI_FORMAT GetD3DFormat( ImageFormat format )
 		return DXGI_FORMAT_R32_FLOAT;
 	case IMAGE_FORMAT_RGBA32323232F:
 		return DXGI_FORMAT_R32G32B32A32_FLOAT;
+
 	case IMAGE_FORMAT_RGBA8888:
 		return DXGI_FORMAT_R8G8B8A8_UNORM;
+	case IMAGE_FORMAT_RGBA8888_SRGB:
+		return DXGI_FORMAT_R8G8B8A8_UNORM_SRGB;
 
 	default:
 		return DXGI_FORMAT_UNKNOWN;
 	}
 }
 
-ImageFormat GetImageFormat( DXGI_FORMAT d3dFormat )
+ImageFormat CTextureDx11::GetImageFormat( DXGI_FORMAT d3dFormat ) const
 {
 	switch ( d3dFormat )
 	{
@@ -131,27 +170,37 @@ ImageFormat GetImageFormat( DXGI_FORMAT d3dFormat )
 		return IMAGE_FORMAT_I8;
 	case DXGI_FORMAT_R8G8_UNORM:
 		return IMAGE_FORMAT_IA88;
-	//case DXGI_FORMAT_R8G8_UNORM:
-	//	return IMAGE_FORMAT_UV88;
-	case DXGI_FORMAT_R8G8B8A8_UNORM:
-		return IMAGE_FORMAT_UVWQ8888;
 
+	case DXGI_FORMAT_R8G8B8A8_UNORM:
+		return IMAGE_FORMAT_RGBA8888;
+	case DXGI_FORMAT_R8G8B8A8_UNORM_SRGB:
+		return IMAGE_FORMAT_RGBA8888_SRGB;
 	case DXGI_FORMAT_A8_UNORM:
 		return IMAGE_FORMAT_A8;
 	case DXGI_FORMAT_BC1_UNORM:
-		return IMAGE_FORMAT_DXT1_ONEBITALPHA;
+		return IMAGE_FORMAT_DXT1;
+	case DXGI_FORMAT_BC1_UNORM_SRGB:
+		return IMAGE_FORMAT_DXT1_SRGB;
 	case DXGI_FORMAT_BC2_UNORM:
 		return IMAGE_FORMAT_DXT3;
+	case DXGI_FORMAT_BC2_UNORM_SRGB:
+		return IMAGE_FORMAT_DXT3_SRGB;
 	case DXGI_FORMAT_BC3_UNORM:
 		return IMAGE_FORMAT_DXT5;
+	case DXGI_FORMAT_BC3_UNORM_SRGB:
+		return IMAGE_FORMAT_DXT5_SRGB;
 	case DXGI_FORMAT_B4G4R4A4_UNORM:
 		return IMAGE_FORMAT_BGRA4444;
 	case DXGI_FORMAT_B5G6R5_UNORM:
 		return IMAGE_FORMAT_BGR565;
 	case DXGI_FORMAT_B8G8R8X8_UNORM:
 		return IMAGE_FORMAT_BGRX8888;
+	case DXGI_FORMAT_B8G8R8X8_UNORM_SRGB:
+		return IMAGE_FORMAT_BGRX8888_SRGB;
 	case DXGI_FORMAT_B8G8R8A8_UNORM:
 		return IMAGE_FORMAT_BGRA8888;
+	case DXGI_FORMAT_B8G8R8A8_UNORM_SRGB:
+		return IMAGE_FORMAT_BGRA8888_SRGB;
 	case DXGI_FORMAT_R16G16B16A16_FLOAT:
 		return IMAGE_FORMAT_RGBA16161616F;
 	case DXGI_FORMAT_R16G16B16A16_UNORM:
@@ -164,6 +213,38 @@ ImageFormat GetImageFormat( DXGI_FORMAT d3dFormat )
 	default:
 		return IMAGE_FORMAT_UNKNOWN;
 	}
+}
+
+int CTextureDx11::CalcRamBytes() const
+{
+	int rWidth = m_nWidth;
+	int rHeight = m_nHeight;
+	int rDepth = m_Depth;
+	int nRamBytes = 0;
+	for ( int i = 0; i < m_NumLevels; i++ )
+	{
+		nRamBytes += ImageLoader::GetMemRequired( rWidth, rHeight, rDepth, m_Format, false );
+		if ( rWidth == 1 && rHeight == 1 && rDepth == 1 )
+		{
+			break;
+		}
+		rDepth >>= 1;
+		rWidth >>= 1;
+		rHeight >>= 1;
+		if ( rWidth < 1 )
+		{
+			rWidth = 1;
+		}
+		if ( rHeight < 1 )
+		{
+			rHeight = 1;
+		}
+		if ( rDepth < 1 )
+		{
+			rDepth = 1;
+		}
+	}
+	return nRamBytes;
 }
 
 // Texture2D is used for regular 2D textures, cubemaps, and 2D texture arrays
@@ -193,6 +274,7 @@ ID3D11Resource *CTextureDx11::CreateD3DTexture( int width, int height, int nDept
 	//Assert( !bIsDepthBuffer );
 
 	dstFormat = GetClosestSupportedImageFormatForD3D11( dstFormat );
+	m_Format = dstFormat;
 	DXGI_FORMAT d3dFormat = DXGI_FORMAT_UNKNOWN;
 	d3dFormat = GetD3DFormat( dstFormat );
 
@@ -243,7 +325,7 @@ ID3D11Resource *CTextureDx11::CreateD3DTexture( int width, int height, int nDept
 	// TODO: Support 1D and 3D textures
 	// (2D textures are good for regular textures, cubemaps, and texture arrays)
 	D3D11_TEXTURE2D_DESC desc;
-	ZeroMemory( &desc, sizeof( D3D11_TEXTURE3D_DESC ) );
+	ZeroMemory( &desc, sizeof( D3D11_TEXTURE2D_DESC ) );
 	desc.ArraySize = nDepth;
 	desc.Format = d3dFormat;
 	desc.Width = width;
@@ -292,6 +374,12 @@ void DestroyD3DTexture( ID3D11Resource *pD3DTex )
 
 CTextureDx11::CTextureDx11()
 {
+	m_pLockedRegionMemory = NULL;
+	m_pLockedTexture = NULL;
+	m_LockedDepth = 0;
+	m_LockedPitch = 0;
+	m_LockedSubresource = 0;
+	m_bLocked = false;
 	m_nFlags	 = 0;
 	m_Count		 = 0;
 	m_CountIndex	 = 0;
@@ -325,6 +413,10 @@ inline int CalcMipLevels( int w, int h )
 void CTextureDx11::SetupTexture2D( int width, int height, int depth, int count, int i,
 				   int flags, int numCopies, int numMipLevels, ImageFormat dstImageFormat )
 {
+	if ( dstImageFormat == IMAGE_FORMAT_I8 )
+	{
+		//DebuggerBreak();
+	}
 	//Log( "Making texture2D\n" );
 	bool bIsRenderTarget = ( flags & TEXTURE_CREATE_RENDERTARGET ) != 0;
 	bool bIsDepthBuffer = ( flags & TEXTURE_CREATE_DEPTHBUFFER ) != 0;
@@ -342,7 +434,7 @@ void CTextureDx11::SetupTexture2D( int width, int height, int depth, int count, 
 		return;
 	}
 
-	dstImageFormat = IMAGE_FORMAT_RGBA8888;
+	//dstImageFormat = IMAGE_FORMAT_RGBA8888;
 
 	//---------------------------------------------------------------------------------
 
@@ -408,7 +500,6 @@ void CTextureDx11::SetupTexture2D( int width, int height, int depth, int count, 
 	else
 		pD3DTex = m_ppTexture[m_CurrentCopy];
 
-	m_Format = dstImageFormat;
 	m_UTexWrap = D3D11_TEXTURE_ADDRESS_CLAMP;
 	m_VTexWrap = D3D11_TEXTURE_ADDRESS_CLAMP;
 	m_WTexWrap = D3D11_TEXTURE_ADDRESS_CLAMP;
@@ -755,10 +846,6 @@ void CTextureDx11::MakeView()
 			{
 				Warning( "Unable to create shader resource view for texture copy %i!\n", copy );
 			}
-			if ( bGenMipMap && m_ppView[copy] )
-			{
-				D3D11DeviceContext()->GenerateMips( m_ppView[copy] );
-			}
 		}
 
 	}
@@ -775,31 +862,35 @@ void CTextureDx11::MakeView()
 		{
 			Warning( "Unable to create D3D11 Texture view!\n" );
 		}
-		if ( bGenMipMap && m_pView )
-		{
-			D3D11DeviceContext()->GenerateMips( m_pView );
-		}
 	}
 	
 }
 
-static int s_NumBlits = 0;
+static int s_CubemapBlits = 0;
 
 void CTextureDx11::BlitSurfaceBits( CTextureDx11::TextureLoadInfo_t &info, int xOffset, int yOffset, int srcStride )
 {
+
 	CD3D11_BOX box;
 	box.left = xOffset;
 	box.right = xOffset + info.m_nWidth;
 	box.top = yOffset;
 	box.bottom = yOffset + info.m_nHeight;
-	box.front = 0;
-	box.back = 1;
+	box.front = info.m_nZOffset;
+	box.back = info.m_nZOffset + 1;
 
 	int mem = ImageLoader::GetMemRequired( info.m_nWidth, info.m_nHeight, info.m_nZOffset, m_Format, false );
 	unsigned char *pNewImage = new unsigned char[mem];
 	int dstStride = ImageLoader::SizeInBytes( m_Format );
 
-	bool ret = 
+	if ( info.m_SrcFormat == IMAGE_FORMAT_DXT1 || info.m_SrcFormat == IMAGE_FORMAT_DXT1_SRGB ||
+	     info.m_SrcFormat == IMAGE_FORMAT_DXT3 || info.m_SrcFormat == IMAGE_FORMAT_DXT3_SRGB ||
+	     info.m_SrcFormat == IMAGE_FORMAT_DXT5 || info.m_SrcFormat == IMAGE_FORMAT_DXT5_SRGB )
+	{
+		//DebuggerBreak();
+	}
+
+	bool ret =
 		ShaderUtil()->ConvertImageFormat( info.m_pSrcData, info.m_SrcFormat, pNewImage, m_Format,
 						  info.m_nWidth, info.m_nHeight, srcStride );
 	if ( !ret )
@@ -809,27 +900,33 @@ void CTextureDx11::BlitSurfaceBits( CTextureDx11::TextureLoadInfo_t &info, int x
 	}
 
 #if 0
+	if ( m_CreationFlags & TEXTURE_CREATE_CUBEMAP )
 	{
-		int debugMem = ImageLoader::GetMemRequired( info.m_nWidth, info.m_nHeight, info.m_nZOffset, IMAGE_FORMAT_BGRA8888, false );
-		unsigned char *pDebugImage = new unsigned char[debugMem];
-		int debugStride = ImageLoader::SizeInBytes( IMAGE_FORMAT_BGRA8888 );
-		ShaderUtil()->ConvertImageFormat( info.m_pSrcData, info.m_SrcFormat, pDebugImage, IMAGE_FORMAT_BGRA8888,
-						  info.m_nWidth, info.m_nHeight, srcStride, debugStride );
-		char filename[50];
-		memset( filename, 0, 50 );
-		sprintf( filename, "C:\\Users\\Brian\\Desktop\\SourceDX11Debug\\BlitSurfaceBitsDebug-%i.tga", s_NumBlits++ );
-		TGAWriter::WriteTGAFile( filename, info.m_nWidth, info.m_nHeight, IMAGE_FORMAT_BGRA8888, pDebugImage, debugStride );
-		delete[] pDebugImage;
+		char cmfile[100];
+		sprintf( cmfile, "C:\\Users\\Brian\\Desktop\\SourceDX11Debug\\cubemap-%i-face-%i.tga", s_CubemapBlits, info.m_CubeFaceID );
+		TGAWriter::WriteTGAFile( cmfile, info.m_nWidth, info.m_nHeight, m_Format, pNewImage, dstStride * info.m_nWidth );
+
+		if ( info.m_CubeFaceID == 4 )
+		{
+			s_CubemapBlits++;
+		}
 	}
 #endif
 	
-
-	//Log( "CalcSubresource: level %i, face %i, num levels %i\n", info.m_nLevel, info.m_CubeFaceID, m_NumLevels );
 	UINT subresource = D3D11CalcSubresource( info.m_nLevel, info.m_CubeFaceID, m_NumLevels );
 
-	D3D11DeviceContext()->UpdateSubresource( info.m_pTexture, subresource, &box, pNewImage, dstStride * info.m_nWidth, dstStride * info.m_nWidth * info.m_nHeight );
+	D3D11DeviceContext()->UpdateSubresource( info.m_pTexture, subresource, &box, pNewImage,
+						 dstStride * info.m_nWidth, dstStride * info.m_nWidth * info.m_nHeight );
 
 	delete[] pNewImage;
+
+	// If the texture was created with auto mipmap and we have just filled in the base mip,
+	// make D3D generate the remaining mips. If the texture was not created with auto mipmap,
+	// or we have just filled in a non-base mip, we assume the user is filling in the mips.
+	if ( ( ( m_CreationFlags & TEXTURE_CREATE_AUTOMIPMAP ) != 0 ) && m_NumLevels > 1 && info.m_nLevel == 0 )
+	{
+		D3D11DeviceContext()->GenerateMips( info.m_pView );
+	}
 }
 
 void CTextureDx11::BlitTextureBits( CTextureDx11::TextureLoadInfo_t &info, int xOffset, int yOffset, int srcStride )
@@ -941,4 +1038,67 @@ void CTextureDx11::Delete()
 
 	m_NumCopies = 0;
 	m_nFlags = 0;
+}
+
+bool CTextureDx11::Lock( int copy, int level, int cubeFaceID, int xOffset, int yOffset,
+			 int width, int height, bool bDiscard, CPixelWriter &writer )
+{
+	Assert( !m_bLocked );
+	if ( m_bLocked )
+	{
+		return false;
+	}	
+
+	if ( m_NumCopies == 1 )
+	{
+		m_pLockedTexture = m_pTexture;
+	}
+	else
+	{
+		m_pLockedTexture = m_ppTexture[copy];
+	}
+
+	m_LockedBox.left = xOffset;
+	m_LockedBox.right = xOffset + width;
+	m_LockedBox.top = yOffset;
+	m_LockedBox.bottom = yOffset + height;
+	m_LockedBox.front = 0;
+	m_LockedBox.back = 1;
+
+	m_LockedSubresource = D3D11CalcSubresource( level, cubeFaceID, m_NumLevels );
+
+	// Allocate memory to hold the bytes for the region.
+	int bytesPerXel = ImageLoader::SizeInBytes( m_Format );
+	int bytesForRect = bytesPerXel * width * height;
+	m_pLockedRegionMemory = (unsigned char *)malloc( bytesForRect );
+	memset( m_pLockedRegionMemory, 0, bytesForRect );
+
+	m_LockedPitch = bytesPerXel * width;
+	m_LockedDepth = bytesForRect;
+
+	writer.SetPixelMemory( m_Format, m_pLockedRegionMemory, m_LockedPitch );
+
+	m_bLocked = true;
+	return true;
+}
+
+void CTextureDx11::Unlock( int copy, int level, int cubeFaceID )
+{
+	Assert( m_bLocked );
+	if ( !m_bLocked )
+	{
+		return;
+	}
+
+	D3D11DeviceContext()->UpdateSubresource( m_pLockedTexture, m_LockedSubresource, &m_LockedBox,
+						 m_pLockedRegionMemory, m_LockedPitch, m_LockedDepth );
+
+	free( m_pLockedRegionMemory );
+	m_pLockedRegionMemory = NULL;
+	m_pLockedTexture = NULL;
+	m_LockedDepth = 0;
+	m_LockedPitch = 0;
+	m_LockedSubresource = 0;
+
+	m_bLocked = false;
 }

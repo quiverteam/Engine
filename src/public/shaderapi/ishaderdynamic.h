@@ -17,9 +17,8 @@
 #include "materialsystem/imaterial.h"
 #include "materialsystem/imaterialsystem.h"
 
-
 typedef int ShaderAPITextureHandle_t;
-typedef int ConstantBuffer_t;
+FORWARD_DECLARE_HANDLE( ConstantBufferHandle_t );
 
 //-----------------------------------------------------------------------------
 // forward declarations
@@ -297,11 +296,11 @@ public:
 
 	virtual void SetDepthFeatheringPixelShaderConstant( int iConstant, float fDepthBlendScale ) = 0;
 
-	virtual void UpdateConstantBuffer( ConstantBuffer_t cbuffer, void *pNewData ) = 0;
-	virtual ConstantBuffer_t GetInternalConstantBuffer( int type ) = 0;
-	virtual void BindPixelShaderConstantBuffer( ConstantBuffer_t ) = 0;
-	virtual void BindVertexShaderConstantBuffer( ConstantBuffer_t ) = 0;
-	virtual void BindGeometryShaderConstantBuffer( ConstantBuffer_t ) = 0;
+	virtual void UpdateConstantBuffer( ConstantBufferHandle_t cbuffer, void *pNewData ) = 0;
+	virtual ConstantBufferHandle_t GetInternalConstantBuffer( int type ) = 0;
+	virtual void BindPixelShaderConstantBuffer( int slot, ConstantBufferHandle_t buffer ) = 0;
+	virtual void BindVertexShaderConstantBuffer( int slot, ConstantBufferHandle_t buffer ) = 0;
+	virtual void BindGeometryShaderConstantBuffer( int slot, ConstantBufferHandle_t buffer ) = 0;
 };
 // end class IShaderDynamicAPI
 

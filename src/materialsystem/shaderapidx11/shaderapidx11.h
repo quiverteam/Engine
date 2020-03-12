@@ -15,6 +15,7 @@
 
 #include <d3d11.h>
 
+#include "renderparm.h"
 #include "shaderapidx9/shaderapibase.h"
 #include "shaderapi/ishadershadow.h"
 #include "materialsystem/idebugtextureinfo.h"
@@ -33,31 +34,6 @@
 // Forward declarations
 //-----------------------------------------------------------------------------
 struct MaterialSystemHardwareIdentifier_t;
-
-
-
-//-----------------------------------------------------------------------------
-// A record describing the state on the board
-//-----------------------------------------------------------------------------
-
-struct DynamicStateDx11_t
-{
-	MaterialFogMode_t m_FogMode;
-	float m_flFogStart;
-	float m_flFogEnd;
-	float m_flFogZ;
-	float m_flFogMaxDensity;
-
-	Vector4D m_AmbientLightCube[6];
-	LightDesc_t m_Lights[MAX_NUM_LIGHTS];
-	int m_NumLights;
-};
-
-struct MatrixItemDx11_t
-{
-	DirectX::XMMATRIX m_Matrix;
-	int m_Flags;
-};
 
 //-----------------------------------------------------------------------------
 // The Dx11 implementation of the shader API
@@ -83,18 +59,20 @@ public:
 	virtual void BindVertexShader( VertexShaderHandle_t hVertexShader );
 	virtual void BindGeometryShader( GeometryShaderHandle_t hGeometryShader );
 	virtual void BindPixelShader( PixelShaderHandle_t hPixelShader );
-	virtual void BindVertexBuffer( int nStreamID, IVertexBuffer *pVertexBuffer, int nOffsetInBytes, int nFirstVertex, int nVertexCount, VertexFormat_t fmt, int nRepetitions = 1 );
+	virtual void BindVertexBuffer( int nStreamID, IVertexBuffer *pVertexBuffer, int nOffsetInBytes, int nFirstVertex,
+				       int nVertexCount, VertexFormat_t fmt, int nRepetitions = 1 );
+	void SetUsingExtraVertexBuffers( bool bStaticLit, bool bUsingFlex, bool bUsingMorph );
 	virtual void BindIndexBuffer( IIndexBuffer *pIndexBuffer, int nOffsetInBytes );
 	virtual void Draw( MaterialPrimitiveType_t primitiveType, int nFirstIndex, int nIndexCount );
 	void DrawIndexed( int nFirstIndex, int nIndexCount, int nBaseVertexLocation );
 	void DrawNotIndexed( int nFirstVertex, int nVertCount );
 	void DrawMesh( IMesh *pMesh );
 
-	virtual void UpdateConstantBuffer( ConstantBuffer_t cbuffer, void *pNewData );
-	virtual ConstantBuffer_t GetInternalConstantBuffer( int type );
-	virtual void BindPixelShaderConstantBuffer( ConstantBuffer_t );
-	virtual void BindVertexShaderConstantBuffer( ConstantBuffer_t );
-	virtual void BindGeometryShaderConstantBuffer( ConstantBuffer_t );
+	virtual void UpdateConstantBuffer( ConstantBufferHandle_t cbuffer, void *pNewData );
+	virtual ConstantBufferHandle_t GetInternalConstantBuffer( int type );
+	virtual void BindPixelShaderConstantBuffer( int slot, ConstantBufferHandle_t buffer );
+	virtual void BindVertexShaderConstantBuffer( int slot, ConstantBufferHandle_t buffer );
+	virtual void BindGeometryShaderConstantBuffer( int slot, ConstantBufferHandle_t buffer );
 
 	FORCEINLINE bool TextureIsAllocated( ShaderAPITextureHandle_t hTexture )
 	{
@@ -262,9 +240,7 @@ private:
 	void SetPixelShaderStateAmbientLightCube( int pshReg )
 	{
 	}
-	virtual void GetDX9LightState( LightState_t *state ) const
-	{
-	}
+	virtual void GetDX9LightState( LightState_t *state ) const;
 
 	float GetAmbientLightCubeLuminance( void )
 	{
@@ -398,11 +374,7 @@ private:
 		Assert( 0 );
 	}
 
-	bool ShouldWriteDepthToDestAlpha( void ) const
-	{
-		Assert( 0 );
-		return false;
-	}
+	bool ShouldWriteDepthToDestAlpha( void ) const;
 
 	void InvalidateDelayedShaderConstants( void );
 
@@ -580,6 +552,7 @@ private:
 
 	void SetDefaultDynamicState()
 	{
+		m_TargetShaderState.SetDefault();
 	}
 	virtual void CommitPixelShaderLighting( int pshReg )
 	{
@@ -623,9 +596,7 @@ private:
 	{
 	}
 
-	void SetPixelShaderFogParams( int reg )
-	{
-	}
+	void SetPixelShaderFogParams( int reg );
 
 	virtual bool InFlashlightMode() const
 	{
@@ -646,50 +617,23 @@ private:
 	void GetStandardTextureDimensions( int *pWidth, int *pHeight, StandardTextureId_t id );
 
 	// Binds a standard texture
-	virtual void BindStandardTexture( Sampler_t stage, StandardTextureId_t id )
-	{
-	}
+	virtual void BindStandardTexture( Sampler_t stage, StandardTextureId_t id );
+	virtual void BindStandardVertexTexture( VertexTextureSampler_t stage, StandardTextureId_t id );
 
-	virtual void BindStandardVertexTexture( VertexTextureSampler_t stage, StandardTextureId_t id )
-	{
-	}
-
-	virtual void SetFlashlightState( const FlashlightState_t &state, const VMatrix &worldToTexture )
-	{
-	}
-
-	virtual void SetFlashlightStateEx( const FlashlightState_t &state, const VMatrix &worldToTexture, ITexture *pFlashlightDepthTexture )
-	{
-	}
-
-	virtual const FlashlightState_t &GetFlashlightState( VMatrix &worldToTexture ) const
-	{
-		static FlashlightState_t blah;
-		return blah;
-	}
-
-	virtual const FlashlightState_t &GetFlashlightStateEx( VMatrix &worldToTexture, ITexture **pFlashlightDepthTexture ) const
-	{
-		static FlashlightState_t blah;
-		return blah;
-	}
+	virtual void SetFlashlightState( const FlashlightState_t &state, const VMatrix &worldToTexture );
+	virtual void SetFlashlightStateEx( const FlashlightState_t &state, const VMatrix &worldToTexture, ITexture *pFlashlightDepthTexture );
+	virtual const FlashlightState_t &GetFlashlightState( VMatrix &worldToTexture ) const;
+	virtual const FlashlightState_t &GetFlashlightStateEx( VMatrix &worldToTexture, ITexture **pFlashlightDepthTexture ) const;
 
 	virtual void SetModeChangeCallback( ModeChangeCallbackFunc_t func )
 	{
 	}
 
-	virtual void ClearVertexAndPixelShaderRefCounts()
-	{
-	}
-
-	virtual void PurgeUnusedVertexAndPixelShaders()
-	{
-	}
+	virtual void ClearVertexAndPixelShaderRefCounts();
+	virtual void PurgeUnusedVertexAndPixelShaders();
 
 	// Binds a vertex texture to a particular texture stage in the vertex pipe
-	virtual void BindVertexTexture( VertexTextureSampler_t nStage, ShaderAPITextureHandle_t hTexture )
-	{
-	}
+	virtual void BindVertexTexture( VertexTextureSampler_t nStage, ShaderAPITextureHandle_t hTexture );
 
 	// Sets morph target factors
 	virtual void SetFlexWeights( int nFirstWeight, int nCount, const MorphWeight_t *pWeights )
@@ -712,10 +656,7 @@ private:
 		return dummy;
 	}
 
-	virtual float GetLightMapScaleFactor( void ) const
-	{
-		return 1.0;
-	}
+	virtual float GetLightMapScaleFactor( void ) const;
 
 	// For dealing with device lost in cases where SwapBuffers isn't called all the time (Hammer)
 	virtual void HandleDeviceLost()
@@ -731,31 +672,12 @@ private:
 	{
 	}
 
-	void SetFloatRenderingParameter( int parm_number, float value )
-	{
-	}
-
-	void SetIntRenderingParameter( int parm_number, int value )
-	{
-	}
-	void SetVectorRenderingParameter( int parm_number, Vector const &value )
-	{
-	}
-
-	float GetFloatRenderingParameter( int parm_number ) const
-	{
-		return 0;
-	}
-
-	int GetIntRenderingParameter( int parm_number ) const
-	{
-		return 0;
-	}
-
-	Vector GetVectorRenderingParameter( int parm_number ) const
-	{
-		return Vector( 0, 0, 0 );
-	}
+	void SetFloatRenderingParameter( int parm_number, float value );
+	void SetIntRenderingParameter( int parm_number, int value );
+	void SetVectorRenderingParameter( int parm_number, Vector const &value );
+	float GetFloatRenderingParameter( int parm_number ) const;
+	int GetIntRenderingParameter( int parm_number ) const;
+	Vector GetVectorRenderingParameter( int parm_number ) const;
 
 	// Methods related to stencil
 	void SetStencilEnable( bool onoff );
@@ -791,10 +713,7 @@ private:
 	{
 		return MeshMgr()->GetMaxIndicesToRender();
 	}
-	virtual int CompareSnapshots( StateSnapshot_t snapshot0, StateSnapshot_t snapshot1 )
-	{
-		return 0;
-	}
+	virtual int CompareSnapshots( StateSnapshot_t snapshot0, StateSnapshot_t snapshot1 );
 
 	virtual void DisableAllLocalLights()
 	{
@@ -851,7 +770,7 @@ private:
 	}
 	ImageFormat GetNullTextureFormat( void )
 	{
-		return IMAGE_FORMAT_ABGR8888;
+		return IMAGE_FORMAT_RGBA8888;
 	} // stub
 	virtual void PushDeformation( DeformationBase_t const *Deformation )
 	{
@@ -866,9 +785,7 @@ private:
 		return 0;
 	}
 
-	virtual void ExecuteCommandBuffer( uint8 *pBuf )
-	{
-	}
+	virtual void ExecuteCommandBuffer( uint8 *pBuf );
 
 	void SetStandardTextureHandle( StandardTextureId_t, ShaderAPITextureHandle_t )
 	{
@@ -902,7 +819,7 @@ private:
 
 	ImageFormat GetShadowDepthTextureFormat()
 	{
-		return IMAGE_FORMAT_UNKNOWN;
+		return IMAGE_FORMAT_NV_DST24;
 	};
 
 	//
@@ -920,8 +837,7 @@ private:
 	void DoIssuePixelShader();
 	void DoIssueGeometryShader();
 	bool DoIssueConstantBuffers( bool bForce );
-	void DoIssueTexture();
-	void DoIssueSampler();
+	void DoIssueSampler( bool bPixel, bool bVertex );
 	void DoIssueRasterState();
 	void DoIssueBlendState();
 	void DoIssueDepthStencilState();
@@ -931,12 +847,14 @@ private:
 	void DoIssueTopology();
 	void DoIssueViewports();
 	void DoIssueConstantBufferUpdates();
-	void DoIssueTransform();
+	void DoIssueShaderState( bool bForce );
 	void DoIssueRenderTargets();
+
+	void SortLights( int *index );
 
 	void AdvanceCurrentTextureCopy( ShaderAPITextureHandle_t handle );
 
-	bool MatrixIsChanging() const;
+	bool MatrixIsChanging();
 	bool IsDeactivated() const;
 	DirectX::XMMATRIX &GetMatrix( MaterialMatrixMode_t mode );
 	DirectX::XMMATRIX &GetCurrentMatrix();
@@ -952,13 +870,30 @@ private:
 	CMeshBase *m_pMesh;
 	int m_nDynamicVBSize;
 
+	FlashlightState_t m_FlashlightState;
+	bool m_bFlashlightStateChanged;
+	VMatrix m_FlashlightWorldToTexture;
+	ITexture *m_pFlashlightDepthTexture;
+
+	// rendering parameter storage
+	int IntRenderingParameters[MAX_INT_RENDER_PARMS];
+	float FloatRenderingParameters[MAX_FLOAT_RENDER_PARMS];
+	Vector VectorRenderingParameters[MAX_VECTOR_RENDER_PARMS];
+
 	// Members related to textures
 	// UNDONE: Should this stuff be in ShaderDeviceDx11?
 	CUtlFixedLinkedList<CTextureDx11> m_Textures;
 	char m_ModifyTextureLockedLevel;
+	char m_ModifyTextureLockedFace;
 	ShaderAPITextureHandle_t m_ModifyTextureHandle;
 	ShaderAPITextureHandle_t m_hBackBuffer;
 	ShaderAPITextureHandle_t m_hDepthBuffer;
+
+	// Common constant buffers
+	ConstantBufferHandle_t m_hPerModelConstants;
+	ConstantBufferHandle_t m_hPerSceneConstants;
+	ConstantBufferHandle_t m_hPerMaterialConstants;
+	ConstantBufferHandle_t m_hPerFrameConstants;
 
 	// Current and target states
 	StateSnapshot_t m_CurrentSnapshot;
@@ -967,13 +902,12 @@ private:
 	StatesDx11::RenderState m_TargetState;
 	StatesDx11::RenderState m_State;
 
-	DynamicStateDx11_t m_DynamicState;
+	StatesDx11::ShaderState m_TargetShaderState;
+	StatesDx11::ShaderState m_ShaderState;
 
 	// Setting matrices
 	MaterialMatrixMode_t m_MatrixMode;
-	MatrixItemDx11_t *m_pCurMatrixItem;
-	CUtlStack<MatrixItemDx11_t> m_MatrixStacks[NUM_MATRIX_MODES];
-	bool m_ChangedMatrices[NUM_MATRIX_MODES];
+	StatesDx11::MatrixItem_t *m_pCurMatrixItem;
 
 	bool m_bSelectionMode;
 

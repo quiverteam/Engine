@@ -16,7 +16,6 @@
 #pragma once
 #endif
 
-
 //-----------------------------------------------------------------------------
 // Important enumerations
 //-----------------------------------------------------------------------------
@@ -94,7 +93,6 @@ enum VertexTextureSampler_t
 	SHADER_VERTEXTEXTURE_SAMPLER2,
 	SHADER_VERTEXTEXTURE_SAMPLER3,
 };
-
 
 #if defined( _X360 )
 #define REVERSE_DEPTH_ON_X360 //uncomment to use D3DFMT_D24FS8 with an inverted depth viewport for better performance. Keep this in sync with the same named #define in materialsystem/stdshaders/common_fxc.h

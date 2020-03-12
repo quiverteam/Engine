@@ -51,9 +51,8 @@ CVertexBufferDx11::~CVertexBufferDx11()
 
 bool CVertexBufferDx11::HasEnoughRoom( int nVertCount ) const
 {
-	return ( GetRoomRemaining() - nVertCount ) >= 0;
+	return ( NextLockOffset() + ( nVertCount * m_VertexSize ) ) <= m_nBufferSize;
 }
-
 
 //-----------------------------------------------------------------------------
 // Creates, destroys the vertex buffer
@@ -206,7 +205,7 @@ void CVertexBufferDx11::EndCastBuffer()
 //-----------------------------------------------------------------------------
 int CVertexBufferDx11::GetRoomRemaining() const
 {
-	return ( m_nBufferSize - m_nFirstUnwrittenOffset ) / VertexSize();
+	return ( m_nBufferSize - NextLockOffset() ) / VertexSize();
 }
 
 
@@ -258,8 +257,8 @@ bool CVertexBufferDx11::Lock( int nMaxVertexCount, bool bAppend, VertexDesc_t& d
 	//Log( "Locking vertex buffer %p\n", m_pVertexBuffer );
 
 	// Check to see if we have enough memory 
-	int nMemoryRequired = nMaxVertexCount * VertexSize();
-	bool bHasEnoughMemory = ( m_nFirstUnwrittenOffset + nMemoryRequired <= m_nBufferSize );
+	//int nMemoryRequired = nMaxVertexCount * VertexSize();
+	bool bHasEnoughMemory = HasEnoughRoom( nMaxVertexCount );
 
 	D3D11_MAP map;
 	if ( bAppend )
@@ -287,6 +286,9 @@ bool CVertexBufferDx11::Lock( int nMaxVertexCount, bool bAppend, VertexDesc_t& d
 			m_bFlush = false;
 		}
 	}
+
+	int nLockOffset = NextLockOffset();
+
 	//goto vertexBufferLockFailed;
 	hr = D3D11DeviceContext()->Map( m_pVertexBuffer, 0, map, 0, &lockedData );
 	if ( FAILED( hr ) )
@@ -295,9 +297,9 @@ bool CVertexBufferDx11::Lock( int nMaxVertexCount, bool bAppend, VertexDesc_t& d
 		goto vertexBufferLockFailed;
 	}
 
-	ComputeVertexDescription( (unsigned char*)lockedData.pData + m_nFirstUnwrittenOffset, m_VertexFormat, desc );
-	desc.m_nFirstVertex = m_nFirstUnwrittenOffset / VertexSize();
-	desc.m_nOffset = m_nFirstUnwrittenOffset;
+	ComputeVertexDescription( (unsigned char*)lockedData.pData + nLockOffset, m_VertexFormat, desc );
+	desc.m_nFirstVertex = nLockOffset / VertexSize();
+	desc.m_nOffset = nLockOffset;
 	m_bIsLocked = true;
 	return true;
 
@@ -328,7 +330,10 @@ void CVertexBufferDx11::Unlock( int nWrittenVertexCount, VertexDesc_t& desc )
 
 	//Spew( nWrittenVertexCount, desc );
 
-	m_nFirstUnwrittenOffset += nWrittenVertexCount * VertexSize();
+	int nLockOffset = NextLockOffset();
+	int nBufferSize = nWrittenVertexCount * m_VertexSize;
+
+	m_nFirstUnwrittenOffset = nLockOffset + nBufferSize;
 	m_bIsLocked = false;
 	//g_ShaderMutex.Unlock();
 }

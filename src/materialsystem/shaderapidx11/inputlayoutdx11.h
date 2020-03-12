@@ -27,7 +27,7 @@ struct ID3D11ShaderReflection;
 // Gets the input layout associated with a vertex format
 // FIXME: Note that we'll need to change this from a VertexFormat_t
 //-----------------------------------------------------------------------------
-ID3D11InputLayout *CreateInputLayout( VertexFormat_t fmt, 
+ID3D11InputLayout *CreateInputLayout( VertexFormat_t fmt, bool bStaticLit, bool bUsingFlex, bool bUsingMorph,
 	 ID3D11ShaderReflection* pReflection, const void *pByteCode, size_t nByteCodeLen );
 
 

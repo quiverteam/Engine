@@ -36,54 +36,6 @@ struct ID3D11GeometryShader;
 struct ID3D11InputLayout;
 struct ID3D11ShaderReflection;
 
-//-------------------------------------------------------------
-// Common constant buffers
-// NOTE: These need to match the cbuffers in common_vs_fxc.h!!!
-//-------------------------------------------------------------
-
-ALIGN16 struct TransformBuffer_t
-{
-	DirectX::XMMATRIX cModelViewProj;
-	DirectX::XMMATRIX cViewProj;
-	DirectX::XMMATRIX cViewModel;
-	DirectX::XMFLOAT4 cEyePosWaterZ;
-};
-
-ALIGN16 struct SkinningBuffer_t
-{
-	DirectX::XMFLOAT4X3 cModel[53];
-	DirectX::XMFLOAT4 cFlexWeights[512];
-	// Only cFlexScale.x is used
-	// It is a binary value used to switch on/off the addition of the flex delta stream
-	DirectX::XMFLOAT4 cFlexScale;
-};
-
-ALIGN16 struct MiscBuffer_t
-{
-	DirectX::XMFLOAT4 cConstants1;
-	DirectX::XMFLOAT4 cModulationColor;
-};
-
-ALIGN16 struct LightingBuffer_t
-{
-	bool g_bLightEnabled[4];
-	int g_nLightCountRegister;
-	DirectX::XMFLOAT3 cAmbientCubeX[2];
-	DirectX::XMFLOAT3 cAmbientCubeY[2];
-	DirectX::XMFLOAT3 cAmbientCubeZ[2];
-	// Four lights x 5 constants each = 20 constants
-	LightDesc_t cLightInfo[4];
-	DirectX::XMFLOAT4 cFogParams;
-};
-
-ALIGN16 struct PSLightingBuffer_t
-{
-	DirectX::XMFLOAT4 g_LinearFogColor;
-	DirectX::XMFLOAT4 cLightScale;
-	DirectX::XMFLOAT4 cFlashlightColor;
-	DirectX::XMFLOAT4 cFlashLightScreenScale;
-};
-
 //-----------------------------------------------------------------------------
 // The Base implementation of the shader device
 //-----------------------------------------------------------------------------
@@ -174,12 +126,11 @@ public:
 	virtual void DestroyVertexBuffer( IVertexBuffer *pVertexBuffer );
 	virtual IIndexBuffer *CreateIndexBuffer( ShaderBufferType_t type, MaterialIndexFormat_t fmt, int nIndexCount, const char *pTextureBudgetGroup );
 	virtual void DestroyIndexBuffer( IIndexBuffer *pIndexBuffer );
-	virtual ConstantBuffer_t CreateConstantBuffer( size_t nBufSize );
-	virtual void UpdateConstantBuffer( ConstantBuffer_t hBuffer, void *pData );
-	virtual void UploadConstantBuffers( ConstantBuffer_t *pBuffers, int nBuffers );
-	virtual void DestroyConstantBuffer( ConstantBuffer_t hBuffer );
-	virtual ConstantBufferHandle_t GetConstantBuffer( ConstantBuffer_t buffer );
-	virtual ConstantBuffer_t GetInternalConstantBuffer( int type );
+	virtual ConstantBufferHandle_t CreateConstantBuffer( size_t nBufSize );
+	virtual void UpdateConstantBuffer( ConstantBufferHandle_t hBuffer, void *pData );
+	virtual void UploadConstantBuffers( ConstantBufferHandle_t *pBuffers, int nBuffers );
+	virtual void DestroyConstantBuffer( ConstantBufferHandle_t hBuffer );
+	virtual ConstantBufferHandle_t GetInternalConstantBuffer( int type );
 	virtual IVertexBuffer *GetDynamicVertexBuffer( int nStreamID, VertexFormat_t vertexFormat, bool bBuffered = true );
 	virtual IIndexBuffer *GetDynamicIndexBuffer( MaterialIndexFormat_t fmt, bool bBuffered = true );
 	virtual void SetHardwareGammaRamp( float fGamma, float fGammaTVRangeMin, float fGammaTVRangeMax, float fGammaTVExponent, bool bTVEnabled );
@@ -201,24 +152,45 @@ public:
 	ID3D11VertexShader* GetVertexShader( VertexShaderHandle_t hShader ) const;
 	ID3D11GeometryShader* GetGeometryShader( GeometryShaderHandle_t hShader ) const;
 	ID3D11PixelShader* GetPixelShader( PixelShaderHandle_t hShader ) const;
-	ID3D11InputLayout* GetInputLayout( VertexShaderHandle_t hShader, VertexFormat_t format );
-
-	ConstantBuffer_t GetTransformConstantBuffer() const;
-	ConstantBuffer_t GetLightingConstantBuffer() const;
-	ConstantBuffer_t GetFogConstantBuffer() const;
+	ID3D11InputLayout* GetInputLayout( VertexShaderHandle_t hShader, VertexFormat_t format,
+					   bool bStaticLit, bool bUsingFlex, bool bUsingMorph );
 
 private:
 	struct InputLayout_t
 	{
 		ID3D11InputLayout *m_pInputLayout;
 		VertexFormat_t m_VertexFormat;
+		bool m_bStaticLit;
+		bool m_bUsingFlex;
+		bool m_bUsingMorph;
+
+		InputLayout_t()
+		{
+			m_pInputLayout = NULL;
+			m_VertexFormat = VERTEX_FORMAT_UNKNOWN;
+			m_bStaticLit = false;
+			m_bUsingFlex = false;
+			m_bUsingMorph = false;
+		}
 	};
 
 	typedef CUtlRBTree< InputLayout_t, unsigned short > InputLayoutDict_t;
 
 	static bool InputLayoutLessFunc( const InputLayout_t &lhs, const InputLayout_t &rhs )	
 	{ 
-		return ( lhs.m_VertexFormat < rhs.m_VertexFormat );	
+		if ( lhs.m_VertexFormat != rhs.m_VertexFormat )
+		{
+			return lhs.m_VertexFormat < rhs.m_VertexFormat;
+		}
+		if ( lhs.m_bStaticLit != rhs.m_bStaticLit )
+		{
+			return lhs.m_bStaticLit < rhs.m_bStaticLit;
+		}
+		if ( lhs.m_bUsingFlex != rhs.m_bUsingFlex )
+		{
+			return lhs.m_bUsingFlex < rhs.m_bUsingFlex;
+		}
+		return lhs.m_bUsingMorph < rhs.m_bUsingMorph;	
 	}
 
 	struct VertexShader_t
@@ -258,15 +230,6 @@ private:
 	ID3D11DeviceContext* m_pDeviceContext;
 	IDXGISwapChain *m_pSwapChain;
 
-	CUtlFixedLinkedList<CShaderConstantBufferDx11> m_ConstantBuffers;
-
-	// Common constant buffers
-	ConstantBuffer_t m_hTransformBuffer;
-	ConstantBuffer_t m_hLightingBuffer;
-	ConstantBuffer_t m_hSkinningBuffer;
-	ConstantBuffer_t m_hMiscBuffer;
-	ConstantBuffer_t m_hPSLightingBuffer;
-
 	CUtlFixedLinkedList< VertexShader_t > m_VertexShaderDict;
 	CUtlFixedLinkedList< GeometryShader_t > m_GeometryShaderDict;
 	CUtlFixedLinkedList< PixelShader_t > m_PixelShaderDict;
@@ -277,21 +240,6 @@ private:
 
 	friend class CShaderDeviceMgrDx11;
 };
-
-inline ConstantBuffer_t CShaderDeviceDx11::GetLightingConstantBuffer() const
-{
-	return m_hLightingBuffer;
-}
-
-inline ConstantBuffer_t CShaderDeviceDx11::GetTransformConstantBuffer() const
-{
-	return m_hTransformBuffer;
-}
-
-inline ConstantBuffer_t CShaderDeviceDx11::GetFogConstantBuffer() const
-{
-	//return m_hFogBuffer;
-}
 
 //-----------------------------------------------------------------------------
 // Inline methods of CShaderDeviceDx11

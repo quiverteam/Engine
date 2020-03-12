@@ -110,7 +110,7 @@ void CShaderShadowDx11::EnableAlphaWrites( bool bEnable )
 // Methods related to alpha blending
 void CShaderShadowDx11::EnableBlending( bool bEnable )
 {
-	m_ShadowState.blend.RenderTarget[0].BlendEnable = bEnable;
+	m_ShadowState.blend.RenderTarget[0].BlendEnable = bEnable ? TRUE : FALSE;
 }
 
 void CShaderShadowDx11::BlendFunc( ShaderBlendFactor_t srcFactor, ShaderBlendFactor_t dstFactor )
@@ -244,7 +244,7 @@ void CShaderShadowDx11::EnableTexture( Sampler_t sampler, bool bEnable )
 void CShaderShadowDx11::SetVertexShader( const char *pShaderName, int vshIndex )
 {
 	m_ShadowState.vertexShader = ShaderManager()->CreateVertexShader( pShaderName, vshIndex );
-	m_ShadowState.vertexShaderIndex = vshIndex;
+	m_ShadowState.staticVertexShaderIndex = vshIndex;
 }
 
 void CShaderShadowDx11::EnableBlendingSeparateAlpha( bool bEnable )
@@ -257,7 +257,7 @@ void CShaderShadowDx11::EnableBlendingSeparateAlpha( bool bEnable )
 void CShaderShadowDx11::SetPixelShader( const char *pShaderName, int pshIndex )
 {
 	m_ShadowState.pixelShader = ShaderManager()->CreatePixelShader( pShaderName, pshIndex );
-	m_ShadowState.pixelShaderIndex = pshIndex;
+	m_ShadowState.staticPixelShaderIndex = pshIndex;
 }
 
 void CShaderShadowDx11::SetMorphFormat( MorphFormat_t flags )
@@ -320,6 +320,8 @@ void CShaderShadowDx11::EnableAlphaToCoverage( bool bEnable )
 
 StateSnapshot_t CShaderShadowDx11::FindOrCreateSnapshot()
 {
+	if ( m_ShadowState.vertexShader == -1 )
+		DebuggerBreak();
 	int i = m_ShadowStateCache.Find( m_ShadowState );
 	if ( i != m_ShadowStateCache.InvalidIndex() )
 	{

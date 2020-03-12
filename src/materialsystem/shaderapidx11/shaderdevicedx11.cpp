@@ -208,12 +208,12 @@ bool CShaderDeviceMgrDx11::ComputeCapsFromD3D( HardwareCaps_t *pCaps, IDXGIAdapt
 	pCaps->m_HasSetDeviceGammaRamp = true;
 	pCaps->m_bSoftwareVertexProcessing = false;
 	pCaps->m_SupportsVertexShaders = true;
-	pCaps->m_SupportsVertexShaders_2_0 = false;
+	pCaps->m_SupportsVertexShaders_2_0 = true;
 	pCaps->m_SupportsPixelShaders = true;
-	pCaps->m_SupportsPixelShaders_1_4 = false;
-	pCaps->m_SupportsPixelShaders_2_0 = false;
-	pCaps->m_SupportsPixelShaders_2_b = false;
-	pCaps->m_SupportsShaderModel_3_0 = false;
+	pCaps->m_SupportsPixelShaders_1_4 = true;
+	pCaps->m_SupportsPixelShaders_2_0 = true;
+	pCaps->m_SupportsPixelShaders_2_b = true;
+	pCaps->m_SupportsShaderModel_3_0 = true;
 	pCaps->m_SupportsCompressedTextures = COMPRESSED_TEXTURES_ON;
 	pCaps->m_SupportsCompressedVertices = VERTEX_COMPRESSION_ON;
 	pCaps->m_bSupportsAnisotropicFiltering = true;
@@ -255,7 +255,7 @@ bool CShaderDeviceMgrDx11::ComputeCapsFromD3D( HardwareCaps_t *pCaps, IDXGIAdapt
 	pCaps->m_bFogColorSpecifiedInLinearSpace = ( desc.VendorId == VENDORID_NVIDIA );
 	pCaps->m_nVertexTextureCount = 16;
 	pCaps->m_nMaxVertexTextureDimension = D3D11_REQ_TEXTURE2D_U_OR_V_DIMENSION;
-	pCaps->m_bSupportsAlphaToCoverage = false;	// FIXME
+	pCaps->m_bSupportsAlphaToCoverage = true;	// FIXME
 	pCaps->m_bSupportsShadowDepthTextures = true;
 	pCaps->m_bSupportsFetch4 = ( desc.VendorId == VENDORID_ATI );
 #if defined( COMPRESSED_NORMAL_FORMATS )
@@ -537,8 +537,7 @@ CreateInterfaceFn CShaderDeviceMgrDx11::SetMode( void *hWnd, int nAdapter, const
 //-----------------------------------------------------------------------------
 // constructor, destructor
 //-----------------------------------------------------------------------------
-CShaderDeviceDx11::CShaderDeviceDx11() :
-	m_ConstantBuffers( 32 )
+CShaderDeviceDx11::CShaderDeviceDx11()
 {
 	m_pDevice = NULL;
 	m_pDeviceContext = NULL;
@@ -578,7 +577,7 @@ bool CShaderDeviceDx11::InitDevice( void *hWnd, int nAdapter, const ShaderDevice
 	ZeroMemory( &sd, sizeof(sd) );
 	sd.BufferDesc.Width = mode.m_DisplayMode.m_nWidth;
 	sd.BufferDesc.Height = mode.m_DisplayMode.m_nHeight;
-	sd.BufferDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
+	sd.BufferDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM_SRGB;
 	sd.BufferDesc.RefreshRate.Numerator = mode.m_DisplayMode.m_nRefreshRateNumerator;
 	sd.BufferDesc.RefreshRate.Denominator = mode.m_DisplayMode.m_nRefreshRateDenominator;
 	sd.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT | DXGI_USAGE_SHADER_INPUT;
@@ -595,9 +594,9 @@ bool CShaderDeviceDx11::InitDevice( void *hWnd, int nAdapter, const ShaderDevice
 	sd.SampleDesc.Quality = mode.m_nAAQuality;
 
 	UINT nDeviceFlags = 0;
-#ifdef _DEBUG
-	//nDeviceFlags |= D3D11_CREATE_DEVICE_DEBUG;
-#endif
+//#ifdef _DEBUG
+	nDeviceFlags |= D3D11_CREATE_DEVICE_DEBUG;
+//#endif
 
 	HRESULT hr = D3D11CreateDeviceAndSwapChain( pAdapter, D3D_DRIVER_TYPE_UNKNOWN,
 						    NULL, nDeviceFlags, NULL, 0, D3D11_SDK_VERSION, &sd, &m_pSwapChain,
@@ -616,13 +615,6 @@ bool CShaderDeviceDx11::InitDevice( void *hWnd, int nAdapter, const ShaderDevice
 	Log( "InitDevice: setupHardwareCaps\n" );
 	const HardwareCaps_t &caps = g_ShaderDeviceMgrDx11.GetHardwareCaps( nAdapter );
 	g_pHardwareConfig->SetupHardwareCaps( mode, caps );
-
-	// Create shared constant buffers
-	m_hTransformBuffer = CreateConstantBuffer( sizeof( TransformBuffer_t ) );
-	m_hLightingBuffer = CreateConstantBuffer( sizeof( LightingBuffer_t ) );
-	m_hSkinningBuffer = CreateConstantBuffer( sizeof( SkinningBuffer_t ) );
-	m_hMiscBuffer = CreateConstantBuffer( sizeof( MiscBuffer_t ) );
-	m_hPSLightingBuffer = CreateConstantBuffer( sizeof( PSLightingBuffer_t ) );
 
 	m_bDeviceInitialized = true;
 
@@ -986,7 +978,8 @@ void CShaderDeviceDx11::DestroyPixelShader( PixelShaderHandle_t hShader )
 //-----------------------------------------------------------------------------
 // Finds or creates an input layout for a given vertex shader + stream format
 //-----------------------------------------------------------------------------
-ID3D11InputLayout* CShaderDeviceDx11::GetInputLayout( VertexShaderHandle_t hShader, VertexFormat_t format )
+ID3D11InputLayout* CShaderDeviceDx11::GetInputLayout( VertexShaderHandle_t hShader, VertexFormat_t format,
+						      bool bStaticLit, bool bUsingFlex, bool bUsingMorph )
 {
 	if ( hShader == VERTEX_SHADER_HANDLE_INVALID )
 		return NULL;
@@ -995,6 +988,9 @@ ID3D11InputLayout* CShaderDeviceDx11::GetInputLayout( VertexShaderHandle_t hShad
 	// because it has no stream information
 	InputLayout_t insert;
 	insert.m_VertexFormat = format;
+	insert.m_bStaticLit = bStaticLit;
+	insert.m_bUsingFlex = bUsingFlex;
+	insert.m_bUsingMorph = bUsingMorph;
 
 	VertexShaderIndex_t i = (VertexShaderIndex_t)hShader;
 	InputLayoutDict_t &dict = m_VertexShaderDict[i].m_InputLayouts;
@@ -1003,7 +999,7 @@ ID3D11InputLayout* CShaderDeviceDx11::GetInputLayout( VertexShaderHandle_t hShad
 		return dict[hIndex].m_pInputLayout;
 
 	VertexShader_t &shader = m_VertexShaderDict[i];
-	insert.m_pInputLayout = CreateInputLayout( format, shader.m_pInfo, shader.m_pByteCode, shader.m_nByteCodeLen );
+	insert.m_pInputLayout = CreateInputLayout( format, bStaticLit, bUsingFlex, bUsingMorph, shader.m_pInfo, shader.m_pByteCode, shader.m_nByteCodeLen );
 	dict.Insert( insert );
 	return insert.m_pInputLayout;
 }
@@ -1064,55 +1060,39 @@ void CShaderDeviceDx11::DestroyIndexBuffer( IIndexBuffer *pIndexBuffer )
 	}
 }
 
-ConstantBuffer_t CShaderDeviceDx11::CreateConstantBuffer( size_t nBufLen )
+ConstantBufferHandle_t CShaderDeviceDx11::CreateConstantBuffer( size_t nBufLen )
 {
-	CShaderConstantBufferDx11 buf;
-	buf.Create( nBufLen );
-	return m_ConstantBuffers.AddToTail( buf );
+	CShaderConstantBufferDx11 *pBuf = new CShaderConstantBufferDx11;
+	pBuf->Create( nBufLen );
+	return (ConstantBufferHandle_t)pBuf;
 }
 
-void CShaderDeviceDx11::UpdateConstantBuffer( ConstantBuffer_t hBuffer, void *pData )
+void CShaderDeviceDx11::UpdateConstantBuffer( ConstantBufferHandle_t hBuffer, void *pData )
 {
-	Assert( m_ConstantBuffers.IsValidIndex( hBuffer ) );
-	CShaderConstantBufferDx11 &buf = m_ConstantBuffers.Element( hBuffer );
-	buf.Update( pData );
+	( (IShaderConstantBuffer *)hBuffer )->Update( pData );
 }
 
-void CShaderDeviceDx11::UploadConstantBuffers( ConstantBuffer_t *pBuffers, int nBuffers )
+void CShaderDeviceDx11::UploadConstantBuffers( ConstantBufferHandle_t *pBuffers, int nBuffers )
 {
 	for ( int i = 0; i < nBuffers; i++ )
 	{
-		CShaderConstantBufferDx11 &buf = m_ConstantBuffers.Element( pBuffers[i] );
-		buf.UploadToGPU();
+		( (IShaderConstantBuffer *)pBuffers[i] )->UploadToGPU();
 	}
 }
 
-ConstantBufferHandle_t CShaderDeviceDx11::GetConstantBuffer( ConstantBuffer_t iBuffer )
+ConstantBufferHandle_t CShaderDeviceDx11::GetInternalConstantBuffer( int buffer )
 {
-	return (ConstantBufferHandle_t)&m_ConstantBuffers.Element( iBuffer );
+	return CONSTANT_BUFFER_HANDLE_INVALID;
 }
 
-ConstantBuffer_t CShaderDeviceDx11::GetInternalConstantBuffer( int buffer )
+void CShaderDeviceDx11::DestroyConstantBuffer( ConstantBufferHandle_t hBuffer )
 {
-	switch ( buffer )
+	if ( hBuffer != CONSTANT_BUFFER_HANDLE_INVALID )
 	{
-	case SHADER_INTERNAL_CONSTANTBUFFER_TRANSFORM:
-		return m_hTransformBuffer;
-	case SHADER_INTERNAL_CONSTANTBUFFER_LIGHTING:
-		return m_hLightingBuffer;
-	case SHADER_INTERNAL_CONSTANTBUFFER_FOG:
-		return m_hFogBuffer;
-	default:
-		return CONSTANT_BUFFER_INVALID;
+		IShaderConstantBuffer *pBuffer = (IShaderConstantBuffer *)hBuffer;
+		pBuffer->Destroy();
+		delete pBuffer;
 	}
-}
-
-void CShaderDeviceDx11::DestroyConstantBuffer( ConstantBuffer_t hBuffer )
-{
-	Assert( m_ConstantBuffers.IsValidIndex( hBuffer ) );
-	CShaderConstantBufferDx11 &buf = m_ConstantBuffers.Element( hBuffer );
-	buf.Destroy();
-	m_ConstantBuffers.Remove( hBuffer );
 }
 
 // NOTE: I don't see these functions being called by anybody. I think they should be removed.

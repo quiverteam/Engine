@@ -6,6 +6,8 @@
 #include "shaderapi/shareddefs.h"
 #include "tier0/dbg.h"
 #include "shaderapi/ishaderapi.h"
+#include <pixelwriter.h>
+#include <utlvector.h>
 
 class CTextureDx11
 {
@@ -18,6 +20,7 @@ public:
 		ShaderAPITextureHandle_t	m_TextureHandle;
 		int							m_nCopy;
 		ID3D11Resource *m_pTexture;
+		ID3D11ShaderResourceView *m_pView;
 		int							m_nLevel;
 		D3D11_TEXTURECUBE_FACE			m_CubeFaceID;
 		int							m_nWidth;
@@ -91,6 +94,10 @@ public:
 	bool Is2D() const;
 	bool Is3D() const;
 
+	bool Lock( int copy, int level, int cubeFaceID, int xOffset, int yOffset,
+		   int width, int height, bool bDiscard, CPixelWriter &writer );
+	void Unlock( int copy, int level, int cubeFaceID );
+
 	void LoadTexImage( TextureLoadInfo_t &info, int xOffset = 0, int yOffset = 0, int srcStride = 0 );
 	void BlitTextureBits( TextureLoadInfo_t &info, int xOffset, int yOffset, int srcStride );
 	void BlitSurfaceBits( TextureLoadInfo_t &info, int xOffset, int yOffset, int srcStride );
@@ -98,6 +105,10 @@ public:
 	void SetTexture( ID3D11Resource *tex );
 	void SetTexture( int n, ID3D11Resource *tex );
 	//void SetView( ID3D11ShaderResourceView *view );
+
+	int CalcRamBytes() const;
+
+	ImageFormat GetImageFormat( DXGI_FORMAT d3dFormat ) const;
 
 private:
 	ID3D11Resource *CreateD3DTexture( int width, int height, int nDepth,
@@ -159,6 +170,15 @@ public:
 	int m_nTimesBoundThisFrame;
 	unsigned short m_nFlags;
 	int m_CreationFlags;
+
+	// For locking textures
+	ID3D11Resource *m_pLockedTexture;
+	unsigned char *m_pLockedRegionMemory;
+	UINT m_LockedPitch;
+	UINT m_LockedDepth;
+	CD3D11_BOX m_LockedBox;
+	UINT m_LockedSubresource;
+	bool m_bLocked;
 	
 };
 

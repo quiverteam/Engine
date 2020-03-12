@@ -241,9 +241,13 @@ int CIndexBufferDx11::GetRoomRemaining() const
 //-----------------------------------------------------------------------------
 // Locks, unlocks the mesh
 //-----------------------------------------------------------------------------
-bool CIndexBufferDx11::Lock( int nMaxIndexCount, bool bAppend, IndexDesc_t& desc )
+bool CIndexBufferDx11::Lock( int nMaxIndexCount, bool bAppend, IndexDesc_t &desc )
 {
 	Assert( !m_bIsLocked && ( nMaxIndexCount != 0 ) && ( nMaxIndexCount <= m_nIndexCount ) );
+	if ( m_bIsLocked || ( nMaxIndexCount == 0 ) || ( nMaxIndexCount > m_nIndexCount ) )
+	{
+		//DebuggerBreak();
+	}
 	Assert( m_IndexFormat != MATERIAL_INDEX_FORMAT_UNKNOWN );
 
 	// FIXME: Why do we need to sync matrices now?

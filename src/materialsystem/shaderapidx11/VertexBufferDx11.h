@@ -28,13 +28,21 @@ public:
 	virtual int GetRoomRemaining() const;
 	bool HasEnoughRoom( int nVertCount ) const;
 
+	int NextLockOffset() const
+	{
+		int nNextOffset = ( m_nFirstUnwrittenOffset + m_VertexSize - 1 ) / m_VertexSize;
+		nNextOffset *= m_VertexSize;
+		return nNextOffset;
+	}
+
 	// used to alter the characteristics after creation
 	// allows one dynamic vb to be shared for multiple formats
-	void ChangeConfiguration( int vertexSize, int totalSize )
+	void ChangeConfiguration( int vertexSize, int totalSize, VertexFormat_t fmt )
 	{
 		Assert( m_bIsDynamic && !m_bIsLocked && vertexSize );
 		m_VertexSize = vertexSize;
 		m_nVertexCount = m_nBufferSize / vertexSize;
+		m_VertexFormat = fmt;
 	}
 
 	// Other public methods

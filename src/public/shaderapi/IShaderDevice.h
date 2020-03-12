@@ -111,9 +111,10 @@ inline bool IsDynamicBufferType( ShaderBufferType_t type )
 
 enum ShaderInternalConstantBuffers_t
 {
-	SHADER_INTERNAL_CONSTANTBUFFER_TRANSFORM,
-	SHADER_INTERNAL_CONSTANTBUFFER_LIGHTING,
-	SHADER_INTERNAL_CONSTANTBUFFER_FOG,
+	SHADER_CONSTANTBUFFER_PERFRAME,
+	SHADER_CONSTANTBUFFER_PERMODEL,
+	SHADER_CONSTANTBUFFER_PERMATERIAL,
+	SHADER_CONSTANTBUFFER_PERSCENE,
 };
 
 //-----------------------------------------------------------------------------
@@ -127,8 +128,6 @@ DECLARE_POINTER_HANDLE( PixelShaderHandle_t );
 #define GEOMETRY_SHADER_HANDLE_INVALID	( (GeometryShaderHandle_t)0 )
 #define PIXEL_SHADER_HANDLE_INVALID		( (PixelShaderHandle_t)0 )
 
-typedef int ConstantBuffer_t;
-#define CONSTANT_BUFFER_INVALID -1
 DECLARE_POINTER_HANDLE( ConstantBufferHandle_t );
 #define CONSTANT_BUFFER_HANDLE_INVALID ( (ConstantBufferHandle_t)0 )
 
@@ -269,12 +268,11 @@ public:
 	virtual IIndexBuffer *CreateIndexBuffer( ShaderBufferType_t bufferType, MaterialIndexFormat_t fmt, int nIndexCount, const char *pBudgetGroup ) = 0;
 	virtual void DestroyIndexBuffer( IIndexBuffer *pIndexBuffer ) = 0;
 
-	virtual ConstantBuffer_t CreateConstantBuffer( size_t nBufSize )		 = 0;
-	virtual void UpdateConstantBuffer( ConstantBuffer_t hBuffer, void *pData ) = 0;
-	virtual void UploadConstantBuffers( ConstantBuffer_t *pBuffers, int nBuffers ) = 0;
-	virtual void DestroyConstantBuffer( ConstantBuffer_t hBuffer )		 = 0;
-	virtual ConstantBufferHandle_t GetConstantBuffer( ConstantBuffer_t buffer ) = 0;
-	virtual ConstantBuffer_t GetInternalConstantBuffer( int type ) = 0;
+	virtual ConstantBufferHandle_t CreateConstantBuffer( size_t nBufSize )		 = 0;
+	virtual void UpdateConstantBuffer( ConstantBufferHandle_t hBuffer, void *pData ) = 0;
+	virtual void UploadConstantBuffers( ConstantBufferHandle_t *pBuffers, int nBuffers ) = 0;
+	virtual void DestroyConstantBuffer( ConstantBufferHandle_t hBuffer )		 = 0;
+	virtual ConstantBufferHandle_t GetInternalConstantBuffer( int type ) = 0;
 
 	// Do we need to specify the stream here in the case of locking multiple dynamic VBs on different streams?
 	virtual IVertexBuffer *GetDynamicVertexBuffer( int nStreamID, VertexFormat_t vertexFormat, bool bBuffered = true ) = 0;

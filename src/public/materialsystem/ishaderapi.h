@@ -24,10 +24,6 @@
 // forward declarations
 //-----------------------------------------------------------------------------
 class IMaterialVar;
-class IShaderAPI;
-class IShaderDevice;
-class IShaderShadow;
-
 
 //-----------------------------------------------------------------------------
 // Methods that can be called from the SHADER_INIT blocks of shaders
@@ -39,10 +35,6 @@ public:
 	virtual void LoadTexture( IMaterialVar *pTextureVar, const char *pTextureGroupName ) = 0; 
 	virtual void LoadBumpMap( IMaterialVar *pTextureVar, const char *pTextureGroupName ) = 0;
 	virtual void LoadCubeMap( IMaterialVar **ppParams, IMaterialVar *pTextureVar ) = 0;
-
-	virtual IShaderDevice *ShaderDevice() = 0;
-	virtual IShaderAPI *ShaderAPI() = 0;
-	virtual IShaderShadow *ShaderShadow() = 0;
 };
 
 

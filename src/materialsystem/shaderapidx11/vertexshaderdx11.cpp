@@ -801,11 +801,17 @@ const CShaderManager::ShaderCombos_t *CShaderManager::FindOrCreateShaderCombos( 
 		if ( Q_stristr( pShaderName, "_ps30" ) &&
 			Q_stristr( line, "[ps" ) &&	 !Q_stristr( line, "[ps30]" ) )
 			continue;
+		if ( Q_stristr( pShaderName, "_ps40" ) &&
+		     Q_stristr( line, "[ps" ) && !Q_stristr( line, "[ps40]" ) )
+			continue;
 		if ( Q_stristr( pShaderName, "_vs20" ) &&
 			Q_stristr( line, "[vs" ) &&	 !Q_stristr( line, "[vs20]" ) )
 			continue;
 		if ( Q_stristr( pShaderName, "_vs30" ) &&
 			Q_stristr( line, "[vs" ) &&	 !Q_stristr( line, "[vs30]" ) )
+			continue;
+		if ( Q_stristr( pShaderName, "_vs40" ) &&
+		     Q_stristr( line, "[vs" ) && !Q_stristr( line, "[vs40]" ) )
 			continue;
 
 		char *pScan = &line[2];
@@ -1021,7 +1027,12 @@ static const char *FileNameToShaderModel( const char *pShaderName, bool bVertexS
 	const char *pShaderModel = NULL;
 	if( bVertexShader )
 	{
-		if( Q_stristr( pShaderName, "vs20" ) )
+		if ( Q_stristr( pShaderName, "vs40" ) )
+		{
+			pShaderModel = "vs_4_0";
+			bVertexShader = true;
+		}
+		else if( Q_stristr( pShaderName, "vs20" ) )
 		{
 			pShaderModel = "vs_2_0";
 			bVertexShader = true;
@@ -1052,7 +1063,11 @@ static const char *FileNameToShaderModel( const char *pShaderName, bool bVertexS
 	}
 	else
 	{
-		if( Q_stristr( pShaderName, "ps20b" ) )
+		if ( Q_stristr( pShaderName, "ps40" ) )
+		{
+			pShaderModel = "ps_4_0";
+		}
+		else if( Q_stristr( pShaderName, "ps20b" ) )
 		{
 			pShaderModel = "ps_2_b";
 		}
@@ -1271,7 +1286,7 @@ retry_compile:
 	LPD3DBLOB pErrorMessages;
 	HRESULT hr;
 	CDxInclude dxInclude( filename );
-	MultiByteToWideChar( CP_ACP, MB_PRECOMPOSED, filename, V_strlen( filename ), wfilename, V_strlen(filename) );
+	MultiByteToWideChar( CP_ACP, MB_PRECOMPOSED, filename, -1, wfilename, MAX_PATH );
 	hr = D3DCompileFromFile( wfilename, macros.Base(), &dxInclude /* LPD3DXINCLUDE */,
 		"main",	pShaderModel, 0 /* DWORD Flags */, 0, 	&pShader, &pErrorMessages/*, NULL LPD3DXCONSTANTTABLE *ppConstantTable */ );
 
@@ -2019,6 +2034,8 @@ void CShaderManager::ClearVertexAndPixelShaderRefCounts()
 //-----------------------------------------------------------------------------
 void CShaderManager::PurgeUnusedVertexAndPixelShaders()
 {
+	return; // FIXME
+
 	// iterate vertex shaders
 	for ( VertexShader_t vshIndex = m_VertexShaderDict.Head(); vshIndex != m_VertexShaderDict.InvalidIndex(); )
 	{
@@ -2097,9 +2114,9 @@ void CShaderManager::SetVertexShader( VertexShader_t shader )
 		vshIndex = 0;
 	}
 
-//	VertexShaderLookup_t &lookup = m_VertexShaderDict[shader];
-//	Warning( "vsh: %s static: %d dynamic: %d\n", m_ShaderSymbolTable.String( lookup.m_Name ),
-//		lookup.m_nStaticIndex, m_nVertexShaderIndex );
+	//ShaderLookupDx11_t &tlookup = m_VertexShaderDict[shader];
+	//Warning( "vsh: %s static: %d dynamic: %d\n", m_ShaderSymbolTable.String( tlookup.m_Name ),
+	//	 tlookup.m_nStaticIndex, m_nVertexShaderIndex );
 
 #ifdef DYNAMIC_SHADER_COMPILE
 	HardwareShader_t &dxshader = m_VertexShaderDict[shader].m_ShaderStaticCombos.m_pHardwareShaders[vshIndex];
