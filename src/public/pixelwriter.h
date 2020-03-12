@@ -165,6 +165,7 @@ FORCEINLINE_PIXEL void CPixelWriter::SetPixelMemory( ImageFormat format, void* p
 		break;
 
 	case IMAGE_FORMAT_RGBA8888:
+	case IMAGE_FORMAT_RGBA8888_SRGB:
 #if defined( _X360 )
 	case IMAGE_FORMAT_LINEAR_RGBA8888:
 #endif
@@ -180,6 +181,7 @@ FORCEINLINE_PIXEL void CPixelWriter::SetPixelMemory( ImageFormat format, void* p
 		break;
 
 	case IMAGE_FORMAT_BGRA8888: // NOTE! : the low order bits are first in this naming convention.
+	case IMAGE_FORMAT_BGRA8888_SRGB:
 #if defined( _X360 )
 	case IMAGE_FORMAT_LINEAR_BGRA8888:
 #endif
@@ -195,6 +197,7 @@ FORCEINLINE_PIXEL void CPixelWriter::SetPixelMemory( ImageFormat format, void* p
 		break;
 
 	case IMAGE_FORMAT_BGRX8888:
+	case IMAGE_FORMAT_BGRX8888_SRGB:
 #if defined( _X360 )
 	case IMAGE_FORMAT_LINEAR_BGRX8888:
 #endif
@@ -222,6 +225,7 @@ FORCEINLINE_PIXEL void CPixelWriter::SetPixelMemory( ImageFormat format, void* p
 		break;
 
 	case IMAGE_FORMAT_BGR888:
+	case IMAGE_FORMAT_BGR888_SRGB:
 		m_Size = 3;
 		m_RShift = 16;
 		m_GShift = 8;

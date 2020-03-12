@@ -387,6 +387,11 @@ bool CVTFTexture::Init( int nWidth, int nHeight, int nDepth, ImageFormat fmt, in
 	m_Format = fmt;
 	m_nFlags = iFlags;
 
+	if ( ( m_nFlags & TEXTUREFLAGS_SRGB ) != 0 )
+	{
+		m_Format = GetMatchingSRGBFormat( m_Format );
+	}
+
 	// THIS CAUSED A BUG!!!  We want all of the mip levels in the vtf file even with nomip in case we have lod.
 	// NOTE: But we don't want more than 1 mip level for procedural textures
 	if ( (iFlags & (TEXTUREFLAGS_NOMIP | TEXTUREFLAGS_PROCEDURAL)) == (TEXTUREFLAGS_NOMIP | TEXTUREFLAGS_PROCEDURAL) )
@@ -440,6 +445,11 @@ void CVTFTexture::InitLowResImage( int nWidth, int nHeight, ImageFormat fmt )
 	m_nLowResImageWidth = nWidth;
 	m_nLowResImageHeight = nHeight;
 	m_LowResImageFormat = fmt;
+
+	if ( ( m_nFlags & TEXTUREFLAGS_SRGB ) != 0 )
+	{
+		m_LowResImageFormat = GetMatchingSRGBFormat( m_LowResImageFormat );
+	}
 
 	// Allocate low-res bits
 	int iLowResImageSize = ImageLoader::GetMemRequired( m_nLowResImageWidth, 
@@ -970,6 +980,13 @@ bool CVTFTexture::Unserialize( CUtlBuffer &buf, bool bHeaderOnly, int nSkipMipLe
 	m_nFlags = header.flags;
 	m_nFrameCount = header.numFrames;
 
+	// If the SRGB flag is set on this VTF, change the format to its
+	// matching SRGB format.
+	if ( ( m_nFlags & TEXTUREFLAGS_SRGB ) != 0 )
+	{
+		m_Format = GetMatchingSRGBFormat( m_Format );
+	}
+
 	m_nFaceCount = (m_nFlags & TEXTUREFLAGS_ENVMAP) ? CUBEMAP_FACE_COUNT : 1;
 
 	// NOTE: We're going to store space for all mip levels, even if we don't 
@@ -997,6 +1014,11 @@ bool CVTFTexture::Unserialize( CUtlBuffer &buf, bool bHeaderOnly, int nSkipMipLe
 		m_nLowResImageHeight = header.lowResImageHeight;
 	}
 	m_LowResImageFormat = header.lowResImageFormat;
+
+	if ( ( m_nFlags & TEXTUREFLAGS_SRGB ) != 0 )
+	{
+		m_LowResImageFormat = GetMatchingSRGBFormat( m_LowResImageFormat );
+	}
 
 	// Keep the allocated memory chunks of data
 	if ( int( header.numResources ) < m_arrResourcesData.Count() )
@@ -1836,7 +1858,7 @@ void CVTFTexture::ConvertImageFormat( ImageFormat fmt, bool bNormalToDUDV )
 	else
 	{
 		// Only DXT5 has alpha bits
-		if ( ( fmt == IMAGE_FORMAT_DXT1 ) || ( fmt == IMAGE_FORMAT_ATI2N ) || ( fmt == IMAGE_FORMAT_ATI1N ) )
+		if ( ( fmt == IMAGE_FORMAT_DXT1 ) || ( fmt == IMAGE_FORMAT_DXT1_SRGB ) || ( fmt == IMAGE_FORMAT_ATI2N ) || ( fmt == IMAGE_FORMAT_ATI1N ) )
 		{
 			m_nFlags &= ~(TEXTUREFLAGS_ONEBITALPHA|TEXTUREFLAGS_EIGHTBITALPHA);
 		}
@@ -2271,7 +2293,7 @@ void CVTFTexture::GenerateSpheremap( LookDir_t lookDir )
 void CVTFTexture::GenerateHemisphereMap( unsigned char *pSphereMapBitsRGBA, int targetWidth, 
 		int targetHeight, LookDir_t lookDir, int iFrame )
 {
-	Assert( m_Format == IMAGE_FORMAT_RGBA8888 );
+	Assert( m_Format == IMAGE_FORMAT_RGBA8888 || m_Format == IMAGE_FORMAT_RGBA8888_SRGB );
 
 	unsigned char *pCubeMaps[6];
 
@@ -2391,7 +2413,9 @@ void CVTFTexture::GenerateMipmaps()
 //		return;
 //	}
 
-	Assert( m_Format == IMAGE_FORMAT_RGBA8888 || m_Format == IMAGE_FORMAT_RGB323232F );
+	Assert( m_Format == IMAGE_FORMAT_RGBA8888 ||
+		m_Format == IMAGE_FORMAT_RGBA8888_SRGB ||
+		m_Format == IMAGE_FORMAT_RGB323232F );
 
 	// FIXME: Should we be doing anything special for normalmaps other than a final normalization pass?
 	ImageLoader::ResampleInfo_t info;
@@ -2549,7 +2573,7 @@ void CVTFTexture::GenerateMipmaps()
 
 void CVTFTexture::PutOneOverMipLevelInAlpha()
 {
-	Assert( m_Format == IMAGE_FORMAT_RGBA8888 );
+	Assert( m_Format == IMAGE_FORMAT_RGBA8888 || m_Format == IMAGE_FORMAT_RGBA8888_SRGB );
 
 	for (int iMipLevel = 0; iMipLevel < m_nMipCount; ++iMipLevel)
 	{
@@ -2579,13 +2603,13 @@ void CVTFTexture::PutOneOverMipLevelInAlpha()
 void CVTFTexture::ComputeReflectivity( )
 {
 	// HDRFIXME: fix this when we ahve a new intermediate format
-	if( m_Format != IMAGE_FORMAT_RGBA8888 )
+	if( m_Format != IMAGE_FORMAT_RGBA8888 && m_Format != IMAGE_FORMAT_RGBA8888_SRGB )
 	{
 		m_vecReflectivity.Init( 0.2f, 0.2f, 0.2f );
 		return;
 	}
 
-	Assert( m_Format == IMAGE_FORMAT_RGBA8888 );
+	Assert( m_Format == IMAGE_FORMAT_RGBA8888 || m_Format == IMAGE_FORMAT_RGBA8888_SRGB );
 
 	int divisor = 0;
 	m_vecReflectivity.Init( 0.0f, 0.0f, 0.0f );
@@ -2620,13 +2644,13 @@ void CVTFTexture::ComputeReflectivity( )
 void CVTFTexture::ComputeAlphaFlags()
 {
 	// HDRFIXME: hack hack hack
-	if( m_Format != IMAGE_FORMAT_RGBA8888 )
+	if( m_Format != IMAGE_FORMAT_RGBA8888 && m_Format != IMAGE_FORMAT_RGBA8888_SRGB )
 	{
 		m_nFlags &= ~( TEXTUREFLAGS_EIGHTBITALPHA | TEXTUREFLAGS_ONEBITALPHA );
 		m_Options.flags0 &= ~( VtfProcessingOptions::OPT_MIP_ALPHATEST );
 		return;
 	}
-	Assert( m_Format == IMAGE_FORMAT_RGBA8888 );
+	Assert( m_Format == IMAGE_FORMAT_RGBA8888 || m_Format == IMAGE_FORMAT_RGBA8888_SRGB );
 
 	m_nFlags &= ~(TEXTUREFLAGS_EIGHTBITALPHA | TEXTUREFLAGS_ONEBITALPHA);
 	
@@ -2743,11 +2767,11 @@ void CVTFTexture::SetPostProcessingSettings( VtfProcessingOptions const *pOption
 bool CVTFTexture::ConstructLowResImage()
 {
 	// HDRFIXME: hack hack hack
-	if( m_Format != IMAGE_FORMAT_RGBA8888 )
+	if( m_Format != IMAGE_FORMAT_RGBA8888 && m_Format != IMAGE_FORMAT_RGBA8888_SRGB )
 	{
 		return true;
 	}
-	Assert( m_Format == IMAGE_FORMAT_RGBA8888 );
+	Assert( m_Format == IMAGE_FORMAT_RGBA8888 || m_Format == IMAGE_FORMAT_RGBA8888_SRGB );
 	Assert( m_pLowResImageData );
 
 	CUtlMemory<unsigned char> lowResSizeImage;
@@ -2769,7 +2793,7 @@ bool CVTFTexture::ConstructLowResImage()
 	
 	// convert to the low-res size version with the correct image format
 	unsigned char *tmpImage = lowResSizeImage.Base();
-	return ImageLoader::ConvertImageFormat( tmpImage, IMAGE_FORMAT_RGBA8888, 
+	return ImageLoader::ConvertImageFormat( tmpImage, m_Format, 
 		m_pLowResImageData, m_LowResImageFormat, m_nLowResImageWidth, m_nLowResImageHeight ); 
 }
 	
@@ -2880,7 +2904,10 @@ void CVTFTexture::BlendCubeMapFaceEdges(
 	CEdgePos iFace1Cur = incs.iFace1Start + incs.iFace1Inc;
 	CEdgePos iFace2Cur = incs.iFace2Start + incs.iFace2Inc;
 	
-	if ( m_Format == IMAGE_FORMAT_DXT1 || m_Format == IMAGE_FORMAT_DXT5 )
+	if ( m_Format == IMAGE_FORMAT_DXT1 ||
+	     m_Format == IMAGE_FORMAT_DXT1_SRGB ||
+	     m_Format == IMAGE_FORMAT_DXT5 ||
+	     m_Format == IMAGE_FORMAT_DXT5_SRGB )
 	{
 		if ( iFace1Cur != incs.iFace1End )
 		{
@@ -2889,13 +2916,14 @@ void CVTFTexture::BlendCubeMapFaceEdges(
 				// Copy the palette index from image 1 to image 2.
 				S3PaletteIndex paletteIndex = S3TC_GetPaletteIndex( pFace1Data, m_Format, nMipWidth, iFace1Cur.x, iFace1Cur.y );
 				S3TC_SetPaletteIndex( pFace2Data, m_Format, nMipWidth, iFace2Cur.x, iFace2Cur.y, paletteIndex );
-				
+
 				iFace1Cur += incs.iFace1Inc;
 				iFace2Cur += incs.iFace2Inc;
 			}
 		}
 	}
-	else if ( m_Format == IMAGE_FORMAT_RGBA8888 )
+	else if ( m_Format == IMAGE_FORMAT_RGBA8888 ||
+		  m_Format == IMAGE_FORMAT_RGBA8888_SRGB )
 	{
 		if ( iFace1Cur != incs.iFace1End )
 		{
@@ -2940,17 +2968,21 @@ void CVTFTexture::BlendCubeMapFaceCorners(
 		pImageData[iEdge] = ImageData( iFrame, pMatch->m_iFaces[iEdge], iMipLevel );
 	}
 
-	if ( m_Format == IMAGE_FORMAT_DXT1 || m_Format == IMAGE_FORMAT_DXT5 )
+	if ( m_Format == IMAGE_FORMAT_DXT1 ||
+	     m_Format == IMAGE_FORMAT_DXT1_SRGB ||
+	     m_Format == IMAGE_FORMAT_DXT5 ||
+	     m_Format == IMAGE_FORMAT_DXT5_SRGB )
 	{
 		if ( nMipWidth < 4 || nMipHeight < 4 )
 			return;
-  
+
 		// Copy the first palette index to the other blocks.
 		S3PaletteIndex paletteIndex = S3TC_GetPaletteIndex( pImageData[0], m_Format, nMipWidth, texelPos[0].x, texelPos[0].y );
 		S3TC_SetPaletteIndex( pImageData[1], m_Format, nMipWidth, texelPos[1].x, texelPos[1].y, paletteIndex );
 		S3TC_SetPaletteIndex( pImageData[2], m_Format, nMipWidth, texelPos[2].x, texelPos[2].y, paletteIndex );
 	}
-	else if ( m_Format == IMAGE_FORMAT_RGBA8888 )
+	else if ( m_Format == IMAGE_FORMAT_RGBA8888 ||
+		  m_Format == IMAGE_FORMAT_RGBA8888_SRGB )
 	{
 		// Setup pointers to the 3 corner texels.
 		unsigned char *texels[3];
@@ -3047,7 +3079,10 @@ void CVTFTexture::BlendCubeMapEdgePalettes(
 	int iMipLevel,
 	const CEdgeMatch *pMatch )
 {
-	Assert( m_Format == IMAGE_FORMAT_DXT1 || m_Format == IMAGE_FORMAT_DXT5 );
+	Assert( m_Format == IMAGE_FORMAT_DXT1 ||
+		m_Format == IMAGE_FORMAT_DXT1_SRGB ||
+		m_Format == IMAGE_FORMAT_DXT5 ||
+		m_Format == IMAGE_FORMAT_DXT5_SRGB );
 
 	int nMipWidth, nMipHeight, nMipDepth;
 	ComputeMipLevelDimensions( iMipLevel, &nMipWidth, &nMipHeight, &nMipDepth );
@@ -3166,7 +3201,7 @@ void CVTFTexture::MatchCubeMapS3TCPalettes(
 void CVTFTexture::MatchCubeMapBorders( int iStage, ImageFormat finalFormat, bool bSkybox )
 {
 	// HDRFIXME: hack hack hack
-	if( m_Format != IMAGE_FORMAT_RGBA8888 )
+	if( m_Format != IMAGE_FORMAT_RGBA8888 && m_Format != IMAGE_FORMAT_RGBA8888_SRGB )
 	{
 		return;
 	}
@@ -3180,8 +3215,11 @@ void CVTFTexture::MatchCubeMapBorders( int iStage, ImageFormat finalFormat, bool
 	{
 		// Stage 1 is while the image is still RGBA8888. If we're not going to S3 compress the image,
 		// then it is easiest to match the borders now.
-		Assert( m_Format == IMAGE_FORMAT_RGBA8888 );
-		if ( finalFormat == IMAGE_FORMAT_DXT1 || finalFormat == IMAGE_FORMAT_DXT5 )
+		Assert( m_Format == IMAGE_FORMAT_RGBA8888 || m_Format == IMAGE_FORMAT_RGBA8888_SRGB );
+		if ( finalFormat == IMAGE_FORMAT_DXT1 ||
+		     finalFormat == IMAGE_FORMAT_DXT1_SRGB ||
+		     finalFormat == IMAGE_FORMAT_DXT5 ||
+		     finalFormat == IMAGE_FORMAT_DXT5_SRGB )
 		{
 			// If we're going to S3 compress the image eventually, then store off the original version
 			// because we can use that while matching the S3 compressed edges (we have to do some tricky
@@ -3203,7 +3241,10 @@ void CVTFTexture::MatchCubeMapBorders( int iStage, ImageFormat finalFormat, bool
 	}
 	else
 	{
-		if ( finalFormat == IMAGE_FORMAT_DXT1 || finalFormat == IMAGE_FORMAT_DXT5 )
+		if ( finalFormat == IMAGE_FORMAT_DXT1 ||
+		     finalFormat == IMAGE_FORMAT_DXT1_SRGB ||
+		     finalFormat == IMAGE_FORMAT_DXT5 ||
+		     finalFormat == IMAGE_FORMAT_DXT5_SRGB )
 		{
 			Assert( m_Format == finalFormat );
 		}
@@ -3222,7 +3263,10 @@ void CVTFTexture::MatchCubeMapBorders( int iStage, ImageFormat finalFormat, bool
 
 	// If we're S3 compressed, then during the first pass, we need to match the palettes of all
 	// bordering S3 blocks.
-	if ( m_Format == IMAGE_FORMAT_DXT1 || m_Format == IMAGE_FORMAT_DXT5 )
+	if ( m_Format == IMAGE_FORMAT_DXT1 ||
+	     m_Format == IMAGE_FORMAT_DXT1_SRGB ||
+	     m_Format == IMAGE_FORMAT_DXT5 ||
+	     m_Format == IMAGE_FORMAT_DXT5_SRGB )
 	{
 		MatchCubeMapS3TCPalettes( edgeMatches, cornerMatches );
 	}
@@ -3354,3 +3398,35 @@ it was once.
 	}
 */
 
+ImageFormat CVTFTexture::GetMatchingSRGBFormat( ImageFormat format ) const
+{
+	switch ( format )
+	{
+	case IMAGE_FORMAT_RGBA8888:
+		return IMAGE_FORMAT_RGBA8888_SRGB;
+	case IMAGE_FORMAT_ABGR8888:
+		return IMAGE_FORMAT_ABGR8888_SRGB;
+	case IMAGE_FORMAT_RGB888:
+		return IMAGE_FORMAT_RGB888_SRGB;
+	case IMAGE_FORMAT_BGR888:
+		return IMAGE_FORMAT_BGR888_SRGB;
+	case IMAGE_FORMAT_ARGB8888:
+		return IMAGE_FORMAT_ARGB8888_SRGB;
+	case IMAGE_FORMAT_BGRA8888:
+		return IMAGE_FORMAT_BGRA8888_SRGB;
+	case IMAGE_FORMAT_DXT1:
+		return IMAGE_FORMAT_DXT1_SRGB;
+	case IMAGE_FORMAT_DXT1_ONEBITALPHA:
+		return IMAGE_FORMAT_DXT1_ONEBITALPHA_SRGB;
+	case IMAGE_FORMAT_DXT3:
+		return IMAGE_FORMAT_DXT3_SRGB;
+	case IMAGE_FORMAT_DXT5:
+		return IMAGE_FORMAT_DXT5_SRGB;
+	case IMAGE_FORMAT_BGRX8888:
+		return IMAGE_FORMAT_BGRX8888_SRGB;
+
+	// Don't have a matching SRGB format.
+	default:
+		return format;
+	}
+}

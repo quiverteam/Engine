@@ -87,13 +87,13 @@ void WriteBitInt( char *pBits, int iBaseBit, int nBits, int val )
 
 int S3TC_BytesPerBlock( ImageFormat format )
 {
-	if ( format == IMAGE_FORMAT_DXT1 || format == IMAGE_FORMAT_ATI1N )
+	if ( format == IMAGE_FORMAT_DXT1 || format == IMAGE_FORMAT_DXT1_SRGB || format == IMAGE_FORMAT_ATI1N )
 	{
 		return 8;
 	}
 	else
 	{
-		Assert( format == IMAGE_FORMAT_DXT5 || format == IMAGE_FORMAT_ATI2N );
+		Assert( format == IMAGE_FORMAT_DXT5 || format == IMAGE_FORMAT_DXT5_SRGB || format == IMAGE_FORMAT_ATI2N );
 		return 16;
 	}
 }
@@ -142,7 +142,7 @@ S3PaletteIndex S3TC_GetPixelPaletteIndex( ImageFormat format, const char *pS3Blo
 	int iQuadPixel = y*4 + x;
 	S3PaletteIndex ret = { 0, 0 };
 
-	if ( format == IMAGE_FORMAT_DXT1 )
+	if ( format == IMAGE_FORMAT_DXT1 || format == IMAGE_FORMAT_DXT1_SRGB )
 	{
 		const S3TCBlock_DXT1 *pBlock = reinterpret_cast<const S3TCBlock_DXT1 *>( pS3Block );
 		ret.m_ColorIndex = (pBlock->m_PixelBits >> (iQuadPixel << 1)) & 3;
@@ -150,7 +150,7 @@ S3PaletteIndex S3TC_GetPixelPaletteIndex( ImageFormat format, const char *pS3Blo
 	}
 	else
 	{
-		Assert( format == IMAGE_FORMAT_DXT5 );
+		Assert( format == IMAGE_FORMAT_DXT5 || format == IMAGE_FORMAT_DXT5_SRGB );
 
 		const S3TCBlock_DXT5 *pBlock = reinterpret_cast<const S3TCBlock_DXT5 *>( pS3Block );
 		
@@ -173,7 +173,7 @@ void S3TC_SetPixelPaletteIndex( ImageFormat format, char *pS3Block, int x, int y
 	int iQuadPixel = y*4 + x;
 	int iColorBit = iQuadPixel * 2;
 	
-	if ( format == IMAGE_FORMAT_DXT1 )
+	if ( format == IMAGE_FORMAT_DXT1 || format == IMAGE_FORMAT_DXT1_SRGB )
 	{
 		S3TCBlock_DXT1 *pBlock = reinterpret_cast<S3TCBlock_DXT1 *>( pS3Block );
 
@@ -182,7 +182,7 @@ void S3TC_SetPixelPaletteIndex( ImageFormat format, char *pS3Block, int x, int y
 	}
 	else
 	{
-		Assert( format == IMAGE_FORMAT_DXT5 );
+		Assert( format == IMAGE_FORMAT_DXT5 || format == IMAGE_FORMAT_DXT5_SRGB );
 		 
 		S3TCBlock_DXT5 *pBlock = reinterpret_cast<S3TCBlock_DXT5 *>( pS3Block );
 
@@ -296,7 +296,7 @@ void S3TC_MergeBlocks(
 	GenerateRepresentativePalette( format, pOriginals, nBlocks, lPitch, mergedBlocks );
 
 	// Build a remap table to remap block 2's colors to block 1's colors.
-	if ( format == IMAGE_FORMAT_DXT1 )
+	if ( format == IMAGE_FORMAT_DXT1 || format == IMAGE_FORMAT_DXT1_SRGB )
 	{
 		// Grab the palette indices that s3tc.lib made for us.
 		const char *pBase = (const char*)mergedBlocks;
@@ -327,7 +327,7 @@ void S3TC_MergeBlocks(
 	}
 	else
 	{
-		Assert( format == IMAGE_FORMAT_DXT5 );
+		Assert( format == IMAGE_FORMAT_DXT5 || format == IMAGE_FORMAT_DXT5_SRGB );
 
 		// Skip past the alpha palette.
 		const char *pAlphaPalette = mergedBlocks;

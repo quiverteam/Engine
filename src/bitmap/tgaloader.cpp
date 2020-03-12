@@ -414,12 +414,16 @@ static OutputRowFunc_t GetOutputRowFunc( ImageFormat imageFormat )
 	switch( imageFormat )
 	{
 	case IMAGE_FORMAT_RGBA8888:
+	case IMAGE_FORMAT_RGBA8888_SRGB:
 		return &OutputRowRGBA8888;
 	case IMAGE_FORMAT_ABGR8888:
+	case IMAGE_FORMAT_ABGR8888_SRGB:
 		return &OutputRowABGR8888;
 	case IMAGE_FORMAT_RGB888:
+	case IMAGE_FORMAT_RGB888_SRGB:
 		return &OutputRowRGB888;
 	case IMAGE_FORMAT_BGR888:
+	case IMAGE_FORMAT_BGR888_SRGB:
 		return &OutputRowBGR888;
 	case IMAGE_FORMAT_RGB565:
 		return &OutputRowRGB565;
@@ -434,10 +438,13 @@ static OutputRowFunc_t GetOutputRowFunc( ImageFormat imageFormat )
 	case IMAGE_FORMAT_BGR888_BLUESCREEN:
 		return &OutputRowBGR888BlueScreen;
 	case IMAGE_FORMAT_ARGB8888:
+	case IMAGE_FORMAT_ARGB8888_SRGB:
 		return &OutputRowARGB8888;
 	case IMAGE_FORMAT_BGRA8888:
+	case IMAGE_FORMAT_BGRA8888_SRGB:
 		return &OutputRowBGRA8888;
 	case IMAGE_FORMAT_BGRX8888:
+	case IMAGE_FORMAT_BGRX8888_SRGB:
 		return &OutputRowBGRX8888;
 	case IMAGE_FORMAT_BGR565:
 		return &OutputRowBGR565;

@@ -71,6 +71,7 @@ bool WriteToBuffer( unsigned char *pImageData, CUtlBuffer &buffer, int width, in
 	switch( dstFormat )
 	{
 	case IMAGE_FORMAT_RGB888:
+	case IMAGE_FORMAT_RGB888_SRGB:
 		dstFormat = IMAGE_FORMAT_BGR888;
 		break;
 #if defined( _X360 )
@@ -79,6 +80,7 @@ bool WriteToBuffer( unsigned char *pImageData, CUtlBuffer &buffer, int width, in
 		break;
 #endif
 	case IMAGE_FORMAT_RGBA8888:
+	case IMAGE_FORMAT_RGBA8888_SRGB:
 		dstFormat = IMAGE_FORMAT_BGRA8888;
 		break;
 	}
@@ -89,6 +91,7 @@ bool WriteToBuffer( unsigned char *pImageData, CUtlBuffer &buffer, int width, in
 	switch( dstFormat )
 	{
 	case IMAGE_FORMAT_BGR888:
+	case IMAGE_FORMAT_BGR888_SRGB:
 #if defined( _X360 )
 	case IMAGE_FORMAT_LINEAR_BGR888:
 #endif
@@ -96,6 +99,7 @@ bool WriteToBuffer( unsigned char *pImageData, CUtlBuffer &buffer, int width, in
 		header.pixel_size = 24;
 		break;
 	case IMAGE_FORMAT_BGRA8888:
+	case IMAGE_FORMAT_BGRA8888_SRGB:
 		header.image_type = 2; // 24/32 bit uncompressed TGA
 		header.pixel_size = 32;
 		break;
@@ -157,6 +161,7 @@ bool WriteDummyFileNoAlloc( const char *fileName, int width, int height, enum Im
 	switch( dstFormat )
 	{
 	case IMAGE_FORMAT_BGR888:
+	case IMAGE_FORMAT_BGR888_SRGB:
 #if defined( _X360 )
 	case IMAGE_FORMAT_LINEAR_BGR888:
 #endif
@@ -165,6 +170,7 @@ bool WriteDummyFileNoAlloc( const char *fileName, int width, int height, enum Im
 		nImageType = 2;
 		break;
 	case IMAGE_FORMAT_BGRA8888:
+	case IMAGE_FORMAT_BGRA8888_SRGB:
 		nBytesPerPixel = 4; // 24/32 bit uncompressed TGA
 		nPixelSize = 32;
 		nImageType = 2;
@@ -214,6 +220,7 @@ bool WriteTGAFile( const char *fileName, int width, int height, enum ImageFormat
 	switch( srcFormat )
 	{
 	case IMAGE_FORMAT_BGR888:
+	case IMAGE_FORMAT_BGR888_SRGB:
 #if defined( _X360 )
 	case IMAGE_FORMAT_LINEAR_BGR888:
 #endif
@@ -222,11 +229,13 @@ bool WriteTGAFile( const char *fileName, int width, int height, enum ImageFormat
 		nImageType = 2;
 		break;
 	case IMAGE_FORMAT_BGRA8888:
+	case IMAGE_FORMAT_BGRA8888_SRGB:
 		nBytesPerPixel = 4; // 24/32 bit uncompressed TGA
 		nPixelSize = 32;
 		nImageType = 2;
 		break;
 	case IMAGE_FORMAT_RGBA8888:
+	case IMAGE_FORMAT_RGBA8888_SRGB:
 		bMustConvert = true;
 		dstFormat = IMAGE_FORMAT_BGRA8888;
 		nBytesPerPixel = 4; // 24/32 bit uncompressed TGA
@@ -301,6 +310,7 @@ bool WriteRectNoAlloc( unsigned char *pImageData, const char *fileName, int nXOr
 	switch( srcFormat )
 	{
 	case IMAGE_FORMAT_BGR888:
+	case IMAGE_FORMAT_BGR888_SRGB:
 #if defined( _X360 )
 	case IMAGE_FORMAT_LINEAR_BGR888:
 #endif
@@ -309,6 +319,7 @@ bool WriteRectNoAlloc( unsigned char *pImageData, const char *fileName, int nXOr
 		nImageType = 2;
 		break;
 	case IMAGE_FORMAT_BGRA8888:
+	case IMAGE_FORMAT_BGRA8888_SRGB:
 		nBytesPerPixel = 4; // 24/32 bit uncompressed TGA
 		nPixelSize = 32;
 		nImageType = 2;

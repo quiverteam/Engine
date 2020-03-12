@@ -35,8 +35,8 @@ typedef enum _D3DFORMAT D3DFORMAT;
 enum ImageFormat 
 {
 	IMAGE_FORMAT_UNKNOWN  = -1,
-	IMAGE_FORMAT_RGBA8888 = 0, 
-	IMAGE_FORMAT_ABGR8888, 
+	IMAGE_FORMAT_RGBA8888 = 0,
+	IMAGE_FORMAT_ABGR8888,
 	IMAGE_FORMAT_RGB888, 
 	IMAGE_FORMAT_BGR888,
 	IMAGE_FORMAT_RGB565, 
@@ -99,6 +99,28 @@ enum ImageFormat
 	IMAGE_FORMAT_LE_BGRX8888,
 	IMAGE_FORMAT_LE_BGRA8888,
 #endif
+
+	// NOTE: New formats go at the bottom to not break compatibility with
+	// existing VTFs.
+
+	// These SRGB formats are for modern renderers. Rather than having to explicitly
+	// set a sampler to convert from SRGB to linear space when sampling (for instance,
+	// in DX9), the image format is simply set as an SRGB format, indicating to the
+	// renderer that the texture should be automatically converted from SRGB to linear
+	// when sampling. If the VTF texture has TEXTUREFLAGS_SRGB set, the image format
+	// on the VTF will be changed to its matching SRGB format. If there is no matching
+	// SRGB format, the format will be left unchanged.
+	IMAGE_FORMAT_RGBA8888_SRGB,
+	IMAGE_FORMAT_ABGR8888_SRGB,
+	IMAGE_FORMAT_RGB888_SRGB,
+	IMAGE_FORMAT_BGR888_SRGB,
+	IMAGE_FORMAT_ARGB8888_SRGB,
+	IMAGE_FORMAT_BGRA8888_SRGB,
+	IMAGE_FORMAT_DXT1_SRGB,
+	IMAGE_FORMAT_DXT1_ONEBITALPHA_SRGB,
+	IMAGE_FORMAT_DXT3_SRGB,
+	IMAGE_FORMAT_DXT5_SRGB,
+	IMAGE_FORMAT_BGRX8888_SRGB,
 
 	NUM_IMAGE_FORMATS
 };

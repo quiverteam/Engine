@@ -91,6 +91,18 @@ static ImageFormatInfo_t g_ImageFormatInfo[] =
 	{ "LE_BGRX8888",				4, 8, 8, 8, 8, false },			// IMAGE_FORMAT_LE_BGRX8888
 	{ "LE_BGRA8888",				4, 8, 8, 8, 8, false },			// IMAGE_FORMAT_LE_BGRA8888
 #endif
+
+	{ "RGBA8888_SRGB",					4, 8, 8, 8, 8, false },			// IMAGE_FORMAT_RGBA8888_SRGB,
+	{ "ABGR8888_SRGB",					4, 8, 8, 8, 8, false },			// IMAGE_FORMAT_ABGR8888_SRGB, 
+	{ "RGB888_SRGB",					3, 8, 8, 8, 0, false },			// IMAGE_FORMAT_RGB888_SRGB,
+	{ "BGR888_SRGB",					3, 8, 8, 8, 0, false },			// IMAGE_FORMAT_BGR888_SRGB,
+	{ "ARGB8888_SRGB",					4, 8, 8, 8, 8, false },			// IMAGE_FORMAT_ARGB8888_SRGB
+	{ "BGRA8888_SRGB",					4, 8, 8, 8, 8, false },			// IMAGE_FORMAT_BGRA8888_SRGB
+	{ "DXT1_SRGB",						0, 0, 0, 0, 0, true },			// IMAGE_FORMAT_DXT1_SRGB
+	{ "DXT1_ONEBITALPHA_SRGB",				0, 0, 0, 0, 0, true },			// IMAGE_FORMAT_DXT1_ONEBITALPHA_SRGB
+	{ "DXT3_SRGB",						0, 0, 0, 0, 8, true },			// IMAGE_FORMAT_DXT3_SRGB
+	{ "DXT5_SRGB",						0, 0, 0, 0, 8, true },			// IMAGE_FORMAT_DXT5_SRGB
+	{ "BGRX8888_SRGB",					4, 8, 8, 8, 0, false },			// IMAGE_FORMAT_BGRX8888_SRGB
 };
 
 
@@ -117,8 +129,10 @@ int GetMemRequired( int width, int height, int depth, ImageFormat imageFormat, b
 	if ( !mipmap )
 	{
 		// Block compressed formats
-		if ( imageFormat == IMAGE_FORMAT_DXT1 || imageFormat == IMAGE_FORMAT_DXT3 ||
-			 imageFormat == IMAGE_FORMAT_DXT5  || imageFormat == IMAGE_FORMAT_ATI2N ||
+		if ( imageFormat == IMAGE_FORMAT_DXT1 || imageFormat == IMAGE_FORMAT_DXT1_SRGB ||
+		     imageFormat == IMAGE_FORMAT_DXT3 || imageFormat == IMAGE_FORMAT_DXT3_SRGB ||
+			 imageFormat == IMAGE_FORMAT_DXT5 ||
+		         imageFormat == IMAGE_FORMAT_DXT5_SRGB || imageFormat == IMAGE_FORMAT_ATI2N ||
 			 imageFormat == IMAGE_FORMAT_ATI1N )
 		{
 /*
@@ -153,11 +167,14 @@ int GetMemRequired( int width, int height, int depth, ImageFormat imageFormat, b
 			switch ( imageFormat )
 			{
 			case IMAGE_FORMAT_DXT1:
+			case IMAGE_FORMAT_DXT1_SRGB:
 			case IMAGE_FORMAT_ATI1N:
 				return numBlocks * 8;
 
 			case IMAGE_FORMAT_DXT3:
+			case IMAGE_FORMAT_DXT3_SRGB:
 			case IMAGE_FORMAT_DXT5:
+			case IMAGE_FORMAT_DXT5_SRGB:
 			case IMAGE_FORMAT_ATI2N:
 				return numBlocks * 16;
 			}
@@ -409,14 +426,17 @@ D3DFORMAT ImageFormatToD3DFormat( ImageFormat format )
 	switch ( format )
 	{
 	case IMAGE_FORMAT_BGR888:
+	case IMAGE_FORMAT_BGR888_SRGB:
 #if !defined( _X360 )
 		return D3DFMT_R8G8B8;
 #else
 		return D3DFMT_UNKNOWN;
 #endif
 	case IMAGE_FORMAT_BGRA8888:
+	case IMAGE_FORMAT_BGRA8888_SRGB:
 		return D3DFMT_A8R8G8B8;
 	case IMAGE_FORMAT_BGRX8888:
+	case IMAGE_FORMAT_BGRX8888_SRGB:
 		return D3DFMT_X8R8G8B8;
 	case IMAGE_FORMAT_BGR565:
 		return D3DFMT_R5G6B5;
@@ -434,10 +454,14 @@ D3DFORMAT ImageFormatToD3DFormat( ImageFormat format )
 		return D3DFMT_A8;
 	case IMAGE_FORMAT_DXT1:
 	case IMAGE_FORMAT_DXT1_ONEBITALPHA:
+	case IMAGE_FORMAT_DXT1_SRGB:
+	case IMAGE_FORMAT_DXT1_ONEBITALPHA_SRGB:
 		return D3DFMT_DXT1;
 	case IMAGE_FORMAT_DXT3:
+	case IMAGE_FORMAT_DXT3_SRGB:
 		return D3DFMT_DXT3;
 	case IMAGE_FORMAT_DXT5:
+	case IMAGE_FORMAT_DXT5_SRGB:
 		return D3DFMT_DXT5;
 	case IMAGE_FORMAT_UV88:
 		return D3DFMT_V8U8;
