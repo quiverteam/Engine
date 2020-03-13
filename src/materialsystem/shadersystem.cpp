@@ -319,24 +319,36 @@ void CShaderSystem::LoadAllShaderDLLs( )
 	SetupShaderDictionary( i );
 
 #if defined( _WIN32 )
-	// 360 has the the debug shaders in its dx9 dll
-	if ( IsPC() || !IsX360() )
-	{
-		// Always need the debug shaders
-		LoadShaderDLL( "stdshader_dbg" );
-	}
 
 	// Load up standard shader DLLs...
 	int dxSupportLevel = HardwareConfig()->GetMaxDXSupportLevel();
 	Assert( dxSupportLevel >= 60 );
 	dxSupportLevel /= 10;
 
-	// 360 only supports its dx9 dll
-	int dxStart = IsX360() ? 9 : 6;
-	char buf[32];
-	for ( i = dxStart; i <= dxSupportLevel; ++i )
+	bool bOldRenderer = dxSupportLevel <= 9;
+
+	if ( bOldRenderer )
 	{
-		Q_snprintf( buf, sizeof( buf ), "stdshader_dx%d", i );
+		// 360 has the the debug shaders in its dx9 dll
+		if ( bOldRenderer && ( IsPC() || !IsX360() ) )
+		{
+			// Always need the debug shaders
+			LoadShaderDLL( "stdshader_dbg" );
+		}
+
+		// 360 only supports its dx9 dll
+		int dxStart = IsX360() ? 9 : 6;
+		char buf[32];
+		for ( i = dxStart; i <= dxSupportLevel; ++i )
+		{
+			Q_snprintf( buf, sizeof( buf ), "stdshader_dx%d", i );
+			LoadShaderDLL( buf );
+		}
+	}
+	else
+	{
+		char buf[32];
+		Q_snprintf( buf, sizeof( buf ), "stdshader_dx%d", dxSupportLevel );
 		LoadShaderDLL( buf );
 	}
 
