@@ -320,8 +320,8 @@ void CShaderShadowDx11::EnableAlphaToCoverage( bool bEnable )
 
 StateSnapshot_t CShaderShadowDx11::FindOrCreateSnapshot()
 {
-	if ( m_ShadowState.vertexShader == -1 )
-		DebuggerBreak();
+	//if ( m_ShadowState.vertexShader == -1 )
+	//	DebuggerBreak();
 	int i = m_ShadowStateCache.Find( m_ShadowState );
 	if ( i != m_ShadowStateCache.InvalidIndex() )
 	{

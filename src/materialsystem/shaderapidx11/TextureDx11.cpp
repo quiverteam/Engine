@@ -47,7 +47,7 @@ FORCEINLINE DXGI_FORMAT GetDepthStencilViewFormat( DXGI_FORMAT depthResourceForm
 
 // We will have to convert srcFormat into what this function
 // returns for use in D3D11.
-ImageFormat GetClosestSupportedImageFormatForD3D11( ImageFormat srcFormat )
+ImageFormat CTextureDx11::GetClosestSupportedImageFormatForD3D11( ImageFormat srcFormat )
 {
 	switch ( srcFormat )
 	{

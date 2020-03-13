@@ -224,6 +224,7 @@ private:
 	void SetLight( int lightNum, const LightDesc_t &desc );
 	void SetAmbientLight( float r, float g, float b );
 	void SetAmbientLightCube( Vector4D cube[6] );
+	virtual void DisableAllLocalLights();
 	virtual void SetLightingOrigin( Vector vLightingOrigin )
 	{
 	}
@@ -242,10 +243,7 @@ private:
 	}
 	virtual void GetDX9LightState( LightState_t *state ) const;
 
-	float GetAmbientLightCubeLuminance( void )
-	{
-		return 0.0f;
-	}
+	float GetAmbientLightCubeLuminance( void );
 
 	void SetSkinningMatrices();
 
@@ -552,7 +550,7 @@ private:
 
 	void SetDefaultDynamicState()
 	{
-		m_TargetShaderState.SetDefault();
+		m_ShaderState.SetDefault();
 	}
 	virtual void CommitPixelShaderLighting( int pshReg )
 	{
@@ -598,15 +596,8 @@ private:
 
 	void SetPixelShaderFogParams( int reg );
 
-	virtual bool InFlashlightMode() const
-	{
-		return false;
-	}
-
-	virtual bool InEditorMode() const
-	{
-		return false;
-	}
+	virtual bool InFlashlightMode() const;
+	virtual bool InEditorMode() const;
 
 	// What fields in the morph do we actually use?
 	virtual MorphFormat_t ComputeMorphFormat( int numSnapshots, StateSnapshot_t *pIds ) const;
@@ -715,13 +706,9 @@ private:
 	}
 	virtual int CompareSnapshots( StateSnapshot_t snapshot0, StateSnapshot_t snapshot1 );
 
-	virtual void DisableAllLocalLights()
-	{
-	}
-
 	virtual bool SupportsMSAAMode( int nMSAAMode )
 	{
-		return false;
+		return true;
 	}
 
 	// Hooks for firing PIX events from outside the Material System...
@@ -741,7 +728,7 @@ private:
 
 	virtual int NeedsShaderSRGBConversion( void ) const
 	{
-		return 1;
+		return 0;
 	}
 
 	virtual bool SupportsFetch4()
@@ -850,7 +837,7 @@ private:
 	void DoIssueShaderState( bool bForce );
 	void DoIssueRenderTargets();
 
-	void SortLights( int *index );
+	void SortLights( int *index = NULL );
 
 	void AdvanceCurrentTextureCopy( ShaderAPITextureHandle_t handle );
 
@@ -902,7 +889,6 @@ private:
 	StatesDx11::RenderState m_TargetState;
 	StatesDx11::RenderState m_State;
 
-	StatesDx11::ShaderState m_TargetShaderState;
 	StatesDx11::ShaderState m_ShaderState;
 
 	// Setting matrices

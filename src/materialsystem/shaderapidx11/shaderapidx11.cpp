@@ -28,6 +28,26 @@
 // NOTE: This has to be the last file included!
 #include "tier0/memdbgon.h"
 
+template<typename T>
+FORCEINLINE static void XMSetComponent4( T &vec, int comp, float val )
+{
+	switch ( comp )
+	{
+	case 0:
+		vec.x = val;
+		break;
+	case 1:
+		vec.y = val;
+		break;
+	case 2:
+		vec.z = val;
+		break;
+	case 3:
+		vec.w = val;
+		break;
+	}
+}
+
 //-------------------------------------------------------------------
 // Common constant buffers, grouped by frequency of update.
 // NOTE: These need to match the cbuffers in common_cbuffers_fxc.h!!!
@@ -64,11 +84,11 @@ ALIGN16 struct PerModel_CBuffer_t
 	// Only cFlexScale.x is used
 	// It is a binary value used to switch on/off the addition of the flex delta stream
 	DirectX::XMFLOAT4 cFlexScale;
-	Vector4D cLightEnabled;
+	DirectX::XMINT4 cLightEnabled;
 	DirectX::XMFLOAT4 cLightCountRegister;
-	DirectX::XMFLOAT4 cAmbientCube[6];
 	// Four lights x 5 constants each = 20 constants
 	DX11LightInfo_t cLightInfo[4];
+	DirectX::XMFLOAT3A cAmbientCube[6];
 };
 
 int x = sizeof( PerModel_CBuffer_t );
@@ -141,8 +161,7 @@ CShaderAPIDx11::CShaderAPIDx11() :
 	m_bResettingRenderState = false;
 	m_TargetState = StatesDx11::RenderState();
 	m_State = m_TargetState;
-	m_TargetShaderState = StatesDx11::ShaderState();
-	m_ShaderState = m_TargetShaderState;
+	m_ShaderState = StatesDx11::ShaderState();
 	m_bSelectionMode = false;
 	m_bFlashlightStateChanged = false;
 	m_pFlashlightDepthTexture = NULL;
@@ -218,8 +237,8 @@ void CShaderAPIDx11::ResetRenderState( bool bFullReset )
 	m_TargetState.dynamic.m_pRenderTargetView = GetTexture( m_hBackBuffer ).GetRenderTargetView();
 	m_TargetState.dynamic.m_pDepthStencilView = GetTexture( m_hDepthBuffer ).GetDepthStencilView();
 
-	m_TargetShaderState.SetDefault();
-	m_pCurMatrixItem = &m_TargetShaderState.m_MatrixStacks[0].Top();
+	m_ShaderState.SetDefault();
+	m_pCurMatrixItem = &m_ShaderState.m_MatrixStacks[0].Top();
 
 	IssueStateChanges( bFullReset );
 }
@@ -456,28 +475,30 @@ FORCEINLINE static void OutputMatrix( const DirectX::XMFLOAT4X4 &mat, const char
 
 void CShaderAPIDx11::SortLights( int *index )
 {
-	m_TargetShaderState.light.m_NumLights = 0;
+	m_ShaderState.light.m_NumLights = 0;
 	for ( int i = 0; i < MAX_NUM_LIGHTS; i++ )
 	{
-		const LightDesc_t &light = m_TargetShaderState.light.m_Lights[i];
+		const LightDesc_t &light = m_ShaderState.light.m_Lights[i];
 		LightType_t type = light.m_Type;
-		int j = m_TargetShaderState.light.m_NumLights;
+		int j = m_ShaderState.light.m_NumLights;
 		if ( type != MATERIAL_LIGHT_DISABLE )
 		{
 			while ( --j >= 0 )
 			{
-				if ( m_TargetShaderState.light.m_Lights[j].m_Type <= type )
+				if ( m_ShaderState.light.m_Lights[j].m_Type <= type )
 					break;
 
 				// shift...
-				m_TargetShaderState.light.m_Lights[j + 1] = m_TargetShaderState.light.m_Lights[j];
-				index[j + 1] = index[j];
+				m_ShaderState.light.m_Lights[j + 1] = m_ShaderState.light.m_Lights[j];
+				if ( index )
+					index[j + 1] = index[j];
 			}
 			++j;
 
-			m_TargetShaderState.light.m_Lights[j] = light;
-			index[j] = i;
-			++m_TargetShaderState.light.m_NumLights;
+			m_ShaderState.light.m_Lights[j] = light;
+			if ( index )
+				index[j] = i;
+			++m_ShaderState.light.m_NumLights;
 		}
 	}
 }
@@ -515,11 +536,9 @@ void CShaderAPIDx11::DoIssueShaderState( bool bForce )
 	// Transforms
 	//
 
-	bool bViewChanged = m_TargetShaderState.m_ChangedMatrices[MATERIAL_VIEW];
-	bool bProjChanged = m_TargetShaderState.m_ChangedMatrices[MATERIAL_PROJECTION];
-	bool bModelChanged = m_TargetShaderState.m_ChangedMatrices[MATERIAL_MODEL];
-
-	bool bChanged = false;
+	bool bViewChanged = m_ShaderState.m_ChangedMatrices[MATERIAL_VIEW];
+	bool bProjChanged = m_ShaderState.m_ChangedMatrices[MATERIAL_PROJECTION];
+	bool bModelChanged = m_ShaderState.m_ChangedMatrices[MATERIAL_MODEL];
 
 	if ( bForce || bViewChanged || bProjChanged || bModelChanged )
 	{
@@ -556,29 +575,28 @@ void CShaderAPIDx11::DoIssueShaderState( bool bForce )
 			DirectX::XMStoreFloat4( &s_PerFrameConstants.cEyePos, viewTranslation );
 		}
 
-		m_TargetShaderState.m_ChangedMatrices[MATERIAL_MODEL] = false;
-		m_TargetShaderState.m_ChangedMatrices[MATERIAL_VIEW] = false;
-		m_TargetShaderState.m_ChangedMatrices[MATERIAL_PROJECTION] = false;
-
-		bChanged = true;
+		m_ShaderState.m_ChangedMatrices[MATERIAL_MODEL] = false;
+		m_ShaderState.m_ChangedMatrices[MATERIAL_VIEW] = false;
+		m_ShaderState.m_ChangedMatrices[MATERIAL_PROJECTION] = false;
 	}
 
 	//
 	// Lighting
 	//
 
-	if ( bForce || m_ShaderState.light.IsLightChanged( m_TargetShaderState.light ) )
+	if ( bForce || m_ShaderState.light.m_bLightChanged )
 	{
-		int lightIndex[MAX_NUM_LIGHTS];
-		memset( lightIndex, 0, sizeof( lightIndex ) );
-		SortLights( lightIndex );
+		// Lights should already be sorted...
+		//int lightIndex[MAX_NUM_LIGHTS];
+		//memset( lightIndex, 0, sizeof( lightIndex ) );
+		//SortLights( lightIndex );
 
-		s_PerModelConstants.cLightCountRegister.x = m_TargetShaderState.light.m_NumLights;
+		s_PerModelConstants.cLightCountRegister.x = m_ShaderState.light.m_NumLights;
 
-		for ( int i = 0; i < m_TargetShaderState.light.m_NumLights; i++ )
+		for ( int i = 0; i < m_ShaderState.light.m_NumLights; i++ )
 		{
-			const LightDesc_t &light = m_TargetShaderState.light.m_Lights[i];
-			s_PerModelConstants.cLightEnabled[i] = light.m_Type != MATERIAL_LIGHT_DISABLE;
+			const LightDesc_t &light = m_ShaderState.light.m_Lights[i];
+			XMSetComponent4( s_PerModelConstants.cLightEnabled, i, light.m_Type != MATERIAL_LIGHT_DISABLE );
 
 			// The first one is the light color ( and light type code )
 			float w = ( light.m_Type == MATERIAL_LIGHT_DIRECTIONAL ) ? 1.0f : 0.0f;
@@ -613,24 +631,24 @@ void CShaderAPIDx11::DoIssueShaderState( bool bForce )
 			s_PerModelConstants.cLightInfo[i].atten =
 				DirectX::XMFLOAT4( light.m_Attenuation0, light.m_Attenuation1, light.m_Attenuation2, 0.0f );
 		}
-		bChanged = true;
+		m_ShaderState.light.m_bLightChanged = false;
 	}
 
-	if ( bForce || m_ShaderState.light.IsAmbientChanged( m_TargetShaderState.light ) )
+	if ( bForce || m_ShaderState.light.m_bAmbientChanged )
 	{
-		memcpy( s_PerModelConstants.cAmbientCube, m_TargetShaderState.light.m_AmbientLightCube, sizeof( DirectX::XMFLOAT4 ) * 6 );
-		bChanged = true;
+		memcpy( s_PerModelConstants.cAmbientCube, m_ShaderState.light.m_AmbientLightCube, sizeof( DirectX::XMFLOAT3A ) * 6 );
+		m_ShaderState.light.m_bAmbientChanged = false;
 	}
 
 	//
 	// Fog
 	//
 
-	if ( bForce || m_ShaderState.fog.IsChanged( m_TargetShaderState.fog ) )
+	if ( bForce || m_ShaderState.fog.m_bFogChanged )
 	{
 		float ooFogRange = 1.0f;
-		float fStart = m_TargetShaderState.fog.m_flFogStart;
-		float fEnd = m_TargetShaderState.fog.m_flFogEnd;
+		float fStart = m_ShaderState.fog.m_flFogStart;
+		float fEnd = m_ShaderState.fog.m_flFogEnd;
 		// Check for divide by zero
 		if ( fStart != fEnd )
 		{
@@ -639,21 +657,22 @@ void CShaderAPIDx11::DoIssueShaderState( bool bForce )
 
 		s_PerSceneConstants.cFogParams.x = ooFogRange * fEnd;
 		s_PerSceneConstants.cFogParams.y = 1.0f;
-		s_PerSceneConstants.cFogParams.z = 1.0f - clamp( m_TargetShaderState.fog.m_flFogMaxDensity, 0.0f, 1.0f );
+		s_PerSceneConstants.cFogParams.z = 1.0f - clamp( m_ShaderState.fog.m_flFogMaxDensity, 0.0f, 1.0f );
 		s_PerSceneConstants.cFogParams.w = ooFogRange;
-		s_PerSceneConstants.cFogZ = m_TargetShaderState.fog.m_flFogZ;
-		s_PerSceneConstants.cFogColor.x = m_TargetShaderState.fog.m_FogColor[0];
-		s_PerSceneConstants.cFogColor.y = m_TargetShaderState.fog.m_FogColor[1];
-		s_PerSceneConstants.cFogColor.z = m_TargetShaderState.fog.m_FogColor[2];
+		s_PerSceneConstants.cFogZ = m_ShaderState.fog.m_flFogZ;
+		s_PerSceneConstants.cFogColor.x = m_ShaderState.fog.m_FogColor[0];
+		s_PerSceneConstants.cFogColor.y = m_ShaderState.fog.m_FogColor[1];
+		s_PerSceneConstants.cFogColor.z = m_ShaderState.fog.m_FogColor[2];
 		s_PerSceneConstants.cFogColor.w = 1.0f;
-		bChanged = true;
+
+		m_ShaderState.fog.m_bFogChanged = false;
 	}
 
 	//
 	// Skinning
 	//
 
-	if ( true )//bForce || m_ShaderState.bone.IsChanged( m_TargetShaderState.bone ) )
+	if ( bForce || m_ShaderState.bone.m_bBonesChanged )
 	{
 		// Load the model matrix from the matrix stack into the
 		// first bone matrix.
@@ -661,26 +680,30 @@ void CShaderAPIDx11::DoIssueShaderState( bool bForce )
 		// Model matrix is row major, but bone matrices are
 		// stored column major.
 		model = DirectX::XMMatrixTranspose( model );
-		m_TargetShaderState.bone.m_BoneMatrix[0] = model;
-		m_TargetShaderState.bone.m_MaxBoneLoaded++;
-		int matricesLoaded = max( 1, m_TargetShaderState.bone.m_MaxBoneLoaded );
-		m_TargetShaderState.bone.m_MaxBoneLoaded = 0;
+		m_ShaderState.bone.m_BoneMatrix[0] = model;
+		m_ShaderState.bone.m_MaxBoneLoaded++;
+		int matricesLoaded = max( 1, m_ShaderState.bone.m_MaxBoneLoaded );
+		m_ShaderState.bone.m_MaxBoneLoaded = 0;
 
 		// Copy bone matrices into cModel constant
-		memcpy( s_PerModelConstants.cModel, m_TargetShaderState.bone.m_BoneMatrix,
+		memcpy( s_PerModelConstants.cModel, m_ShaderState.bone.m_BoneMatrix,
 			sizeof( DirectX::XMMATRIX ) * matricesLoaded );
 
-		bChanged = true;
+		m_ShaderState.bone.m_bBonesChanged = false;
 	}
 	
 
 	//
 	// Material constants
 	//
-	s_PerMaterialConstants.cModulationColor = DirectX::XMFLOAT4( m_TargetShaderState.m_ConstantColor[0],
-								     m_TargetShaderState.m_ConstantColor[1],
-								     m_TargetShaderState.m_ConstantColor[2],
-								     m_TargetShaderState.m_ConstantColor[3] );
+	if ( bForce || m_ShaderState.m_bConstantColorChanged )
+	{
+		s_PerMaterialConstants.cModulationColor = DirectX::XMFLOAT4( m_ShaderState.m_ConstantColor[0],
+									     m_ShaderState.m_ConstantColor[1],
+									     m_ShaderState.m_ConstantColor[2],
+									     m_ShaderState.m_ConstantColor[3] );
+		m_ShaderState.m_bConstantColorChanged = false;
+	}
 
 	//
 	// Flashlight
@@ -739,11 +762,6 @@ void CShaderAPIDx11::DoIssueShaderState( bool bForce )
 	( (IShaderConstantBuffer *)m_hPerModelConstants )->Update( &s_PerModelConstants );
 	( (IShaderConstantBuffer *)m_hPerFrameConstants )->Update( &s_PerFrameConstants );
 	( (IShaderConstantBuffer *)m_hPerSceneConstants )->Update( &s_PerSceneConstants );
-
-	if ( bChanged )
-	{
-		m_ShaderState = m_TargetShaderState;
-	}
 }
 
 FORCEINLINE static void UploadConstantBuffer( CShaderConstantBufferDx11 *pBuffer )
@@ -1685,67 +1703,75 @@ void CShaderAPIDx11::UseSnapshot( StateSnapshot_t snapshot )
 // Sets the color to modulate by
 void CShaderAPIDx11::Color3f( float r, float g, float b )
 {
-	m_TargetShaderState.m_ConstantColor[0] = r;
-	m_TargetShaderState.m_ConstantColor[1] = g;
-	m_TargetShaderState.m_ConstantColor[2] = b;
-	m_TargetShaderState.m_ConstantColor[3] = 1.0f;
+	m_ShaderState.m_ConstantColor[0] = r;
+	m_ShaderState.m_ConstantColor[1] = g;
+	m_ShaderState.m_ConstantColor[2] = b;
+	m_ShaderState.m_ConstantColor[3] = 1.0f;
+	m_ShaderState.m_bConstantColorChanged = true;
 }
 
 void CShaderAPIDx11::Color3fv( float const *pColor )
 {
-	m_TargetShaderState.m_ConstantColor[0] = pColor[0];
-	m_TargetShaderState.m_ConstantColor[1] = pColor[1];
-	m_TargetShaderState.m_ConstantColor[2] = pColor[2];
-	m_TargetShaderState.m_ConstantColor[3] = 1.0f;
+	m_ShaderState.m_ConstantColor[0] = pColor[0];
+	m_ShaderState.m_ConstantColor[1] = pColor[1];
+	m_ShaderState.m_ConstantColor[2] = pColor[2];
+	m_ShaderState.m_ConstantColor[3] = 1.0f;
+	m_ShaderState.m_bConstantColorChanged = true;
 }
 
 void CShaderAPIDx11::Color4f( float r, float g, float b, float a )
 {
-	m_TargetShaderState.m_ConstantColor[0] = r;
-	m_TargetShaderState.m_ConstantColor[1] = g;
-	m_TargetShaderState.m_ConstantColor[2] = b;
-	m_TargetShaderState.m_ConstantColor[3] = a;
+	m_ShaderState.m_ConstantColor[0] = r;
+	m_ShaderState.m_ConstantColor[1] = g;
+	m_ShaderState.m_ConstantColor[2] = b;
+	m_ShaderState.m_ConstantColor[3] = a;
+	m_ShaderState.m_bConstantColorChanged = true;
 }
 
 void CShaderAPIDx11::Color4fv( float const *pColor )
 {
-	m_TargetShaderState.m_ConstantColor[0] = pColor[0];
-	m_TargetShaderState.m_ConstantColor[1] = pColor[1];
-	m_TargetShaderState.m_ConstantColor[2] = pColor[2];
-	m_TargetShaderState.m_ConstantColor[3] = pColor[3];
+	m_ShaderState.m_ConstantColor[0] = pColor[0];
+	m_ShaderState.m_ConstantColor[1] = pColor[1];
+	m_ShaderState.m_ConstantColor[2] = pColor[2];
+	m_ShaderState.m_ConstantColor[3] = pColor[3];
+	m_ShaderState.m_bConstantColorChanged = true;
 }
 
 // Faster versions of color
 void CShaderAPIDx11::Color3ub( unsigned char r, unsigned char g, unsigned char b )
 {
-	m_TargetShaderState.m_ConstantColor[0] = r / 255.0f;
-	m_TargetShaderState.m_ConstantColor[1] = g / 255.0f;
-	m_TargetShaderState.m_ConstantColor[2] = b / 255.0f;
-	m_TargetShaderState.m_ConstantColor[3] = 1.0f;
+	m_ShaderState.m_ConstantColor[0] = r / 255.0f;
+	m_ShaderState.m_ConstantColor[1] = g / 255.0f;
+	m_ShaderState.m_ConstantColor[2] = b / 255.0f;
+	m_ShaderState.m_ConstantColor[3] = 1.0f;
+	m_ShaderState.m_bConstantColorChanged = true;
 }
 
 void CShaderAPIDx11::Color3ubv( unsigned char const *rgb )
 {
-	m_TargetShaderState.m_ConstantColor[0] = rgb[0] / 255.0f;
-	m_TargetShaderState.m_ConstantColor[1] = rgb[1] / 255.0f;
-	m_TargetShaderState.m_ConstantColor[2] = rgb[2] / 255.0f;
-	m_TargetShaderState.m_ConstantColor[3] = 1.0f;
+	m_ShaderState.m_ConstantColor[0] = rgb[0] / 255.0f;
+	m_ShaderState.m_ConstantColor[1] = rgb[1] / 255.0f;
+	m_ShaderState.m_ConstantColor[2] = rgb[2] / 255.0f;
+	m_ShaderState.m_ConstantColor[3] = 1.0f;
+	m_ShaderState.m_bConstantColorChanged = true;
 }
 
 void CShaderAPIDx11::Color4ub( unsigned char r, unsigned char g, unsigned char b, unsigned char a )
 {
-	m_TargetShaderState.m_ConstantColor[0] = r / 255.0f;
-	m_TargetShaderState.m_ConstantColor[1] = g / 255.0f;
-	m_TargetShaderState.m_ConstantColor[2] = b / 255.0f;
-	m_TargetShaderState.m_ConstantColor[3] = a / 255.0f;
+	m_ShaderState.m_ConstantColor[0] = r / 255.0f;
+	m_ShaderState.m_ConstantColor[1] = g / 255.0f;
+	m_ShaderState.m_ConstantColor[2] = b / 255.0f;
+	m_ShaderState.m_ConstantColor[3] = a / 255.0f;
+	m_ShaderState.m_bConstantColorChanged = true;
 }
 
 void CShaderAPIDx11::Color4ubv( unsigned char const *rgba )
 {
-	m_TargetShaderState.m_ConstantColor[0] = rgba[0] / 255.0f;
-	m_TargetShaderState.m_ConstantColor[1] = rgba[1] / 255.0f;
-	m_TargetShaderState.m_ConstantColor[2] = rgba[2] / 255.0f;
-	m_TargetShaderState.m_ConstantColor[3] = rgba[3] / 255.0f;
+	m_ShaderState.m_ConstantColor[0] = rgba[0] / 255.0f;
+	m_ShaderState.m_ConstantColor[1] = rgba[1] / 255.0f;
+	m_ShaderState.m_ConstantColor[2] = rgba[2] / 255.0f;
+	m_ShaderState.m_ConstantColor[3] = rgba[3] / 255.0f;
+	m_ShaderState.m_bConstantColorChanged = true;
 }
 
 void CShaderAPIDx11::GetStandardTextureDimensions( int *pWidth, int *pHeight, StandardTextureId_t id )
@@ -1833,15 +1859,20 @@ void CShaderAPIDx11::SetLight( int lightNum, const LightDesc_t &desc )
 {
 	LOCK_SHADERAPI();
 
-	m_TargetShaderState.light.m_Lights[lightNum] = desc;
-	
+	//if ( memcmp( &desc, &m_ShaderState.light.m_Lights[lightNum], sizeof( LightDesc_t ) ) )
+	//{
+		m_ShaderState.light.m_Lights[lightNum] = desc;
+		SortLights();
+		m_ShaderState.light.m_bLightChanged = true;
+	//}
 }
 
 void CShaderAPIDx11::SetAmbientLightCube( Vector4D cube[6] )
 {
 	LOCK_SHADERAPI();
 
-	memcpy( m_TargetShaderState.light.m_AmbientLightCube, cube, 6 * sizeof( Vector4D ) );
+	memcpy( m_ShaderState.light.m_AmbientLightCube, cube, 6 * sizeof( Vector4D ) );
+	m_ShaderState.light.m_bAmbientChanged = true;
 }
 
 // Get lights
@@ -1852,7 +1883,45 @@ int CShaderAPIDx11::GetMaxLights( void ) const
 
 const LightDesc_t &CShaderAPIDx11::GetLight( int lightNum ) const
 {
-	return m_TargetShaderState.light.m_Lights[lightNum];
+	return m_ShaderState.light.m_Lights[lightNum];
+}
+
+int CShaderAPIDx11::GetCurrentLightCombo( void ) const
+{
+	// UNUSED
+	return 0;
+}
+
+void CShaderAPIDx11::DisableAllLocalLights()
+{
+	LOCK_SHADERAPI();
+	bool bFlushed = false;
+	for ( int lightNum = 0; lightNum < MAX_NUM_LIGHTS; lightNum++ )
+	{
+		if ( m_ShaderState.light.m_Lights[lightNum].m_Type != MATERIAL_LIGHT_DISABLE )
+		{
+			if ( !bFlushed )
+			{
+				FlushBufferedPrimitives();
+				bFlushed = true;
+			}
+			m_ShaderState.light.m_Lights[lightNum].m_Type = MATERIAL_LIGHT_DISABLE;
+			m_ShaderState.light.m_bLightChanged = true;
+		}
+	}
+}
+
+float CShaderAPIDx11::GetAmbientLightCubeLuminance( void )
+{
+	Vector4DAligned vLuminance( 0.3f, 0.59f, 0.11f, 0.0f );
+	float fLuminance = 0.0f;
+
+	for ( int i = 0; i < 6; i++ )
+	{
+		fLuminance += vLuminance.Dot( m_ShaderState.light.m_AmbientLightCube[i].Base() );
+	}
+
+	return fLuminance / 6.0f;
 }
 
 void CShaderAPIDx11::SetSkinningMatrices()
@@ -1974,18 +2043,23 @@ bool CShaderAPIDx11::MatrixIsChanging()
 
 void CShaderAPIDx11::HandleMatrixModified()
 {
-	m_TargetShaderState.m_ChangedMatrices[m_MatrixMode] = true;
+	m_ShaderState.m_ChangedMatrices[m_MatrixMode] = true;
+	if ( m_MatrixMode == MATERIAL_MODEL )
+	{
+		// The model matrix is also the first bone matrix
+		m_ShaderState.bone.m_bBonesChanged = true;
+	}
 }
 
 DirectX::XMMATRIX &CShaderAPIDx11::GetMatrix( MaterialMatrixMode_t mode )
 {
-	CUtlStack<StatesDx11::MatrixItem_t> &curStack = m_TargetShaderState.m_MatrixStacks[mode];
+	CUtlStack<StatesDx11::MatrixItem_t> &curStack = m_ShaderState.m_MatrixStacks[mode];
 	if ( !curStack.Count() )
 	{
 		return DirectX::XMMatrixIdentity();
 	}
 
-	return m_TargetShaderState.m_MatrixStacks[mode].Top().m_Matrix;
+	return m_ShaderState.m_MatrixStacks[mode].Top().m_Matrix;
 }
 
 DirectX::XMMATRIX &CShaderAPIDx11::GetCurrentMatrix()
@@ -1995,13 +2069,13 @@ DirectX::XMMATRIX &CShaderAPIDx11::GetCurrentMatrix()
 
 DirectX::XMMATRIX CShaderAPIDx11::GetMatrixCopy( MaterialMatrixMode_t mode ) const
 {
-	const CUtlStack<StatesDx11::MatrixItem_t> &curStack = m_TargetShaderState.m_MatrixStacks[mode];
+	const CUtlStack<StatesDx11::MatrixItem_t> &curStack = m_ShaderState.m_MatrixStacks[mode];
 	if ( !curStack.Count() )
 	{
 		return DirectX::XMMatrixIdentity();
 	}
 
-	return m_TargetShaderState.m_MatrixStacks[mode].Top().m_Matrix;
+	return m_ShaderState.m_MatrixStacks[mode].Top().m_Matrix;
 }
 
 DirectX::XMMATRIX CShaderAPIDx11::GetCurrentMatrixCopy() const
@@ -2011,9 +2085,9 @@ DirectX::XMMATRIX CShaderAPIDx11::GetCurrentMatrixCopy() const
 
 void CShaderAPIDx11::MatrixMode( MaterialMatrixMode_t matrixMode )
 {
-	Assert( m_TargetShaderState.m_MatrixStacks[matrixMode].Count() );
+	Assert( m_ShaderState.m_MatrixStacks[matrixMode].Count() );
 	m_MatrixMode = matrixMode;
-	m_pCurMatrixItem = &m_TargetShaderState.m_MatrixStacks[matrixMode].Top();
+	m_pCurMatrixItem = &m_ShaderState.m_MatrixStacks[matrixMode].Top();
 }
 
 void CShaderAPIDx11::PushMatrix()
@@ -2021,11 +2095,11 @@ void CShaderAPIDx11::PushMatrix()
 	// Does nothing in Dx11
 	//GetCurrentMatrix() = DirectX::XMMatrixTranspose( GetCurrentMatrix() );
 
-	CUtlStack<StatesDx11::MatrixItem_t> &curStack = m_TargetShaderState.m_MatrixStacks[m_MatrixMode];
+	CUtlStack<StatesDx11::MatrixItem_t> &curStack = m_ShaderState.m_MatrixStacks[m_MatrixMode];
 	Assert( curStack.Count() );
-	int iNew = m_TargetShaderState.m_MatrixStacks[m_MatrixMode].Push();
+	int iNew = m_ShaderState.m_MatrixStacks[m_MatrixMode].Push();
 	curStack[iNew] = curStack[iNew - 1];
-	m_pCurMatrixItem = &m_TargetShaderState.m_MatrixStacks[m_MatrixMode].Top();
+	m_pCurMatrixItem = &m_ShaderState.m_MatrixStacks[m_MatrixMode].Top();
 
 	HandleMatrixModified();
 }
@@ -2034,9 +2108,9 @@ void CShaderAPIDx11::PopMatrix()
 {
 	MatrixIsChanging();
 
-	Assert( m_TargetShaderState.m_MatrixStacks[m_MatrixMode].Count() > 1 );
-	m_TargetShaderState.m_MatrixStacks[m_MatrixMode].Pop();
-	m_pCurMatrixItem = &m_TargetShaderState.m_MatrixStacks[m_MatrixMode].Top();
+	Assert( m_ShaderState.m_MatrixStacks[m_MatrixMode].Count() > 1 );
+	m_ShaderState.m_MatrixStacks[m_MatrixMode].Pop();
+	m_pCurMatrixItem = &m_ShaderState.m_MatrixStacks[m_MatrixMode].Top();
 
 	HandleMatrixModified();
 }
@@ -2056,11 +2130,11 @@ void CShaderAPIDx11::LoadBoneMatrix( int boneIndex, const float *m )
 	boneMatrix.Init( *(matrix3x4_t *)m );
 
 	DirectX::XMFLOAT4X4 flt4x4( boneMatrix.Base() );
-	DirectX::XMMATRIX &mat = m_TargetShaderState.bone.m_BoneMatrix[boneIndex];
+	DirectX::XMMATRIX &mat = m_ShaderState.bone.m_BoneMatrix[boneIndex];
 	mat = DirectX::XMLoadFloat4x4( &flt4x4 );
-	if ( boneIndex > m_TargetShaderState.bone.m_MaxBoneLoaded )
+	if ( boneIndex > m_ShaderState.bone.m_MaxBoneLoaded )
 	{
-		m_TargetShaderState.bone.m_MaxBoneLoaded = boneIndex;
+		m_ShaderState.bone.m_MaxBoneLoaded = boneIndex;
 	}
 	if ( boneIndex == 0 )
 	{
@@ -2069,6 +2143,7 @@ void CShaderAPIDx11::LoadBoneMatrix( int boneIndex, const float *m )
 		MatrixTranspose( boneMatrix, transpose );
 		LoadMatrix( transpose.Base() );
 	}
+	m_ShaderState.bone.m_bBonesChanged = true;
 }
 
 void CShaderAPIDx11::MultMatrix( float *m )
@@ -2259,75 +2334,130 @@ void CShaderAPIDx11::ScaleXY( float x, float y )
 // Fog methods...
 void CShaderAPIDx11::FogMode( MaterialFogMode_t fogMode )
 {
-	m_TargetShaderState.fog.m_FogMode = fogMode;
+	if ( fogMode != m_ShaderState.fog.m_FogMode )
+	{
+		m_ShaderState.fog.m_FogMode = fogMode;
+		m_ShaderState.fog.m_bFogChanged = true;
+	}
 }
 
 void CShaderAPIDx11::FogStart( float fStart )
 {
-	m_TargetShaderState.fog.m_flFogStart = fStart;
+	if ( fStart != m_ShaderState.fog.m_flFogStart )
+	{
+		m_ShaderState.fog.m_flFogStart = fStart;
+		m_ShaderState.fog.m_bFogChanged = true;
+	}
 }
 
 void CShaderAPIDx11::FogEnd( float fEnd )
 {
-	m_TargetShaderState.fog.m_flFogStart = fEnd;
+	if ( m_ShaderState.fog.m_flFogEnd != fEnd )
+	{
+		m_ShaderState.fog.m_flFogStart = fEnd;
+		m_ShaderState.fog.m_bFogChanged = true;
+	}
 }
 
 void CShaderAPIDx11::SetFogZ( float fogZ )
 {
-	m_TargetShaderState.fog.m_flFogZ = fogZ;
+	if ( m_ShaderState.fog.m_flFogZ != fogZ )
+	{
+		m_ShaderState.fog.m_flFogZ = fogZ;
+		m_ShaderState.fog.m_bFogChanged = true;
+	}
 }
 
 void CShaderAPIDx11::FogMaxDensity( float flMaxDensity )
 {
-	m_TargetShaderState.fog.m_flFogMaxDensity = flMaxDensity;
+	if ( m_ShaderState.fog.m_flFogMaxDensity != flMaxDensity )
+	{
+		m_ShaderState.fog.m_flFogMaxDensity = flMaxDensity;
+		m_ShaderState.fog.m_bFogChanged = true;
+	}
 }
 
 void CShaderAPIDx11::GetFogDistances( float *fStart, float *fEnd, float *fFogZ )
 {
-	*fStart = m_TargetShaderState.fog.m_flFogStart;
-	*fEnd = m_TargetShaderState.fog.m_flFogEnd;
-	*fFogZ = m_TargetShaderState.fog.m_flFogZ;
+	*fStart = m_ShaderState.fog.m_flFogStart;
+	*fEnd = m_ShaderState.fog.m_flFogEnd;
+	*fFogZ = m_ShaderState.fog.m_flFogZ;
 }
 
 void CShaderAPIDx11::SceneFogColor3ub( unsigned char r, unsigned char g, unsigned char b )
 {
+	m_ShaderState.fog.m_FogColor[0] = r / 255.0f;
+	m_ShaderState.fog.m_FogColor[1] = g / 255.0f;
+	m_ShaderState.fog.m_FogColor[2] = b / 255.0f;
+	m_ShaderState.fog.m_bFogChanged = true;
 }
 
 void CShaderAPIDx11::SceneFogMode( MaterialFogMode_t fogMode )
 {
+	if ( fogMode != m_ShaderState.fog.m_FogMode )
+	{
+		m_ShaderState.fog.m_FogMode = fogMode;
+		m_ShaderState.fog.m_bFogChanged = true;
+	}	
 }
 
 void CShaderAPIDx11::GetSceneFogColor( unsigned char *rgb )
 {
-	rgb[0] = 0;
-	rgb[1] = 0;
-	rgb[2] = 0;
+	rgb[0] = (unsigned char)( m_ShaderState.fog.m_FogColor[0] * 255 );
+	rgb[1] = (unsigned char)( m_ShaderState.fog.m_FogColor[1] * 255 );
+	rgb[2] = (unsigned char)( m_ShaderState.fog.m_FogColor[2] * 255 );
 }
 
+// Sigh... I don't understand why there's two different fog settings
 MaterialFogMode_t CShaderAPIDx11::GetSceneFogMode()
 {
-	return MATERIAL_FOG_NONE;
+	return m_ShaderState.fog.m_FogMode;
 }
 
 int CShaderAPIDx11::GetPixelFogCombo()
 {
-	return 0; //FIXME
+	if ( m_ShaderState.fog.m_FogMode != MATERIAL_FOG_NONE )
+		return m_ShaderState.fog.m_FogMode - 1;
+	else
+		return MATERIAL_FOG_NONE;
 }
 
 void CShaderAPIDx11::FogColor3f( float r, float g, float b )
 {
+	m_ShaderState.fog.m_FogColor[0] = r;
+	m_ShaderState.fog.m_FogColor[1] = g;
+	m_ShaderState.fog.m_FogColor[2] = b;
+	m_ShaderState.fog.m_bFogChanged = true;
 }
 
 void CShaderAPIDx11::FogColor3fv( float const *rgb )
 {
+	m_ShaderState.fog.m_FogColor[0] = rgb[0];
+	m_ShaderState.fog.m_FogColor[1] = rgb[1];
+	m_ShaderState.fog.m_FogColor[2] = rgb[2];
+	m_ShaderState.fog.m_bFogChanged = true;
 }
 
 void CShaderAPIDx11::FogColor3ub( unsigned char r, unsigned char g, unsigned char b )
 {
+	m_ShaderState.fog.m_FogColor[0] = r / 255.0f;
+	m_ShaderState.fog.m_FogColor[1] = g / 255.0f;
+	m_ShaderState.fog.m_FogColor[2] = b / 255.0f;
+	m_ShaderState.fog.m_bFogChanged = true;
 }
 
 void CShaderAPIDx11::FogColor3ubv( unsigned char const *rgb )
 {
+	m_ShaderState.fog.m_FogColor[0] = rgb[0] / 255.0f;
+	m_ShaderState.fog.m_FogColor[1] = rgb[1] / 255.0f;
+	m_ShaderState.fog.m_FogColor[2] = rgb[2] / 255.0f;
+	m_ShaderState.fog.m_bFogChanged = true;
+}
+
+// KMS
+MaterialFogMode_t CShaderAPIDx11::GetCurrentFogType( void ) const
+{
+	return m_ShaderState.fog.m_FogMode;
 }
 
 // Sets the *dynamic* vertex and pixel shaders
@@ -2346,12 +2476,12 @@ void CShaderAPIDx11::SetPixelShaderIndex( int pshIndex )
 // Returns the nearest supported format
 ImageFormat CShaderAPIDx11::GetNearestSupportedFormat( ImageFormat fmt ) const
 {
-	return fmt;
+	return CTextureDx11::GetClosestSupportedImageFormatForD3D11( fmt );
 }
 
 ImageFormat CShaderAPIDx11::GetNearestRenderTargetFormat( ImageFormat fmt ) const
 {
-	return fmt;
+	return CTextureDx11::GetClosestSupportedImageFormatForD3D11( fmt );
 }
 
 // Sets the texture state
@@ -2861,10 +2991,11 @@ void CShaderAPIDx11::FlushHardware()
 void CShaderAPIDx11::SetNumBoneWeights( int numBones )
 {
 	LOCK_SHADERAPI();
-	if ( m_TargetShaderState.bone.m_NumBones != numBones )
+	if ( m_ShaderState.bone.m_NumBones != numBones )
 	{
 		FlushBufferedPrimitives();
-		m_TargetShaderState.bone.m_NumBones = numBones;
+		m_ShaderState.bone.m_NumBones = numBones;
+		m_ShaderState.bone.m_bBonesChanged = true;
 	}
 }
 
@@ -3023,7 +3154,7 @@ void CShaderAPIDx11::EnableFastClip( bool bEnable )
 
 int CShaderAPIDx11::GetCurrentNumBones( void ) const
 {
-	return m_TargetShaderState.bone.m_NumBones;
+	return m_ShaderState.bone.m_NumBones;
 }
 
 // Is hardware morphing enabled?
@@ -3032,19 +3163,9 @@ bool CShaderAPIDx11::IsHWMorphingEnabled() const
 	return false;
 }
 
-int CShaderAPIDx11::GetCurrentLightCombo( void ) const
-{
-	return 0;
-}
-
 int CShaderAPIDx11::MapLightComboToPSLightCombo( int nLightCombo ) const
 {
 	return 0;
-}
-
-MaterialFogMode_t CShaderAPIDx11::GetCurrentFogType( void ) const
-{
-	return MATERIAL_FOG_NONE;
 }
 
 void CShaderAPIDx11::RecordString( const char *pStr )
@@ -3362,7 +3483,7 @@ void CShaderAPIDx11::ExecuteCommandBuffer( uint8 *pCmdBuf )
 bool CShaderAPIDx11::ShouldWriteDepthToDestAlpha() const
 {
 	return IsPC() && g_pHardwareConfig->SupportsPixelShaders_2_b() &&
-		( m_TargetShaderState.fog.m_FogMode != MATERIAL_FOG_LINEAR_BELOW_FOG_Z ) &&
+		( m_ShaderState.fog.m_FogMode != MATERIAL_FOG_LINEAR_BELOW_FOG_Z ) &&
 		( GetIntRenderingParameter( INT_RENDERPARM_WRITE_DEPTH_TO_DESTALPHA ) != 0 );
 }
 
@@ -3412,24 +3533,24 @@ const FlashlightState_t &CShaderAPIDx11::GetFlashlightStateEx( VMatrix &worldToT
 void CShaderAPIDx11::GetDX9LightState( LightState_t *state ) const
 {
 	// hack . . do this a cheaper way.
-	if ( m_TargetShaderState.light.m_AmbientLightCube[0][0] == 0.0f &&
-	     m_TargetShaderState.light.m_AmbientLightCube[0][1] == 0.0f &&
-	     m_TargetShaderState.light.m_AmbientLightCube[0][2] == 0.0f &&
-	     m_TargetShaderState.light.m_AmbientLightCube[1][0] == 0.0f &&
-	     m_TargetShaderState.light.m_AmbientLightCube[1][1] == 0.0f &&
-	     m_TargetShaderState.light.m_AmbientLightCube[1][2] == 0.0f &&
-	     m_TargetShaderState.light.m_AmbientLightCube[2][0] == 0.0f &&
-	     m_TargetShaderState.light.m_AmbientLightCube[2][1] == 0.0f &&
-	     m_TargetShaderState.light.m_AmbientLightCube[2][2] == 0.0f &&
-	     m_TargetShaderState.light.m_AmbientLightCube[3][0] == 0.0f &&
-	     m_TargetShaderState.light.m_AmbientLightCube[3][1] == 0.0f &&
-	     m_TargetShaderState.light.m_AmbientLightCube[3][2] == 0.0f &&
-	     m_TargetShaderState.light.m_AmbientLightCube[4][0] == 0.0f &&
-	     m_TargetShaderState.light.m_AmbientLightCube[4][1] == 0.0f &&
-	     m_TargetShaderState.light.m_AmbientLightCube[4][2] == 0.0f &&
-	     m_TargetShaderState.light.m_AmbientLightCube[5][0] == 0.0f &&
-	     m_TargetShaderState.light.m_AmbientLightCube[5][1] == 0.0f &&
-	     m_TargetShaderState.light.m_AmbientLightCube[5][2] == 0.0f )
+	if ( m_ShaderState.light.m_AmbientLightCube[0][0] == 0.0f &&
+	     m_ShaderState.light.m_AmbientLightCube[0][1] == 0.0f &&
+	     m_ShaderState.light.m_AmbientLightCube[0][2] == 0.0f &&
+	     m_ShaderState.light.m_AmbientLightCube[1][0] == 0.0f &&
+	     m_ShaderState.light.m_AmbientLightCube[1][1] == 0.0f &&
+	     m_ShaderState.light.m_AmbientLightCube[1][2] == 0.0f &&
+	     m_ShaderState.light.m_AmbientLightCube[2][0] == 0.0f &&
+	     m_ShaderState.light.m_AmbientLightCube[2][1] == 0.0f &&
+	     m_ShaderState.light.m_AmbientLightCube[2][2] == 0.0f &&
+	     m_ShaderState.light.m_AmbientLightCube[3][0] == 0.0f &&
+	     m_ShaderState.light.m_AmbientLightCube[3][1] == 0.0f &&
+	     m_ShaderState.light.m_AmbientLightCube[3][2] == 0.0f &&
+	     m_ShaderState.light.m_AmbientLightCube[4][0] == 0.0f &&
+	     m_ShaderState.light.m_AmbientLightCube[4][1] == 0.0f &&
+	     m_ShaderState.light.m_AmbientLightCube[4][2] == 0.0f &&
+	     m_ShaderState.light.m_AmbientLightCube[5][0] == 0.0f &&
+	     m_ShaderState.light.m_AmbientLightCube[5][1] == 0.0f &&
+	     m_ShaderState.light.m_AmbientLightCube[5][2] == 0.0f )
 	{
 		state->m_bAmbientLight = false;
 	}
@@ -3439,18 +3560,18 @@ void CShaderAPIDx11::GetDX9LightState( LightState_t *state ) const
 	}
 
 	Assert( m_pMesh );
-	Assert( m_TargetShaderState.light.m_NumLights <= 4 );
+	Assert( m_ShaderState.light.m_NumLights <= 4 );
 
 	if ( g_pHardwareConfig->SupportsPixelShaders_2_b() )
 	{
-		Assert( m_TargetShaderState.light.m_NumLights <= MAX_LIGHTS );		// 2b hardware gets four lights
+		Assert( m_ShaderState.light.m_NumLights <= MAX_LIGHTS );		// 2b hardware gets four lights
 	}
 	else
 	{
-		Assert( m_TargetShaderState.light.m_NumLights <= ( MAX_LIGHTS - 2 ) );	// 2.0 hardware gets two less
+		Assert( m_ShaderState.light.m_NumLights <= ( MAX_LIGHTS - 2 ) );	// 2.0 hardware gets two less
 	}
 
-	state->m_nNumLights = m_TargetShaderState.light.m_NumLights;
+	state->m_nNumLights = m_ShaderState.light.m_NumLights;
 	state->m_bStaticLight = m_pMesh->HasColorMesh();
 }
 
@@ -3534,6 +3655,16 @@ void CShaderAPIDx11::SetPixelShaderConstant( int var, float const *pVec, int num
 
 void CShaderAPIDx11::SetPixelShaderFogParams( int psReg )
 {
+}
+
+bool CShaderAPIDx11::InFlashlightMode() const
+{
+	return ShaderUtil()->InFlashlightMode();
+}
+
+bool CShaderAPIDx11::InEditorMode() const
+{
+	return ShaderUtil()->InEditorMode();
 }
 
 void CShaderAPIDx11::InvalidateDelayedShaderConstants( void )

@@ -1819,8 +1819,8 @@ bool CMeshDX11::SetRenderState( int nVertexOffsetInBytes, int nFirstVertexIdx, V
 	if ( HasColorMesh() )
 	{
 		g_pShaderAPIDx11->BindVertexBuffer( 1, m_pColorMesh->GetVertexBuffer(), m_nColorMeshVertOffsetInBytes,
-						    nFirstVertexIdx, m_pColorMesh->GetVertexBuffer()->VertexCount(),
-						    m_pColorMesh->GetVertexFormat() );
+						    nFirstVertexIdx, m_NumVertices,
+						    GetVertexFormat() );
 	}
 
 	// Bind flex vertex buffer
@@ -1833,7 +1833,7 @@ bool CMeshDX11::SetRenderState( int nVertexOffsetInBytes, int nFirstVertexIdx, V
 	bool bUsingVertexId = IsUsingVertexID();
 	if ( bUsingVertexId )
 	{
-		g_pShaderAPIDx11->BindVertexBuffer( 3, g_MeshMgr.GetVertexIDBuffer(), 0, 0, 0, g_MeshMgr.GetVertexIDBuffer()->GetVertexFormat() );
+		g_pShaderAPIDx11->BindVertexBuffer( 3, g_MeshMgr.GetVertexIDBuffer(), 0, 0, 0, GetVertexFormat() );
 	}
 	
 	Assert( m_pIndexBuffer );

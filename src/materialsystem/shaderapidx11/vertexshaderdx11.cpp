@@ -69,9 +69,6 @@
 
 //#define PROFILE_SHADER_CREATE
 
-//#define NO_AMBIENT_CUBE
-#define MAX_BONES 3
-
 // debugging aid
 #define MAX_SHADER_HISTORY	16
 
@@ -1290,13 +1287,14 @@ retry_compile:
 	hr = D3DCompileFromFile( wfilename, macros.Base(), &dxInclude /* LPD3DXINCLUDE */,
 		"main",	pShaderModel, 0 /* DWORD Flags */, 0, 	&pShader, &pErrorMessages/*, NULL LPD3DXCONSTANTTABLE *ppConstantTable */ );
 
-	if ( hr != S_OK )
+	if ( hr != S_OK && pErrorMessages )
 	{
-		//const char *pErrorMessageString = ( const char * )pErrorMessages->GetBufferPointer();
-		//Plat_DebugString( pErrorMessageString );
-		Plat_DebugString( "\n" );
+		Warning( "Failed to compile shader %s:\n", filename );
+		const char *pErrorMessageString = ( const char * )pErrorMessages->GetBufferPointer();
+		Warning( pErrorMessageString );
+		Warning( "\n" );
 
-#ifndef _DEBUG
+#if 0//#ifndef _DEBUG
 		if ( retriesLeft-- > 0 )
 		{
 			DevMsg( 0, "Failed dynamic shader compiled - fix the shader while the debugger is at the breakpoint, then continue\n" );

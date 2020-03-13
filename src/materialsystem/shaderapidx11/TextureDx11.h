@@ -110,6 +110,8 @@ public:
 
 	ImageFormat GetImageFormat( DXGI_FORMAT d3dFormat ) const;
 
+	static ImageFormat GetClosestSupportedImageFormatForD3D11( ImageFormat srcFormat );
+
 private:
 	ID3D11Resource *CreateD3DTexture( int width, int height, int nDepth,
 					  ImageFormat dstFormat, int numLevels, int nCreationFlags );

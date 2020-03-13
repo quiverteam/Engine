@@ -360,28 +360,17 @@ namespace StatesDx11
 		float m_flFogMaxDensity;
 		float m_FogColor[3];
 
-		bool IsChanged( const FogState &other ) const
-		{
-			return memcmp( this, &other, sizeof( FogState ) );
-		}
+		bool m_bFogChanged;
 	};
 
 	struct LightState
 	{
 		LightDesc_t m_Lights[MAX_NUM_LIGHTS];
 		int m_NumLights;
+		bool m_bLightChanged;
 
-		Vector4D m_AmbientLightCube[6];
-
-		bool IsLightChanged( const LightState &other ) const
-		{
-			return memcmp( m_Lights, other.m_Lights, sizeof( LightDesc_t ) * MAX_NUM_LIGHTS );
-		}
-
-		bool IsAmbientChanged( const LightState &other ) const
-		{
-			return memcmp( m_AmbientLightCube, other.m_AmbientLightCube, sizeof( Vector4D ) * 6 );
-		}
+		VectorAligned m_AmbientLightCube[6];
+		bool m_bAmbientChanged;
 	};
 
 	struct BoneState
@@ -390,13 +379,7 @@ namespace StatesDx11
 		int m_MaxBoneLoaded;
 		int m_NumBones;
 
-		bool IsChanged( const BoneState &other ) const
-		{
-			if ( m_NumBones != other.m_NumBones )
-				return true;
-
-			return memcmp( m_BoneMatrix, other.m_BoneMatrix, sizeof( DirectX::XMMATRIX ) * NUM_MODEL_TRANSFORMS ) != 0;
-		}
+		bool m_bBonesChanged;
 	};
 
 	// State that is set through constant buffers and used
@@ -408,6 +391,7 @@ namespace StatesDx11
 		BoneState bone;
 
 		Vector4D m_ConstantColor;
+		bool m_bConstantColorChanged;
 
 		CUtlStack<MatrixItem_t> m_MatrixStacks[NUM_MATRIX_MODES];
 		bool m_ChangedMatrices[NUM_MATRIX_MODES];
@@ -434,11 +418,14 @@ namespace StatesDx11
 					bone.m_BoneMatrix[i]
 				);
 			}
+			bone.m_bBonesChanged = true;
 
 			for ( int i = 0; i < MAX_NUM_LIGHTS; i++ )
 			{
 				light.m_Lights[i].m_Type = MATERIAL_LIGHT_DISABLE;
 			}
+			light.m_bLightChanged = true;
+			light.m_bAmbientChanged = true;
 
 			for ( int i = 0; i < NUM_MATRIX_MODES; i++ )
 			{
