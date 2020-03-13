@@ -619,57 +619,6 @@ float3 AmbientLight( const float3 worldNormal )
 	return linearColor;
 }
 
-// The following "internal" routines are called "privately" by other routines in this file which
-// handle the particular flavor of vs20 control flow appropriate to the original caller
-float VertexAttenInternal( const float3 worldPos, int lightNum )
-{
-	float result = 0.0f;
-
-	// Get light direction
-	float3 lightDir = cLightInfo[lightNum].pos - worldPos;
-
-	// Get light distance squared.
-	float lightDistSquared = dot( lightDir, lightDir );
-
-	// Get 1/lightDistance
-	float ooLightDist = rsqrt( lightDistSquared );
-
-	// Normalize light direction
-	lightDir *= ooLightDist;
-
-	float3 vDist;
-#	if defined( _X360 )
-	{
-		//X360 dynamic compile hits an internal compiler error using dst(), this is the breakdown of how dst() works from the 360 docs.
-		vDist.x = 1;
-		vDist.y = lightDistSquared * ooLightDist;
-		vDist.z = lightDistSquared;
-		//flDist.w = ooLightDist;
-	}
-#	else
-	{
-		vDist = dst( lightDistSquared, ooLightDist );
-	}
-#	endif
-
-	float flDistanceAtten = 1.0f / dot( cLightInfo[lightNum].atten.xyz, vDist );
-
-	// Spot attenuation
-	float flCosTheta = dot( cLightInfo[lightNum].dir.xyz, -lightDir );
-	float flSpotAtten = (flCosTheta - cLightInfo[lightNum].spotParams.z) * cLightInfo[lightNum].spotParams.w;
-	flSpotAtten = max( 0.0001f, flSpotAtten );
-	flSpotAtten = pow( flSpotAtten, cLightInfo[lightNum].spotParams.x );
-	flSpotAtten = saturate( flSpotAtten );
-
-	// Select between point and spot
-	float flAtten = lerp( flDistanceAtten, flDistanceAtten * flSpotAtten, cLightInfo[lightNum].dir.w );
-
-	// Select between above and directional (no attenuation)
-	result = lerp( flAtten, 1.0f, cLightInfo[lightNum].color.w );
-
-	return result;
-}
-
 float CosineTermInternal( const float3 worldPos, const float3 worldNormal, int lightNum, bool bHalfLambert )
 {
 	// Calculate light direction assuming this is a point or spot
@@ -694,18 +643,6 @@ float CosineTermInternal( const float3 worldPos, const float3 worldNormal, int l
 }
 
 // This routine uses booleans to do early-outs and is meant to be called by routines OUTSIDE of this file
-float GetVertexAttenForLight( const float3 worldPos, int lightNum )
-{
-	float result = 0.0f;
-	if ( cLightEnabled[lightNum] )
-	{
-		result = VertexAttenInternal( worldPos, lightNum );
-	}
-
-	return result;
-}
-
-// This routine uses booleans to do early-outs and is meant to be called by routines OUTSIDE of this file
 float CosineTerm( const float3 worldPos, const float3 worldNormal, int lightNum, bool bHalfLambert )
 {
 	float flResult = 0.0f;
@@ -722,7 +659,7 @@ float3 DoLightInternal( const float3 worldPos, const float3 worldNormal, int lig
 {
 	return cLightInfo[lightNum].color *
 		CosineTermInternal( worldPos, worldNormal, lightNum, bHalfLambert ) *
-		VertexAttenInternal( worldPos, lightNum );
+		LightAttenInternal( worldPos, lightNum, cLightInfo );
 }
 
 

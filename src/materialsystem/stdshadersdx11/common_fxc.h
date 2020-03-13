@@ -11,6 +11,7 @@
 #include "common_pragmas.h"
 #include "common_hlsl_cpp_consts.h"
 #include "shader_register_map.h"
+#include "lightinfo_fxc.h"
 
 #ifdef NV3X
 #	define HALF half
@@ -231,6 +232,61 @@ float3 Vec3TangentToWorld( float3 iTangentVector, float3 iWorldNormal, float3 iW
 float3 Vec3TangentToWorldNormalized( float3 iTangentVector, float3 iWorldNormal, float3 iWorldTangent, float3 iWorldBinormal )
 {
 	return normalize( Vec3TangentToWorld( iTangentVector, iWorldNormal, iWorldTangent, iWorldBinormal ) );
+}
+
+//-----------------------------------------------------------------
+// These functions were moved here from common_vs_fxc.h to support
+// full pixel shader lighting.
+//-----------------------------------------------------------------
+
+// The following "internal" routines are called "privately" by other routines in this file which
+// handle the particular flavor of vs20 control flow appropriate to the original caller
+float LightAttenInternal( const float3 worldPos, int lightNum, LightInfo lightInfo[4] )
+{
+	float result = 0.0f;
+
+	// Get light direction
+	float3 lightDir = lightInfo[lightNum].pos - worldPos;
+
+	// Get light distance squared.
+	float lightDistSquared = dot( lightDir, lightDir );
+
+	// Get 1/lightDistance
+	float ooLightDist = rsqrt( lightDistSquared );
+
+	// Normalize light direction
+	lightDir *= ooLightDist;
+
+	float3 vDist = dst( lightDistSquared, ooLightDist );
+
+	float flDistanceAtten = 1.0f / dot( lightInfo[lightNum].atten.xyz, vDist );
+
+	// Spot attenuation
+	float flCosTheta = dot( lightInfo[lightNum].dir.xyz, -lightDir );
+	float flSpotAtten = ( flCosTheta - lightInfo[lightNum].spotParams.z ) * lightInfo[lightNum].spotParams.w;
+	flSpotAtten = max( 0.0001f, flSpotAtten );
+	flSpotAtten = pow( flSpotAtten, lightInfo[lightNum].spotParams.x );
+	flSpotAtten = saturate( flSpotAtten );
+
+	// Select between point and spot
+	float flAtten = lerp( flDistanceAtten, flDistanceAtten * flSpotAtten, lightInfo[lightNum].dir.w );
+
+	// Select between above and directional (no attenuation)
+	result = lerp( flAtten, 1.0f, lightInfo[lightNum].color.w );
+
+	return result;
+}
+
+// This routine uses booleans to do early-outs and is meant to be called by routines OUTSIDE of this file
+float GetAttenForLight( const float3 worldPos, int lightNum, int4 lightEnabled, LightInfo lightInfo[4] )
+{
+	float result = 0.0f;
+	if ( lightEnabled[lightNum] )
+	{
+		result = LightAttenInternal( worldPos, lightNum, lightInfo );
+	}
+
+	return result;
 }
 
 #endif //#ifndef COMMON_FXC_H_

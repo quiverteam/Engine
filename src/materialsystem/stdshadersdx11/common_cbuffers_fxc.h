@@ -2,6 +2,7 @@
 #define COMMON_CBUFFERS_H_
 
 #include "shader_register_map.h"
+#include "lightinfo_fxc.h"
 
 #define CBUFFER_PERMATERIAL( reg ) \
 cbuffer PerMaterial_t : reg \
@@ -13,19 +14,6 @@ cbuffer PerMaterial_t : reg \
 	float4 cAlphaTestRef; \
 };
 
-// w components of color and dir indicate light type:
-// 1x - directional
-// 01 - spot
-// 00 - point
-struct LightInfo
-{
-	float4 color;						// {xyz} is color	w is light type code (see comment below)
-	float4 dir;							// {xyz} is dir		w is light type code
-	float4 pos;
-	float4 spotParams;
-	float4 atten;
-};
-
 #define CBUFFER_PERMODEL( reg ) \
 cbuffer PerModel_t : reg \
 { \
@@ -34,10 +22,10 @@ cbuffer PerModel_t : reg \
 	float4x4 cModel[53]; \
 	float4 cFlexWeights[512]; \
 	float4 cFlexScale; \
-	float4 cLightEnabled; \
-	float4 cLightCountRegister; \
-	float4 cAmbientCube[6]; \
+	int4 cLightEnabled; \
+	int4 cLightCountRegister; \
 	LightInfo cLightInfo[4]; \
+	float3 cAmbientCube[6]; \
 };
 
 #define CBUFFER_PERFRAME( reg ) \

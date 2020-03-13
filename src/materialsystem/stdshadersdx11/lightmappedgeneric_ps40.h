@@ -492,7 +492,7 @@ float4 main( PS_INPUT i ) : SV_TARGET
 		fresnel = fresnel * g_OneMinusFresnelReflection + g_FresnelReflection;
 
 		specularLighting = ENV_MAP_SCALE * EnvmapTexture.Sample( EnvmapSampler, reflectVect ).rgb;
-		return float4( specularLighting, 1.0f );
+		//return float4( specularLighting, 1.0f );
 		specularLighting *= specularFactor;
 
 		specularLighting *= g_EnvmapTint.rgb;

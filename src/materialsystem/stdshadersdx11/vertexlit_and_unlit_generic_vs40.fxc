@@ -7,6 +7,7 @@
 //  STATIC: "SEAMLESS_BASE"         	"0..1"
 //  STATIC: "SEAMLESS_DETAIL"       	"0..1"
 //  STATIC: "SEPARATE_DETAIL_UVS"   	"0..1"
+//  STATIC: "BUMPMAP"					"0..1"
 //  STATIC: "DECAL"						"0..1" [vs30] [vs40]
 
 //  DYNAMIC: "COMPRESSED_VERTS"			"0..1"
@@ -43,6 +44,7 @@ static const bool g_bVertexColor	= VERTEXCOLOR ? true : false;
 static const bool g_bCubemap		= CUBEMAP ? true : false;
 static const bool g_bFlashlight		= FLASHLIGHT ? true : false;
 static const bool g_bHalfLambert	= HALFLAMBERT ? true : false;
+static const bool g_bBumpmap		= BUMPMAP ? true : false;
 #if (MORPHING && DECAL)
 static const bool g_bDecalOffset	= true;
 #else
@@ -81,6 +83,15 @@ struct VS_INPUT
 	float4 vTexCoord1		: TEXCOORD1;
 	float4 vTexCoord2		: TEXCOORD2;
 	float4 vTexCoord3		: TEXCOORD3;
+#if STATIC_LIGHT
+	float4 vStaticLight		: STATICLIGHTING;
+#endif
+
+#if BUMPMAP
+	float3 vTangentS		: TANGENT;
+	float3 vTangentT		: BINORMAL;
+	float4 vUserData		: USERDATA;
+#endif
 
 	// Position and normal/tangent deltas
 	float3 vPosFlex			: FLEXDELTA;
@@ -113,7 +124,10 @@ struct VS_OUTPUT
 
 	float3 worldSpaceNormal			: TEXCOORD4;		// Necessary for cubemaps and flashlight
 	float4 worldPos_ProjPosZ		: TEXCOORD5;
-	float4 boneWeights				: TEXCOORD6;
+#if BUMPMAP
+	float4 vWorldTangent			: TEXCOORD6;
+#endif
+	//float4 lightAtten				: TEXCOORD7;
 	float4 fogFactorW				: COLOR1;
 #if SEAMLESS_DETAIL || SEAMLESS_BASE
 	float3 SeamlessWeights          : COLOR0;				// x y z projection weights
@@ -131,11 +145,16 @@ VS_OUTPUT main( const VS_INPUT v )
 
 	float4 vPosition = v.vPos;
 	float3 vNormal = 0;
+#if BUMPMAP
+	float4 vTangent;
+	DecompressVertex_NormalTangent( v.vNormal, v.vUserData, vNormal, vTangent );
+#else
 	if ( bDoLighting || FLASHLIGHT || SEAMLESS_BASE || SEAMLESS_DETAIL || LIGHTING_PREVIEW || g_bDecalOffset || CUBEMAP )
 	{
 		// The vertex only contains valid normals if they are actually needed (fetching them when absent makes D3D complain)
 		DecompressVertex_Normal( v.vNormal, vNormal );
 	}
+#endif	
 
 #if SEAMLESS_BASE || SEAMLESS_DETAIL
 	// compute blend weights in rgb
@@ -144,12 +163,22 @@ VS_OUTPUT main( const VS_INPUT v )
 #endif
 	
 #if !MORPHING
-	ApplyMorph( v.vPosFlex, v.vNormalFlex, vPosition.xyz, vNormal );
+	#if BUMPMAP
+		ApplyMorph( v.vPosFlex, v.vNormalFlex, vPosition.xyz, vNormal, vTangent.xyz );
+	#else
+		ApplyMorph( v.vPosFlex, v.vNormalFlex, vPosition.xyz, vNormal );
+	#endif
 #else
-	ApplyMorph( morphTexture, morphSampler, cMorphTargetTextureDim, cMorphSubrect, 
-		v.vVertexID, v.vTexCoord2, vPosition.xyz, vNormal );
+	#if BUMPMAP
+		ApplyMorph( morphSampler, cMorphTargetTextureDim, cMorphSubrect, 
+			v.vVertexID, v.vTexCoord2, vPosition.xyz, vNormal, vTangent.xyz );
+	#else
+		ApplyMorph( morphTexture, morphSampler, cMorphTargetTextureDim, cMorphSubrect, 
+			v.vVertexID, v.vTexCoord2, vPosition.xyz, vNormal );
+	#endif
 #endif
-	  
+
+#if !BUMPMAP
 	// Perform skinning
 	float3 worldNormal, worldPos;
 	SkinPositionAndNormal( 
@@ -157,13 +186,24 @@ VS_OUTPUT main( const VS_INPUT v )
 		vPosition, vNormal,
 		v.vBoneWeights, v.vBoneIndices,
 		worldPos, worldNormal );
+#else
+	// Perform skinning
+	float3 worldNormal, worldPos, worldTangentS, worldTangentT;
+	SkinPositionNormalAndTangentSpace( g_bSkinning, vPosition, vNormal, vTangent,
+		v.vBoneWeights, v.vBoneIndices, worldPos,
+		worldNormal, worldTangentS, worldTangentT );
+#endif
 
-	o.boneWeights = v.vBoneWeights;
-
-	if ( !g_bVertexColor )
+	if ( !g_bVertexColor || g_bBumpmap )
 	{
 		worldNormal = normalize( worldNormal );
 	}
+
+#if BUMPMAP
+	worldTangentS = normalize( worldTangentS );
+	worldTangentT = normalize( worldTangentT );
+	o.vWorldTangent = float4( worldTangentS.xyz, vTangent.w );	 // Propagate binormal sign in world tangent.w
+#endif
 
 #if MORPHING && DECAL
 	// Avoid z precision errors
@@ -186,18 +226,30 @@ VS_OUTPUT main( const VS_INPUT v )
 
 	// Needed for cubemaps 
 #if CUBEMAP
-	o.worldVertToEyeVector.xyz = VSHADER_VECT_SCALE * (cEyePos - worldPos);
+	o.worldVertToEyeVector.xyz = normalize( cEyePos.xyz - worldPos.xyz );
 #endif
 
 	if ( g_bVertexColor )
 	{
+		//o.lightAtten = float4(0,0,0,0);
 		// Assume that this is unlitgeneric if you are using vertex color.
 		o.color.rgb = GammaToLinear( v.vColor.rgb );
 		o.color.a = v.vColor.a;
 	}
 	else
 	{
-		o.color.xyz = DoLighting( worldPos, worldNormal, v.vSpecular, bStaticLight, bDynamicLight, g_bHalfLambert );
+
+#if STATIC_LIGHT
+		float3 col = v.vStaticLight * cOverbright;
+		o.color = float4( GammaToLinear( col ), v.vColor.a );
+#endif
+		
+		// This moved to the pixel shader.
+		// Scalar light attenuation
+		//o.lightAtten.x = GetAttenForLight( worldPos, 0 );
+		//o.lightAtten.y = GetAttenForLight( worldPos, 1 );
+		//o.lightAtten.z = GetAttenForLight( worldPos, 2 );
+		//o.lightAtten.w = GetAttenForLight( worldPos, 3 );
 	}
 	
 

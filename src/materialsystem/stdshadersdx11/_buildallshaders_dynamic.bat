@@ -48,7 +48,7 @@ rem ====== PATH CONFIGURATIONS ======
 
 rem == Set the absolute path to your mod's game directory here ==
 @REM change this to the core folder (platform atm)
-set GAMEDIR=%cd%\..\..\..\game\mod_hl2
+set GAMEDIR=%cd%\..\..\..\game\hl2
 
 rem == Set the relative or absolute path to the bin folder ==
 set "ENGINEDIR=..\..\..\game"
@@ -74,11 +74,8 @@ REM ****************
 REM BUILD SHADERS
 REM ****************
 echo --------------------------------------------------------------------------------------------
-%BUILD_SHADER% _shaderlist_dx9_20b				-game %GAMEDIR% -source %SOURCEDIR% %dynamic_shaders%
+%BUILD_SHADER% _shaderlist_dx11				    -game %GAMEDIR% -source %SOURCEDIR% %dynamic_shaders% -dx11
 echo --------------------------------------------------------------------------------------------
-%BUILD_SHADER% _shaderlist_dx9_30				-game %GAMEDIR% -source %SOURCEDIR% %dynamic_shaders% -dx9_30 -force30
-echo --------------------------------------------------------------------------------------------
-@REM %BUILD_SHADER% stdshader_dx10			-game %GAMEDIR% -source %SOURCEDIR% %dynamic_shaders% -dx10
 echo.
 
 

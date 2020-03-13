@@ -3,30 +3,6 @@
 
 #include "common_ps_fxc.h"
 
-//  We store four light colors and positions in an
-//  array of three of these structures like so:
-//
-//       x		y		z      w
-//    +------+------+------+------+
-//    |       L0.rgb       |      |
-//    +------+------+------+      |
-//    |       L0.pos       |  L3  |
-//    +------+------+------+  rgb |
-//    |       L1.rgb       |      |
-//    +------+------+------+------+
-//    |       L1.pos       |      |
-//    +------+------+------+      |
-//    |       L2.rgb       |  L3  |
-//    +------+------+------+  pos |
-//    |       L2.pos       |      |
-//    +------+------+------+------+
-//
-struct PixelShaderLightInfo
-{
-	float4 color;
-	float4 pos;
-};
-
 #define cOverbright 2.0f
 #define cOOOverbright 0.5f
 
@@ -135,31 +111,14 @@ float3 PixelShaderDoGeneralDiffuseLight( const float fAtten, const float3 worldP
 					      bDoLightingWarp, lightWarpTexture, lightWarpSampler );
 }
 
-float3 PixelShaderGetLightVector( const float3 worldPos, PixelShaderLightInfo cLightInfo[3], int nLightIndex )
+float3 PixelShaderGetLightVector( const float3 worldPos, LightInfo lightInfo[4], int nLightIndex )
 {
-	if ( nLightIndex == 3 )
-	{
-		// Unpack light 3 from w components...
-		float3 vLight3Pos = float3( cLightInfo[1].pos.w, cLightInfo[2].color.w, cLightInfo[2].pos.w );
-		return normalize( vLight3Pos - worldPos );
-	}
-	else
-	{
-		return normalize( cLightInfo[nLightIndex].pos - worldPos );
-	}
+	return normalize( lightInfo[nLightIndex].pos - worldPos );
 }
 
-float3 PixelShaderGetLightColor( PixelShaderLightInfo cLightInfo[3], int nLightIndex )
+float3 PixelShaderGetLightColor( LightInfo lightInfo[4], int nLightIndex )
 {
-	if ( nLightIndex == 3 )
-	{
-		// Unpack light 3 from w components...
-		return float3( cLightInfo[0].color.w, cLightInfo[0].pos.w, cLightInfo[1].color.w );
-	}
-	else
-	{
-		return cLightInfo[nLightIndex].color.rgb;
-	}
+	return lightInfo[nLightIndex].color.rgb;
 }
 
 
@@ -257,7 +216,7 @@ void PixelShaderDoSpecularLight( const float3 vWorldPos, const float3 vWorldNorm
 float3 PixelShaderDoLightingLinear( const float3 worldPos, const float3 worldNormal,
 				   const float3 staticLightingColor, const bool bStaticLight,
 				   const bool bAmbientLight, const float4 lightAtten, const float3 cAmbientCube[6],
-				   in Texture2D NormalizeTexture, in sampler NormalizeSampler, const int nNumLights, PixelShaderLightInfo cLightInfo[3],
+				   in Texture2D NormalizeTexture, in sampler NormalizeSampler, const int nNumLights, LightInfo lightInfo[4],
 				   const bool bHalfLambert, const bool bDoAmbientOcclusion, const float fAmbientOcclusion,
 				   const bool bDoLightingWarp, in Texture2D lightWarpTexture, in sampler lightWarpSampler )
 {
@@ -284,28 +243,25 @@ float3 PixelShaderDoLightingLinear( const float3 worldPos, const float3 worldNor
 	if ( nNumLights > 0 )
 	{
 		linearColor += PixelShaderDoGeneralDiffuseLight( lightAtten.x, worldPos, worldNormal, NormalizeTexture, NormalizeSampler,
-								 cLightInfo[0].pos, cLightInfo[0].color, bHalfLambert,
+								 lightInfo[0].pos, lightInfo[0].color, bHalfLambert,
 								 bDoAmbientOcclusion, fAmbientOcclusion,
 								 bDoLightingWarp, lightWarpTexture, lightWarpSampler );
 		if ( nNumLights > 1 )
 		{
 			linearColor += PixelShaderDoGeneralDiffuseLight( lightAtten.y, worldPos, worldNormal, NormalizeTexture, NormalizeSampler,
-									 cLightInfo[1].pos, cLightInfo[1].color, bHalfLambert,
+									 lightInfo[1].pos, lightInfo[1].color, bHalfLambert,
 									 bDoAmbientOcclusion, fAmbientOcclusion,
 									 bDoLightingWarp, lightWarpTexture, lightWarpSampler );
 			if ( nNumLights > 2 )
 			{
 				linearColor += PixelShaderDoGeneralDiffuseLight( lightAtten.z, worldPos, worldNormal, NormalizeTexture, NormalizeSampler,
-										 cLightInfo[2].pos, cLightInfo[2].color, bHalfLambert,
+										 lightInfo[2].pos, lightInfo[2].color, bHalfLambert,
 										 bDoAmbientOcclusion, fAmbientOcclusion,
 										 bDoLightingWarp, lightWarpTexture, lightWarpSampler );
 				if ( nNumLights > 3 )
 				{
-					// Unpack the 4th light's data from tight constant packing
-					float3 vLight3Color = float3( cLightInfo[0].color.w, cLightInfo[0].pos.w, cLightInfo[1].color.w );
-					float3 vLight3Pos = float3( cLightInfo[1].pos.w, cLightInfo[2].color.w, cLightInfo[2].pos.w );
 					linearColor += PixelShaderDoGeneralDiffuseLight( lightAtten.w, worldPos, worldNormal, NormalizeTexture, NormalizeSampler,
-											 vLight3Pos, vLight3Color, bHalfLambert,
+											 lightInfo[3].pos, lightInfo[3].color, bHalfLambert,
 											 bDoAmbientOcclusion, fAmbientOcclusion,
 											 bDoLightingWarp, lightWarpTexture, lightWarpSampler );
 				}
@@ -317,7 +273,7 @@ float3 PixelShaderDoLightingLinear( const float3 worldPos, const float3 worldNor
 }
 
 void PixelShaderDoSpecularLighting( const float3 worldPos, const float3 worldNormal, const float fSpecularExponent, const float3 vEyeDir,
-									const float4 lightAtten, const int nNumLights, PixelShaderLightInfo cLightInfo[3],
+									const float4 lightAtten, const int nNumLights, LightInfo lightInfo[4],
 									const bool bDoAmbientOcclusion, const float fAmbientOcclusion,
 									const bool bDoSpecularWarp, in Texture2D specularWarpTexture,
 									in sampler specularWarpSampler, float fFresnel,
@@ -332,8 +288,8 @@ void PixelShaderDoSpecularLighting( const float3 worldPos, const float3 worldNor
 	if( nNumLights > 0 )
 	{
 		PixelShaderDoSpecularLight( worldPos, worldNormal, fSpecularExponent, vEyeDir,
-									lightAtten.x, PixelShaderGetLightColor( cLightInfo, 0 ),
-									PixelShaderGetLightVector( worldPos, cLightInfo, 0 ),
+									lightAtten.x, PixelShaderGetLightColor( lightInfo, 0 ),
+									PixelShaderGetLightVector( worldPos, lightInfo, 0 ),
 									bDoAmbientOcclusion, fAmbientOcclusion,
 									bDoSpecularWarp, specularWarpTexture, specularWarpSampler, fFresnel,
 									bDoRimLighting, fRimExponent,
@@ -346,8 +302,8 @@ void PixelShaderDoSpecularLighting( const float3 worldPos, const float3 worldNor
 	if( nNumLights > 1 )
 	{
 		PixelShaderDoSpecularLight( worldPos, worldNormal, fSpecularExponent, vEyeDir,
-					lightAtten.y, PixelShaderGetLightColor( cLightInfo, 1 ),
-					PixelShaderGetLightVector( worldPos, cLightInfo, 1 ),
+					lightAtten.y, PixelShaderGetLightColor( lightInfo, 1 ),
+					PixelShaderGetLightVector( worldPos, lightInfo, 1 ),
 					bDoAmbientOcclusion, fAmbientOcclusion,
 					bDoSpecularWarp, specularWarpTexture, specularWarpSampler, fFresnel,
 					bDoRimLighting, fRimExponent,
@@ -361,8 +317,8 @@ void PixelShaderDoSpecularLighting( const float3 worldPos, const float3 worldNor
 	if( nNumLights > 2 )
 	{
 		PixelShaderDoSpecularLight( worldPos, worldNormal, fSpecularExponent, vEyeDir,
-					lightAtten.z, PixelShaderGetLightColor( cLightInfo, 2 ),
-					PixelShaderGetLightVector( worldPos, cLightInfo, 2 ),
+					lightAtten.z, PixelShaderGetLightColor( lightInfo, 2 ),
+					PixelShaderGetLightVector( worldPos, lightInfo, 2 ),
 					bDoAmbientOcclusion, fAmbientOcclusion,
 					bDoSpecularWarp, specularWarpTexture, specularWarpSampler, fFresnel,
 					bDoRimLighting, fRimExponent,
@@ -375,8 +331,8 @@ void PixelShaderDoSpecularLighting( const float3 worldPos, const float3 worldNor
 	if( nNumLights > 3 )
 	{
 		PixelShaderDoSpecularLight( worldPos, worldNormal, fSpecularExponent, vEyeDir,
-					lightAtten.w, PixelShaderGetLightColor( cLightInfo, 3 ),
-					PixelShaderGetLightVector( worldPos, cLightInfo, 3 ),
+					lightAtten.w, PixelShaderGetLightColor( lightInfo, 3 ),
+					PixelShaderGetLightVector( worldPos, lightInfo, 3 ),
 					bDoAmbientOcclusion, fAmbientOcclusion,
 					bDoSpecularWarp, specularWarpTexture, specularWarpSampler, fFresnel,
 					bDoRimLighting, fRimExponent,
@@ -399,7 +355,7 @@ float3 PixelShaderDoRimLighting( const float3 worldNormal, const float3 vEyeDir,
 float3 PixelShaderDoLighting( const float3 worldPos, const float3 worldNormal,
 				   const float3 staticLightingColor, const bool bStaticLight,
 				   const bool bAmbientLight, const float4 lightAtten, const float3 cAmbientCube[6],
-				   in Texture2D NormalizeTexture, in sampler NormalizeSampler, const int nNumLights, PixelShaderLightInfo cLightInfo[3],
+				   in Texture2D NormalizeTexture, in sampler NormalizeSampler, const int nNumLights, LightInfo lightInfo[4],
 				   const bool bHalfLambert,
 				   
 				   // New optional/experimental parameters
@@ -424,7 +380,7 @@ float3 PixelShaderDoLighting( const float3 worldPos, const float3 worldNormal,
 
 		linearColor = PixelShaderDoLightingLinear( worldPos, worldNormal, staticLightingColor, 
 			bStaticLight, bAmbientLight, lightAtten,
-			cAmbientCube, NormalizeTexture, NormalizeSampler, nNumLights, cLightInfo, bHalfLambert,
+			cAmbientCube, NormalizeTexture, NormalizeSampler, nNumLights, lightInfo, bHalfLambert,
 			bDoAmbientOcclusion, fAmbientOcclusion,
 			bDoLightingWarp, lightWarpTexture, lightWarpSampler );
 
@@ -435,6 +391,17 @@ float3 PixelShaderDoLighting( const float3 worldPos, const float3 worldNormal,
 	}
 	
 	return returnColor;
+}
+
+// Returns per-pixel attenuation for all four lights
+float4 PixelShaderDoLightAtten( const float3 worldPos, int4 lightEnabled, LightInfo lightInfo[4] )
+{
+	float4 atten;
+	atten.x = GetAttenForLight( worldPos, 0, lightEnabled, lightInfo );
+	atten.y = GetAttenForLight( worldPos, 1, lightEnabled, lightInfo );
+	atten.z = GetAttenForLight( worldPos, 2, lightEnabled, lightInfo );
+	atten.w = GetAttenForLight( worldPos, 3, lightEnabled, lightInfo );
+	return atten;
 }
 
 #endif //#ifndef COMMON_VERTEXLITGENERIC_DX9_H_
