@@ -693,8 +693,8 @@ void DrawLightmappedGeneric_DX11_Internal( CBaseVSShader *pShader, IMaterialVar 
 		bool hasSSBump = pContextData->m_bHasBump && ( info.m_nSelfShadowedBumpFlag != -1 ) && ( params[info.m_nSelfShadowedBumpFlag]->GetIntValue() );
 		bool hasBaseTexture2 = hasBaseTexture && params[info.m_nBaseTexture2]->IsTexture();
 		bool hasLightWarpTexture = params[info.m_nLightWarpTexture]->IsTexture();
-		pContextData->m_bHasBump2 = false;//pContextData->m_bHasBump && params[info.m_nBumpmap2]->IsTexture();
-		bool hasDetailTexture = false;//params[info.m_nDetail]->IsTexture();
+		pContextData->m_bHasBump2 = pContextData->m_bHasBump && params[info.m_nBumpmap2]->IsTexture();
+		bool hasDetailTexture = params[info.m_nDetail]->IsTexture();
 		pContextData->m_bHasDetailTexture = hasDetailTexture;
 		bool hasSelfIllum = IS_FLAG_SET( MATERIAL_VAR_SELFILLUM );
 		bool hasBumpMask = pContextData->m_bHasBump && pContextData->m_bHasBump2 && params[info.m_nBumpMask]->IsTexture() && !hasSelfIllum &&
@@ -918,7 +918,7 @@ void DrawLightmappedGeneric_DX11_Internal( CBaseVSShader *pShader, IMaterialVar 
 				// Pre-cache pixel shaders
 				bool hasBaseAlphaEnvmapMask = IS_FLAG_SET( MATERIAL_VAR_BASEALPHAENVMAPMASK );
 
-				//int bumpmap_variant = ( hasSSBump ) ? 2 : pContextData->m_bHasBump;
+				int bumpmap_variant = ( hasSSBump ) ? 2 : pContextData->m_bHasBump;
 				bool bMaskedBlending = ( ( info.m_nMaskedBlending != -1 ) &&
 					( params[info.m_nMaskedBlending]->GetIntValue() != 0 ) );
 
@@ -938,9 +938,9 @@ void DrawLightmappedGeneric_DX11_Internal( CBaseVSShader *pShader, IMaterialVar 
 
 				DECLARE_STATIC_PIXEL_SHADER( lightmappedgeneric_ps40 );
 				SET_STATIC_PIXEL_SHADER_COMBO( BASETEXTURE2, hasBaseTexture2 );
-				SET_STATIC_PIXEL_SHADER_COMBO( DETAILTEXTURE, /*hasDetailTexture*/false );
-				SET_STATIC_PIXEL_SHADER_COMBO( BUMPMAP, /*bumpmap_variant*/0 );
-				SET_STATIC_PIXEL_SHADER_COMBO( BUMPMAP2, /*pContextData->m_bHasBump2*/false );
+				SET_STATIC_PIXEL_SHADER_COMBO( DETAILTEXTURE, hasDetailTexture );
+				SET_STATIC_PIXEL_SHADER_COMBO( BUMPMAP, bumpmap_variant );
+				SET_STATIC_PIXEL_SHADER_COMBO( BUMPMAP2, pContextData->m_bHasBump2 );
 				SET_STATIC_PIXEL_SHADER_COMBO( BUMPMASK, hasBumpMask );
 				SET_STATIC_PIXEL_SHADER_COMBO( DIFFUSEBUMPMAP, hasDiffuseBumpmap );
 				SET_STATIC_PIXEL_SHADER_COMBO( CUBEMAP, pContextData->m_bHasEnvmap );
@@ -954,7 +954,7 @@ void DrawLightmappedGeneric_DX11_Internal( CBaseVSShader *pShader, IMaterialVar 
 				SET_STATIC_PIXEL_SHADER_COMBO( FANCY_BLENDING, bHasBlendModulateTexture );
 				SET_STATIC_PIXEL_SHADER_COMBO( MASKEDBLENDING, bMaskedBlending );
 				SET_STATIC_PIXEL_SHADER_COMBO( SEAMLESS, pContextData->m_bSeamlessMapping );
-				SET_STATIC_PIXEL_SHADER_COMBO( DETAIL_BLEND_MODE, /*nDetailBlendMode*/0 );
+				SET_STATIC_PIXEL_SHADER_COMBO( DETAIL_BLEND_MODE, nDetailBlendMode );
 				SET_STATIC_PIXEL_SHADER( lightmappedgeneric_ps40 );
 
 				// HACK HACK HACK - enable alpha writes all the time so that we have them for

@@ -54,10 +54,9 @@ public:
 	void EnablePixelShaderOverbright( int reg, bool bEnable, bool bDivideByTwo );
 
 	// Helper for dealing with modulation
-	void SetModulationVertexShaderDynamicState();
-	void SetModulationPixelShaderDynamicState( int modulationVar );
-	void SetModulationPixelShaderDynamicState_LinearColorSpace( int modulationVar );
-	void SetModulationPixelShaderDynamicState_LinearColorSpace_LinearScale( int modulationVar, float flScale );
+	void SetModulationDynamicState();
+	void SetModulationDynamicState_LinearColorSpace();
+	void SetModulationDynamicState_LinearColorSpace_LinearScale( float flScale );
 
 	//
 	// Standard shader passes!

@@ -27,6 +27,8 @@
 // STATIC: "FLASHLIGHTDEPTHFILTERMODE"	"0..2"	[ps20b] [ps30] [ps40]
 // STATIC: "DEPTHBLEND"					"0..1"	[ps20b] [ps30] [ps40]
 
+// Stuff from the "skin" shader
+
 // STATIC: "BLENDTINTBYBASEALPHA"       "0..1"
 
 // DYNAMIC: "PIXELFOGTYPE"				"0..1"  [ps20]
@@ -36,6 +38,10 @@
 // DYNAMIC: "UBERLIGHT"					"0..0"  [ps30]
 // DYNAMIC: "NUM_LIGHTS"				"0..4"
 // DYNAMIC: "AMBIENT_LIGHT"				"0..1"
+// DYNAMIC: "PHONG"						"0..1"
+// DYNAMIC: "WRINKLEMAP"				"0..1"
+// DYNAMIC: "PHONGWARPTEXTURE"			"0..1"
+// DYNAMIC: "RIMLIGHT"					"0..1"
 
 // _DYNAMIC: "STATIC_LIGHT_LIGHTMAP"	    "0..2"  [ps20b] [ps30] [ps40]
 // _DYNAMIC: "STATIC_LIGHT_LIGHTMAP"	    "0..0"  [ps20]
@@ -140,6 +146,15 @@ cbuffer VertexLitAndUnlitGeneric_PS40_t : USER_CBUFFER_REG_0
 	float4 g_ShaderControls;
 };
 
+cbuffer PhongParams_t : USER_CBUFFER_REG_1
+{
+	float4 g_FresnelSpecParams;
+	float4 g_SpecularRimParams;
+	// RimBoost_RimMaskControl_BaseMapAlphaPhongMask_InvertPhongMask
+	float4 g_RimPhongParams;
+	float4 g_SpecExponent;
+};
+
 #define g_DiffuseModulation cModulationColor
 #define g_EyePos cEyePos
 #define g_FogParams cFogParams
@@ -148,6 +163,15 @@ cbuffer VertexLitAndUnlitGeneric_PS40_t : USER_CBUFFER_REG_0
 #define g_DetailBlendFactor			g_SelfIllumTint_and_BlendFactor.w
 #define g_EnvmapSaturation			g_EnvmapSaturation_SelfIllumMask.xyz
 #define g_SelfIllumMaskControl		g_EnvmapSaturation_SelfIllumMask.w
+
+#define g_FresnelRanges				g_FresnelSpecParams.xyz
+#define g_SpecularBoost				g_FresnelSpecParams.w
+#define g_SpecularTint				g_SpecularRimParams.xyz
+#define g_RimExponent				g_SpecularRimParams.w
+#define g_fRimBoost					g_RimPhongParams.x
+#define g_RimMaskControl			g_RimPhongParams.y
+#define g_fBaseMapAlphaPhongMask	g_RimPhongParams.z
+#define g_fInvertPhongMask			g_RimPhongParams.w
 
 #define g_FlashlightAttenuationFactors cFlashlightAttenuationFactors
 #define g_FlashlightPos cFlashlightPos
@@ -162,41 +186,68 @@ cbuffer VertexLitAndUnlitGeneric_PS40_t : USER_CBUFFER_REG_0
 Texture2D BaseTexture			: register( t0 );
 sampler BaseTextureSampler		: register( s0 );
 
+#if CUBEMAP
 TextureCube EnvmapTexture		: register( t1 );
 sampler EnvmapSampler			: register( s1 );
+#endif
 
+#if DETAILTEXTURE
 Texture2D DetailTexture			: register( t2 );
 sampler DetailSampler			: register( s2 );
+#endif
 
+#if BUMPMAP
 Texture2D BumpmapTexture		: register( t3 );
 sampler BumpmapSampler			: register( s3 );
+#endif
 
 Texture2D EnvmapMaskTexture		: register( t4 );
 sampler EnvmapMaskSampler		: register( s4 );
 
-Texture2D NormalizeTexture		: register( t5 );
-sampler NormalizeSampler		: register( s5 );
+#if FLASHLIGHT
+Texture2D FlashlightTexture		: register( t5 );
+sampler FlashlightSampler		: register( s5 );
+#endif
 
-Texture2D FlashlightTexture		: register( t7 );
-sampler FlashlightSampler		: register( s7 );
+#if FLASHLIGHT && FLASHLIGHTSHADOWS
+Texture2D ShadowDepthTexture	: register( t6 );
+sampler ShadowDepthSampler		: register( s6 );	// Flashlight shadow depth map sampler
+#endif
 
-Texture2D ShadowDepthTexture	: register( t8 );
-sampler ShadowDepthSampler		: register( s8 );	// Flashlight shadow depth map sampler
+Texture2D DiffuseWarpTexture	: register( t7 );
+sampler DiffuseWarpSampler		: register( s7 );
 
-Texture2D DiffuseWarpTexture	: register( t9 );
-sampler DiffuseWarpSampler		: register( s9 );
+#if DEPTHBLEND
+Texture2D DepthTexture			: register( t8 );
+sampler DepthSampler			: register( s8 );	//depth buffer sampler for depth blending
+#endif
 
-Texture2D DepthTexture			: register( t10 );
-sampler DepthSampler			: register( s10 );	//depth buffer sampler for depth blending
+#if SELFILLUMMASK
+Texture2D SelfIllumMaskTexture	: register( t9 );
+sampler SelfIllumMaskSampler	: register( s9 );	// selfillummask
+#endif
 
-Texture2D SelfIllumMaskTexture	: register( t11 );
-sampler SelfIllumMaskSampler	: register( s11 );	// selfillummask
+#if PHONG
+Texture2D SpecularWarpTexture	: register( t10 );
+sampler SpecularWarpSampler		: register( s10 );
 
-Texture2D LightMapTexture		: register( t12 );
-sampler LightMapSampler			: register( s12 );
+Texture2D SpecExponentTexture	: register( t11 );
+sampler SpecExponentSampler		: register( s11 );
+#endif
 
-Texture2D BaseTexture2			: register( t13 );
-sampler BaseTexture2Sampler     : register( s13 );
+#if WRINKLEMAP
+Texture2D WrinkleTexture		: register( t12 );
+sampler WrinkleSampler			: register( t12 );
+
+Texture2D StretchTexture		: register( t13 );
+sampler StretchSampler			: register( s13 );
+
+Texture2D NormalWrinkleTexture	: register( t14 );
+sampler NormalWrinkleSampler	: register( s14 );
+
+Texture2D NormalStretchTexture	: register( t15 );
+sampler NormalStretchTexture	: register( s15 );
+#endif
 
 struct PS_INPUT
 {
@@ -213,16 +264,16 @@ struct PS_INPUT
 #endif
 	float4 color					: TEXCOORD2;	// Vertex color (from lighting or unlit)
 
-#if CUBEMAP
 	float3 worldVertToEyeVector		: TEXCOORD3;	// Necessary for reflection
-#endif
 	
 	float3 worldSpaceNormal			: TEXCOORD4;	// Necessary for cubemaps and flashlight
 	float4 worldPos_projPosZ		: TEXCOORD5;
 #if BUMPMAP
 	float4 vWorldTangent			: TEXCOORD6;
 #endif
-	//float4 lightAtten				: TEXCOORD7;
+#if WRINKLEMAP
+	float4 wrinkleHeight			: TEXCOORD7;
+#endif
 	float4 fogFactorW				: COLOR1;
 #if SEAMLESS_BASE || SEAMLESS_DETAIL
 	float3 SeamlessWeights          : COLOR0;				// x y z projection weights
@@ -288,12 +339,7 @@ float4 FinalOutputConst( const float4 vShaderColor, float pixelFogFactor, float 
 	return result;
 }
 
-
-#if LIGHTING_PREVIEW == 2
-LPREVIEW_PS_OUT main( PS_INPUT i ) : SV_TARGET
-#else
 float4 main( PS_INPUT i ) : SV_TARGET
-#endif
 {
 	bool bDetailTexture = DETAILTEXTURE ? true : false;
 	bool bCubemap = CUBEMAP ? true : false;
@@ -310,7 +356,12 @@ float4 main( PS_INPUT i ) : SV_TARGET
 	bool bFlashlight = (FLASHLIGHT!=0) ? true : false;
 	bool bAmbientLight = AMBIENT_LIGHT ? true : false;
 	bool bHalfLambert = HALFLAMBERT ? true : false;
+	bool bPhong = PHONG ? true : false;
+	bool bRimLight = RIMLIGHT ? true : false;
+	bool bDoSpecularWarp = PHONGWARPTEXTURE ? true : false;
 	int nNumLights = NUM_LIGHTS;
+
+	float3 vEyeDir = normalize( i.worldVertToEyeVector.xyz );
 
 #if BUMPMAP
 	float3 vWorldBinormal = cross( i.worldSpaceNormal.xyz, i.vWorldTangent.xyz ) * i.vWorldTangent.w;
@@ -389,9 +440,14 @@ float4 main( PS_INPUT i ) : SV_TARGET
 #endif  // DISTANCEALPHA
 
 	float3 specularFactor = 1.0f;
+	float fSpecMask = 1.0f;
 #if BUMPMAP
 	float4 normalTexel = BumpmapTexture.Sample( BumpmapSampler, i.baseTexCoord.xy );
 	float3 tangentSpaceNormal = normalTexel * 2.0f - 1.0f;
+#if PHONG
+	tangentSpaceNormal = lerp(tangentSpaceNormal, float3(0, 0, 1), g_fBaseMapAlphaPhongMask);
+	fSpecMask = lerp(normalTexel.a, baseColor.a, g_fBaseMapAlphaPhongMask);
+#endif
 	if ( bNormalMapAlphaEnvmapMask )
 		specularFactor = normalTexel.a;
 #endif
@@ -412,6 +468,10 @@ float4 main( PS_INPUT i ) : SV_TARGET
 	{
 		diffuseLighting = i.color.rgb;
 	}
+	else
+	{
+		diffuseLighting = float3(0.0f, 0.0f, 0.0f);
+	}
 
 	float3 worldSpaceNormal = float3(0.0f, 0.0f, 1.0f);
 	if ( bDiffuseLighting || bFlashlight || bCubemap || bSelfIllumFresnel )
@@ -422,17 +482,19 @@ float4 main( PS_INPUT i ) : SV_TARGET
 		worldSpaceNormal = normalize( worldSpaceNormal );
 	}
 
-	if ( bDiffuseLighting )
-	{
-		//float4 vLightAtten = i.lightAtten;
-		float4 vLightAtten = PixelShaderDoLightAtten( i.worldPos_projPosZ.xyz, cLightEnabled, cLightInfo );
+#if PHONG
+	float fFresnelRanges = Fresnel(worldSpaceNormal, normalize(i.worldVertToEyeVector.xyz), g_FresnelRanges);
+#endif
 
-		diffuseLighting = PixelShaderDoLighting( i.worldPos_projPosZ.xyz, worldSpaceNormal,
-				float3( 0.0f, 0.0f, 0.0f ), false, bAmbientLight, vLightAtten,
-				cAmbientCube, NormalizeTexture, NormalizeSampler, nNumLights, cLightInfo, bHalfLambert,
-				false, 1.0f, bDoDiffuseWarp, DiffuseWarpTexture, DiffuseWarpSampler );
-		return float4(diffuseLighting, 1.0f);
-	}
+#if DIFFUSELIGHTING
+	//float4 vLightAtten = i.lightAtten;
+	float4 vLightAtten = PixelShaderDoLightAtten( i.worldPos_projPosZ.xyz, cLightEnabled, cLightInfo );
+
+	diffuseLighting += PixelShaderDoLighting( i.worldPos_projPosZ.xyz, worldSpaceNormal,
+			float3( 0.0f, 0.0f, 0.0f ), false, bAmbientLight, vLightAtten,
+			cAmbientCube, BaseTexture, BaseTextureSampler, nNumLights, cLightInfo, bHalfLambert,
+			false, 1.0f, bDoDiffuseWarp, DiffuseWarpTexture, DiffuseWarpSampler );
+#endif
 
 	float3 albedo = baseColor;
 
@@ -452,8 +514,77 @@ float4 main( PS_INPUT i ) : SV_TARGET
 	{
 		alpha *= baseColor.a;
 	}
-	
+
+	float3 specularLighting = float3( 0.0f, 0.0f, 0.0f );
+
+#if DIFFUSELIGHTING && PHONG
+	float3 rimLighting = float3(0.0f, 0.0f, 0.0f);
+	float fRimMask = 0.0f;
+	float fSpecExp = g_SpecExponent.x;
+	float4 vSpecExpMap = SpecExponentTexture.Sample(SpecExponentSampler, i.baseTexCoord.xy);
+	float fSpecExpMap = vSpecExpMap.r;
+
+	fRimMask = lerp( 1.0f, vSpecExpMap.a, g_RimMaskControl );
+
+	// If the exponent passed in as a constant is zero, use the value from the map as the exponent
+	if ( fSpecExp == 0 )
+		fSpecExp = 1.0f - fSpecExpMap + 150.0f * fSpecExpMap;
+	float3 vSpecularTint;
+	// If constant tint is negative, tint with albedo, based upon scalar tint map
+	if ( g_SpecularTint.r < 0 )
+		vSpecularTint = lerp( float3(1.0f, 1.0f, 1.0f), baseColor.rgb, vSpecExpMap.g );
+	else
+		vSpecularTint = g_SpecularTint.rgb;
+
+	if ( bDoSpecularWarp )
+		fFresnelRanges = Fresnel( worldSpaceNormal, vEyeDir, g_FresnelRanges );
+
+	PixelShaderDoSpecularLighting( i.worldPos_projPosZ.xyz, worldSpaceNormal, fSpecExp,
+								  vEyeDir, vLightAtten, nNumLights, cLightInfo, false, 1.0f,
+								  bDoSpecularWarp, SpecularWarpTexture, SpecularWarpSampler, fFresnelRanges,
+								  bRimLight, g_RimExponent,
+								  
+								  // Output
+								  specularLighting, rimLighting );
+
 	#if FLASHLIGHT
+		float4 flashlightSpacePosition = mul(float4(i.worldPos_projPosZ.xyz, 1.0f), g_FlashlightWorldToTexture);
+		DoSpecularFlashlight( g_FlashlightPos, i.worldPos_projPosZ.xyz, flashlightSpacePosition, worldSpaceNormal,
+							  g_FlashlightAttenuationFactors.xyz, g_FlashlightAttenuationFactors.w,
+							  FlashlightTexture, FlashlightSampler, ShadowDepthTexture, ShadowDepthSampler, BaseTexture, BaseTextureSampler,
+							  FLASHLIGHTDEPTHFILTERMODE, FLASHLIGHTSHADOWS, true, i.projPos.xy / i.projPos.z,
+							  fSpecExp, vEyeDir, bDoSpecularWarp, SpecularWarpTexture, SpecularWarpSampler, fFresnelRanges,
+							  g_EnvmapContrast_ShadowTweaks,
+							  
+							  // Output
+							  diffuseLighting, specularLighting );
+	#endif
+
+	// Modulate with spec mask, boost and tint
+	specularLighting *= fSpecMask * g_SpecularBoost * vSpecularTint;
+
+	// If we didn't already apply Fresnel to specular warp, modulate the specular
+	if ( !bDoSpecularWarp )
+		specularLighting *= fFresnelRanges;
+
+	if (bRimLight)
+	{
+		float fRimFresnel = Fresnel4( worldSpaceNormal, vEyeDir );
+
+		// Add in rim light modulated with tint, mask and traditional Fresnel (not using Fresnel ranges)
+		rimLighting *= vSpecularTint * fRimMask * fRimFresnel;
+
+		// Fold rim lighting into specular term by using the max so that we don't really add light twice...
+		specularLighting = max( specularLighting, rimLighting );
+
+		// Add in view-ray lookup from ambient cube
+		specularLighting += fRimFresnel * fRimMask * vSpecularTint * g_fRimBoost * PixelShaderAmbientLight( vEyeDir, cAmbientCube) * saturate(dot(worldSpaceNormal, float3(0, 0 , 1)) );
+	}
+
+#endif
+
+	// With phong, flashlight diffuse is calculated with specular
+	#if FLASHLIGHT && !PHONG
 	{
 		int nShadowSampleLevel = 0;
 		bool bDoShadows = false;
@@ -471,7 +602,7 @@ float4 main( PS_INPUT i ) : SV_TARGET
 			bUseWorldNormal = false;
 		#endif
 
-		float2 vProjPos = i.vProjPos.xy / i.vProjPos.w;	// Screen-space position for shadow map noise
+		float2 vProjPos = i.projPos.xy / i.projPos.w;	// Screen-space position for shadow map noise
 
 		float3 flashlightColor = DoFlashlight( g_FlashlightPos, i.worldPos_projPosZ.xyz, flashlightSpacePosition,
 			worldSpaceNormal, g_FlashlightAttenuationFactors.xyz, 
@@ -495,8 +626,6 @@ float4 main( PS_INPUT i ) : SV_TARGET
 	diffuseComponent = 
 		TextureCombinePostLighting( diffuseComponent, detailColor, DETAIL_BLEND_MODE, g_DetailBlendFactor );
 #endif
-
-	HALF3 specularLighting = HALF3( 0.0f, 0.0f, 0.0f );
 
 #if SELFILLUM_ENVMAPMASK_ALPHA
 	// range of alpha:
@@ -531,33 +660,19 @@ float4 main( PS_INPUT i ) : SV_TARGET
 #if CUBEMAP
 	{
 		HALF3 reflectVect = CalcReflectionVectorUnnormalized( i.worldSpaceNormal, i.worldVertToEyeVector.xyz );
-
-		specularLighting = ENV_MAP_SCALE * EnvmapTexture.Sample( EnvmapSampler, reflectVect );
-		specularLighting *= specularFactor;
-		specularLighting *= g_EnvmapTint_TintReplaceFactor.rgb;
-		HALF3 specularLightingSquared = specularLighting * specularLighting;
-		specularLighting = lerp( specularLighting, specularLightingSquared, g_EnvmapContrast_ShadowTweaks );
-		HALF3 greyScale = dot( specularLighting, HALF3( 0.299f, 0.587f, 0.114f ) );
-		specularLighting = lerp( greyScale, specularLighting, g_EnvmapSaturation );
+		float3 cubeSpecular = float3( 0.0f, 0.0f, 0.0f );
+		cubeSpecular += ENV_MAP_SCALE * EnvmapTexture.Sample( EnvmapSampler, reflectVect );
+		cubeSpecular *= specularFactor;
+		cubeSpecular *= g_EnvmapTint_TintReplaceFactor.rgb;
+		HALF3 specularLightingSquared = cubeSpecular * cubeSpecular;
+		cubeSpecular = lerp( cubeSpecular, specularLightingSquared, g_EnvmapContrast_ShadowTweaks );
+		HALF3 greyScale = dot( cubeSpecular, HALF3( 0.299f, 0.587f, 0.114f ) );
+		specularLighting += lerp( greyScale, cubeSpecular, g_EnvmapSaturation );
 	}
 #endif
 
-	HALF3 result = diffuseComponent + specularLighting;
+	float3 result = diffuseComponent + specularLighting;
 	return float4(result, alpha);
-
-#if LIGHTING_PREVIEW
-# if LIGHTING_PREVIEW == 1
-	float dotprod=0.7+0.25*dot(i.worldSpaceNormal,normalize(float3(1,2,-.5)));
-	return FinalOutput( float4( dotprod*albedo.xyz, alpha ), 0, PIXEL_FOG_TYPE_NONE, TONEMAP_SCALE_LINEAR );
-# else
-	LPREVIEW_PS_OUT ret;
-	ret.flags=float4(1,1,1,1);
-	ret.color=float4( albedo.xyz, alpha );
-	ret.normal=float4(i.worldSpaceNormal,alpha);
-	ret.position=float4(i.worldPos_projPosZ.xyz, alpha);
-	return FinalOutput( ret, 0, PIXEL_FOG_TYPE_NONE, TONEMAP_SCALE_NONE );
-# endif
-#else
 
 #	if (DEPTHBLEND == 1)
 	{
@@ -575,6 +690,5 @@ float4 main( PS_INPUT i ) : SV_TARGET
 	alpha = lerp( alpha, fogFactor, g_fPixelFogType * g_fWriteWaterFogToDestAlpha ); // Use the fog factor if it's height fog
 	return FinalOutputConst( float4( result.rgb, alpha ), fogFactor, g_fPixelFogType, TONEMAP_SCALE_LINEAR, g_fWriteDepthToAlpha, i.projPos.z );
 
-#endif
 }
 

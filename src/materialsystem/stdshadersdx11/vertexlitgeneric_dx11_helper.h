@@ -48,8 +48,17 @@ ALIGN16 struct VertexLitGeneric_PS40_CBuffer_t
 	Vector4D cShaderControls;
 };
 
+ALIGN16 struct PhongParams_CBuffer_t
+{
+	Vector4D cFresnelSpecParams;
+	Vector4D cSpecularRimParams;
+	Vector4D cPhongRimParams;
+	Vector4D cSpecExponent;
+};
+
 extern ConstantBufferHandle_t g_hVertexLitGeneric_VS40_CBuffer;
 extern ConstantBufferHandle_t g_hVertexLitGeneric_PS40_CBuffer;
+extern ConstantBufferHandle_t g_hPhongParams_CBuffer;
 
 //-----------------------------------------------------------------------------
 // Init params/ init/ draw methods

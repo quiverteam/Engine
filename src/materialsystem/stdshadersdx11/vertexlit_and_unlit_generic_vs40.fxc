@@ -8,6 +8,7 @@
 //  STATIC: "SEAMLESS_DETAIL"       	"0..1"
 //  STATIC: "SEPARATE_DETAIL_UVS"   	"0..1"
 //  STATIC: "BUMPMAP"					"0..1"
+//	STATIC: "WRINKLEMAP"				"0..1"
 //  STATIC: "DECAL"						"0..1" [vs30] [vs40]
 
 //  DYNAMIC: "COMPRESSED_VERTS"			"0..1"
@@ -118,16 +119,16 @@ struct VS_OUTPUT
 #endif
 	float4 color					: TEXCOORD2;		// Vertex color (from lighting or unlit)
 
-#if CUBEMAP
 	float3 worldVertToEyeVector		: TEXCOORD3;		// Necessary for cubemaps
-#endif
 
 	float3 worldSpaceNormal			: TEXCOORD4;		// Necessary for cubemaps and flashlight
 	float4 worldPos_ProjPosZ		: TEXCOORD5;
 #if BUMPMAP
 	float4 vWorldTangent			: TEXCOORD6;
 #endif
-	//float4 lightAtten				: TEXCOORD7;
+#if WRINKLEMAP
+	float4 wrinkleHeight			: TEXCOORD7;
+#endif
 	float4 fogFactorW				: COLOR1;
 #if SEAMLESS_DETAIL || SEAMLESS_BASE
 	float3 SeamlessWeights          : COLOR0;				// x y z projection weights
@@ -165,6 +166,8 @@ VS_OUTPUT main( const VS_INPUT v )
 #if !MORPHING
 	#if BUMPMAP
 		ApplyMorph( v.vPosFlex, v.vNormalFlex, vPosition.xyz, vNormal, vTangent.xyz );
+	#elif WRINKLEMAP
+		ApplyMorph( v.vPosFlex, v.vNormalFlex, vPosition.xyz, vNormal, vTangent.xyz, o.wrinkleHeight.x );
 	#else
 		ApplyMorph( v.vPosFlex, v.vNormalFlex, vPosition.xyz, vNormal );
 	#endif
@@ -172,6 +175,9 @@ VS_OUTPUT main( const VS_INPUT v )
 	#if BUMPMAP
 		ApplyMorph( morphSampler, cMorphTargetTextureDim, cMorphSubrect, 
 			v.vVertexID, v.vTexCoord2, vPosition.xyz, vNormal, vTangent.xyz );
+	#elif WRINKLEMAP
+		ApplyMorph( morphSampler, cMorphTargetTextureDim, cMorphSubrect, 
+			v.vVertexID, v.vTexCoord2, vPosition.xyz, vNormal, vTangent.xyz, o.wrinkleHeight.x );
 	#else
 		ApplyMorph( morphTexture, morphSampler, cMorphTargetTextureDim, cMorphSubrect, 
 			v.vVertexID, v.vTexCoord2, vPosition.xyz, vNormal );
@@ -225,9 +231,7 @@ VS_OUTPUT main( const VS_INPUT v )
 	o.worldPos_ProjPosZ.w = vProjPos.z;
 
 	// Needed for cubemaps 
-#if CUBEMAP
 	o.worldVertToEyeVector.xyz = normalize( cEyePos.xyz - worldPos.xyz );
-#endif
 
 	if ( g_bVertexColor )
 	{

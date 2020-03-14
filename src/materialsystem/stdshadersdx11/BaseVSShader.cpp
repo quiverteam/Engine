@@ -51,21 +51,14 @@ void CBaseVSShader::EnablePixelShaderOverbright( int reg, bool bEnable, bool bDi
 //-----------------------------------------------------------------------------
 // Helper for dealing with modulation
 //-----------------------------------------------------------------------------
-void CBaseVSShader::SetModulationVertexShaderDynamicState()
+void CBaseVSShader::SetModulationDynamicState()
 {
  	float color[4] = { 1.0, 1.0, 1.0, 1.0 };
 	ComputeModulationColor( color );
-	s_pShaderAPI->SetVertexShaderConstant( VERTEX_SHADER_MODULATION_COLOR, color );
+	s_pShaderAPI->Color4fv( color );
 }
 
-void CBaseVSShader::SetModulationPixelShaderDynamicState( int modulationVar )
-{
-	float color[4] = { 1.0, 1.0, 1.0, 1.0 };
-	ComputeModulationColor( color );
-	s_pShaderAPI->SetPixelShaderConstant( modulationVar, color );
-}
-
-void CBaseVSShader::SetModulationPixelShaderDynamicState_LinearColorSpace( int modulationVar )
+void CBaseVSShader::SetModulationDynamicState_LinearColorSpace()
 {
 	float color[4] = { 1.0, 1.0, 1.0, 1.0 };
 	ComputeModulationColor( color );
@@ -73,10 +66,10 @@ void CBaseVSShader::SetModulationPixelShaderDynamicState_LinearColorSpace( int m
 	color[1] = color[1] > 1.0f ? color[1] : GammaToLinear( color[1] );
 	color[2] = color[2] > 1.0f ? color[2] : GammaToLinear( color[2] );
 
-	s_pShaderAPI->SetPixelShaderConstant( modulationVar, color );
+	s_pShaderAPI->Color4fv( color );
 }
 
-void CBaseVSShader::SetModulationPixelShaderDynamicState_LinearColorSpace_LinearScale( int modulationVar, float flScale )
+void CBaseVSShader::SetModulationDynamicState_LinearColorSpace_LinearScale( float flScale )
 {
 	float color[4] = { 1.0, 1.0, 1.0, 1.0 };
 	ComputeModulationColor( color );
@@ -84,7 +77,7 @@ void CBaseVSShader::SetModulationPixelShaderDynamicState_LinearColorSpace_Linear
 	color[1] = ( color[1] > 1.0f ? color[1] : GammaToLinear( color[1] ) ) * flScale;
 	color[2] = ( color[2] > 1.0f ? color[2] : GammaToLinear( color[2] ) ) * flScale;
 
-	s_pShaderAPI->SetPixelShaderConstant( modulationVar, color );
+	s_pShaderAPI->Color4fv( color );
 }
 
 
