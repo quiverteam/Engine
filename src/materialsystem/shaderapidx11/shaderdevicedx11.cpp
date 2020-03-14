@@ -22,6 +22,7 @@
 #include "inputlayoutdx11.h"
 #include "shaderapidx9/shaderapibase.h"
 #include "meshdx11.h"
+#include "TextureDx11.h"
 
 // NOTE: This has to be the last file included!
 #include "tier0/memdbgon.h"
@@ -240,7 +241,7 @@ bool CShaderDeviceMgrDx11::ComputeCapsFromD3D( HardwareCaps_t *pCaps, IDXGIAdapt
 	pCaps->m_SupportsMipmappedCubemaps = true;
 	pCaps->m_SupportsNonPow2Textures = true;
 	pCaps->m_nDXSupportLevel = 110;
-	pCaps->m_PreferDynamicTextures = false;
+	pCaps->m_PreferDynamicTextures = true;
 	pCaps->m_HasProjectedBumpEnv = true;
 	pCaps->m_MaxUserClipPlanes = 6;		// FIXME
 	pCaps->m_HDRType = bForceFloatHDR ? HDR_TYPE_FLOAT : HDR_TYPE_INTEGER;
@@ -381,7 +382,7 @@ int CShaderDeviceMgrDx11::GetModeCount( int nAdapter ) const
 	
 	UINT num = 0;
 	DXGI_FORMAT format = DXGI_FORMAT_R8G8B8A8_UNORM_SRGB; //desired color format
-	UINT flags         = 0; //desired scanline order and/or scaling
+	UINT flags         = DXGI_ENUM_MODES_INTERLACED; //desired scanline order and/or scaling
 
 	// get the number of available display mode for the given format and scanline order
 	HRESULT hr = pOutput->GetDisplayModeList( format, flags, &num, 0 );
@@ -423,7 +424,7 @@ void CShaderDeviceMgrDx11::GetModeInfo( ShaderDisplayMode_t* pInfo, int nAdapter
 
 	pInfo->m_nWidth      = pDescs[nMode].Width;
 	pInfo->m_nHeight     = pDescs[nMode].Height;
-//	pInfo->m_Format      = ImageLoader::D3DFormatToImageFormat( pDescs[nMode].Format );
+	pInfo->m_Format      = CTextureDx11::GetImageFormat( pDescs[nMode].Format );
 	pInfo->m_nRefreshRateNumerator = pDescs[nMode].RefreshRate.Numerator;
 	pInfo->m_nRefreshRateDenominator = pDescs[nMode].RefreshRate.Denominator;
 }
@@ -595,7 +596,7 @@ bool CShaderDeviceDx11::InitDevice( void *hWnd, int nAdapter, const ShaderDevice
 
 	UINT nDeviceFlags = 0;
 //#ifdef _DEBUG
-	nDeviceFlags |= D3D11_CREATE_DEVICE_DEBUG;
+	//nDeviceFlags |= D3D11_CREATE_DEVICE_DEBUG;
 //#endif
 
 	HRESULT hr = D3D11CreateDeviceAndSwapChain( pAdapter, D3D_DRIVER_TYPE_UNKNOWN,
