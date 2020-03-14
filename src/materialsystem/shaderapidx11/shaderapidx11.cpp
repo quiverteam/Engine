@@ -12,6 +12,7 @@
 #include "shaderapi/commandbuffer.h"
 #include "materialsystem/idebugtextureinfo.h"
 #include "materialsystem/materialsystem_config.h"
+#include "materialsystem/imorph.h"
 #include "meshdx11.h"
 #include "shadershadowdx11.h"
 #include "shaderdevicedx11.h"
@@ -473,6 +474,17 @@ FORCEINLINE static void OutputMatrix( const DirectX::XMFLOAT4X4 &mat, const char
 	}
 }
 
+int CShaderAPIDx11::ComputeNumLights() const
+{
+	int numLights = 0;
+	for ( int i = 0; i < MAX_NUM_LIGHTS; i++ )
+	{
+		if ( m_ShaderState.light.m_Lights[i].m_Type != MATERIAL_LIGHT_DISABLE )
+			numLights++;
+	}
+	return numLights;
+}
+
 void CShaderAPIDx11::SortLights( int *index )
 {
 	m_ShaderState.light.m_NumLights = 0;
@@ -485,17 +497,17 @@ void CShaderAPIDx11::SortLights( int *index )
 		{
 			while ( --j >= 0 )
 			{
-				if ( m_ShaderState.light.m_Lights[j].m_Type <= type )
+				if ( m_ShaderState.light.m_LightType[j] <= type )
 					break;
 
 				// shift...
-				m_ShaderState.light.m_Lights[j + 1] = m_ShaderState.light.m_Lights[j];
+				m_ShaderState.light.m_LightType[j + 1] = m_ShaderState.light.m_LightType[j];
 				if ( index )
 					index[j + 1] = index[j];
 			}
 			++j;
 
-			m_ShaderState.light.m_Lights[j] = light;
+			m_ShaderState.light.m_LightType[j] = type;
 			if ( index )
 				index[j] = i;
 			++m_ShaderState.light.m_NumLights;
@@ -586,16 +598,20 @@ void CShaderAPIDx11::DoIssueShaderState( bool bForce )
 
 	if ( bForce || m_ShaderState.light.m_bLightChanged )
 	{
-		// Lights should already be sorted...
-		//int lightIndex[MAX_NUM_LIGHTS];
-		//memset( lightIndex, 0, sizeof( lightIndex ) );
-		//SortLights( lightIndex );
+		int lightIndex[MAX_NUM_LIGHTS];
+		memset( lightIndex, 0, sizeof( lightIndex ) );
+		SortLights( lightIndex );
 
 		s_PerModelConstants.cLightCountRegister.x = m_ShaderState.light.m_NumLights;
 
+		if ( m_ShaderState.light.m_NumLights == 0 )
+		{
+			memset( &s_PerModelConstants.cLightEnabled, 0, sizeof( DirectX::XMINT4 ) );
+		}
+
 		for ( int i = 0; i < m_ShaderState.light.m_NumLights; i++ )
 		{
-			const LightDesc_t &light = m_ShaderState.light.m_Lights[i];
+			const LightDesc_t &light = m_ShaderState.light.m_Lights[lightIndex[i]];
 			XMSetComponent4( s_PerModelConstants.cLightEnabled, i, light.m_Type != MATERIAL_LIGHT_DISABLE );
 
 			// The first one is the light color ( and light type code )
@@ -691,7 +707,18 @@ void CShaderAPIDx11::DoIssueShaderState( bool bForce )
 
 		m_ShaderState.bone.m_bBonesChanged = false;
 	}
-	
+
+	//
+	// Morphing
+	//
+	if ( bForce || m_ShaderState.morph.m_bMorphChanged )
+	{
+		memcpy( s_PerModelConstants.cFlexWeights, m_ShaderState.morph.m_pWeights,
+			sizeof( MorphWeight_t ) * m_ShaderState.morph.m_nMaxWeightLoaded );
+		m_ShaderState.morph.m_nMaxWeightLoaded = 0;
+		s_PerModelConstants.cFlexScale = DirectX::XMFLOAT4( 0.0f, 0.0f, 0.0f, 0.0f );
+		m_ShaderState.morph.m_bMorphChanged = false;
+	}
 
 	//
 	// Material constants
@@ -1861,8 +1888,13 @@ void CShaderAPIDx11::SetLight( int lightNum, const LightDesc_t &desc )
 
 	//if ( memcmp( &desc, &m_ShaderState.light.m_Lights[lightNum], sizeof( LightDesc_t ) ) )
 	//{
+		
+		FlushBufferedPrimitives();
 		m_ShaderState.light.m_Lights[lightNum] = desc;
-		SortLights();
+		m_ShaderState.light.m_NumLights = ComputeNumLights();
+		//SortLights();
+		//if ( lightNum == 2 && desc.m_Type != MATERIAL_LIGHT_DISABLE)
+		//	DebuggerBreak();
 		m_ShaderState.light.m_bLightChanged = true;
 	//}
 }
@@ -1909,6 +1941,7 @@ void CShaderAPIDx11::DisableAllLocalLights()
 			m_ShaderState.light.m_bLightChanged = true;
 		}
 	}
+	m_ShaderState.light.m_NumLights = 0;
 }
 
 float CShaderAPIDx11::GetAmbientLightCubeLuminance( void )
@@ -3389,6 +3422,21 @@ void CShaderAPIDx11::BindVertexTexture( VertexTextureSampler_t stage, ShaderAPIT
 	slotdef.m_pTexture = pTex;
 
 	m_TargetState.dynamic.m_pVSSamplers[m_TargetState.dynamic.m_nVSSamplers++] = slotdef;
+}
+
+void CShaderAPIDx11::SetFlexWeights( int nFirstWeight, int nCount, const MorphWeight_t *pWeights )
+{
+	LOCK_SHADERAPI();
+
+	//m_ShaderState.morph.m_nFirstWeight = nFirstWeight;
+	//m_ShaderState.morph.m_nCount = nCount;
+	int numLoaded = nFirstWeight + nCount;
+	if ( numLoaded > m_ShaderState.morph.m_nMaxWeightLoaded )
+	{
+		m_ShaderState.morph.m_nMaxWeightLoaded = numLoaded;
+	}
+	memcpy( m_ShaderState.morph.m_pWeights + nFirstWeight, pWeights, sizeof( MorphWeight_t ) * nCount );
+	m_ShaderState.morph.m_bMorphChanged = true;
 }
 
 void CShaderAPIDx11::BindStandardVertexTexture( VertexTextureSampler_t stage, StandardTextureId_t id )

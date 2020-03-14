@@ -4,6 +4,7 @@
 #include "shaderapi/ishadershadow.h"
 #include "shaderapi/ishaderapi.h"
 #include "materialsystem/imaterialsystem.h"
+#include "materialsystem/imorph.h"
 #include <utlstack.h>
 
 #include <d3d11.h>
@@ -366,6 +367,7 @@ namespace StatesDx11
 	struct LightState
 	{
 		LightDesc_t m_Lights[MAX_NUM_LIGHTS];
+		LightType_t m_LightType[MAX_NUM_LIGHTS];
 		int m_NumLights;
 		bool m_bLightChanged;
 
@@ -382,6 +384,16 @@ namespace StatesDx11
 		bool m_bBonesChanged;
 	};
 
+	struct MorphState
+	{
+		int m_nFirstWeight;
+		int m_nCount;
+		MorphWeight_t m_pWeights[512];
+		int m_nMaxWeightLoaded;
+
+		bool m_bMorphChanged;
+	};
+
 	// State that is set through constant buffers and used
 	// by shaders.
 	struct ShaderState
@@ -389,6 +401,7 @@ namespace StatesDx11
 		FogState fog;
 		LightState light;
 		BoneState bone;
+		MorphState morph;
 
 		Vector4D m_ConstantColor;
 		bool m_bConstantColorChanged;
@@ -435,6 +448,8 @@ namespace StatesDx11
 				m_MatrixStacks[i].Top().m_Flags = 0;//( MATRIXDX11_DIRTY | MATRIXDX11_IDENTITY );
 				m_ChangedMatrices[i] = true;
 			}
+
+			morph.m_bMorphChanged = true;
 		}
 
 		ShaderState()

@@ -627,9 +627,7 @@ private:
 	virtual void BindVertexTexture( VertexTextureSampler_t nStage, ShaderAPITextureHandle_t hTexture );
 
 	// Sets morph target factors
-	virtual void SetFlexWeights( int nFirstWeight, int nCount, const MorphWeight_t *pWeights )
-	{
-	}
+	virtual void SetFlexWeights( int nFirstWeight, int nCount, const MorphWeight_t *pWeights );
 
 	// NOTE: Stuff after this is added after shipping HL2.
 	ITexture *GetRenderTargetEx( int nRenderTargetID )
@@ -850,6 +848,8 @@ private:
 	void HandleMatrixModified();
 
 	void RenderPassWithVertexAndIndexBuffers();
+
+	int ComputeNumLights() const;
 
 private:
 	// Current material + mesh
