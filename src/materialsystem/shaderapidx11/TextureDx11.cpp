@@ -157,7 +157,7 @@ DXGI_FORMAT GetD3DFormat( ImageFormat format )
 	}
 }
 
-ImageFormat CTextureDx11::GetImageFormat( DXGI_FORMAT d3dFormat ) const
+ImageFormat CTextureDx11::GetImageFormat( DXGI_FORMAT d3dFormat )
 {
 	switch ( d3dFormat )
 	{
@@ -314,7 +314,7 @@ ID3D11Resource *CTextureDx11::CreateD3DTexture( int width, int height, int nDept
 	}
 
 	UINT cpuAccessFlags = 0;
-	if ( !bIsDepthBuffer && !bIsRenderTarget )
+	if ( isDynamic )
 	{
 		cpuAccessFlags = D3D11_CPU_ACCESS_WRITE;
 	}
@@ -374,10 +374,9 @@ void DestroyD3DTexture( ID3D11Resource *pD3DTex )
 
 CTextureDx11::CTextureDx11()
 {
-	m_pLockedRegionMemory = NULL;
+	m_pLockedFace = NULL;
+	m_nLockedFaceSize = 0;
 	m_pLockedTexture = NULL;
-	m_LockedDepth = 0;
-	m_LockedPitch = 0;
 	m_LockedSubresource = 0;
 	m_bLocked = false;
 	m_nFlags	 = 0;
@@ -403,6 +402,9 @@ CTextureDx11::CTextureDx11()
 	m_ppView = NULL;
 	m_pDepthStencilView = NULL;
 	m_pRenderTargetView = NULL;
+
+	m_pRamImage = NULL;
+	m_ppRamImage = NULL;
 }
 
 inline int CalcMipLevels( int w, int h )
@@ -454,9 +456,14 @@ void CTextureDx11::SetupTexture2D( int width, int height, int depth, int count, 
 	if ( bIsManaged )
 		bIsDynamic = false;
 
-	if ( bAutoMipMap && numMipLevels == 0 )
+	if ( bAutoMipMap && numMipLevels == 0 && !bIsDynamic )
 	{
 		numMipLevels = CalcMipLevels( width, height );
+	}
+	else if ( bIsDynamic )
+	{
+		// Dynamic textures can't have mipmaps
+		numMipLevels = 1;
 	}
 
 	m_iTextureType = TEXTURE_STANDARD;
@@ -476,21 +483,35 @@ void CTextureDx11::SetupTexture2D( int width, int height, int depth, int count, 
 
 	ID3D11Resource *pD3DTex;
 
+	int nRamBytes = CalcRamBytes();
+
 	// Set the initial texture state
 	if ( numCopies <= 1 )
 	{
 		m_NumCopies = 1;
 		pD3DTex = CreateD3DTexture( width, height, depth, dstImageFormat, numMipLevels, flags );
 		SetTexture( pD3DTex );
+		if ( bIsDynamic )
+		{
+			m_pRamImage = new unsigned char[nRamBytes];
+			memset( m_pRamImage, 0, nRamBytes );
+		}
 	}
 	else
 	{
 		m_NumCopies = numCopies;
 		m_ppTexture = new ID3D11Resource * [numCopies];
+		if ( bIsDynamic )
+			m_ppRamImage = new unsigned char * [numCopies];
 		for ( int k = 0; k < numCopies; k++ )
 		{
 			pD3DTex = CreateD3DTexture( width, height, depth, dstImageFormat, numMipLevels, flags );
 			SetTexture( k, pD3DTex );
+			if ( bIsDynamic )
+			{
+				m_ppRamImage[k] = new unsigned char[nRamBytes];
+				memset( m_ppRamImage[k], 0, nRamBytes );
+			}
 		}
 	}
 	m_CurrentCopy = 0;
@@ -870,6 +891,12 @@ static int s_CubemapBlits = 0;
 
 void CTextureDx11::BlitSurfaceBits( CTextureDx11::TextureLoadInfo_t &info, int xOffset, int yOffset, int srcStride )
 {
+	if ( m_CreationFlags & TEXTURE_CREATE_DYNAMIC )
+	{
+		// Dynamic textures need to be updated using Lock() and Unlock()
+		Warning( "TextureDX11: Tried to call BlitSurfaceBits() on a dynamic texture!\n" );
+		return;
+	}
 
 	CD3D11_BOX box;
 	box.left = xOffset;
@@ -916,7 +943,7 @@ void CTextureDx11::BlitSurfaceBits( CTextureDx11::TextureLoadInfo_t &info, int x
 	UINT subresource = D3D11CalcSubresource( info.m_nLevel, info.m_CubeFaceID, m_NumLevels );
 
 	D3D11DeviceContext()->UpdateSubresource( info.m_pTexture, subresource, &box, pNewImage,
-						 dstStride * info.m_nWidth, dstStride * info.m_nWidth * info.m_nHeight );
+						 dstStride * info.m_nWidth, 0 );
 
 	delete[] pNewImage;
 
@@ -972,6 +999,12 @@ void CTextureDx11::Delete()
 			m_pTexture = 0;
 			nDeallocated = 1;
 		}
+
+		if ( m_pRamImage )
+		{
+			delete[] m_pRamImage;
+			m_pRamImage = NULL;
+		}
 	}
 	else
 	{
@@ -1005,7 +1038,13 @@ void CTextureDx11::Delete()
 			}
 			delete[] m_ppTexture;
 			m_ppTexture = NULL;
-		}			
+		}
+
+		if ( m_ppRamImage )
+		{
+			delete[] m_ppRamImage;
+			m_ppRamImage = NULL;
+		}
 	}
 
 	if ( m_iTextureType == TEXTURE_RENDERTARGET )
@@ -1044,6 +1083,8 @@ bool CTextureDx11::Lock( int copy, int level, int cubeFaceID, int xOffset, int y
 			 int width, int height, bool bDiscard, CPixelWriter &writer )
 {
 	Assert( !m_bLocked );
+	Assert( level == 0 ); // dynamic textures can't have mipmaps
+
 	if ( m_bLocked )
 	{
 		return false;
@@ -1052,31 +1093,36 @@ bool CTextureDx11::Lock( int copy, int level, int cubeFaceID, int xOffset, int y
 	if ( m_NumCopies == 1 )
 	{
 		m_pLockedTexture = m_pTexture;
+		m_pLockedFace = m_pRamImage;
 	}
 	else
 	{
 		m_pLockedTexture = m_ppTexture[copy];
+		m_pLockedFace = m_ppRamImage[copy];
 	}
 
-	m_LockedBox.left = xOffset;
-	m_LockedBox.right = xOffset + width;
-	m_LockedBox.top = yOffset;
-	m_LockedBox.bottom = yOffset + height;
-	m_LockedBox.front = 0;
-	m_LockedBox.back = 1;
-
-	m_LockedSubresource = D3D11CalcSubresource( level, cubeFaceID, m_NumLevels );
-
-	// Allocate memory to hold the bytes for the region.
 	int bytesPerXel = ImageLoader::SizeInBytes( m_Format );
-	int bytesForRect = bytesPerXel * width * height;
-	m_pLockedRegionMemory = (unsigned char *)malloc( bytesForRect );
-	memset( m_pLockedRegionMemory, 0, bytesForRect );
+	int bytesPerRow = bytesPerXel * m_nWidth;
+	int bytesPerFace = bytesPerXel * m_nWidth * m_nHeight;
+	// Where do we want to start modifying?
+	int nMemOffset = bytesPerFace * cubeFaceID;
+	nMemOffset += yOffset * bytesPerRow;
+	nMemOffset += xOffset * bytesPerXel;
+	// Offset into the ram image
+	unsigned char *pModifyBegin = m_pLockedFace + nMemOffset;
 
-	m_LockedPitch = bytesPerXel * width;
-	m_LockedDepth = bytesForRect;
+	m_nLockedFaceSize = bytesPerFace;
 
-	writer.SetPixelMemory( m_Format, m_pLockedRegionMemory, m_LockedPitch );
+	m_LockedSubresource = D3D11CalcSubresource( 0, cubeFaceID, 1 );
+
+	ZeroMemory( &m_MappedData, sizeof( D3D11_MAPPED_SUBRESOURCE ) );
+	HRESULT hr = D3D11DeviceContext()->Map( m_pLockedTexture, m_LockedSubresource, D3D11_MAP_WRITE_DISCARD, 0, &m_MappedData );
+	if ( FAILED( hr ) )
+	{
+		return false;
+	}
+
+	writer.SetPixelMemory( m_Format, pModifyBegin, bytesPerRow );
 
 	m_bLocked = true;
 	return true;
@@ -1090,14 +1136,12 @@ void CTextureDx11::Unlock( int copy, int level, int cubeFaceID )
 		return;
 	}
 
-	D3D11DeviceContext()->UpdateSubresource( m_pLockedTexture, m_LockedSubresource, &m_LockedBox,
-						 m_pLockedRegionMemory, m_LockedPitch, m_LockedDepth );
+	memcpy( m_MappedData.pData, m_pLockedFace, m_nLockedFaceSize );
+	D3D11DeviceContext()->Unmap( m_pLockedTexture, m_LockedSubresource );
 
-	free( m_pLockedRegionMemory );
-	m_pLockedRegionMemory = NULL;
+	m_pLockedFace = NULL;
+	m_nLockedFaceSize = 0;
 	m_pLockedTexture = NULL;
-	m_LockedDepth = 0;
-	m_LockedPitch = 0;
 	m_LockedSubresource = 0;
 
 	m_bLocked = false;

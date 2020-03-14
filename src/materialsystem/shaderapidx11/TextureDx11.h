@@ -8,6 +8,8 @@
 #include "shaderapi/ishaderapi.h"
 #include <pixelwriter.h>
 #include <utlvector.h>
+#include <utlmap.h>
+#include <utlbuffer.h>
 
 class CTextureDx11
 {
@@ -108,7 +110,7 @@ public:
 
 	int CalcRamBytes() const;
 
-	ImageFormat GetImageFormat( DXGI_FORMAT d3dFormat ) const;
+	static ImageFormat GetImageFormat( DXGI_FORMAT d3dFormat );
 
 	static ImageFormat GetClosestSupportedImageFormatForD3D11( ImageFormat srcFormat );
 
@@ -175,12 +177,18 @@ public:
 
 	// For locking textures
 	ID3D11Resource *m_pLockedTexture;
-	unsigned char *m_pLockedRegionMemory;
-	UINT m_LockedPitch;
-	UINT m_LockedDepth;
-	CD3D11_BOX m_LockedBox;
+	D3D11_MAPPED_SUBRESOURCE m_MappedData;
+	unsigned char *m_pLockedFace;
+	unsigned int m_nLockedFaceSize;
 	UINT m_LockedSubresource;
 	bool m_bLocked;
+
+	union
+	{
+		unsigned char *m_pRamImage;
+		unsigned char **m_ppRamImage;
+	};
+	
 	
 };
 
