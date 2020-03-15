@@ -6,6 +6,8 @@
 //bik_vs40.fxc
 //bik_ps40.fxc
 
+decalmodulate_ps40.fxc
+
 vertexlit_and_unlit_generic_vs40.fxc
 vertexlit_and_unlit_generic_ps40.fxc
 
