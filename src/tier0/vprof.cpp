@@ -1279,6 +1279,8 @@ CVProfile::CVProfile()
 	m_nBudgetGroupNames = 0;
 	m_nBudgetGroupNamesAllocated = 32;
 
+	m_TargetThreadId = ThreadGetCurrentId();
+
 	// Add these here so that they will always be in the same order.
 	// VPROF_BUDGETGROUP_OTHER_UNACCOUNTED has to be FIRST!!!!
 	BudgetGroupNameToBudgetGroupID( VPROF_BUDGETGROUP_OTHER_UNACCOUNTED,		BUDGETFLAG_OTHER | BUDGETFLAG_SERVER );
