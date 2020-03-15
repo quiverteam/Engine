@@ -8,29 +8,39 @@ CShaderConstantBufferDx11::CShaderConstantBufferDx11() :
 	m_pCBuffer( NULL ),
 	m_nBufSize( 0 ),
 	m_bNeedsUpdate( false ),
+	m_bDynamic( false ),
 	m_pData( NULL )
 {
 }
 
-void CShaderConstantBufferDx11::Create( size_t nBufferSize )
+void CShaderConstantBufferDx11::Create( size_t nBufferSize, bool bDynamic )
 {
 	m_nBufSize = nBufferSize;
+	m_bDynamic = bDynamic;
 
 	//Log( "Creating constant buffer of size %u\n", nBufferSize );
 
 	D3D11_BUFFER_DESC cbDesc;
 	cbDesc.ByteWidth = m_nBufSize;
-	cbDesc.Usage = D3D11_USAGE_DEFAULT;
 	cbDesc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
-	cbDesc.CPUAccessFlags = 0;
 	cbDesc.MiscFlags = 0;
 	cbDesc.StructureByteStride = 0;
+	if ( bDynamic )
+	{
+		cbDesc.Usage = D3D11_USAGE_DYNAMIC;
+		cbDesc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
+	}
+	else
+	{
+		cbDesc.Usage = D3D11_USAGE_DEFAULT;
+		cbDesc.CPUAccessFlags = 0;
+	}
 
 	// Fill the buffer with all zeros
-	void *pInitialMem = _aligned_malloc( nBufferSize, 16 );
-	ZeroMemory( pInitialMem, nBufferSize );
+	m_pData = _aligned_malloc( nBufferSize, 16 );
+	ZeroMemory( m_pData, nBufferSize );
 	D3D11_SUBRESOURCE_DATA initialData;
-	initialData.pSysMem = pInitialMem;
+	initialData.pSysMem = m_pData;
 	initialData.SysMemPitch = 0;
 	initialData.SysMemSlicePitch = 0;
 
@@ -42,8 +52,6 @@ void CShaderConstantBufferDx11::Create( size_t nBufferSize )
 		Warning( "Could not set constant buffer!" );
 		//return NULL;
 	}
-
-	_aligned_free( pInitialMem );
 }
 
 void CShaderConstantBufferDx11::Update( void *pNewData )
@@ -53,16 +61,25 @@ void CShaderConstantBufferDx11::Update( void *pNewData )
 
 	// If this new data is not the same as the data
 	// the GPU currently has, we need to update.
-	if ( !m_pData || memcmp( m_pData, pNewData, m_nBufSize ) )
+	if ( memcmp( m_pData, pNewData, m_nBufSize ) )
 	{
-		if ( m_pData )
-			_aligned_free( m_pData );
-		m_pData = _aligned_malloc( m_nBufSize, 16 );
 		memcpy( m_pData, pNewData, m_nBufSize );
 		m_bNeedsUpdate = true;
-		//Log( "Updated data for CBuffer with %p with len %u, needs to be uploaded to GPU\n", this, m_nBufSize );
+
+		UploadToGPU();
 	}
 
+}
+
+void *CShaderConstantBufferDx11::GetData()
+{
+	return m_pData;
+}
+
+void CShaderConstantBufferDx11::ForceUpdate()
+{
+	m_bNeedsUpdate = true;
+	UploadToGPU();
 }
 
 void CShaderConstantBufferDx11::UploadToGPU()
@@ -70,9 +87,23 @@ void CShaderConstantBufferDx11::UploadToGPU()
 	if ( !m_pCBuffer || !m_bNeedsUpdate )
 		return;
 
-	D3D11DeviceContext()->UpdateSubresource( m_pCBuffer, 0, 0, m_pData, 0, 0 );
+	if ( m_bDynamic )
+	{
+		D3D11_MAPPED_SUBRESOURCE mapped;
+		HRESULT hr = D3D11DeviceContext()->Map( m_pCBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mapped );
+		if ( FAILED( hr ) )
+		{
+			return;
+		}
+		memcpy( mapped.pData, m_pData, m_nBufSize );
+		D3D11DeviceContext()->Unmap( m_pCBuffer, 0 );
+	}
+	else
+	{
+		D3D11DeviceContext()->UpdateSubresource( m_pCBuffer, 0, 0, m_pData, 0, 0 );
+	}
+
 	m_bNeedsUpdate = false;
-	//Log( "Uploaded CBuffer %p with len %u to GPU\n", this, m_nBufSize );
 }
 
 void CShaderConstantBufferDx11::Destroy()

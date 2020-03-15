@@ -831,7 +831,6 @@ private:
 	void DoIssueInputLayout();
 	void DoIssueTopology();
 	void DoIssueViewports();
-	void DoIssueConstantBufferUpdates();
 	void DoIssueShaderState( bool bForce );
 	void DoIssueRenderTargets();
 

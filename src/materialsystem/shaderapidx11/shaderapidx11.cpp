@@ -116,11 +116,6 @@ ALIGN16 struct PerScene_CBuffer_t
 	float cFogZ;
 };
 
-static PerFrame_CBuffer_t s_PerFrameConstants;
-static PerModel_CBuffer_t s_PerModelConstants;
-static PerScene_CBuffer_t s_PerSceneConstants;
-static PerMaterial_CBuffer_t s_PerMaterialConstants;
-
 enum
 {
 	MATRIXDX11_DIRTY,
@@ -200,32 +195,35 @@ ConstantBufferHandle_t CShaderAPIDx11::GetInternalConstantBuffer( int type )
 
 void CShaderAPIDx11::BindPixelShaderConstantBuffer( int slot, ConstantBufferHandle_t cbuffer )
 {
-	StatesDx11::ConstantBufferSlot_t def;
-	def.m_pBuffer = (CShaderConstantBufferDx11 *)cbuffer;
-	def.slot = slot;
+	CShaderConstantBufferDx11 *pBuf = (CShaderConstantBufferDx11 *)cbuffer;
 
-	m_TargetState.dynamic.m_pPSConstantBuffers
-		[m_TargetState.dynamic.m_nPSConstantBuffers++] = def;
+	m_TargetState.dynamic.m_pPSConstantBuffers[slot] = pBuf->GetD3DBuffer();
+	if ( slot > m_TargetState.dynamic.m_MaxPSConstantBufferSlot )
+	{
+		m_TargetState.dynamic.m_MaxPSConstantBufferSlot = slot;
+	}
 }
 
 void CShaderAPIDx11::BindVertexShaderConstantBuffer( int slot, ConstantBufferHandle_t cbuffer )
 {
-	StatesDx11::ConstantBufferSlot_t def;
-	def.m_pBuffer = (CShaderConstantBufferDx11 *)cbuffer;
-	def.slot = slot;
+	CShaderConstantBufferDx11 *pBuf = (CShaderConstantBufferDx11 *)cbuffer;
 
-	m_TargetState.dynamic.m_pVSConstantBuffers
-		[m_TargetState.dynamic.m_nVSConstantBuffers++] = def;
+	m_TargetState.dynamic.m_pVSConstantBuffers[slot] = pBuf->GetD3DBuffer();
+	if ( slot > m_TargetState.dynamic.m_MaxVSConstantBufferSlot )
+	{
+		m_TargetState.dynamic.m_MaxVSConstantBufferSlot = slot;
+	}
 }
 
 void CShaderAPIDx11::BindGeometryShaderConstantBuffer( int slot, ConstantBufferHandle_t cbuffer )
 {
-	StatesDx11::ConstantBufferSlot_t def;
-	def.m_pBuffer = (CShaderConstantBufferDx11 *)cbuffer;
-	def.slot = slot;
+	CShaderConstantBufferDx11 *pBuf = (CShaderConstantBufferDx11 *)cbuffer;
 
-	m_TargetState.dynamic.m_pGSConstantBuffers
-		[m_TargetState.dynamic.m_nGSConstantBuffers++] = def;
+	m_TargetState.dynamic.m_pGSConstantBuffers[slot] = pBuf->GetD3DBuffer();
+	if ( slot > m_TargetState.dynamic.m_MaxGSConstantBufferSlot )
+	{
+		m_TargetState.dynamic.m_MaxGSConstantBufferSlot = slot;
+	}
 }
 
 //-----------------------------------------------------------------------------
@@ -311,11 +309,6 @@ void CShaderAPIDx11::IssueStateChanges( bool bForce )
 	const StatesDx11::ShadowState &shadow = m_State.shadow;
 
 	DoIssueShaderState( bForce );
-	
-	// If any of the constant buffers used by the target state have been modified,
-	// upload the new data to the GPU.
-	//Log( "\tUploading changed constant buffers...\n" );
-	DoIssueConstantBufferUpdates();
 
 	bool bStateChanged = false;
 
@@ -396,16 +389,15 @@ void CShaderAPIDx11::IssueStateChanges( bool bForce )
 		bStateChanged = true;
 	}
 
-	bool bPixelSamplers = bForce ||
-		targetDynamic.m_nSamplers != dynamic.m_nSamplers ||
-		memcmp( targetDynamic.m_pSamplers,
-			dynamic.m_pSamplers,
-			sizeof( StatesDx11::TextureSlot_t ) * MAX_DX11_SAMPLERS );
-	bool bVertexSamplers = bForce || 
-		targetDynamic.m_nVSSamplers != dynamic.m_nVSSamplers ||
-		memcmp( targetDynamic.m_pVSSamplers,
-			dynamic.m_pVSSamplers,
-			sizeof( StatesDx11::TextureSlot_t ) * MAX_DX11_SAMPLERS );
+	bool bPixelSamplers = bForce || ( targetDynamic.m_MaxSamplerSlot != -1 &&
+		( targetDynamic.m_MaxSamplerSlot != dynamic.m_MaxSamplerSlot ||
+		  memcmp( targetDynamic.m_pSRVs, dynamic.m_pSRVs,
+			  sizeof( ID3D11ShaderResourceView * ) * MAX_DX11_SAMPLERS ) ) );
+
+	bool bVertexSamplers = bForce || ( targetDynamic.m_MaxVSSamplerSlot != -1 &&
+		( targetDynamic.m_MaxVSSamplerSlot != dynamic.m_MaxVSSamplerSlot ||
+		  memcmp( targetDynamic.m_pVSSRVs, dynamic.m_pVSSRVs,
+			  sizeof( ID3D11ShaderResourceView * ) * MAX_DX11_SAMPLERS ) ) );
 	if ( bPixelSamplers || bVertexSamplers )
 	{
 		//Log( "\tIssuing textures\n" );
@@ -552,6 +544,21 @@ void CShaderAPIDx11::DoIssueShaderState( bool bForce )
 	bool bProjChanged = m_ShaderState.m_ChangedMatrices[MATERIAL_PROJECTION];
 	bool bModelChanged = m_ShaderState.m_ChangedMatrices[MATERIAL_MODEL];
 
+	// To avoid a memcmp + memcpy...
+	PerFrame_CBuffer_t *pPerFrameConstants = (PerFrame_CBuffer_t *)
+		( (CShaderConstantBufferDx11 *)m_hPerFrameConstants )->GetData();
+	PerModel_CBuffer_t *pPerModelConstants = (PerModel_CBuffer_t *)
+		( (CShaderConstantBufferDx11 *)m_hPerModelConstants )->GetData();
+	PerMaterial_CBuffer_t *pPerMaterialConstants = (PerMaterial_CBuffer_t *)
+		( (CShaderConstantBufferDx11 *)m_hPerMaterialConstants )->GetData();
+	PerScene_CBuffer_t *pPerSceneConstants = (PerScene_CBuffer_t *)
+		( (CShaderConstantBufferDx11 *)m_hPerSceneConstants )->GetData();
+
+	bool bPerFrameChanged = false;
+	bool bPerModelChanged = false;
+	bool bPerMatChanged = false;
+	bool bPerSceneChanged = false;
+
 	if ( bForce || bViewChanged || bProjChanged || bModelChanged )
 	{
 		const DirectX::XMMATRIX model = GetMatrix( MATERIAL_MODEL );
@@ -563,20 +570,21 @@ void CShaderAPIDx11::DoIssueShaderState( bool bForce )
 			// Store new ViewProjection matrix.
 			DirectX::XMMATRIX viewProj = DirectX::XMMatrixMultiply( view, projection );
 			viewProj = DirectX::XMMatrixTranspose( viewProj );
-			s_PerFrameConstants.cViewProj = viewProj;
+			pPerFrameConstants->cViewProj = viewProj;
+			bPerFrameChanged = true;
 		}
 		
 		// Any of the matrices being changed warrants a new ModelViewProjection.
 		DirectX::XMMATRIX viewModel = DirectX::XMMatrixMultiply( model, view );
 		DirectX::XMMATRIX modelViewProj = DirectX::XMMatrixMultiply( viewModel, projection );
 		modelViewProj = DirectX::XMMatrixTranspose( modelViewProj );
-		s_PerModelConstants.cModelViewProj = modelViewProj;
+		pPerModelConstants->cModelViewProj = modelViewProj;
 		
 		if ( bForce || bViewChanged || bModelChanged )
 		{
 			// Store new ViewModel matrix.
 			viewModel = DirectX::XMMatrixTranspose( viewModel );
-			s_PerModelConstants.cViewModel = viewModel;
+			pPerModelConstants->cViewModel = viewModel;
 		}
 
 		if ( bForce || bViewChanged )
@@ -584,8 +592,10 @@ void CShaderAPIDx11::DoIssueShaderState( bool bForce )
 			// Store new view position.
 			DirectX::XMVECTOR scale, rot, viewTranslation;
 			DirectX::XMMatrixDecompose( &scale, &rot, &viewTranslation, view );
-			DirectX::XMStoreFloat4( &s_PerFrameConstants.cEyePos, viewTranslation );
+			DirectX::XMStoreFloat4( &pPerFrameConstants->cEyePos, viewTranslation );
 		}
+
+		bPerModelChanged = true;
 
 		m_ShaderState.m_ChangedMatrices[MATERIAL_MODEL] = false;
 		m_ShaderState.m_ChangedMatrices[MATERIAL_VIEW] = false;
@@ -602,30 +612,30 @@ void CShaderAPIDx11::DoIssueShaderState( bool bForce )
 		memset( lightIndex, 0, sizeof( lightIndex ) );
 		SortLights( lightIndex );
 
-		s_PerModelConstants.cLightCountRegister.x = m_ShaderState.light.m_NumLights;
+		pPerModelConstants->cLightCountRegister.x = m_ShaderState.light.m_NumLights;
 
 		if ( m_ShaderState.light.m_NumLights == 0 )
 		{
-			memset( &s_PerModelConstants.cLightEnabled, 0, sizeof( DirectX::XMINT4 ) );
+			memset( &pPerModelConstants->cLightEnabled, 0, sizeof( DirectX::XMINT4 ) );
 		}
 
 		for ( int i = 0; i < m_ShaderState.light.m_NumLights; i++ )
 		{
 			const LightDesc_t &light = m_ShaderState.light.m_Lights[lightIndex[i]];
-			XMSetComponent4( s_PerModelConstants.cLightEnabled, i, light.m_Type != MATERIAL_LIGHT_DISABLE );
+			XMSetComponent4( pPerModelConstants->cLightEnabled, i, light.m_Type != MATERIAL_LIGHT_DISABLE );
 
 			// The first one is the light color ( and light type code )
 			float w = ( light.m_Type == MATERIAL_LIGHT_DIRECTIONAL ) ? 1.0f : 0.0f;
-			s_PerModelConstants.cLightInfo[i].color =
+			pPerModelConstants->cLightInfo[i].color =
 				DirectX::XMFLOAT4( light.m_Color.x, light.m_Color.y, light.m_Color.z, w );
 
 			// The next constant holds the light direction ( and light type code )
 			w = ( light.m_Type == MATERIAL_LIGHT_SPOT ) ? 1.0f : 0.0f;
-			s_PerModelConstants.cLightInfo[i].dir =
+			pPerModelConstants->cLightInfo[i].dir =
 				DirectX::XMFLOAT4( light.m_Direction.x, light.m_Direction.y, light.m_Direction.z, w );
 
 			// The next constant holds the light position
-			s_PerModelConstants.cLightInfo[i].pos =
+			pPerModelConstants->cLightInfo[i].pos =
 				DirectX::XMFLOAT4( light.m_Position.x, light.m_Position.y, light.m_Position.z, 1.0f );
 
 			// The next constant holds exponent, stopdot, stopdot2, 1 / (stopdot - stopdot2)
@@ -634,26 +644,29 @@ void CShaderAPIDx11::DoIssueShaderState( bool bForce )
 				float stopdot = cos( light.m_Theta * 0.5f );
 				float stopdot2 = cos( light.m_Phi * 0.5f );
 				float oodot = ( stopdot > stopdot2 ) ? 1.0f / ( stopdot - stopdot2 ) : 0.0f;
-				s_PerModelConstants.cLightInfo[i].spotParams =
+				pPerModelConstants->cLightInfo[i].spotParams =
 					DirectX::XMFLOAT4( light.m_Falloff, stopdot, stopdot2, oodot );
 			}
 			else
 			{
-				s_PerModelConstants.cLightInfo[i].spotParams =
+				pPerModelConstants->cLightInfo[i].spotParams =
 					DirectX::XMFLOAT4( 0, 1, 1, 1 );
 			}
 
 			// The last constant holds atten0, atten1, atten2
-			s_PerModelConstants.cLightInfo[i].atten =
+			pPerModelConstants->cLightInfo[i].atten =
 				DirectX::XMFLOAT4( light.m_Attenuation0, light.m_Attenuation1, light.m_Attenuation2, 0.0f );
 		}
 		m_ShaderState.light.m_bLightChanged = false;
+
+		bPerModelChanged = true;
 	}
 
 	if ( bForce || m_ShaderState.light.m_bAmbientChanged )
 	{
-		memcpy( s_PerModelConstants.cAmbientCube, m_ShaderState.light.m_AmbientLightCube, sizeof( DirectX::XMFLOAT3A ) * 6 );
+		memcpy( pPerModelConstants->cAmbientCube, m_ShaderState.light.m_AmbientLightCube, sizeof( DirectX::XMFLOAT3A ) * 6 );
 		m_ShaderState.light.m_bAmbientChanged = false;
+		bPerModelChanged = true;
 	}
 
 	//
@@ -671,15 +684,17 @@ void CShaderAPIDx11::DoIssueShaderState( bool bForce )
 			ooFogRange = 1.0f / ( fEnd - fStart );
 		}
 
-		s_PerSceneConstants.cFogParams.x = ooFogRange * fEnd;
-		s_PerSceneConstants.cFogParams.y = 1.0f;
-		s_PerSceneConstants.cFogParams.z = 1.0f - clamp( m_ShaderState.fog.m_flFogMaxDensity, 0.0f, 1.0f );
-		s_PerSceneConstants.cFogParams.w = ooFogRange;
-		s_PerSceneConstants.cFogZ = m_ShaderState.fog.m_flFogZ;
-		s_PerSceneConstants.cFogColor.x = m_ShaderState.fog.m_FogColor[0];
-		s_PerSceneConstants.cFogColor.y = m_ShaderState.fog.m_FogColor[1];
-		s_PerSceneConstants.cFogColor.z = m_ShaderState.fog.m_FogColor[2];
-		s_PerSceneConstants.cFogColor.w = 1.0f;
+		pPerSceneConstants->cFogParams.x = ooFogRange * fEnd;
+		pPerSceneConstants->cFogParams.y = 1.0f;
+		pPerSceneConstants->cFogParams.z = 1.0f - clamp( m_ShaderState.fog.m_flFogMaxDensity, 0.0f, 1.0f );
+		pPerSceneConstants->cFogParams.w = ooFogRange;
+		pPerSceneConstants->cFogZ = m_ShaderState.fog.m_flFogZ;
+		pPerSceneConstants->cFogColor.x = m_ShaderState.fog.m_FogColor[0];
+		pPerSceneConstants->cFogColor.y = m_ShaderState.fog.m_FogColor[1];
+		pPerSceneConstants->cFogColor.z = m_ShaderState.fog.m_FogColor[2];
+		pPerSceneConstants->cFogColor.w = 1.0f;
+
+		bPerSceneChanged = true;
 
 		m_ShaderState.fog.m_bFogChanged = false;
 	}
@@ -702,8 +717,10 @@ void CShaderAPIDx11::DoIssueShaderState( bool bForce )
 		m_ShaderState.bone.m_MaxBoneLoaded = 0;
 
 		// Copy bone matrices into cModel constant
-		memcpy( s_PerModelConstants.cModel, m_ShaderState.bone.m_BoneMatrix,
+		memcpy( pPerModelConstants->cModel, m_ShaderState.bone.m_BoneMatrix,
 			sizeof( DirectX::XMMATRIX ) * matricesLoaded );
+
+		bPerModelChanged = true;
 
 		m_ShaderState.bone.m_bBonesChanged = false;
 	}
@@ -713,11 +730,13 @@ void CShaderAPIDx11::DoIssueShaderState( bool bForce )
 	//
 	if ( bForce || m_ShaderState.morph.m_bMorphChanged )
 	{
-		memcpy( s_PerModelConstants.cFlexWeights, m_ShaderState.morph.m_pWeights,
+		memcpy( pPerModelConstants->cFlexWeights, m_ShaderState.morph.m_pWeights,
 			sizeof( MorphWeight_t ) * m_ShaderState.morph.m_nMaxWeightLoaded );
 		m_ShaderState.morph.m_nMaxWeightLoaded = 0;
-		s_PerModelConstants.cFlexScale = DirectX::XMFLOAT4( 0.0f, 0.0f, 0.0f, 0.0f );
+		pPerModelConstants->cFlexScale = DirectX::XMFLOAT4( 0.0f, 0.0f, 0.0f, 0.0f );
 		m_ShaderState.morph.m_bMorphChanged = false;
+
+		bPerModelChanged = true;
 	}
 
 	//
@@ -725,11 +744,13 @@ void CShaderAPIDx11::DoIssueShaderState( bool bForce )
 	//
 	if ( bForce || m_ShaderState.m_bConstantColorChanged )
 	{
-		s_PerMaterialConstants.cModulationColor = DirectX::XMFLOAT4( m_ShaderState.m_ConstantColor[0],
+		pPerMaterialConstants->cModulationColor = DirectX::XMFLOAT4( m_ShaderState.m_ConstantColor[0],
 									     m_ShaderState.m_ConstantColor[1],
 									     m_ShaderState.m_ConstantColor[2],
 									     m_ShaderState.m_ConstantColor[3] );
 		m_ShaderState.m_bConstantColorChanged = false;
+
+		bPerMatChanged = true;
 	}
 
 	//
@@ -752,32 +773,34 @@ void CShaderAPIDx11::DoIssueShaderState( bool bForce )
 		float vPsConst[4] = { flFlashlightScale * pFlashlightColor[0], flFlashlightScale * pFlashlightColor[1],
 			flFlashlightScale * pFlashlightColor[2], pFlashlightColor[3] };
 		vPsConst[3] = 0.0f; // This will be added to N.L before saturate to force a 1.0 N.L term
-		s_PerSceneConstants.cFlashlightColor = DirectX::XMFLOAT4( vPsConst );
+		pPerSceneConstants->cFlashlightColor = DirectX::XMFLOAT4( vPsConst );
 		DirectX::XMFLOAT4X4 flashlightWorldToTexture4x4 = DirectX::XMFLOAT4X4( m_FlashlightWorldToTexture.Base() );
-		s_PerSceneConstants.cFlashlightWorldToTexture = DirectX::XMLoadFloat4x4( &flashlightWorldToTexture4x4 );
+		pPerSceneConstants->cFlashlightWorldToTexture = DirectX::XMLoadFloat4x4( &flashlightWorldToTexture4x4 );
 		// Dimensions of screen, used for screen-space noise map sampling
 		float vScreenScale[4] = { 1280.0f / 32.0f, 720.0f / 32.0f, 0, 0 };
 		int nWidth, nHeight;
 		GetBackBufferDimensions( nWidth, nHeight );
 		vScreenScale[0] = (float)nWidth / 32.0f;
 		vScreenScale[1] = (float)nHeight / 32.0f;
-		s_PerSceneConstants.cFlashlightScreenScale = DirectX::XMFLOAT4( vScreenScale );
+		pPerSceneConstants->cFlashlightScreenScale = DirectX::XMFLOAT4( vScreenScale );
 		// Tweaks associated with a given flashlight
 		float tweaks[4];
 		tweaks[0] = m_FlashlightState.m_flShadowFilterSize / m_FlashlightState.m_flShadowMapResolution;
 		tweaks[1] = ShadowAttenFromState( m_FlashlightState );
 		HashShadow2DJitter( m_FlashlightState.m_flShadowJitterSeed, &tweaks[2], &tweaks[3] );
-		s_PerMaterialConstants.cShadowTweaks = DirectX::XMFLOAT4( tweaks );
-		s_PerFrameConstants.cFlashlightPos = DirectX::XMFLOAT4( m_FlashlightState.m_vecLightOrigin[0],
+		pPerMaterialConstants->cShadowTweaks = DirectX::XMFLOAT4( tweaks );
+		pPerFrameConstants->cFlashlightPos = DirectX::XMFLOAT4( m_FlashlightState.m_vecLightOrigin[0],
 									m_FlashlightState.m_vecLightOrigin[1],
 									m_FlashlightState.m_vecLightOrigin[2],
 									1.0f );
-		s_PerSceneConstants.cFlashlightAttenuationFactors = DirectX::XMFLOAT4(
+		pPerSceneConstants->cFlashlightAttenuationFactors = DirectX::XMFLOAT4(
 			m_FlashlightState.m_fConstantAtten,
 			m_FlashlightState.m_fLinearAtten,
 			m_FlashlightState.m_fQuadraticAtten,
 			m_FlashlightState.m_FarZ
 		);
+
+		bPerSceneChanged = true;
 
 		m_bFlashlightStateChanged = false;
 	}
@@ -785,36 +808,14 @@ void CShaderAPIDx11::DoIssueShaderState( bool bForce )
 	//
 	// Supply the new constants.
 	//
-	( (IShaderConstantBuffer *)m_hPerMaterialConstants )->Update( &s_PerMaterialConstants );
-	( (IShaderConstantBuffer *)m_hPerModelConstants )->Update( &s_PerModelConstants );
-	( (IShaderConstantBuffer *)m_hPerFrameConstants )->Update( &s_PerFrameConstants );
-	( (IShaderConstantBuffer *)m_hPerSceneConstants )->Update( &s_PerSceneConstants );
-}
-
-FORCEINLINE static void UploadConstantBuffer( CShaderConstantBufferDx11 *pBuffer )
-{
-	if ( pBuffer )
-	{
-		// This will check if the data has been changed.
-		// If so, it will upload the new data to the GPU.
-		pBuffer->UploadToGPU();
-	}
-}
-
-void CShaderAPIDx11::DoIssueConstantBufferUpdates()
-{
-	for ( int i = 0; i < m_TargetState.dynamic.m_nVSConstantBuffers; i++ )
-	{
-		UploadConstantBuffer( m_TargetState.dynamic.m_pVSConstantBuffers[i].m_pBuffer );
-	}
-	for ( int i = 0; i < m_TargetState.dynamic.m_nGSConstantBuffers; i++ )
-	{
-		UploadConstantBuffer( m_TargetState.dynamic.m_pGSConstantBuffers[i].m_pBuffer );
-	}
-	for ( int i = 0; i < m_TargetState.dynamic.m_nPSConstantBuffers; i++ )
-	{
-		UploadConstantBuffer( m_TargetState.dynamic.m_pPSConstantBuffers[i].m_pBuffer );
-	}
+	if ( bPerMatChanged )
+		( (CShaderConstantBufferDx11 *)m_hPerMaterialConstants )->ForceUpdate();
+	if ( bPerModelChanged )
+		( (CShaderConstantBufferDx11 *)m_hPerModelConstants )->ForceUpdate();
+	if ( bPerFrameChanged )
+		( (CShaderConstantBufferDx11 *)m_hPerFrameConstants )->ForceUpdate();
+	if ( bPerSceneChanged )
+		( (CShaderConstantBufferDx11 *)m_hPerSceneConstants )->ForceUpdate();
 }
 
 void CShaderAPIDx11::DoIssueVertexShader()
@@ -842,48 +843,42 @@ bool CShaderAPIDx11::DoIssueConstantBuffers( bool bForce )
 	const StatesDx11::DynamicState &dynamic = m_State.dynamic;
 
 	if ( m_TargetState.dynamic.m_pVertexShader &&
-		( targetDynamic.m_nVSConstantBuffers != dynamic.m_nVSConstantBuffers ||
+	     targetDynamic.m_MaxVSConstantBufferSlot != -1 &&
+		( targetDynamic.m_MaxVSConstantBufferSlot != dynamic.m_MaxVSConstantBufferSlot ||
 		  memcmp( targetDynamic.m_pVSConstantBuffers, dynamic.m_pVSConstantBuffers,
-			  sizeof( StatesDx11::ConstantBufferSlot_t ) * MAX_DX11_CBUFFERS ) ) )
+			  sizeof( ID3D11Buffer * ) * MAX_DX11_CBUFFERS ) ) )
 	{
-		for ( int i = 0; i < targetDynamic.m_nVSConstantBuffers; i++ )
-		{
-			const StatesDx11::ConstantBufferSlot_t &slotdef = targetDynamic.m_pVSConstantBuffers[i];
-			ID3D11Buffer *pBuf = slotdef.m_pBuffer->GetD3DBuffer();
-			D3D11DeviceContext()->VSSetConstantBuffers( slotdef.slot, 1, &pBuf );
-		}
+
+		D3D11DeviceContext()->VSSetConstantBuffers( 0, targetDynamic.m_MaxVSConstantBufferSlot + 1,
+							    targetDynamic.m_pVSConstantBuffers );
 		
 		bVSChanged = true;
 	}
 
 	if ( m_TargetState.dynamic.m_pGeometryShader &&
-		( targetDynamic.m_nGSConstantBuffers != dynamic.m_nGSConstantBuffers ||
-		  memcmp( targetDynamic.m_pGSConstantBuffers, dynamic.m_pGSConstantBuffers,
-			  sizeof( StatesDx11::ConstantBufferSlot_t ) * MAX_DX11_CBUFFERS ) ) )
+	     targetDynamic.m_MaxGSConstantBufferSlot != -1 &&
+	     ( targetDynamic.m_MaxGSConstantBufferSlot != dynamic.m_MaxGSConstantBufferSlot ||
+	       memcmp( targetDynamic.m_pGSConstantBuffers, dynamic.m_pGSConstantBuffers,
+		       sizeof( ID3D11Buffer * ) * MAX_DX11_CBUFFERS ) ) )
 	{
-		for ( int i = 0; i < targetDynamic.m_nGSConstantBuffers; i++ )
-		{
-			const StatesDx11::ConstantBufferSlot_t &slotdef = targetDynamic.m_pGSConstantBuffers[i];
-			ID3D11Buffer *pBuf = slotdef.m_pBuffer->GetD3DBuffer();
-			D3D11DeviceContext()->GSSetConstantBuffers( slotdef.slot, 1, &pBuf );
-		}
+
+		D3D11DeviceContext()->GSSetConstantBuffers( 0, targetDynamic.m_MaxGSConstantBufferSlot + 1,
+							    targetDynamic.m_pGSConstantBuffers );
 
 		bGSChanged = true;
 	}
 
 	if ( m_TargetState.dynamic.m_pPixelShader &&
-		( targetDynamic.m_nPSConstantBuffers != dynamic.m_nPSConstantBuffers ||
-		  memcmp( targetDynamic.m_pPSConstantBuffers, dynamic.m_pPSConstantBuffers,
-			  sizeof( StatesDx11::ConstantBufferSlot_t ) * MAX_DX11_CBUFFERS ) ) )
+	     targetDynamic.m_MaxPSConstantBufferSlot != -1 &&
+	     ( targetDynamic.m_MaxPSConstantBufferSlot != dynamic.m_MaxPSConstantBufferSlot ||
+	       memcmp( targetDynamic.m_pPSConstantBuffers, dynamic.m_pPSConstantBuffers,
+		       sizeof( ID3D11Buffer * ) * MAX_DX11_CBUFFERS ) ) )
 	{
-		for ( int i = 0; i < targetDynamic.m_nPSConstantBuffers; i++ )
-		{
-			const StatesDx11::ConstantBufferSlot_t &slotdef = targetDynamic.m_pPSConstantBuffers[i];
-			ID3D11Buffer *pBuf = slotdef.m_pBuffer->GetD3DBuffer();
-			D3D11DeviceContext()->PSSetConstantBuffers( slotdef.slot, 1, &pBuf );
-		}
 
-		bGSChanged = true;
+		D3D11DeviceContext()->PSSetConstantBuffers( 0, targetDynamic.m_MaxPSConstantBufferSlot + 1,
+							    targetDynamic.m_pPSConstantBuffers );
+
+		bPSChanged = true;
 	}
 
 	return bPSChanged || bVSChanged || bGSChanged;
@@ -893,29 +888,21 @@ void CShaderAPIDx11::DoIssueSampler( bool bPixel, bool bVertex )
 {
 	if ( bPixel )
 	{
-		for ( int i = 0; i < m_TargetState.dynamic.m_nSamplers; i++ )
+		if ( m_TargetState.dynamic.m_MaxSamplerSlot != -1 )
 		{
-			const StatesDx11::TextureSlot_t &slotdef = m_TargetState.dynamic.m_pSamplers[i];
-			if ( !slotdef.m_pTexture )
-				continue;
-			ID3D11ShaderResourceView *pView = slotdef.m_pTexture->GetView();
-			ID3D11SamplerState *pSampler = slotdef.m_pTexture->GetSamplerState();
-			D3D11DeviceContext()->PSSetShaderResources( slotdef.slot, 1, &pView );
-			D3D11DeviceContext()->PSSetSamplers( slotdef.slot, 1, &pSampler );
+			int nSamplers = m_TargetState.dynamic.m_MaxSamplerSlot + 1;
+			D3D11DeviceContext()->PSSetSamplers( 0, nSamplers, m_TargetState.dynamic.m_pSamplers );
+			D3D11DeviceContext()->PSSetShaderResources( 0, nSamplers, m_TargetState.dynamic.m_pSRVs );
 		}
 	}
 	
 	if ( bVertex )
 	{
-		for ( int i = 0; i < m_TargetState.dynamic.m_nVSSamplers; i++ )
+		if ( m_TargetState.dynamic.m_MaxVSSamplerSlot != -1 )
 		{
-			const StatesDx11::TextureSlot_t &slotdef = m_TargetState.dynamic.m_pVSSamplers[i];
-			if ( !slotdef.m_pTexture )
-				continue;
-			ID3D11ShaderResourceView *pView = slotdef.m_pTexture->GetView();
-			ID3D11SamplerState *pSampler = slotdef.m_pTexture->GetSamplerState();
-			D3D11DeviceContext()->VSSetShaderResources( slotdef.slot, 1, &pView );
-			D3D11DeviceContext()->VSSetSamplers( slotdef.slot, 1, &pSampler );
+			int nSamplers = m_TargetState.dynamic.m_MaxVSSamplerSlot + 1;
+			D3D11DeviceContext()->VSSetSamplers( 0, nSamplers, m_TargetState.dynamic.m_pVSSamplers );
+			D3D11DeviceContext()->VSSetShaderResources( 0, nSamplers, m_TargetState.dynamic.m_pVSSRVs );
 		}
 	}
 }
@@ -1561,16 +1548,12 @@ void CShaderAPIDx11::ClearSnapshots()
 // Sets the default *dynamic* state
 void CShaderAPIDx11::SetDefaultState()
 {
-	m_TargetState.dynamic.m_nVSConstantBuffers = 0;
-	m_TargetState.dynamic.m_nGSConstantBuffers = 0;
-	m_TargetState.dynamic.m_nPSConstantBuffers = 0;
+	m_TargetState.dynamic.m_MaxVSConstantBufferSlot = -1;
+	m_TargetState.dynamic.m_MaxGSConstantBufferSlot = -1;
+	m_TargetState.dynamic.m_MaxPSConstantBufferSlot = -1;
 
-	ZeroMemory( m_TargetState.dynamic.m_pVSConstantBuffers, sizeof( StatesDx11::ConstantBufferSlot_t ) * MAX_DX11_CBUFFERS );
-	ZeroMemory( m_TargetState.dynamic.m_pGSConstantBuffers, sizeof( StatesDx11::ConstantBufferSlot_t ) * MAX_DX11_CBUFFERS );
-	ZeroMemory( m_TargetState.dynamic.m_pPSConstantBuffers, sizeof( StatesDx11::ConstantBufferSlot_t ) * MAX_DX11_CBUFFERS );
-
-	m_TargetState.dynamic.m_nSamplers = 0;
-	ZeroMemory( m_TargetState.dynamic.m_pSamplers, sizeof( StatesDx11::TextureSlot_t ) * MAX_DX11_SAMPLERS );
+	m_TargetState.dynamic.m_MaxSamplerSlot = -1;
+	m_TargetState.dynamic.m_MaxVSSamplerSlot = -1;
 
 	m_TargetState.dynamic.m_pVertexShader = 0;
 	m_TargetState.dynamic.m_pGeometryShader = 0;
@@ -1886,16 +1869,20 @@ void CShaderAPIDx11::SetLight( int lightNum, const LightDesc_t &desc )
 {
 	LOCK_SHADERAPI();
 
-	//if ( memcmp( &desc, &m_ShaderState.light.m_Lights[lightNum], sizeof( LightDesc_t ) ) )
+	//if (  )
 	//{
 		
 		FlushBufferedPrimitives();
+		if ( !m_ShaderState.light.m_bLightChanged && memcmp( &desc, &m_ShaderState.light.m_Lights[lightNum], sizeof( LightDesc_t ) ) )
+		{
+			m_ShaderState.light.m_bLightChanged = true;
+		}
 		m_ShaderState.light.m_Lights[lightNum] = desc;
 		m_ShaderState.light.m_NumLights = ComputeNumLights();
 		//SortLights();
 		//if ( lightNum == 2 && desc.m_Type != MATERIAL_LIGHT_DISABLE)
 		//	DebuggerBreak();
-		m_ShaderState.light.m_bLightChanged = true;
+		//m_ShaderState.light.m_bLightChanged = true;
 	//}
 }
 
@@ -1903,8 +1890,11 @@ void CShaderAPIDx11::SetAmbientLightCube( Vector4D cube[6] )
 {
 	LOCK_SHADERAPI();
 
+	if ( !m_ShaderState.light.m_bAmbientChanged && memcmp( m_ShaderState.light.m_AmbientLightCube, cube, sizeof( Vector4D ) * 6 ) )
+	{
+		m_ShaderState.light.m_bAmbientChanged = true;
+	}
 	memcpy( m_ShaderState.light.m_AmbientLightCube, cube, 6 * sizeof( Vector4D ) );
-	m_ShaderState.light.m_bAmbientChanged = true;
 }
 
 // Get lights
@@ -2164,7 +2154,12 @@ void CShaderAPIDx11::LoadBoneMatrix( int boneIndex, const float *m )
 
 	DirectX::XMFLOAT4X4 flt4x4( boneMatrix.Base() );
 	DirectX::XMMATRIX &mat = m_ShaderState.bone.m_BoneMatrix[boneIndex];
-	mat = DirectX::XMLoadFloat4x4( &flt4x4 );
+	DirectX::XMMATRIX newmat = DirectX::XMLoadFloat4x4( &flt4x4 );
+	if ( !m_ShaderState.bone.m_bBonesChanged && memcmp( &mat, &newmat, sizeof( DirectX::XMMATRIX ) ) )
+	{
+		m_ShaderState.bone.m_bBonesChanged = true;
+	}
+	mat = newmat;
 	if ( boneIndex > m_ShaderState.bone.m_MaxBoneLoaded )
 	{
 		m_ShaderState.bone.m_MaxBoneLoaded = boneIndex;
@@ -2176,7 +2171,6 @@ void CShaderAPIDx11::LoadBoneMatrix( int boneIndex, const float *m )
 		MatrixTranspose( boneMatrix, transpose );
 		LoadMatrix( transpose.Base() );
 	}
-	m_ShaderState.bone.m_bBonesChanged = true;
 }
 
 void CShaderAPIDx11::MultMatrix( float *m )
@@ -2522,11 +2516,16 @@ void CShaderAPIDx11::BindTexture( Sampler_t stage, ShaderAPITextureHandle_t text
 {
 	CTextureDx11 *pTex = &GetTexture( textureHandle );
 
-	StatesDx11::TextureSlot_t slotdef;
-	slotdef.slot = (int)stage;
-	slotdef.m_pTexture = pTex;
+	if ( !pTex )
+		return;
 
-	m_TargetState.dynamic.m_pSamplers[m_TargetState.dynamic.m_nSamplers++] = slotdef;
+	m_TargetState.dynamic.m_pSamplers[stage] = pTex->GetSamplerState();
+	m_TargetState.dynamic.m_pSRVs[stage] = pTex->GetView();
+
+	if ( stage > m_TargetState.dynamic.m_MaxSamplerSlot )
+	{
+		m_TargetState.dynamic.m_MaxSamplerSlot = stage;
+	}
 }
 
 void CShaderAPIDx11::UnbindTexture( ShaderAPITextureHandle_t textureHandle )
@@ -2536,9 +2535,9 @@ void CShaderAPIDx11::UnbindTexture( ShaderAPITextureHandle_t textureHandle )
 	// Unbind the sampler
 
 	int iSampler = -1;
-	for ( int i = 0; i < m_TargetState.dynamic.m_nSamplers; i++ )
+	for ( int i = 0; i < m_TargetState.dynamic.m_MaxSamplerSlot + 1; i++ )
 	{
-		if ( m_TargetState.dynamic.m_pSamplers[i].m_pTexture == pTex )
+		if ( m_TargetState.dynamic.m_pSRVs[i] == pTex->GetView() )
 		{
 			iSampler = i;
 			break;
@@ -2548,12 +2547,19 @@ void CShaderAPIDx11::UnbindTexture( ShaderAPITextureHandle_t textureHandle )
 	if ( iSampler == -1 )
 		return;
 
-	for ( int i = iSampler; i < m_TargetState.dynamic.m_nSamplers - 1; i++ )
+	m_TargetState.dynamic.m_pSRVs[iSampler] = NULL;
+	m_TargetState.dynamic.m_pSamplers[iSampler] = NULL;
+
+	int maxSampler = -1;
+	for ( int i = 0; i < MAX_DX11_SAMPLERS; i++ )
 	{
-		m_TargetState.dynamic.m_pSamplers[i] =
-			m_TargetState.dynamic.m_pSamplers[i + 1];
+		if ( m_TargetState.dynamic.m_pSRVs[i] != NULL )
+		{
+			maxSampler = i;
+		}
 	}
-	m_TargetState.dynamic.m_nSamplers--;
+
+	m_TargetState.dynamic.m_MaxSamplerSlot = maxSampler;
 }
 
 // Indicates we're going to be modifying this texture
@@ -3417,11 +3423,13 @@ void CShaderAPIDx11::BindVertexTexture( VertexTextureSampler_t stage, ShaderAPIT
 {
 	CTextureDx11 *pTex = &GetTexture( hTexture );
 
-	StatesDx11::TextureSlot_t slotdef;
-	slotdef.slot = (int)stage;
-	slotdef.m_pTexture = pTex;
+	m_TargetState.dynamic.m_pVSSamplers[stage] = pTex->GetSamplerState();
+	m_TargetState.dynamic.m_pVSSRVs[stage] = pTex->GetView();
 
-	m_TargetState.dynamic.m_pVSSamplers[m_TargetState.dynamic.m_nVSSamplers++] = slotdef;
+	if ( stage > m_TargetState.dynamic.m_MaxVSSamplerSlot )
+	{
+		m_TargetState.dynamic.m_MaxVSSamplerSlot = stage;
+	}
 }
 
 void CShaderAPIDx11::SetFlexWeights( int nFirstWeight, int nCount, const MorphWeight_t *pWeights )

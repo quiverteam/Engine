@@ -271,18 +271,6 @@ namespace StatesDx11
 		ShaderAPITextureHandle_t m_DepthTarget;
 	};
 
-	struct ConstantBufferSlot_t
-	{
-		CShaderConstantBufferDx11 *m_pBuffer;
-		int slot;
-	};
-
-	struct TextureSlot_t
-	{
-		CTextureDx11 *m_pTexture;
-		int slot;
-	};
-
 	struct DynamicState
 	{
 		int m_nViewportCount;
@@ -306,17 +294,20 @@ namespace StatesDx11
 		ID3D11PixelShader *m_pPixelShader;
 		int m_iPixelShader;
 
-		ConstantBufferSlot_t m_pVSConstantBuffers[MAX_DX11_CBUFFERS];
-		int m_nVSConstantBuffers;
-		ConstantBufferSlot_t m_pGSConstantBuffers[MAX_DX11_CBUFFERS];
-		int m_nGSConstantBuffers;
-		ConstantBufferSlot_t m_pPSConstantBuffers[MAX_DX11_CBUFFERS];
-		int m_nPSConstantBuffers;
+		ID3D11Buffer *m_pVSConstantBuffers[MAX_DX11_CBUFFERS];
+		int m_MaxVSConstantBufferSlot;
+		ID3D11Buffer *m_pGSConstantBuffers[MAX_DX11_CBUFFERS];
+		int m_MaxGSConstantBufferSlot;
+		ID3D11Buffer *m_pPSConstantBuffers[MAX_DX11_CBUFFERS];
+		int m_MaxPSConstantBufferSlot;
 		
-		TextureSlot_t m_pVSSamplers[MAX_DX11_SAMPLERS];
-		int m_nVSSamplers;
-		TextureSlot_t m_pSamplers[MAX_DX11_SAMPLERS];
-		int m_nSamplers;
+		ID3D11ShaderResourceView *m_pVSSRVs[MAX_DX11_SAMPLERS];
+		ID3D11SamplerState *m_pVSSamplers[MAX_DX11_SAMPLERS];
+		int m_MaxVSSamplerSlot;
+
+		ID3D11ShaderResourceView *m_pSRVs[MAX_DX11_SAMPLERS];
+		ID3D11SamplerState *m_pSamplers[MAX_DX11_SAMPLERS];
+		int m_MaxSamplerSlot;
 
 		ID3D11RenderTargetView *m_pRenderTargetView;
 		ID3D11DepthStencilView *m_pDepthStencilView;
@@ -329,6 +320,11 @@ namespace StatesDx11
 			m_iPixelShader = -1;
 			m_iGeometryShader = -1;
 			m_Topology = D3D11_PRIMITIVE_TOPOLOGY_UNDEFINED;
+			m_MaxVSConstantBufferSlot = -1;
+			m_MaxGSConstantBufferSlot = -1;
+			m_MaxPSConstantBufferSlot = -1;
+			m_MaxVSSamplerSlot = -1;
+			m_MaxSamplerSlot = -1;
 		}
 
 		DynamicState()

@@ -5,7 +5,7 @@
 class IShaderConstantBuffer
 {
 public:
-	virtual void Create( size_t nBufferSize ) = 0;
+	virtual void Create( size_t nBufferSize, bool bDynamic = true ) = 0;
 	virtual void Update( void *pNewData ) = 0;
 	virtual void Destroy() = 0;
 

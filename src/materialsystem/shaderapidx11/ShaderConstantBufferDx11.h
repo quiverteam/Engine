@@ -7,12 +7,16 @@ class CShaderConstantBufferDx11 : public IShaderConstantBuffer
 {
 public:
 	CShaderConstantBufferDx11();
-	virtual void Create( size_t nBufferSize );
+	virtual void Create( size_t nBufferSize, bool bDynamic = true );
 	virtual void Update( void *pNewData );
 	virtual void Destroy();
 	virtual bool NeedsUpdate() const;
 	virtual void UploadToGPU();
 	virtual ConstantBufferHandle_t GetBuffer() const;
+
+	void *GetData();
+
+	void ForceUpdate();
 
 	ID3D11Buffer *GetD3DBuffer() const;
 
@@ -20,6 +24,7 @@ private:
 	ID3D11Buffer* m_pCBuffer;
 	size_t m_nBufSize;
 	bool m_bNeedsUpdate;
+	bool m_bDynamic;
 	void *m_pData;
 };
 
