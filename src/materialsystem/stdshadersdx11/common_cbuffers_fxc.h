@@ -19,13 +19,18 @@ cbuffer PerModel_t : reg \
 { \
 	matrix cModelViewProj; \
 	matrix cViewModel; \
-	float4x4 cModel[53]; \
-	float4 cFlexWeights[512]; \
+	matrix cModelMatrix; \
 	float4 cFlexScale; \
 	int4 cLightEnabled; \
 	int4 cLightCountRegister; \
 	LightInfo cLightInfo[4]; \
 	float3 cAmbientCube[6]; \
+};
+
+#define CBUFFER_SKINNING( reg )\
+cbuffer Skinning_t : reg \
+{ \
+	float4x4 cModel[53]; \
 };
 
 #define CBUFFER_PERFRAME( reg ) \

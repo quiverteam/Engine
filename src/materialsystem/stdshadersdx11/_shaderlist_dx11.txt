@@ -6,6 +6,14 @@
 //bik_vs40.fxc
 //bik_ps40.fxc
 
+sprite_ps40.fxc
+sprite_vs40.fxc
+
+sky_vs40.fxc
+sky_ps40.fxc
+sky_hdr_compressed_rgbs_ps40.fxc
+sky_hdr_compressed_ps40.fxc
+
 decalmodulate_ps40.fxc
 
 vertexlit_and_unlit_generic_vs40.fxc

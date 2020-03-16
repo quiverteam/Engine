@@ -1805,6 +1805,15 @@ void CBaseShader::BindInternalVertexShaderConstantBuffers()
 	BindVertexShaderConstantBuffer( 1, GetInternalConstantBuffer( SHADER_CONSTANTBUFFER_PERMODEL ) );
 	BindVertexShaderConstantBuffer( 2, GetInternalConstantBuffer( SHADER_CONSTANTBUFFER_PERFRAME ) );
 	BindVertexShaderConstantBuffer( 3, GetInternalConstantBuffer( SHADER_CONSTANTBUFFER_PERSCENE ) );
+	BindVertexShaderConstantBuffer( 4, GetInternalConstantBuffer( SHADER_CONSTANTBUFFER_SKINNING ) );
+}
+
+void CBaseShader::BindInternalVertexShaderConstantBuffersNoSkinning()
+{
+	BindVertexShaderConstantBuffer( 0, GetInternalConstantBuffer( SHADER_CONSTANTBUFFER_PERMATERIAL ) );
+	BindVertexShaderConstantBuffer( 1, GetInternalConstantBuffer( SHADER_CONSTANTBUFFER_PERMODEL ) );
+	BindVertexShaderConstantBuffer( 2, GetInternalConstantBuffer( SHADER_CONSTANTBUFFER_PERFRAME ) );
+	BindVertexShaderConstantBuffer( 3, GetInternalConstantBuffer( SHADER_CONSTANTBUFFER_PERSCENE ) );
 }
 
 void CBaseShader::BindInternalPixelShaderConstantBuffers()

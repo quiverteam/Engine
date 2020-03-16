@@ -8,6 +8,7 @@
 //===========================================================================//
 #include "BaseVSShader.h"
 #include "vertexlitgeneric_dx11_helper.h"
+#include "tier0/vprof.h"
 //#include "skin_dx11_helper.h"
 
 #include "vertexlit_and_unlit_generic_vs40.inc"
@@ -364,6 +365,8 @@ static void DrawVertexLitGeneric_DX11_Internal( CBaseVSShader *pShader, IMateria
 					       CBasePerMaterialContextData **pContextDataPtr )
 
 {
+	VPROF_BUDGET( "DrawVertexLitGeneric_DX11", VPROF_BUDGETGROUP_OTHER_UNACCOUNTED );
+
 	CVertexLitGeneric_DX11_Context *pContextData = reinterpret_cast<CVertexLitGeneric_DX11_Context *> ( *pContextDataPtr );
 	if ( !pContextData )								// make sure allocated
 	{

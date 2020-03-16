@@ -1,0 +1,30 @@
+// DYNAMIC: "WRITE_DEPTH_TO_DESTALPHA"	"0..1"
+#include "common_ps_fxc.h"
+
+Texture2D ExposureTexture0		: register( t0 );
+sampler ExposureTextureSampler0	: register( s0 );
+Texture2D ExposureTexture1		: register( t1 );
+sampler ExposureTextureSampler1	: register( s1 );
+Texture2D ExposureTexture2		: register( t2 );
+sampler ExposureTextureSampler2	: register( s2 );
+
+struct PS_INPUT
+{
+	float4 projPos					: SV_POSITION;
+
+	float2 baseTexCoord : TEXCOORD0;
+	float2 baseTexCoord01 : TEXCOORD1;
+	float2 baseTexCoord10 : TEXCOORD2;
+	float2 baseTexCoord11 : TEXCOORD3;
+	float2 baseTexCoord_In_Pixels: TEXCOORD4;
+};
+
+float4 main( PS_INPUT i ) : SV_TARGET
+{
+	HALF3 color0 = 0.25*ExposureTexture0.Sample( ExposureTextureSampler0, i.baseTexCoord );
+	HALF3 color1 = 2.0*ExposureTexture1.Sample( ExposureTextureSampler1, i.baseTexCoord );
+	HALF3 color2 = 16.0*ExposureTexture2.Sample( ExposureTextureSampler2, i.baseTexCoord );
+
+	// This is never fogged.
+	return FinalOutput( float4(1,0,0,1 ), 0, PIXEL_FOG_TYPE_NONE, TONEMAP_SCALE_LINEAR, WRITE_DEPTH_TO_DESTALPHA, 1e20 ); //when writing depth to dest alpha, write a value guaranteed to saturate
+}

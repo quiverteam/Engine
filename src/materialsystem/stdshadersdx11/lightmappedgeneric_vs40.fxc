@@ -82,18 +82,18 @@ VS_OUTPUT main( const VS_INPUT v )
 	float3 vObjNormal;
 	DecompressVertex_Normal( v.vNormal, vObjNormal );
 
-	float3 worldPos = mul( float4( v.vPos, 1 ), cModel[0] );
+	float3 worldPos = mul( float4( v.vPos, 1 ), cModelMatrix );
 
 	float4 vProjPos = mul( float4( v.vPos, 1 ), cModelViewProj );
 	o.projPos = vProjPos;
 	
 	o.worldPos_projPosZ = float4( worldPos, vProjPos.z );
 	
-	float3 worldNormal = mul( vObjNormal, ( float3x3 )cModel[0] );
+	float3 worldNormal = mul( vObjNormal, ( float3x3 )cModelMatrix );
 	
 #if TANGENTSPACE || (LIGHTING_PREVIEW)
-	float3 worldTangentS = mul( v.vTangentS, ( const float3x3 )cModel[0] );
-	float3 worldTangentT = mul( v.vTangentT, ( const float3x3 )cModel[0] );
+	float3 worldTangentS = mul( v.vTangentS, ( const float3x3 )cModelMatrix );
+	float3 worldTangentT = mul( v.vTangentT, ( const float3x3 )cModelMatrix );
 	o.tangentSpaceTranspose[0] = worldTangentS;
 	o.tangentSpaceTranspose[1] = worldTangentT;
 	o.tangentSpaceTranspose[2] = worldNormal;

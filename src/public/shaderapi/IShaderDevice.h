@@ -115,6 +115,8 @@ enum ShaderInternalConstantBuffers_t
 	SHADER_CONSTANTBUFFER_PERMODEL,
 	SHADER_CONSTANTBUFFER_PERMATERIAL,
 	SHADER_CONSTANTBUFFER_PERSCENE,
+	SHADER_CONSTANTBUFFER_SKINNING,
+	SHADER_CONSTANTBUFFER_FLEX,
 };
 
 //-----------------------------------------------------------------------------

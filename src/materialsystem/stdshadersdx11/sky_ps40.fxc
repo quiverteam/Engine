@@ -1,0 +1,31 @@
+// HDRFIXME: Make this work with nonHDR
+// DYNAMIC: "WRITE_DEPTH_TO_DESTALPHA"	"0..1"
+
+#include "common_ps_fxc.h"
+
+Texture2D BaseTexture		: register( t0 );
+sampler BaseTextureSampler	: register( s0 );
+
+cbuffer Sky_PS40_t : register( b0 )
+{
+	float4 InputScale;
+};
+
+struct PS_INPUT
+{
+	float4 projPos			: SV_POSITION;
+	float2 baseTexCoord : TEXCOORD0;
+	float2 baseTexCoord01 : TEXCOORD1;
+	float2 baseTexCoord10 : TEXCOORD2;
+	float2 baseTexCoord11 : TEXCOORD3;
+	float2 baseTexCoord_In_Pixels: TEXCOORD4;
+};
+
+float4 main( PS_INPUT i ) : SV_TARGET
+{
+	float4 color = BaseTexture.Sample( BaseTextureSampler, i.baseTexCoord.xy );
+	color.rgb *= InputScale.rgb;
+	
+	// This is never fogged.
+	return FinalOutput( color, 0, PIXEL_FOG_TYPE_NONE, TONEMAP_SCALE_LINEAR, WRITE_DEPTH_TO_DESTALPHA, 1e20 ); //when writing depth to dest alpha, write a value guaranteed to saturate
+}

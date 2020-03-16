@@ -10,6 +10,7 @@
 #include "BaseVSShader.h"
 #include "../stdshaders/commandbuilder.h"
 #include "convar.h"
+#include "tier0/vprof.h"
 
 #include <type_traits>
 
@@ -672,6 +673,8 @@ void DrawLightmappedGeneric_DX11_Internal( CBaseVSShader *pShader, IMaterialVar 
 					  CBasePerMaterialContextData **pContextDataPtr
 )
 {
+	VPROF_BUDGET( "DrawLightmappedGeneric_DX11", VPROF_BUDGETGROUP_OTHER_UNACCOUNTED );
+
 	CLightmappedGeneric_DX11_Context *pContextData = reinterpret_cast<CLightmappedGeneric_DX11_Context *> ( *pContextDataPtr );
 	if ( pShaderShadow || ( !pContextData ) || pContextData->m_bMaterialVarsChanged || hasFlashlight )
 	{
@@ -1264,7 +1267,14 @@ void DrawLightmappedGeneric_DX11_Internal( CBaseVSShader *pShader, IMaterialVar 
 		pShader->UpdateConstantBuffer( g_hLightmappedGenericVS_CBuffer, &s_LightmappedGeneric_VS_CBuffer );
 
 		// Bind em
-		pShader->BindInternalVertexShaderConstantBuffers();
+		pShader->BindVertexShaderConstantBuffer( INTERNAL_CBUFFER_REG_0,
+							 pShader->GetInternalConstantBuffer( SHADER_CONSTANTBUFFER_PERMATERIAL ) );
+		pShader->BindVertexShaderConstantBuffer( INTERNAL_CBUFFER_REG_1,
+							 pShader->GetInternalConstantBuffer( SHADER_CONSTANTBUFFER_PERMODEL ) );
+		pShader->BindVertexShaderConstantBuffer( INTERNAL_CBUFFER_REG_2,
+							 pShader->GetInternalConstantBuffer( SHADER_CONSTANTBUFFER_PERFRAME ) );
+		pShader->BindVertexShaderConstantBuffer( INTERNAL_CBUFFER_REG_3,
+							 pShader->GetInternalConstantBuffer( SHADER_CONSTANTBUFFER_PERSCENE ) );
 		pShader->BindVertexShaderConstantBuffer( USER_CBUFFER_REG_0, g_hLightmappedGenericVS_CBuffer );
 
 		//

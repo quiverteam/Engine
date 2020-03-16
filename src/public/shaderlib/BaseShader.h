@@ -126,6 +126,7 @@ public:
 
 	virtual ConstantBufferHandle_t GetInternalConstantBuffer( int type );
 	virtual void BindInternalVertexShaderConstantBuffers();
+	virtual void BindInternalVertexShaderConstantBuffersNoSkinning();
 	virtual void BindInternalPixelShaderConstantBuffers();
 	virtual void BindInternalGeometryShaderConstantBuffers();
 	virtual void BindPixelShaderConstantBuffer( int slot, ConstantBufferHandle_t cbuffer );
