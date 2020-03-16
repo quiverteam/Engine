@@ -43,6 +43,8 @@ CShaderShadowDx11::CShaderShadowDx11()
 	m_ShadowStateCache.Purge();
 	m_ShadowStateCache.EnsureCapacity( 4096 );
 	m_ShadowStateCache.SetGrowSize( 128 );
+
+	m_DefaultShadowState.desc.SetDefault();
 }
 
 CShaderShadowDx11::~CShaderShadowDx11()
@@ -52,7 +54,7 @@ CShaderShadowDx11::~CShaderShadowDx11()
 // Sets the default *shadow* state
 void CShaderShadowDx11::SetDefaultState()
 {
-	m_ShadowState = StatesDx11::ShadowState();
+	m_ShadowState = StatesDx11::ShadowStateDesc();
 }
 
 // Methods related to depth buffering
@@ -322,21 +324,47 @@ StateSnapshot_t CShaderShadowDx11::FindOrCreateSnapshot()
 {
 	//if ( m_ShadowState.vertexShader == -1 )
 	//	DebuggerBreak();
-	int i = m_ShadowStateCache.Find( m_ShadowState );
+	StatesDx11::ShadowState lookup;
+	lookup.desc = m_ShadowState;
+	int i = m_ShadowStateCache.Find( lookup );
 	if ( i != m_ShadowStateCache.InvalidIndex() )
 	{
 		return i;
 	}
 
+	GenerateD3DStateObjects( lookup );
+
 	// Didn't find it, add entry
-	StateSnapshot_t snap = m_ShadowStateCache.AddToTail( m_ShadowState );
+	StateSnapshot_t snap = m_ShadowStateCache.AddToTail( lookup );
 	//Log( "Created snapshot id %i\n", snap );
 	return snap;
 }
 
-StatesDx11::ShadowState CShaderShadowDx11::GetShadowState( StateSnapshot_t id ) const
+const StatesDx11::ShadowState *CShaderShadowDx11::GetShadowState( StateSnapshot_t id ) const
 {
-	return m_ShadowStateCache.Element( id );
+	return &m_ShadowStateCache.Element( id );
+}
+
+const StatesDx11::ShadowState *CShaderShadowDx11::GetDefaultShadowState()
+{
+	if ( !m_DefaultShadowState.m_pBlendState )
+	{
+		GenerateD3DStateObjects( m_DefaultShadowState );
+	}
+	return &m_DefaultShadowState;
+}
+
+void CShaderShadowDx11::GenerateD3DStateObjects( StatesDx11::ShadowState &state )
+{
+	HRESULT hr;
+
+	// Generate the actual D3D state objects
+	hr = D3D11Device()->CreateDepthStencilState( &state.desc.depthStencil, &state.m_pDepthStencilState );
+	Assert( SUCCEEDED( hr ) );
+	hr = D3D11Device()->CreateBlendState( &state.desc.blend, &state.m_pBlendState );
+	Assert( SUCCEEDED( hr ) );
+	hr = D3D11Device()->CreateRasterizerState( &state.desc.rasterizer, &state.m_pRasterState );
+	Assert( SUCCEEDED( hr ) );
 }
 
 // ---------------------------------------------------

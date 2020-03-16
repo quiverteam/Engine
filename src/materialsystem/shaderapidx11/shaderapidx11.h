@@ -878,10 +878,9 @@ private:
 	// Common constant buffers
 	ConstantBufferHandle_t m_hPerModelConstants;
 	ConstantBufferHandle_t m_hPerSceneConstants;
-	ConstantBufferHandle_t m_hPerMaterialConstants;
 	ConstantBufferHandle_t m_hPerFrameConstants;
 	ConstantBufferHandle_t m_hSkinningConstants;
-	ConstantBufferHandle_t m_hFlexConstants;
+	//ConstantBufferHandle_t m_hFlexConstants;
 
 	// Current and target states
 	StateSnapshot_t m_CurrentSnapshot;

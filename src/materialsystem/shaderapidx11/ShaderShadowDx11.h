@@ -94,7 +94,8 @@ public:
 	virtual void StencilWriteMask( int nMask );
 
 	StateSnapshot_t FindOrCreateSnapshot();
-	StatesDx11::ShadowState GetShadowState( StateSnapshot_t id ) const;
+	const StatesDx11::ShadowState *GetShadowState( StateSnapshot_t id ) const;
+	const StatesDx11::ShadowState *GetDefaultShadowState();
 
 	// ---------------------------------------------------
 	// Below are unsupported by Dx11, only included to
@@ -128,10 +129,15 @@ public:
 	// indicates what per-vertex data we're providing
 	void DrawFlags( unsigned int drawFlags );
 
+private:
+	void GenerateD3DStateObjects( StatesDx11::ShadowState &state );
+
 public:
-	StatesDx11::ShadowState m_ShadowState;
+	StatesDx11::ShadowStateDesc m_ShadowState;
 
 	CUtlVector<StatesDx11::ShadowState> m_ShadowStateCache;
+
+	StatesDx11::ShadowState m_DefaultShadowState;
 };
 
 

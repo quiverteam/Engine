@@ -145,7 +145,7 @@ namespace StatesDx11
 	{
 	};
 
-	struct ShadowState
+	struct ShadowStateDesc
 	{
 		BlendState blend;
 		DepthStencilState depthStencil;
@@ -176,17 +176,17 @@ namespace StatesDx11
 		// aggregate of the morph formats used by all snapshots in a material
 		MorphFormat_t morphFormat;
 
-		bool BlendStateChanged( const ShadowState &other )
+		bool BlendStateChanged( const ShadowStateDesc &other )
 		{
 			return FastMemCompare( &blend, &other.blend, sizeof( BlendState ) ) != 0;
 		}
 
-		bool DepthStencilStateChanged( const ShadowState &other )
+		bool DepthStencilStateChanged( const ShadowStateDesc &other )
 		{
 			return FastMemCompare( &depthStencil, &other.depthStencil, sizeof( DepthStencilState ) ) != 0;
 		}
 
-		bool RasterStateChanged( const ShadowState &other )
+		bool RasterStateChanged( const ShadowStateDesc &other )
 		{
 			return FastMemCompare( &rasterizer, &other.rasterizer, sizeof( RasterState ) ) != 0;
 		}
@@ -194,7 +194,7 @@ namespace StatesDx11
 		// Sets the default shadow state
 		void SetDefault()
 		{
-			ZeroMemory( this, sizeof( ShadowState ) );
+			ZeroMemory( this, sizeof( ShadowStateDesc ) );
 
 			depthStencil.DepthEnable = true;
 			depthStencil.DepthFunc = D3D11_COMPARISON_LESS;
@@ -205,8 +205,8 @@ namespace StatesDx11
 			blend.SampleMask = 1;
 
 			rasterizer.FillMode = D3D11_FILL_SOLID;
-			rasterizer.CullMode = D3D11_CULL_NONE;
-			rasterizer.FrontCounterClockwise = TRUE; // right-hand rule
+			rasterizer.CullMode = D3D11_CULL_BACK;
+			rasterizer.FrontCounterClockwise = FALSE; // right-hand rule
 
 			D3D11_RENDER_TARGET_BLEND_DESC *rtbDesc = &blend.RenderTarget[0];
 			rtbDesc->SrcBlend = D3D11_BLEND_ONE;
@@ -224,14 +224,36 @@ namespace StatesDx11
 			geometryShader = -1;
 		}
 
-		ShadowState()
+		ShadowStateDesc()
 		{
 			SetDefault();
 		}
 
+		bool operator==( const ShadowStateDesc &other ) const
+		{
+			return memcmp( this, &other, sizeof( ShadowStateDesc ) ) == 0;
+		}
+	};
+
+	struct ShadowState
+	{
+		ShadowStateDesc desc;
+
+		ID3D11BlendState *m_pBlendState;
+		ID3D11DepthStencilState *m_pDepthStencilState;
+		ID3D11RasterizerState *m_pRasterState;
+
 		bool operator==( const ShadowState &other ) const
 		{
-			return memcmp( this, &other, sizeof( ShadowState ) ) == 0;
+			return memcmp( &desc, &other.desc, sizeof( ShadowStateDesc ) ) == 0;
+		}
+
+		ShadowState()
+		{
+			desc.SetDefault();
+			m_pBlendState = NULL;
+			m_pDepthStencilState = NULL;
+			m_pRasterState = NULL;
 		}
 	};
 
@@ -285,10 +307,6 @@ namespace StatesDx11
 
 		D3D11_PRIMITIVE_TOPOLOGY m_Topology;
 
-		ID3D11BlendState *m_pBlendState;
-		ID3D11DepthStencilState *m_pDepthStencilState;
-		ID3D11RasterizerState *m_pRasterState;
-
 		ID3D11VertexShader *m_pVertexShader;
 		int m_iVertexShader;
 		ID3D11GeometryShader *m_pGeometryShader;
@@ -337,7 +355,7 @@ namespace StatesDx11
 
 	struct RenderState
 	{
-		ShadowState shadow;
+		const ShadowState *shadow;
 		DynamicState dynamic;
 	};
 
@@ -401,9 +419,6 @@ namespace StatesDx11
 		BoneState bone;
 		MorphState morph;
 
-		Vector4D m_ConstantColor;
-		bool m_bConstantColorChanged;
-
 		CUtlStack<MatrixItem_t> m_MatrixStacks[NUM_MATRIX_MODES];
 		bool m_ChangedMatrices[NUM_MATRIX_MODES];
 
@@ -419,8 +434,6 @@ namespace StatesDx11
 			fog.m_flFogEnd = -1;
 			fog.m_flFogStart = -1;
 			fog.m_FogMode = MATERIAL_FOG_NONE;
-
-			m_ConstantColor.Init( 1.0f, 1.0f, 1.0f, 1.0f );
 
 			for ( int i = 0; i < NUM_MODEL_TRANSFORMS; i++ )
 			{

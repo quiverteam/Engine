@@ -269,7 +269,7 @@ bool CIndexBufferDx11::Lock( int nMaxIndexCount, bool bAppend, IndexDesc_t &desc
 	if ( nMaxIndexCount > m_nIndexCount )
 	{
 		Warning( "Too many indices for index buffer. . tell a programmer (%d>%d)\n", nMaxIndexCount, m_nIndexCount );
-		DebuggerBreak();
+		//DebuggerBreak();
 		goto indexBufferLockFailed;
 	}
 

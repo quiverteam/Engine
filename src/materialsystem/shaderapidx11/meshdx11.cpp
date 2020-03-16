@@ -3709,7 +3709,7 @@ IMesh *CMeshMgr::GetDynamicMesh( IMaterial *pMaterial, VertexFormat_t vertexForm
 {
 	if ( !( ( pMaterial == NULL ) || ( (IMaterialInternal *)pMaterial )->IsRealTimeVersion() ) )
 	{
-		DebuggerBreak();
+		//DebuggerBreak();
 	}
 
 	if ( IsX360() )
@@ -4056,7 +4056,7 @@ IVertexBuffer *CMeshMgr::GetDynamicVertexBuffer( int streamID, VertexFormat_t ve
 	if ( CompressionType( vertexFormat ) != VERTEX_COMPRESSION_NONE )
 	{
 		// UNDONE: support compressed dynamic meshes if needed (pro: less VB memory, con: time spent compressing)
-		DebuggerBreak();
+		//DebuggerBreak();
 		return NULL;
 	}
 

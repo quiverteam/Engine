@@ -30,6 +30,8 @@
 // NOTE: This has to be the last file included!
 #include "tier0/memdbgon.h"
 
+static StatesDx11::RenderState s_DefaultState;
+
 template<typename T>
 FORCEINLINE static void XMSetComponent4( T &vec, int comp, float val )
 {
@@ -57,15 +59,9 @@ FORCEINLINE static void XMSetComponent4( T &vec, int comp, float val )
 
 // In order of most frequent to least frequent...
 
-// Constants that can be expected to change for each material.
-ALIGN16 struct PerMaterial_CBuffer_t
-{
-	DirectX::XMFLOAT4 cShadowTweaks;
-	DirectX::XMFLOAT4 cLightScale;
-	DirectX::XMFLOAT4 cConstants1;
-	DirectX::XMFLOAT4 cModulationColor;
-	DirectX::XMFLOAT4 cAlphaTestRef;
-};
+// NOTE: ShaderAPI is not responsible for constant buffers
+// that change every material/draw call/shader, but the shader
+// class itself.
 
 ALIGN16 struct DX11LightInfo_t
 {
@@ -79,9 +75,7 @@ ALIGN16 struct DX11LightInfo_t
 // Constants that can be expected to change for each model.
 ALIGN16 struct PerModel_CBuffer_t
 {
-	DirectX::XMMATRIX cModelViewProj;
-	DirectX::XMMATRIX cViewModel;
-	DirectX::XMMATRIX cModelMatrix;
+	DirectX::XMMATRIX cModelMatrix; // If using skinning, same as cModel[0]
 	// Only cFlexScale.x is used
 	// It is a binary value used to switch on/off the addition of the flex delta stream
 	DirectX::XMFLOAT4 cFlexScale;
@@ -104,28 +98,34 @@ ALIGN16 struct Skinning_CBuffer_t
 //	DirectX::XMFLOAT4 cFlexWeights[512];
 //};
 
-int x = sizeof( PerModel_CBuffer_t );
-
 // Constants that can be expected to change each frame.
+// TODO: Can we save a constant by having the vertex shader
+// extract the eye position from the viewmatrix?
 ALIGN16 struct PerFrame_CBuffer_t
 {
-	DirectX::XMMATRIX cViewProj;
+	DirectX::XMMATRIX cViewMatrix;
 	DirectX::XMFLOAT4 cEyePos;
 	DirectX::XMFLOAT4 cFlashlightPos;
 };
 
 // Constants that don't change per-material, per-model, or per-frame.
 // These are expected to be changed whenever and apply to all materials.
+// TODO: Figure out how often these flashlight parameters change,
+// particularly cFlashlightWorldToTexture.
 ALIGN16 struct PerScene_CBuffer_t
 {
+	DirectX::XMMATRIX cProjMatrix;
 	DirectX::XMMATRIX cFlashlightWorldToTexture;
 	DirectX::XMFLOAT4 cFlashlightScreenScale;
 	DirectX::XMFLOAT4 cFlashlightColor;
 	DirectX::XMFLOAT4 cFlashlightAttenuationFactors;
+	DirectX::XMFLOAT4 cShadowTweaks;
+	DirectX::XMFLOAT4 cLightScale;
+	DirectX::XMFLOAT4 cConstants;
 	DirectX::XMFLOAT4 cLinearFogColor;
 	DirectX::XMFLOAT4 cFogParams;
 	DirectX::XMFLOAT4 cFogColor;
-	float cFogZ;
+	DirectX::XMFLOAT4 cFogZ;
 };
 
 enum
@@ -167,7 +167,9 @@ CShaderAPIDx11::CShaderAPIDx11() :
 	m_ModifyTextureLockedLevel = -1;
 	m_ModifyTextureLockedFace = -1;
 	m_bResettingRenderState = false;
-	m_TargetState = StatesDx11::RenderState();
+	s_DefaultState.dynamic.SetDefault();
+	s_DefaultState.shadow = NULL;
+	m_TargetState = s_DefaultState;
 	m_State = m_TargetState;
 	m_ShaderState = StatesDx11::ShaderState();
 	m_bSelectionMode = false;
@@ -196,14 +198,12 @@ ConstantBufferHandle_t CShaderAPIDx11::GetInternalConstantBuffer( int type )
 		return m_hPerFrameConstants;
 	case SHADER_CONSTANTBUFFER_PERMODEL:
 		return m_hPerModelConstants;
-	case SHADER_CONSTANTBUFFER_PERMATERIAL:
-		return m_hPerMaterialConstants;
 	case SHADER_CONSTANTBUFFER_PERSCENE:
 		return m_hPerSceneConstants;
 	case SHADER_CONSTANTBUFFER_SKINNING:
 		return m_hSkinningConstants;
-	case SHADER_CONSTANTBUFFER_FLEX:
-		return m_hFlexConstants;
+	//case SHADER_CONSTANTBUFFER_FLEX:
+	//	return m_hFlexConstants;
 	default:
 		return CONSTANT_BUFFER_HANDLE_INVALID;
 	}
@@ -248,7 +248,7 @@ void CShaderAPIDx11::BindGeometryShaderConstantBuffer( int slot, ConstantBufferH
 void CShaderAPIDx11::ResetRenderState( bool bFullReset )
 {
 	m_TargetState.dynamic.SetDefault();
-	m_TargetState.shadow.SetDefault();
+	m_TargetState.shadow = g_pShaderShadowDx11->GetDefaultShadowState();
 	m_TargetState.dynamic.m_pRenderTargetView = GetTexture( m_hBackBuffer ).GetRenderTargetView();
 	m_TargetState.dynamic.m_pDepthStencilView = GetTexture( m_hDepthBuffer ).GetDepthStencilView();
 
@@ -321,10 +321,10 @@ void CShaderAPIDx11::IssueStateChanges( bool bForce )
 	////Log( "ShaderAPIDx11: Issuing state changes\n" );
 
 	const StatesDx11::DynamicState &targetDynamic = m_TargetState.dynamic;
-	const StatesDx11::ShadowState &targetShadow = m_TargetState.shadow;
+	const StatesDx11::ShadowState *targetShadow = m_TargetState.shadow;
 	
 	const StatesDx11::DynamicState &dynamic = m_State.dynamic;
-	const StatesDx11::ShadowState &shadow = m_State.shadow;
+	const StatesDx11::ShadowState *shadow = m_State.shadow;
 
 	{
 		VPROF_BUDGET( "CShaderAPIDx11::DoIssueShaderState()", VPROF_BUDGETGROUP_OTHER_UNACCOUNTED );
@@ -475,7 +475,7 @@ void CShaderAPIDx11::IssueStateChanges( bool bForce )
 
 		// DepthStencilState is affected by DepthTestAttrib, DepthWriteAttrib, and StencilAttrib
 		if ( bForce ||
-		     m_State.shadow.DepthStencilStateChanged( m_TargetState.shadow ) )
+		     shadow->m_pDepthStencilState != targetShadow->m_pDepthStencilState )
 		{
 			//Log( "\tIssuing depth stencil\n" );
 			DoIssueDepthStencilState();
@@ -488,7 +488,7 @@ void CShaderAPIDx11::IssueStateChanges( bool bForce )
 
 		// BlendState
 		if ( bForce ||
-		     m_State.shadow.BlendStateChanged( m_TargetState.shadow ) )
+		     shadow->m_pBlendState != targetShadow->m_pBlendState )
 		{
 			//Log( "\tIssuing blend\n" );
 			DoIssueBlendState();
@@ -501,7 +501,7 @@ void CShaderAPIDx11::IssueStateChanges( bool bForce )
 
 		// Raster state - RenderModeAttrib, CullFaceAttrib, DepthOffsetAttrib, ScissorAttrib, AntialiasAttrib
 		if ( bForce ||
-		     m_State.shadow.RasterStateChanged( m_TargetState.shadow ) )
+		     shadow->m_pRasterState != targetShadow->m_pRasterState )
 		{
 			//Log( "\tIssuing raster\n" );
 			DoIssueRasterState();
@@ -626,70 +626,52 @@ void CShaderAPIDx11::DoIssueShaderState( bool bForce )
 	bool bProjChanged = m_ShaderState.m_ChangedMatrices[MATERIAL_PROJECTION];
 	bool bModelChanged = m_ShaderState.m_ChangedMatrices[MATERIAL_MODEL];
 
-	// To avoid a FastMemCompare + memcpy...
+	// To avoid an extra memcmp + memcpy...
 	PerFrame_CBuffer_t *pPerFrameConstants = (PerFrame_CBuffer_t *)
 		( (CShaderConstantBufferDx11 *)m_hPerFrameConstants )->GetData();
 	PerModel_CBuffer_t *pPerModelConstants = (PerModel_CBuffer_t *)
 		( (CShaderConstantBufferDx11 *)m_hPerModelConstants )->GetData();
-	PerMaterial_CBuffer_t *pPerMaterialConstants = (PerMaterial_CBuffer_t *)
-		( (CShaderConstantBufferDx11 *)m_hPerMaterialConstants )->GetData();
 	PerScene_CBuffer_t *pPerSceneConstants = (PerScene_CBuffer_t *)
 		( (CShaderConstantBufferDx11 *)m_hPerSceneConstants )->GetData();
 
 	bool bPerFrameChanged = false;
 	bool bPerModelChanged = false;
-	bool bPerMatChanged = false;
 	bool bPerSceneChanged = false;
 
-	if ( bForce || bViewChanged || bProjChanged || bModelChanged )
+	if ( bForce || bViewChanged )
 	{
-		VPROF_BUDGET( "CShaderAPIDx11::IssueViewState", VPROF_BUDGETGROUP_OTHER_UNACCOUNTED );
+		const DirectX::XMMATRIX &view = GetMatrix( MATERIAL_VIEW );
+		// Row-major -> column-major
+		pPerFrameConstants->cViewMatrix = DirectX::XMMatrixTranspose( view );
 
-		const DirectX::XMMATRIX model = GetMatrix( MATERIAL_MODEL );
-		const DirectX::XMMATRIX view = GetMatrix( MATERIAL_VIEW );
-		const DirectX::XMMATRIX projection = GetMatrix( MATERIAL_PROJECTION );
+		// Store new view position.
+		DirectX::XMVECTOR scale, rot, viewTranslation;
+		DirectX::XMMatrixDecompose( &scale, &rot, &viewTranslation, view );
+		DirectX::XMStoreFloat4( &pPerFrameConstants->cEyePos, viewTranslation );
 
-		if ( bForce || bViewChanged || bProjChanged )
-		{
-			// Store new ViewProjection matrix.
-			DirectX::XMMATRIX viewProj = DirectX::XMMatrixMultiply( view, projection );
-			viewProj = DirectX::XMMatrixTranspose( viewProj );
-			pPerFrameConstants->cViewProj = viewProj;
-			bPerFrameChanged = true;
-		}
+		m_ShaderState.m_ChangedMatrices[MATERIAL_VIEW] = false;
 
-		if ( bForce || bModelChanged )
-		{
-			pPerModelConstants->cModelMatrix = DirectX::XMMatrixTranspose( model );
-		}
-		
-		// Any of the matrices being changed warrants a new ModelViewProjection.
-		DirectX::XMMATRIX viewModel = DirectX::XMMatrixMultiply( model, view );
-		DirectX::XMMATRIX modelViewProj = DirectX::XMMatrixMultiply( viewModel, projection );
-		modelViewProj = DirectX::XMMatrixTranspose( modelViewProj );
-		pPerModelConstants->cModelViewProj = modelViewProj;
-		
-		if ( bForce || bViewChanged || bModelChanged )
-		{
-			// Store new ViewModel matrix.
-			viewModel = DirectX::XMMatrixTranspose( viewModel );
-			pPerModelConstants->cViewModel = viewModel;
-		}
+		bPerFrameChanged = true;
+	}
 
-		if ( bForce || bViewChanged )
-		{
-			// Store new view position.
-			DirectX::XMVECTOR scale, rot, viewTranslation;
-			DirectX::XMMatrixDecompose( &scale, &rot, &viewTranslation, view );
-			DirectX::XMStoreFloat4( &pPerFrameConstants->cEyePos, viewTranslation );
-			bPerFrameChanged = true;
-		}
-
-		bPerModelChanged = true;
+	if ( bForce || bModelChanged )
+	{
+		// Row-major -> column-major
+		pPerModelConstants->cModelMatrix = DirectX::XMMatrixTranspose( GetMatrix( MATERIAL_MODEL ) );
 
 		m_ShaderState.m_ChangedMatrices[MATERIAL_MODEL] = false;
-		m_ShaderState.m_ChangedMatrices[MATERIAL_VIEW] = false;
+
+		bPerModelChanged = true;
+	}
+
+	if ( bForce || bProjChanged )
+	{
+		// Row-major -> column-major
+		pPerSceneConstants->cProjMatrix = DirectX::XMMatrixTranspose( GetMatrix( MATERIAL_PROJECTION ) );
+
 		m_ShaderState.m_ChangedMatrices[MATERIAL_PROJECTION] = false;
+
+		bPerSceneChanged = true;
 	}
 
 	//
@@ -783,7 +765,7 @@ void CShaderAPIDx11::DoIssueShaderState( bool bForce )
 		pPerSceneConstants->cFogParams.y = 1.0f;
 		pPerSceneConstants->cFogParams.z = 1.0f - clamp( m_ShaderState.fog.m_flFogMaxDensity, 0.0f, 1.0f );
 		pPerSceneConstants->cFogParams.w = ooFogRange;
-		pPerSceneConstants->cFogZ = m_ShaderState.fog.m_flFogZ;
+		pPerSceneConstants->cFogZ.x = m_ShaderState.fog.m_flFogZ;
 		pPerSceneConstants->cFogColor.x = m_ShaderState.fog.m_FogColor[0];
 		pPerSceneConstants->cFogColor.y = m_ShaderState.fog.m_FogColor[1];
 		pPerSceneConstants->cFogColor.z = m_ShaderState.fog.m_FogColor[2];
@@ -804,7 +786,7 @@ void CShaderAPIDx11::DoIssueShaderState( bool bForce )
 
 		// Since skinning is in it's own constant buffer and we are updating the whole
 		// thing if bones have changed, be more efficient and lock the buffer to
-		// avoid a memcpy.
+		// avoid an extra memcpy.
 
 		Skinning_CBuffer_t *pSkinningConstants = (Skinning_CBuffer_t *)
 			( (CShaderConstantBufferDx11 *)m_hSkinningConstants )->Lock();
@@ -812,8 +794,7 @@ void CShaderAPIDx11::DoIssueShaderState( bool bForce )
 		// Load the model matrix from the matrix stack into the
 		// first bone matrix.
 		DirectX::XMMATRIX model = GetMatrix( MATERIAL_MODEL );
-		// Model matrix is row major, but bone matrices are
-		// stored column major.
+		// This is stored row-major, needs to be column-major in shader.
 		model = DirectX::XMMatrixTranspose( model );
 		m_ShaderState.bone.m_BoneMatrix[0] = model;
 		m_ShaderState.bone.m_MaxBoneLoaded++;
@@ -838,7 +819,7 @@ void CShaderAPIDx11::DoIssueShaderState( bool bForce )
 
 		// Since flex is in it's own constant buffer and we are updating the whole
 		// thing if flex has changed, be more efficient and lock the buffer to
-		// avoid a memcpy.
+		// avoid an extra memcpy.
 
 		//Flex_CBuffer_t *pFlexConstants = (Flex_CBuffer_t *)
 		//	( (CShaderConstantBufferDx11 *)m_hSkinningConstants )->Lock();
@@ -852,21 +833,6 @@ void CShaderAPIDx11::DoIssueShaderState( bool bForce )
 		bPerModelChanged = true;
 
 		//( (CShaderConstantBufferDx11 *)m_hSkinningConstants )->Unlock();
-	}
-
-	//
-	// Material constants
-	//
-	if ( bForce || m_ShaderState.m_bConstantColorChanged )
-	{
-		VPROF_BUDGET( "CShaderAPIDx11::IssueConstantColorState", VPROF_BUDGETGROUP_OTHER_UNACCOUNTED );
-		pPerMaterialConstants->cModulationColor = DirectX::XMFLOAT4( m_ShaderState.m_ConstantColor[0],
-									     m_ShaderState.m_ConstantColor[1],
-									     m_ShaderState.m_ConstantColor[2],
-									     m_ShaderState.m_ConstantColor[3] );
-		m_ShaderState.m_bConstantColorChanged = false;
-
-		bPerMatChanged = true;
 	}
 
 	//
@@ -906,7 +872,7 @@ void CShaderAPIDx11::DoIssueShaderState( bool bForce )
 		tweaks[0] = m_FlashlightState.m_flShadowFilterSize / m_FlashlightState.m_flShadowMapResolution;
 		tweaks[1] = ShadowAttenFromState( m_FlashlightState );
 		HashShadow2DJitter( m_FlashlightState.m_flShadowJitterSeed, &tweaks[2], &tweaks[3] );
-		pPerMaterialConstants->cShadowTweaks = DirectX::XMFLOAT4( tweaks );
+		pPerSceneConstants->cShadowTweaks = DirectX::XMFLOAT4( tweaks );
 		pPerFrameConstants->cFlashlightPos = DirectX::XMFLOAT4( m_FlashlightState.m_vecLightOrigin[0],
 									m_FlashlightState.m_vecLightOrigin[1],
 									m_FlashlightState.m_vecLightOrigin[2],
@@ -919,7 +885,7 @@ void CShaderAPIDx11::DoIssueShaderState( bool bForce )
 		);
 
 		bPerSceneChanged = true;
-		bPerMatChanged = true;
+		bPerFrameChanged = true;
 
 		m_bFlashlightStateChanged = false;
 	}
@@ -927,8 +893,6 @@ void CShaderAPIDx11::DoIssueShaderState( bool bForce )
 	//
 	// Supply the new constants.
 	//
-	if ( bPerMatChanged )
-		( (CShaderConstantBufferDx11 *)m_hPerMaterialConstants )->ForceUpdate();
 	if ( bPerModelChanged )
 		( (CShaderConstantBufferDx11 *)m_hPerModelConstants )->ForceUpdate();
 	if ( bPerFrameChanged )
@@ -1028,79 +992,20 @@ void CShaderAPIDx11::DoIssueSampler( bool bPixel, bool bVertex )
 
 void CShaderAPIDx11::DoIssueRasterState()
 {
-	m_TargetState.dynamic.m_pRasterState = NULL;
-
-	// Clear out the existing state
-	if ( m_State.dynamic.m_pRasterState )
-	{
-		m_State.dynamic.m_pRasterState->Release();
-		m_State.dynamic.m_pRasterState = NULL;
-	}
-
-	//D3D11_RASTERIZER_DESC desc;
-	//GenerateRasterizerDesc( &desc, m_TargetState );
-
-	// NOTE: This does a search for existing matching state objects
-	HRESULT hr = D3D11Device()->CreateRasterizerState( &m_TargetState.shadow.rasterizer,
-							   &m_TargetState.dynamic.m_pRasterState );
-	if ( FAILED( hr ) )
-	{
-		Warning( "Unable to create rasterizer state object!\n" );
-	}
-
-	D3D11DeviceContext()->RSSetState( m_TargetState.dynamic.m_pRasterState );
+	D3D11DeviceContext()->RSSetState( m_TargetState.shadow->m_pRasterState );
 }
 
 void CShaderAPIDx11::DoIssueBlendState()
 {
-	m_TargetState.dynamic.m_pBlendState = NULL;
-
-	// Clear out existing blend state
-	if ( m_State.dynamic.m_pBlendState )
-	{
-		m_State.dynamic.m_pBlendState->Release();
-		m_State.dynamic.m_pBlendState = NULL;
-	}
-
-	//D3D11_BLEND_DESC desc;
-	//GenerateBlendDesc( &desc, m_TargetState );
-
-	// NOTE: This does a search for existing matching state objects
-	HRESULT hr = D3D11Device()->CreateBlendState( &m_TargetState.shadow.blend, &m_TargetState.dynamic.m_pBlendState );
-	if ( FAILED( hr ) )
-	{
-		Warning( "Unable to create Dx11 blend state object!\n" );
-	}
-
-	D3D11DeviceContext()->OMSetBlendState( m_TargetState.dynamic.m_pBlendState,
-					       m_TargetState.shadow.blend.BlendColor,
-					       m_TargetState.shadow.blend.SampleMask );
+	D3D11DeviceContext()->OMSetBlendState( m_TargetState.shadow->m_pBlendState,
+					       m_TargetState.shadow->desc.blend.BlendColor,
+					       m_TargetState.shadow->desc.blend.SampleMask );
 }
 
 void CShaderAPIDx11::DoIssueDepthStencilState()
 {
-	m_TargetState.dynamic.m_pDepthStencilState = NULL;
-
-	// Clear out current state
-	if ( m_State.dynamic.m_pDepthStencilState )
-	{
-		m_State.dynamic.m_pDepthStencilState->Release();
-		m_State.dynamic.m_pDepthStencilState = NULL;
-	}
-
-	//D3D11_DEPTH_STENCIL_DESC desc;
-	//GenerateDepthStencilDesc( &desc, m_TargetState );
-
-	// NOTE: This does a search for existing matching state objects
-	HRESULT hr = D3D11Device()->CreateDepthStencilState( &m_TargetState.shadow.depthStencil,
-							     &m_TargetState.dynamic.m_pDepthStencilState );
-	if ( FAILED( hr ) )
-	{
-		Warning( "Unable to create depth/stencil object!\n" );
-	}
-
-	D3D11DeviceContext()->OMSetDepthStencilState( m_TargetState.dynamic.m_pDepthStencilState,
-						      m_TargetState.shadow.depthStencil.StencilRef );
+	D3D11DeviceContext()->OMSetDepthStencilState( m_TargetState.shadow->m_pDepthStencilState,
+						      m_TargetState.shadow->desc.depthStencil.StencilRef );
 }
 
 bool CShaderAPIDx11::DoIssueVertexBuffer( bool bForce )
@@ -1613,12 +1518,26 @@ bool CShaderAPIDx11::OnDeviceInit()
 	// Create the depth buffer
 	m_hDepthBuffer = CreateDepthTexture( IMAGE_FORMAT_NV_DST24, w, h, "dx11DepthBuffer", true );
 
-	m_hPerMaterialConstants = g_pShaderDeviceDx11->CreateConstantBuffer( sizeof( PerMaterial_CBuffer_t ) );
 	m_hPerFrameConstants = g_pShaderDeviceDx11->CreateConstantBuffer( sizeof( PerFrame_CBuffer_t ) );
 	m_hPerModelConstants = g_pShaderDeviceDx11->CreateConstantBuffer( sizeof( PerModel_CBuffer_t ) );
 	m_hPerSceneConstants = g_pShaderDeviceDx11->CreateConstantBuffer( sizeof( PerScene_CBuffer_t ) );
 	m_hSkinningConstants = g_pShaderDeviceDx11->CreateConstantBuffer( sizeof( Skinning_CBuffer_t ) );
 	//m_hFlexConstants = g_pShaderDeviceDx11->CreateConstantBuffer( sizeof( Flex_CBuffer_t ) );
+
+	// Write some constants that don't change
+	PerScene_CBuffer_t *pPerScene = (PerScene_CBuffer_t *)( (CShaderConstantBufferDx11 *)m_hPerSceneConstants )->GetData();
+	// [ linear light scale, lightmap scale, envmap scale, gamma light scale ]
+	pPerScene->cLightScale.x = 0.0f;
+	pPerScene->cLightScale.y = 1.0f;
+	pPerScene->cLightScale.z = 2.0f;
+	pPerScene->cLightScale.w = 0.5f;
+	// [ gamma, overbright, 1/3, 1/overbright]
+	pPerScene->cConstants.x = 1.0f / 2.2f;
+	pPerScene->cConstants.y = OVERBRIGHT;
+	pPerScene->cConstants.z = 1.0f / 3.0f;
+	pPerScene->cConstants.w = 1.0f / OVERBRIGHT;
+
+	( (CShaderConstantBufferDx11 *)m_hPerSceneConstants )->ForceUpdate();
 
 	ResetRenderState( true );
 
@@ -1726,7 +1645,7 @@ MorphFormat_t CShaderAPIDx11::ComputeMorphFormat( int numSnapshots, StateSnapsho
 	MorphFormat_t format = 0;
 	for ( int i = 0; i < numSnapshots; ++i )
 	{
-		MorphFormat_t fmt = g_pShaderShadowDx11->GetShadowState( pIds[i] ).morphFormat;
+		MorphFormat_t fmt = g_pShaderShadowDx11->GetShadowState( pIds[i] )->desc.morphFormat;
 		format |= VertexFlags( fmt );
 	}
 	return format;
@@ -1750,8 +1669,8 @@ VertexFormat_t CShaderAPIDx11::ComputeVertexUsage( int num, StateSnapshot_t *pId
 	// We don't have to all sorts of crazy stuff if there's only one snapshot
 	if ( num == 1 )
 	{
-		const StatesDx11::ShadowState &state = g_pShaderShadowDx11->GetShadowState( pIds[0] );
-		return state.vertexFormat;
+		const StatesDx11::ShadowState *state = g_pShaderShadowDx11->GetShadowState( pIds[0] );
+		return (VertexFormat_t)( state->desc.vertexFormat );
 	}
 
 	Assert( pIds );
@@ -1770,8 +1689,8 @@ VertexFormat_t CShaderAPIDx11::ComputeVertexUsage( int num, StateSnapshot_t *pId
 	for ( int i = num; --i >= 0; )
 	{
 		//Log( "Applying vertex format from snapshot num %i, %i\n", i, pIds[i] );
-		const StatesDx11::ShadowState &state = g_pShaderShadowDx11->GetShadowState( pIds[i] );
-		VertexFormat_t fmt = state.vertexFormat;
+		const StatesDx11::ShadowState *state = g_pShaderShadowDx11->GetShadowState( pIds[i] );
+		VertexFormat_t fmt = state->desc.vertexFormat;
 		flags |= VertexFlags( fmt );
 
 		VertexCompressionType_t newCompression = CompressionType( fmt );
@@ -1825,82 +1744,42 @@ VertexFormat_t CShaderAPIDx11::ComputeVertexUsage( int num, StateSnapshot_t *pId
 // Uses a state snapshot
 void CShaderAPIDx11::UseSnapshot( StateSnapshot_t snapshot )
 {
-	StatesDx11::ShadowState entry = g_pShaderShadowDx11->m_ShadowStateCache.Element( snapshot );
+	const StatesDx11::ShadowState *entry = g_pShaderShadowDx11->GetShadowState( snapshot );
 	m_TargetState.shadow = entry;
 }
 
 // Sets the color to modulate by
 void CShaderAPIDx11::Color3f( float r, float g, float b )
 {
-	m_ShaderState.m_ConstantColor[0] = r;
-	m_ShaderState.m_ConstantColor[1] = g;
-	m_ShaderState.m_ConstantColor[2] = b;
-	m_ShaderState.m_ConstantColor[3] = 1.0f;
-	m_ShaderState.m_bConstantColorChanged = true;
 }
 
 void CShaderAPIDx11::Color3fv( float const *pColor )
 {
-	m_ShaderState.m_ConstantColor[0] = pColor[0];
-	m_ShaderState.m_ConstantColor[1] = pColor[1];
-	m_ShaderState.m_ConstantColor[2] = pColor[2];
-	m_ShaderState.m_ConstantColor[3] = 1.0f;
-	m_ShaderState.m_bConstantColorChanged = true;
 }
 
 void CShaderAPIDx11::Color4f( float r, float g, float b, float a )
 {
-	m_ShaderState.m_ConstantColor[0] = r;
-	m_ShaderState.m_ConstantColor[1] = g;
-	m_ShaderState.m_ConstantColor[2] = b;
-	m_ShaderState.m_ConstantColor[3] = a;
-	m_ShaderState.m_bConstantColorChanged = true;
 }
 
 void CShaderAPIDx11::Color4fv( float const *pColor )
 {
-	m_ShaderState.m_ConstantColor[0] = pColor[0];
-	m_ShaderState.m_ConstantColor[1] = pColor[1];
-	m_ShaderState.m_ConstantColor[2] = pColor[2];
-	m_ShaderState.m_ConstantColor[3] = pColor[3];
-	m_ShaderState.m_bConstantColorChanged = true;
 }
 
 // Faster versions of color
 void CShaderAPIDx11::Color3ub( unsigned char r, unsigned char g, unsigned char b )
 {
-	m_ShaderState.m_ConstantColor[0] = r / 255.0f;
-	m_ShaderState.m_ConstantColor[1] = g / 255.0f;
-	m_ShaderState.m_ConstantColor[2] = b / 255.0f;
-	m_ShaderState.m_ConstantColor[3] = 1.0f;
-	m_ShaderState.m_bConstantColorChanged = true;
 }
 
 void CShaderAPIDx11::Color3ubv( unsigned char const *rgb )
 {
-	m_ShaderState.m_ConstantColor[0] = rgb[0] / 255.0f;
-	m_ShaderState.m_ConstantColor[1] = rgb[1] / 255.0f;
-	m_ShaderState.m_ConstantColor[2] = rgb[2] / 255.0f;
-	m_ShaderState.m_ConstantColor[3] = 1.0f;
-	m_ShaderState.m_bConstantColorChanged = true;
 }
 
 void CShaderAPIDx11::Color4ub( unsigned char r, unsigned char g, unsigned char b, unsigned char a )
 {
-	m_ShaderState.m_ConstantColor[0] = r / 255.0f;
-	m_ShaderState.m_ConstantColor[1] = g / 255.0f;
-	m_ShaderState.m_ConstantColor[2] = b / 255.0f;
-	m_ShaderState.m_ConstantColor[3] = a / 255.0f;
-	m_ShaderState.m_bConstantColorChanged = true;
 }
 
 void CShaderAPIDx11::Color4ubv( unsigned char const *rgba )
 {
-	m_ShaderState.m_ConstantColor[0] = rgba[0] / 255.0f;
-	m_ShaderState.m_ConstantColor[1] = rgba[1] / 255.0f;
-	m_ShaderState.m_ConstantColor[2] = rgba[2] / 255.0f;
-	m_ShaderState.m_ConstantColor[3] = rgba[3] / 255.0f;
-	m_ShaderState.m_bConstantColorChanged = true;
 }
 
 void CShaderAPIDx11::GetStandardTextureDimensions( int *pWidth, int *pHeight, StandardTextureId_t id )
@@ -1953,16 +1832,16 @@ void CShaderAPIDx11::CullMode( MaterialCullMode_t cullMode )
 		d3dCull = D3D11_CULL_NONE;
 		break;
 	}
-	if ( m_State.shadow.rasterizer.CullMode != d3dCull )
-	{
-		FlushBufferedPrimitives();
-	}
-	m_TargetState.shadow.rasterizer.CullMode = d3dCull;
+	//if ( m_State.shadow.rasterizer.CullMode != d3dCull )
+	//{
+	//	FlushBufferedPrimitives();
+	//}
+	//m_TargetState.shadow.rasterizer.CullMode = d3dCull;
 }
 
 D3D11_CULL_MODE CShaderAPIDx11::GetCullMode() const
 {
-	return m_State.shadow.rasterizer.CullMode;
+	return m_State.shadow->desc.rasterizer.CullMode;
 }
 
 void CShaderAPIDx11::ForceDepthFuncEquals( bool bEnable )
@@ -2268,6 +2147,9 @@ void CShaderAPIDx11::LoadMatrix( float *m )
 
 void CShaderAPIDx11::LoadBoneMatrix( int boneIndex, const float *m )
 {
+	// NOTE: Bone matrices are column major, and HLSL is column-major,
+	// so we don't have to transpose anything.
+
 	VMatrix boneMatrix;
 	boneMatrix.Init( *(matrix3x4_t *)m );
 
@@ -2285,6 +2167,8 @@ void CShaderAPIDx11::LoadBoneMatrix( int boneIndex, const float *m )
 	}
 	if ( boneIndex == 0 )
 	{
+		// We have to transpose here because when loading
+		// the model matrix into the shader it gets transposed again.
 		MatrixMode( MATERIAL_MODEL );
 		VMatrix transpose;
 		MatrixTranspose( boneMatrix, transpose );
@@ -2610,13 +2494,13 @@ MaterialFogMode_t CShaderAPIDx11::GetCurrentFogType( void ) const
 void CShaderAPIDx11::SetVertexShaderIndex( int vshIndex )
 {
 	ShaderManager()->SetVertexShaderIndex( vshIndex );
-	ShaderManager()->SetVertexShader( m_TargetState.shadow.vertexShader );
+	ShaderManager()->SetVertexShader( m_TargetState.shadow->desc.vertexShader );
 }
 
 void CShaderAPIDx11::SetPixelShaderIndex( int pshIndex )
 {
 	ShaderManager()->SetPixelShaderIndex( pshIndex );
-	ShaderManager()->SetPixelShader( m_TargetState.shadow.pixelShader );
+	ShaderManager()->SetPixelShader( m_TargetState.shadow->desc.pixelShader );
 }
 
 // Returns the nearest supported format
@@ -3414,52 +3298,54 @@ Vector CShaderAPIDx11::GetVectorRenderingParameter( int parm_number ) const
 
 void CShaderAPIDx11::SetStencilEnable( bool onoff )
 {
-	m_TargetState.shadow.depthStencil.StencilEnable = onoff;
+	//m_TargetState.shadow.depthStencil.StencilEnable = onoff;
 }
 
 void CShaderAPIDx11::SetStencilFailOperation( StencilOperation_t op )
 {
-	m_TargetState.shadow.depthStencil.FrontFace.StencilFailOp = (D3D11_STENCIL_OP)op;
+	//m_TargetState.shadow.depthStencil.FrontFace.StencilFailOp = (D3D11_STENCIL_OP)op;
 }
 
 void CShaderAPIDx11::SetStencilZFailOperation( StencilOperation_t op )
 {
-	m_TargetState.shadow.depthStencil.FrontFace.StencilDepthFailOp = (D3D11_STENCIL_OP)op;
+	//m_TargetState.shadow.depthStencil.FrontFace.StencilDepthFailOp = (D3D11_STENCIL_OP)op;
 }
 
 void CShaderAPIDx11::SetStencilPassOperation( StencilOperation_t op )
 {
-	m_TargetState.shadow.depthStencil.FrontFace.StencilPassOp = (D3D11_STENCIL_OP)op;
+	//m_TargetState.shadow.depthStencil.FrontFace.StencilPassOp = (D3D11_STENCIL_OP)op;
 }
 
 void CShaderAPIDx11::SetStencilCompareFunction( StencilComparisonFunction_t cmpfn )
 {
-	m_TargetState.shadow.depthStencil.FrontFace.StencilFunc = (D3D11_COMPARISON_FUNC)cmpfn;
+	//m_TargetState.shadow.depthStencil.FrontFace.StencilFunc = (D3D11_COMPARISON_FUNC)cmpfn;
 }
 
 void CShaderAPIDx11::SetStencilReferenceValue( int ref )
 {
-	m_TargetState.shadow.depthStencil.StencilRef = ref;
+	//m_TargetState.shadow.depthStencil.StencilRef = ref;
 }
 
 void CShaderAPIDx11::SetStencilTestMask( uint32 msk )
 {
-	m_TargetState.shadow.depthStencil.StencilReadMask = msk;
+	//m_TargetState.shadow.depthStencil.StencilReadMask = msk;
 }
 
 void CShaderAPIDx11::SetStencilWriteMask( uint32 msk )
 {
-	m_TargetState.shadow.depthStencil.StencilWriteMask = msk;
+	//m_TargetState.shadow.depthStencil.StencilWriteMask = msk;
 }
 
 int CShaderAPIDx11::CompareSnapshots( StateSnapshot_t snapshot0, StateSnapshot_t snapshot1 )
 {
 	LOCK_SHADERAPI();
 
-	const StatesDx11::ShadowState &shadow0 = g_pShaderShadowDx11->GetShadowState( snapshot0 );
-	const StatesDx11::ShadowState &shadow1 = g_pShaderShadowDx11->GetShadowState( snapshot1 );
+	const StatesDx11::ShadowState *shadow0 = g_pShaderShadowDx11->GetShadowState( snapshot0 );
+	const StatesDx11::ShadowState *shadow1 = g_pShaderShadowDx11->GetShadowState( snapshot1 );
 
-	return FastMemCompare( &shadow0, &shadow1, sizeof( StatesDx11::ShadowState ) );
+	if ( shadow0 == shadow1 )
+		return 0;
+	return shadow0 > shadow1 ? -1 : 1;
 }
 
 IDirect3DBaseTexture *CShaderAPIDx11::GetD3DTexture( ShaderAPITextureHandle_t handle )
