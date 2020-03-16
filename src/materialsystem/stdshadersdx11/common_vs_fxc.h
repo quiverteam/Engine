@@ -15,6 +15,8 @@
 
 #include "common_fxc.h"
 
+#define NUM_MODEL_TRANSFORMS	53
+
 // Put global skip commands here. . make sure and check that the appropriate vars are defined
 // so these aren't used on the wrong shaders!
 // --------------------------------------------------------------------------------
@@ -240,43 +242,43 @@ void SampleMorphDelta2( Texture2D vtt, SamplerState vt, const float3 vMorphTarge
 //-----------------------------------------------------------------------------
 // Method to apply morphs
 //-----------------------------------------------------------------------------
-bool ApplyMorph( float3 vPosFlex, inout float3 vPosition )
+bool ApplyMorph( float3 vPosFlex, float4 flexScale, inout float3 vPosition )
 {
 	// Flexes coming in from a separate stream
-	float3 vPosDelta = vPosFlex.xyz * cFlexScale.x;
+	float3 vPosDelta = vPosFlex.xyz * flexScale.x;
 	vPosition.xyz += vPosDelta;
 	return true;
 }
 
-bool ApplyMorph( float3 vPosFlex, float3 vNormalFlex, inout float3 vPosition, inout float3 vNormal )
+bool ApplyMorph( float3 vPosFlex, float3 vNormalFlex, float4 flexScale, inout float3 vPosition, inout float3 vNormal )
 {
 	// Flexes coming in from a separate stream
-	float3 vPosDelta = vPosFlex.xyz * cFlexScale.x;
-	float3 vNormalDelta = vNormalFlex.xyz * cFlexScale.x;
+	float3 vPosDelta = vPosFlex.xyz * flexScale.x;
+	float3 vNormalDelta = vNormalFlex.xyz * flexScale.x;
 	vPosition.xyz += vPosDelta;
 	vNormal       += vNormalDelta;
 	return true;
 }
 
-bool ApplyMorph( float3 vPosFlex, float3 vNormalFlex, 
+bool ApplyMorph( float3 vPosFlex, float3 vNormalFlex, float4 flexScale,
 	inout float3 vPosition, inout float3 vNormal, inout float3 vTangent )
 {
 	// Flexes coming in from a separate stream
-	float3 vPosDelta = vPosFlex.xyz * cFlexScale.x;
-	float3 vNormalDelta = vNormalFlex.xyz * cFlexScale.x;
+	float3 vPosDelta = vPosFlex.xyz * flexScale.x;
+	float3 vNormalDelta = vNormalFlex.xyz * flexScale.x;
 	vPosition.xyz += vPosDelta;
 	vNormal       += vNormalDelta;
 	vTangent.xyz  += vNormalDelta;
 	return true;
 }
 
-bool ApplyMorph( float4 vPosFlex, float3 vNormalFlex, 
+bool ApplyMorph( float4 vPosFlex, float3 vNormalFlex, float4 flexScale,
 	inout float3 vPosition, inout float3 vNormal, inout float3 vTangent, out float flWrinkle )
 {
 	// Flexes coming in from a separate stream
-	float3 vPosDelta = vPosFlex.xyz * cFlexScale.x;
-	float3 vNormalDelta = vNormalFlex.xyz * cFlexScale.x;
-	flWrinkle = vPosFlex.w * cFlexScale.y;
+	float3 vPosDelta = vPosFlex.xyz * flexScale.x;
+	float3 vNormalDelta = vNormalFlex.xyz * flexScale.x;
+	flWrinkle = vPosFlex.w * flexScale.y;
 	vPosition.xyz += vPosDelta;
 	vNormal       += vNormalDelta;
 	vTangent.xyz  += vNormalDelta;
@@ -404,16 +406,17 @@ bool ApplyMorph( Texture2D morphTexture, SamplerState morphSampler, const float3
 #endif   // SHADER_MODEL_VS_3_0
 
 
-float RangeFog( const float3 projPos )
+float RangeFog( const float3 projPos, const float4 fogParams )
 {
-	return max( cFogMaxDensity, ( -projPos.z * cOOFogRange + cFogEndOverFogRange ) );
+	//        cFogMaxDensity,             cOOFogRange, cFogEndOverFogRange
+	return max( fogParams.z, ( -projPos.z * fogParams.w + fogParams.x ) );
 }
 
-float WaterFog( const float3 worldPos, const float3 projPos )
+float WaterFog( const float3 worldPos, const float3 projPos, const float3 eyePos, const float fogZ, const float4 fogParams )
 {
 	float4 tmp;
 	
-	tmp.xy = float2(cFogZ, cEyePos.z) - worldPos.z;
+	tmp.xy = float2( fogZ, eyePos.z) - worldPos.z;
 
 	// tmp.x is the distance from the water surface to the vert
 	// tmp.y is the distance from the eye position to the vert
@@ -430,10 +433,10 @@ float WaterFog( const float3 worldPos, const float3 projPos )
 
 	// $tmp.w is now the distance that we see through water.
 
-	return max( cFogMaxDensity, ( -tmp.w * cOOFogRange + cFogOne ) );
+	return max( fogParams.z, ( -tmp.w * fogParams.w + fogParams.y ) );
 }
 
-float CalcFog( const float3 worldPos, const float3 projPos, const int fogType )
+float CalcFog( const float3 worldPos, const float3 projPos, const float3 eyePos, const int fogType, const float fogZ, const float4 fogParams )
 {
 #if defined( _X360 )
 	// 360 only does pixel fog
@@ -442,7 +445,7 @@ float CalcFog( const float3 worldPos, const float3 projPos, const int fogType )
 
 	if( fogType == FOGTYPE_RANGE )
 	{
-		return RangeFog( projPos );
+		return RangeFog( projPos, fogParams );
 	}
 	else
 	{
@@ -450,12 +453,12 @@ float CalcFog( const float3 worldPos, const float3 projPos, const int fogType )
 		// We do this work in the pixel shader in dx9, so don't do any fog here.
 		return 1.0f;
 #else
-		return WaterFog( worldPos, projPos );
+		return WaterFog( worldPos, projPos, eyePos, fogZ, fogParams  );
 #endif
 	}
 }
 
-float CalcFog( const float3 worldPos, const float3 projPos, const bool bWaterFog )
+float CalcFog( const float3 worldPos, const float3 projPos, const float3 eyePos, const bool bWaterFog, const float fogZ, const float4 fogParams )
 {
 #if defined( _X360 )
 	// 360 only does pixel fog
@@ -465,7 +468,7 @@ float CalcFog( const float3 worldPos, const float3 projPos, const bool bWaterFog
 	float flFog;
 	if( !bWaterFog )
 	{
-		flFog = RangeFog( projPos );
+		flFog = RangeFog( projPos, fogParams );
 	}
 	else
 	{
@@ -473,7 +476,7 @@ float CalcFog( const float3 worldPos, const float3 projPos, const bool bWaterFog
 		// We do this work in the pixel shader in dx9, so don't do any fog here.
 		flFog = 1.0f;
 #else
-		flFog = WaterFog( worldPos, projPos );
+		flFog = WaterFog( worldPos, projPos, eyePos, fogZ, fogParams );
 #endif
 	}
 
@@ -501,6 +504,7 @@ float4 DecompressBoneWeights( const float4 weights )
 
 void SkinPosition( bool bSkinning, const float4 modelPos, 
                    const float4 boneWeights, uint4 boneIndices,
+		   float4x4 model[NUM_MODEL_TRANSFORMS],
 				   out float3 worldPos )
 {
 
@@ -511,13 +515,13 @@ void SkinPosition( bool bSkinning, const float4 modelPos,
 	{ 
 		if ( !bSkinning )
 		{
-			worldPos = mul4x3( modelPos, (float4x3)cModel[0] );
+			worldPos = mul4x3( modelPos, (float4x3)model[0] );
 		}
 		else // skinning - always three bones
 		{
-			float4x3 mat1 = (float4x3)cModel[boneIndices[0]];
-			float4x3 mat2 = (float4x3)cModel[boneIndices[1]];
-			float4x3 mat3 = (float4x3)cModel[boneIndices[2]];
+			float4x3 mat1 = (float4x3)model[boneIndices[0]];
+			float4x3 mat2 = (float4x3)model[boneIndices[1]];
+			float4x3 mat3 = (float4x3)model[boneIndices[2]];
 
 			float3 weights = DecompressBoneWeights( boneWeights ).xyz;
 			weights[2] = 1 - (weights[0] + weights[1]);
@@ -530,6 +534,7 @@ void SkinPosition( bool bSkinning, const float4 modelPos,
 
 void SkinPositionAndNormal( bool bSkinning, const float4 modelPos, const float3 modelNormal,
                             const float4 boneWeights, uint4 boneIndices,
+			    float4x4 model[NUM_MODEL_TRANSFORMS],
 						    out float3 worldPos, out float3 worldNormal )
 {
 	// Needed for invariance issues caused by multipass rendering
@@ -540,14 +545,14 @@ void SkinPositionAndNormal( bool bSkinning, const float4 modelPos, const float3 
 
 		if ( !bSkinning )
 		{
-			worldPos = mul4x3( modelPos, (float4x3)cModel[0] );
-			worldNormal = mul3x3( modelNormal, ( const float3x3 )cModel[0] );
+			worldPos = mul4x3( modelPos, (float4x3)model[0] );
+			worldNormal = mul3x3( modelNormal, ( const float3x3 )model[0] );
 		}
 		else // skinning - always three bones
 		{
-			float4x3 mat1 = (float4x3)cModel[boneIndices[0]];
-			float4x3 mat2 = (float4x3)cModel[boneIndices[1]];
-			float4x3 mat3 = (float4x3)cModel[boneIndices[2]];
+			float4x3 mat1 = (float4x3)model[boneIndices[0]];
+			float4x3 mat2 = (float4x3)model[boneIndices[1]];
+			float4x3 mat3 = (float4x3)model[boneIndices[2]];
 
 			float3 weights = DecompressBoneWeights( boneWeights ).xyz;
 			weights[2] = 1 - (weights[0] + weights[1]);
@@ -567,6 +572,7 @@ void SkinPositionNormalAndTangentSpace(
 						    const float4 modelPos, const float3 modelNormal, 
 							const float4 modelTangentS,
                             const float4 boneWeights, uint4 boneIndices,
+				float4x4 model[NUM_MODEL_TRANSFORMS],
 						    out float3 worldPos, out float3 worldNormal, 
 							out float3 worldTangentS, out float3 worldTangentT )
 {
@@ -578,15 +584,15 @@ void SkinPositionNormalAndTangentSpace(
 	{ 
 		if ( !bSkinning )
 		{
-			worldPos = mul4x3( modelPos, (float4x3)cModel[0] );
-			worldNormal = mul3x3( modelNormal, ( const float3x3 )cModel[0] );
-			worldTangentS = mul3x3( ( float3 )modelTangentS, ( const float3x3 )cModel[0] );
+			worldPos = mul4x3( modelPos, (float4x3)model[0] );
+			worldNormal = mul3x3( modelNormal, ( const float3x3 )model[0] );
+			worldTangentS = mul3x3( ( float3 )modelTangentS, ( const float3x3 )model[0] );
 		}
 		else // skinning - always three bones
 		{
-			float4x3 mat1 = (float4x3)cModel[boneIndices[0]];
-			float4x3 mat2 = (float4x3)cModel[boneIndices[1]];
-			float4x3 mat3 = (float4x3)cModel[boneIndices[2]];
+			float4x3 mat1 = (float4x3)model[boneIndices[0]];
+			float4x3 mat2 = (float4x3)model[boneIndices[1]];
+			float4x3 mat3 = (float4x3)model[boneIndices[2]];
 
 			float3 weights = DecompressBoneWeights( boneWeights ).xyz;
 			weights[2] = 1 - (weights[0] + weights[1]);
@@ -605,7 +611,7 @@ void SkinPositionNormalAndTangentSpace(
 // Lighting helper functions
 //-----------------------------------------------------------------------------
 
-float3 AmbientLight( const float3 worldNormal )
+float3 AmbientLight( const float3 worldNormal, const float3 ambientCube[6] )
 {
 	float3 nSquared = worldNormal * worldNormal;
 	int3 isNegative = ( worldNormal < 0.0 );
@@ -613,19 +619,19 @@ float3 AmbientLight( const float3 worldNormal )
 	isNegative *= nSquared;
 	isPositive *= nSquared;
 	float3 linearColor;
-	linearColor = isPositive.x * cAmbientCube[0] + isNegative.x * cAmbientCube[1] +
-		isPositive.y * cAmbientCube[2] + isNegative.y * cAmbientCube[3] +
-		isPositive.z * cAmbientCube[4] + isNegative.z * cAmbientCube[5];
+	linearColor = isPositive.x * ambientCube[0] + isNegative.x * ambientCube[1] +
+		isPositive.y * ambientCube[2] + isNegative.y * ambientCube[3] +
+		isPositive.z * ambientCube[4] + isNegative.z * ambientCube[5];
 	return linearColor;
 }
 
-float CosineTermInternal( const float3 worldPos, const float3 worldNormal, int lightNum, bool bHalfLambert )
+float CosineTermInternal( const float3 worldPos, const float3 worldNormal, int lightNum, bool bHalfLambert, LightInfo lightInfo[NUM_LIGHTS] )
 {
 	// Calculate light direction assuming this is a point or spot
-	float3 lightDir = normalize( cLightInfo[lightNum].pos - worldPos );
+	float3 lightDir = normalize( lightInfo[lightNum].pos - worldPos );
 
 	// Select the above direction or the one in the structure, based upon light type
-	lightDir = lerp( lightDir, -cLightInfo[lightNum].dir, cLightInfo[lightNum].color.w );
+	lightDir = lerp( lightDir, -lightInfo[lightNum].dir, lightInfo[lightNum].color.w );
 
 	// compute N dot L
 	float NDotL = dot( worldNormal, lightDir );
@@ -643,30 +649,33 @@ float CosineTermInternal( const float3 worldPos, const float3 worldNormal, int l
 }
 
 // This routine uses booleans to do early-outs and is meant to be called by routines OUTSIDE of this file
-float CosineTerm( const float3 worldPos, const float3 worldNormal, int lightNum, bool bHalfLambert )
+float CosineTerm( const float3 worldPos, const float3 worldNormal, int lightNum, bool bHalfLambert,
+		  int4 lightEnabled[NUM_LIGHTS], LightInfo lightInfo[NUM_LIGHTS] )
 {
 	float flResult = 0.0f;
-	if ( cLightEnabled[lightNum] )
+	//if ( lightEnabled[lightNum] != 0 )
 	{
-		flResult = CosineTermInternal( worldPos, worldNormal, lightNum, bHalfLambert );
+		flResult = CosineTermInternal( worldPos, worldNormal, lightNum, bHalfLambert, lightInfo );
 	}
 
 	return flResult;
 }
 
 
-float3 DoLightInternal( const float3 worldPos, const float3 worldNormal, int lightNum, bool bHalfLambert )
+float3 DoLightInternal( const float3 worldPos, const float3 worldNormal, int lightNum, bool bHalfLambert,
+			LightInfo lightInfo[NUM_LIGHTS] )
 {
-	return cLightInfo[lightNum].color *
-		CosineTermInternal( worldPos, worldNormal, lightNum, bHalfLambert ) *
-		LightAttenInternal( worldPos, lightNum, cLightInfo );
+	return lightInfo[lightNum].color *
+		CosineTermInternal( worldPos, worldNormal, lightNum, bHalfLambert, lightInfo ) *
+		LightAttenInternal( worldPos, lightNum, lightInfo );
 }
 
 
 // This routine
 float3 DoLighting( const float3 worldPos, const float3 worldNormal,
 				   const float3 staticLightingColor, const bool bStaticLight,
-				   const bool bDynamicLight, bool bHalfLambert )
+				   const bool bDynamicLight, bool bHalfLambert, LightInfo lightInfo[NUM_LIGHTS],
+		   float3 ambientCube[6])
 {
 	float3 linearColor = float3( 0.0f, 0.0f, 0.0f );
 
@@ -684,13 +693,13 @@ float3 DoLighting( const float3 worldPos, const float3 worldNormal,
 	{
 		for (int i = 0; i < g_nLightCount; i++)
 		{
-			linearColor += DoLightInternal( worldPos, worldNormal, i, bHalfLambert );
+			linearColor += DoLightInternal( worldPos, worldNormal, i, bHalfLambert, lightInfo );
 		}		
 	}
 
 	if( bDynamicLight )
 	{
-		linearColor += AmbientLight( worldNormal ); //ambient light is already remapped
+		linearColor += AmbientLight( worldNormal, ambientCube ); //ambient light is already remapped
 	}
 
 	return linearColor;
@@ -699,7 +708,8 @@ float3 DoLighting( const float3 worldPos, const float3 worldNormal,
 
 float3 DoLightingUnrolled( const float3 worldPos, const float3 worldNormal,
 				  const float3 staticLightingColor, const bool bStaticLight,
-				  const bool bDynamicLight, bool bHalfLambert, const int nNumLights )
+				  const bool bDynamicLight, bool bHalfLambert, const int nNumLights,
+			   LightInfo lightInfo[NUM_LIGHTS], float3 ambientCube[6])
 {
 	float3 linearColor = float3( 0.0f, 0.0f, 0.0f );
 
@@ -711,18 +721,18 @@ float3 DoLightingUnrolled( const float3 worldPos, const float3 worldNormal,
 	if( bDynamicLight )			// Ambient light
 	{
 		if ( nNumLights >= 1 )
-			linearColor += DoLightInternal( worldPos, worldNormal, 0, bHalfLambert );
+			linearColor += DoLightInternal( worldPos, worldNormal, 0, bHalfLambert, lightInfo );
 		if ( nNumLights >= 2 )
-			linearColor += DoLightInternal( worldPos, worldNormal, 1, bHalfLambert );
+			linearColor += DoLightInternal( worldPos, worldNormal, 1, bHalfLambert, lightInfo );
 		if ( nNumLights >= 3 )
-			linearColor += DoLightInternal( worldPos, worldNormal, 2, bHalfLambert );
+			linearColor += DoLightInternal( worldPos, worldNormal, 2, bHalfLambert, lightInfo );
 		if ( nNumLights >= 4 )
-			linearColor += DoLightInternal( worldPos, worldNormal, 3, bHalfLambert );
+			linearColor += DoLightInternal( worldPos, worldNormal, 3, bHalfLambert, lightInfo );
 	}
 
 	if( bDynamicLight )
 	{
-		linearColor += AmbientLight( worldNormal ); //ambient light is already remapped
+		linearColor += AmbientLight( worldNormal, ambientCube ); //ambient light is already remapped
 	}
 
 	return linearColor;
@@ -734,10 +744,10 @@ int4 FloatToInt( in float4 floats )
 }
 
 
-float2 ComputeSphereMapTexCoords( in float3 reflectionVector )
+float2 ComputeSphereMapTexCoords( in float3 reflectionVector, float4x4 viewModel )
 {
 	// transform reflection vector into view space
-	reflectionVector = mul( reflectionVector, ( float3x3 )cViewModel );
+	reflectionVector = mul( reflectionVector, ( float3x3 )viewModel );
 
 	// generate <rx ry rz+1>
 	float3 tmp = float3( reflectionVector.x, reflectionVector.y, reflectionVector.z + 1.0f );

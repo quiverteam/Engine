@@ -1,17 +1,21 @@
-#include "common_cbuffers_def_fxc.h"
+#include "common_cbuffers_fxc.h"
+CBUFFER_PERMODEL(register(b0)) // model matrix
+CBUFFER_PERFRAME(register(b1)) // view matrix
+CBUFFER_PERSCENE(register(b2)) // proj matrix
+
+#include "common_sky_fxc.h"
+
+cbuffer Sky_CBuffer_t : register(b3)
+{
+	Sky_t cSky;
+};
 
 #include "common_vs_fxc.h"
 
-cbuffer Sky_VS40_t : USER_CBUFFER_REG_0
-{
-	float4 g_vTextureSizeInfo;
-	float4 g_mBaseTexCoordTransform[2];
-};
-
-#define TEXEL_XINCR (g_vTextureSizeInfo.x)
-#define TEXEL_YINCR (g_vTextureSizeInfo.y)
-#define U_TO_PIXEL_COORD_SCALE (g_vTextureSizeInfo.z)
-#define V_TO_PIXEL_COORD_SCALE (g_vTextureSizeInfo.w)
+#define TEXEL_XINCR (cSky.vTextureSizeInfo.x)
+#define TEXEL_YINCR (cSky.vTextureSizeInfo.y)
+#define U_TO_PIXEL_COORD_SCALE (cSky.vTextureSizeInfo.z)
+#define V_TO_PIXEL_COORD_SCALE (cSky.vTextureSizeInfo.w)
 
 struct VS_INPUT
 {
@@ -34,12 +38,12 @@ VS_OUTPUT main( const VS_INPUT v )
 {
 	VS_OUTPUT o = ( VS_OUTPUT )0;
 
-	o.projPos = mul( v.vPos, cModelViewProj );
+	o.projPos = ComputeProjPos(v.vPos.xyz, cModelMatrix, cViewMatrix, cProjMatrix);
 
 	float4 vTexCoordInput = { v.vTexCoord0.x, v.vTexCoord0.y, 0.0f, 1.0f };
 	float2 vTexCoord;
-	vTexCoord.x = dot( vTexCoordInput.xyzw, g_mBaseTexCoordTransform[0] );
-	vTexCoord.y = dot( vTexCoordInput.xyzw, g_mBaseTexCoordTransform[1] );
+	vTexCoord.x = dot( vTexCoordInput.xyzw, cSky.mBaseTexCoordTransform[0] );
+	vTexCoord.y = dot( vTexCoordInput.xyzw, cSky.mBaseTexCoordTransform[1] );
 
 	// Compute quantities needed for pixel shader texture lerping
 	o.baseTexCoord00.x = vTexCoord.x - TEXEL_XINCR;

@@ -52,16 +52,14 @@ static const bool g_bDecalOffset	= true;
 static const bool g_bDecalOffset	= false;
 #endif
 
-cbuffer VertexLitAndUnlitGeneric_VS40_t : USER_CBUFFER_REG_0
+#include "vertexlitgeneric_dx11_shared.h"
+
+cbuffer VertexLitAndUnlitGeneric_CBuffer : USER_CBUFFER_REG_0
 {
-	float4 cBaseTexCoordTransform[2];
-	float4 cDetailTexCoordTransform[2];
-	float4 cSeamlessScale;
-	float4 cMorphSubrect;
-	float4 cMorphTargetTextureDim;
+	VertexLitAndUnlitGeneric_t c;
 };
 
-#define SEAMLESS_SCALE cSeamlessScale.x
+#define SEAMLESS_SCALE c.cSeamlessScale.x
 
 #if MORPHING
 // NOTE: cMorphTargetTextureDim.xy = target dimensions,
@@ -165,11 +163,11 @@ VS_OUTPUT main( const VS_INPUT v )
 	
 #if !MORPHING
 	#if BUMPMAP
-		ApplyMorph( v.vPosFlex, v.vNormalFlex, vPosition.xyz, vNormal, vTangent.xyz );
+		ApplyMorph( v.vPosFlex, v.vNormalFlex, cFlexScale, vPosition.xyz, vNormal, vTangent.xyz );
 	#elif WRINKLEMAP
-		ApplyMorph( v.vPosFlex, v.vNormalFlex, vPosition.xyz, vNormal, vTangent.xyz, o.wrinkleHeight.x );
+		ApplyMorph( v.vPosFlex, v.vNormalFlex, cFlexScale, vPosition.xyz, vNormal, vTangent.xyz, o.wrinkleHeight.x );
 	#else
-		ApplyMorph( v.vPosFlex, v.vNormalFlex, vPosition.xyz, vNormal );
+		ApplyMorph( v.vPosFlex, v.vNormalFlex, cFlexScale, vPosition.xyz, vNormal );
 	#endif
 #else
 	#if BUMPMAP
@@ -191,12 +189,13 @@ VS_OUTPUT main( const VS_INPUT v )
 		g_bSkinning, 
 		vPosition, vNormal,
 		v.vBoneWeights, v.vBoneIndices,
+		cModel,
 		worldPos, worldNormal );
 #else
 	// Perform skinning
 	float3 worldNormal, worldPos, worldTangentS, worldTangentT;
 	SkinPositionNormalAndTangentSpace( g_bSkinning, vPosition, vNormal, vTangent,
-		v.vBoneWeights, v.vBoneIndices, worldPos,
+		v.vBoneWeights, v.vBoneIndices, cModel, worldPos,
 		worldNormal, worldTangentS, worldTangentT );
 #endif
 
@@ -218,12 +217,14 @@ VS_OUTPUT main( const VS_INPUT v )
 	
 	o.worldSpaceNormal = worldNormal;
 
+	matrix viewProj = mul(cViewMatrix, cProjMatrix);
+
 	// Transform into projection space
-	float4 vProjPos = mul( float4( worldPos, 1 ), cViewProj );
+	float4 vProjPos = mul( float4( worldPos, 1 ), viewProj );
 	o.projPos = vProjPos;
 
 	//o.vProjPos = vProjPos;
-	o.fogFactorW.w = CalcFog( worldPos, vProjPos, g_FogType );
+	o.fogFactorW.w = CalcFog( worldPos, vProjPos, cEyePos.xyz, g_FogType, cFogZ.x, cFogParams );
 	
 	//o.fog = o.fogFactorW.w;
 	
@@ -261,19 +262,19 @@ VS_OUTPUT main( const VS_INPUT v )
 	o.SeamlessTexCoord.xyz = SEAMLESS_SCALE * v.vPos.xyz;
 #else
 	// Base texture coordinates
-	o.baseTexCoord.x = dot( v.vTexCoord0, cBaseTexCoordTransform[0] );
-	o.baseTexCoord.y = dot( v.vTexCoord0, cBaseTexCoordTransform[1] );
+	o.baseTexCoord.x = dot( v.vTexCoord0, c.cBaseTexCoordTransform[0] );
+	o.baseTexCoord.y = dot( v.vTexCoord0, c.cBaseTexCoordTransform[1] );
 #endif
 
 #if SEAMLESS_DETAIL
 	// FIXME: detail texcoord as a 2d xform doesn't make much sense here, so I just do enough so
 	// that scale works. More smartness could allow 3d xform.
-	o.SeamlessDetailTexCoord.xyz = (SEAMLESS_SCALE*cDetailTexCoordTransform[0].x) * v.vPos.xyz;
+	o.SeamlessDetailTexCoord.xyz = (SEAMLESS_SCALE*c.cDetailTexCoordTransform[0].x) * v.vPos.xyz;
 #else
 	// Detail texture coordinates
 	// FIXME: This shouldn't have to be computed all the time.
-	o.detailTexCoord.x = dot( v.vTexCoord0, cDetailTexCoordTransform[0] );
-	o.detailTexCoord.y = dot( v.vTexCoord0, cDetailTexCoordTransform[1] );
+	o.detailTexCoord.x = dot( v.vTexCoord0, c.cDetailTexCoordTransform[0] );
+	o.detailTexCoord.y = dot( v.vTexCoord0, c.cDetailTexCoordTransform[1] );
 #endif
 
 #if SEPARATE_DETAIL_UVS

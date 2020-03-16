@@ -31,7 +31,7 @@ BEGIN_VS_SHADER( DecalModulate_dx11,
 	return 0;
 }
 
-DECLARE_CONSTANT_BUFFER( VertexLitGeneric_VS40 )
+DECLARE_CONSTANT_BUFFER( VertexLitGeneric )
 
 SHADER_INIT_PARAMS()
 {
@@ -54,7 +54,7 @@ SHADER_INIT
 
 SHADER_INIT_GLOBAL
 {
-	INIT_CONSTANT_BUFFER( VertexLitGeneric_VS40 );
+	INIT_CONSTANT_BUFFER( VertexLitGeneric );
 }
 
 SHADER_DRAW
@@ -125,15 +125,15 @@ SHADER_DRAW
 
 			BindTexture( SHADER_SAMPLER0, BASETEXTURE, FRAME );
 
-			VertexLitGeneric_VS40_CBuffer_t vsConstants;
-			memset( &vsConstants, 0, sizeof( VertexLitGeneric_VS40_CBuffer_t ) );
-			vsConstants.cBaseTextureTransform[0].Init( 1.0f, 0.0f, 0.0f, 0.0f );
-			vsConstants.cBaseTextureTransform[1].Init( 0.0f, 1.0f, 0.0f, 0.0f );
-			SetHWMorphVertexShaderState( vsConstants.cMorphDimensions, vsConstants.cMorphSubrect, SHADER_VERTEXTEXTURE_SAMPLER0 );
-			UPDATE_CONSTANT_BUFFER( VertexLitGeneric_VS40, vsConstants );
+			VertexLitGeneric_CBuffer_t constants;
+			memset( &constants, 0, sizeof( VertexLitGeneric_CBuffer_t ) );
+			constants.cBaseTextureTransform[0].Init( 1.0f, 0.0f, 0.0f, 0.0f );
+			constants.cBaseTextureTransform[1].Init( 0.0f, 1.0f, 0.0f, 0.0f );
+			SetHWMorphVertexShaderState( constants.cMorphDimensions, constants.cMorphSubrect, SHADER_VERTEXTEXTURE_SAMPLER0 );
+			UPDATE_CONSTANT_BUFFER( VertexLitGeneric, constants );
 
 			BindInternalVertexShaderConstantBuffers();
-			BindVertexShaderConstantBuffer( USER_CBUFFER_REG_0, CONSTANT_BUFFER( VertexLitGeneric_VS40 ) );
+			BindVertexShaderConstantBuffer( USER_CBUFFER_REG_0, CONSTANT_BUFFER( VertexLitGeneric ) );
 
 			BindPixelShaderConstantBuffer( 0, GetInternalConstantBuffer( SHADER_CONSTANTBUFFER_PERSCENE ) );
 			BindPixelShaderConstantBuffer( 1, GetInternalConstantBuffer( SHADER_CONSTANTBUFFER_PERFRAME ) );

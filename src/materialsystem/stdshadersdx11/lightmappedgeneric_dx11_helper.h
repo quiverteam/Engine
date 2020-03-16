@@ -20,17 +20,17 @@ class IMaterialVar;
 class IShaderDynamicAPI;
 class IShaderShadow;
 
-ALIGN16 struct LightmappedGeneric_VS_CBuffer_t
+ALIGN16 struct LightmappedGeneric_CBuffer_t
 {
+	// Vertex shader
 	Vector4D cBaseTexCoordTransform[2];
 	Vector4D cDetailOrBumpTexCoordTransform[2];
 	Vector4D cEnvmapMaskOrBump2TexCoordTransform[2];
 	Vector4D cBlendMaskTexCoordTransform[2];
-	float cSeamlessMappingScale;
-};
+	Vector4D cSeamlessMappingScale;
+	Vector4D cModulationColor;
 
-ALIGN16 struct LightmappedGeneric_PS_CBuffer_t
-{
+	// Pixel shader
 	Vector4D g_OutlineParams[2];
 	Vector4D g_EnvmapTint;
 	Vector4D g_FresnelReflectionReg;
@@ -42,8 +42,7 @@ ALIGN16 struct LightmappedGeneric_PS_CBuffer_t
 	Vector4D g_EnvmapSaturation;
 };
 
-extern ALIGN16 ConstantBufferHandle_t g_hLightmappedGenericVS_CBuffer;
-extern ALIGN16 ConstantBufferHandle_t g_hLightmappedGenericPS_CBuffer;
+extern ALIGN16 ConstantBufferHandle_t g_hLightmappedGeneric_CBuffer;
 
 //-----------------------------------------------------------------------------
 // Init params/ init/ draw methods

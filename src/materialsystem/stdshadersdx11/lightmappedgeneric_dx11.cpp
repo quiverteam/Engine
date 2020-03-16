@@ -167,8 +167,7 @@ SHADER_INIT_PARAMS()
 
 SHADER_INIT_GLOBAL
 {
-	g_hLightmappedGenericVS_CBuffer = pShaderDevice->CreateConstantBuffer( sizeof( LightmappedGeneric_VS_CBuffer_t ) );
-	g_hLightmappedGenericPS_CBuffer = pShaderDevice->CreateConstantBuffer( sizeof( LightmappedGeneric_PS_CBuffer_t ) );
+	g_hLightmappedGeneric_CBuffer = pShaderDevice->CreateConstantBuffer( sizeof( LightmappedGeneric_CBuffer_t ) );
 }
 
 SHADER_INIT

@@ -165,6 +165,9 @@ public:
 	virtual void BindPixelShaderConstantBuffer( int slot, ConstantBufferHandle_t cbuffer ) = 0;
 	virtual void BindVertexShaderConstantBuffer( int slot, ConstantBufferHandle_t cbuffer ) = 0;
 	virtual void BindGeometryShaderConstantBuffer( int slot, ConstantBufferHandle_t cbuffer ) = 0;
+	virtual void BindPixelShaderConstantBuffer( int slot, ShaderInternalConstantBuffer_t cbuffer ) = 0;
+	virtual void BindVertexShaderConstantBuffer( int slot, ShaderInternalConstantBuffer_t cbuffer ) = 0;
+	virtual void BindGeometryShaderConstantBuffer( int slot, ShaderInternalConstantBuffer_t cbuffer ) = 0;
 	virtual void UpdateConstantBuffer( ConstantBufferHandle_t cbuffer, void *pNewData ) = 0;
 
 	// FIXME: Remove GetParamName, etc. above

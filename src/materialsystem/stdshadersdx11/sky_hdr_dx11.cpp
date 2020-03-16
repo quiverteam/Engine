@@ -11,14 +11,13 @@
 #include "sky_hdr_compressed_ps40.inc"
 #include "sky_hdr_compressed_rgbs_ps40.inc"
 
-CREATE_CONSTANT_BUFFER( Sky_VS40 )
+CREATE_CONSTANT_BUFFER( Sky_HDR )
 {
+	// Vertex shader
 	Vector4D vTextureSizeInfo;
 	Vector4D mBaseTexCoordTransform[2];
-};
 
-CREATE_CONSTANT_BUFFER( Sky_PS40 )
-{
+	// Pixel shadere
 	Vector4D vInputScale;
 };
 
@@ -38,13 +37,11 @@ BEGIN_VS_SHADER( Sky_HDR_DX11, "Help for Sky_HDR_DX11 shader" )
 		SHADER_PARAM_OVERRIDE( COLOR, SHADER_PARAM_TYPE_VEC3, "[ 1 1 1]", "color multiplier", SHADER_PARAM_NOT_EDITABLE )
 	END_SHADER_PARAMS
 
-	DECLARE_CONSTANT_BUFFER( Sky_VS40 )
-	DECLARE_CONSTANT_BUFFER( Sky_PS40 )
+	DECLARE_CONSTANT_BUFFER( Sky_HDR )
 
 	SHADER_INIT_GLOBAL
 	{
-		INIT_CONSTANT_BUFFER( Sky_VS40 );
-		INIT_CONSTANT_BUFFER( Sky_PS40 );
+		INIT_CONSTANT_BUFFER( Sky_HDR );
 	}
 
 	SHADER_FALLBACK
@@ -133,21 +130,19 @@ BEGIN_VS_SHADER( Sky_HDR_DX11, "Help for Sky_HDR_DX11 shader" )
 			DECLARE_DYNAMIC_VERTEX_SHADER( sky_vs40 );
 			SET_DYNAMIC_VERTEX_SHADER( sky_vs40 );
 
-			ALIGN16 Sky_VS40_CBuffer_t vsConstants;
-			memset( &vsConstants, 0, sizeof( Sky_VS40_CBuffer_t ) );
+			ALIGN16 Sky_HDR_CBuffer_t constants;
+			memset( &constants, 0, sizeof( Sky_HDR_CBuffer_t ) );
 
 			// Texture coord transform
-			StoreVertexShaderTextureTransform( vsConstants.mBaseTexCoordTransform, BASETEXTURETRANSFORM );
+			StoreVertexShaderTextureTransform( constants.mBaseTexCoordTransform, BASETEXTURETRANSFORM );
 
-			BindVertexShaderConstantBuffer( INTERNAL_CBUFFER_REG_0,
-							GetInternalConstantBuffer( SHADER_CONSTANTBUFFER_PERMATERIAL ) );
-			BindVertexShaderConstantBuffer( INTERNAL_CBUFFER_REG_1,
-							GetInternalConstantBuffer( SHADER_CONSTANTBUFFER_PERMODEL ) );
-			BindVertexShaderConstantBuffer( INTERNAL_CBUFFER_REG_2,
-							GetInternalConstantBuffer( SHADER_CONSTANTBUFFER_PERFRAME ) );
-			BindVertexShaderConstantBuffer( INTERNAL_CBUFFER_REG_3,
-							GetInternalConstantBuffer( SHADER_CONSTANTBUFFER_PERSCENE ) );
-			BindVertexShaderConstantBuffer( USER_CBUFFER_REG_0, CONSTANT_BUFFER( Sky_VS40 ) );
+			BindVertexShaderConstantBuffer( 0,
+							SHADER_CONSTANTBUFFER_PERMODEL );
+			BindVertexShaderConstantBuffer( 1,
+							SHADER_CONSTANTBUFFER_PERFRAME );
+			BindVertexShaderConstantBuffer( 2,
+							SHADER_CONSTANTBUFFER_PERSCENE );
+			BindVertexShaderConstantBuffer( 3, CONSTANT_BUFFER( Sky_HDR ) );
 
 			Vector4D vInputScale( 1, 1, 1, 1 );
 			if ( params[COLOR]->IsDefined() )
@@ -159,24 +154,21 @@ BEGIN_VS_SHADER( Sky_HDR_DX11, "Help for Sky_HDR_DX11 shader" )
 				mat_use_compressed_hdr_textures.GetBool()
 				)
 			{
-				ALIGN16 Sky_PS40_CBuffer_t psConstants;
 
 				// set up data needs for pixel shader interpolation
 				ITexture *txtr=params[HDRCOMPRESSEDTEXTURE]->GetTextureValue();
 				float w = txtr->GetActualWidth();
 				float h = txtr->GetActualHeight();
 				float FUDGE = 0.01 / max( w, h );					// per ATI
-				vsConstants.vTextureSizeInfo.Init( 0.5 / w - FUDGE, 0.5 / h - FUDGE, w, h );
+				constants.vTextureSizeInfo.Init( 0.5 / w - FUDGE, 0.5 / h - FUDGE, w, h );
 
 				BindTexture( SHADER_SAMPLER0, HDRCOMPRESSEDTEXTURE, FRAME );
 				vInputScale[0]*=8.0;
 				vInputScale[1]*=8.0;
 				vInputScale[2]*=8.0;
-				psConstants.vInputScale = vInputScale;
+				constants.vInputScale = vInputScale;
 
-				UPDATE_CONSTANT_BUFFER( Sky_PS40, psConstants );
-
-				BindPixelShaderConstantBuffer( 0, CONSTANT_BUFFER( Sky_PS40 ) );
+				BindPixelShaderConstantBuffer( 0, CONSTANT_BUFFER( Sky_HDR ) );
 
 				DECLARE_DYNAMIC_PIXEL_SHADER( sky_hdr_compressed_rgbs_ps40 );
 				SET_DYNAMIC_PIXEL_SHADER_COMBO( WRITE_DEPTH_TO_DESTALPHA, pShaderAPI->ShouldWriteDepthToDestAlpha() );
@@ -197,7 +189,6 @@ BEGIN_VS_SHADER( Sky_HDR_DX11, "Help for Sky_HDR_DX11 shader" )
 				}
 				else
 				{
-					ALIGN16 Sky_PS40_CBuffer_t psConstants;
 
 					BindTexture( SHADER_SAMPLER0, HDRBASETEXTURE, FRAME );
 					ITexture *txtr=params[HDRBASETEXTURE]->GetTextureValue();
@@ -213,11 +204,9 @@ BEGIN_VS_SHADER( Sky_HDR_DX11, "Help for Sky_HDR_DX11 shader" )
 						vInputScale[2]*=16.0;
 					}
 
-					psConstants.vInputScale = vInputScale;
+					constants.vInputScale = vInputScale;
 
-					UPDATE_CONSTANT_BUFFER( Sky_PS40, psConstants );
-
-					BindPixelShaderConstantBuffer( 0, CONSTANT_BUFFER( Sky_PS40 ) );
+					BindPixelShaderConstantBuffer( 0, CONSTANT_BUFFER( Sky_HDR ) );
 
 					DECLARE_DYNAMIC_PIXEL_SHADER( sky_ps40 );
 					SET_DYNAMIC_PIXEL_SHADER_COMBO( WRITE_DEPTH_TO_DESTALPHA, pShaderAPI->ShouldWriteDepthToDestAlpha() );
@@ -225,7 +214,7 @@ BEGIN_VS_SHADER( Sky_HDR_DX11, "Help for Sky_HDR_DX11 shader" )
 				}
 			}
 
-			UPDATE_CONSTANT_BUFFER( Sky_VS40, vsConstants );
+			UPDATE_CONSTANT_BUFFER( Sky_HDR, constants );
 		}
 		Draw( );
 	}

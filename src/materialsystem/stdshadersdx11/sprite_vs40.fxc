@@ -2,7 +2,11 @@
 //  STATIC: "SRGB"			"0..1"
 //	DYNAMIC: "DOWATERFOG"				"0..1"
 
-#include "common_cbuffers_def_fxc.h"
+#include "common_cbuffers_fxc.h"
+CBUFFER_PERMODEL(register(b0)) // model matrix
+CBUFFER_PERFRAME(register(b1)) // view matrix
+CBUFFER_PERSCENE(register(b2)) // proj matrix
+
 #include "common_vs_fxc.h"
  
 static const int g_FogType			= DOWATERFOG;
@@ -35,13 +39,15 @@ VS_OUTPUT main( const VS_INPUT v )
 	float3 worldPos;
 	worldPos = mul4x3( v.vPos, cModelMatrix );
 
+	matrix viewProj = mul(cViewMatrix, cProjMatrix);
+
 	// Transform into projection space
-	float4 projPos = mul( float4( worldPos, 1 ), cViewProj );
+	float4 projPos = mul( float4( worldPos, 1 ), viewProj );
 	o.projPos = projPos;
 	
 	o.worldPos_projPosZ = float4( worldPos.xyz, projPos.z );
 	
-	o.fog = CalcFog( worldPos, projPos, g_FogType );
+	o.fog = CalcFog( worldPos, projPos, cEyePos.xyz, g_FogType, cFogZ.x, cFogParams );
 
 	if ( g_bVertexColor )
 	{

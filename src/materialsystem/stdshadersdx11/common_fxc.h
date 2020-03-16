@@ -289,4 +289,20 @@ float GetAttenForLight( const float3 worldPos, int lightNum, int4 lightEnabled, 
 	return result;
 }
 
+matrix ComputeMVP( const matrix model, const matrix view, const matrix proj )
+{
+	matrix mvp = mul( model, view );
+	mvp = mul( mvp, proj );
+	return mvp;
+}
+
+float4 ComputeProjPos( const float3 vPos, const matrix model, const matrix view, const matrix proj )
+{
+	float4 projPos;
+	projPos = mul( float4( vPos, 1.0f ), model );
+	projPos = mul( projPos, view );
+	projPos = mul( projPos, proj );
+	return projPos;
+}
+
 #endif //#ifndef COMMON_FXC_H_

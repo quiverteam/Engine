@@ -35,11 +35,12 @@
 #define USE_32BIT_LIGHTMAPS_ON_360 //uncomment to use 32bit lightmaps, be sure to keep this in sync with the same #define in materialsystem/cmatlightmaps.cpp
 
 // Define the common constant buffers we will use
-#include "common_cbuffers_def_fxc.h"
+#include "common_cbuffers_def_noskinning_fxc.h"
 
 #include "common_ps_fxc.h"
 #include "common_flashlight_fxc.h"
 #include "common_lightmappedgeneric_fxc.h"
+#include "lightmappedgeneric_dx11_shared_fxc.h"
 
 #if SEAMLESS
 #define USE_FAST_PATH 1
@@ -47,21 +48,13 @@
 #define USE_FAST_PATH FASTPATH
 #endif
 
-cbuffer LightmappedGeneric_PS : USER_CBUFFER_REG_0
+cbuffer LightmappedGeneric_PS : register( b3 )
 {
-	float4 g_OutlineParamsAndColor[2];
-	float4 g_EnvmapTint;
-	float4 cFresnelReflection;
-	float4 cSelfIllumTint;
-	float4 g_DetailTint_and_BlendFactor;
-	float4 g_TintValuesAndLightmapScale;
-	float4 g_EdgeSoftnessParms;
-	float4 cEnvmapContrast;
-	float4 cEnvmapSaturation;
+	LightmappedGeneric_t c;
 };
 
-#define g_OutlineParams g_OutlineParamsAndColor[0]
-#define g_OutlineColor g_OutlineParamsAndColor[1]
+#define g_OutlineParams c.g_OutlineParamsAndColor[0]
+#define g_OutlineColor c.g_OutlineParamsAndColor[1]
 
 #if USE_FAST_PATH == 1
 
@@ -86,17 +79,17 @@ cbuffer LightmappedGeneric_PS : USER_CBUFFER_REG_0
 		#define SOFT_MASK_MAX g_EdgeSoftnessParms.y
 	#endif
 #else
-#define g_EnvmapContrast cEnvmapContrast.xyz
-#define g_EnvmapSaturation cEnvmapSaturation.xyz
-#define g_SelfIllumTint cSelfIllumTint
-#define g_FresnelReflection cFresnelReflection.a
-#define g_OneMinusFresnelReflection cFresnelReflection.b
+#define g_EnvmapContrast c.cEnvmapContrast.xyz
+#define g_EnvmapSaturation c.cEnvmapSaturation.xyz
+#define g_SelfIllumTint c.cSelfIllumTint
+#define g_FresnelReflection c.cFresnelReflection.a
+#define g_OneMinusFresnelReflection c.cFresnelReflection.b
 #endif
 
-#define g_DetailTint (g_DetailTint_and_BlendFactor.rgb)
-#define g_DetailBlendFactor (g_DetailTint_and_BlendFactor.w)
+#define g_DetailTint (c.g_DetailTint_and_BlendFactor.rgb)
+#define g_DetailBlendFactor (c.g_DetailTint_and_BlendFactor.w)
 
-#define g_flAlpha2 g_TintValuesAndLightmapScale.w
+#define g_flAlpha2 c.g_TintValuesAndLightmapScale.w
 #define g_EyePos cEyePos.xyz
 #define g_FogParams cFogParams
 
@@ -106,41 +99,53 @@ sampler BaseTextureSampler		: register( s0 );
 Texture2D LightmapTexture		: register( t1 );
 sampler LightmapSampler		: register( s1 );
 
-TextureCube EnvmapTexture : register( t2 );
-sampler EnvmapSampler : register( s2 );
+#if CUBEMAP
+TextureCube EnvmapTexture : register( t4 );
+sampler EnvmapSampler : register( s4 );
+#endif
 
 #if FANCY_BLENDING
-Texture2D BlendModulationTexture : register( t3 );
-sampler BlendModulationSampler : register( s3 );
+Texture2D BlendModulationTexture : register( t8 );
+sampler BlendModulationSampler : register( s8 );
 #endif
 
 #if DETAILTEXTURE
-Texture2D DetailTexture : register( t12 );
-sampler DetailSampler : register( s12 );
+Texture2D DetailTexture : register( t2 );
+sampler DetailSampler : register( s2 );
 #endif
 
-Texture2D BumpmapTexture : register( t4 );
-sampler BumpmapSampler : register( s4 );
+#if BUMPMAP
+Texture2D BumpmapTexture : register( t3 );
+sampler BumpmapSampler : register( s3 );
+#else
+#define BumpmapTexture BaseTexture
+#define BumpmapSampler BaseTextureSampler
+#endif
 
 #if BUMPMAP2 == 1
 Texture2D BumpmapTexture2 : register( t5 );
 sampler BumpmapSampler2 : register( s5 );
-#else
+#elif ENVMAPMASK == 1
 Texture2D EnvmapMaskTexture : register( t5 );
 sampler EnvmapMaskSampler : register( s5 );
 #endif
 
 #if WARPLIGHTING
-Texture2D WarpLightingTexture : register( t6 );
-sampler WarpLightingSampler : register( s6 );
+Texture2D WarpLightingTexture : register( t7 );
+sampler WarpLightingSampler : register( s7 );
 #endif
 
-Texture2D BaseTexture2 : register( t7 );
-sampler BaseTextureSampler2 : register( s7 );
+#if BASETEXTURE2
+Texture2D BaseTexture2 : register( t6 );
+sampler BaseTextureSampler2 : register( s6 );
+#else
+#define BaseTexture2 BaseTexture
+#define BaseTextureSampler2 BaseTextureSampler
+#endif
 
 #if BUMPMASK == 1
-Texture2D BumpMaskTexture : register( t8 );
-sampler BumpMaskSampler : register( s8 );
+Texture2D BumpMaskTexture : register( t9 );
+sampler BumpMaskSampler : register( s9 );
 #endif
 
 struct PS_INPUT
@@ -390,10 +395,11 @@ float4 main( PS_INPUT i ) : SV_TARGET
 	}
 
 #if ( BUMPMAP2 == 0 )
-	if ( bEnvmapMask )
+#if ENVMAPMASK
 	{
 		specularFactor *= EnvmapMaskTexture.Sample( EnvmapMaskSampler, envmapMaskTexCoord ).xyz;
 	}
+#endif
 #endif
 
 	if ( bBaseAlphaEnvmapMask )
@@ -449,12 +455,12 @@ float4 main( PS_INPUT i ) : SV_TARGET
 						  dp.y * lightmapColor2 +
 						  dp.z * lightmapColor3;
 		float sum = dot( dp, float3( 1.0f, 1.0f, 1.0f ) );
-		diffuseLighting *= g_TintValuesAndLightmapScale.xyz / sum;
+		diffuseLighting *= c.g_TintValuesAndLightmapScale.xyz / sum;
 #endif
 	}
 	else
 	{
-		diffuseLighting = lightmapColor1 * g_TintValuesAndLightmapScale.xyz;
+		diffuseLighting = lightmapColor1 * c.g_TintValuesAndLightmapScale.xyz;
 	}
 
 #if WARPLIGHTING && ( SEAMLESS == 0 )
@@ -495,7 +501,7 @@ float4 main( PS_INPUT i ) : SV_TARGET
 		//return float4( specularLighting, 1.0f );
 		specularLighting *= specularFactor;
 
-		specularLighting *= g_EnvmapTint.rgb;
+		specularLighting *= c.g_EnvmapTint.rgb;
 #if FANCY_BLENDING == 0
 		float3 specularLightingSquared = specularLighting * specularLighting;
 		specularLighting = lerp( specularLighting, specularLightingSquared, g_EnvmapContrast );

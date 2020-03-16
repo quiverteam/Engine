@@ -20,7 +20,7 @@
 //  SKIP: $BUMPMASK && $SEAMLESS
 // SKIP: $CASCADED_SHADOW && $LIGHTING_PREVIEW
 
-#include "common_cbuffers_def_fxc.h"
+#include "common_cbuffers_def_noskinning_fxc.h"
 
 #include "common_vs_fxc.h"
 
@@ -33,16 +33,14 @@ static const bool g_bVertexColor				= VERTEXCOLOR;
 static const bool g_bVertexAlphaTexBlendFactor	= VERTEXALPHATEXBLENDFACTOR;
 static const bool g_BumpMask					= BUMPMASK;
 
-cbuffer LightmappedGeneric_VS : USER_CBUFFER_REG_0
+#include "lightmappedgeneric_dx11_shared_fxc.h"
+
+cbuffer LightmappedGeneric_VS : register(b3)
 {
-	float4 cBaseTexCoordTransform[2];
-	float4 cDetailOrBumpTexCoordTransform[2];
-	float4 cEnvmapMaskTexCoordTransform[2];
-	float4 cBlendMaskTexCoordTransform[2];
-	float cSeamlessScale;
+	LightmappedGeneric_t c;
 };
 
-#define SEAMLESS_SCALE cSeamlessScale
+#define SEAMLESS_SCALE c.cSeamlessScale
 
 struct VS_INPUT
 {
@@ -84,7 +82,7 @@ VS_OUTPUT main( const VS_INPUT v )
 
 	float3 worldPos = mul( float4( v.vPos, 1 ), cModelMatrix );
 
-	float4 vProjPos = mul( float4( v.vPos, 1 ), cModelViewProj );
+	float4 vProjPos = ComputeProjPos(v.vPos.xyz, cModelMatrix, cViewMatrix, cProjMatrix);
 	o.projPos = vProjPos;
 	
 	o.worldPos_projPosZ = float4( worldPos, vProjPos.z );
@@ -114,8 +112,8 @@ VS_OUTPUT main( const VS_INPUT v )
 		}
 		else
 		{
-			o.baseTexCoord_VertexBlend.x = dot( v.vBaseTexCoord, cBaseTexCoordTransform[0] ) + cBaseTexCoordTransform[0].w;
-			o.baseTexCoord_VertexBlend.y = dot( v.vBaseTexCoord, cBaseTexCoordTransform[1] ) + cBaseTexCoordTransform[1].w;
+			o.baseTexCoord_VertexBlend.x = dot( v.vBaseTexCoord, c.cBaseTexCoordTransform[0] ) + c.cBaseTexCoordTransform[0].w;
+			o.baseTexCoord_VertexBlend.y = dot( v.vBaseTexCoord, c.cBaseTexCoordTransform[1] ) + c.cBaseTexCoordTransform[1].w;
 		}
 #if ( RELIEF_MAPPING == 0 )
 		{
@@ -124,8 +122,8 @@ VS_OUTPUT main( const VS_INPUT v )
 				o.detailOrBumpAndEnvmapMaskTexCoord.xy = v.vBaseTexCoord.xy;
 			else
 			{
-				o.detailOrBumpAndEnvmapMaskTexCoord.x = dot( v.vBaseTexCoord, cDetailOrBumpTexCoordTransform[0] ) + cDetailOrBumpTexCoordTransform[0].w;
-				o.detailOrBumpAndEnvmapMaskTexCoord.y = dot( v.vBaseTexCoord, cDetailOrBumpTexCoordTransform[1] ) + cDetailOrBumpTexCoordTransform[1].w;
+				o.detailOrBumpAndEnvmapMaskTexCoord.x = dot( v.vBaseTexCoord, c.cDetailOrBumpTexCoordTransform[0] ) + c.cDetailOrBumpTexCoordTransform[0].w;
+				o.detailOrBumpAndEnvmapMaskTexCoord.y = dot( v.vBaseTexCoord, c.cDetailOrBumpTexCoordTransform[1] ) + c.cDetailOrBumpTexCoordTransform[1].w;
 			}
 		}
 #endif
@@ -137,8 +135,8 @@ VS_OUTPUT main( const VS_INPUT v )
 	}
 	else
 	{
-		o.lightmapTexCoord3.z = dot( v.vBaseTexCoord, cBlendMaskTexCoordTransform[0] ) + cBlendMaskTexCoordTransform[0].w;
-		o.lightmapTexCoord3.w = dot( v.vBaseTexCoord, cBlendMaskTexCoordTransform[1] ) + cBlendMaskTexCoordTransform[1].w;
+		o.lightmapTexCoord3.z = dot( v.vBaseTexCoord, c.cBlendMaskTexCoordTransform[0] ) + c.cBlendMaskTexCoordTransform[0].w;
+		o.lightmapTexCoord3.w = dot( v.vBaseTexCoord, c.cBlendMaskTexCoordTransform[1] ) + c.cBlendMaskTexCoordTransform[1].w;
 	}
 	
 	//  compute lightmap coordinates
@@ -167,15 +165,15 @@ VS_OUTPUT main( const VS_INPUT v )
 #	if FASTPATH
 		o.detailOrBumpAndEnvmapMaskTexCoord.wz = v.vBaseTexCoord.xy;
 #	else
-		o.detailOrBumpAndEnvmapMaskTexCoord.w = dot( v.vBaseTexCoord, cEnvmapMaskTexCoordTransform[0] ) + cEnvmapMaskTexCoordTransform[0].w;
-		o.detailOrBumpAndEnvmapMaskTexCoord.z = dot( v.vBaseTexCoord, cEnvmapMaskTexCoordTransform[1] ) + cEnvmapMaskTexCoordTransform[1].w;
+		o.detailOrBumpAndEnvmapMaskTexCoord.w = dot( v.vBaseTexCoord, c.cEnvmapMaskTexCoordTransform[0] ) + c.cEnvmapMaskTexCoordTransform[0].w;
+		o.detailOrBumpAndEnvmapMaskTexCoord.z = dot( v.vBaseTexCoord, c.cEnvmapMaskTexCoordTransform[1] ) + c.cEnvmapMaskTexCoordTransform[1].w;
 #	endif
 	}
 #endif
 
 	if (!g_bVertexColor)
 	{
-		o.vertexColor = float4( 1.0f, 1.0f, 1.0f, cModulationColor.a );
+		o.vertexColor = float4( 1.0f, 1.0f, 1.0f, c.cModulationColor.a );
 	}
 	else
 	{
@@ -185,12 +183,12 @@ VS_OUTPUT main( const VS_INPUT v )
 		if ( g_bVertexAlphaTexBlendFactor )
 		{
 			o.vertexColor.rgb = v.vColor.rgb;
-			o.vertexColor.a = cModulationColor.a;
+			o.vertexColor.a = c.cModulationColor.a;
 		}
 		else
 		{
 			o.vertexColor = v.vColor;
-			o.vertexColor.a *= cModulationColor.a;
+			o.vertexColor.a *= c.cModulationColor.a;
 		}
 #endif
 	}

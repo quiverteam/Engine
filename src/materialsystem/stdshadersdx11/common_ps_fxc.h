@@ -46,10 +46,10 @@
 #define OO_DESTALPHA_DEPTH_RANGE (cLinearFogColor.w)
 
 // Linear and gamma light scale values
-#define LINEAR_LIGHT_SCALE (cLightScale.x)
-#define LIGHT_MAP_SCALE (cLightScale.y)
-#define ENV_MAP_SCALE (cLightScale.z)
-#define GAMMA_LIGHT_SCALE (cLightScale.w)
+#define LINEAR_LIGHT_SCALE cLightScale.x
+#define LIGHT_MAP_SCALE cLightScale.y
+#define ENV_MAP_SCALE cLightScale.z
+#define GAMMA_LIGHT_SCALE cLightScale.w
 
 // Flashlight constants
 #define flFlashlightNoLambertValue cFlashlightColor.w // This is either 0.0 or 2.0

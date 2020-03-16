@@ -423,9 +423,7 @@ SHADER_INIT
 
 SHADER_INIT_GLOBAL
 {
-	g_hVertexLitGeneric_VS40_CBuffer = pShaderDevice->CreateConstantBuffer( sizeof( VertexLitGeneric_VS40_CBuffer_t ) );
-	g_hVertexLitGeneric_PS40_CBuffer = pShaderDevice->CreateConstantBuffer( sizeof( VertexLitGeneric_PS40_CBuffer_t ) );
-	g_hPhongParams_CBuffer = pShaderDevice->CreateConstantBuffer( sizeof( PhongParams_CBuffer_t ) );
+	g_hVertexLitGeneric_CBuffer = pShaderDevice->CreateConstantBuffer( sizeof( VertexLitGeneric_CBuffer_t ) );
 }
 
 SHADER_DRAW

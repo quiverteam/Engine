@@ -1,4 +1,8 @@
-#include "common_cbuffers_def_fxc.h"
+#include "common_cbuffers_fxc.h"
+CBUFFER_PERMODEL(register(b0)) // model matrix
+CBUFFER_PERFRAME(register(b1)) // view matrix
+CBUFFER_PERSCENE(register(b2)) // proj matrix
+
 #include "common_vs_fxc.h"
 
 struct VS_INPUT
@@ -17,7 +21,7 @@ VS_OUTPUT main( const VS_INPUT v )
 {
 	VS_OUTPUT o = ( VS_OUTPUT )0;
 
-	o.vProjPos = mul( v.vPos, cModelViewProj );
+	o.vProjPos = ComputeProjPos(v.vPos.xyz, cModelMatrix, cViewMatrix, cProjMatrix);
 	o.projPosZ = o.vProjPos.z;
 
 	return o;

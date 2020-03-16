@@ -4,21 +4,9 @@
 #include "shader_register_map.h"
 #include "lightinfo_fxc.h"
 
-#define CBUFFER_PERMATERIAL( reg ) \
-cbuffer PerMaterial_t : reg \
-{ \
-	float4 cShadowTweaks; \
-	float4 cLightScale; \
-	float4 cConstants1; \
-	float4 cModulationColor; \
-	float4 cAlphaTestRef; \
-};
-
 #define CBUFFER_PERMODEL( reg ) \
 cbuffer PerModel_t : reg \
 { \
-	matrix cModelViewProj; \
-	matrix cViewModel; \
 	matrix cModelMatrix; \
 	float4 cFlexScale; \
 	int4 cLightEnabled; \
@@ -36,7 +24,7 @@ cbuffer Skinning_t : reg \
 #define CBUFFER_PERFRAME( reg ) \
 cbuffer PerFrame_t : reg \
 { \
-	matrix cViewProj; \
+	matrix cViewMatrix; \
 	float4 cEyePos; \
 	float4 cFlashlightPos; \
 };
@@ -44,14 +32,18 @@ cbuffer PerFrame_t : reg \
 #define CBUFFER_PERSCENE( reg ) \
 cbuffer PerScene_t : reg \
 { \
+	matrix cProjMatrix; \
 	matrix cFlashlightWorldToTexture; \
 	float4 cFlashlightScreenScale; \
 	float4 cFlashlightColor; \
 	float4 cFlashlightAttenuationFactors; \
+	float4 cShadowTweaks; \
+	float4 cLightScale; \
+	float4 cConstants; \
 	float4 cLinearFogColor; \
 	float4 cFogParams; \
 	float4 cFogColor; \
-	float cFogZ; \
+	float4 cFogZ; \
 };
 
 #endif // COMMON_CBUFFERS_H_

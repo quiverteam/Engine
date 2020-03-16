@@ -132,6 +132,9 @@ public:
 	virtual void BindPixelShaderConstantBuffer( int slot, ConstantBufferHandle_t cbuffer );
 	virtual void BindVertexShaderConstantBuffer( int slot, ConstantBufferHandle_t cbuffer );
 	virtual void BindGeometryShaderConstantBuffer( int slot, ConstantBufferHandle_t cbuffer );
+	virtual void BindPixelShaderConstantBuffer( int slot, ShaderInternalConstantBuffer_t cbuffer );
+	virtual void BindVertexShaderConstantBuffer( int slot, ShaderInternalConstantBuffer_t cbuffer );
+	virtual void BindGeometryShaderConstantBuffer( int slot, ShaderInternalConstantBuffer_t cbuffer );
 	virtual void UpdateConstantBuffer( ConstantBufferHandle_t cbuffer, void *pNewData );
 
 public:

@@ -6,9 +6,11 @@
 Texture2D BaseTexture		: register( t0 );
 sampler BaseTextureSampler	: register( s0 );
 
-cbuffer Sky_PS40_t : register( b0 )
+#include "common_sky_fxc.h"
+
+cbuffer Sky_CBuffer : register( b0 )
 {
-	float4 InputScale;
+	Sky_t cSky;
 };
 
 struct PS_INPUT
@@ -24,7 +26,7 @@ struct PS_INPUT
 float4 main( PS_INPUT i ) : SV_TARGET
 {
 	float4 color = BaseTexture.Sample( BaseTextureSampler, i.baseTexCoord.xy );
-	color.rgb *= InputScale.rgb;
+	color.rgb *= cSky.InputScale.rgb;
 	
 	// This is never fogged.
 	return FinalOutput( color, 0, PIXEL_FOG_TYPE_NONE, TONEMAP_SCALE_LINEAR, WRITE_DEPTH_TO_DESTALPHA, 1e20 ); //when writing depth to dest alpha, write a value guaranteed to saturate

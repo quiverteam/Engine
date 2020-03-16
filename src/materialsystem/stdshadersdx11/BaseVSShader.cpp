@@ -51,14 +51,12 @@ void CBaseVSShader::EnablePixelShaderOverbright( int reg, bool bEnable, bool bDi
 //-----------------------------------------------------------------------------
 // Helper for dealing with modulation
 //-----------------------------------------------------------------------------
-void CBaseVSShader::SetModulationDynamicState()
+void CBaseVSShader::SetModulationDynamicState( Vector4D &output )
 {
- 	float color[4] = { 1.0, 1.0, 1.0, 1.0 };
-	ComputeModulationColor( color );
-	s_pShaderAPI->Color4fv( color );
+	ComputeModulationColor( output.Base() );
 }
 
-void CBaseVSShader::SetModulationDynamicState_LinearColorSpace()
+void CBaseVSShader::SetModulationDynamicState_LinearColorSpace( Vector4D &output )
 {
 	float color[4] = { 1.0, 1.0, 1.0, 1.0 };
 	ComputeModulationColor( color );
@@ -66,10 +64,10 @@ void CBaseVSShader::SetModulationDynamicState_LinearColorSpace()
 	color[1] = color[1] > 1.0f ? color[1] : GammaToLinear( color[1] );
 	color[2] = color[2] > 1.0f ? color[2] : GammaToLinear( color[2] );
 
-	s_pShaderAPI->Color4fv( color );
+	output.Init( color[0], color[1], color[2], color[3] );
 }
 
-void CBaseVSShader::SetModulationDynamicState_LinearColorSpace_LinearScale( float flScale )
+void CBaseVSShader::SetModulationDynamicState_LinearColorSpace_LinearScale( Vector4D &output, float flScale )
 {
 	float color[4] = { 1.0, 1.0, 1.0, 1.0 };
 	ComputeModulationColor( color );
@@ -77,7 +75,7 @@ void CBaseVSShader::SetModulationDynamicState_LinearColorSpace_LinearScale( floa
 	color[1] = ( color[1] > 1.0f ? color[1] : GammaToLinear( color[1] ) ) * flScale;
 	color[2] = ( color[2] > 1.0f ? color[2] : GammaToLinear( color[2] ) ) * flScale;
 
-	s_pShaderAPI->Color4fv( color );
+	output.Init( color[0], color[1], color[2], color[3] );
 }
 
 
@@ -571,7 +569,9 @@ void CBaseVSShader::DrawEqualDepthToDestAlpha( void )
 		}
 		if( s_pShaderAPI )
 		{
-			BindInternalVertexShaderConstantBuffers();
+			BindVertexShaderConstantBuffer( 0, SHADER_CONSTANTBUFFER_PERMODEL );
+			BindVertexShaderConstantBuffer( 1, SHADER_CONSTANTBUFFER_PERFRAME );
+			BindVertexShaderConstantBuffer( 2, SHADER_CONSTANTBUFFER_PERSCENE );
 			s_pShaderAPI->SetVertexShaderIndex( 0 );
 			s_pShaderAPI->SetPixelShaderIndex( 0 );
 

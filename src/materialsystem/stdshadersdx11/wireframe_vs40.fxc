@@ -1,4 +1,7 @@
-#include "common_cbuffers_def_fxc.h"
+#include "common_cbuffers_fxc.h"
+CBUFFER_PERMODEL(register(b0)) // model matrix
+CBUFFER_PERFRAME(register(b1)) // view matrix
+CBUFFER_PERSCENE(register(b2)) // proj matrix
 
 #include "common_vs_fxc.h"
 
@@ -17,7 +20,7 @@ struct VS_OUTPUT
 VS_OUTPUT main( VS_INPUT i )
 {
 	VS_OUTPUT o = (VS_OUTPUT)0;
-	o.vPos = mul( i.vPos, cModelViewProj );
+	o.vPos = ComputeProjPos(i.vPos.xyz, cModelMatrix, cViewMatrix, cProjMatrix);
 	o.vColor = i.vColor;
 	
 	return o;

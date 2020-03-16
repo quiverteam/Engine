@@ -123,116 +123,103 @@
 // Don't do diffuse warp on flashlight
 // SKIP: ( $FLASHLIGHT == 1 ) && ( $LIGHTWARPTEXTURE == 1 )			[PC]
 
-#include "common_cbuffers_def_fxc.h"
+#include "common_cbuffers_def_noskinning_fxc.h"
 
 #include "shader_register_map.h"
 #include "common_flashlight_fxc.h"
 #include "common_vertexlitgeneric_dx11.h"
+#include "vertexlitgeneric_dx11_shared.h"
 
-cbuffer VertexLitAndUnlitGeneric_PS40_t : USER_CBUFFER_REG_0
+cbuffer VertexLitAndUnlitGeneric_t : register(b3)
 {
-	float4 g_DetailTint;
-	float4 g_GlowParameters;
-	float4 g_GlowColor;
-	float4 g_DistanceAlphaParams;
-	float4 g_OutlineColor;
-	float4 g_OutlineParams;
-	float4 g_EnvmapSaturation_SelfIllumMask;
-	float4 g_EnvmapTint_TintReplaceFactor;
-	float4 g_SelfIllumScaleBiasExpBrightness;
-	float4 g_EnvmapContrast_ShadowTweaks;
-	float4 g_SelfIllumTint_and_BlendFactor;
-	float4 g_DepthFeatheringConstants;
-	float4 g_ShaderControls;
+	VertexLitAndUnlitGeneric_t c;
 };
 
-cbuffer PhongParams_t : USER_CBUFFER_REG_1
-{
-	float4 g_FresnelSpecParams;
-	float4 g_SpecularRimParams;
-	// RimBoost_RimMaskControl_BaseMapAlphaPhongMask_InvertPhongMask
-	float4 g_RimPhongParams;
-	float4 g_SpecExponent;
-};
-
-#define g_DiffuseModulation cModulationColor
+#define g_DiffuseModulation c.cModulationColor
 #define g_EyePos cEyePos
 #define g_FogParams cFogParams
 
-#define g_SelfIllumTint				g_SelfIllumTint_and_BlendFactor.xyz
-#define g_DetailBlendFactor			g_SelfIllumTint_and_BlendFactor.w
-#define g_EnvmapSaturation			g_EnvmapSaturation_SelfIllumMask.xyz
-#define g_SelfIllumMaskControl		g_EnvmapSaturation_SelfIllumMask.w
+#define g_SelfIllumTint				c.g_SelfIllumTint_and_BlendFactor.xyz
+#define g_DetailBlendFactor			c.g_SelfIllumTint_and_BlendFactor.w
+#define g_EnvmapSaturation			c.g_EnvmapSaturation_SelfIllumMask.xyz
+#define g_SelfIllumMaskControl		c.g_EnvmapSaturation_SelfIllumMask.w
 
-#define g_FresnelRanges				g_FresnelSpecParams.xyz
-#define g_SpecularBoost				g_FresnelSpecParams.w
-#define g_SpecularTint				g_SpecularRimParams.xyz
-#define g_RimExponent				g_SpecularRimParams.w
-#define g_fRimBoost					g_RimPhongParams.x
-#define g_RimMaskControl			g_RimPhongParams.y
-#define g_fBaseMapAlphaPhongMask	g_RimPhongParams.z
-#define g_fInvertPhongMask			g_RimPhongParams.w
+#define g_FresnelRanges				c.g_FresnelSpecParams.xyz
+#define g_SpecularBoost				c.g_FresnelSpecParams.w
+#define g_SpecularTint				c.g_SpecularRimParams.xyz
+#define g_RimExponent				c.g_SpecularRimParams.w
+#define g_fRimBoost					c.g_RimPhongParams.x
+#define g_RimMaskControl			c.g_RimPhongParams.y
+#define g_fBaseMapAlphaPhongMask	c.g_RimPhongParams.z
+#define g_fInvertPhongMask			c.g_RimPhongParams.w
 
 #define g_FlashlightAttenuationFactors cFlashlightAttenuationFactors
 #define g_FlashlightPos cFlashlightPos
 #define g_FlashlightWorldToTexture cFlashlightWorldToTexture
 
-#define g_SelfIllumTwoTextureBlend  g_EnvmapSaturation_SelfIllumMask.w
+#define g_SelfIllumTwoTextureBlend  c.g_EnvmapSaturation_SelfIllumMask.w
 
-#define g_fPixelFogType					g_ShaderControls.x
-#define g_fWriteDepthToAlpha			g_ShaderControls.y
-#define g_fWriteWaterFogToDestAlpha		g_ShaderControls.z
+#define g_fPixelFogType					c.g_ShaderControls.x
+#define g_fWriteDepthToAlpha			c.g_ShaderControls.y
+#define g_fWriteWaterFogToDestAlpha		c.g_ShaderControls.z
 
 Texture2D BaseTexture			: register( t0 );
 sampler BaseTextureSampler		: register( s0 );
 
-#if CUBEMAP
-TextureCube EnvmapTexture		: register( t1 );
-sampler EnvmapSampler			: register( s1 );
-#endif
+#if PHONG
+Texture2D SpecularWarpTexture	: register( t3 );
+sampler SpecularWarpSampler		: register( s3 );
 
-#if DETAILTEXTURE
-Texture2D DetailTexture			: register( t2 );
-sampler DetailSampler			: register( s2 );
+Texture2D SpecExponentTexture	: register( t4 );
+sampler SpecExponentSampler		: register( s4 );
 #endif
 
 #if BUMPMAP
-Texture2D BumpmapTexture		: register( t3 );
-sampler BumpmapSampler			: register( s3 );
+Texture2D BumpmapTexture		: register( t1 );
+sampler BumpmapSampler			: register( s1 );
 #endif
 
-Texture2D EnvmapMaskTexture		: register( t4 );
-sampler EnvmapMaskSampler		: register( s4 );
-
-#if FLASHLIGHT
-Texture2D FlashlightTexture		: register( t5 );
-sampler FlashlightSampler		: register( s5 );
+#if CUBEMAP
+TextureCube EnvmapTexture		: register( t2 );
+sampler EnvmapSampler			: register( s2 );
 #endif
 
-#if FLASHLIGHT && FLASHLIGHTSHADOWS
-Texture2D ShadowDepthTexture	: register( t6 );
-sampler ShadowDepthSampler		: register( s6 );	// Flashlight shadow depth map sampler
-#endif
-
-Texture2D DiffuseWarpTexture	: register( t7 );
-sampler DiffuseWarpSampler		: register( s7 );
-
-#if DEPTHBLEND
-Texture2D DepthTexture			: register( t8 );
-sampler DepthSampler			: register( s8 );	//depth buffer sampler for depth blending
+#if ENVMAPMASK
+Texture2D EnvmapMaskTexture		: register( t5 );
+sampler EnvmapMaskSampler		: register( s5 );
 #endif
 
 #if SELFILLUMMASK
-Texture2D SelfIllumMaskTexture	: register( t9 );
-sampler SelfIllumMaskSampler	: register( s9 );	// selfillummask
+Texture2D SelfIllumMaskTexture	: register( t6 );
+sampler SelfIllumMaskSampler	: register( s6 );	// selfillummask
 #endif
 
-#if PHONG
-Texture2D SpecularWarpTexture	: register( t10 );
-sampler SpecularWarpSampler		: register( s10 );
+#if FLASHLIGHT
+Texture2D FlashlightTexture		: register( t7 );
+sampler FlashlightSampler		: register( s7 );
+#endif
 
-Texture2D SpecExponentTexture	: register( t11 );
-sampler SpecExponentSampler		: register( s11 );
+#if FLASHLIGHT && FLASHLIGHTSHADOWS
+Texture2D ShadowDepthTexture	: register( t8 );
+sampler ShadowDepthSampler		: register( s8 );	// Flashlight shadow depth map sampler
+#endif
+
+#if LIGHTWARPTEXTURE
+Texture2D DiffuseWarpTexture	: register( t9 );
+sampler DiffuseWarpSampler		: register( s9 );
+#else
+#define DiffuseWarpTexture BaseTexture
+#define DiffuseWarpSampler BaseTextureSampler
+#endif
+
+#if DEPTHBLEND
+Texture2D DepthTexture			: register( t10 );
+sampler DepthSampler			: register( s10 );	//depth buffer sampler for depth blending
+#endif
+
+#if DETAILTEXTURE
+Texture2D DetailTexture			: register( t11 );
+sampler DetailSampler			: register( s11 );
 #endif
 
 #if WRINKLEMAP
@@ -280,26 +267,26 @@ struct PS_INPUT
 #endif
 };
 
-#define GLOW_UV_OFFSET g_GlowParameters.xy
-#define OUTER_GLOW_MIN_DVALUE g_GlowParameters.z
-#define OUTER_GLOW_MAX_DVALUE g_GlowParameters.w
-#define OUTER_GLOW_COLOR g_GlowColor
+#define GLOW_UV_OFFSET c.g_GlowParameters.xy
+#define OUTER_GLOW_MIN_DVALUE c.g_GlowParameters.z
+#define OUTER_GLOW_MAX_DVALUE c.g_GlowParameters.w
+#define OUTER_GLOW_COLOR c.g_GlowColor
 
-#define g_fPixelFogType					g_ShaderControls.x
-#define g_fWriteDepthToAlpha			g_ShaderControls.y
-#define g_fWriteWaterFogToDestAlpha		g_ShaderControls.z
-#define g_fVertexAlpha					g_ShaderControls.w
+#define g_fPixelFogType					c.g_ShaderControls.x
+#define g_fWriteDepthToAlpha			c.g_ShaderControls.y
+#define g_fWriteWaterFogToDestAlpha		c.g_ShaderControls.z
+#define g_fVertexAlpha					c.g_ShaderControls.w
 
-#define SOFT_MASK_MAX g_DistanceAlphaParams.x
-#define SOFT_MASK_MIN g_DistanceAlphaParams.y
+#define SOFT_MASK_MAX c.g_DistanceAlphaParams.x
+#define SOFT_MASK_MIN c.g_DistanceAlphaParams.y
 
-#define OUTLINE_COLOR g_OutlineColor
+#define OUTLINE_COLOR c.g_OutlineColor
 
 // these are ordered this way for optimal ps20 swizzling
-#define OUTLINE_MIN_VALUE0 g_OutlineParams.x
-#define OUTLINE_MAX_VALUE1 g_OutlineParams.y
-#define OUTLINE_MAX_VALUE0 g_OutlineParams.z
-#define OUTLINE_MIN_VALUE1 g_OutlineParams.w
+#define OUTLINE_MIN_VALUE0 c.g_OutlineParams.x
+#define OUTLINE_MAX_VALUE1 c.g_OutlineParams.y
+#define OUTLINE_MAX_VALUE0 c.g_OutlineParams.z
+#define OUTLINE_MIN_VALUE1 c.g_OutlineParams.w
 
 // Calculate unified fog
 float CalcPixelFogFactorConst( float fPixelFogType, const float4 fogParams, const float flEyePosZ, const float flWorldPosZ, const float flProjPosZ )
@@ -393,7 +380,7 @@ float4 main( PS_INPUT i ) : SV_TARGET
 #else
 	float4 detailColor = DetailTexture.Sample( DetailSampler, i.detailTexCoord.xy );
 #endif
-	detailColor.rgb *= g_DetailTint;
+	detailColor.rgb *= c.g_DetailTint;
 
 #if DISTANCEALPHA && (DISTANCEALPHAFROMDETAIL == 1)
 	float distAlphaMask = detailColor.a;
@@ -406,8 +393,8 @@ float4 main( PS_INPUT i ) : SV_TARGET
 #if DISTANCEALPHA
 	if ( OUTLINE )
 	{
-		float4 oFactors = smoothstep(g_OutlineParams.xyzw, g_OutlineParams.wzyx, distAlphaMask );
-		baseColor = lerp( baseColor, g_OutlineColor, oFactors.x * oFactors.y );
+		float4 oFactors = smoothstep(c.g_OutlineParams.xyzw, c.g_OutlineParams.wzyx, distAlphaMask );
+		baseColor = lerp( baseColor, c.g_OutlineColor, oFactors.x * oFactors.y );
 	}
 
 	float mskUsed;
@@ -452,11 +439,12 @@ float4 main( PS_INPUT i ) : SV_TARGET
 		specularFactor = normalTexel.a;
 #endif
 	float4 envmapMaskTexel;
-	if( bEnvmapMask )
+	#if ENVMAPMASK
 	{
 		envmapMaskTexel = EnvmapMaskTexture.Sample( EnvmapMaskSampler, i.baseTexCoord.xy );
 		specularFactor *= envmapMaskTexel.xyz;	
 	}
+	#endif
 
 	if( bBaseAlphaEnvmapMask )
 	{
@@ -498,10 +486,12 @@ float4 main( PS_INPUT i ) : SV_TARGET
 
 	float3 albedo = baseColor;
 
+	//return float4(g_DiffuseModulation.rgb, 1.0f);
+
 	if (bBlendTintByBaseAlpha)
 	{
 		float3 tintedColor = albedo * g_DiffuseModulation.rgb;
-		tintedColor = lerp(tintedColor, g_DiffuseModulation.rgb, g_EnvmapTint_TintReplaceFactor.w);
+		tintedColor = lerp(tintedColor, g_DiffuseModulation.rgb, c.g_EnvmapTint_TintReplaceFactor.w);
 		albedo = lerp(albedo, tintedColor, baseColor.a);
 	}
 	else
@@ -520,7 +510,7 @@ float4 main( PS_INPUT i ) : SV_TARGET
 #if DIFFUSELIGHTING && PHONG
 	float3 rimLighting = float3(0.0f, 0.0f, 0.0f);
 	float fRimMask = 0.0f;
-	float fSpecExp = g_SpecExponent.x;
+	float fSpecExp = c.g_SpecExponent.x;
 	float4 vSpecExpMap = SpecExponentTexture.Sample(SpecExponentSampler, i.baseTexCoord.xy);
 	float fSpecExpMap = vSpecExpMap.r;
 
@@ -554,7 +544,7 @@ float4 main( PS_INPUT i ) : SV_TARGET
 							  FlashlightTexture, FlashlightSampler, ShadowDepthTexture, ShadowDepthSampler, BaseTexture, BaseTextureSampler,
 							  FLASHLIGHTDEPTHFILTERMODE, FLASHLIGHTSHADOWS, true, i.projPos.xy / i.projPos.z,
 							  fSpecExp, vEyeDir, bDoSpecularWarp, SpecularWarpTexture, SpecularWarpSampler, fFresnelRanges,
-							  g_EnvmapContrast_ShadowTweaks,
+							  c.g_EnvmapContrast_ShadowTweaks,
 							  
 							  // Output
 							  diffuseLighting, specularLighting );
@@ -607,7 +597,7 @@ float4 main( PS_INPUT i ) : SV_TARGET
 		float3 flashlightColor = DoFlashlight( g_FlashlightPos, i.worldPos_projPosZ.xyz, flashlightSpacePosition,
 			worldSpaceNormal, g_FlashlightAttenuationFactors.xyz, 
 			g_FlashlightAttenuationFactors.w, FlashlightTexture, FlashlightSampler, ShadowDepthTexture, ShadowDepthSampler,
-			/*RandRotSampler,*/ nShadowSampleLevel, bDoShadows, false, vProjPos, false, g_EnvmapContrast_ShadowTweaks );
+			/*RandRotSampler,*/ nShadowSampleLevel, bDoShadows, false, vProjPos, false, c.g_EnvmapContrast_ShadowTweaks );
 	
 		diffuseLighting += flashlightColor;
 	}
@@ -640,9 +630,9 @@ float4 main( PS_INPUT i ) : SV_TARGET
 		#if ( SELFILLUMFRESNEL == 1 ) // To free up the constant register...see top of file
 			// This will apply a fresnel term based on the vertex normal (not the per-pixel normal!) to help fake and internal glow look
 			float3 vVertexNormal = normalize( i.worldSpaceNormal.xyz );
-			float flSelfIllumFresnel = ( pow( saturate( dot( vVertexNormal.xyz, normalize( i.worldVertToEyeVector.xyz ) ) ), g_SelfIllumScaleBiasExpBrightness.z ) * g_SelfIllumScaleBiasExpBrightness.x ) + g_SelfIllumScaleBiasExpBrightness.y;
+			float flSelfIllumFresnel = ( pow( saturate( dot( vVertexNormal.xyz, normalize( i.worldVertToEyeVector.xyz ) ) ), c.g_SelfIllumScaleBiasExpBrightness.z ) * g_SelfIllumScaleBiasExpBrightness.x ) + g_SelfIllumScaleBiasExpBrightness.y;
 
-			float3 selfIllumComponent = g_SelfIllumTint * albedo * g_SelfIllumScaleBiasExpBrightness.w;
+			float3 selfIllumComponent = g_SelfIllumTint * albedo * c.g_SelfIllumScaleBiasExpBrightness.w;
 			diffuseComponent = lerp( diffuseComponent, selfIllumComponent, baseColor.a * saturate( flSelfIllumFresnel ) );
 		#else
 			float3 selfIllumComponent = g_SelfIllumTint * albedo;
@@ -663,9 +653,9 @@ float4 main( PS_INPUT i ) : SV_TARGET
 		float3 cubeSpecular = float3( 0.0f, 0.0f, 0.0f );
 		cubeSpecular += ENV_MAP_SCALE * EnvmapTexture.Sample( EnvmapSampler, reflectVect );
 		cubeSpecular *= specularFactor;
-		cubeSpecular *= g_EnvmapTint_TintReplaceFactor.rgb;
+		cubeSpecular *= c.g_EnvmapTint_TintReplaceFactor.rgb;
 		HALF3 specularLightingSquared = cubeSpecular * cubeSpecular;
-		cubeSpecular = lerp( cubeSpecular, specularLightingSquared, g_EnvmapContrast_ShadowTweaks );
+		cubeSpecular = lerp( cubeSpecular, specularLightingSquared, c.g_EnvmapContrast_ShadowTweaks );
 		HALF3 greyScale = dot( cubeSpecular, HALF3( 0.299f, 0.587f, 0.114f ) );
 		specularLighting += lerp( greyScale, cubeSpecular, g_EnvmapSaturation );
 	}
@@ -681,7 +671,7 @@ float4 main( PS_INPUT i ) : SV_TARGET
 		vScreenPos.y = -i.projPos.y;
 		vScreenPos = (vScreenPos + i.projPos.w) * 0.5f;	
 		alpha *= DepthFeathering( DepthTexture, DepthSampler, vScreenPos / i.projPos.w,
-			i.projPos.w - i.projPos.z, i.projPos.w, g_DepthFeatheringConstants );
+			i.projPos.w - i.projPos.z, i.projPos.w, c.g_DepthFeatheringConstants );
 	}
 #	endif
 

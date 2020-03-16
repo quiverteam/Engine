@@ -27,9 +27,7 @@ static ConVar r_lightwarpidentity( "r_lightwarpidentity", "0", FCVAR_CHEAT );
 static ConVar mat_luxels( "mat_luxels", "0", FCVAR_CHEAT );
 static ConVar r_rimlight( "r_rimlight", "1", FCVAR_CHEAT );
 
-ConstantBufferHandle_t g_hVertexLitGeneric_VS40_CBuffer;
-ConstantBufferHandle_t g_hVertexLitGeneric_PS40_CBuffer;
-ConstantBufferHandle_t g_hPhongParams_CBuffer;
+ConstantBufferHandle_t g_hVertexLitGeneric_CBuffer;
 
 //-----------------------------------------------------------------------------
 // Initialize shader parameters
@@ -331,9 +329,7 @@ class CVertexLitGeneric_DX11_Context : public CBasePerMaterialContextData
 public:
 	CCommandBufferBuilder< CFixedCommandStorageBuffer< 800 > > m_SemiStaticCmdsOut;
 
-	VertexLitGeneric_VS40_CBuffer_t m_VSConstants;
-	VertexLitGeneric_PS40_CBuffer_t m_PSConstants;
-	PhongParams_CBuffer_t m_PhongConstants;
+	VertexLitGeneric_CBuffer_t m_Constants;
 
 	bool m_bSeamlessDetail;
 	bool m_bSeamlessBase;
@@ -346,9 +342,7 @@ public:
 	CVertexLitGeneric_DX11_Context() :
 		CBasePerMaterialContextData()
 	{
-		memset( &m_VSConstants, 0, sizeof( VertexLitGeneric_VS40_CBuffer_t ) );
-		memset( &m_PSConstants, 0, sizeof( VertexLitGeneric_PS40_CBuffer_t ) );
-		memset( &m_PhongConstants, 0, sizeof( PhongParams_CBuffer_t ) );
+		memset( &m_Constants, 0, sizeof( VertexLitGeneric_CBuffer_t ) );
 	}
 
 };
@@ -817,26 +811,26 @@ static void DrawVertexLitGeneric_DX11_Internal( CBaseVSShader *pShader, IMateria
 			}
 			if ( bHasDetailTexture )
 			{
-				pContextData->m_SemiStaticCmdsOut.BindTexture( pShader, SHADER_SAMPLER2, info.m_nDetail, info.m_nDetailFrame );
+				pContextData->m_SemiStaticCmdsOut.BindTexture( pShader, SHADER_SAMPLER11, info.m_nDetail, info.m_nDetailFrame );
 			}
 			if ( bHasSelfIllum )
 			{
-				pContextData->m_SemiStaticCmdsOut.BindStandardTexture( SHADER_SAMPLER9, TEXTURE_BLACK );	// Bind dummy
+				pContextData->m_SemiStaticCmdsOut.BindStandardTexture( SHADER_SAMPLER6, TEXTURE_BLACK );	// Bind dummy
 			}
 
 			if ( ( info.m_nDepthBlend != -1 ) && ( params[info.m_nDepthBlend]->GetIntValue() ) )
 			{
-				pContextData->m_SemiStaticCmdsOut.BindStandardTexture( SHADER_SAMPLER8, TEXTURE_FRAME_BUFFER_FULL_DEPTH );
+				pContextData->m_SemiStaticCmdsOut.BindStandardTexture( SHADER_SAMPLER10, TEXTURE_FRAME_BUFFER_FULL_DEPTH );
 			}
 			if ( bSeamlessDetail || bSeamlessBase )
 			{
-				pContextData->m_VSConstants.cSeamlessScale.Init( params[info.m_nSeamlessScale]->GetFloatValue(),
+				pContextData->m_Constants.cSeamlessScale.Init( params[info.m_nSeamlessScale]->GetFloatValue(),
 										 0.0f, 0.0f, 0.0f );
 			}
 
 			if ( pContextData->m_bBaseTextureTransform )
 			{
-				pShader->StoreVertexShaderTextureTransform( pContextData->m_VSConstants.cBaseTextureTransform,
+				pShader->StoreVertexShaderTextureTransform( pContextData->m_Constants.cBaseTextureTransform,
 									    info.m_nBaseTextureTransform );
 			}
 
@@ -845,20 +839,20 @@ static void DrawVertexLitGeneric_DX11_Internal( CBaseVSShader *pShader, IMateria
 			{
 				if ( IS_PARAM_DEFINED( info.m_nDetailTextureTransform ) )
 				{
-					pShader->StoreVertexShaderTextureScaledTransform( pContextData->m_VSConstants.cDetailTextureTransform,
+					pShader->StoreVertexShaderTextureScaledTransform( pContextData->m_Constants.cDetailTextureTransform,
 											  info.m_nDetailTextureTransform, info.m_nDetailScale );
 				}
 				else
 				{
-					pShader->StoreVertexShaderTextureScaledTransform( pContextData->m_VSConstants.cDetailTextureTransform,
+					pShader->StoreVertexShaderTextureScaledTransform( pContextData->m_Constants.cDetailTextureTransform,
 											  info.m_nBaseTextureTransform, info.m_nDetailScale );
 				}
 					
 				if ( info.m_nDetailTint != -1 )
-					pShader->StoreConstantGammaToLinear( pContextData->m_PSConstants.cDetailTint.Base(), info.m_nDetailTint );
+					pShader->StoreConstantGammaToLinear( pContextData->m_Constants.cDetailTint.Base(), info.m_nDetailTint );
 				else
 				{
-					pContextData->m_PSConstants.cDetailTint.Init( 1, 1, 1, 1 );
+					pContextData->m_Constants.cDetailTint.Init( 1, 1, 1, 1 );
 				}
 			}
 			if ( bDistanceAlpha )
@@ -901,30 +895,30 @@ static void DrawVertexLitGeneric_DX11_Internal( CBaseVSShader *pShader, IMateria
 
 				}
 
-				pContextData->m_PSConstants.cGlowParams.Init(
+				pContextData->m_Constants.cGlowParams.Init(
 					GetFloatParam( info.m_nGlowX, params ),
 					GetFloatParam( info.m_nGlowY, params ),
 					GetFloatParam( info.m_nGlowStart, params ),
 					GetFloatParam( info.m_nGlowEnd, params )
 				);
 
-				pContextData->m_PSConstants.cGlowColor.Init(
+				pContextData->m_Constants.cGlowColor.Init(
 					0, 0, 0,
 					GetFloatParam( info.m_nGlowAlpha, params )
 				);
 
-				pContextData->m_PSConstants.cMaskRangeParams.Init(
+				pContextData->m_Constants.cMaskRangeParams.Init(
 					flSoftStart,
 					flSoftEnd,
 					0, 0
 				);
 
-				pContextData->m_PSConstants.cOutlineColor.Init(
+				pContextData->m_Constants.cOutlineColor.Init(
 					0, 0, 0,
 					GetFloatParam( info.m_nOutlineAlpha, params )
 				);
 
-				pContextData->m_PSConstants.cOutlineParams.Init(
+				pContextData->m_Constants.cOutlineParams.Init(
 					flOutlineStart0,
 					flOutlineEnd1,
 					flOutlineEnd0,
@@ -934,12 +928,12 @@ static void DrawVertexLitGeneric_DX11_Internal( CBaseVSShader *pShader, IMateria
 				if ( info.m_nGlowColor != -1 )
 				{
 					params[info.m_nGlowColor]->GetVecValue(
-						pContextData->m_PSConstants.cGlowColor.Base(), 3 );
+						pContextData->m_Constants.cGlowColor.Base(), 3 );
 				}
 				if ( info.m_nOutlineColor != -1 )
 				{
 					params[info.m_nOutlineColor]->GetVecValue( 
-						pContextData->m_PSConstants.cOutlineColor.Base(), 3 );
+						pContextData->m_Constants.cOutlineColor.Base(), 3 );
 				}
 
 			}
@@ -959,12 +953,12 @@ static void DrawVertexLitGeneric_DX11_Internal( CBaseVSShader *pShader, IMateria
 			{
 				if ( bHasBump )
 				{
-					pContextData->m_SemiStaticCmdsOut.BindTexture( pShader, SHADER_SAMPLER3, info.m_nBumpmap, info.m_nBumpFrame );
+					pContextData->m_SemiStaticCmdsOut.BindTexture( pShader, SHADER_SAMPLER1, info.m_nBumpmap, info.m_nBumpFrame );
 				}
-				else if ( bHasDiffuseWarp )
-				{
-					pContextData->m_SemiStaticCmdsOut.BindStandardTexture( SHADER_SAMPLER3, TEXTURE_NORMALMAP_FLAT );
-				}
+				//else if ( bHasDiffuseWarp )
+				//{
+				//	pContextData->m_SemiStaticCmdsOut.BindStandardTexture( SHADER_SAMPLER1, TEXTURE_NORMALMAP_FLAT );
+				//}
 
 				if ( bHasBumpWrinkle )
 				{
@@ -981,7 +975,7 @@ static void DrawVertexLitGeneric_DX11_Internal( CBaseVSShader *pShader, IMateria
 			{
 				if ( bHasBump )
 				{
-					pContextData->m_SemiStaticCmdsOut.BindStandardTexture( SHADER_SAMPLER3, TEXTURE_NORMALMAP_FLAT );
+					pContextData->m_SemiStaticCmdsOut.BindStandardTexture( SHADER_SAMPLER1, TEXTURE_NORMALMAP_FLAT );
 				}
 
 				if ( bHasBaseTextureWrinkle || bHasBumpWrinkle )
@@ -992,53 +986,53 @@ static void DrawVertexLitGeneric_DX11_Internal( CBaseVSShader *pShader, IMateria
 			}
 
 			// Setting w to 1 means use separate selfillummask
-			pContextData->m_PSConstants.cEnvMapSaturation_SelfIllumMask.Init(
+			pContextData->m_Constants.cEnvMapSaturation_SelfIllumMask.Init(
 				1.0f, 1.0f, 1.0f, 0.0f );
 			if ( info.m_nEnvmapSaturation != -1 )
 				params[info.m_nEnvmapSaturation]->GetVecValue(
-					pContextData->m_PSConstants.cEnvMapSaturation_SelfIllumMask.Base(), 3 );
+					pContextData->m_Constants.cEnvMapSaturation_SelfIllumMask.Base(), 3 );
 
-			pContextData->m_PSConstants.cEnvMapSaturation_SelfIllumMask[3] = bHasSelfIllumMask ? 1.0f : 0.0f;
+			pContextData->m_Constants.cEnvMapSaturation_SelfIllumMask[3] = bHasSelfIllumMask ? 1.0f : 0.0f;
 			if ( bHasEnvmap )
 			{
-				pShader->StoreEnvmapTintGammaToLinear( pContextData->m_PSConstants.cEnvMapTint, info.m_nEnvmapTint );
+				pShader->StoreEnvmapTintGammaToLinear( pContextData->m_Constants.cEnvMapTint, info.m_nEnvmapTint );
 			}
 			bool bHasEnvmapMask = ( !bHasFlashlight ) && info.m_nEnvmapMask != -1 && params[info.m_nEnvmapMask]->IsTexture();
 
 			if ( bHasEnvmapMask )
 			{
-				pContextData->m_SemiStaticCmdsOut.BindTexture( pShader, SHADER_SAMPLER4, info.m_nEnvmapMask, info.m_nEnvmapMaskFrame );
+				pContextData->m_SemiStaticCmdsOut.BindTexture( pShader, SHADER_SAMPLER5, info.m_nEnvmapMask, info.m_nEnvmapMaskFrame );
 			}
 
 			bool bHasSelfIllumFresnel = ( !bHasDetailTexture ) && ( bHasSelfIllum ) && ( info.m_nSelfIllumFresnel != -1 ) && ( params[info.m_nSelfIllumFresnel]->GetIntValue() != 0 );
 
 			if ( bHasSelfIllumFresnel )
 			{
-				pContextData->m_PSConstants.cConstScaleBiasExp.Init( 1.0f, 0.0f, 1.0f, 0.0f );
+				pContextData->m_Constants.cConstScaleBiasExp.Init( 1.0f, 0.0f, 1.0f, 0.0f );
 				float flMin = IS_PARAM_DEFINED( info.m_nSelfIllumFresnelMinMaxExp ) ? params[info.m_nSelfIllumFresnelMinMaxExp]->GetVecValue()[0] : 0.0f;
 				float flMax = IS_PARAM_DEFINED( info.m_nSelfIllumFresnelMinMaxExp ) ? params[info.m_nSelfIllumFresnelMinMaxExp]->GetVecValue()[1] : 1.0f;
 				float flExp = IS_PARAM_DEFINED( info.m_nSelfIllumFresnelMinMaxExp ) ? params[info.m_nSelfIllumFresnelMinMaxExp]->GetVecValue()[2] : 1.0f;
 
-				pContextData->m_PSConstants.cConstScaleBiasExp[1] = ( flMax != 0.0f ) ? ( flMin / flMax ) : 0.0f; // Bias
-				pContextData->m_PSConstants.cConstScaleBiasExp[0] = 1.0f - pContextData->m_PSConstants.cConstScaleBiasExp[1]; // Scale
-				pContextData->m_PSConstants.cConstScaleBiasExp[2] = flExp; // Exp
-				pContextData->m_PSConstants.cConstScaleBiasExp[3] = flMax; // Brightness
+				pContextData->m_Constants.cConstScaleBiasExp[1] = ( flMax != 0.0f ) ? ( flMin / flMax ) : 0.0f; // Bias
+				pContextData->m_Constants.cConstScaleBiasExp[0] = 1.0f - pContextData->m_Constants.cConstScaleBiasExp[1]; // Scale
+				pContextData->m_Constants.cConstScaleBiasExp[2] = flExp; // Exp
+				pContextData->m_Constants.cConstScaleBiasExp[3] = flMax; // Brightness
 			}
 
 			if ( bHasDiffuseWarp && !bHasSelfIllumFresnel )
 			{
 				if ( r_lightwarpidentity.GetBool() )
 				{
-					pContextData->m_SemiStaticCmdsOut.BindStandardTexture( SHADER_SAMPLER7, TEXTURE_IDENTITY_LIGHTWARP );
+					pContextData->m_SemiStaticCmdsOut.BindStandardTexture( SHADER_SAMPLER9, TEXTURE_IDENTITY_LIGHTWARP );
 				}
 				else
 				{
-					pContextData->m_SemiStaticCmdsOut.BindTexture( pShader, SHADER_SAMPLER7, info.m_nDiffuseWarpTexture, -1 );
+					pContextData->m_SemiStaticCmdsOut.BindTexture( pShader, SHADER_SAMPLER9, info.m_nDiffuseWarpTexture, -1 );
 				}
 			}
 
 			if ( ( info.m_nEnvmapContrast != -1 ) )
-				pContextData->m_PSConstants.cEnvMapContrast = params[info.m_nEnvmapContrast]->GetVecValue();
+				pContextData->m_Constants.cEnvMapContrast = params[info.m_nEnvmapContrast]->GetVecValue();
 
 			// mat_fullbright 2 handling
 			bool bLightingOnly = bVertexLitGeneric && mat_fullbright.GetInt() == 2 && !IS_FLAG_SET( MATERIAL_VAR_NO_DEBUG_OVERRIDE );
@@ -1070,21 +1064,21 @@ static void DrawVertexLitGeneric_DX11_Internal( CBaseVSShader *pShader, IMateria
 			{
 				float pSelfIllumTint[4] = { 0.0f, 0.0f, 0.0f, fBlendFactor };
 				params[info.m_nSelfIllumTint]->GetVecValue( pSelfIllumTint, 3 );
-				pContextData->m_PSConstants.cSelfIllumTint = pSelfIllumTint;
+				pContextData->m_Constants.cSelfIllumTint = pSelfIllumTint;
 			}
 
 			if ( bHasPhongWarp )
 			{
-				pContextData->m_SemiStaticCmdsOut.BindTexture( pShader, SHADER_SAMPLER10, info.m_nPhongWarpTexture, -1 );
+				pContextData->m_SemiStaticCmdsOut.BindTexture( pShader, SHADER_SAMPLER3, info.m_nPhongWarpTexture, -1 );
 			}
 
 			if ( bHasSpecularExponentTexture && bHasPhong )
 			{
-				pContextData->m_SemiStaticCmdsOut.BindTexture( pShader, SHADER_SAMPLER11, info.m_nPhongExponentTexture, -1 );
+				pContextData->m_SemiStaticCmdsOut.BindTexture( pShader, SHADER_SAMPLER4, info.m_nPhongExponentTexture, -1 );
 			}
-			else
+			else if ( bHasPhong )
 			{
-				pContextData->m_SemiStaticCmdsOut.BindStandardTexture( SHADER_SAMPLER11, TEXTURE_WHITE );
+				pContextData->m_SemiStaticCmdsOut.BindStandardTexture( SHADER_SAMPLER4, TEXTURE_WHITE );
 			}
 
 			// Build phong constants
@@ -1151,10 +1145,10 @@ static void DrawVertexLitGeneric_DX11_Internal( CBaseVSShader *pShader, IMateria
 					vSpecExponent[0] = 0;
 
 				// Store the constants
-				pContextData->m_PhongConstants.cFresnelSpecParams = Vector4D( vFresnelRanges_SpecBoost );
-				pContextData->m_PhongConstants.cSpecularRimParams = Vector4D( vSpecularTint );
-				pContextData->m_PhongConstants.cPhongRimParams = Vector4D( vRimPhongParams );
-				pContextData->m_PhongConstants.cSpecExponent = Vector4D( vSpecExponent );
+				pContextData->m_Constants.cFresnelSpecParams = Vector4D( vFresnelRanges_SpecBoost );
+				pContextData->m_Constants.cSpecularRimParams = Vector4D( vSpecularTint );
+				pContextData->m_Constants.cPhongRimParams = Vector4D( vRimPhongParams );
+				pContextData->m_Constants.cSpecExponent = Vector4D( vSpecExponent );
 			}
 
 			
@@ -1169,7 +1163,7 @@ static void DrawVertexLitGeneric_DX11_Internal( CBaseVSShader *pShader, IMateria
 
 		if ( bHasEnvmap )
 		{
-			DynamicCmdsOut.BindTexture( pShader, SHADER_SAMPLER1, info.m_nEnvmap, info.m_nEnvmapFrame );
+			DynamicCmdsOut.BindTexture( pShader, SHADER_SAMPLER2, info.m_nEnvmap, info.m_nEnvmapFrame );
 		}
 
 		bool bFlashlightShadows = false;
@@ -1184,12 +1178,12 @@ static void DrawVertexLitGeneric_DX11_Internal( CBaseVSShader *pShader, IMateria
 
 			if ( pFlashlightDepthTexture && g_pConfig->ShadowDepthTexture() && state.m_bEnableShadows )
 			{
-				pShader->BindTexture( SHADER_SAMPLER6, pFlashlightDepthTexture, 0 );
+				pShader->BindTexture( SHADER_SAMPLER8, pFlashlightDepthTexture, 0 );
 				//DynamicCmdsOut.BindStandardTexture( SHADER_SAMPLER6, TEXTURE_SHADOW_NOISE_2D );
 			}
 
 			Assert( info.m_nFlashlightTexture >= 0 && info.m_nFlashlightTextureFrame >= 0 );
-			pShader->BindTexture( SHADER_SAMPLER5, state.m_pSpotlightTexture, state.m_nSpotlightTextureFrame );
+			pShader->BindTexture( SHADER_SAMPLER7, state.m_pSpotlightTexture, state.m_nSpotlightTextureFrame );
 		}
 #endif
 
@@ -1264,8 +1258,8 @@ static void DrawVertexLitGeneric_DX11_Internal( CBaseVSShader *pShader, IMateria
 
 			const bool bHasFastVertexTextures = g_pHardwareConfig->HasFastVertexTextures();
 			if ( bHasFastVertexTextures )
-				pShader->SetHWMorphVertexShaderState( pContextData->m_VSConstants.cMorphDimensions,
-								      pContextData->m_VSConstants.cMorphSubrect,
+				pShader->SetHWMorphVertexShaderState( pContextData->m_Constants.cMorphDimensions,
+								      pContextData->m_Constants.cMorphSubrect,
 								      SHADER_VERTEXTEXTURE_SAMPLER0 );
 
 			//Log( "static_light: %i\n", lightState.m_bStaticLight );
@@ -1305,11 +1299,12 @@ static void DrawVertexLitGeneric_DX11_Internal( CBaseVSShader *pShader, IMateria
 
 		if ( ( info.m_nHDRColorScale != -1 ) && pShader->IsHDREnabled() )
 		{
-			pShader->SetModulationDynamicState_LinearColorSpace_LinearScale( params[info.m_nHDRColorScale]->GetFloatValue() );
+			pShader->SetModulationDynamicState_LinearColorSpace_LinearScale( pContextData->m_Constants.cModulationColor,
+											 params[info.m_nHDRColorScale]->GetFloatValue() );
 		}
 		else
 		{
-			pShader->SetModulationDynamicState_LinearColorSpace();
+			pShader->SetModulationDynamicState_LinearColorSpace( pContextData->m_Constants.cModulationColor );
 		}
 
 		//float eyePos[4];
@@ -1319,7 +1314,7 @@ static void DrawVertexLitGeneric_DX11_Internal( CBaseVSShader *pShader, IMateria
 		// Non-bump case does its own depth feathering work
 		if ( !bHasBump && !bHasDiffuseWarp )
 		{
-			pContextData->m_PSConstants.cDepthFeathering[0] = GetFloatParam( info.m_nDepthBlendScale, params, 50.0f );
+			pContextData->m_Constants.cDepthFeathering[0] = GetFloatParam( info.m_nDepthBlendScale, params, 50.0f );
 		}
 
 		float fPixelFogType = pShaderAPI->GetPixelFogCombo() == 1 ? 1 : 0;
@@ -1329,32 +1324,23 @@ static void DrawVertexLitGeneric_DX11_Internal( CBaseVSShader *pShader, IMateria
 
 		// Controls for lerp-style paths through shader code (bump and non-bump have use different register)
 		float vShaderControls[4] = { fPixelFogType, fWriteDepthToAlpha, fWriteWaterFogToDestAlpha, fVertexAlpha };
-		pContextData->m_PSConstants.cShaderControls = vShaderControls;
+		pContextData->m_Constants.cShaderControls = vShaderControls;
 
 		// flashlightfixme: put this in common code.
 		if ( bHasFlashlight )
 		{
-			pShader->BindTexture( SHADER_SAMPLER5, flashlightState.m_pSpotlightTexture, flashlightState.m_nSpotlightTextureFrame );
+			pShader->BindTexture( SHADER_SAMPLER7, flashlightState.m_pSpotlightTexture, flashlightState.m_nSpotlightTextureFrame );
 		}
 
 		DynamicCmdsOut.End();
 
 		pShader->BindInternalVertexShaderConstantBuffers();
-		pShader->BindVertexShaderConstantBuffer( USER_CBUFFER_REG_0, g_hVertexLitGeneric_VS40_CBuffer );
+		pShader->BindVertexShaderConstantBuffer( USER_CBUFFER_REG_0, g_hVertexLitGeneric_CBuffer );
 		
 		pShader->BindInternalPixelShaderConstantBuffers();
-		pShader->BindPixelShaderConstantBuffer( USER_CBUFFER_REG_0, g_hVertexLitGeneric_PS40_CBuffer );
-		if ( pContextData->m_bHasPhong )
-		{
-			pShader->BindPixelShaderConstantBuffer( USER_CBUFFER_REG_1, g_hPhongParams_CBuffer );
-		}
+		pShader->BindPixelShaderConstantBuffer( 3, g_hVertexLitGeneric_CBuffer );
 
-		pShader->UpdateConstantBuffer( g_hVertexLitGeneric_VS40_CBuffer, &pContextData->m_VSConstants );
-		pShader->UpdateConstantBuffer( g_hVertexLitGeneric_PS40_CBuffer, &pContextData->m_PSConstants );
-		if ( pContextData->m_bHasPhong )
-		{
-			pShader->UpdateConstantBuffer( g_hPhongParams_CBuffer, &pContextData->m_PhongConstants );
-		}
+		pShader->UpdateConstantBuffer( g_hVertexLitGeneric_CBuffer, &pContextData->m_Constants );
 
 		pShaderAPI->ExecuteCommandBuffer( DynamicCmdsOut.Base() );
 	}

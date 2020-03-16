@@ -8,12 +8,12 @@
 
 #include "common_cbuffers_fxc.h"
 CBUFFER_PERFRAME(register(b0))
-CBUFFER_PERMATERIAL(register(b1))
-CBUFFER_PERSCENE(register(b2))
+CBUFFER_PERSCENE(register(b1))
 
-cbuffer Sprite_PS40_t : register(b3)
+cbuffer Sprite_PS40_t : register(b2)
 {
 	float4 g_HDRColorScale;
+	float4 cModulationColor;
 };
 
 #include "common_ps_fxc.h"
@@ -28,6 +28,8 @@ sampler TexSampler	: register( s0 );
 
 struct PS_INPUT
 {
+	float4 projPos					: SV_POSITION;			// Projection-space position
+	float  fog						: FOG;
 	HALF2 baseTexCoord				: TEXCOORD0;		// Base texture coordinate
 	float4 color					: TEXCOORD2;		// Vertex color (from lighting or unlit)
 	

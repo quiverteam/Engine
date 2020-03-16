@@ -23,9 +23,10 @@
 #define SPR_ORIENTED				3
 #define SPR_VP_PARALLEL_ORIENTED	4
 
-CREATE_CONSTANT_BUFFER( Sprite_PS40 )
+CREATE_CONSTANT_BUFFER( Sprite )
 {
 	Vector4D cHDRColorScale;
+	Vector4D cModulationColor;
 };
 
 
@@ -43,10 +44,10 @@ BEGIN_VS_SHADER( Sprite_DX11,
 		SHADER_PARAM( HDRCOLORSCALE, SHADER_PARAM_TYPE_FLOAT, "1.0", "hdr color scale" )
 	END_SHADER_PARAMS
 
-	DECLARE_CONSTANT_BUFFER( Sprite_PS40 )
+	DECLARE_CONSTANT_BUFFER( Sprite )
 	SHADER_INIT_GLOBAL
 	{
-		INIT_CONSTANT_BUFFER( Sprite_PS40 );
+		INIT_CONSTANT_BUFFER( Sprite );
 	}
 
 	SHADER_FALLBACK
@@ -168,7 +169,7 @@ BEGIN_VS_SHADER( Sprite_DX11,
 
 		BindInternalVertexShaderConstantBuffersNoSkinning();
 
-		ALIGN16 Sprite_PS40_CBuffer_t psConsts;
+		ALIGN16 Sprite_CBuffer_t psConsts;
 		if ( IsHDREnabled() )
 		{
 			if ( bSRGB )
@@ -181,12 +182,11 @@ BEGIN_VS_SHADER( Sprite_DX11,
 			psConsts.cHDRColorScale.Init( 0, 0, 0, 0 );
 		}
 		
-		UPDATE_CONSTANT_BUFFER( Sprite_PS40, psConsts );
+		UPDATE_CONSTANT_BUFFER( Sprite, psConsts );
 
-		BindPixelShaderConstantBuffer( 0, GetInternalConstantBuffer( SHADER_CONSTANTBUFFER_PERFRAME ) );
-		BindPixelShaderConstantBuffer( 1, GetInternalConstantBuffer( SHADER_CONSTANTBUFFER_PERMATERIAL ) );
-		BindPixelShaderConstantBuffer( 2, GetInternalConstantBuffer( SHADER_CONSTANTBUFFER_PERSCENE ) );
-		BindPixelShaderConstantBuffer( 3, CONSTANT_BUFFER( Sprite_PS40 ) );
+		BindPixelShaderConstantBuffer( 0, SHADER_CONSTANTBUFFER_PERFRAME );
+		BindPixelShaderConstantBuffer( 1, SHADER_CONSTANTBUFFER_PERSCENE );
+		BindPixelShaderConstantBuffer( 2, CONSTANT_BUFFER( Sprite ) );
 
 	}
 
@@ -370,11 +370,11 @@ BEGIN_VS_SHADER( Sprite_DX11,
 					else
 						color[0] = color[1] = color[2] = flFade * frameBlendAlpha;
 					color[3] = 1.0f;
-					s_pShaderAPI->Color4fv( color );
 
 					BindInternalVertexShaderConstantBuffersNoSkinning();
 
-					ALIGN16 Sprite_PS40_CBuffer_t psConsts;
+					ALIGN16 Sprite_CBuffer_t psConsts;
+					psConsts.cModulationColor = color;
 					if ( IsHDREnabled() )
 					{
 						if ( bSRGB )
@@ -387,12 +387,11 @@ BEGIN_VS_SHADER( Sprite_DX11,
 						psConsts.cHDRColorScale.Init( 0, 0, 0, 0 );
 					}
 
-					UPDATE_CONSTANT_BUFFER( Sprite_PS40, psConsts );
+					UPDATE_CONSTANT_BUFFER( Sprite, psConsts );
 
-					BindPixelShaderConstantBuffer( 0, GetInternalConstantBuffer( SHADER_CONSTANTBUFFER_PERFRAME ) );
-					BindPixelShaderConstantBuffer( 1, GetInternalConstantBuffer( SHADER_CONSTANTBUFFER_PERMATERIAL ) );
-					BindPixelShaderConstantBuffer( 2, GetInternalConstantBuffer( SHADER_CONSTANTBUFFER_PERSCENE ) );
-					BindPixelShaderConstantBuffer( 3, CONSTANT_BUFFER( Sprite_PS40 ) );
+					BindPixelShaderConstantBuffer( 0, SHADER_CONSTANTBUFFER_PERFRAME );
+					BindPixelShaderConstantBuffer( 1,  SHADER_CONSTANTBUFFER_PERSCENE );
+					BindPixelShaderConstantBuffer( 2, CONSTANT_BUFFER( Sprite ) );
 				}
 				Draw();
 				SHADOW_STATE
@@ -425,11 +424,11 @@ BEGIN_VS_SHADER( Sprite_DX11,
 					else
 						color[0] = color[1] = color[2] = flFade * frameBlendAlpha;
 					color[3] = 1.0f;
-					s_pShaderAPI->Color4fv( color );
 
 					BindInternalVertexShaderConstantBuffersNoSkinning();
 
-					ALIGN16 Sprite_PS40_CBuffer_t psConsts;
+					ALIGN16 Sprite_CBuffer_t psConsts;
+					psConsts.cModulationColor = color;
 					if ( IsHDREnabled() )
 					{
 						if ( bSRGB )
@@ -442,12 +441,11 @@ BEGIN_VS_SHADER( Sprite_DX11,
 						psConsts.cHDRColorScale.Init( 0, 0, 0, 0 );
 					}
 
-					UPDATE_CONSTANT_BUFFER( Sprite_PS40, psConsts );
+					UPDATE_CONSTANT_BUFFER( Sprite, psConsts );
 
-					BindPixelShaderConstantBuffer( 0, GetInternalConstantBuffer( SHADER_CONSTANTBUFFER_PERFRAME ) );
-					BindPixelShaderConstantBuffer( 1, GetInternalConstantBuffer( SHADER_CONSTANTBUFFER_PERMATERIAL ) );
-					BindPixelShaderConstantBuffer( 2, GetInternalConstantBuffer( SHADER_CONSTANTBUFFER_PERSCENE ) );
-					BindPixelShaderConstantBuffer( 3, CONSTANT_BUFFER( Sprite_PS40 ) );
+					BindPixelShaderConstantBuffer( 0, SHADER_CONSTANTBUFFER_PERFRAME );
+					BindPixelShaderConstantBuffer( 1, SHADER_CONSTANTBUFFER_PERSCENE );
+					BindPixelShaderConstantBuffer( 2, CONSTANT_BUFFER( Sprite ) );
 				}
 				Draw();
 			}

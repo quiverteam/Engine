@@ -54,7 +54,7 @@ BEGIN_SHADER( Wireframe_DX11,
 		DYNAMIC_STATE
 		{
 
-			BindInternalVertexShaderConstantBuffers();
+			BindInternalVertexShaderConstantBuffersNoSkinning();
 			
 			DECLARE_DYNAMIC_VERTEX_SHADER( wireframe_vs40 );
 			SET_DYNAMIC_VERTEX_SHADER( wireframe_vs40 );

@@ -1801,35 +1801,31 @@ ConstantBufferHandle_t CBaseShader::GetInternalConstantBuffer( int type )
 
 void CBaseShader::BindInternalVertexShaderConstantBuffers()
 {
-	BindVertexShaderConstantBuffer( 0, GetInternalConstantBuffer( SHADER_CONSTANTBUFFER_PERMATERIAL ) );
-	BindVertexShaderConstantBuffer( 1, GetInternalConstantBuffer( SHADER_CONSTANTBUFFER_PERMODEL ) );
-	BindVertexShaderConstantBuffer( 2, GetInternalConstantBuffer( SHADER_CONSTANTBUFFER_PERFRAME ) );
-	BindVertexShaderConstantBuffer( 3, GetInternalConstantBuffer( SHADER_CONSTANTBUFFER_PERSCENE ) );
-	BindVertexShaderConstantBuffer( 4, GetInternalConstantBuffer( SHADER_CONSTANTBUFFER_SKINNING ) );
+	BindVertexShaderConstantBuffer( 0, GetInternalConstantBuffer( SHADER_CONSTANTBUFFER_PERMODEL ) );
+	BindVertexShaderConstantBuffer( 1, GetInternalConstantBuffer( SHADER_CONSTANTBUFFER_PERFRAME ) );
+	BindVertexShaderConstantBuffer( 2, GetInternalConstantBuffer( SHADER_CONSTANTBUFFER_PERSCENE ) );
+	BindVertexShaderConstantBuffer( 3, GetInternalConstantBuffer( SHADER_CONSTANTBUFFER_SKINNING ) );
 }
 
 void CBaseShader::BindInternalVertexShaderConstantBuffersNoSkinning()
 {
-	BindVertexShaderConstantBuffer( 0, GetInternalConstantBuffer( SHADER_CONSTANTBUFFER_PERMATERIAL ) );
-	BindVertexShaderConstantBuffer( 1, GetInternalConstantBuffer( SHADER_CONSTANTBUFFER_PERMODEL ) );
-	BindVertexShaderConstantBuffer( 2, GetInternalConstantBuffer( SHADER_CONSTANTBUFFER_PERFRAME ) );
-	BindVertexShaderConstantBuffer( 3, GetInternalConstantBuffer( SHADER_CONSTANTBUFFER_PERSCENE ) );
+	BindVertexShaderConstantBuffer( 0, GetInternalConstantBuffer( SHADER_CONSTANTBUFFER_PERMODEL ) );
+	BindVertexShaderConstantBuffer( 1, GetInternalConstantBuffer( SHADER_CONSTANTBUFFER_PERFRAME ) );
+	BindVertexShaderConstantBuffer( 2, GetInternalConstantBuffer( SHADER_CONSTANTBUFFER_PERSCENE ) );
 }
 
 void CBaseShader::BindInternalPixelShaderConstantBuffers()
 {
-	BindPixelShaderConstantBuffer( 0, GetInternalConstantBuffer( SHADER_CONSTANTBUFFER_PERMATERIAL ) );
-	BindPixelShaderConstantBuffer( 1, GetInternalConstantBuffer( SHADER_CONSTANTBUFFER_PERMODEL ) );
-	BindPixelShaderConstantBuffer( 2, GetInternalConstantBuffer( SHADER_CONSTANTBUFFER_PERFRAME ) );
-	BindPixelShaderConstantBuffer( 3, GetInternalConstantBuffer( SHADER_CONSTANTBUFFER_PERSCENE ) );
+	BindPixelShaderConstantBuffer( 0, GetInternalConstantBuffer( SHADER_CONSTANTBUFFER_PERMODEL ) );
+	BindPixelShaderConstantBuffer( 1, GetInternalConstantBuffer( SHADER_CONSTANTBUFFER_PERFRAME ) );
+	BindPixelShaderConstantBuffer( 2, GetInternalConstantBuffer( SHADER_CONSTANTBUFFER_PERSCENE ) );
 }
 
 void CBaseShader::BindInternalGeometryShaderConstantBuffers()
 {
-	BindGeometryShaderConstantBuffer( 0, GetInternalConstantBuffer( SHADER_CONSTANTBUFFER_PERMATERIAL ) );
-	BindGeometryShaderConstantBuffer( 1, GetInternalConstantBuffer( SHADER_CONSTANTBUFFER_PERMODEL ) );
-	BindGeometryShaderConstantBuffer( 2, GetInternalConstantBuffer( SHADER_CONSTANTBUFFER_PERFRAME ) );
-	BindGeometryShaderConstantBuffer( 3, GetInternalConstantBuffer( SHADER_CONSTANTBUFFER_PERSCENE ) );
+	BindGeometryShaderConstantBuffer( 0, GetInternalConstantBuffer( SHADER_CONSTANTBUFFER_PERMODEL ) );
+	BindGeometryShaderConstantBuffer( 1, GetInternalConstantBuffer( SHADER_CONSTANTBUFFER_PERFRAME ) );
+	BindGeometryShaderConstantBuffer( 2, GetInternalConstantBuffer( SHADER_CONSTANTBUFFER_PERSCENE ) );
 }
 
 void CBaseShader::BindPixelShaderConstantBuffer( int slot, ConstantBufferHandle_t cbuffer )
@@ -1848,6 +1844,21 @@ void CBaseShader::BindGeometryShaderConstantBuffer( int slot, ConstantBufferHand
 {
 	Assert( s_pShaderAPI );
 	s_pShaderAPI->BindGeometryShaderConstantBuffer( slot, cbuffer );
+}
+
+void CBaseShader::BindPixelShaderConstantBuffer( int slot, ShaderInternalConstantBuffer_t cbuffer )
+{
+	BindPixelShaderConstantBuffer( slot, GetInternalConstantBuffer( cbuffer ) );
+}
+
+void CBaseShader::BindVertexShaderConstantBuffer( int slot, ShaderInternalConstantBuffer_t cbuffer )
+{
+	BindVertexShaderConstantBuffer( slot, GetInternalConstantBuffer( cbuffer ) );
+}
+
+void CBaseShader::BindGeometryShaderConstantBuffer( int slot, ShaderInternalConstantBuffer_t cbuffer )
+{
+	BindGeometryShaderConstantBuffer( slot, GetInternalConstantBuffer( cbuffer ) );
 }
 
 // Called from DYNAMIC_STATE

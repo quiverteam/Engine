@@ -22,17 +22,17 @@ class IShaderShadow;
 //-----------------------------------------------------------------------------
 // Structure that defines that constants used by the shader
 //-----------------------------------------------------------------------------
-ALIGN16 struct VertexLitGeneric_VS40_CBuffer_t
+ALIGN16 struct VertexLitGeneric_CBuffer_t
 {
+	// Vertex shader
 	Vector4D cBaseTextureTransform[2];
 	Vector4D cDetailTextureTransform[2];
 	Vector4D cMorphDimensions;
 	Vector4D cMorphSubrect;
 	Vector4D cSeamlessScale;
-};
+	Vector4D cModulationColor;
 
-ALIGN16 struct VertexLitGeneric_PS40_CBuffer_t
-{
+	// Pixel shader
 	Vector4D cDetailTint;
 	Vector4D cGlowParams;
 	Vector4D cGlowColor;
@@ -46,19 +46,15 @@ ALIGN16 struct VertexLitGeneric_PS40_CBuffer_t
 	Vector4D cSelfIllumTint;
 	Vector4D cDepthFeathering;
 	Vector4D cShaderControls;
-};
 
-ALIGN16 struct PhongParams_CBuffer_t
-{
+	// Pixel shader (phong)
 	Vector4D cFresnelSpecParams;
 	Vector4D cSpecularRimParams;
 	Vector4D cPhongRimParams;
 	Vector4D cSpecExponent;
 };
 
-extern ConstantBufferHandle_t g_hVertexLitGeneric_VS40_CBuffer;
-extern ConstantBufferHandle_t g_hVertexLitGeneric_PS40_CBuffer;
-extern ConstantBufferHandle_t g_hPhongParams_CBuffer;
+extern ConstantBufferHandle_t g_hVertexLitGeneric_CBuffer;
 
 //-----------------------------------------------------------------------------
 // Init params/ init/ draw methods
