@@ -2504,7 +2504,6 @@ bool MIX_ScaleChannelVolume( paintbuffer_t *ppaint, channel_t *pChannel, int vol
 //===============================================================================
 void Snd_WriteLinearBlastStereo16( void )
 {
-#if	!id386
 	int		i;
 	int		val;
 
@@ -2528,59 +2527,6 @@ void Snd_WriteLinearBlastStereo16( void )
 		else
 			snd_out[i+1] = val;
 	}
-#else
-	__asm 
-	{
-		// input data
-		mov	ebx,snd_p
-
-		// output data
-		mov	edi,snd_out
-
-		// iterate from end to beginning
-		mov	ecx,snd_linear_count
-
-		// scale table
-		mov	esi,snd_vol
-
-		// scale and clamp 16bit signed lsw: [0x8000, 0x7FFF]
-WLBS16_LoopTop:
-		mov		eax,[ebx+ecx*4-8]
-		imul	eax,esi
-		sar		eax,0x08
-		cmp		eax,0x7FFF
-		jg		WLBS16_ClampHigh
-		cmp		eax,0xFFFF8000
-		jnl		WLBS16_ClampDone
-		mov		eax,0xFFFF8000
-		jmp		WLBS16_ClampDone
-WLBS16_ClampHigh:
-		mov		eax,0x7FFF
-WLBS16_ClampDone:
-
-		// scale and clamp 16bit signed msw: [0x8000, 0x7FFF]
-		mov		edx,[ebx+ecx*4-4]
-		imul	edx,esi
-		sar		edx,0x08
-		cmp		edx,0x7FFF
-		jg		WLBS16_ClampHigh2
-		cmp		edx,0xFFFF8000
-		jnl		WLBS16_ClampDone2
-		mov		edx,0xFFFF8000
-		jmp		WLBS16_ClampDone2
-WLBS16_ClampHigh2:
-		mov		edx,0x7FFF
-WLBS16_ClampDone2:
-		shl		edx,0x10
-		and		eax,0xFFFF
-		or		edx,eax
-		mov		[edi+ecx*2-4],edx
-
-		// two shorts per iteration
-		sub		ecx,0x02
-		jnz		WLBS16_LoopTop
-	}
-#endif
 }
 
 void SND_InitScaletable (void)
@@ -2594,7 +2540,6 @@ void SND_InitScaletable (void)
 
 void SND_PaintChannelFrom8(portable_samplepair_t *pOutput, int *volume, byte *pData8, int count)
 {
-#if	!id386
 	int 	data;
 	int		*lscale, *rscale;
 	int		i;
@@ -2609,98 +2554,6 @@ void SND_PaintChannelFrom8(portable_samplepair_t *pOutput, int *volume, byte *pD
 		pOutput[i].left += lscale[data];
 		pOutput[i].right += rscale[data];
 	}
-#else
-	// portable_samplepair_t structure
-#define psp_left		0
-#define psp_right		4
-#define psp_size		8
-	static int			tempStore;
-	
-	__asm
-	{
-		// prologue
-		push	ebp
-
-		// esp = pOutput
-		mov		eax, pOutput
-		mov		tempStore, eax
-		xchg	esp,tempStore
-		// ebx = volume
-		mov		ebx,volume
-		// esi = pData8
-		mov		esi,pData8
-		// ecx = count
-		mov		ecx,count
-
-		// These values depend on the setting of SND_SCALE_BITS
-		// The mask must mask off all the lower bits you aren't using in the multiply
-		// so for 7 bits, the mask is 0xFE, 6 bits 0xFC, etc.
-		// The shift must multiply by the table size.  There are 256 4-byte values in the table at each level.
-		// So each index must be shifted left by 10, but since the bits we use are in the MSB rather than LSB
-		// they must be shifted right by 8 - SND_SCALE_BITS.  e.g., for a 7 bit number the left shift is:
-		// 10 - (8-7) = 9.  For a 5 bit number it's 10 - (8-5) = 7.
-		mov		eax,[ebx]
-		mov		edx,[ebx + 4]
-		and		eax,0xFE
-		and		edx,0xFE
-
-		// shift up by 10 to index table, down by 1 to make the 7 MSB of the bytes an index
-		// eax = lscale
-		// edx = rscale
-		shl		eax,0x09
-		shl		edx,0x09
-		add		eax,OFFSET snd_scaletable
-		add		edx,OFFSET snd_scaletable
-
-		// ebx = data byte
-		sub		ebx,ebx
-		mov		bl,[esi+ecx-1]
-
-		// odd or even number of L/R samples
-		test	ecx,0x01
-		jz		PCF8_Loop
-
-		// process odd L/R sample
-		mov		edi,[eax+ebx*4]
-		mov		ebp,[edx+ebx*4]
-		add		edi,[esp+ecx*psp_size-psp_size+psp_left]
-		add		ebp,[esp+ecx*psp_size-psp_size+psp_right]
-		mov		[esp+ecx*psp_size-psp_size+psp_left],edi
-		mov		[esp+ecx*psp_size-psp_size+psp_right],ebp
-		mov		bl,[esi+ecx-1-1]
-
-		dec		ecx
-		jz		PCF8_Done
-
-PCF8_Loop:
-		// process L/R sample N
-		mov		edi,[eax+ebx*4]
-		mov		ebp,[edx+ebx*4]
-		add		edi,[esp+ecx*psp_size-psp_size+psp_left]
-		add		ebp,[esp+ecx*psp_size-psp_size+psp_right]
-		mov		[esp+ecx*psp_size-psp_size+psp_left],edi
-		mov		[esp+ecx*psp_size-psp_size+psp_right],ebp
-		mov		bl,[esi+ecx-1-1]
-
-		// process L/R sample N-1
-		mov		edi,[eax+ebx*4]
-		mov		ebp,[edx+ebx*4]
-		add		edi,[esp+ecx*psp_size-psp_size*2+psp_left]
-		add		ebp,[esp+ecx*psp_size-psp_size*2+psp_right]
-		mov		[esp+ecx*psp_size-psp_size*2+psp_left],edi
-		mov		[esp+ecx*psp_size-psp_size*2+psp_right],ebp
-		mov		bl,[esi+ecx-1-2]
-
-		// two L/R samples per iteration
-		sub		ecx,0x02
-		jnz		PCF8_Loop
-
-PCF8_Done:
-		// epilogue
-		xchg	esp,tempStore
-		pop		ebp
-	}
-#endif
 }
 
 //===============================================================================
@@ -3415,8 +3268,6 @@ void SW_Mix16Mono_Shift( portable_samplepair_t *pOutput, int *volume, short *pDa
 {
 	int vol0 = volume[0];
 	int vol1 = volume[1];
-
-#if !id386
 	int sampleIndex = 0;
 	fixedint sampleFrac = inputOffset;
 
@@ -3428,149 +3279,18 @@ void SW_Mix16Mono_Shift( portable_samplepair_t *pOutput, int *volume, short *pDa
 		sampleIndex += FIX_INTPART(sampleFrac);
 		sampleFrac = FIX_FRACPART(sampleFrac);
 	}
-#else
-	// in assembly, you can make this 32.32 instead of 4.28 and use the carry flag instead of masking
-	int rateScaleInt = FIX_INTPART(rateScaleFix);
-	unsigned int rateScaleFrac = FIX_FRACPART(rateScaleFix) << (32-FIX_BITS);
-
-	__asm
-	{
-		mov eax, volume					;
-		movq mm0, DWORD PTR [eax]		; vol1, vol0 (32-bits each)
-		packssdw mm0, mm0				; pack and replicate... vol1, vol0, vol1, vol0 (16-bits each)
-		//pxor mm7, mm7					; mm7 is my zero register...
-
-		xor esi, esi
-		mov	eax, DWORD PTR [pOutput]	; store initial output ptr
-		mov edx, DWORD PTR [pData]		; store initial input ptr
-		mov ebx, inputOffset;
-		mov ecx, outCount;
-		
-BEGINLOAD:
-		movd mm2, WORD PTR [edx+2*esi]	; load first piece o' data from pData
-		punpcklwd mm2, mm2				; 0, 0, pData_1st, pData_1st
-
-		add ebx, rateScaleFrac			; do the crazy fixed integer math
-		adc esi, rateScaleInt
-
-		movd mm3, WORD PTR [edx+2*esi]	; load second piece o' data from pData
-		punpcklwd mm3, mm3				; 0, 0, pData_2nd, pData_2nd
-		punpckldq mm2, mm3				; pData_2nd, pData_2nd, pData_2nd, pData_2nd
-
-		add ebx, rateScaleFrac			; do the crazy fixed integer math
-		adc esi, rateScaleInt
-	
-        movq mm3, mm2					; copy the goods
-		pmullw mm2, mm0					; pData_2nd*vol1, pData_2nd*vol0, pData_1st*vol1, pData_1st*vol0 (bits 0-15)
-		pmulhw mm3, mm0					; pData_2nd*vol1, pData_2nd*vol0, pData_1st*vol1, pData_1st*vol0 (bits 16-31)
-
-		movq mm4, mm2					; copy
-		movq mm5, mm3					; copy
-
-		punpcklwd mm2, mm3				; pData_1st*vol1, pData_1st*vol0 (bits 0-31)
-		punpckhwd mm4, mm5				; pData_2nd*vol1, pData_2nd*vol0 (bits 0-31)
-		psrad mm2, 8					; shift right by 8
-		psrad mm4, 8					; shift right by 8
-
-		add ecx, -2                     ; decrement i-value
-		paddd mm2, QWORD PTR [eax]		; add to existing vals
-		paddd mm4, QWORD PTR [eax+8]	;
-
-		movq QWORD PTR [eax], mm2		; store back
-		movq QWORD PTR [eax+8], mm4		;
-
-		add eax, 10h					;
-		cmp ecx, 01h                    ; see if we can quit
-		jg BEGINLOAD                    ; Kipp Owens is a doof...
-		jl END							; Nick Shaffner is killing me...
-
-		movsx edi, WORD PTR [edx+2*esi] ; load first 16 bit val and zero-extend
-		imul  edi, vol0					; multiply pData[sampleIndex] by volume[0]
-		sar   edi, 08h                  ; divide by 256
-		add DWORD PTR [eax], edi        ; add to pOutput[i].left
-		
-		movsx edi, WORD PTR [edx+2*esi] ; load same 16 bit val and zero-extend ('cuz I thrashed the reg)
-		imul  edi, vol1					; multiply pData[sampleIndex] by volume[1]
-		sar   edi, 08h                  ; divide by 256
-		add DWORD PTR [eax+04h], edi    ; add to pOutput[i].right
-END:
-		emms;
-	}
-#endif
 }
 
 void SW_Mix16Mono_NoShift( portable_samplepair_t *pOutput, int *volume, short *pData, int outCount )
 {
 	int vol0 = volume[0];
 	int vol1 = volume[1];
-#if !id386
 	for ( int i = 0; i < outCount; i++ )
 	{
 		int x = *pData++;
 		pOutput[i].left += (x * vol0) >> 8;
 		pOutput[i].right += (x * vol1) >> 8;
 	}
-#else
-	__asm
-	{
-		mov eax, volume					;
-		movq mm0, DWORD PTR [eax]		; vol1, vol0 (32-bits each)
-		packssdw mm0, mm0				; pack and replicate... vol1, vol0, vol1, vol0 (16-bits each)
-		//pxor mm7, mm7					; mm7 is my zero register...
-
-		mov	eax, DWORD PTR [pOutput]	; store initial output ptr
-		mov edx, DWORD PTR [pData]		; store initial input ptr
-		mov ecx, outCount;
-		
-BEGINLOAD:
-		movd mm2, WORD PTR [edx]	; load first piece o' data from pData
-		punpcklwd mm2, mm2				; 0, 0, pData_1st, pData_1st
-		add edx,2						; move to the next sample
-
-		movd mm3, WORD PTR [edx]	; load second piece o' data from pData
-		punpcklwd mm3, mm3				; 0, 0, pData_2nd, pData_2nd
-		punpckldq mm2, mm3				; pData_2nd, pData_2nd, pData_2nd, pData_2nd
-
-		add edx,2						; move to the next sample
-	
-        movq mm3, mm2					; copy the goods
-		pmullw mm2, mm0					; pData_2nd*vol1, pData_2nd*vol0, pData_1st*vol1, pData_1st*vol0 (bits 0-15)
-		pmulhw mm3, mm0					; pData_2nd*vol1, pData_2nd*vol0, pData_1st*vol1, pData_1st*vol0 (bits 16-31)
-
-		movq mm4, mm2					; copy
-		movq mm5, mm3					; copy
-
-		punpcklwd mm2, mm3				; pData_1st*vol1, pData_1st*vol0 (bits 0-31)
-		punpckhwd mm4, mm5				; pData_2nd*vol1, pData_2nd*vol0 (bits 0-31)
-		psrad mm2, 8					; shift right by 8
-		psrad mm4, 8					; shift right by 8
-
-		add ecx, -2                     ; decrement i-value
-		paddd mm2, QWORD PTR [eax]		; add to existing vals
-		paddd mm4, QWORD PTR [eax+8]	;
-
-		movq QWORD PTR [eax], mm2		; store back
-		movq QWORD PTR [eax+8], mm4		;
-
-		add eax, 10h					;
-		cmp ecx, 01h                    ; see if we can quit
-		jg BEGINLOAD                    ; I can cut and paste code!
-		jl END							; 
-
-		movsx edi, WORD PTR [edx]		; load first 16 bit val and zero-extend
-		mov esi,edi						; save a copy for the other channel
-		imul  edi, vol0					; multiply pData[sampleIndex] by volume[0]
-		sar   edi, 08h                  ; divide by 256
-		add DWORD PTR [eax], edi        ; add to pOutput[i].left
-		
-										; esi has a copy, use it now
-		imul  esi, vol1					; multiply pData[sampleIndex] by volume[1]
-		sar   esi, 08h                  ; divide by 256
-		add DWORD PTR [eax+04h], esi    ; add to pOutput[i].right
-END:
-		emms;
-	}
-#endif
 }
 
 void SW_Mix16Mono( portable_samplepair_t *pOutput, int *volume, short *pData, int inputOffset, fixedint rateScaleFix, int outCount )
