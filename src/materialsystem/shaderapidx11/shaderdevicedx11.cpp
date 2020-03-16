@@ -268,7 +268,6 @@ bool CShaderDeviceMgrDx11::ComputeCapsFromD3D( HardwareCaps_t *pCaps, IDXGIAdapt
 	pCaps->m_ShadowDepthTextureFormat = IMAGE_FORMAT_UNKNOWN;
 	pCaps->m_nMaxViewports = 4;
 
-
 	//DXGI_GAMMA_CONTROL_CAPABILITIES gammaCaps;
 	//pOutput->GetGammaControlCapabilities( &gammaCaps );
 	//pCaps->m_flMinGammaControlPoint = gammaCaps.MinConvertedValue;

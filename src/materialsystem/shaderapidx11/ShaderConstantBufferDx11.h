@@ -16,6 +16,9 @@ public:
 
 	void *GetData();
 
+	void *Lock();
+	void Unlock();
+
 	void ForceUpdate();
 
 	ID3D11Buffer *GetD3DBuffer() const;
@@ -25,6 +28,7 @@ private:
 	size_t m_nBufSize;
 	bool m_bNeedsUpdate;
 	bool m_bDynamic;
+	bool m_bLocked;
 	void *m_pData;
 };
 

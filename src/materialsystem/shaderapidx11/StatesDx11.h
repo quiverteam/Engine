@@ -9,6 +9,8 @@
 
 #include <d3d11.h>
 
+#include "Dx11Global.h"
+
 class CShaderConstantBufferDx11;
 class CTextureDx11;
 
@@ -176,17 +178,17 @@ namespace StatesDx11
 
 		bool BlendStateChanged( const ShadowState &other )
 		{
-			return memcmp( &blend, &other.blend, sizeof( BlendState ) ) != 0;
+			return FastMemCompare( &blend, &other.blend, sizeof( BlendState ) ) != 0;
 		}
 
 		bool DepthStencilStateChanged( const ShadowState &other )
 		{
-			return memcmp( &depthStencil, &other.depthStencil, sizeof( DepthStencilState ) ) != 0;
+			return FastMemCompare( &depthStencil, &other.depthStencil, sizeof( DepthStencilState ) ) != 0;
 		}
 
 		bool RasterStateChanged( const ShadowState &other )
 		{
-			return memcmp( &rasterizer, &other.rasterizer, sizeof( RasterState ) ) != 0;
+			return FastMemCompare( &rasterizer, &other.rasterizer, sizeof( RasterState ) ) != 0;
 		}
 
 		// Sets the default shadow state

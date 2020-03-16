@@ -61,14 +61,14 @@ ImageFormat CTextureDx11::GetClosestSupportedImageFormatForD3D11( ImageFormat sr
 	case IMAGE_FORMAT_RGB888:
 		return IMAGE_FORMAT_RGBA8888;
 
-	case IMAGE_FORMAT_DXT1_ONEBITALPHA:
-	case IMAGE_FORMAT_DXT1:
-	case IMAGE_FORMAT_DXT5:
-		return IMAGE_FORMAT_BGRA8888;
-	case IMAGE_FORMAT_DXT1_ONEBITALPHA_SRGB:
-	case IMAGE_FORMAT_DXT1_SRGB:
-	case IMAGE_FORMAT_DXT5_SRGB:
-		return IMAGE_FORMAT_BGRA8888_SRGB;	
+	///case IMAGE_FORMAT_DXT1_ONEBITALPHA:
+	///case IMAGE_FORMAT_DXT1:
+	///case IMAGE_FORMAT_DXT5:
+	//	return IMAGE_FORMAT_BGRA8888;
+	//case IMAGE_FORMAT_DXT1_ONEBITALPHA_SRGB:
+	//case IMAGE_FORMAT_DXT1_SRGB:
+	//case IMAGE_FORMAT_DXT5_SRGB:
+	//	return IMAGE_FORMAT_BGRA8888_SRGB;	
 
 	case IMAGE_FORMAT_RGB888_SRGB:
 	case IMAGE_FORMAT_RGB888_BLUESCREEN:
@@ -483,13 +483,14 @@ void CTextureDx11::SetupTexture2D( int width, int height, int depth, int count, 
 
 	ID3D11Resource *pD3DTex;
 
+	m_Format = GetClosestSupportedImageFormatForD3D11( dstImageFormat );
 	int nRamBytes = CalcRamBytes();
 
 	// Set the initial texture state
 	if ( numCopies <= 1 )
 	{
 		m_NumCopies = 1;
-		pD3DTex = CreateD3DTexture( width, height, depth, dstImageFormat, numMipLevels, flags );
+		pD3DTex = CreateD3DTexture( width, height, depth, m_Format, numMipLevels, flags );
 		SetTexture( pD3DTex );
 		if ( bIsDynamic )
 		{
@@ -744,6 +745,8 @@ void CTextureDx11::AdjustD3DFilter()
 void CTextureDx11::SetAnisotropicLevel( int level )
 {
 	m_Anisotropy = level;
+	if ( level > 1 )
+		m_Filter = D3D11_FILTER_ANISOTROPIC;
 	AdjustSamplerState();
 }
 
@@ -909,12 +912,16 @@ void CTextureDx11::BlitSurfaceBits( CTextureDx11::TextureLoadInfo_t &info, int x
 	int mem = ImageLoader::GetMemRequired( info.m_nWidth, info.m_nHeight, info.m_nZOffset, m_Format, false );
 	unsigned char *pNewImage = new unsigned char[mem];
 	int dstStride = ImageLoader::SizeInBytes( m_Format );
-
-	if ( info.m_SrcFormat == IMAGE_FORMAT_DXT1 || info.m_SrcFormat == IMAGE_FORMAT_DXT1_SRGB ||
-	     info.m_SrcFormat == IMAGE_FORMAT_DXT3 || info.m_SrcFormat == IMAGE_FORMAT_DXT3_SRGB ||
-	     info.m_SrcFormat == IMAGE_FORMAT_DXT5 || info.m_SrcFormat == IMAGE_FORMAT_DXT5_SRGB )
+	int pitch = dstStride * info.m_nWidth;
+	if ( m_Format == IMAGE_FORMAT_DXT3 || m_Format == IMAGE_FORMAT_DXT3_SRGB ||
+	     m_Format == IMAGE_FORMAT_DXT5 || m_Format == IMAGE_FORMAT_DXT5_SRGB )
 	{
-		//DebuggerBreak();
+		pitch = 16 * ( info.m_nWidth / 4 );
+	}
+	else if ( m_Format == IMAGE_FORMAT_DXT1 || m_Format == IMAGE_FORMAT_DXT1_SRGB ||
+		  m_Format == IMAGE_FORMAT_DXT1_ONEBITALPHA || m_Format == IMAGE_FORMAT_DXT1_ONEBITALPHA_SRGB )
+	{
+		pitch = 8 * ( info.m_nWidth / 4 );
 	}
 
 	bool ret =
@@ -943,7 +950,7 @@ void CTextureDx11::BlitSurfaceBits( CTextureDx11::TextureLoadInfo_t &info, int x
 	UINT subresource = D3D11CalcSubresource( info.m_nLevel, info.m_CubeFaceID, m_NumLevels );
 
 	D3D11DeviceContext()->UpdateSubresource( info.m_pTexture, subresource, &box, pNewImage,
-						 dstStride * info.m_nWidth, 0 );
+						 pitch, 0 );
 
 	delete[] pNewImage;
 
