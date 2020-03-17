@@ -1,0 +1,299 @@
+// ---------------------------------------------------------------
+// Auto Generated QPC Script - Fix if needed before using
+// ---------------------------------------------------------------
+
+project "actbusy" 					"tools/actbusy/actbusy.qpc" [$WINDOWS]
+
+project "AdminServer" 				"Tracker/AdminServer/AdminServer.qpc" [$WINDOWS]
+
+project "appframework" 				"appframework/appframework.qpc"
+
+project "appidlink" 				"utils/appidlink/appidlink.qpc"	
+
+project "bitmap" 					"bitmap/bitmap.qpc"
+
+project "bsppack" 					"utils/bsppack/bsppack.qpc"
+
+project "bspzip" 					"utils/bspzip/bspzip.qpc"
+
+project "bzip2" 					"thirdparty/bzip2/bzip2.qpc"
+
+project "captioncompiler" 			"utils/captioncompiler/captioncompiler.qpc"
+
+project "choreoobjects" 			"choreoobjects/choreoobjects.qpc"
+
+project "client"
+{
+	"game/client/_client_hl2.qpc" [$HL2]
+	"game/client/_client_episodic.qpc" [$EPISODIC]
+	"game/client/_client_hl2mp.qpc" [$HL2MP]
+}
+
+project "commedit" 					"tools/commedit/commedit.qpc" [$WINDOWS]
+
+project "datacache" 				"datacache/datacache.qpc"
+
+project "datamodel" 				"datamodel/datamodel.qpc" [$WINDOWS]
+
+project "dedicated" 				"dedicated/dedicated.qpc" [$WINDOWS]
+
+project "dedicated_main" 			"dedicated_main/dedicated_main.qpc" [$WINDOWS]
+
+project "dme_controls" 				"vgui2/dme_controls/dme_controls.qpc" [$WINDOWS]
+
+project "dmserializers" 			"dmserializers/dmserializers.qpc" [$WINDOWS]
+
+project "dmxconvert"				"utils/dmxconvert/dmxconvert.qpc" [$WINDOWS]
+
+project "dmxedit"					"utils/dmxedit/dmxedit.qpc"
+
+project "dmxloader" 				"dmxloader/dmxloader.qpc"
+
+project "dmxtest" 					"unittests/dmxtest/dmxtest.qpc" [$WINDOWS]
+
+project "dx_proxy_dx9_v00_pc"		"utils/dx_proxy/dx_proxy_dx9_v00_pc.qpc"
+
+project "dx_proxy_dx9_v30_pc"		"utils/dx_proxy/dx_proxy_dx9_v30_pc.qpc"
+ 
+project "elementviewer" 			"utils/elementviewer/elementviewer.qpc"
+
+project "engine" 					"engine/engine.qpc"
+
+project "fgdlib" 					"fgdlib/fgdlib.qpc" [$WINDOWS]
+
+project "filesystem_stdio" 			"filesystem/filesystem_stdio.qpc"
+
+project "FileSystemOpenDialog" 		"utils/FileSystemOpenDialog/filesystemopendialog.qpc" [$WINDOWS]
+
+project "gameui" 					"gameui/GameUI.qpc"
+
+project "gameui_client"
+{
+	"game/gameui/_gameui_hl2.qpc" [$HL2]
+	"game/gameui/_gameui_episodic.qpc" [$EPISODIC]
+	"game/gameui/_gameui_hl2mp.qpc" [$HL2MP]
+}
+
+project "glview"					"utils/glview/glview.qpc" [$WINDOWS]
+
+project "hammer_dll"				"utils/hammer/hammer_dll.qpc" [$WINDOWS]
+
+project "hammer_launcher"			"utils/hammer/hammer_launcher/hammer_launcher.qpc" [$WINDOWS]
+
+project "height2normal"				"utils/height2normal/height2normal.qpc"
+
+project "height2ssbump" 			"utils/height2ssbump/height2ssbump.qpc"
+
+project "hlfaceposer"				"utils/hlfaceposer/hlfaceposer.qpc" [$WINDOWS]
+
+project "hlmv"						"utils/hlmv/hlmv.qpc" [$WINDOWS]
+
+project "ihvtest1"					"unittests/ihvtest1/ihvtest1.qpc" [$WINDOWS]
+
+project "inputsystem"				"inputsystem/inputsystem.qpc"
+
+project "inputtest"					"unittests/inputtest/inputtest.qpc" [$WINDOWS]
+
+project "jpeglib"					"thirdparty/jpeglib/jpeglib.qpc" [$WINDOWS]
+
+project "launcher"					"launcher/launcher.qpc"
+
+project "launcher_main"				"launcher_main/launcher_main.qpc"
+
+project "libspeex"					"thirdparty/libspeex/libspeex.qpc"
+
+project "localization_check"		"utils/localization_check/localization_check.qpc" [$WINDOWS]
+
+project "lua"						"thirdparty/lua-5.1.1/lua.qpc"
+
+project "lzma"						"thirdparty/lzma/lzma.qpc" [$WINDOWS]
+
+project "materialsystem"			"materialsystem/materialsystem.qpc"
+
+project "materialsystemtest"		"unittests/materialsystemtest/materialsystemtest.qpc" [$WINDOWS]
+
+project "mathlib"					"mathlib/mathlib.qpc"
+
+project "matsys_controls"			"vgui2/matsys_controls/matsys_controls.qpc"
+
+project "matsys_regressiontest"		"unittests/matsys_regressiontest/matsys_regressiontest.qpc" [$WINDOWS]
+
+project "mdllib"					"mdllib/mdllib.qpc" [$WINDOWS]
+
+project "modelbrowser"				"utils/modelbrowser/modelbrowser.qpc" [$WINDOWS]
+
+project "motionmapper"				"utils/motionmapper/motionmapper.qpc" [$WINDOWS]
+
+project "movieobjects"				"movieobjects/movieobjects.qpc" [$WINDOWS]
+
+project "mxtoolkitwin32"			"utils/mxtk/mxtoolkitwin32.qpc" [$WINDOWS]
+
+project "mysql_wrapper"				"utils/vmpi_private/mysql_wrapper/mysql_wrapper.qpc" [$WINDOWS]
+
+project "networksystem"				"networksystem/networksystem.qpc" [$WINDOWS]
+
+project "networktest"				"unittests/networktest/networktest.qpc" [$WINDOWS]
+
+project "normal2ssbump"				"utils/normal2ssbump/normal2ssbump.qpc" [$WINDOWS]
+
+project "nvtristriplib"				"utils/nvtristriplib/nvtristriplib.qpc" [$WINDOWS]
+
+project "particles"					"particles/particles.qpc"
+
+project "pcffix"					"utils/pcffix/pcffix.qpc" [$WINDOWS]
+
+project "pet"						"tools/pet/pet.qpc" [$WINDOWS]
+
+project "phonemeextractor"			"utils/phonemeextractor/phonemeextractor.qpc" [$WINDOWS]
+
+project "QC_Eyes"					"utils/QC_Eyes/QC_Eyes.qpc" [$WINDOWS]
+
+project "QCGenerator_Launcher"		"utils/QCGenerator/QCGenerator_Launcher.qpc" [$WINDOWS]
+
+project "qvideo"					"video/qvideo.qpc"
+
+project "raytrace"					"raytrace/raytrace.qpc"
+
+project "rt_test"					"unittests/rt_test/rt_test.qpc" [$WINDOWS]
+
+project "sampletool"				"tools/sampletool/sampletool.qpc" [$WINDOWS]
+
+project "scenefilecache"			"scenefilecache/scenefilecache.qpc"
+
+project "scenemanager"				"utils/scenemanager/scenemanager.qpc" [$WINDOWS]
+
+project "sceneviewer"				"utils/sceneviewer/sceneviewer.qpc" [$WINDOWS]
+
+project "SDKLauncher"				"utils/sdklauncher/SDKLauncher.qpc" [$WINDOWS]
+
+project "server"
+{
+	"game/server/_server_hl2.qpc" [$HL2]
+	"game/server/_server_episodic.qpc" [$EPISODIC]
+	"game/server/_server_hl2mp.qpc" [$HL2MP]
+}
+
+project "ServerBrowser"				"ServerBrowser/ServerBrowser.qpc"
+
+project "serverplugin_empty"		"utils/serverplugin_sample/serverplugin_empty.qpc"
+
+project "shaderapidx9"				"materialsystem/shaderapidx9/shaderapidx9.qpc"
+
+project "shaderapiempty"			"materialsystem/shaderapiempty/shaderapiempty.qpc" [$WINDOWS]
+
+project "shaderapitest"				"unittests/shaderapitest/shaderapitest.qpc" [$WINDOWS]
+
+project "shadercompile_dll"			"utils/shadercompile/shadercompile_dll.qpc" [$WINDOWS]
+
+project "shadercompile_launcher"	"utils/shadercompile_launcher/shadercompile_launcher.qpc" [$WINDOWS]
+
+project "shaderlib"					"materialsystem/shaderlib/shaderlib.qpc"
+
+project "soundemittersystem"		"soundemittersystem/soundemittersystem.qpc"
+
+project "soundsystem"				"soundsystem/soundsystem.qpc" [$WINDOWS]
+
+project "soundtest"					"unittests/soundtest/soundtest.qpc" [$WINDOWS]
+
+project "stdshader_dbg"				"materialsystem/stdshaders/stdshader_dbg.qpc"
+
+project "stdshader_dx9"				"materialsystem/stdshaders/stdshader_dx9.qpc"
+
+project "studiomdl"					"utils/studiomdl/studiomdl.qpc" [$WINDOWS]
+
+project "studiorender"				"studiorender/studiorender.qpc"
+
+project "testprocess"				"unittests/testprocess/testprocess.qpc" [$WINDOWS]
+
+project "tier0"						"tier0/tier0.qpc"
+
+project "tier1"						"tier1/tier1.qpc"
+
+project "tier2"						"tier2/tier2.qpc"
+
+project "tier3"						"tier3/tier3.qpc"
+
+project "tier1test"					"unittests/tier1test/tier1test.qpc" [$WINDOWS]
+
+project "tier2test"					"unittests/tier2test/tier2test.qpc" [$WINDOWS]
+
+project "tier3test"					"unittests/tier3test/tier3test.qpc" [$WINDOWS]
+
+project "togl"						"togl/togl.qpc" [$GL]
+
+project "toolutils"					"tools/toolutils/toolutils.qpc" [$WINDOWS]
+
+project "unicode"					"unicode/unicode.qpc" [$WINDOWS]
+
+project "unitlib"					"unitlib/unitlib.qpc" [$WINDOWS]
+
+project "audio_minimp3"				"engine/voice_codecs/minimp3/audio_minimp3.qpc" 
+
+project "vaudio_speex"				"engine/voice_codecs/speex/vaudio_speex.qpc" [$WINDOWS]
+
+project "vbsp"						"utils/vbsp/vbsp.qpc" [$WINDOWS]
+
+project "vcd_sound_check"			"utils/vcd_sound_check/vcd_sound_check.qpc" [$WINDOWS]
+
+project "vcdblock"					"tools/vcdblock/vcdblock.qpc" [$WINDOWS]
+
+project "vcdupdate"					"utils/vcdupdate/vcdupdate.qpc" [$WINDOWS]
+
+project "vgui_controls"				"vgui2/vgui_controls/vgui_controls.qpc"
+
+project "vgui_dll"					"vgui2/src/vgui_dll.qpc"
+
+project "vgui_surfacelib"			"vgui2/vgui_surfacelib/vgui_surfacelib.qpc"
+
+project "vguimatsurface"			"vguimatsurface/vguimatsurface.qpc"
+
+project "vice"						"utils/vice/vice.qpc" [$WINDOWS]
+
+project "vlocalize"					"vgui2/vlocalize/vlocalize.qpc" [$WINDOWS]
+
+project "vmpi"						"utils/vmpi/vmpi.qpc" [$WINDOWS]
+
+project "vmpi_job_search"			"utils/vmpi/vmpi_job_search/vmpi_job_search.qpc" [$WINDOWS]
+
+project "vmpi_job_watch"			"utils/vmpi/vmpi_job_watch/vmpi_job_watch.qpc" [$WINDOWS]
+
+project "vmpi_services_watch"		"utils/vmpi/vmpi_services_watch/vmpi_services_watch.qpc" [$WINDOWS]
+
+project "vmpi_service"				"utils/vmpi/vmpi_service/vmpi_service.qpc" [$WINDOWS]
+
+project "vmpi_transfer"				"utils/vmpi/vmpi_transfer/vmpi_transfer.qpc" [$WINDOWS]
+
+project "vmpi_service_install"		"utils/vmpi/vmpi_service_install/vmpi_service_install.qpc" [$WINDOWS]
+
+project "vmpi_service_ui"			"utils/vmpi/vmpi_service_ui/vmpi_service_ui.qpc" [$WINDOWS]
+
+project "vmt"						"tools/vmt/vmt.qpc" [$WINDOWS]
+
+project "vphysics"
+
+project "vrad_dll"					"utils/vrad/vrad_dll.qpc" [$WINDOWS]
+
+project "vrad_launcher"				"utils/vrad_launcher/vrad_launcher.qpc" [$WINDOWS]
+
+project "vstdlib"					"vstdlib/vstdlib.qpc"
+
+project "vtex_dll"					"utils/vtex/vtex_dll.qpc" [$WINDOWS]
+
+project "vtex_launcher"				"utils/vtex/vtex_launcher.qpc" [$WINDOWS]
+
+project "vtf"						"vtf/vtf.qpc"
+
+project "vtf2tga"					"utils/vtf2tga/vtf2tga.qpc" [$WINDOWS]
+
+project "vvis_dll"					"utils/vvis/vvis_dll.qpc" [$WINDOWS]
+
+project "vvis_launcher"				"utils/vvis_launcher/vvis_launcher.qpc" [$WINDOWS]
+
+project "WaitAndRestart"
+
+project "MathlibUnitTest"			"unittests/MathlibUnitTest/mathlibtest.qpc"
+
+project "Tier0UnitTest"
+
+project "VStdlibUnitTest"
+

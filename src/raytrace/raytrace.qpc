@@ -1,0 +1,30 @@
+// ---------------------------------------------------------------
+// Auto Generated QPC Script - Fix if needed before using
+// ---------------------------------------------------------------
+macro PROJECT_NAME "Raytrace"
+
+macro SRCDIR ".."
+macro OUTLIBDIR "$LIBPUBLIC"
+
+include "$SRCDIR/_qpc_scripts/source_lib_base.qpc"
+
+configuration
+{
+	general
+	{
+		include_directories
+		{
+			"$SRCDIR/utils/common"
+		}
+	}
+}
+
+files
+{
+	folder "Source Files"
+	{
+		"raytrace.cpp"
+		"trace2.cpp"
+		"trace3.cpp"
+	}
+}

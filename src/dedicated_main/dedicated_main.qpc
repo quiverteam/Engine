@@ -1,0 +1,41 @@
+// ---------------------------------------------------------------
+// Auto Generated QPC Script - Fix if needed before using
+// ---------------------------------------------------------------
+macro PROJECT_NAME "Dedicated_main"
+
+macro SRCDIR ".."
+macro OUTBINDIR "$BINDEFAULT"
+macro OUTBINNAME "quiver_ds"
+
+include "$SRCDIR/_qpc_scripts/source_exe_base.qpc"
+
+configuration
+{
+	linker
+	{
+		libraries
+		{
+			"Advapi32.lib"
+			- "$LIBPUBLIC/tier0"
+			- "$LIBPUBLIC/tier1"
+			- "$LIBPUBLIC/vstdlib"
+		}
+	}
+}
+
+files
+{
+	folder "Source Files"
+	{
+		"main.cpp"
+		"$SRCDIR/common/SteamAppStartup.cpp"
+		"$SRCDIR/common/SteamAppStartup.h"
+		- "$SRCDIR/public/tier0/memoverride.cpp"
+	}
+
+	folder "Resources"
+	{
+		"$SRCDIR/launcher/res/launcher.ico"
+		"dedicated_main.rc"
+	}
+}

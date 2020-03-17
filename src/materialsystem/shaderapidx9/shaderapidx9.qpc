@@ -1,0 +1,148 @@
+// ---------------------------------------------------------------
+// Auto Generated QPC Script - Fix if needed before using
+// ---------------------------------------------------------------
+macro PROJECT_NAME "shaderapidx9"
+
+macro SRCDIR "../.."
+macro OUTBINDIR "$BINDEFAULT"
+
+include "$SRCDIR/_qpc_scripts/source_dll_base.qpc"
+
+configuration
+{
+	general
+	{
+		int_dir "./$CONFIG/$PLATFORM/dx9"
+
+		include_directories
+		{
+			"$SRCDIR/dx9sdk/include"
+			".."
+		}
+	}
+
+	compiler
+	{
+		preprocessor_definitions
+		{
+			"SHADERAPIDX9"
+			"SHADER_DLL_EXPORT"
+			"PROTECTED_THINGS_ENABLE"
+			"strncpy=use_Q_strncpy_instead"
+			"_snprintf=use_Q_snprintf_instead"
+		}
+	}
+
+	linker
+	{
+		libraries
+		{
+			"$LIBPUBLIC/bitmap"
+			"$LIBPUBLIC/mathlib"
+			"$LIBPUBLIC/tier2"
+			"$SRCDIR/dx9sdk/lib/d3d9"
+			"$SRCDIR/dx9sdk/lib/d3dx9"
+			"$LIBCOMMON/bzip2"
+		}
+	}
+}
+
+dependencies
+{
+	"bitmap/bitmap.qpc"
+	"mathlib/mathlib.qpc"
+	"tier2/tier2.qpc"
+	"thirdparty/bzip2/bzip2.qpc"
+}
+
+files
+{
+	folder "Source Files"
+	{
+		"ColorFormatDX8.cpp"
+		"d3d_async.cpp" [$WIN32]
+		"$SRCDIR/public/filesystem_helpers.cpp"
+		"HardwareConfig.cpp"
+		"meshbase.cpp"
+		"MeshDX8.cpp"
+		"Recording.cpp" [$WIN32]
+		"ShaderAPIDX8.cpp"
+		"ShaderDeviceBase.cpp"
+		"ShaderAPIBase.cpp"
+		"ShaderDeviceDX8.cpp"
+		"ShaderShadowDX8.cpp"
+		"TextureDX8.cpp"
+		"TransitionTable.cpp"
+		"cvballoctracker.cpp"
+		"vertexdecl.cpp"
+		"VertexShaderDX8.cpp"
+		"wmi.cpp" [$WIN32]
+		"textureheap.cpp" [$X360]
+	}
+
+	folder "DirectX Header Files" [$WIN32]
+	{
+		"$SRCDIR/dx8sdk/include/d3d8.h"
+		"$SRCDIR/dx8sdk/include/d3d8caps.h"
+		"$SRCDIR/dx8sdk/include/d3d8types.h"
+		"$SRCDIR/dx9sdk/include/d3d9.h"
+		"$SRCDIR/dx9sdk/include/d3d9caps.h"
+		"$SRCDIR/dx9sdk/include/d3d9types.h"
+		"$SRCDIR/dx8sdk/include/d3dx8.h"
+		"$SRCDIR/dx8sdk/include/d3dx8core.h"
+		"$SRCDIR/dx8sdk/include/d3dx8effect.h"
+		"$SRCDIR/dx8sdk/include/d3dx8math.h"
+		"$SRCDIR/dx8sdk/include/d3dx8math.inl"
+		"$SRCDIR/dx8sdk/include/d3dx8mesh.h"
+		"$SRCDIR/dx8sdk/include/d3dx8shape.h"
+		"$SRCDIR/dx8sdk/include/d3dx8tex.h"
+		"$SRCDIR/dx9sdk/include/d3dx9.h"
+		"$SRCDIR/dx9sdk/include/d3dx9anim.h"
+		"$SRCDIR/dx9sdk/include/d3dx9core.h"
+		"$SRCDIR/dx9sdk/include/d3dx9effect.h"
+		"$SRCDIR/dx9sdk/include/d3dx9math.h"
+		"$SRCDIR/dx9sdk/include/d3dx9math.inl"
+		"$SRCDIR/dx9sdk/include/d3dx9mesh.h"
+		"$SRCDIR/dx9sdk/include/d3dx9shader.h"
+		"$SRCDIR/dx9sdk/include/d3dx9shape.h"
+		"$SRCDIR/dx9sdk/include/d3dx9tex.h"
+	}
+
+	folder "Public Header Files"
+	{
+		"$SRCDIR/public/shaderapi/IShaderDevice.h"
+		"$SRCDIR/public/shaderapi/ishaderutil.h"
+		"$SRCDIR/public/shaderapi/ishaderapi.h"
+		"$SRCDIR/public/shaderapi/ishaderdynamic.h"
+		"$SRCDIR/public/shaderapi/ishadershadow.h"
+		"$SRCDIR/public/materialsystem/idebugtextureinfo.h"
+		"$SRCDIR/public/materialsystem/ivballoctracker.h"
+		"$SRCDIR/public/materialsystem/shader_vcs_version.h"
+	}
+
+	folder "Header Files"
+	{
+		"TransitionTable.h"
+		"vertexdecl.h"
+		"ColorFormatDX8.h"
+		"d3d_async.h" [$WIN32]
+		"dynamicib.h"
+		"dynamicvb.h"
+		"HardwareConfig.h"
+		"MeshBase.h"
+		"IMeshDx8.h"
+		"locald3dtypes.h"
+		"Recording.h"
+		"ShaderAPIDX8.h"
+		"ShaderDeviceBase.h"
+		"ShaderAPIBase.h"
+		"ShaderDeviceDX8.h"
+		"ShaderAPIDX8_Global.h"
+		"ShaderShadowDX8.h"
+		"stubd3ddevice.h"
+		"TextureDX8.h"
+		"VertexShaderDX8.h"
+		"wmi.h" [$WIN32]
+		"textureheap.h" [$X360]
+	}
+}

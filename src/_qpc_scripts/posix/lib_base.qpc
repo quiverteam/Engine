@@ -1,0 +1,20 @@
+// ---------------------------------------------------------------
+// Auto Generated QPC Script - Fix if needed before using
+// ---------------------------------------------------------------
+macro OUTLIBNAME "$PROJECTNAME"
+macro IS_LIB_PROJECT "1"
+
+include "$SRCDIR/_qpc_scripts/source_posix_base.qpc"
+
+configuration
+{
+	general
+	{
+		configuration_type "static_library"
+	}
+
+	linker
+	{
+		output_file "$OUTLIBDIR/$OUTLIBNAME$_STATICLIB_EXT"
+	}
+}

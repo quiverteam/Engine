@@ -25,7 +25,7 @@ float C_EnvProjectedTexture::m_flVisibleBBoxMinHeight = -FLT_MAX;
 
 extern ConVar r_shadowmapresolution;
 
-static ConVar r_projtex_filtersize( "r_projtex_filtersize", "0.5", 0 );
+static ConVar r_projtex_filtersize( "r_projtex_filtersize", "1.0", 0 );
 
 static ConVar r_projtex_uberlight_enable( "r_projtex_uberlight_enable", "0", 0 );
 
@@ -200,21 +200,19 @@ void C_EnvProjectedTexture::UpdateLight( void )
 			}
 			else
 			{
-				vForward = m_hTargetEntity->GetAbsOrigin() - GetAbsOrigin();
-				VectorNormalize( vForward );
-
-				// JasonM - unimplemented
-				Assert( 0 );
-
-				//Quaternion q = DirectionToOrientation( dir );
-
-
-				//
-				// JasonM - set up vRight, vUp
-				//
-
-	//			VectorNormalize( vRight );
-	//			VectorNormalize( vUp );
+				// VXP: Fixing targeting
+				Vector vecToTarget;
+				QAngle vecAngles;
+				if ( m_hTargetEntity == NULL )
+				{
+					vecAngles = GetAbsAngles();
+				}
+				else
+				{
+					vecToTarget = m_hTargetEntity->GetAbsOrigin() - GetAbsOrigin();
+					VectorAngles( vecToTarget, vecAngles );
+				}
+				AngleVectors( vecAngles, &vForward, &vRight, &vUp );
 			}
 		}
 		else

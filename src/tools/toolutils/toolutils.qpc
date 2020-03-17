@@ -1,0 +1,55 @@
+// ---------------------------------------------------------------
+// Auto Generated QPC Script - Fix if needed before using
+// ---------------------------------------------------------------
+macro PROJECT_NAME "Toolutils"
+
+macro SRCDIR "../.."
+macro OUTLIBDIR "$LIBPUBLIC"
+
+include "$SRCDIR/_qpc_scripts/source_lib_base.qpc"
+
+files
+{
+	folder "Source Files"
+	{
+		"attributeelementchoicelist.cpp"
+		"basepropertiescontainer.cpp"
+		"basestatusbar.cpp"
+		"BaseToolSystem.cpp"
+		"ConsolePage.cpp"
+		"miniviewport.cpp"
+		"recentfilelist.cpp"
+		"savewindowpositions.cpp"
+		"tool_main.cpp"
+		"tooleditmenubutton.cpp"
+		"ToolFileMenuButton.cpp"
+		"ToolHelpMenuButton.cpp"
+		"toolmenubar.cpp"
+		"ToolMenuButton.cpp"
+		"ToolSwitchMenuButton.cpp"
+		"ToolUI.cpp"
+		"vgui_tools.cpp"
+	}
+
+	folder "Header Files"
+	{
+		"$SRCDIR/public/toolutils/AttributeElementChoiceList.h"
+		"$SRCDIR/public/toolutils/basepropertiescontainer.h"
+		"$SRCDIR/public/toolutils/basestatusbar.h"
+		"$SRCDIR/public/toolutils/BaseToolSystem.h"
+		"$SRCDIR/public/toolutils/DmeMdlRenderable.h"
+		"$SRCDIR/public/toolutils/DmeRenderable.h"
+		"$SRCDIR/public/toolutils/enginetools_int.h"
+		"$SRCDIR/public/toolutils/miniviewport.h"
+		"$SRCDIR/public/toolutils/recentfilelist.h"
+		"$SRCDIR/public/toolutils/savewindowpositions.h"
+		"$SRCDIR/public/toolutils/ToolEditMenuButton.h"
+		"$SRCDIR/public/toolutils/ToolFileMenuButton.h"
+		"$SRCDIR/public/toolutils/ToolHelpMenuButton.h"
+		"$SRCDIR/public/toolutils/toolmenubar.h"
+		"$SRCDIR/public/toolutils/ToolMenuButton.h"
+		"$SRCDIR/public/toolutils/ToolSwitchMenuButton.h"
+		"ToolUI.h"
+		"$SRCDIR/public/toolutils/vgui_tools.h"
+	}
+}

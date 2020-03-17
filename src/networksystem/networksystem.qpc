@@ -1,0 +1,56 @@
+// ---------------------------------------------------------------
+// Auto Generated QPC Script - Fix if needed before using
+// ---------------------------------------------------------------
+macro PROJECT_NAME "Networksystem"
+
+macro SRCDIR ".."
+macro OUTBINDIR "$BINDEFAULT"
+
+include "$SRCDIR/_qpc_scripts/source_dll_base.qpc"
+
+configuration
+{
+	compiler
+	{
+		preprocessor_definitions
+		{
+			"NETWORKSYSTEM_EXPORTS"
+		}
+	}
+
+	linker
+	{
+		libraries
+		{
+			"winmm.lib"
+			"ws2_32.lib"
+			"$LIBPUBLIC/tier2"
+		}
+	}
+}
+
+files
+{
+	folder "Source Files"
+	{
+		"netchannel.cpp"
+		"netchannel.h"
+		"networkclient.cpp"
+		"networkclient.h"
+		"networkserver.cpp"
+		"networkserver.h"
+		"networksystem.cpp"
+		"networksystem.h"
+		"sm_protocol.h"
+		"udp_process.cpp"
+		"udp_process.h"
+		"udp_socket.cpp"
+		"udp_socket.h"
+	}
+
+	folder "Interface"
+	{
+		"$SRCDIR/common/networksystem/inetworkmessage.h"
+		"$SRCDIR/common/networksystem/inetworksystem.h"
+	}
+}

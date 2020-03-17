@@ -1,0 +1,128 @@
+// ---------------------------------------------------------------
+// Auto Generated QPC Script - Fix if needed before using
+// ---------------------------------------------------------------
+macro PROJECT_NAME "vgui2"
+
+macro SRCDIR "../.."
+macro OUTBINDIR "$BINDEFAULT"
+macro OUTBINNAME "vgui2"
+
+include "$SRCDIR/_qpc_scripts/source_dll_base.qpc"
+
+configuration
+{
+	general
+	{
+		include_directories
+		{
+			"../include"
+		}
+	}
+
+	compiler
+	{
+		preprocessor_definitions
+		{
+			"DONT_PROTECT_FILEIO_FUNCTIONS"
+		}
+	}
+
+	linker
+	{
+		libraries
+		{
+			"Imm32.lib" "Shlwapi.lib" "odbc32.lib" "odbccp32.lib" "winmm.lib" [$WIN32]
+			"vgui_surfacelib"
+			"tier2"
+			"tier3"
+		}
+	}
+}
+
+dependencies
+{
+	"vgui_surfacelib"
+	"tier2"
+	"tier3"
+}
+
+files
+{
+	folder "Source Files"
+	{
+		"Bitmap.cpp"
+		"Border.cpp"
+		"fileimage.cpp"
+		"$SRCDIR/public/filesystem_helpers.cpp"
+		"$SRCDIR/public/filesystem_init.cpp"
+		"InputWin32.cpp"
+		"LocalizedStringTable.cpp"
+		"MemoryBitmap.cpp"
+		"Memorybitmap.h"
+		"MessageListener.cpp"
+		"Scheme.cpp"
+		"Surface.cpp" [$WIN32]
+		"System.cpp"
+		"$SRCDIR/public/UnicodeFileHelpers.cpp"
+		"vgui.cpp"
+		"vgui_internal.cpp"
+		"vgui_key_translation.cpp"
+		"VPanel.cpp"
+		"VPanelWrapper.cpp"
+	}
+
+	folder "Header Files"
+	{
+		"bitmap.h"
+		"fileimage.h"
+		"IMessageListener.h"
+		"vgui_internal.h"
+		"vgui_key_translation.h"
+		"VPanel.h"
+	}
+
+	folder "Public Header Files"
+	{
+		"$SRCDIR/Public/tier0/basetypes.h"
+		"$SRCDIR/public/Color.h"
+		"$SRCDIR/public/vgui/Cursor.h"
+		"$SRCDIR/Public/FileSystem.h"
+		"$SRCDIR/common/vgui_surfacelib/FontAmalgam.h"
+		"$SRCDIR/common/vgui_surfacelib/FontManager.h"
+		"$SRCDIR/common/vgui/HtmlWindow.h"
+		"$SRCDIR/public/tier1/interface.h"
+		"$SRCDIR/public/vgui/KeyCode.h"
+		"$SRCDIR/common/SteamBootStrapper.h"
+		"$SRCDIR/public/tier1/strtools.h"
+		"$SRCDIR/public/UnicodeFileHelpers.h"
+		"$SRCDIR/public/tier1/utlbuffer.h"
+		"$SRCDIR/public/tier1/utllinkedlist.h"
+		"$SRCDIR/public/tier1/utlmemory.h"
+		"$SRCDIR/public/tier1/utlpriorityqueue.h"
+		"$SRCDIR/public/tier1/utlrbtree.h"
+		"$SRCDIR/public/tier1/utlvector.h"
+		"$SRCDIR/Public/mathlib/vector2d.h"
+		"$SRCDIR/public/vgui/VGUI.h"
+		"$SRCDIR/public/vstdlib/vstdlib.h"
+		"$SRCDIR/common/vgui_surfacelib/Win32Font.h"
+	}
+
+	folder "Interfaces"
+	{
+		"$SRCDIR/public/appframework/IAppSystem.h"
+		"$SRCDIR/public/vgui/IBorder.h"
+		"$SRCDIR/public/vgui/IClientPanel.h"
+		"$SRCDIR/public/vgui/IHTML.h"
+		"$SRCDIR/public/vgui/IImage.h"
+		"$SRCDIR/public/vgui/IInput.h"
+		"$SRCDIR/public/vgui/ILocalize.h"
+		"$SRCDIR/public/vgui/IPanel.h"
+		"$SRCDIR/public/vgui/IScheme.h"
+		"$SRCDIR/public/vgui/ISurface.h"
+		"$SRCDIR/public/vgui/ISystem.h"
+		"$SRCDIR/public/vgui/IVGui.h"
+		"$SRCDIR/public/vgui/IVguiMatInfo.h"
+		"$SRCDIR/public/vgui/IVguiMatInfoVar.h"
+		"VGUI_Border.h"
+	}
+}

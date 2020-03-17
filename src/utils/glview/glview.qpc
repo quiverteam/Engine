@@ -1,0 +1,72 @@
+// ---------------------------------------------------------------
+// Auto Generated QPC Script - Fix if needed before using
+// ---------------------------------------------------------------
+macro PROJECT_NAME "Glview"
+
+macro SRCDIR "../.."
+macro OUTBINDIR "$BINDEFAULT"
+
+include "$SRCDIR/_qpc_scripts/source_exe_base.qpc"
+
+configuration
+{
+	general
+	{
+		include_directories
+		{
+			"../common"
+		}
+	}
+
+	compiler
+	{
+		preprocessor_definitions
+		{
+			"PROTECTED_THINGS_DISABLE"
+		}
+	}
+
+	linker
+	{
+		libraries
+		{
+			"glu32.lib"
+			"opengl32.lib"
+			"odbc32.lib"
+			"odbccp32.lib"
+			"winmm.lib"
+			"mathlib"
+			"tier2"
+		}
+	}
+}
+
+dependencies
+{
+	"mathlib"
+	"tier2"
+}
+
+files
+{
+	folder "Source Files"
+	{
+		"glview.cpp"
+
+		folder "common files"
+		{
+			"../common/cmdlib.cpp"
+			"$SRCDIR/public/filesystem_helpers.cpp"
+			"$SRCDIR/public/filesystem_init.cpp"
+			"../common/filesystem_tools.cpp"
+			"../common/physdll.cpp"
+		}
+	}
+
+	folder "Header Files"
+	{
+		"../common/cmdlib.h"
+		"glos.h"
+		"$SRCDIR/public/mathlib/mathlib.h"
+	}
+}

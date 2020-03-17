@@ -1,0 +1,78 @@
+// ---------------------------------------------------------------
+// Auto Generated QPC Script - Fix if needed before using
+// ---------------------------------------------------------------
+macro PROJECT_NAME "vaudio_speex"
+
+macro SRCDIR "../../.."
+macro OUTBINDIR "$BINDEFAULT"
+
+include "$SRCDIR/_qpc_scripts/source_dll_base.qpc"
+
+configuration
+{
+	general
+	{
+		configuration_type "dynamic_library"
+
+		include_directories
+		{
+			"$SRCDIR/engine/voice_codecs/frame_encoder"
+			"$SRCDIR/public"
+			"$SRCDIR/public/tier1"
+			"$SRCDIR/public/tier0"
+			"$SRCDIR/common"
+			"$SRCDIR/thirdparty/libspeex/libspeex"
+			"$SRCDIR/engine/audio/public"
+			"$SRCDIR/engine"
+		}
+	}
+
+	compiler
+	{
+		preprocessor_definitions
+		{
+			"SPEEX_EXPORTS"
+		}
+
+		precompiled_header "none"
+		precompiled_header_output_file "$(IntDir)/speex.pch"
+	}
+
+	linker
+	{
+		libraries
+		{
+			"$LIBCOMMON/libspeex"
+			"$LIBPUBLIC/tier0"
+			"$LIBPUBLIC/tier1"
+			"$LIBPUBLIC/vstdlib"
+		}
+	}
+}
+
+dependencies
+{
+	"libspeex"
+}
+
+files
+{
+	folder "Source Files"
+	{
+		"$SRCDIR/public/tier0/memoverride.cpp"
+		"../frame_encoder/voice_codec_frame.cpp"
+		"VoiceEncoder_Speex.cpp"
+	}
+
+	folder "Header Files"
+	{
+		"../frame_encoder/iframeencoder.h"
+		"$SRCDIR/public/tier1/interface.h"
+		"../../audio/public/ivoicecodec.h"
+		"VoiceEncoder_Speex.h"
+	}
+
+	folder "Resource Files"
+	{
+	}
+}

@@ -1,0 +1,49 @@
+// ---------------------------------------------------------------
+// Auto Generated QPC Script - Fix if needed before using
+// ---------------------------------------------------------------
+macro PROJECT_NAME "qvideo"
+
+macro SRCDIR ".."
+macro OUTBINDIR "$BINDEFAULT"
+
+include "$SRCDIR/_qpc_scripts/source_dll_base.qpc"
+
+configuration
+{
+	linker
+	{
+		ignore_import_library "true"
+
+		libraries
+		{
+			"vfw32.lib"
+			"$LIBPUBLIC/tier2"
+			"$LIBPUBLIC/tier3"
+		}
+	}
+}
+
+dependencies
+{
+	"tier2"
+	"tier3"
+}
+
+files
+{
+	folder "Source Files"
+	{
+		"avi.cpp"
+	}
+
+	folder "Header Files"
+	{
+		"avi.h"
+		"$SRCDIR/public/pixelwriter.h"
+	}
+
+	folder "Interface"
+	{
+		"$SRCDIR/public/video/iavi.h"
+	}
+}

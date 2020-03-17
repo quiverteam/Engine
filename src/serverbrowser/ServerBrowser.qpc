@@ -1,0 +1,98 @@
+// ---------------------------------------------------------------
+// Auto Generated QPC Script - Fix if needed before using
+// ---------------------------------------------------------------
+macro PROJECT_NAME "ServerBrowser"
+
+macro SRCDIR ".."
+macro OUTBINDIR "$BINDEFAULT"
+
+include "$SRCDIR/_qpc_scripts/source_dll_base.qpc"
+
+configuration
+{
+	compiler
+	{
+		preprocessor_definitions
+		{
+			"SERVERBROWSER_EXPORTS"
+			"GAME_SRC"
+			"_USE_32BIT_TIME_T"
+		}
+	}
+
+	linker
+	{
+		libraries
+		{
+			"Advapi32.lib" "wsock32.lib" "Ws2_32.lib" "User32.lib" [$WINDOWS]
+			"steam_api"
+			"tier2"
+			"tier3"
+			"vgui_controls"
+		}
+	}
+}
+
+files
+{
+	folder "Source Files"
+	{
+		"BaseGamesPage.cpp"
+		"CustomGames.cpp"
+		"DialogAddServer.cpp"
+		"DialogGameInfo.cpp"
+		"DialogServerPassword.cpp"
+		"FavoriteGames.cpp"
+		"FriendsGames.cpp"
+		"HistoryGames.cpp"
+		"InternetGames.cpp"
+		"LanGames.cpp"
+		"ModList.cpp"
+		"ServerBrowser.cpp"
+		"ServerBrowserDialog.cpp"
+		"ServerContextMenu.cpp"
+		"ServerListCompare.cpp"
+		"SpectateGames.cpp"
+		"VACBannedConnRefusedDialog.cpp"
+		"VACBannedConnRefusedDialog.h"
+		"$SRCDIR/public/vgui_controls/vgui_controls.cpp"
+		{
+			configuration
+			{
+				compiler
+				{
+					precompiled_header "none"
+				}
+			}
+		}
+	}
+
+	folder "Header Files"
+	{
+		"BaseGamesPage.h"
+		"CustomGames.h"
+		"DialogAddServer.h"
+		"DialogGameInfo.h"
+		"DialogServerPassword.h"
+		"FavoriteGames.h"
+		"FriendsGames.h"
+		"HistoryGames.h"
+		"InternetGames.h"
+		"LanGames.h"
+		"ModList.h"
+		"ServerBrowser.h"
+		"ServerBrowserDialog.h"
+		"ServerContextMenu.h"
+		"ServerListCompare.h"
+		"SpectateGames.h"
+	}
+
+	folder "Resource Files"
+	{
+	}
+
+	folder "Exposed interfaces"
+	{
+		"$SRCDIR/common/serverbrowser/IServerBrowser.h"
+	}
+}

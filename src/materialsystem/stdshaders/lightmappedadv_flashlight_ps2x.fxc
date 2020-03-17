@@ -134,36 +134,13 @@ float4 main( PS_INPUT i ) : COLOR
 	float3 spotColor = float3(0,0,0);
 	float3 vProjCoords = i.spotTexCoord.xyz / i.spotTexCoord.w;
 
-#if ( defined( _X360 ) )
 
-	float3 ltz = vProjCoords.xyz < float3( 0.0f, 0.0f, 0.0f );
-	float3 gto = vProjCoords.xyz > float3( 1.0f, 1.0f, 1.0f );
-
-	[branch]
-	if ( dot(ltz + gto, float3(1,1,1)) > 0 )
-	{
-		clip (-1);
-		return float4(0,0,0,0);
-	}
-	else
-	{
-		spotColor = tex2D( SpotSampler, vProjCoords );
-
-		[branch]
-		if ( dot(spotColor.xyz, float3(1,1,1)) <= 0 )
-		{
-			clip(-1);
-			return float4(0,0,0,0);
-		}
-		else
-		{
-#else
 	clip( vProjCoords.xyz );
 #if defined( SHADER_MODEL_PS_2_B ) || defined( SHADER_MODEL_PS_3_0 )
 	clip( 1-vProjCoords.xyz );
 #endif
 	spotColor = tex2D( SpotSampler, vProjCoords );
-#endif
+
 
 	float4 baseColor = 0.0f;
 	float4 baseColor2 = 0.0f;
