@@ -351,8 +351,9 @@ void CShaderAPIDx11::IssueStateChanges( bool bForce )
 		bool bViewportsChanged = bForce || ( targetDynamic.m_nViewportCount != dynamic.m_nViewportCount );
 		if ( !bViewportsChanged && targetDynamic.m_nViewportCount > 0 )
 		{
+			int nViewportsCompare = max( targetDynamic.m_nViewportCount, dynamic.m_nViewportCount );
 			bViewportsChanged = FastMemCompare( targetDynamic.m_pViewports, dynamic.m_pViewports,
-						    sizeof( D3D11_VIEWPORT ) * targetDynamic.m_nViewportCount ) != 0;
+							    sizeof( D3D11_VIEWPORT ) * nViewportsCompare ) != 0;
 		}
 		if ( bViewportsChanged )
 		{
@@ -453,15 +454,17 @@ void CShaderAPIDx11::IssueStateChanges( bool bForce )
 	{
 		VPROF_BUDGET( "CShaderAPIDx11::DoIssueSampler()", VPROF_BUDGETGROUP_OTHER_UNACCOUNTED );
 
+		int nPixelSamplerCompare = max( targetDynamic.m_MaxSamplerSlot, dynamic.m_MaxSamplerSlot ) + 1;
 		bool bPixelSamplers = bForce || ( targetDynamic.m_MaxSamplerSlot != -1 &&
 			( targetDynamic.m_MaxSamplerSlot != dynamic.m_MaxSamplerSlot ||
 			  FastMemCompare( targetDynamic.m_pSRVs, dynamic.m_pSRVs,
-				  sizeof( ID3D11ShaderResourceView * ) * MAX_DX11_SAMPLERS ) ) );
+					  sizeof( ID3D11ShaderResourceView * ) * nPixelSamplerCompare ) ) );
 
+		int nVertexSamplerCompare = max( targetDynamic.m_MaxVSSamplerSlot, dynamic.m_MaxVSSamplerSlot ) + 1;
 		bool bVertexSamplers = bForce || ( targetDynamic.m_MaxVSSamplerSlot != -1 &&
 			( targetDynamic.m_MaxVSSamplerSlot != dynamic.m_MaxVSSamplerSlot ||
 			  FastMemCompare( targetDynamic.m_pVSSRVs, dynamic.m_pVSSRVs,
-				  sizeof( ID3D11ShaderResourceView * ) * MAX_DX11_SAMPLERS ) ) );
+				  sizeof( ID3D11ShaderResourceView * ) * nVertexSamplerCompare ) ) );
 		if ( bPixelSamplers || bVertexSamplers )
 		{
 			//Log( "\tIssuing textures\n" );
@@ -925,11 +928,12 @@ bool CShaderAPIDx11::DoIssueConstantBuffers( bool bForce )
 	const StatesDx11::DynamicState &targetDynamic = m_TargetState.dynamic;
 	const StatesDx11::DynamicState &dynamic = m_State.dynamic;
 
+	int nVSCBCompare = max( targetDynamic.m_MaxVSConstantBufferSlot, dynamic.m_MaxVSConstantBufferSlot ) + 1;
 	if ( m_TargetState.dynamic.m_pVertexShader &&
 	     targetDynamic.m_MaxVSConstantBufferSlot != -1 &&
 		( targetDynamic.m_MaxVSConstantBufferSlot != dynamic.m_MaxVSConstantBufferSlot ||
 		  FastMemCompare( targetDynamic.m_pVSConstantBuffers, dynamic.m_pVSConstantBuffers,
-			  sizeof( ID3D11Buffer * ) * MAX_DX11_CBUFFERS ) ) )
+			  sizeof( ID3D11Buffer * ) * nVSCBCompare ) ) )
 	{
 
 		D3D11DeviceContext()->VSSetConstantBuffers( 0, targetDynamic.m_MaxVSConstantBufferSlot + 1,
@@ -938,11 +942,12 @@ bool CShaderAPIDx11::DoIssueConstantBuffers( bool bForce )
 		bVSChanged = true;
 	}
 
+	int nGSCBCompare = max( targetDynamic.m_MaxGSConstantBufferSlot, dynamic.m_MaxGSConstantBufferSlot ) + 1;
 	if ( m_TargetState.dynamic.m_pGeometryShader &&
 	     targetDynamic.m_MaxGSConstantBufferSlot != -1 &&
 	     ( targetDynamic.m_MaxGSConstantBufferSlot != dynamic.m_MaxGSConstantBufferSlot ||
 	       FastMemCompare( targetDynamic.m_pGSConstantBuffers, dynamic.m_pGSConstantBuffers,
-		       sizeof( ID3D11Buffer * ) * MAX_DX11_CBUFFERS ) ) )
+		       sizeof( ID3D11Buffer * ) * nGSCBCompare ) ) )
 	{
 
 		D3D11DeviceContext()->GSSetConstantBuffers( 0, targetDynamic.m_MaxGSConstantBufferSlot + 1,
@@ -951,11 +956,12 @@ bool CShaderAPIDx11::DoIssueConstantBuffers( bool bForce )
 		bGSChanged = true;
 	}
 
+	int nPSCBCompare = max( targetDynamic.m_MaxPSConstantBufferSlot, dynamic.m_MaxPSConstantBufferSlot ) + 1;
 	if ( m_TargetState.dynamic.m_pPixelShader &&
 	     targetDynamic.m_MaxPSConstantBufferSlot != -1 &&
 	     ( targetDynamic.m_MaxPSConstantBufferSlot != dynamic.m_MaxPSConstantBufferSlot ||
 	       FastMemCompare( targetDynamic.m_pPSConstantBuffers, dynamic.m_pPSConstantBuffers,
-		       sizeof( ID3D11Buffer * ) * MAX_DX11_CBUFFERS ) ) )
+		       sizeof( ID3D11Buffer * ) * nPSCBCompare ) ) )
 	{
 
 		D3D11DeviceContext()->PSSetConstantBuffers( 0, targetDynamic.m_MaxPSConstantBufferSlot + 1,
@@ -1546,7 +1552,7 @@ bool CShaderAPIDx11::OnDeviceInit()
 
 void CShaderAPIDx11::OnDeviceShutdown()
 {
-	for ( int i = m_Textures.Head(); i != m_Textures.InvalidIndex(); i = m_Textures.Next( i ) )
+	for ( int i = 0; i < m_Textures.Count(); i++ )
 	{
 		CTextureDx11 *pTex = &m_Textures[i];
 		pTex->Delete();
@@ -2857,7 +2863,7 @@ void CShaderAPIDx11::CreateTextureHandles( ShaderAPITextureHandle_t *handles, in
 
 	int idxCreating = 0;
 	ShaderAPITextureHandle_t hTexture;
-	for ( hTexture = m_Textures.Head(); hTexture != m_Textures.InvalidIndex(); hTexture = m_Textures.Next( hTexture ) )
+	for ( hTexture = 0; hTexture < m_Textures.Count(); hTexture++ )
 	{
 		if ( !( m_Textures[hTexture].m_nFlags & CTextureDx11::IS_ALLOCATED ) )
 		{
@@ -2980,9 +2986,9 @@ void CShaderAPIDx11::SetAnisotropicLevel( int nAnisotropyLevel )
 	}
 
 	// Set the D3D max aninsotropy state for all samplers
-	for ( ShaderAPITextureHandle_t handle = m_Textures.Head();
-	      handle != m_Textures.InvalidIndex();
-	      handle = m_Textures.Next( handle ) )
+	for ( ShaderAPITextureHandle_t handle = 0;
+	      handle < m_Textures.Count();
+	      handle++ )
 	{
 		CTextureDx11 &tex = GetTexture( handle );
 		tex.SetAnisotropicLevel( nAnisotropyLevel );

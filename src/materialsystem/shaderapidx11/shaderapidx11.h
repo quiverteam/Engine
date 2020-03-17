@@ -868,7 +868,7 @@ private:
 
 	// Members related to textures
 	// UNDONE: Should this stuff be in ShaderDeviceDx11?
-	CUtlFixedLinkedList<CTextureDx11> m_Textures;
+	CUtlVector<CTextureDx11> m_Textures;
 	char m_ModifyTextureLockedLevel;
 	char m_ModifyTextureLockedFace;
 	ShaderAPITextureHandle_t m_ModifyTextureHandle;
