@@ -53,6 +53,35 @@ $Project "bspzip"
 	"utils\bspzip\bspzip.vpc" [$WINDOWS]
 }
 
+
+
+// bullet
+$Project "BulletCollision"
+{
+	"thirdparty\bullet\src\BulletCollision\BulletCollision.vpc"
+}
+
+$Project "BulletDynamics"
+{
+	"thirdparty\bullet\src\BulletDynamics\BulletDynamics.vpc"
+}
+
+$Project "BulletMultiThreaded"
+{
+	"thirdparty\bullet\src\BulletMultiThreaded\BulletMultiThreaded.vpc"
+}
+
+$Project "BulletSoftBody"
+{
+	"thirdparty\bullet\src\BulletSoftBody\BulletSoftBody.vpc"
+}
+
+$Project "LinearMath"
+{
+	"thirdparty\bullet\src\LinearMath\LinearMath.vpc"
+}
+
+
 $Project "bugreporter"
 {
 	"utils\bugreporter\bugreporter.vpc" [$WINDOWS]
@@ -696,7 +725,7 @@ $Project "shaderapidx9"
 
 $Project "shaderapidx10"
 {
-	"materialsystem\shaderapidx9\shaderapidx10.vpc" [$WINDOWS] //No dx10 on posix; togl doesnt support it
+	"materialsystem\shaderapidx9\shaderapidx10.vpc" [$WINDOWS||$POSIX]
 }
 
 $Project "shaderapiempty"

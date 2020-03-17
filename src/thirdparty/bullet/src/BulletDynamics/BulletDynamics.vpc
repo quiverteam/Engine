@@ -1,0 +1,143 @@
+//---------------------------------------------------------------------------------------------
+// BulletDynamics
+// 
+// StaticLibrary Project Script
+//---------------------------------------------------------------------------------------------
+$Macro SRCDIR		    "..\..\..\.."
+$Macro OUTLIBDIR        "$LIBPUBLIC"
+
+$Include "$SRCDIR\vpc_scripts\source_lib_base.vpc"
+
+
+$Configuration "Debug"
+{
+    $Compiler
+    {
+        $PreprocessorDefinitions                "_DEBUG"
+    }
+}
+
+$Configuration "Release"
+{
+    $General
+    {
+        $WholeProgramOptimization                "Use Link Time Code Generation"
+    }
+
+    $Compiler
+    {
+        $PreprocessorDefinitions                "NDEBUG"
+        $AdditionalOptions                "/d2Zi+"
+    }
+}
+
+$Configuration
+{
+    $General
+    {
+        $ConfigurationType                "Static Library (.lib)"
+        $CharacterSet                "Use Multi-Byte Character Set"
+    }
+
+    $Compiler
+    {
+        $WarningLevel                "Level 3 (/W3)"
+        $AdditionalIncludeDirectories                "..\"
+        $PreprocessorDefinitions                "WIN32;_CRT_SECURE_NO_WARNINGS;_CRT_SECURE_NO_DEPRECATE;_SCL_SECURE_NO_WARNINGS"
+    }
+}
+
+
+$Project "BulletDynamics"
+{
+    $Folder "Source Files"
+    {
+        $File "Character\btKinematicCharacterController.cpp"
+        $File "ConstraintSolver\btConeTwistConstraint.cpp"
+        $File "ConstraintSolver\btContactConstraint.cpp"
+        $File "ConstraintSolver\btFixedConstraint.cpp"
+        $File "ConstraintSolver\btGearConstraint.cpp"
+        $File "ConstraintSolver\btGeneric6DofConstraint.cpp"
+        $File "ConstraintSolver\btGeneric6DofSpringConstraint.cpp"
+        $File "ConstraintSolver\btHinge2Constraint.cpp"
+        $File "ConstraintSolver\btHingeConstraint.cpp"
+        $File "ConstraintSolver\btNNCGConstraintSolver.cpp"
+        $File "ConstraintSolver\btPoint2PointConstraint.cpp"
+        $File "ConstraintSolver\btSequentialImpulseConstraintSolver.cpp"
+        $File "ConstraintSolver\btSliderConstraint.cpp"
+        $File "ConstraintSolver\btSolve2LinearConstraint.cpp"
+        $File "ConstraintSolver\btTypedConstraint.cpp"
+        $File "ConstraintSolver\btUniversalConstraint.cpp"
+        $File "Dynamics\btDiscreteDynamicsWorld.cpp"
+        $File "Dynamics\btRigidBody.cpp"
+        $File "Dynamics\btSimpleDynamicsWorld.cpp"
+        $File "Dynamics\Bullet-C-API.cpp"
+        $File "Featherstone\btMultiBody.cpp"
+        $File "Featherstone\btMultiBodyConstraint.cpp"
+        $File "Featherstone\btMultiBodyConstraintSolver.cpp"
+        $File "Featherstone\btMultiBodyDynamicsWorld.cpp"
+        $File "Featherstone\btMultiBodyJointLimitConstraint.cpp"
+        $File "Featherstone\btMultiBodyJointMotor.cpp"
+        $File "Featherstone\btMultiBodyPoint2Point.cpp"
+        $File "MLCPSolvers\btDantzigLCP.cpp"
+        $File "MLCPSolvers\btLemkeAlgorithm.cpp"
+        $File "MLCPSolvers\btMLCPSolver.cpp"
+        $File "Vehicle\btRaycastVehicle.cpp"
+        $File "Vehicle\btWheeledVehicle.cpp"
+        $File "Vehicle\btWheelInfo.cpp"
+    }
+
+    $Folder "Header Files"
+    {
+        $File "Character\btCharacterControllerInterface.h"
+        $File "Character\btKinematicCharacterController.h"
+        $File "ConstraintSolver\btConeTwistConstraint.h"
+        $File "ConstraintSolver\btConstraintSolver.h"
+        $File "ConstraintSolver\btContactConstraint.h"
+        $File "ConstraintSolver\btContactSolverInfo.h"
+        $File "ConstraintSolver\btFixedConstraint.h"
+        $File "ConstraintSolver\btGearConstraint.h"
+        $File "ConstraintSolver\btGeneric6DofConstraint.h"
+        $File "ConstraintSolver\btGeneric6DofSpringConstraint.h"
+        $File "ConstraintSolver\btHinge2Constraint.h"
+        $File "ConstraintSolver\btHingeConstraint.h"
+        $File "ConstraintSolver\btJacobianEntry.h"
+        $File "ConstraintSolver\btNNCGConstraintSolver.h"
+        $File "ConstraintSolver\btPoint2PointConstraint.h"
+        $File "ConstraintSolver\btSequentialImpulseConstraintSolver.h"
+        $File "ConstraintSolver\btSliderConstraint.h"
+        $File "ConstraintSolver\btSolve2LinearConstraint.h"
+        $File "ConstraintSolver\btSolverBody.h"
+        $File "ConstraintSolver\btSolverConstraint.h"
+        $File "ConstraintSolver\btTypedConstraint.h"
+        $File "ConstraintSolver\btUniversalConstraint.h"
+        $File "Dynamics\btActionInterface.h"
+        $File "Dynamics\btDiscreteDynamicsWorld.h"
+        $File "Dynamics\btDynamicsWorld.h"
+        $File "Dynamics\btRigidBody.h"
+        $File "Dynamics\btSimpleDynamicsWorld.h"
+        $File "Featherstone\btMultiBody.h"
+        $File "Featherstone\btMultiBodyConstraint.h"
+        $File "Featherstone\btMultiBodyConstraintSolver.h"
+        $File "Featherstone\btMultiBodyDynamicsWorld.h"
+        $File "Featherstone\btMultiBodyJointLimitConstraint.h"
+        $File "Featherstone\btMultiBodyJointMotor.h"
+        $File "Featherstone\btMultiBodyLink.h"
+        $File "Featherstone\btMultiBodyLinkCollider.h"
+        $File "Featherstone\btMultiBodyPoint2Point.h"
+        $File "Featherstone\btMultiBodySolverConstraint.h"
+        $File "MLCPSolvers\btDantzigLCP.h"
+        $File "MLCPSolvers\btDantzigSolver.h"
+        $File "MLCPSolvers\btLemkeAlgorithm.h"
+        $File "MLCPSolvers\btLemkeSolver.h"
+        $File "MLCPSolvers\btMLCPSolver.h"
+        $File "MLCPSolvers\btMLCPSolverInterface.h"
+        $File "MLCPSolvers\btPATHSolver.h"
+        $File "MLCPSolvers\btSolveProjectedGaussSeidel.h"
+        $File "Vehicle\btRaycastVehicle.h"
+        $File "Vehicle\btVehicleRaycaster.h"
+        $File "Vehicle\btWheeledVehicle.h"
+        $File "Vehicle\btWheelInfo.h"
+    }
+}
+

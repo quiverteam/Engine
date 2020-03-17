@@ -269,7 +269,17 @@ project "vmpi_service_ui"			"utils/vmpi/vmpi_service_ui/vmpi_service_ui.qpc" [$W
 
 project "vmt"						"tools/vmt/vmt.qpc" [$WINDOWS]
 
-project "vphysics"
+project "BulletCollision"			"thirdparty/bullet/src/qpc_scripts/BulletCollision.qpc"
+
+project "BulletDynamics"			"thirdparty/bullet/src/qpc_scripts/BulletDynamics.qpc"
+
+project "BulletMultiThreaded"		"thirdparty/bullet/src/qpc_scripts/BulletMultiThreaded.qpc"
+
+project "BulletSoftBody"			"thirdparty/bullet/src/qpc_scripts/BulletSoftBody.qpc"
+
+project "LinearMath"				"thirdparty/bullet/src/qpc_scripts/LinearMath.qpc"
+
+project "vphysics"					"vphysics/vphysics.qpc"
 
 project "vrad_dll"					"utils/vrad/vrad_dll.qpc" [$WINDOWS]
 
