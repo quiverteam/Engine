@@ -481,19 +481,19 @@ void CTextureDx11::SetupTexture2D( int width, int height, int depth, int count, 
 	m_CreationFlags = flags;
 	m_nFlags |= usSetFlags;
 
-	ID3D11Resource *pD3DTex;
+	m_NumLevels = numMipLevels;
 
-	m_Format = GetClosestSupportedImageFormatForD3D11( dstImageFormat );
-	int nRamBytes = CalcRamBytes();
+	ID3D11Resource *pD3DTex;
 
 	// Set the initial texture state
 	if ( numCopies <= 1 )
 	{
 		m_NumCopies = 1;
-		pD3DTex = CreateD3DTexture( width, height, depth, m_Format, numMipLevels, flags );
+		pD3DTex = CreateD3DTexture( width, height, depth, dstImageFormat, numMipLevels, flags );
 		SetTexture( pD3DTex );
 		if ( bIsDynamic )
 		{
+			int nRamBytes = CalcRamBytes();
 			m_pRamImage = new unsigned char[nRamBytes];
 			memset( m_pRamImage, 0, nRamBytes );
 		}
@@ -510,6 +510,7 @@ void CTextureDx11::SetupTexture2D( int width, int height, int depth, int count, 
 			SetTexture( k, pD3DTex );
 			if ( bIsDynamic )
 			{
+				int nRamBytes = CalcRamBytes();
 				m_ppRamImage[k] = new unsigned char[nRamBytes];
 				memset( m_ppRamImage[k], 0, nRamBytes );
 			}
@@ -526,7 +527,6 @@ void CTextureDx11::SetupTexture2D( int width, int height, int depth, int count, 
 	m_VTexWrap = D3D11_TEXTURE_ADDRESS_CLAMP;
 	m_WTexWrap = D3D11_TEXTURE_ADDRESS_CLAMP;
 
-	m_NumLevels = numMipLevels;
 	m_Filter = ( numMipLevels != 1 ) ?
 		D3D11_FILTER_MIN_MAG_MIP_LINEAR :
 		D3D11_FILTER_MIN_MAG_LINEAR_MIP_POINT;
