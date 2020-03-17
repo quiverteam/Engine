@@ -1112,13 +1112,13 @@ public:
 	{
 		return 0;
 	}
-	virtual void BindPixelShaderConstantBuffer( ConstantBufferHandle_t )
+	virtual void BindPixelShaderConstantBuffer( int slot, ConstantBufferHandle_t )
 	{
 	}
-	virtual void BindVertexShaderConstantBuffer( ConstantBufferHandle_t )
+	virtual void BindVertexShaderConstantBuffer( int slot, ConstantBufferHandle_t )
 	{
 	}
-	virtual void BindGeometryShaderConstantBuffer( ConstantBufferHandle_t )
+	virtual void BindGeometryShaderConstantBuffer( int slot, ConstantBufferHandle_t )
 	{
 	}
 
@@ -9733,15 +9733,6 @@ void CShaderAPIDx8::SetupSelectionModeVisualizationState()
 	}
 }
 
-static void SpewDX9Matrix( const D3DXMATRIX &mat, const char *pszName )
-{
-	Log( "DX9 %s Matrix:\n", pszName );
-	for ( int r = 0; r < 4; r++ )
-	{
-		Log( "\t%f, %f, %f, %f\n", mat.m[r][0], mat.m[r][1], mat.m[r][2], mat.m[r][3] );
-	}
-}
-
 
 //-----------------------------------------------------------------------------
 // Set view transforms
@@ -9766,11 +9757,6 @@ void CShaderAPIDx8::SetVertexShaderModelViewProjAndModelView( void )
 		D3DXMatrixMultiply( &transpose, &modelView, &GetProjectionMatrix() );
 		D3DXMatrixTranspose( &transpose, &transpose );
 		SetVertexShaderConstant( VERTEX_SHADER_MODELVIEWPROJ, transpose, 4 );
-
-		SpewDX9Matrix( GetTransform( MATERIAL_MODEL ), "Model" );
-		SpewDX9Matrix( GetTransform( MATERIAL_VIEW ), "View" );
-		SpewDX9Matrix( GetTransform( MATERIAL_PROJECTION ), "Projection" );
-		SpewDX9Matrix( transpose, "ModelViewProj" );
 	}
 }
 

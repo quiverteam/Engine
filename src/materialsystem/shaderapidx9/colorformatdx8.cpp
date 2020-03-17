@@ -90,9 +90,13 @@ D3DFORMAT GetNearestD3DColorFormat( ImageFormat fmt,
 	switch(fmt)
 	{
 	case IMAGE_FORMAT_RGBA8888:
+	case IMAGE_FORMAT_RGBA8888_SRGB:
 	case IMAGE_FORMAT_ABGR8888:
+	case IMAGE_FORMAT_ABGR8888_SRGB:
 	case IMAGE_FORMAT_ARGB8888:
+	case IMAGE_FORMAT_ARGB8888_SRGB:
 	case IMAGE_FORMAT_BGRA8888:
+	case IMAGE_FORMAT_BGRA8888_SRGB:
 		if (TestTextureFormat(D3DFMT_A8R8G8B8, isRenderTarget, bIsVertexTexture, bIsFilterableRequired))
 			return D3DFMT_A8R8G8B8;
 		if (TestTextureFormat(D3DFMT_A4R4G4B4, isRenderTarget, bIsVertexTexture, bIsFilterableRequired))
@@ -118,6 +122,7 @@ D3DFORMAT GetNearestD3DColorFormat( ImageFormat fmt,
 #endif
 
 	case IMAGE_FORMAT_BGRX8888:
+	case IMAGE_FORMAT_BGRX8888_SRGB:
 		// We want this format to return exactly it's equivalent so that
 		// when we create render targets to blit to from the framebuffer,
 		// the CopyRect won't fail due to format mismatches.
@@ -126,7 +131,9 @@ D3DFORMAT GetNearestD3DColorFormat( ImageFormat fmt,
 
 		// fall through. . . .
 	case IMAGE_FORMAT_RGB888:
+	case IMAGE_FORMAT_BGR888_SRGB:
 	case IMAGE_FORMAT_BGR888:
+	case IMAGE_FORMAT_RGB888_SRGB:
 #if !defined( _X360 )
 		if (TestTextureFormat(D3DFMT_R8G8B8, isRenderTarget, bIsVertexTexture, bIsFilterableRequired))
 			return D3DFMT_R8G8B8;
@@ -230,17 +237,21 @@ D3DFORMAT GetNearestD3DColorFormat( ImageFormat fmt,
 		break;
 
 	case IMAGE_FORMAT_DXT1:
+	case IMAGE_FORMAT_DXT1_SRGB:
 	case IMAGE_FORMAT_DXT1_ONEBITALPHA:
+	case IMAGE_FORMAT_DXT1_ONEBITALPHA_SRGB:
 		if (TestTextureFormat(D3DFMT_DXT1, isRenderTarget, bIsVertexTexture, bIsFilterableRequired))
 			return D3DFMT_DXT1;
 		break;
 
 	case IMAGE_FORMAT_DXT3:
+	case IMAGE_FORMAT_DXT3_SRGB:
 		if (TestTextureFormat(D3DFMT_DXT3, isRenderTarget, bIsVertexTexture, bIsFilterableRequired ))
 			return D3DFMT_DXT3;
 		break;
 
 	case IMAGE_FORMAT_DXT5:
+	case IMAGE_FORMAT_DXT5_SRGB:
 		if (TestTextureFormat(D3DFMT_DXT5, isRenderTarget, bIsVertexTexture, bIsFilterableRequired ))
 			return D3DFMT_DXT5;
 		break;

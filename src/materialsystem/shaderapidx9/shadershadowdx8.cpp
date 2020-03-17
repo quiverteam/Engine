@@ -164,22 +164,23 @@ public:
 	// Alpha to coverage
 	void EnableAlphaToCoverage( bool bEnable );
 
-	virtual void SetPixelShaderConstantBuffer( ConstantBuffer_t cbuffer, int psReg )
+	// Constant buffer enabling
+	virtual void SetVertexShaderConstantBuffer( int slot, ConstantBufferHandle_t cbuffer )
 	{
 	}
-	virtual void SetVertexShaderConstantBuffer( ConstantBuffer_t cbuffer, int vsReg )
+	virtual void SetVertexShaderConstantBuffer( int slot, ShaderInternalConstantBuffer_t cbuffer )
 	{
 	}
-	virtual void SetGeometryShaderConstantBuffer( ConstantBuffer_t cbuffer, int gsReg )
+	virtual void SetGeometryShaderConstantBuffer( int slot, ConstantBufferHandle_t cbuffer )
 	{
 	}
-	virtual void SetTransformConstantBuffer()
+	virtual void SetGeometryShaderConstantBuffer( int slot, ShaderInternalConstantBuffer_t cbuffer )
 	{
 	}
-	virtual void SetLightingConstantBuffer()
+	virtual void SetPixelShaderConstantBuffer( int slot, ConstantBufferHandle_t cbuffer )
 	{
 	}
-	virtual void SetFogConstantBuffer()
+	virtual void SetPixelShaderConstantBuffer( int slot, ShaderInternalConstantBuffer_t cbuffer )
 	{
 	}
 
