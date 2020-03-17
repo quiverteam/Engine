@@ -53,27 +53,15 @@ public:
 	float m_flSeamlessMappingScale;
 	bool m_bHasBlendMaskTransform;
 	bool m_bHasTextureTransform;
-	Vector4D m_BlendMaskTransform[2];
 	bool m_bHasEnvmapMask;
 	bool m_bHasBump;
 	bool m_bHasBump2;
 	bool m_bHasDetailTexture;
 	bool m_bHasEnvmap;
-	Vector4D m_BaseTextureTransform[2];
-	Vector4D m_EnvmapMaskOrBump2Transform[2];
-	Vector4D m_DetailOrBumpTransform[2];
-	Vector4D m_Color;
-	Vector4D m_EnvmapTint;
-	Vector4D m_DetailTintAndBlend;
-	Vector4D m_EnvmapContrast;
-	Vector4D m_EnvmapSaturation;
-	Vector4D m_FresnelReflection;
-	Vector4D m_SelfIllumTint;
-	Vector4D m_TintValuesAndLightmapScale;
 	bool m_bHasOutline;
-	Vector4D m_OutlineParams[2];
 	bool m_bHasSoftEdges;
-	Vector4D m_SoftEdgeParams;
+
+	LightmappedGeneric_CBuffer_t m_Constants;
 
 	void ResetStaticCmds( void )
 	{
@@ -1000,7 +988,7 @@ void DrawLightmappedGeneric_DX11_Internal( CBaseVSShader *pShader, IMaterialVar 
 			}
 			if ( pContextData->m_bHasBlendMaskTransform )
 			{
-				pShader->StoreVertexShaderTextureTransform( pContextData->m_BlendMaskTransform,
+				pShader->StoreVertexShaderTextureTransform( pContextData->m_Constants.cBlendMaskTexCoordTransform,
 									    info.m_nBlendMaskTransform );
 			}
 
@@ -1008,50 +996,50 @@ void DrawLightmappedGeneric_DX11_Internal( CBaseVSShader *pShader, IMaterialVar 
 			{
 				pContextData->m_bHasEnvmapMask = params[info.m_nEnvmapMask]->IsTexture();
 				if ( !pContextData->m_bSeamlessMapping )
-					pShader->StoreVertexShaderTextureTransform( pContextData->m_BaseTextureTransform, info.m_nBaseTextureTransform );
+					pShader->StoreVertexShaderTextureTransform( pContextData->m_Constants.cBaseTexCoordTransform, info.m_nBaseTextureTransform );
 
 				// If we have a detail texture, then the bump texcoords are the same as the base texcoords.
 				if ( pContextData->m_bHasBump && !pContextData->m_bHasDetailTexture )
 				{
-					pShader->StoreVertexShaderTextureTransform( pContextData->m_DetailOrBumpTransform, info.m_nBumpTransform );
+					pShader->StoreVertexShaderTextureTransform( pContextData->m_Constants.cDetailOrBumpTexCoordTransform, info.m_nBumpTransform );
 				}
 				if ( pContextData->m_bHasEnvmapMask )
 				{
-					pShader->StoreVertexShaderTextureTransform( pContextData->m_EnvmapMaskOrBump2Transform, info.m_nEnvmapMaskTransform );
+					pShader->StoreVertexShaderTextureTransform( pContextData->m_Constants.cEnvmapMaskOrBump2TexCoordTransform, info.m_nEnvmapMaskTransform );
 				}
 				else if ( pContextData->m_bHasBump2 )
 				{
-					pShader->StoreVertexShaderTextureTransform( pContextData->m_EnvmapMaskOrBump2Transform, info.m_nBumpTransform2 );
+					pShader->StoreVertexShaderTextureTransform( pContextData->m_Constants.cEnvmapMaskOrBump2TexCoordTransform, info.m_nBumpTransform2 );
 
 				}
 			}
 
-			pShader->StoreEnvmapTint( pContextData->m_EnvmapTint, info.m_nEnvmapTint );
+			pShader->StoreEnvmapTint( pContextData->m_Constants.g_EnvmapTint, info.m_nEnvmapTint );
 
 			// set up shader modulation color
-			pContextData->m_Color.Init( 1, 1, 1, 1 );
-			pShader->ComputeModulationColor( pContextData->m_Color.Base() );
+			pContextData->m_Constants.cModulationColor.Init( 1, 1, 1, 1 );
+			pShader->ComputeModulationColor( pContextData->m_Constants.cModulationColor.Base() );
 			float flLScale = pShaderAPI->GetLightMapScaleFactor();
-			pContextData->m_Color[0] *= flLScale;
-			pContextData->m_Color[1] *= flLScale;
-			pContextData->m_Color[2] *= flLScale;
+			pContextData->m_Constants.cModulationColor[0] *= flLScale;
+			pContextData->m_Constants.cModulationColor[1] *= flLScale;
+			pContextData->m_Constants.cModulationColor[2] *= flLScale;
 
-			pContextData->m_TintValuesAndLightmapScale = pContextData->m_Color;
-			pContextData->m_TintValuesAndLightmapScale[3] *=
+			pContextData->m_Constants.g_TintValuesAndLightmapScale = pContextData->m_Constants.cModulationColor;
+			pContextData->m_Constants.g_TintValuesAndLightmapScale[3] *=
 				( IS_PARAM_DEFINED( info.m_nAlpha2 ) && params[info.m_nAlpha2]->GetFloatValue() > 0.0f ) ? params[info.m_nAlpha2]->GetFloatValue() : 1.0f;
 			//pContextData->m_SemiStaticCmdsOut.SetPixelShaderConstant( 12, color );
 			//pContextData->m_TintValuesAndLightmapScale.Init( 0, 0, 1, 1 );
 
 			if ( pContextData->m_bHasDetailTexture )
 			{
-				pContextData->m_DetailTintAndBlend.Init( 1, 1, 1, 1 );
+				pContextData->m_Constants.g_DetailTint_and_BlendFactor.Init( 1, 1, 1, 1 );
 
 				if ( info.m_nDetailTint != -1 )
 				{
-					params[info.m_nDetailTint]->GetVecValue( pContextData->m_DetailTintAndBlend.Base(), 3 );
+					params[info.m_nDetailTint]->GetVecValue( pContextData->m_Constants.g_DetailTint_and_BlendFactor.Base(), 3 );
 				}
 
-				pContextData->m_DetailTintAndBlend[3] = fDetailBlendFactor;
+				pContextData->m_Constants.g_DetailTint_and_BlendFactor[3] = fDetailBlendFactor;
 
 			}
 
@@ -1072,14 +1060,14 @@ void DrawLightmappedGeneric_DX11_Internal( CBaseVSShader *pShader, IMaterialVar 
 			}
 			if ( !pContextData->m_bPixelShaderFastPath )
 			{
-				params[info.m_nEnvmapContrast]->GetVecValue( pContextData->m_EnvmapContrast.Base(), 3 );
-				params[info.m_nEnvmapSaturation]->GetVecValue( pContextData->m_EnvmapSaturation.Base(), 3 );
+				params[info.m_nEnvmapContrast]->GetVecValue( pContextData->m_Constants.g_EnvmapContrast.Base(), 3 );
+				params[info.m_nEnvmapSaturation]->GetVecValue( pContextData->m_Constants.g_EnvmapSaturation.Base(), 3 );
 
 				float flFresnel = params[info.m_nFresnelReflection]->GetFloatValue();
 				// [ 0, 0, 1-R(0), R(0) ]
-				pContextData->m_FresnelReflection.Init( 0, 0, 1.0 - flFresnel, flFresnel );
+				pContextData->m_Constants.g_FresnelReflectionReg.Init( 0, 0, 1.0 - flFresnel, flFresnel );
 
-				pContextData->m_SelfIllumTint = params[info.m_nSelfIllumTint]->GetVecValue();
+				pContextData->m_Constants.g_SelfIllumTint = params[info.m_nSelfIllumTint]->GetVecValue();
 			}
 			else
 			{
@@ -1096,13 +1084,13 @@ void DrawLightmappedGeneric_DX11_Internal( CBaseVSShader *pShader, IMaterialVar 
 						params[info.m_nOutlineColor]->GetVecValue( flOutlineParms + 4, 3 );
 					}
 
-					pContextData->m_OutlineParams[0] = &flOutlineParms[0];
-					pContextData->m_OutlineParams[1] = &flOutlineParms[4];
+					pContextData->m_Constants.g_OutlineParams[0] = &flOutlineParms[0];
+					pContextData->m_Constants.g_OutlineParams[1] = &flOutlineParms[4];
 				}
 
 				if ( bHasSoftEdges )
 				{
-					pContextData->m_SoftEdgeParams.Init(
+					pContextData->m_Constants.g_SoftEdgeParams.Init(
 						GetFloatParam( info.m_nEdgeSoftnessStart, params ),
 						GetFloatParam( info.m_nEdgeSoftnessEnd, params ),
 						0, 0 );
@@ -1140,17 +1128,17 @@ void DrawLightmappedGeneric_DX11_Internal( CBaseVSShader *pShader, IMaterialVar 
 				}
 
 				// disable color modulation
-				pContextData->m_Color.Init();
+				pContextData->m_Constants.cModulationColor.Init();
 
 				// turn off environment mapping
-				pContextData->m_EnvmapTint.Init();
+				pContextData->m_Constants.g_EnvmapTint.Init();
 			}
 
 			// always set the transform for detail textures since I'm assuming that you'll
 			// always have a detailscale.
 			if ( hasDetailTexture )
 			{
-				pShader->StoreVertexShaderTextureScaledTransform( pContextData->m_DetailOrBumpTransform, info.m_nBaseTextureTransform, info.m_nDetailScale );
+				pShader->StoreVertexShaderTextureScaledTransform( pContextData->m_Constants.cDetailOrBumpTexCoordTransform, info.m_nBaseTextureTransform, info.m_nDetailScale );
 			}
 
 			if ( hasBaseTexture2 )
@@ -1222,77 +1210,8 @@ void DrawLightmappedGeneric_DX11_Internal( CBaseVSShader *pShader, IMaterialVar 
 		DynamicCmdsOut.Call( pContextData->m_pStaticCmds );
 		DynamicCmdsOut.Call( pContextData->m_SemiStaticCmdsOut.Base() );
 
-		//
-		// Update vertex shader constants
-		//
-
-		if ( pContextData->m_bHasBlendMaskTransform )
-		{
-			s_LightmappedGeneric_CBuffer.cBlendMaskTexCoordTransform[0] = pContextData->m_BlendMaskTransform[0];
-			s_LightmappedGeneric_CBuffer.cBlendMaskTexCoordTransform[1] = pContextData->m_BlendMaskTransform[1];
-		}
-
-		if ( !pContextData->m_bVertexShaderFastPath )
-		{
-			if ( !pContextData->m_bSeamlessMapping )
-			{
-				s_LightmappedGeneric_CBuffer.cBaseTexCoordTransform[0] = pContextData->m_BaseTextureTransform[0];
-				s_LightmappedGeneric_CBuffer.cBaseTexCoordTransform[1] = pContextData->m_BaseTextureTransform[1];
-			}
-
-			if ( pContextData->m_bHasBump || pContextData->m_bHasDetailTexture )
-			{
-				s_LightmappedGeneric_CBuffer.cDetailOrBumpTexCoordTransform[0] = pContextData->m_DetailOrBumpTransform[0];
-				s_LightmappedGeneric_CBuffer.cDetailOrBumpTexCoordTransform[1] = pContextData->m_DetailOrBumpTransform[1];
-			}
-			if ( pContextData->m_bHasEnvmapMask || pContextData->m_bHasBump2 )
-			{
-				s_LightmappedGeneric_CBuffer.cEnvmapMaskOrBump2TexCoordTransform[0] = pContextData->m_EnvmapMaskOrBump2Transform[0];
-				s_LightmappedGeneric_CBuffer.cEnvmapMaskOrBump2TexCoordTransform[1] = pContextData->m_EnvmapMaskOrBump2Transform[1];
-			}
-		}
-
-		if ( pContextData->m_bSeamlessMapping )
-		{
-			s_LightmappedGeneric_CBuffer.cSeamlessMappingScale.x = pContextData->m_flSeamlessMappingScale;
-		}
-
-		s_LightmappedGeneric_CBuffer.cModulationColor = pContextData->m_Color;
-
-		//
-		// Update pixel shader constants
-		//
-
-		s_LightmappedGeneric_CBuffer.g_TintValuesAndLightmapScale = pContextData->m_TintValuesAndLightmapScale;
-		s_LightmappedGeneric_CBuffer.g_EnvmapTint = pContextData->m_EnvmapTint;
-
-		if ( pContextData->m_bHasDetailTexture )
-		{
-			s_LightmappedGeneric_CBuffer.g_DetailTint_and_BlendFactor = pContextData->m_DetailTintAndBlend;
-		}
-
-		if ( !pContextData->m_bPixelShaderFastPath )
-		{
-			s_LightmappedGeneric_CBuffer.g_EnvmapContrast = pContextData->m_EnvmapContrast;
-			s_LightmappedGeneric_CBuffer.g_EnvmapSaturation = pContextData->m_EnvmapSaturation;
-			s_LightmappedGeneric_CBuffer.g_FresnelReflectionReg = pContextData->m_FresnelReflection;
-			s_LightmappedGeneric_CBuffer.g_SelfIllumTint = pContextData->m_SelfIllumTint;
-		}
-		else
-		{
-			if ( pContextData->m_bHasOutline )
-			{
-				s_LightmappedGeneric_CBuffer.g_OutlineParams[0] = pContextData->m_OutlineParams[0];
-				s_LightmappedGeneric_CBuffer.g_OutlineParams[1] = pContextData->m_OutlineParams[1];
-			}
-
-			if ( pContextData->m_bHasSoftEdges )
-			{
-				s_LightmappedGeneric_CBuffer.g_SoftEdgeParams = pContextData->m_SoftEdgeParams;
-			}
-		}
-
-		pShaderAPI->UpdateConstantBuffer( g_hLightmappedGeneric_CBuffer, &s_LightmappedGeneric_CBuffer );
+		// Upload the constants to the gpu
+		pShaderAPI->UpdateConstantBuffer( g_hLightmappedGeneric_CBuffer, &pContextData->m_Constants );
 
 		// Bind em
 
@@ -1351,7 +1270,7 @@ void DrawLightmappedGeneric_DX11_Internal( CBaseVSShader *pShader, IMaterialVar 
 
 		DECLARE_DYNAMIC_PIXEL_SHADER( lightmappedgeneric_ps40 );
 		SET_DYNAMIC_PIXEL_SHADER_COMBO( FASTPATH, bPixelShaderFastPath || pContextData->m_bPixelShaderForceFastPathBecauseOutline );
-		SET_DYNAMIC_PIXEL_SHADER_COMBO( FASTPATHENVMAPCONTRAST, bPixelShaderFastPath && pContextData->m_EnvmapContrast[0] == 1.0f );
+		SET_DYNAMIC_PIXEL_SHADER_COMBO( FASTPATHENVMAPCONTRAST, bPixelShaderFastPath && pContextData->m_Constants.g_EnvmapContrast[0] == 1.0f );
 		SET_DYNAMIC_PIXEL_SHADER_COMBO( PIXELFOGTYPE, pShaderAPI->GetPixelFogCombo() );
 
 		// Don't write fog to alpha if we're using translucency
