@@ -50,7 +50,6 @@ public:
 	bool m_bFullyOpaque;
 	bool m_bFullyOpaqueWithoutAlphaTest;
 	bool m_bSeamlessMapping;
-	float m_flSeamlessMappingScale;
 	bool m_bHasBlendMaskTransform;
 	bool m_bHasTextureTransform;
 	bool m_bHasEnvmapMask;
@@ -779,7 +778,7 @@ void DrawLightmappedGeneric_DX11_Internal( CBaseVSShader *pShader, IMaterialVar 
 
 				if ( pContextData->m_bSeamlessMapping )
 				{
-					pContextData->m_flSeamlessMappingScale = params[info.m_nSeamlessMappingScale]->GetFloatValue();
+					pContextData->m_Constants.cSeamlessMappingScale.x = params[info.m_nSeamlessMappingScale]->GetFloatValue();
 				}
 
 				staticCmdsBuf.End();
@@ -799,49 +798,18 @@ void DrawLightmappedGeneric_DX11_Internal( CBaseVSShader *pShader, IMaterialVar 
 
 				pShader->SetDefaultBlendingShadowState( nAlphaChannelTextureVar, hasBaseTexture );
 
+				// Bind em
+
+				pShader->SetInternalVertexShaderConstantBuffersNoSkinning();
+				pShader->SetVertexShaderConstantBuffer( 3, g_hLightmappedGeneric_CBuffer );
+
+				pShader->SetInternalPixelShaderConstantBuffers();
+				pShader->SetPixelShaderConstantBuffer( 3, g_hLightmappedGeneric_CBuffer );
+
 				unsigned int flags = VERTEX_POSITION;
-
-				// base texture
-				pShaderShadow->EnableTexture( SHADER_SAMPLER0, true );
-				pShaderShadow->EnableSRGBRead( SHADER_SAMPLER0, true );
-
-				if ( hasLightWarpTexture )
-				{
-					pShaderShadow->EnableTexture( SHADER_SAMPLER6, true );
-					pShaderShadow->EnableSRGBRead( SHADER_SAMPLER6, false );
-				}
-				if ( bHasBlendModulateTexture )
-				{
-					pShaderShadow->EnableTexture( SHADER_SAMPLER3, true );
-					pShaderShadow->EnableSRGBRead( SHADER_SAMPLER3, false );
-				}
-
-				if ( hasBaseTexture2 )
-				{
-					pShaderShadow->EnableTexture( SHADER_SAMPLER7, true );
-					pShaderShadow->EnableSRGBRead( SHADER_SAMPLER7, true );
-				}
-
-				pShaderShadow->EnableTexture( SHADER_SAMPLER1, true );
-				if ( g_pHardwareConfig->GetHDRType() == HDR_TYPE_NONE )
-				{
-					pShaderShadow->EnableSRGBRead( SHADER_SAMPLER1, true );
-				}
-				else
-				{
-					pShaderShadow->EnableSRGBRead( SHADER_SAMPLER1, false );
-				}
 
 				if ( hasEnvmap )
 				{
-					if ( hasEnvmap )
-					{
-						pShaderShadow->EnableTexture( SHADER_SAMPLER2, true );
-						if ( g_pHardwareConfig->GetHDRType() == HDR_TYPE_NONE )
-						{
-							pShaderShadow->EnableSRGBRead( SHADER_SAMPLER2, true );
-						}
-					}
 					flags |= VERTEX_TANGENT_S | VERTEX_TANGENT_T | VERTEX_NORMAL;
 				}
 
@@ -858,35 +826,6 @@ void DrawLightmappedGeneric_DX11_Internal( CBaseVSShader *pShader, IMaterialVar 
 							nDetailBlendMode = 11;					// ssbump_nobump
 					}
 				}
-
-				if ( hasDetailTexture )
-				{
-					pShaderShadow->EnableTexture( SHADER_SAMPLER12, true );
-					bool bSRGBState = ( nDetailBlendMode == 1 );
-					pShaderShadow->EnableSRGBRead( SHADER_SAMPLER12, bSRGBState );
-				}
-
-				if ( pContextData->m_bHasBump || hasNormalMapAlphaEnvmapMask )
-				{
-					pShaderShadow->EnableTexture( SHADER_SAMPLER4, true );
-				}
-				if ( pContextData->m_bHasBump2 )
-				{
-					pShaderShadow->EnableTexture( SHADER_SAMPLER5, true );
-				}
-				if ( hasBumpMask )
-				{
-					pShaderShadow->EnableTexture( SHADER_SAMPLER8, true );
-				}
-				if ( pContextData->m_bHasEnvmapMask )
-				{
-					pShaderShadow->EnableTexture( SHADER_SAMPLER5, true );
-				}
-
-				pShaderShadow->EnableTexture( SHADER_SAMPLER14, true );
-				pShaderShadow->SetShadowDepthFiltering( SHADER_SAMPLER14 );
-				pShaderShadow->EnableSRGBRead( SHADER_SAMPLER14, false );
-				pShaderShadow->EnableTexture( SHADER_SAMPLER15, true );
 
 				if ( hasVertexColor || hasBaseTexture2 || pContextData->m_bHasBump2 )
 				{
@@ -1212,14 +1151,6 @@ void DrawLightmappedGeneric_DX11_Internal( CBaseVSShader *pShader, IMaterialVar 
 
 		// Upload the constants to the gpu
 		pShaderAPI->UpdateConstantBuffer( g_hLightmappedGeneric_CBuffer, &pContextData->m_Constants );
-
-		// Bind em
-
-		pShader->BindInternalVertexShaderConstantBuffersNoSkinning();
-		pShader->BindVertexShaderConstantBuffer( 3, g_hLightmappedGeneric_CBuffer );
-
-		pShader->BindInternalPixelShaderConstantBuffers();
-		pShader->BindPixelShaderConstantBuffer( 3, g_hLightmappedGeneric_CBuffer );
 
 		if ( pContextData->m_bHasEnvmap )
 		{

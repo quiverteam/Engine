@@ -356,6 +356,14 @@ public:
 
 	// Shadow map filtering
 	virtual void SetShadowDepthFiltering( Sampler_t stage ) = 0;
+
+	// Constant buffer enabling
+	virtual void SetVertexShaderConstantBuffer( int slot, ConstantBufferHandle_t cbuffer ) = 0;
+	virtual void SetVertexShaderConstantBuffer( int slot, ShaderInternalConstantBuffer_t cbuffer ) = 0;
+	virtual void SetGeometryShaderConstantBuffer( int slot, ConstantBufferHandle_t cbuffer ) = 0;
+	virtual void SetGeometryShaderConstantBuffer( int slot, ShaderInternalConstantBuffer_t cbuffer ) = 0;
+	virtual void SetPixelShaderConstantBuffer( int slot, ConstantBufferHandle_t cbuffer ) = 0;
+	virtual void SetPixelShaderConstantBuffer( int slot, ShaderInternalConstantBuffer_t cbuffer ) = 0;
 };
 // end class IShaderShadow
 

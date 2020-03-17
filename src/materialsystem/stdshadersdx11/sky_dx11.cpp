@@ -57,9 +57,14 @@ BEGIN_VS_SHADER( Sky_DX11, "Help for Sky_DX11 shader" )
 		{
 			SetInitialShadowState();
 
-			pShaderShadow->EnableTexture( SHADER_SAMPLER0, true );
-
 			pShaderShadow->VertexShaderVertexFormat( VERTEX_POSITION, 1, NULL, 0 );
+
+			SetVertexShaderConstantBuffer( 0, SHADER_CONSTANTBUFFER_PERMODEL );
+			SetVertexShaderConstantBuffer( 1, SHADER_CONSTANTBUFFER_PERFRAME );
+			SetVertexShaderConstantBuffer( 2, SHADER_CONSTANTBUFFER_PERSCENE );
+			SetVertexShaderConstantBuffer( 3, CONSTANT_BUFFER( Sky ) );
+
+			SetPixelShaderConstantBuffer( 0, CONSTANT_BUFFER( Sky ) );
 
 			DECLARE_STATIC_VERTEX_SHADER( sky_vs40 );
 			SET_STATIC_VERTEX_SHADER( sky_vs40 );
@@ -98,13 +103,6 @@ BEGIN_VS_SHADER( Sky_DX11, "Help for Sky_DX11 shader" )
 			}
 
 			UPDATE_CONSTANT_BUFFER( Sky, constants );
-
-			BindVertexShaderConstantBuffer( 0, SHADER_CONSTANTBUFFER_PERMODEL );
-			BindVertexShaderConstantBuffer( 1, SHADER_CONSTANTBUFFER_PERFRAME );
-			BindVertexShaderConstantBuffer( 2, SHADER_CONSTANTBUFFER_PERSCENE );
-			BindVertexShaderConstantBuffer( 3, CONSTANT_BUFFER( Sky ) );
-
-			BindPixelShaderConstantBuffer( 0, CONSTANT_BUFFER( Sky ) );
 
 			DECLARE_DYNAMIC_VERTEX_SHADER( sky_vs40 );
 			SET_DYNAMIC_VERTEX_SHADER( sky_vs40 );			

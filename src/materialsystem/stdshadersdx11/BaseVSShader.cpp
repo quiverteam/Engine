@@ -564,14 +564,15 @@ void CBaseVSShader::DrawEqualDepthToDestAlpha( void )
 
 			s_pShaderShadow->DepthFunc( SHADER_DEPTHFUNC_EQUAL );
 
+			SetVertexShaderConstantBuffer( 0, SHADER_CONSTANTBUFFER_PERMODEL );
+			SetVertexShaderConstantBuffer( 1, SHADER_CONSTANTBUFFER_PERFRAME );
+			SetVertexShaderConstantBuffer( 2, SHADER_CONSTANTBUFFER_PERSCENE );
+
 			s_pShaderShadow->SetVertexShader( "depthtodestalpha_vs40", 0 );
 			s_pShaderShadow->SetPixelShader( "depthtodestalpha_ps40", 0 );
 		}
 		if( s_pShaderAPI )
 		{
-			BindVertexShaderConstantBuffer( 0, SHADER_CONSTANTBUFFER_PERMODEL );
-			BindVertexShaderConstantBuffer( 1, SHADER_CONSTANTBUFFER_PERFRAME );
-			BindVertexShaderConstantBuffer( 2, SHADER_CONSTANTBUFFER_PERSCENE );
 			s_pShaderAPI->SetVertexShaderIndex( 0 );
 			s_pShaderAPI->SetPixelShaderIndex( 0 );
 

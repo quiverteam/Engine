@@ -70,9 +70,6 @@ public:
 
 	virtual void UpdateConstantBuffer( ConstantBufferHandle_t cbuffer, void *pNewData );
 	virtual ConstantBufferHandle_t GetInternalConstantBuffer( int type );
-	virtual void BindPixelShaderConstantBuffer( int slot, ConstantBufferHandle_t buffer );
-	virtual void BindVertexShaderConstantBuffer( int slot, ConstantBufferHandle_t buffer );
-	virtual void BindGeometryShaderConstantBuffer( int slot, ConstantBufferHandle_t buffer );
 
 	FORCEINLINE bool TextureIsAllocated( ShaderAPITextureHandle_t hTexture )
 	{

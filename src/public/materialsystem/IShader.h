@@ -157,17 +157,16 @@ public:
 	virtual void StoreVertexShaderTextureScaledTransform( Vector4D *pOut, int transformVar, int scaleVar ) = 0;
 	virtual void StoreVertexShaderTextureTransform( Vector4D *pOut, int param ) = 0;
 
-	virtual ConstantBufferHandle_t GetInternalConstantBuffer( int type ) = 0;
-	virtual void BindInternalVertexShaderConstantBuffers() = 0;
-	virtual void BindInternalVertexShaderConstantBuffersNoSkinning() = 0;
-	virtual void BindInternalPixelShaderConstantBuffers() = 0;
-	virtual void BindInternalGeometryShaderConstantBuffers() = 0;
-	virtual void BindPixelShaderConstantBuffer( int slot, ConstantBufferHandle_t cbuffer ) = 0;
-	virtual void BindVertexShaderConstantBuffer( int slot, ConstantBufferHandle_t cbuffer ) = 0;
-	virtual void BindGeometryShaderConstantBuffer( int slot, ConstantBufferHandle_t cbuffer ) = 0;
-	virtual void BindPixelShaderConstantBuffer( int slot, ShaderInternalConstantBuffer_t cbuffer ) = 0;
-	virtual void BindVertexShaderConstantBuffer( int slot, ShaderInternalConstantBuffer_t cbuffer ) = 0;
-	virtual void BindGeometryShaderConstantBuffer( int slot, ShaderInternalConstantBuffer_t cbuffer ) = 0;
+	virtual void SetInternalVertexShaderConstantBuffers() = 0;
+	virtual void SetInternalVertexShaderConstantBuffersNoSkinning() = 0;
+	virtual void SetInternalPixelShaderConstantBuffers() = 0;
+	virtual void SetInternalGeometryShaderConstantBuffers() = 0;
+	virtual void SetPixelShaderConstantBuffer( int slot, ConstantBufferHandle_t cbuffer ) = 0;
+	virtual void SetVertexShaderConstantBuffer( int slot, ConstantBufferHandle_t cbuffer ) = 0;
+	virtual void SetGeometryShaderConstantBuffer( int slot, ConstantBufferHandle_t cbuffer ) = 0;
+	virtual void SetPixelShaderConstantBuffer( int slot, ShaderInternalConstantBuffer_t cbuffer ) = 0;
+	virtual void SetVertexShaderConstantBuffer( int slot, ShaderInternalConstantBuffer_t cbuffer ) = 0;
+	virtual void SetGeometryShaderConstantBuffer( int slot, ShaderInternalConstantBuffer_t cbuffer ) = 0;
 	virtual void UpdateConstantBuffer( ConstantBufferHandle_t cbuffer, void *pNewData ) = 0;
 
 	// FIXME: Remove GetParamName, etc. above

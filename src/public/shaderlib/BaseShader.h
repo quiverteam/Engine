@@ -124,17 +124,16 @@ public:
 	virtual void StoreVertexShaderTextureScaledTransform( Vector4D *pOut, int transformVar, int scaleVar );
 	virtual void StoreVertexShaderTextureTransform( Vector4D *pOut, int param );
 
-	virtual ConstantBufferHandle_t GetInternalConstantBuffer( int type );
-	virtual void BindInternalVertexShaderConstantBuffers();
-	virtual void BindInternalVertexShaderConstantBuffersNoSkinning();
-	virtual void BindInternalPixelShaderConstantBuffers();
-	virtual void BindInternalGeometryShaderConstantBuffers();
-	virtual void BindPixelShaderConstantBuffer( int slot, ConstantBufferHandle_t cbuffer );
-	virtual void BindVertexShaderConstantBuffer( int slot, ConstantBufferHandle_t cbuffer );
-	virtual void BindGeometryShaderConstantBuffer( int slot, ConstantBufferHandle_t cbuffer );
-	virtual void BindPixelShaderConstantBuffer( int slot, ShaderInternalConstantBuffer_t cbuffer );
-	virtual void BindVertexShaderConstantBuffer( int slot, ShaderInternalConstantBuffer_t cbuffer );
-	virtual void BindGeometryShaderConstantBuffer( int slot, ShaderInternalConstantBuffer_t cbuffer );
+	virtual void SetInternalVertexShaderConstantBuffers();
+	virtual void SetInternalVertexShaderConstantBuffersNoSkinning();
+	virtual void SetInternalPixelShaderConstantBuffers();
+	virtual void SetInternalGeometryShaderConstantBuffers();
+	virtual void SetPixelShaderConstantBuffer( int slot, ConstantBufferHandle_t cbuffer );
+	virtual void SetVertexShaderConstantBuffer( int slot, ConstantBufferHandle_t cbuffer );
+	virtual void SetGeometryShaderConstantBuffer( int slot, ConstantBufferHandle_t cbuffer );
+	virtual void SetPixelShaderConstantBuffer( int slot, ShaderInternalConstantBuffer_t cbuffer );
+	virtual void SetVertexShaderConstantBuffer( int slot, ShaderInternalConstantBuffer_t cbuffer );
+	virtual void SetGeometryShaderConstantBuffer( int slot, ShaderInternalConstantBuffer_t cbuffer );
 	virtual void UpdateConstantBuffer( ConstantBufferHandle_t cbuffer, void *pNewData );
 
 public:

@@ -298,9 +298,6 @@ public:
 
 	virtual void UpdateConstantBuffer( ConstantBufferHandle_t cbuffer, void *pNewData ) = 0;
 	virtual ConstantBufferHandle_t GetInternalConstantBuffer( int type ) = 0;
-	virtual void BindPixelShaderConstantBuffer( int slot, ConstantBufferHandle_t buffer ) = 0;
-	virtual void BindVertexShaderConstantBuffer( int slot, ConstantBufferHandle_t buffer ) = 0;
-	virtual void BindGeometryShaderConstantBuffer( int slot, ConstantBufferHandle_t buffer ) = 0;
 };
 // end class IShaderDynamicAPI
 

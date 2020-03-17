@@ -97,6 +97,14 @@ public:
 	const StatesDx11::ShadowState *GetShadowState( StateSnapshot_t id ) const;
 	const StatesDx11::ShadowState *GetDefaultShadowState();
 
+	// Constant buffer enabling
+	virtual void SetVertexShaderConstantBuffer( int slot, ConstantBufferHandle_t cbuffer );
+	virtual void SetVertexShaderConstantBuffer( int slot, ShaderInternalConstantBuffer_t cbuffer );
+	virtual void SetGeometryShaderConstantBuffer( int slot, ConstantBufferHandle_t cbuffer );
+	virtual void SetGeometryShaderConstantBuffer( int slot, ShaderInternalConstantBuffer_t cbuffer );
+	virtual void SetPixelShaderConstantBuffer( int slot, ConstantBufferHandle_t cbuffer );
+	virtual void SetPixelShaderConstantBuffer( int slot, ShaderInternalConstantBuffer_t cbuffer );
+
 	// ---------------------------------------------------
 	// Below are unsupported by Dx11, only included to
 	// not break Dx9 compatibility.
@@ -131,13 +139,17 @@ public:
 
 private:
 	void GenerateD3DStateObjects( StatesDx11::ShadowState &state );
+	unsigned int FindOrCreateConstantBufferState( const StatesDx11::ConstantBufferState &desc );
 
 public:
 	StatesDx11::ShadowStateDesc m_ShadowState;
 
+	CUtlVector<StatesDx11::ConstantBufferState> m_ConstantBufferStates;
+
 	CUtlVector<StatesDx11::ShadowState> m_ShadowStateCache;
 
 	StatesDx11::ShadowState m_DefaultShadowState;
+	StatesDx11::ConstantBufferState m_DefaultCBState;
 };
 
 

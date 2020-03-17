@@ -167,10 +167,8 @@ CShaderAPIDx11::CShaderAPIDx11() :
 	m_ModifyTextureLockedLevel = -1;
 	m_ModifyTextureLockedFace = -1;
 	m_bResettingRenderState = false;
-	s_DefaultState.dynamic.SetDefault();
-	s_DefaultState.shadow = NULL;
-	m_TargetState = s_DefaultState;
-	m_State = m_TargetState;
+	m_TargetState.SetDefault();
+	m_State.SetDefault();
 	m_ShaderState = StatesDx11::ShaderState();
 	m_bSelectionMode = false;
 	m_bFlashlightStateChanged = false;
@@ -206,39 +204,6 @@ ConstantBufferHandle_t CShaderAPIDx11::GetInternalConstantBuffer( int type )
 	//	return m_hFlexConstants;
 	default:
 		return CONSTANT_BUFFER_HANDLE_INVALID;
-	}
-}
-
-void CShaderAPIDx11::BindPixelShaderConstantBuffer( int slot, ConstantBufferHandle_t cbuffer )
-{
-	CShaderConstantBufferDx11 *pBuf = (CShaderConstantBufferDx11 *)cbuffer;
-
-	m_TargetState.dynamic.m_pPSConstantBuffers[slot] = pBuf->GetD3DBuffer();
-	if ( slot > m_TargetState.dynamic.m_MaxPSConstantBufferSlot )
-	{
-		m_TargetState.dynamic.m_MaxPSConstantBufferSlot = slot;
-	}
-}
-
-void CShaderAPIDx11::BindVertexShaderConstantBuffer( int slot, ConstantBufferHandle_t cbuffer )
-{
-	CShaderConstantBufferDx11 *pBuf = (CShaderConstantBufferDx11 *)cbuffer;
-
-	m_TargetState.dynamic.m_pVSConstantBuffers[slot] = pBuf->GetD3DBuffer();
-	if ( slot > m_TargetState.dynamic.m_MaxVSConstantBufferSlot )
-	{
-		m_TargetState.dynamic.m_MaxVSConstantBufferSlot = slot;
-	}
-}
-
-void CShaderAPIDx11::BindGeometryShaderConstantBuffer( int slot, ConstantBufferHandle_t cbuffer )
-{
-	CShaderConstantBufferDx11 *pBuf = (CShaderConstantBufferDx11 *)cbuffer;
-
-	m_TargetState.dynamic.m_pGSConstantBuffers[slot] = pBuf->GetD3DBuffer();
-	if ( slot > m_TargetState.dynamic.m_MaxGSConstantBufferSlot )
-	{
-		m_TargetState.dynamic.m_MaxGSConstantBufferSlot = slot;
 	}
 }
 
@@ -312,7 +277,7 @@ void CShaderAPIDx11::IssueStateChanges( bool bForce )
 	if ( g_pShaderDeviceDx11->IsDeactivated() )
 		return;
 
-	VPROF_BUDGET( "CShaderAPIDx11::IssueStateChanges()", VPROF_BUDGETGROUP_OTHER_UNACCOUNTED );
+	//VPROF_BUDGET( "CShaderAPIDx11::IssueStateChanges()", VPROF_BUDGETGROUP_OTHER_UNACCOUNTED );
 
 	//FlushBufferedPrimitives();
 
@@ -326,16 +291,16 @@ void CShaderAPIDx11::IssueStateChanges( bool bForce )
 	const StatesDx11::DynamicState &dynamic = m_State.dynamic;
 	const StatesDx11::ShadowState *shadow = m_State.shadow;
 
-	{
-		VPROF_BUDGET( "CShaderAPIDx11::DoIssueShaderState()", VPROF_BUDGETGROUP_OTHER_UNACCOUNTED );
+	//{
+		//VPROF_BUDGET( "CShaderAPIDx11::DoIssueShaderState()", VPROF_BUDGETGROUP_OTHER_UNACCOUNTED );
 		DoIssueShaderState( bForce );
-	}
+	//}
 	
 
 	bool bStateChanged = false;
 
-	{
-		VPROF_BUDGET( "CShaderAPIDx11::DoIssueRenderTargets()", VPROF_BUDGETGROUP_OTHER_UNACCOUNTED );
+	//{
+		//VPROF_BUDGET( "CShaderAPIDx11::DoIssueRenderTargets()", VPROF_BUDGETGROUP_OTHER_UNACCOUNTED );
 
 		if ( m_TargetState.dynamic.m_pRenderTargetView != m_State.dynamic.m_pRenderTargetView ||
 		     m_TargetState.dynamic.m_pDepthStencilView != m_State.dynamic.m_pDepthStencilView )
@@ -343,10 +308,10 @@ void CShaderAPIDx11::IssueStateChanges( bool bForce )
 			DoIssueRenderTargets();
 			bStateChanged = true;
 		}
-	}
+	//}
 	
-	{
-		VPROF_BUDGET( "CShaderAPIDx11::DoIssueViewports()", VPROF_BUDGETGROUP_OTHER_UNACCOUNTED );
+	//{
+		//VPROF_BUDGET( "CShaderAPIDx11::DoIssueViewports()", VPROF_BUDGETGROUP_OTHER_UNACCOUNTED );
 
 		bool bViewportsChanged = bForce || ( targetDynamic.m_nViewportCount != dynamic.m_nViewportCount );
 		if ( !bViewportsChanged && targetDynamic.m_nViewportCount > 0 )
@@ -361,10 +326,10 @@ void CShaderAPIDx11::IssueStateChanges( bool bForce )
 			DoIssueViewports();
 			bStateChanged = true;
 		}
-	}
+	//}
 
-	{
-		VPROF_BUDGET( "CShaderAPIDx11::DoIssueInputLayout()", VPROF_BUDGETGROUP_OTHER_UNACCOUNTED );
+	//{
+		//VPROF_BUDGET( "CShaderAPIDx11::DoIssueInputLayout()", VPROF_BUDGETGROUP_OTHER_UNACCOUNTED );
 
 		if ( bForce || FastMemCompare( &targetDynamic.m_InputLayout, &dynamic.m_InputLayout, sizeof( StatesDx11::InputLayoutState ) ) )
 		{
@@ -372,10 +337,10 @@ void CShaderAPIDx11::IssueStateChanges( bool bForce )
 			DoIssueInputLayout();
 			bStateChanged = true;
 		}
-	}
+	//}
 	
-	{
-		VPROF_BUDGET( "CShaderAPIDx11::DoIssueVertexBuffer()", VPROF_BUDGETGROUP_OTHER_UNACCOUNTED );
+	//{
+		//VPROF_BUDGET( "CShaderAPIDx11::DoIssueVertexBuffer()", VPROF_BUDGETGROUP_OTHER_UNACCOUNTED );
 
 		bool bVertexBufferChanged = DoIssueVertexBuffer( bForce );
 		if ( bVertexBufferChanged )
@@ -383,10 +348,10 @@ void CShaderAPIDx11::IssueStateChanges( bool bForce )
 			//Log( "\tIssued vertex buffer\n" );
 			bStateChanged = true;
 		}
-	}
+	//}
 	
-	{
-		VPROF_BUDGET( "CShaderAPIDx11::DoIssueIndexBuffer()", VPROF_BUDGETGROUP_OTHER_UNACCOUNTED );
+	//{
+		//VPROF_BUDGET( "CShaderAPIDx11::DoIssueIndexBuffer()", VPROF_BUDGETGROUP_OTHER_UNACCOUNTED );
 
 		if ( bForce || FastMemCompare( &targetDynamic.m_IndexBuffer, &dynamic.m_IndexBuffer, sizeof( StatesDx11::IndexBufferState ) ) )
 		{
@@ -394,10 +359,10 @@ void CShaderAPIDx11::IssueStateChanges( bool bForce )
 			DoIssueIndexBuffer();
 			bStateChanged = true;
 		}
-	}
+	//}
 
-	{
-		VPROF_BUDGET( "CShaderAPIDx11::DoIssueTopology()", VPROF_BUDGETGROUP_OTHER_UNACCOUNTED );
+	//{
+		//VPROF_BUDGET( "CShaderAPIDx11::DoIssueTopology()", VPROF_BUDGETGROUP_OTHER_UNACCOUNTED );
 
 		if ( bForce || targetDynamic.m_Topology != dynamic.m_Topology )
 		{
@@ -405,10 +370,10 @@ void CShaderAPIDx11::IssueStateChanges( bool bForce )
 			DoIssueTopology();
 			bStateChanged = true;
 		}
-	}
+	//}
 	
-	{
-		VPROF_BUDGET( "CShaderAPIDx11::DoIssueVertexShader()", VPROF_BUDGETGROUP_OTHER_UNACCOUNTED );
+	//{
+		//VPROF_BUDGET( "CShaderAPIDx11::DoIssueVertexShader()", VPROF_BUDGETGROUP_OTHER_UNACCOUNTED );
 
 		if ( bForce || targetDynamic.m_pVertexShader != dynamic.m_pVertexShader )
 		{
@@ -416,10 +381,10 @@ void CShaderAPIDx11::IssueStateChanges( bool bForce )
 			DoIssueVertexShader();
 			bStateChanged = true;
 		}
-	}
+	//}
 
-	{
-		VPROF_BUDGET( "CShaderAPIDx11::DoIssueGeometryShader()", VPROF_BUDGETGROUP_OTHER_UNACCOUNTED );
+	//{
+		//VPROF_BUDGET( "CShaderAPIDx11::DoIssueGeometryShader()", VPROF_BUDGETGROUP_OTHER_UNACCOUNTED );
 
 		if ( bForce || targetDynamic.m_pGeometryShader != dynamic.m_pGeometryShader )
 		{
@@ -427,10 +392,10 @@ void CShaderAPIDx11::IssueStateChanges( bool bForce )
 			DoIssueGeometryShader();
 			bStateChanged = true;
 		}
-	}
+	//}
 
-	{
-		VPROF_BUDGET( "CShaderAPIDx11::DoIssuePixelShader()", VPROF_BUDGETGROUP_OTHER_UNACCOUNTED );
+	//{
+		//VPROF_BUDGET( "CShaderAPIDx11::DoIssuePixelShader()", VPROF_BUDGETGROUP_OTHER_UNACCOUNTED );
 
 		if ( bForce || targetDynamic.m_pPixelShader != dynamic.m_pPixelShader )
 		{
@@ -438,10 +403,10 @@ void CShaderAPIDx11::IssueStateChanges( bool bForce )
 			DoIssuePixelShader();
 			bStateChanged = true;
 		}
-	}
+	//}
 
-	{
-		VPROF_BUDGET( "CShaderAPIDx11::DoIssueConstantBuffers()", VPROF_BUDGETGROUP_OTHER_UNACCOUNTED );
+	//{
+		//VPROF_BUDGET( "CShaderAPIDx11::DoIssueConstantBuffers()", VPROF_BUDGETGROUP_OTHER_UNACCOUNTED );
 
 		bool bCBsChanged = DoIssueConstantBuffers( bForce );
 		if ( bCBsChanged )
@@ -449,10 +414,10 @@ void CShaderAPIDx11::IssueStateChanges( bool bForce )
 			//Log( "\tIssued constant buffers\n" );
 			bStateChanged = true;
 		}
-	}
+	//}
 	
-	{
-		VPROF_BUDGET( "CShaderAPIDx11::DoIssueSampler()", VPROF_BUDGETGROUP_OTHER_UNACCOUNTED );
+	//{
+		//VPROF_BUDGET( "CShaderAPIDx11::DoIssueSampler()", VPROF_BUDGETGROUP_OTHER_UNACCOUNTED );
 
 		int nPixelSamplerCompare = max( targetDynamic.m_MaxSamplerSlot, dynamic.m_MaxSamplerSlot ) + 1;
 		bool bPixelSamplers = bForce || ( targetDynamic.m_MaxSamplerSlot != -1 &&
@@ -471,10 +436,10 @@ void CShaderAPIDx11::IssueStateChanges( bool bForce )
 			DoIssueSampler( bPixelSamplers, bVertexSamplers );
 			bStateChanged = true;
 		}
-	}
+	//}
 	
-	{
-		VPROF_BUDGET( "CShaderAPIDx11::DoIssueDepthStencilState()", VPROF_BUDGETGROUP_OTHER_UNACCOUNTED );
+	//{
+		//VPROF_BUDGET( "CShaderAPIDx11::DoIssueDepthStencilState()", VPROF_BUDGETGROUP_OTHER_UNACCOUNTED );
 
 		// DepthStencilState is affected by DepthTestAttrib, DepthWriteAttrib, and StencilAttrib
 		if ( bForce ||
@@ -484,10 +449,10 @@ void CShaderAPIDx11::IssueStateChanges( bool bForce )
 			DoIssueDepthStencilState();
 			bStateChanged = true;
 		}
-	}
+	//}
 
-	{
-		VPROF_BUDGET( "CShaderAPIDx11::DoIssueBlendState()", VPROF_BUDGETGROUP_OTHER_UNACCOUNTED );
+	//{
+		//VPROF_BUDGET( "CShaderAPIDx11::DoIssueBlendState()", VPROF_BUDGETGROUP_OTHER_UNACCOUNTED );
 
 		// BlendState
 		if ( bForce ||
@@ -497,10 +462,10 @@ void CShaderAPIDx11::IssueStateChanges( bool bForce )
 			DoIssueBlendState();
 			bStateChanged = true;
 		}
-	}
+	//}
 
-	{
-		VPROF_BUDGET( "CShaderAPIDx11::DoIssueRasterState()", VPROF_BUDGETGROUP_OTHER_UNACCOUNTED );
+	//{
+		//VPROF_BUDGET( "CShaderAPIDx11::DoIssueRasterState()", VPROF_BUDGETGROUP_OTHER_UNACCOUNTED );
 
 		// Raster state - RenderModeAttrib, CullFaceAttrib, DepthOffsetAttrib, ScissorAttrib, AntialiasAttrib
 		if ( bForce ||
@@ -510,21 +475,21 @@ void CShaderAPIDx11::IssueStateChanges( bool bForce )
 			DoIssueRasterState();
 			bStateChanged = true;
 		}
-	}
+	//}
 
-	{
-		VPROF_BUDGET( "CShaderAPIDx11::CopyTargetToCurrent", VPROF_BUDGETGROUP_OTHER_UNACCOUNTED );
+	//{
+		//VPROF_BUDGET( "CShaderAPIDx11::CopyTargetToCurrent", VPROF_BUDGETGROUP_OTHER_UNACCOUNTED );
 
 		if ( bStateChanged )
 		{
 			//Log( "Done, state was changed\n" );
 			m_State = m_TargetState;
 		}
-		else
-		{
+		//else
+		//{
 			//Log( "Done, state not changed\n" );
-		}
-	}
+		//}
+	//}
 	
 
 	//float flEnd = Plat_FloatTime();
@@ -629,13 +594,21 @@ void CShaderAPIDx11::DoIssueShaderState( bool bForce )
 	bool bProjChanged = m_ShaderState.m_ChangedMatrices[MATERIAL_PROJECTION];
 	bool bModelChanged = m_ShaderState.m_ChangedMatrices[MATERIAL_MODEL];
 
-	// To avoid an extra memcmp + memcpy...
-	PerFrame_CBuffer_t *pPerFrameConstants = (PerFrame_CBuffer_t *)
-		( (CShaderConstantBufferDx11 *)m_hPerFrameConstants )->GetData();
-	PerModel_CBuffer_t *pPerModelConstants = (PerModel_CBuffer_t *)
-		( (CShaderConstantBufferDx11 *)m_hPerModelConstants )->GetData();
-	PerScene_CBuffer_t *pPerSceneConstants = (PerScene_CBuffer_t *)
-		( (CShaderConstantBufferDx11 *)m_hPerSceneConstants )->GetData();
+	PerFrame_CBuffer_t *pPerFrameConstants;
+	PerModel_CBuffer_t *pPerModelConstants;
+	PerScene_CBuffer_t *pPerSceneConstants;
+	//{
+		//VPROF_BUDGET( "GetCBufferPointers", VPROF_BUDGETGROUP_OTHER_UNACCOUNTED );
+
+		// To avoid an extra memcmp + memcpy...
+		pPerFrameConstants = (PerFrame_CBuffer_t *)
+			( (CShaderConstantBufferDx11 *)m_hPerFrameConstants )->GetData();
+		pPerModelConstants = (PerModel_CBuffer_t *)
+			( (CShaderConstantBufferDx11 *)m_hPerModelConstants )->GetData();
+		pPerSceneConstants = (PerScene_CBuffer_t *)
+			( (CShaderConstantBufferDx11 *)m_hPerSceneConstants )->GetData();
+	//}
+	
 
 	bool bPerFrameChanged = false;
 	bool bPerModelChanged = false;
@@ -643,6 +616,8 @@ void CShaderAPIDx11::DoIssueShaderState( bool bForce )
 
 	if ( bForce || bViewChanged )
 	{
+		//VPROF_BUDGET( "CShaderAPIDx11::IssueViewMatrix", VPROF_BUDGETGROUP_OTHER_UNACCOUNTED );
+
 		const DirectX::XMMATRIX &view = GetMatrix( MATERIAL_VIEW );
 		// Row-major -> column-major
 		pPerFrameConstants->cViewMatrix = DirectX::XMMatrixTranspose( view );
@@ -659,6 +634,8 @@ void CShaderAPIDx11::DoIssueShaderState( bool bForce )
 
 	if ( bForce || bModelChanged )
 	{
+		//VPROF_BUDGET( "CShaderAPIDx11::IssueModelMatrix", VPROF_BUDGETGROUP_OTHER_UNACCOUNTED );
+
 		// Row-major -> column-major
 		pPerModelConstants->cModelMatrix = DirectX::XMMatrixTranspose( GetMatrix( MATERIAL_MODEL ) );
 
@@ -669,6 +646,8 @@ void CShaderAPIDx11::DoIssueShaderState( bool bForce )
 
 	if ( bForce || bProjChanged )
 	{
+		//VPROF_BUDGET( "CShaderAPIDx11::IssueProjMatrix", VPROF_BUDGETGROUP_OTHER_UNACCOUNTED );
+
 		// Row-major -> column-major
 		pPerSceneConstants->cProjMatrix = DirectX::XMMatrixTranspose( GetMatrix( MATERIAL_PROJECTION ) );
 
@@ -683,7 +662,7 @@ void CShaderAPIDx11::DoIssueShaderState( bool bForce )
 
 	if ( bForce || m_ShaderState.light.m_bLightChanged )
 	{
-		VPROF_BUDGET( "CShaderAPIDx11::IssueLightState", VPROF_BUDGETGROUP_OTHER_UNACCOUNTED );
+		//VPROF_BUDGET( "CShaderAPIDx11::IssueLightState", VPROF_BUDGETGROUP_OTHER_UNACCOUNTED );
 
 		int lightIndex[MAX_NUM_LIGHTS];
 		memset( lightIndex, 0, sizeof( lightIndex ) );
@@ -741,7 +720,7 @@ void CShaderAPIDx11::DoIssueShaderState( bool bForce )
 
 	if ( bForce || m_ShaderState.light.m_bAmbientChanged )
 	{
-		VPROF_BUDGET( "CShaderAPIDx11::IssueAmbientState", VPROF_BUDGETGROUP_OTHER_UNACCOUNTED );
+		//VPROF_BUDGET( "CShaderAPIDx11::IssueAmbientState", VPROF_BUDGETGROUP_OTHER_UNACCOUNTED );
 		memcpy( pPerModelConstants->cAmbientCube, m_ShaderState.light.m_AmbientLightCube, sizeof( DirectX::XMFLOAT3A ) * 6 );
 		m_ShaderState.light.m_bAmbientChanged = false;
 		bPerModelChanged = true;
@@ -753,7 +732,7 @@ void CShaderAPIDx11::DoIssueShaderState( bool bForce )
 
 	if ( bForce || m_ShaderState.fog.m_bFogChanged )
 	{
-		VPROF_BUDGET( "CShaderAPIDx11::IssueFogState", VPROF_BUDGETGROUP_OTHER_UNACCOUNTED );
+		//VPROF_BUDGET( "CShaderAPIDx11::IssueFogState", VPROF_BUDGETGROUP_OTHER_UNACCOUNTED );
 
 		float ooFogRange = 1.0f;
 		float fStart = m_ShaderState.fog.m_flFogStart;
@@ -785,7 +764,7 @@ void CShaderAPIDx11::DoIssueShaderState( bool bForce )
 
 	if ( bForce || m_ShaderState.bone.m_bBonesChanged )
 	{
-		VPROF_BUDGET( "CShaderAPIDx11::IssueBoneState", VPROF_BUDGETGROUP_OTHER_UNACCOUNTED );
+		//VPROF_BUDGET( "CShaderAPIDx11::IssueBoneState", VPROF_BUDGETGROUP_OTHER_UNACCOUNTED );
 
 		// Since skinning is in it's own constant buffer and we are updating the whole
 		// thing if bones have changed, be more efficient and lock the buffer to
@@ -805,7 +784,7 @@ void CShaderAPIDx11::DoIssueShaderState( bool bForce )
 		m_ShaderState.bone.m_MaxBoneLoaded = 0;
 
 		// Copy bone matrices into cModel constant
-		memcpy( pSkinningConstants->cModel, m_ShaderState.bone.m_BoneMatrix,
+		memcpy_SSE( pSkinningConstants->cModel, m_ShaderState.bone.m_BoneMatrix,
 			sizeof( DirectX::XMMATRIX ) * matricesLoaded );
 
 		m_ShaderState.bone.m_bBonesChanged = false;
@@ -818,7 +797,7 @@ void CShaderAPIDx11::DoIssueShaderState( bool bForce )
 	//
 	if ( bForce || m_ShaderState.morph.m_bMorphChanged )
 	{
-		VPROF_BUDGET( "CShaderAPIDx11::IssueMorphState", VPROF_BUDGETGROUP_OTHER_UNACCOUNTED );
+		//VPROF_BUDGET( "CShaderAPIDx11::IssueMorphState", VPROF_BUDGETGROUP_OTHER_UNACCOUNTED );
 
 		// Since flex is in it's own constant buffer and we are updating the whole
 		// thing if flex has changed, be more efficient and lock the buffer to
@@ -843,7 +822,7 @@ void CShaderAPIDx11::DoIssueShaderState( bool bForce )
 	//
 	if ( m_bFlashlightStateChanged )
 	{
-		VPROF_BUDGET( "CShaderAPIDx11::IssueFlashLightState", VPROF_BUDGETGROUP_OTHER_UNACCOUNTED );
+		//VPROF_BUDGET( "CShaderAPIDx11::IssueFlashLightState", VPROF_BUDGETGROUP_OTHER_UNACCOUNTED );
 
 		float flFlashlightScale = 0.25f;
 		if ( !g_pHardwareConfig->GetHDREnabled() )
@@ -893,15 +872,20 @@ void CShaderAPIDx11::DoIssueShaderState( bool bForce )
 		m_bFlashlightStateChanged = false;
 	}
 
-	//
-	// Supply the new constants.
-	//
-	if ( bPerModelChanged )
-		( (CShaderConstantBufferDx11 *)m_hPerModelConstants )->ForceUpdate();
-	if ( bPerFrameChanged )
-		( (CShaderConstantBufferDx11 *)m_hPerFrameConstants )->ForceUpdate();
-	if ( bPerSceneChanged )
-		( (CShaderConstantBufferDx11 *)m_hPerSceneConstants )->ForceUpdate();
+	//{
+		//VPROF_BUDGET( "ForceUpdate constants", VPROF_BUDGETGROUP_OTHER_UNACCOUNTED );
+
+		//
+		// Supply the new constants.
+		//
+		if ( bPerModelChanged )
+			( (CShaderConstantBufferDx11 *)m_hPerModelConstants )->ForceUpdate();
+		if ( bPerFrameChanged )
+			( (CShaderConstantBufferDx11 *)m_hPerFrameConstants )->ForceUpdate();
+		if ( bPerSceneChanged )
+			( (CShaderConstantBufferDx11 *)m_hPerSceneConstants )->ForceUpdate();
+	//}
+	
 }
 
 void CShaderAPIDx11::DoIssueVertexShader()
@@ -925,48 +909,43 @@ bool CShaderAPIDx11::DoIssueConstantBuffers( bool bForce )
 	bool bVSChanged = false;
 	bool bGSChanged = false;
 
-	const StatesDx11::DynamicState &targetDynamic = m_TargetState.dynamic;
-	const StatesDx11::DynamicState &dynamic = m_State.dynamic;
+	const StatesDx11::ShadowState *targetShadow = m_TargetState.shadow;
+	const StatesDx11::ShadowState *shadow = m_State.shadow;
 
-	int nVSCBCompare = max( targetDynamic.m_MaxVSConstantBufferSlot, dynamic.m_MaxVSConstantBufferSlot ) + 1;
-	if ( m_TargetState.dynamic.m_pVertexShader &&
-	     targetDynamic.m_MaxVSConstantBufferSlot != -1 &&
-		( targetDynamic.m_MaxVSConstantBufferSlot != dynamic.m_MaxVSConstantBufferSlot ||
-		  FastMemCompare( targetDynamic.m_pVSConstantBuffers, dynamic.m_pVSConstantBuffers,
-			  sizeof( ID3D11Buffer * ) * nVSCBCompare ) ) )
+	
+	if ( bForce || targetShadow->m_iVSConstantBufferState != shadow->m_iVSConstantBufferState )
 	{
+		if ( targetShadow->desc.vsConstantBuffers.m_MaxSlot > -1 )
+		{
+			D3D11DeviceContext()->VSSetConstantBuffers( 0, targetShadow->desc.vsConstantBuffers.m_MaxSlot + 1,
+								    targetShadow->desc.vsConstantBuffers.m_ppBuffers );
 
-		D3D11DeviceContext()->VSSetConstantBuffers( 0, targetDynamic.m_MaxVSConstantBufferSlot + 1,
-							    targetDynamic.m_pVSConstantBuffers );
-		
+			
+		}	
 		bVSChanged = true;
 	}
 
-	int nGSCBCompare = max( targetDynamic.m_MaxGSConstantBufferSlot, dynamic.m_MaxGSConstantBufferSlot ) + 1;
-	if ( m_TargetState.dynamic.m_pGeometryShader &&
-	     targetDynamic.m_MaxGSConstantBufferSlot != -1 &&
-	     ( targetDynamic.m_MaxGSConstantBufferSlot != dynamic.m_MaxGSConstantBufferSlot ||
-	       FastMemCompare( targetDynamic.m_pGSConstantBuffers, dynamic.m_pGSConstantBuffers,
-		       sizeof( ID3D11Buffer * ) * nGSCBCompare ) ) )
+	if ( bForce || targetShadow->m_iGSConstantBufferState != shadow->m_iGSConstantBufferState )
 	{
+		if ( targetShadow->desc.gsConstantBuffers.m_MaxSlot > -1 )
+		{
+			D3D11DeviceContext()->GSSetConstantBuffers( 0, targetShadow->desc.gsConstantBuffers.m_MaxSlot + 1,
+								    targetShadow->desc.gsConstantBuffers.m_ppBuffers );
 
-		D3D11DeviceContext()->GSSetConstantBuffers( 0, targetDynamic.m_MaxGSConstantBufferSlot + 1,
-							    targetDynamic.m_pGSConstantBuffers );
-
+			
+		}
 		bGSChanged = true;
 	}
 
-	int nPSCBCompare = max( targetDynamic.m_MaxPSConstantBufferSlot, dynamic.m_MaxPSConstantBufferSlot ) + 1;
-	if ( m_TargetState.dynamic.m_pPixelShader &&
-	     targetDynamic.m_MaxPSConstantBufferSlot != -1 &&
-	     ( targetDynamic.m_MaxPSConstantBufferSlot != dynamic.m_MaxPSConstantBufferSlot ||
-	       FastMemCompare( targetDynamic.m_pPSConstantBuffers, dynamic.m_pPSConstantBuffers,
-		       sizeof( ID3D11Buffer * ) * nPSCBCompare ) ) )
+	if ( bForce || targetShadow->m_iPSConstantBufferState != shadow->m_iPSConstantBufferState )
 	{
+		if ( targetShadow->desc.psConstantBuffers.m_MaxSlot > -1 )
+		{
+			D3D11DeviceContext()->PSSetConstantBuffers( 0, targetShadow->desc.psConstantBuffers.m_MaxSlot + 1,
+								    targetShadow->desc.psConstantBuffers.m_ppBuffers );
 
-		D3D11DeviceContext()->PSSetConstantBuffers( 0, targetDynamic.m_MaxPSConstantBufferSlot + 1,
-							    targetDynamic.m_pPSConstantBuffers );
-
+			
+		}
 		bPSChanged = true;
 	}
 
@@ -1592,10 +1571,6 @@ void CShaderAPIDx11::ClearSnapshots()
 // Sets the default *dynamic* state
 void CShaderAPIDx11::SetDefaultState()
 {
-	m_TargetState.dynamic.m_MaxVSConstantBufferSlot = -1;
-	m_TargetState.dynamic.m_MaxGSConstantBufferSlot = -1;
-	m_TargetState.dynamic.m_MaxPSConstantBufferSlot = -1;
-
 	m_TargetState.dynamic.m_MaxSamplerSlot = -1;
 	m_TargetState.dynamic.m_MaxVSSamplerSlot = -1;
 
@@ -2078,12 +2053,14 @@ void CShaderAPIDx11::HandleMatrixModified()
 	}
 }
 
+static DirectX::XMMATRIX s_DXMatIdent = DirectX::XMMatrixIdentity();
+
 DirectX::XMMATRIX &CShaderAPIDx11::GetMatrix( MaterialMatrixMode_t mode )
 {
 	CUtlStack<StatesDx11::MatrixItem_t> &curStack = m_ShaderState.m_MatrixStacks[mode];
 	if ( !curStack.Count() )
 	{
-		return DirectX::XMMatrixIdentity();
+		return s_DXMatIdent;
 	}
 
 	return m_ShaderState.m_MatrixStacks[mode].Top().m_Matrix;
@@ -3575,11 +3552,36 @@ void CShaderAPIDx11::SetFlashlightState( const FlashlightState_t &state, const V
 void CShaderAPIDx11::SetFlashlightStateEx( const FlashlightState_t &state, const VMatrix &worldToTexture, ITexture *pFlashlightDepthTexture )
 {
 	LOCK_SHADERAPI();
-	FlushBufferedPrimitives();
-	m_FlashlightState = state;
-	m_FlashlightWorldToTexture = worldToTexture;
-	m_pFlashlightDepthTexture = pFlashlightDepthTexture;
-	m_bFlashlightStateChanged = true;
+	
+	bool bFlushed = false;
+	if ( memcmp( &state, &m_FlashlightState, sizeof( FlashlightState_t ) ) )
+	{
+		FlushBufferedPrimitives();
+		bFlushed = true;
+
+		m_FlashlightState = state;
+		m_bFlashlightStateChanged = true;		
+	}
+	if ( worldToTexture != m_FlashlightWorldToTexture )
+	{
+		if ( !bFlushed )
+		{
+			FlushBufferedPrimitives();
+			bFlushed = true;
+		}
+		m_FlashlightWorldToTexture = worldToTexture;
+		m_bFlashlightStateChanged = true;
+	}
+	if ( pFlashlightDepthTexture != m_pFlashlightDepthTexture )
+	{
+		if ( !bFlushed )
+		{
+			FlushBufferedPrimitives();
+			bFlushed = true;
+		}
+		m_pFlashlightDepthTexture = pFlashlightDepthTexture;
+		m_bFlashlightStateChanged = true;
+	}
 }
 
 const FlashlightState_t &CShaderAPIDx11::GetFlashlightState( VMatrix &worldToTexture ) const

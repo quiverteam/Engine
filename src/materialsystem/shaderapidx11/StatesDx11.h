@@ -62,65 +62,6 @@ FORCEINLINE static D3D11_BLEND TranslateD3D11BlendFunc( ShaderBlendFactor_t blen
 	}
 }
 
-namespace ShadowStatesDx11
-{
-
-	struct AlphaTestAttrib
-	{
-		bool bEnable;
-		ShaderAlphaFunc_t alphaFunc;
-		float alphaTestRef;
-
-		AlphaTestAttrib()
-		{
-			bEnable = false;
-			alphaFunc = SHADER_ALPHAFUNC_LESS;
-			alphaTestRef = 0.0f;
-		}
-	};
-
-	struct TransparencyAttrib
-	{
-		bool bTranslucent;
-
-		TransparencyAttrib()
-		{
-			bTranslucent = false;
-		}
-	};
-
-	struct ColorAttrib
-	{
-		bool bEnable;
-
-		ColorAttrib()
-		{
-			bEnable = false;
-		}
-	};
-
-	struct LightAttrib
-	{
-		bool bEnable;
-
-		LightAttrib()
-		{
-			bEnable = false;
-		}
-	};
-
-	struct VertexBlendAttrib
-	{
-		bool bEnable;
-
-		VertexBlendAttrib()
-		{
-			bEnable = false;
-		}
-	};
-}
-
-
 namespace StatesDx11
 {
 	// These states below describe the D3D pipeline state.
@@ -130,19 +71,88 @@ namespace StatesDx11
 	// change per-mesh or per-frame (in DYNAMIC_STATE)
 	//
 
-	struct DepthStencilState : public CD3D11_DEPTH_STENCIL_DESC
+	struct DepthStencilState : public D3D11_DEPTH_STENCIL_DESC
 	{
 		int StencilRef;
+
+		void SetDefault()
+		{
+			DepthEnable = TRUE;
+			DepthWriteMask = D3D11_DEPTH_WRITE_MASK_ALL;
+			DepthFunc = D3D11_COMPARISON_LESS;
+			StencilEnable = FALSE;
+			StencilReadMask = D3D11_DEFAULT_STENCIL_READ_MASK;
+			StencilWriteMask = D3D11_DEFAULT_STENCIL_WRITE_MASK;
+			const D3D11_DEPTH_STENCILOP_DESC defaultStencilOp =
+			{ D3D11_STENCIL_OP_KEEP, D3D11_STENCIL_OP_KEEP, D3D11_STENCIL_OP_KEEP, D3D11_COMPARISON_ALWAYS };
+			FrontFace = defaultStencilOp;
+			BackFace = defaultStencilOp;
+
+			StencilRef = 0;
+		}
 	};
 
-	struct BlendState : public CD3D11_BLEND_DESC
+	struct BlendState : public D3D11_BLEND_DESC
 	{
 		float BlendColor[4];
 		uint SampleMask;
+
+		void SetDefault()
+		{
+			AlphaToCoverageEnable = FALSE;
+			IndependentBlendEnable = FALSE;
+			const D3D11_RENDER_TARGET_BLEND_DESC defaultRenderTargetBlendDesc =
+			{
+			    FALSE,
+			    D3D11_BLEND_ONE, D3D11_BLEND_ZERO, D3D11_BLEND_OP_ADD,
+			    D3D11_BLEND_ONE, D3D11_BLEND_ZERO, D3D11_BLEND_OP_ADD,
+			    D3D11_COLOR_WRITE_ENABLE_ALL,
+			};
+			for ( UINT i = 0; i < D3D11_SIMULTANEOUS_RENDER_TARGET_COUNT; ++i )
+				RenderTarget[i] = defaultRenderTargetBlendDesc;
+
+			BlendColor[0] = BlendColor[1] = BlendColor[2] = BlendColor[3] = 1.0f;
+			SampleMask = 1;
+		}
 	};
 
-	struct RasterState : public CD3D11_RASTERIZER_DESC
+	struct RasterState : public D3D11_RASTERIZER_DESC
 	{
+		void SetDefault()
+		{
+			FillMode = D3D11_FILL_SOLID;
+			CullMode = D3D11_CULL_BACK;
+			FrontCounterClockwise = FALSE;
+			DepthBias = D3D11_DEFAULT_DEPTH_BIAS;
+			DepthBiasClamp = D3D11_DEFAULT_DEPTH_BIAS_CLAMP;
+			SlopeScaledDepthBias = D3D11_DEFAULT_SLOPE_SCALED_DEPTH_BIAS;
+			DepthClipEnable = TRUE;
+			ScissorEnable = FALSE;
+			MultisampleEnable = FALSE;
+			AntialiasedLineEnable = FALSE;
+		}
+	};
+
+	struct ConstantBufferState
+	{
+		int m_MaxSlot;
+		ID3D11Buffer *m_ppBuffers[MAX_DX11_CBUFFERS];
+
+		bool operator==( const ConstantBufferState &other ) const
+		{
+			if ( m_MaxSlot != other.m_MaxSlot )
+			{
+				return false;
+			}
+
+			return memcmp( m_ppBuffers, other.m_ppBuffers, sizeof( m_ppBuffers ) ) == 0;
+		}
+
+		void SetDefault()
+		{
+			m_MaxSlot = -1;
+			memset( m_ppBuffers, 0, sizeof( m_ppBuffers ) );
+		}
 	};
 
 	struct ShadowStateDesc
@@ -150,6 +160,10 @@ namespace StatesDx11
 		BlendState blend;
 		DepthStencilState depthStencil;
 		RasterState rasterizer;
+
+		ConstantBufferState vsConstantBuffers;
+		ConstantBufferState gsConstantBuffers;
+		ConstantBufferState psConstantBuffers;
 
 		bool bEnableAlphaTest;
 		ShaderAlphaFunc_t alphaTestFunc;
@@ -164,7 +178,7 @@ namespace StatesDx11
 		PixelShader_t pixelShader;
 		int staticPixelShaderIndex;
 		GeometryShader_t geometryShader;
-		int geometryShaderIndex;
+		int staticGeometryShaderIndex;
 
 		// Vertex data used by this snapshot
 		// Note that the vertex format actually used will be the
@@ -194,44 +208,36 @@ namespace StatesDx11
 		// Sets the default shadow state
 		void SetDefault()
 		{
-			ZeroMemory( this, sizeof( ShadowStateDesc ) );
+			vsConstantBuffers.SetDefault();
+			gsConstantBuffers.SetDefault();
+			psConstantBuffers.SetDefault();
 
-			depthStencil.DepthEnable = true;
-			depthStencil.DepthFunc = D3D11_COMPARISON_LESS;
-			depthStencil.DepthWriteMask = D3D11_DEPTH_WRITE_MASK_ALL;
+			depthStencil.SetDefault();
+			rasterizer.SetDefault();
+			blend.SetDefault();
 
-			blend.BlendColor[0] = blend.BlendColor[1] =
-				blend.BlendColor[2] = blend.BlendColor[3] = 1.0f;
-			blend.SampleMask = 1;
-
-			rasterizer.FillMode = D3D11_FILL_SOLID;
-			rasterizer.CullMode = D3D11_CULL_BACK;
-			rasterizer.FrontCounterClockwise = FALSE; // right-hand rule
-
-			D3D11_RENDER_TARGET_BLEND_DESC *rtbDesc = &blend.RenderTarget[0];
-			rtbDesc->SrcBlend = D3D11_BLEND_ONE;
-			rtbDesc->DestBlend = D3D11_BLEND_ZERO;
-			rtbDesc->BlendOp = D3D11_BLEND_OP_ADD;
-			rtbDesc->SrcBlendAlpha = D3D11_BLEND_ONE;
-			rtbDesc->DestBlendAlpha = D3D11_BLEND_ZERO;
-			rtbDesc->BlendOpAlpha = D3D11_BLEND_OP_ADD;
-			rtbDesc->RenderTargetWriteMask = D3D11_COLOR_WRITE_ENABLE_ALL;
-
+			bEnableAlphaTest = false;
 			alphaTestFunc = SHADER_ALPHAFUNC_GEQUAL;
+			alphaTestRef = 0.0f;
 
 			vertexShader = -1;
+			staticVertexShaderIndex = 0;
 			pixelShader = -1;
+			staticPixelShaderIndex = 0;
 			geometryShader = -1;
+			staticGeometryShaderIndex = 0;
+
+			vertexFormat = VERTEX_FORMAT_UNKNOWN;
+			morphFormat = 0;
+
+			bLighting = false;
+			bVertexBlend = false;
+			bConstantColor = false;
 		}
 
 		ShadowStateDesc()
 		{
 			SetDefault();
-		}
-
-		bool operator==( const ShadowStateDesc &other ) const
-		{
-			return memcmp( this, &other, sizeof( ShadowStateDesc ) ) == 0;
 		}
 	};
 
@@ -243,6 +249,10 @@ namespace StatesDx11
 		ID3D11DepthStencilState *m_pDepthStencilState;
 		ID3D11RasterizerState *m_pRasterState;
 
+		unsigned int m_iVSConstantBufferState;
+		unsigned int m_iPSConstantBufferState;
+		unsigned int m_iGSConstantBufferState;
+
 		bool operator==( const ShadowState &other ) const
 		{
 			return memcmp( &desc, &other.desc, sizeof( ShadowStateDesc ) ) == 0;
@@ -250,12 +260,16 @@ namespace StatesDx11
 
 		ShadowState()
 		{
-			desc.SetDefault();
 			m_pBlendState = NULL;
 			m_pDepthStencilState = NULL;
 			m_pRasterState = NULL;
+			m_iVSConstantBufferState = 0;
+			m_iPSConstantBufferState = 0;
+			m_iGSConstantBufferState = 0;
 		}
 	};
+
+
 
 	//
 	// Things that can change per-mesh or per-frame (in DYNAMIC_STATE)
@@ -313,13 +327,6 @@ namespace StatesDx11
 		int m_iGeometryShader;
 		ID3D11PixelShader *m_pPixelShader;
 		int m_iPixelShader;
-
-		ID3D11Buffer *m_pVSConstantBuffers[MAX_DX11_CBUFFERS];
-		int m_MaxVSConstantBufferSlot;
-		ID3D11Buffer *m_pGSConstantBuffers[MAX_DX11_CBUFFERS];
-		int m_MaxGSConstantBufferSlot;
-		ID3D11Buffer *m_pPSConstantBuffers[MAX_DX11_CBUFFERS];
-		int m_MaxPSConstantBufferSlot;
 		
 		ID3D11ShaderResourceView *m_pVSSRVs[MAX_DX11_SAMPLERS];
 		ID3D11SamplerState *m_pVSSamplers[MAX_DX11_SAMPLERS];
@@ -340,9 +347,6 @@ namespace StatesDx11
 			m_iPixelShader = -1;
 			m_iGeometryShader = -1;
 			m_Topology = D3D11_PRIMITIVE_TOPOLOGY_UNDEFINED;
-			m_MaxVSConstantBufferSlot = -1;
-			m_MaxGSConstantBufferSlot = -1;
-			m_MaxPSConstantBufferSlot = -1;
 			m_MaxVSSamplerSlot = -1;
 			m_MaxSamplerSlot = -1;
 		}
@@ -357,6 +361,18 @@ namespace StatesDx11
 	{
 		const ShadowState *shadow;
 		DynamicState dynamic;
+
+		void SetDefault()
+		{
+			shadow = NULL;
+			dynamic.SetDefault();
+		}
+
+		void operator=( const RenderState &other )
+		{
+			shadow = other.shadow;
+			memcpy( &dynamic, &other.dynamic, sizeof( DynamicState ) );
+		}
 	};
 
 	// These states describe the dynamic shader state.

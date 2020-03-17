@@ -6,9 +6,7 @@
 //
 //===========================================================================//
 
-#include <d3d11.h>
-#include <d3dcompiler.h>
-
+#include "Dx11Global.h"
 #include "shaderdevicedx11.h"
 #include "shaderapi/ishaderutil.h"
 #include "shaderapidx11.h"
@@ -36,6 +34,12 @@ ConVar mat_debugalttab( "mat_debugalttab", "0", FCVAR_CHEAT );
 //-----------------------------------------------------------------------------
 template class CShaderBuffer< ID3DBlob >;
 
+//-----------------------------------------------------------------------------
+// Globals
+//-----------------------------------------------------------------------------
+ID3D11Device *g_pD3DDevice = NULL;
+ID3D11DeviceContext *g_pD3DDeviceContext = NULL;
+IDXGISwapChain *g_pD3DSwapChain = NULL;
 
 //-----------------------------------------------------------------------------
 //
@@ -594,9 +598,9 @@ bool CShaderDeviceDx11::InitDevice( void *hWnd, int nAdapter, const ShaderDevice
 	sd.SampleDesc.Quality = mode.m_nAAQuality;
 
 	UINT nDeviceFlags = 0;
-//#ifdef _DEBUG
-	//nDeviceFlags |= D3D11_CREATE_DEVICE_DEBUG;
-//#endif
+#ifdef _DEBUG
+	nDeviceFlags |= D3D11_CREATE_DEVICE_DEBUG;
+#endif
 
 	HRESULT hr = D3D11CreateDeviceAndSwapChain( pAdapter, D3D_DRIVER_TYPE_UNKNOWN,
 						    NULL, nDeviceFlags, NULL, 0, D3D11_SDK_VERSION, &sd, &m_pSwapChain,
@@ -604,6 +608,10 @@ bool CShaderDeviceDx11::InitDevice( void *hWnd, int nAdapter, const ShaderDevice
 
 	if ( FAILED( hr ) )
 		return false;
+
+	g_pD3DDevice = m_pDevice;
+	g_pD3DDeviceContext = m_pDeviceContext;
+	g_pD3DSwapChain = m_pSwapChain;
 
 	m_hWnd = hWnd;
 	m_nAdapter = nAdapter;

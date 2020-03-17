@@ -22,9 +22,6 @@ vertexlit_and_unlit_generic_ps40.fxc
 depthtodestalpha_vs40.fxc
 depthtodestalpha_ps40.fxc
 
-unlitgeneric_ps40.fxc
-unlitgeneric_vs40.fxc
-
 wireframe_ps40.fxc
 wireframe_vs40.fxc
 

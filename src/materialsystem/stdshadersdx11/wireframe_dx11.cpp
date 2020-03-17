@@ -45,6 +45,8 @@ BEGIN_SHADER( Wireframe_DX11,
 			int dimensions[] = { 2 };
 			pShaderShadow->VertexShaderVertexFormat( format, 1, dimensions, 0 );
 
+			SetInternalVertexShaderConstantBuffersNoSkinning();
+
 			DECLARE_STATIC_VERTEX_SHADER( wireframe_vs40 );
 			SET_STATIC_VERTEX_SHADER( wireframe_vs40 );
 
@@ -53,8 +55,6 @@ BEGIN_SHADER( Wireframe_DX11,
 		}
 		DYNAMIC_STATE
 		{
-
-			BindInternalVertexShaderConstantBuffersNoSkinning();
 			
 			DECLARE_DYNAMIC_VERTEX_SHADER( wireframe_vs40 );
 			SET_DYNAMIC_VERTEX_SHADER( wireframe_vs40 );

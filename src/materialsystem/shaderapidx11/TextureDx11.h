@@ -175,6 +175,12 @@ public:
 	unsigned short m_nFlags;
 	int m_CreationFlags;
 
+	//
+	// The stuff below exists to emulate DX9's LockRect function, which
+	// allowed you to modify a portion of the texture without discarding the
+	// rest of the texture.
+	//
+
 	// For locking textures
 	ID3D11Resource *m_pLockedTexture;
 	D3D11_MAPPED_SUBRESOURCE m_MappedData;
@@ -183,6 +189,9 @@ public:
 	UINT m_LockedSubresource;
 	bool m_bLocked;
 
+	// We store copies of dynamic textures in system memory to
+	// allow for quickly modifying regions of dynamic textures.
+	// (Used by lightmaps)
 	union
 	{
 		unsigned char *m_pRamImage;

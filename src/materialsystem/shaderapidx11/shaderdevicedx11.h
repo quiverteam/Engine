@@ -270,23 +270,4 @@ inline ID3D11PixelShader* CShaderDeviceDx11::GetPixelShader( PixelShaderHandle_t
 //-----------------------------------------------------------------------------
 extern CShaderDeviceDx11* g_pShaderDeviceDx11;
 
-
-//-----------------------------------------------------------------------------
-// Utility methods
-//-----------------------------------------------------------------------------
-inline ID3D11Device *D3D11Device()
-{
-	return g_pShaderDeviceDx11->m_pDevice;	
-}
-
-inline ID3D11DeviceContext *D3D11DeviceContext()
-{
-	return g_pShaderDeviceDx11->m_pDeviceContext;
-}
-
-inline IDXGISwapChain *D3D11SwapChain()
-{
-	return g_pShaderDeviceDx11->m_pSwapChain;	
-}
-
 #endif // SHADERDEVICEDX11_H

@@ -125,7 +125,6 @@ BEGIN_VS_SHADER( Sprite_DX11,
 	void SetSpriteCommonShadowState( unsigned int shaderFlags )
 	{
 		IShaderShadow *pShaderShadow = s_pShaderShadow;
-		s_pShaderShadow->EnableTexture( SHADER_SAMPLER0, true );
 		bool bSRGB = s_ppParams[NOSRGB]->GetIntValue() == 0;
 
 		unsigned int flags = VERTEX_POSITION;
@@ -135,6 +134,12 @@ BEGIN_VS_SHADER( Sprite_DX11,
 		}
 		int numTexCoords = 1;
 		s_pShaderShadow->VertexShaderVertexFormat( flags, numTexCoords, 0, 0 );
+
+		SetInternalVertexShaderConstantBuffersNoSkinning();
+
+		SetPixelShaderConstantBuffer( 0, SHADER_CONSTANTBUFFER_PERFRAME );
+		SetPixelShaderConstantBuffer( 1, SHADER_CONSTANTBUFFER_PERSCENE );
+		SetPixelShaderConstantBuffer( 2, CONSTANT_BUFFER( Sprite ) );
 
 		DECLARE_STATIC_VERTEX_SHADER( sprite_vs40 );
 		SET_STATIC_VERTEX_SHADER_COMBO( VERTEXCOLOR,  ( shaderFlags & SHADER_USE_VERTEX_COLOR ) ? true : false );
@@ -167,8 +172,6 @@ BEGIN_VS_SHADER( Sprite_DX11,
 		SET_DYNAMIC_PIXEL_SHADER_COMBO( PIXELFOGTYPE, pShaderAPI->GetPixelFogCombo() );
 		SET_DYNAMIC_PIXEL_SHADER( sprite_ps40 );
 
-		BindInternalVertexShaderConstantBuffersNoSkinning();
-
 		ALIGN16 Sprite_CBuffer_t psConsts;
 		if ( IsHDREnabled() )
 		{
@@ -183,10 +186,6 @@ BEGIN_VS_SHADER( Sprite_DX11,
 		}
 		
 		UPDATE_CONSTANT_BUFFER( Sprite, psConsts );
-
-		BindPixelShaderConstantBuffer( 0, SHADER_CONSTANTBUFFER_PERFRAME );
-		BindPixelShaderConstantBuffer( 1, SHADER_CONSTANTBUFFER_PERSCENE );
-		BindPixelShaderConstantBuffer( 2, CONSTANT_BUFFER( Sprite ) );
 
 	}
 
@@ -371,8 +370,6 @@ BEGIN_VS_SHADER( Sprite_DX11,
 						color[0] = color[1] = color[2] = flFade * frameBlendAlpha;
 					color[3] = 1.0f;
 
-					BindInternalVertexShaderConstantBuffersNoSkinning();
-
 					ALIGN16 Sprite_CBuffer_t psConsts;
 					psConsts.cModulationColor = color;
 					if ( IsHDREnabled() )
@@ -388,10 +385,6 @@ BEGIN_VS_SHADER( Sprite_DX11,
 					}
 
 					UPDATE_CONSTANT_BUFFER( Sprite, psConsts );
-
-					BindPixelShaderConstantBuffer( 0, SHADER_CONSTANTBUFFER_PERFRAME );
-					BindPixelShaderConstantBuffer( 1,  SHADER_CONSTANTBUFFER_PERSCENE );
-					BindPixelShaderConstantBuffer( 2, CONSTANT_BUFFER( Sprite ) );
 				}
 				Draw();
 				SHADOW_STATE
@@ -425,8 +418,6 @@ BEGIN_VS_SHADER( Sprite_DX11,
 						color[0] = color[1] = color[2] = flFade * frameBlendAlpha;
 					color[3] = 1.0f;
 
-					BindInternalVertexShaderConstantBuffersNoSkinning();
-
 					ALIGN16 Sprite_CBuffer_t psConsts;
 					psConsts.cModulationColor = color;
 					if ( IsHDREnabled() )
@@ -442,10 +433,6 @@ BEGIN_VS_SHADER( Sprite_DX11,
 					}
 
 					UPDATE_CONSTANT_BUFFER( Sprite, psConsts );
-
-					BindPixelShaderConstantBuffer( 0, SHADER_CONSTANTBUFFER_PERFRAME );
-					BindPixelShaderConstantBuffer( 1, SHADER_CONSTANTBUFFER_PERSCENE );
-					BindPixelShaderConstantBuffer( 2, CONSTANT_BUFFER( Sprite ) );
 				}
 				Draw();
 			}

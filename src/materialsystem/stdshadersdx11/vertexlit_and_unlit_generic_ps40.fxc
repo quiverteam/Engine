@@ -14,7 +14,7 @@
 // STATIC: "HALFLAMBERT"				"0..1"
 // STATIC: "LIGHTWARPTEXTURE"			"0..1"
 // STATIC: "VERTEXCOLOR"				"0..1"
-// STATIC: "FLASHLIGHT"					"0..1"
+// DYNAMIC: "FLASHLIGHT"					"0..1"
 // STATIC: "SELFILLUM_ENVMAPMASK_ALPHA" "0..1"
 // STATIC: "DETAIL_BLEND_MODE"          "0..9"
 // STATIC: "SEAMLESS_BASE"              "0..1"
@@ -24,7 +24,7 @@
 // STATIC: "SOFT_MASK"                  "0..1"
 // STATIC: "OUTLINE"                    "0..1"
 // STATIC: "OUTER_GLOW"                 "0..1"
-// STATIC: "FLASHLIGHTDEPTHFILTERMODE"	"0..2"	[ps20b] [ps30] [ps40]
+// DYNAMIC: "FLASHLIGHTDEPTHFILTERMODE"	"0..2"	[ps20b] [ps30] [ps40]
 // STATIC: "DEPTHBLEND"					"0..1"	[ps20b] [ps30] [ps40]
 
 // Stuff from the "skin" shader
@@ -73,7 +73,7 @@
 // SKIP: $BASEALPHAENVMAPMASK && $SELFILLUM
 // SKIP: $SELFILLUM && $SELFILLUM_ENVMAPMASK_ALPHA
 // SKIP: $SELFILLUM_ENVMAPMASK_ALPHA && (! $ENVMAPMASK)
-// SKIP: $ENVMAPMASK && ($FLASHLIGHT || $FLASHLIGHTSHADOWS)
+// _SKIP: $ENVMAPMASK && ($FLASHLIGHT || $FLASHLIGHTSHADOWS)
 // SKIP: $BASEALPHAENVMAPMASK && ($SEAMLESS_BASE || $SEAMLESS_DETAIL)
 // SKIP: ($DISTANCEALPHA == 0) && ($DISTANCEALPHAFROMDETAIL || $SOFT_MASK || $OUTLINE || $OUTER_GLOW)
 // SKIP: ($DETAILTEXTURE == 0) && ($DISTANCEALPHAFROMDETAIL)
@@ -81,6 +81,7 @@
 // We don't care about flashlight depth unless the flashlight is on
 // SKIP: ( $FLASHLIGHT == 0 ) && ( $FLASHLIGHTSHADOWS )	[ps20b]
 // SKIP: ( $FLASHLIGHT == 0 ) && ( $FLASHLIGHTSHADOWS )	[ps30]
+// SKIP: ( $FLASHLIGHT == 0 ) && ( $FLASHLIGHTSHADOWS )	[ps40]
 
 // We don't care about uberlight unless the flashlight is on
 // SKIP: ( $FLASHLIGHT == 0 ) && ( $UBERLIGHT == 1 )	[ps30]
@@ -88,6 +89,7 @@
 // Flashlight shadow filter mode is irrelevant if there is no flashlight
 // SKIP: ( $FLASHLIGHT == 0 ) && ( $FLASHLIGHTDEPTHFILTERMODE != 0 ) [ps20b]
 // SKIP: ( $FLASHLIGHT == 0 ) && ( $FLASHLIGHTDEPTHFILTERMODE != 0 ) [ps30]
+// SKIP: ( $FLASHLIGHT == 0 ) && ( $FLASHLIGHTDEPTHFILTERMODE != 0 ) [ps40]
 
 // DISTANCEALPHA-related skips
 // SKIP: ($DISTANCEALPHA) && ($ENVMAPMASK || $BASEALPHAENVMAPMASK || $SELFILLUM || $SELFILLUM_ENVMAPMASK_ALPHA )
@@ -100,7 +102,7 @@
 // BlendTintByBaseAlpha is incompatible with other interpretations of alpha
 // SKIP: ($BLENDTINTBYBASEALPHA) && ($SELFILLUM || (($DISTANCEALPHA) && ($DISTANCEALPHAFROMDETAIL == 0)) || $BASEALPHAENVMAPMASK)
 
-// SKIP: $FLASHLIGHT && $CUBEMAP
+// _SKIP: $FLASHLIGHT && $CUBEMAP
 
 // _SKIP: $CUBEMAP_SPHERE_LEGACY && ($CUBEMAP == 0)
 
@@ -111,8 +113,8 @@
 // SKIP: ( $SELFILLUM == 0 ) && ( $SELFILLUMFRESNEL == 1 )
 // SKIP: ( $SELFILLUM == 0 ) && ( $SELFILLUMMASK == 1 )
 // SKIP: ( $SELFILLUMFRESNEL == 1 ) && ( $SELFILLUMMASK == 1 )
-// SKIP: ( $FLASHLIGHT == 1 ) && ( $SELFILLUMFRESNEL == 1 )			[PC]
-// SKIP: ( $FLASHLIGHT == 1 ) && ( $SELFILLUM == 1 )				[PC]
+// _SKIP: ( $FLASHLIGHT == 1 ) && ( $SELFILLUMFRESNEL == 1 )			[PC]
+// _SKIP: ( $FLASHLIGHT == 1 ) && ( $SELFILLUM == 1 )				[PC]
 // SKIP: ( $SELFILLUMFRESNEL == 1 ) && ( $DETAILTEXTURE == 1 )
 // SKIP: ( $SELFILLUMFRESNEL == 1 ) && ( $NORMALMAPALPHAENVMAPMASK == 1 )
 // Meaningless combinations
@@ -121,7 +123,7 @@
 // SKIP: ( $SELFILLUMFRESNEL == 1 ) && ( $LIGHTWARPTEXTURE == 1 )
 
 // Don't do diffuse warp on flashlight
-// SKIP: ( $FLASHLIGHT == 1 ) && ( $LIGHTWARPTEXTURE == 1 )			[PC]
+// _SKIP: ( $FLASHLIGHT == 1 ) && ( $LIGHTWARPTEXTURE == 1 )			[PC]
 
 #include "common_cbuffers_def_noskinning_fxc.h"
 
@@ -348,6 +350,10 @@ float4 main( PS_INPUT i ) : SV_TARGET
 	bool bDoSpecularWarp = PHONGWARPTEXTURE ? true : false;
 	int nNumLights = NUM_LIGHTS;
 
+	#if FLASHLIGHT
+	return float4(1, 0,0, 1);
+#endif
+
 	float3 vEyeDir = normalize( i.worldVertToEyeVector.xyz );
 
 #if BUMPMAP
@@ -539,6 +545,8 @@ float4 main( PS_INPUT i ) : SV_TARGET
 
 	#if FLASHLIGHT
 		float4 flashlightSpacePosition = mul(float4(i.worldPos_projPosZ.xyz, 1.0f), g_FlashlightWorldToTexture);
+		float3 flashlight = 0;
+		float3 flashlightspec = 0;
 		DoSpecularFlashlight( g_FlashlightPos, i.worldPos_projPosZ.xyz, flashlightSpacePosition, worldSpaceNormal,
 							  g_FlashlightAttenuationFactors.xyz, g_FlashlightAttenuationFactors.w,
 							  FlashlightTexture, FlashlightSampler, ShadowDepthTexture, ShadowDepthSampler, BaseTexture, BaseTextureSampler,
@@ -547,7 +555,8 @@ float4 main( PS_INPUT i ) : SV_TARGET
 							  c.g_EnvmapContrast_ShadowTweaks,
 							  
 							  // Output
-							  diffuseLighting, specularLighting );
+							  flashlight, flashlightspec );
+		return float4(flashlight + flashlightspec, 1.0f);
 	#endif
 
 	// Modulate with spec mask, boost and tint
@@ -598,6 +607,8 @@ float4 main( PS_INPUT i ) : SV_TARGET
 			worldSpaceNormal, g_FlashlightAttenuationFactors.xyz, 
 			g_FlashlightAttenuationFactors.w, FlashlightTexture, FlashlightSampler, ShadowDepthTexture, ShadowDepthSampler,
 			/*RandRotSampler,*/ nShadowSampleLevel, bDoShadows, false, vProjPos, false, c.g_EnvmapContrast_ShadowTweaks );
+
+		return float4(flashlightColor, 1.0f);
 	
 		diffuseLighting += flashlightColor;
 	}

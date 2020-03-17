@@ -1,28 +1,9 @@
 #include "ShaderConstantBufferDx11.h"
-#include "shaderdevicedx11.h"
-#include "tier0/vprof.h"
 #include "Dx11Global.h"
 #include "FastMemcpy.h"
 
 // NOTE: This has to be the last file included!
 #include "tier0/memdbgon.h"
-
-FORCEINLINE static void memcpy_SSE( void *dest, const void *src, size_t count )
-{
-	__m128i *srcPtr = ( __m128i * )src;
-	__m128i *destPtr = ( __m128i * )dest;
-
-	unsigned int index = 0;
-	while ( count )
-	{
-
-		__m128i x = _mm_load_si128( &srcPtr[index] );
-		_mm_stream_si128( &destPtr[index], x );
-
-		count -= 16;
-		index++;
-	}
-}
 
 static FORCEINLINE void *memcpy_SSE_V2( void *pdst, const void *psrc, size_t size )
 {
@@ -107,94 +88,6 @@ void CShaderConstantBufferDx11::Create( size_t nBufferSize, bool bDynamic )
 		Warning( "Could not set constant buffer!" );
 		//return NULL;
 	}
-}
-
-void CShaderConstantBufferDx11::Update( void *pNewData )
-{
-	if ( !pNewData )
-		return;
-
-	// If this new data is not the same as the data
-	// the GPU currently has, we need to update.
-	if ( FastMemCompare( m_pData, pNewData, m_nBufSize ) )
-	{
-		memcpy( m_pData, pNewData, m_nBufSize );
-		m_bNeedsUpdate = true;
-
-		UploadToGPU();
-	}
-
-}
-
-void *CShaderConstantBufferDx11::GetData()
-{
-	return m_pData;
-}
-
-void *CShaderConstantBufferDx11::Lock()
-{
-	if ( !m_bDynamic || m_bLocked || !m_pCBuffer )
-	{
-		return NULL;
-	}
-
-	D3D11_MAPPED_SUBRESOURCE mapped;
-	HRESULT hr = D3D11DeviceContext()->Map( m_pCBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mapped );
-	if ( FAILED( hr ) )
-	{
-		return NULL;
-	}
-
-	m_bLocked = true;
-
-	return mapped.pData;
-}
-
-void CShaderConstantBufferDx11::Unlock()
-{
-	if ( !m_bDynamic || !m_bLocked || !m_pCBuffer )
-	{
-		return;
-	}
-
-	m_bLocked = false;
-
-	D3D11DeviceContext()->Unmap( m_pCBuffer, 0 );
-}
-
-void CShaderConstantBufferDx11::ForceUpdate()
-{
-	m_bNeedsUpdate = true;
-	UploadToGPU();
-}
-
-void CShaderConstantBufferDx11::UploadToGPU()
-{
-	VPROF_BUDGET( "CShaderConstantBufferDx11::UploadToGPU()", VPROF_BUDGETGROUP_OTHER_UNACCOUNTED );
-
-	if ( !m_pCBuffer || !m_bNeedsUpdate )
-		return;
-
-	if ( m_bDynamic )
-	{
-		D3D11_MAPPED_SUBRESOURCE mapped;
-		HRESULT hr = D3D11DeviceContext()->Map( m_pCBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mapped );
-		if ( FAILED( hr ) )
-		{
-			return;
-		}
-		{
-			VPROF_BUDGET( "CShaderConstantBufferDx11::memcpy_SSE", VPROF_BUDGETGROUP_OTHER_UNACCOUNTED );
-			memcpy( mapped.pData, m_pData, m_nBufSize );
-		}
-		D3D11DeviceContext()->Unmap( m_pCBuffer, 0 );
-	}
-	else
-	{
-		D3D11DeviceContext()->UpdateSubresource( m_pCBuffer, 0, 0, m_pData, 0, 0 );
-	}
-
-	m_bNeedsUpdate = false;
 }
 
 void CShaderConstantBufferDx11::Destroy()

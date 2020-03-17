@@ -45,6 +45,14 @@ CShaderShadowDx11::CShaderShadowDx11()
 	m_ShadowStateCache.SetGrowSize( 128 );
 
 	m_DefaultShadowState.desc.SetDefault();
+
+	// Setup default constant buffer states
+	m_DefaultCBState.SetDefault();
+	// Ensure default state is at the beginning
+	m_ConstantBufferStates.InsertBefore( 0, m_DefaultCBState );
+	m_DefaultShadowState.m_iGSConstantBufferState = 0;
+	m_DefaultShadowState.m_iPSConstantBufferState = 0;
+	m_DefaultShadowState.m_iVSConstantBufferState = 0;
 }
 
 CShaderShadowDx11::~CShaderShadowDx11()
@@ -333,6 +341,9 @@ StateSnapshot_t CShaderShadowDx11::FindOrCreateSnapshot()
 	}
 
 	GenerateD3DStateObjects( lookup );
+	lookup.m_iVSConstantBufferState = FindOrCreateConstantBufferState( m_ShadowState.vsConstantBuffers );
+	lookup.m_iGSConstantBufferState = FindOrCreateConstantBufferState( m_ShadowState.gsConstantBuffers );
+	lookup.m_iPSConstantBufferState = FindOrCreateConstantBufferState( m_ShadowState.psConstantBuffers );
 
 	// Didn't find it, add entry
 	StateSnapshot_t snap = m_ShadowStateCache.AddToTail( lookup );
@@ -354,6 +365,50 @@ const StatesDx11::ShadowState *CShaderShadowDx11::GetDefaultShadowState()
 	return &m_DefaultShadowState;
 }
 
+// Constant buffer setting
+
+void CShaderShadowDx11::SetVertexShaderConstantBuffer( int slot, ConstantBufferHandle_t cbuffer )
+{
+	m_ShadowState.vsConstantBuffers.m_ppBuffers[slot] = ( (CShaderConstantBufferDx11 *)cbuffer )->GetD3DBuffer();
+	if ( slot > m_ShadowState.vsConstantBuffers.m_MaxSlot )
+	{
+		m_ShadowState.vsConstantBuffers.m_MaxSlot = slot;
+	}
+}
+
+void CShaderShadowDx11::SetVertexShaderConstantBuffer( int slot, ShaderInternalConstantBuffer_t cbuffer )
+{
+	SetVertexShaderConstantBuffer( slot, g_pShaderAPIDx11->GetInternalConstantBuffer( cbuffer ) );
+}
+
+void CShaderShadowDx11::SetGeometryShaderConstantBuffer( int slot, ConstantBufferHandle_t cbuffer )
+{
+	m_ShadowState.gsConstantBuffers.m_ppBuffers[slot] = ( (CShaderConstantBufferDx11 *)cbuffer )->GetD3DBuffer();
+	if ( slot > m_ShadowState.gsConstantBuffers.m_MaxSlot )
+	{
+		m_ShadowState.gsConstantBuffers.m_MaxSlot = slot;
+	}
+}
+ 
+void CShaderShadowDx11::SetGeometryShaderConstantBuffer( int slot, ShaderInternalConstantBuffer_t cbuffer )
+{
+	SetGeometryShaderConstantBuffer( slot, g_pShaderAPIDx11->GetInternalConstantBuffer( cbuffer ) );
+}
+
+void CShaderShadowDx11::SetPixelShaderConstantBuffer( int slot, ConstantBufferHandle_t cbuffer )
+{
+	m_ShadowState.psConstantBuffers.m_ppBuffers[slot] = ( (CShaderConstantBufferDx11 *)cbuffer )->GetD3DBuffer();
+	if ( slot > m_ShadowState.psConstantBuffers.m_MaxSlot )
+	{
+		m_ShadowState.psConstantBuffers.m_MaxSlot = slot;
+	}
+}
+
+void CShaderShadowDx11::SetPixelShaderConstantBuffer( int slot, ShaderInternalConstantBuffer_t cbuffer )
+{
+	SetPixelShaderConstantBuffer( slot, g_pShaderAPIDx11->GetInternalConstantBuffer( cbuffer ) );
+}
+
 void CShaderShadowDx11::GenerateD3DStateObjects( StatesDx11::ShadowState &state )
 {
 	HRESULT hr;
@@ -365,6 +420,18 @@ void CShaderShadowDx11::GenerateD3DStateObjects( StatesDx11::ShadowState &state 
 	Assert( SUCCEEDED( hr ) );
 	hr = D3D11Device()->CreateRasterizerState( &state.desc.rasterizer, &state.m_pRasterState );
 	Assert( SUCCEEDED( hr ) );
+}
+
+unsigned int CShaderShadowDx11::FindOrCreateConstantBufferState( const StatesDx11::ConstantBufferState &desc )
+{
+	int i = m_ConstantBufferStates.Find( desc );
+	if ( m_ConstantBufferStates.IsValidIndex( i ) )
+	{
+		return i;
+	}
+
+	// Make a new state
+	return m_ConstantBufferStates.AddToTail( desc );
 }
 
 // ---------------------------------------------------

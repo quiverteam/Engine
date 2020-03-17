@@ -67,12 +67,14 @@ SHADER_DRAW
 		pShaderShadow->EnablePolyOffset( SHADER_POLYOFFSET_DECAL );
 		pShaderShadow->EnableTexture( SHADER_SAMPLER0, true );
 
+		SetInternalVertexShaderConstantBuffers();
+		SetVertexShaderConstantBuffer( USER_CBUFFER_REG_0, CONSTANT_BUFFER( VertexLitGeneric ) );
+
+		SetPixelShaderConstantBuffer( 0, SHADER_CONSTANTBUFFER_PERSCENE );
+		SetPixelShaderConstantBuffer( 1, SHADER_CONSTANTBUFFER_PERFRAME );
+
 		// Be sure not to write to dest alpha
 		pShaderShadow->EnableAlphaWrites( false );
-
-		//SRGB conversions hose the blend on some hardware, so keep everything in gamma space.
-		pShaderShadow->EnableSRGBRead( SHADER_SAMPLER0, false );
-		pShaderShadow->EnableSRGBWrite( false );
 
 		pShaderShadow->EnableBlending( true );
 		pShaderShadow->BlendFunc( SHADER_BLEND_DST_COLOR, SHADER_BLEND_SRC_COLOR );
@@ -83,7 +85,6 @@ SHADER_DRAW
 		SET_STATIC_VERTEX_SHADER_COMBO( VERTEXCOLOR,  false );
 		SET_STATIC_VERTEX_SHADER_COMBO( CUBEMAP,  false );
 		SET_STATIC_VERTEX_SHADER_COMBO( HALFLAMBERT,  false );
-		SET_STATIC_VERTEX_SHADER_COMBO( FLASHLIGHT,  false );
 		SET_STATIC_VERTEX_SHADER_COMBO( SEAMLESS_BASE,  false );
 		SET_STATIC_VERTEX_SHADER_COMBO( SEAMLESS_DETAIL,  false );
 		SET_STATIC_VERTEX_SHADER_COMBO( SEPARATE_DETAIL_UVS, false );
@@ -132,12 +133,6 @@ SHADER_DRAW
 			SetHWMorphVertexShaderState( constants.cMorphDimensions, constants.cMorphSubrect, SHADER_VERTEXTEXTURE_SAMPLER0 );
 			UPDATE_CONSTANT_BUFFER( VertexLitGeneric, constants );
 
-			BindInternalVertexShaderConstantBuffers();
-			BindVertexShaderConstantBuffer( USER_CBUFFER_REG_0, CONSTANT_BUFFER( VertexLitGeneric ) );
-
-			BindPixelShaderConstantBuffer( 0, GetInternalConstantBuffer( SHADER_CONSTANTBUFFER_PERSCENE ) );
-			BindPixelShaderConstantBuffer( 1, GetInternalConstantBuffer( SHADER_CONSTANTBUFFER_PERFRAME ) );
-
 			MaterialFogMode_t fogType = s_pShaderAPI->GetSceneFogMode();
 			int fogIndex = ( fogType == MATERIAL_FOG_LINEAR_BELOW_FOG_Z ) ? 1 : 0;
 
@@ -150,6 +145,7 @@ SHADER_DRAW
 			SET_DYNAMIC_VERTEX_SHADER_COMBO( MORPHING, pShaderAPI->IsHWMorphingEnabled() );
 			SET_DYNAMIC_VERTEX_SHADER_COMBO( COMPRESSED_VERTS, (int)vertexCompression );
 			SET_DYNAMIC_VERTEX_SHADER_COMBO( CASCADED_SHADOW, 0 );
+			SET_DYNAMIC_VERTEX_SHADER_COMBO( FLASHLIGHT, false );
 			SET_DYNAMIC_VERTEX_SHADER( vertexlit_and_unlit_generic_vs40 );
 
 			DECLARE_DYNAMIC_PIXEL_SHADER( decalmodulate_ps40 );
