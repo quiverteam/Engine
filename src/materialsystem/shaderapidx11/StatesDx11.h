@@ -62,6 +62,29 @@ FORCEINLINE static D3D11_BLEND TranslateD3D11BlendFunc( ShaderBlendFactor_t blen
 	}
 }
 
+enum DX11StateChangeFlags_t
+{
+	STATE_CHANGED_NONE		= 0,
+	STATE_CHANGED_SAMPLERS		= 1 << 0,
+	STATE_CHANGED_VERTEXSAMPLERS	= 1 << 1,
+	STATE_CHANGED_VIEWPORTS		= 1 << 2,
+	STATE_CHANGED_VERTEXBUFFER	= 1 << 3,
+	STATE_CHANGED_INPUTLAYOUT	= 1 << 4,
+	STATE_CHANGED_INDEXBUFFER	= 1 << 5,
+	STATE_CHANGED_RENDERTARGET	= 1 << 6,
+	STATE_CHANGED_DEPTHBUFFER	= 1 << 7,
+	STATE_CHANGED_VERTEXSHADER	= 1 << 8,
+	STATE_CHANGED_GEOMETRYSHADER	= 1 << 9,
+	STATE_CHANGED_PIXELSHADER	= 1 << 10,
+	STATE_CHANGED_TOPOLOGY		= 1 << 11,
+	STATE_CHANGED_RASTERIZER	= 1 << 12,
+	STATE_CHANGED_BLEND		= 1 << 13,
+	STATE_CHANGED_DEPTHSTENCIL	= 1 << 14,
+	STATE_CHANGED_VSCONSTANTBUFFERS = 1 << 15,
+	STATE_CHANGED_GSCONSTANTBUFFERS = 1 << 16,
+	STATE_CHANGED_PSCONSTANTBUFFERS = 1 << 17,
+};
+
 namespace StatesDx11
 {
 	// These states below describe the D3D pipeline state.
@@ -71,9 +94,11 @@ namespace StatesDx11
 	// change per-mesh or per-frame (in DYNAMIC_STATE)
 	//
 
-	struct DepthStencilState : public D3D11_DEPTH_STENCIL_DESC
+	struct DepthStencilDesc : public D3D11_DEPTH_STENCIL_DESC
 	{
 		int StencilRef;
+
+		ID3D11DepthStencilState *m_pD3DState;
 
 		void SetDefault()
 		{
@@ -89,16 +114,30 @@ namespace StatesDx11
 			BackFace = defaultStencilOp;
 
 			StencilRef = 0;
+			m_pD3DState = NULL;
+		}
+
+		bool operator==( const DepthStencilDesc &other ) const
+		{
+			return memcmp( this, &other, sizeof( DepthStencilDesc ) - sizeof( m_pD3DState ) ) == 0;
 		}
 	};
 
-	struct BlendState : public D3D11_BLEND_DESC
+	struct BlendDesc : public D3D11_BLEND_DESC
 	{
 		float BlendColor[4];
 		uint SampleMask;
 
+		ID3D11BlendState *m_pD3DState;
+
+		bool BlendEnabled() const
+		{
+			return (bool)RenderTarget[0].BlendEnable;
+		}
+
 		void SetDefault()
 		{
+			m_pD3DState = NULL;
 			AlphaToCoverageEnable = FALSE;
 			IndependentBlendEnable = FALSE;
 			const D3D11_RENDER_TARGET_BLEND_DESC defaultRenderTargetBlendDesc =
@@ -114,12 +153,20 @@ namespace StatesDx11
 			BlendColor[0] = BlendColor[1] = BlendColor[2] = BlendColor[3] = 1.0f;
 			SampleMask = 1;
 		}
+
+		bool operator==( const BlendDesc &other ) const
+		{
+			return memcmp( this, &other, sizeof( BlendDesc ) - sizeof( m_pD3DState ) ) == 0;
+		}
 	};
 
-	struct RasterState : public D3D11_RASTERIZER_DESC
+	struct RasterDesc : public D3D11_RASTERIZER_DESC
 	{
+		ID3D11RasterizerState *m_pD3DState;
+
 		void SetDefault()
 		{
+			m_pD3DState = NULL;
 			FillMode = D3D11_FILL_SOLID;
 			CullMode = D3D11_CULL_BACK;
 			FrontCounterClockwise = FALSE;
@@ -131,14 +178,19 @@ namespace StatesDx11
 			MultisampleEnable = FALSE;
 			AntialiasedLineEnable = FALSE;
 		}
+
+		bool operator==( const RasterDesc &other ) const
+		{
+			return memcmp( this, &other, sizeof( RasterDesc ) - sizeof( m_pD3DState ) ) == 0;
+		}
 	};
 
-	struct ConstantBufferState
+	struct ConstantBufferDesc
 	{
 		int m_MaxSlot;
 		ID3D11Buffer *m_ppBuffers[MAX_DX11_CBUFFERS];
 
-		bool operator==( const ConstantBufferState &other ) const
+		bool operator==( const ConstantBufferDesc &other ) const
 		{
 			if ( m_MaxSlot != other.m_MaxSlot )
 			{
@@ -157,21 +209,17 @@ namespace StatesDx11
 
 	struct ShadowStateDesc
 	{
-		BlendState blend;
-		DepthStencilState depthStencil;
-		RasterState rasterizer;
+		BlendDesc blend;
+		DepthStencilDesc depthStencil;
+		RasterDesc rasterizer;
 
-		ConstantBufferState vsConstantBuffers;
-		ConstantBufferState gsConstantBuffers;
-		ConstantBufferState psConstantBuffers;
+		ConstantBufferDesc vsConstantBuffers;
+		ConstantBufferDesc gsConstantBuffers;
+		ConstantBufferDesc psConstantBuffers;
 
 		bool bEnableAlphaTest;
 		ShaderAlphaFunc_t alphaTestFunc;
 		float alphaTestRef;
-
-		bool bLighting;
-		bool bConstantColor;
-		bool bVertexBlend;
 
 		VertexShader_t vertexShader;
 		int staticVertexShaderIndex;
@@ -189,21 +237,6 @@ namespace StatesDx11
 		// Note that the morph format actually used will be the
 		// aggregate of the morph formats used by all snapshots in a material
 		MorphFormat_t morphFormat;
-
-		bool BlendStateChanged( const ShadowStateDesc &other )
-		{
-			return FastMemCompare( &blend, &other.blend, sizeof( BlendState ) ) != 0;
-		}
-
-		bool DepthStencilStateChanged( const ShadowStateDesc &other )
-		{
-			return FastMemCompare( &depthStencil, &other.depthStencil, sizeof( DepthStencilState ) ) != 0;
-		}
-
-		bool RasterStateChanged( const ShadowStateDesc &other )
-		{
-			return FastMemCompare( &rasterizer, &other.rasterizer, sizeof( RasterState ) ) != 0;
-		}
 
 		// Sets the default shadow state
 		void SetDefault()
@@ -229,10 +262,6 @@ namespace StatesDx11
 
 			vertexFormat = VERTEX_FORMAT_UNKNOWN;
 			morphFormat = 0;
-
-			bLighting = false;
-			bVertexBlend = false;
-			bConstantColor = false;
 		}
 
 		ShadowStateDesc()
@@ -245,13 +274,13 @@ namespace StatesDx11
 	{
 		ShadowStateDesc desc;
 
-		ID3D11BlendState *m_pBlendState;
-		ID3D11DepthStencilState *m_pDepthStencilState;
-		ID3D11RasterizerState *m_pRasterState;
-
 		unsigned int m_iVSConstantBufferState;
 		unsigned int m_iPSConstantBufferState;
 		unsigned int m_iGSConstantBufferState;
+
+		unsigned int m_iBlendState;
+		unsigned int m_iDepthStencilState;
+		unsigned int m_iRasterState;
 
 		bool operator==( const ShadowState &other ) const
 		{
@@ -260,16 +289,14 @@ namespace StatesDx11
 
 		ShadowState()
 		{
-			m_pBlendState = NULL;
-			m_pDepthStencilState = NULL;
-			m_pRasterState = NULL;
+			m_iBlendState = 0;
+			m_iDepthStencilState = 0;
+			m_iRasterState = 0;
 			m_iVSConstantBufferState = 0;
 			m_iPSConstantBufferState = 0;
 			m_iGSConstantBufferState = 0;
 		}
 	};
-
-
 
 	//
 	// Things that can change per-mesh or per-frame (in DYNAMIC_STATE)
@@ -285,13 +312,6 @@ namespace StatesDx11
 		{
 			return memcmp( this, &src, sizeof( IndexBufferState ) ) != 0;
 		}
-	};
-
-	struct VertexBufferState
-	{
-		ID3D11Buffer *m_pBuffer;
-		UINT m_nStride;
-		UINT m_nOffset;
 	};
 
 	struct InputLayoutState
@@ -313,65 +333,51 @@ namespace StatesDx11
 	{
 		int m_nViewportCount;
 		D3D11_VIEWPORT m_pViewports[MAX_DX11_VIEWPORTS];
+
 		FLOAT m_ClearColor[4];
 
 		InputLayoutState m_InputLayout;
 		IndexBufferState m_IndexBuffer;
-		VertexBufferState m_pVertexBuffer[MAX_DX11_STREAMS];
+
+		int m_MaxVertexBuffer;
+		int m_PrevMaxVertexBuffer;
+		ID3D11Buffer *m_pVertexBuffer[MAX_DX11_STREAMS];
+		UINT m_pVBStrides[MAX_DX11_STREAMS];
+		UINT m_pVBOffsets[MAX_DX11_STREAMS];
 
 		D3D11_PRIMITIVE_TOPOLOGY m_Topology;
 
 		ID3D11VertexShader *m_pVertexShader;
-		int m_iVertexShader;
 		ID3D11GeometryShader *m_pGeometryShader;
-		int m_iGeometryShader;
 		ID3D11PixelShader *m_pPixelShader;
-		int m_iPixelShader;
-		
-		ID3D11ShaderResourceView *m_pVSSRVs[MAX_DX11_SAMPLERS];
-		ID3D11SamplerState *m_pVSSamplers[MAX_DX11_SAMPLERS];
-		int m_MaxVSSamplerSlot;
-
-		ID3D11ShaderResourceView *m_pSRVs[MAX_DX11_SAMPLERS];
-		ID3D11SamplerState *m_pSamplers[MAX_DX11_SAMPLERS];
-		int m_MaxSamplerSlot;
 
 		ID3D11RenderTargetView *m_pRenderTargetView;
 		ID3D11DepthStencilView *m_pDepthStencilView;
 
-		// Sets the default dynamic state
-		void SetDefault()
+		int m_MaxVSSampler;
+		int m_MaxPSSampler;
+		int m_PrevMaxVSSampler;
+		int m_PrevMaxPSSampler;
+		ID3D11ShaderResourceView *m_ppVertexTextures[MAX_DX11_SAMPLERS];
+		ID3D11SamplerState *m_ppVertexSamplers[MAX_DX11_SAMPLERS];
+		ID3D11ShaderResourceView *m_ppTextures[MAX_DX11_SAMPLERS];
+		ID3D11SamplerState *m_ppSamplers[MAX_DX11_SAMPLERS];
+
+		void Reset()
 		{
 			ZeroMemory( this, sizeof( DynamicState ) );
-			m_iVertexShader = -1;
-			m_iPixelShader = -1;
-			m_iGeometryShader = -1;
+			m_MaxPSSampler = -1;
+			m_MaxVSSampler = -1;
+			m_PrevMaxPSSampler = -1;
+			m_PrevMaxVSSampler = -1;
+			m_MaxVertexBuffer = -1;
+			m_PrevMaxVertexBuffer = -1;
 			m_Topology = D3D11_PRIMITIVE_TOPOLOGY_UNDEFINED;
-			m_MaxVSSamplerSlot = -1;
-			m_MaxSamplerSlot = -1;
 		}
 
 		DynamicState()
 		{
-			SetDefault();
-		}
-	};
-
-	struct RenderState
-	{
-		const ShadowState *shadow;
-		DynamicState dynamic;
-
-		void SetDefault()
-		{
-			shadow = NULL;
-			dynamic.SetDefault();
-		}
-
-		void operator=( const RenderState &other )
-		{
-			shadow = other.shadow;
-			memcpy( &dynamic, &other.dynamic, sizeof( DynamicState ) );
+			Reset();
 		}
 	};
 

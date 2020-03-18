@@ -18,6 +18,8 @@
 #include "shaderapidx11.h"
 #include "StatesDx11.h"
 
+#define DEFAULT_SHADOW_STATE_ID	-1
+
 //-----------------------------------------------------------------------------
 // The empty shader shadow
 //-----------------------------------------------------------------------------
@@ -94,7 +96,7 @@ public:
 	virtual void StencilWriteMask( int nMask );
 
 	StateSnapshot_t FindOrCreateSnapshot();
-	const StatesDx11::ShadowState *GetShadowState( StateSnapshot_t id ) const;
+	const StatesDx11::ShadowState *GetShadowState( StateSnapshot_t id );
 	const StatesDx11::ShadowState *GetDefaultShadowState();
 
 	// Constant buffer enabling
@@ -138,20 +140,27 @@ public:
 	void DrawFlags( unsigned int drawFlags );
 
 private:
-	void GenerateD3DStateObjects( StatesDx11::ShadowState &state );
-	unsigned int FindOrCreateConstantBufferState( const StatesDx11::ConstantBufferState &desc );
+	unsigned int FindOrCreateConstantBufferState( StatesDx11::ConstantBufferDesc &desc );
+	unsigned int FindOrCreateDepthStencilState( StatesDx11::DepthStencilDesc &desc );
+	unsigned int FindOrCreateBlendState( StatesDx11::BlendDesc &desc );
+	unsigned int FindOrCreateRasterState( StatesDx11::RasterDesc &desc );
 
 public:
 	StatesDx11::ShadowStateDesc m_ShadowState;
 
-	CUtlVector<StatesDx11::ConstantBufferState> m_ConstantBufferStates;
-
-	CUtlVector<StatesDx11::ShadowState> m_ShadowStateCache;
+	CUtlVector<StatesDx11::ConstantBufferDesc> m_ConstantBufferStates;
+	CUtlVector<StatesDx11::DepthStencilDesc> m_DepthStencilStates;
+	CUtlVector<StatesDx11::BlendDesc> m_BlendStates;
+	CUtlVector<StatesDx11::RasterDesc> m_RasterizerStates;
+	// Can have max value of StateSnapshot_t shadow states.
+	CUtlVector<StatesDx11::ShadowState> m_ShadowStates;
 
 	StatesDx11::ShadowState m_DefaultShadowState;
-	StatesDx11::ConstantBufferState m_DefaultCBState;
+	StatesDx11::ConstantBufferDesc m_DefaultCBState;
+	StatesDx11::DepthStencilDesc m_DefaultDepthStencilState;
+	StatesDx11::BlendDesc m_DefaultBlendState;
+	StatesDx11::RasterDesc m_DefaultRasterState;
 };
-
 
 extern CShaderShadowDx11* g_pShaderShadowDx11;
 

@@ -489,6 +489,16 @@ private:
 	// Can we download textures?
 	virtual bool CanDownloadTextures() const;
 
+	bool IsStateSet( unsigned int flag )  const
+	{
+		return ( m_StateChangeFlags & flag ) != 0;
+	}
+
+	void SetStateFlag( unsigned int flag )
+	{
+		m_StateChangeFlags |= flag;
+	}
+
 	// Board-independent calls, here to unify how shaders set state
 	// Implementations should chain back to IShaderUtil->BindTexture(), etc.
 
@@ -823,7 +833,7 @@ private:
 	void DoIssueRasterState();
 	void DoIssueBlendState();
 	void DoIssueDepthStencilState();
-	bool DoIssueVertexBuffer( bool bForce );
+	bool DoIssueVertexBuffer();
 	void DoIssueIndexBuffer();
 	void DoIssueInputLayout();
 	void DoIssueTopology();
@@ -883,10 +893,10 @@ private:
 	StateSnapshot_t m_CurrentSnapshot;
 	bool m_bResettingRenderState : 1;
 
-	StatesDx11::RenderState m_TargetState;
-	StatesDx11::RenderState m_State;
-
+	const StatesDx11::ShadowState *m_ShadowState;
+	StatesDx11::DynamicState m_DynamicState;
 	StatesDx11::ShaderState m_ShaderState;
+	unsigned int m_StateChangeFlags;
 
 	// Setting matrices
 	MaterialMatrixMode_t m_MatrixMode;
@@ -913,6 +923,7 @@ private:
 	friend class CBufferedMeshDX11;
 	friend class CMeshMgr;
 	friend class CShaderDeviceDx11;
+	friend class CShaderShadowDx11;
 
 };
 

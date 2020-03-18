@@ -40,19 +40,19 @@ EXPOSE_SINGLE_INTERFACE_GLOBALVAR( CShaderShadowDx11, IShaderShadow,
 //-----------------------------------------------------------------------------
 CShaderShadowDx11::CShaderShadowDx11()
 {
-	m_ShadowStateCache.Purge();
-	m_ShadowStateCache.EnsureCapacity( 4096 );
-	m_ShadowStateCache.SetGrowSize( 128 );
+	// Setup default shadow states
 
 	m_DefaultShadowState.desc.SetDefault();
 
-	// Setup default constant buffer states
 	m_DefaultCBState.SetDefault();
-	// Ensure default state is at the beginning
-	m_ConstantBufferStates.InsertBefore( 0, m_DefaultCBState );
-	m_DefaultShadowState.m_iGSConstantBufferState = 0;
-	m_DefaultShadowState.m_iPSConstantBufferState = 0;
-	m_DefaultShadowState.m_iVSConstantBufferState = 0;
+	unsigned int iDefaultCB = FindOrCreateConstantBufferState( m_DefaultCBState );
+	m_DefaultShadowState.m_iGSConstantBufferState = iDefaultCB;
+	m_DefaultShadowState.m_iPSConstantBufferState = iDefaultCB;
+	m_DefaultShadowState.m_iVSConstantBufferState = iDefaultCB;
+
+	m_DefaultDepthStencilState.SetDefault();
+	m_DefaultRasterState.SetDefault();
+	m_DefaultBlendState.SetDefault();
 }
 
 CShaderShadowDx11::~CShaderShadowDx11()
@@ -63,6 +63,7 @@ CShaderShadowDx11::~CShaderShadowDx11()
 void CShaderShadowDx11::SetDefaultState()
 {
 	m_ShadowState = StatesDx11::ShadowStateDesc();
+	m_ShadowState.SetDefault();
 }
 
 // Methods related to depth buffering
@@ -175,7 +176,7 @@ void CShaderShadowDx11::EnableCulling( bool bEnable )
 // constant color + transparency
 void CShaderShadowDx11::EnableConstantColor( bool bEnable )
 {
-	m_ShadowState.bConstantColor = bEnable;
+	//m_ShadowState.bConstantColor = bEnable;
 }
 
 
@@ -223,7 +224,7 @@ void CShaderShadowDx11::VertexShaderVertexFormat( unsigned int flags,
 // Indicates we're going to light the model
 void CShaderShadowDx11::EnableLighting( bool bEnable )
 {
-	m_ShadowState.bLighting = bEnable;
+	//m_ShadowState.bLighting = bEnable;
 }
 
 // Activate/deactivate skinning
@@ -232,10 +233,10 @@ void CShaderShadowDx11::EnableVertexBlend( bool bEnable )
 	// Activate/deactivate skinning. Indexed blending is automatically
 	// enabled if it's available for this hardware. When blending is enabled,
 	// we allocate enough room for 3 weights (max allowed)
-	if ( ( HardwareConfig()->MaxBlendMatrices() > 0 ) || ( !bEnable ) )
-	{
-		m_ShadowState.bVertexBlend = bEnable;
-	}
+	//if ( ( HardwareConfig()->MaxBlendMatrices() > 0 ) || ( !bEnable ) )
+	//{
+		//m_ShadowState.bVertexBlend = bEnable;
+	//}
 }
 
 void CShaderShadowDx11::EnableTexture( Sampler_t sampler, bool bEnable )
@@ -330,38 +331,58 @@ void CShaderShadowDx11::EnableAlphaToCoverage( bool bEnable )
 
 StateSnapshot_t CShaderShadowDx11::FindOrCreateSnapshot()
 {
-	//if ( m_ShadowState.vertexShader == -1 )
-	//	DebuggerBreak();
 	StatesDx11::ShadowState lookup;
 	lookup.desc = m_ShadowState;
-	int i = m_ShadowStateCache.Find( lookup );
-	if ( i != m_ShadowStateCache.InvalidIndex() )
+	int i = m_ShadowStates.Find( lookup );
+	if ( i != m_ShadowStates.InvalidIndex() )
 	{
 		return i;
 	}
 
-	GenerateD3DStateObjects( lookup );
-	lookup.m_iVSConstantBufferState = FindOrCreateConstantBufferState( m_ShadowState.vsConstantBuffers );
-	lookup.m_iGSConstantBufferState = FindOrCreateConstantBufferState( m_ShadowState.gsConstantBuffers );
-	lookup.m_iPSConstantBufferState = FindOrCreateConstantBufferState( m_ShadowState.psConstantBuffers );
-
 	// Didn't find it, add entry
-	StateSnapshot_t snap = m_ShadowStateCache.AddToTail( lookup );
-	//Log( "Created snapshot id %i\n", snap );
+
+	lookup.m_iBlendState = FindOrCreateBlendState( lookup.desc.blend );
+	lookup.m_iDepthStencilState = FindOrCreateDepthStencilState( lookup.desc.depthStencil );
+	lookup.m_iRasterState = FindOrCreateRasterState( lookup.desc.rasterizer );
+	lookup.m_iVSConstantBufferState = FindOrCreateConstantBufferState( lookup.desc.vsConstantBuffers );
+	lookup.m_iGSConstantBufferState = FindOrCreateConstantBufferState( lookup.desc.gsConstantBuffers );
+	lookup.m_iPSConstantBufferState = FindOrCreateConstantBufferState( lookup.desc.psConstantBuffers );
+
+	StateSnapshot_t snap = m_ShadowStates.AddToTail( lookup );
 	return snap;
 }
 
-const StatesDx11::ShadowState *CShaderShadowDx11::GetShadowState( StateSnapshot_t id ) const
+const StatesDx11::ShadowState *CShaderShadowDx11::GetShadowState( StateSnapshot_t id )
 {
-	return &m_ShadowStateCache.Element( id );
+	if ( id == DEFAULT_SHADOW_STATE_ID )
+		return GetDefaultShadowState();
+
+	return &m_ShadowStates.Element( id );
 }
 
 const StatesDx11::ShadowState *CShaderShadowDx11::GetDefaultShadowState()
 {
-	if ( !m_DefaultShadowState.m_pBlendState )
+	if ( !m_DefaultShadowState.desc.blend.m_pD3DState )
 	{
-		GenerateD3DStateObjects( m_DefaultShadowState );
+		// Needed to wait until this was called to create the D3D state objects because
+		// D3D is not initialized when the constructor of this class is called.
+
+		m_DefaultDepthStencilState.SetDefault();
+		unsigned int iDefaultDS = FindOrCreateDepthStencilState( m_DefaultDepthStencilState );
+		m_DefaultShadowState.desc.depthStencil = m_DefaultDepthStencilState;
+		m_DefaultShadowState.m_iDepthStencilState = iDefaultDS;
+
+		m_DefaultRasterState.SetDefault();
+		unsigned int iDefaultRS = FindOrCreateRasterState( m_DefaultRasterState );
+		m_DefaultShadowState.desc.rasterizer = m_DefaultRasterState;
+		m_DefaultShadowState.m_iRasterState = iDefaultRS;
+
+		m_DefaultBlendState.SetDefault();
+		unsigned int iDefaultBS = FindOrCreateBlendState( m_DefaultBlendState );
+		m_DefaultShadowState.desc.blend = m_DefaultBlendState;
+		m_DefaultShadowState.m_iBlendState = iDefaultBS;
 	}
+
 	return &m_DefaultShadowState;
 }
 
@@ -409,20 +430,7 @@ void CShaderShadowDx11::SetPixelShaderConstantBuffer( int slot, ShaderInternalCo
 	SetPixelShaderConstantBuffer( slot, g_pShaderAPIDx11->GetInternalConstantBuffer( cbuffer ) );
 }
 
-void CShaderShadowDx11::GenerateD3DStateObjects( StatesDx11::ShadowState &state )
-{
-	HRESULT hr;
-
-	// Generate the actual D3D state objects
-	hr = D3D11Device()->CreateDepthStencilState( &state.desc.depthStencil, &state.m_pDepthStencilState );
-	Assert( SUCCEEDED( hr ) );
-	hr = D3D11Device()->CreateBlendState( &state.desc.blend, &state.m_pBlendState );
-	Assert( SUCCEEDED( hr ) );
-	hr = D3D11Device()->CreateRasterizerState( &state.desc.rasterizer, &state.m_pRasterState );
-	Assert( SUCCEEDED( hr ) );
-}
-
-unsigned int CShaderShadowDx11::FindOrCreateConstantBufferState( const StatesDx11::ConstantBufferState &desc )
+unsigned int CShaderShadowDx11::FindOrCreateConstantBufferState( StatesDx11::ConstantBufferDesc &desc )
 {
 	int i = m_ConstantBufferStates.Find( desc );
 	if ( m_ConstantBufferStates.IsValidIndex( i ) )
@@ -432,6 +440,54 @@ unsigned int CShaderShadowDx11::FindOrCreateConstantBufferState( const StatesDx1
 
 	// Make a new state
 	return m_ConstantBufferStates.AddToTail( desc );
+}
+
+unsigned int CShaderShadowDx11::FindOrCreateDepthStencilState( StatesDx11::DepthStencilDesc &desc )
+{
+	int i = m_DepthStencilStates.Find( desc );
+	if ( m_DepthStencilStates.IsValidIndex( i ) )
+	{
+		desc.m_pD3DState = m_DepthStencilStates[i].m_pD3DState;
+		return i;
+	}
+	
+	HRESULT hr = D3D11Device()->CreateDepthStencilState( &desc, &desc.m_pD3DState );
+	Assert( SUCCEEDED( hr ) );
+
+	i = m_DepthStencilStates.AddToTail( desc );
+	return i;
+}
+
+unsigned int CShaderShadowDx11::FindOrCreateBlendState( StatesDx11::BlendDesc &desc )
+{
+	int i = m_BlendStates.Find( desc );
+	if ( m_BlendStates.IsValidIndex( i ) )
+	{
+		desc.m_pD3DState = m_BlendStates[i].m_pD3DState;
+		return i;
+	}
+
+	HRESULT hr = D3D11Device()->CreateBlendState( &desc, &desc.m_pD3DState );
+	Assert( SUCCEEDED( hr ) );
+
+	i = m_BlendStates.AddToTail( desc );
+	return i;
+}
+
+unsigned int CShaderShadowDx11::FindOrCreateRasterState( StatesDx11::RasterDesc &desc )
+{
+	int i = m_RasterizerStates.Find( desc );
+	if ( m_RasterizerStates.IsValidIndex( i ) )
+	{
+		desc.m_pD3DState = m_RasterizerStates[i].m_pD3DState;
+		return i;
+	}
+
+	HRESULT hr = D3D11Device()->CreateRasterizerState( &desc, &desc.m_pD3DState );
+	Assert( SUCCEEDED( hr ) );
+
+	i = m_RasterizerStates.AddToTail( desc );
+	return i;
 }
 
 // ---------------------------------------------------
