@@ -1,4 +1,4 @@
-//========= Copyright © 1996-2005, Valve Corporation, All rights reserved. ============//
+//========= Copyright ï¿½ 1996-2005, Valve Corporation, All rights reserved. ============//
 //
 // Purpose: 
 //
@@ -309,6 +309,7 @@ protected:
 template< class Type, class Changer >
 class CNetworkColor32Base : public CNetworkVarBase< Type, Changer >
 {
+	typedef CNetworkVarBase<Type,Changer> BaseClass;
 public:
 	inline void Init( byte rVal, byte gVal, byte bVal )
 	{
@@ -348,7 +349,7 @@ protected:
 	{
 		if ( out != in )
 		{
-			NetworkStateChanged();
+			BaseClass::NetworkStateChanged();
 			out = in;
 		}
 	}
@@ -359,6 +360,7 @@ protected:
 template< class Type, class Changer >
 class CNetworkVectorBase : public CNetworkVarBase< Type, Changer >
 {
+	typedef CNetworkVarBase<Type,Changer> BaseClass;
 public:
 	inline void Init( float ix=0, float iy=0, float iz=0 ) 
 	{
@@ -432,7 +434,7 @@ private:
 	{
 		if ( out != in ) 
 		{
-			NetworkStateChanged();
+			BaseClass::NetworkStateChanged();
 			out = in;
 		}
 	}
@@ -443,6 +445,7 @@ private:
 template< class Type, class Changer >
 class CNetworkQuaternionBase : public CNetworkVarBase< Type, Changer >
 {
+	typedef CNetworkVarBase<Type,Changer> BaseClass;
 public:
 	inline void Init( float ix=0, float iy=0, float iz=0, float iw = 0 ) 
 	{
@@ -519,7 +522,7 @@ private:
 	{
 		if ( out != in ) 
 		{
-			NetworkStateChanged();
+			BaseClass::NetworkStateChanged();
 			out = in;
 		}
 	}
@@ -531,6 +534,7 @@ private:
 	template< class Type, class Changer >
 	class CNetworkHandleBase : public CNetworkVarBase< CBaseHandle, Changer >
 	{
+		typedef CNetworkVarBase<CBaseHandle,Changer> BaseClass;
 	public:
 		const Type* operator=( const Type *val ) 
 		{ 
@@ -557,7 +561,7 @@ private:
 		{
 			if ( CNetworkHandleBase<Type,Changer>::m_Value != val )
 			{
-				NetworkStateChanged();
+				BaseClass::NetworkStateChanged();
 				CNetworkHandleBase<Type,Changer>::m_Value = val;
 			}
 			return val;
