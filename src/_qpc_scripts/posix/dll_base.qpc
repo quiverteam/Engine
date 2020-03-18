@@ -1,11 +1,10 @@
 // ---------------------------------------------------------------
-// Auto Generated QPC Script - Fix if needed before using
+// Base Dynamic Library - Posix
 // ---------------------------------------------------------------
-include "$SRCDIR/_qpc_scripts/version.qpc"
-include "$SRCDIR/_qpc_scripts/posix_base.qpc"
+macro OUTBINNAME	"$SCRIPT_NAME"	[!$OUTBINNAME]
+macro OUTBINDIR		"$BINDEFAULT"	[!$OUTBINDIR]
 
-macro OUTBINNAME "$PROJECTNAME"
-macro OUTBINDIR "$BINDEFAULT"
+include "$SRCDIR/_qpc_scripts/posix_base.qpc"
 
 configuration
 {
@@ -24,14 +23,6 @@ configuration
 
 	linker
 	{
-		output_file "$(OBJ_DIR)/$OUTBINNAME$OUTDLLEXT"
-	}
-}
-
-files
-{
-	folder "Resources"
-	{
-		"$ROOTSCRIPT"
+		// output_file "$(OBJ_DIR)/$OUTBINNAME$OUTDLLEXT"
 	}
 }

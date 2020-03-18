@@ -1,14 +1,11 @@
 // ---------------------------------------------------------------
-// Auto Generated QPC Script - Fix if needed before using
+// Base Executable - Posix
 // ---------------------------------------------------------------
-include "$SRCDIR/_qpc_scripts/version.qpc"
-
 macro SRCDIR
-macro OUTBINNAME "$PROJECTNAME"
+macro OUTBINNAME        "$SCRIPT_NAME"	[!$OUTBINNAME]
 macro IS_LIB_PROJECT "1"
 
-include "$SRCDIR/_qpc_scripts/source_posix_base.qpc"
-include "$SRCDIR/_qpc_scripts/loadaddress.qpc"
+include "$SRCDIR/_qpc_scripts/posix_base.qpc"
 
 configuration
 {
@@ -50,10 +47,5 @@ files
 				}
 			}
 		}
-	}
-
-	folder "Resources"
-	{
-		"$ROOTSCRIPT"
 	}
 }

@@ -6,4 +6,5 @@
 	url = https://github.com/quiverteam/PyQuiverProjectCreator
 [submodule "src/devtools/qpc"]
 	path = src/devtools/qpc
-	url = https://github.com/quiverteam/QuiverProjectCreator.git
+	url = https://github.com/quiverteam/QuiverProjectCreator
+	branch = refactor
