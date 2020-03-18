@@ -1132,8 +1132,6 @@ static void DrawVertexLitGeneric_DX11_Internal( CBaseVSShader *pShader, IMateria
 								      pContextData->m_Constants.cMorphSubrect,
 								      SHADER_VERTEXTEXTURE_SAMPLER0 );
 
-			//Log( "static_light: %i\n", lightState.m_bStaticLight );
-
 			DECLARE_DYNAMIC_VERTEX_SHADER( vertexlit_and_unlit_generic_vs40 );
 			SET_DYNAMIC_VERTEX_SHADER_COMBO( DYNAMIC_LIGHT, lightState.HasDynamicLight() );
 			SET_DYNAMIC_VERTEX_SHADER_COMBO( STATIC_LIGHT, lightState.m_bStaticLight ? 1 : 0 );

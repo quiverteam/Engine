@@ -394,13 +394,26 @@ float3 PixelShaderDoLighting( const float3 worldPos, const float3 worldNormal,
 }
 
 // Returns per-pixel attenuation for all four lights
-float4 PixelShaderDoLightAtten( const float3 worldPos, int4 lightEnabled, LightInfo lightInfo[4] )
+float4 PixelShaderDoLightAtten( const float3 worldPos, const int nNumLights, LightInfo lightInfo[MAX_NUM_LIGHTS] )
 {
-	float4 atten;
-	atten.x = GetAttenForLight( worldPos, 0, lightEnabled, lightInfo );
-	atten.y = GetAttenForLight( worldPos, 1, lightEnabled, lightInfo );
-	atten.z = GetAttenForLight( worldPos, 2, lightEnabled, lightInfo );
-	atten.w = GetAttenForLight( worldPos, 3, lightEnabled, lightInfo );
+	float4 atten = 0;
+	if ( nNumLights > 0 )
+	{
+		atten.x = GetAttenForLight( worldPos, 0, lightInfo );
+		if ( nNumLights > 1 )
+		{
+			atten.y = GetAttenForLight( worldPos, 1, lightInfo );
+			if ( nNumLights > 2 )
+			{
+				atten.z = GetAttenForLight( worldPos, 2, lightInfo );
+				if ( nNumLights > 3 )
+				{
+					atten.w = GetAttenForLight( worldPos, 3, lightInfo );
+				}
+			}
+		}
+	}
+		
 	return atten;
 }
 

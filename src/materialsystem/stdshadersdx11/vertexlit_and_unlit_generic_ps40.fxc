@@ -348,7 +348,7 @@ float4 main( PS_INPUT i ) : SV_TARGET
 	bool bPhong = PHONG ? true : false;
 	bool bRimLight = RIMLIGHT ? true : false;
 	bool bDoSpecularWarp = PHONGWARPTEXTURE ? true : false;
-	int nNumLights = NUM_LIGHTS;
+	const int nNumLights = NUM_LIGHTS;
 
 	#if FLASHLIGHT
 	return float4(1, 0,0, 1);
@@ -482,7 +482,7 @@ float4 main( PS_INPUT i ) : SV_TARGET
 
 #if DIFFUSELIGHTING
 	//float4 vLightAtten = i.lightAtten;
-	float4 vLightAtten = PixelShaderDoLightAtten( i.worldPos_projPosZ.xyz, cLightEnabled, cLightInfo );
+	float4 vLightAtten = PixelShaderDoLightAtten( i.worldPos_projPosZ.xyz, nNumLights, cLightInfo );
 
 	diffuseLighting += PixelShaderDoLighting( i.worldPos_projPosZ.xyz, worldSpaceNormal,
 			float3( 0.0f, 0.0f, 0.0f ), false, bAmbientLight, vLightAtten,

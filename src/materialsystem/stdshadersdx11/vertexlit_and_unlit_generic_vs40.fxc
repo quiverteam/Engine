@@ -217,7 +217,7 @@ VS_OUTPUT main( const VS_INPUT v )
 	
 	o.worldSpaceNormal = worldNormal;
 
-	matrix viewProj = mul(cViewMatrix, cProjMatrix);
+	float4x4 viewProj = mul(cViewMatrix, cProjMatrix);
 
 	// Transform into projection space
 	float4 vProjPos = mul( float4( worldPos, 1 ), viewProj );

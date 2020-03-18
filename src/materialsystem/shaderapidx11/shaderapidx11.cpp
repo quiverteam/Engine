@@ -79,8 +79,7 @@ ALIGN16 struct PerModel_CBuffer_t
 	// Only cFlexScale.x is used
 	// It is a binary value used to switch on/off the addition of the flex delta stream
 	DirectX::XMFLOAT4 cFlexScale;
-	DirectX::XMINT4 cLightEnabled;
-	DirectX::XMFLOAT4 cLightCountRegister;
+
 	// Four lights x 5 constants each = 20 constants
 	DX11LightInfo_t cLightInfo[4];
 	DirectX::XMFLOAT3A cAmbientCube[6];
@@ -90,7 +89,7 @@ ALIGN16 struct PerModel_CBuffer_t
 
 ALIGN16 struct Skinning_CBuffer_t
 {
-	DirectX::XMMATRIX cModel[53];
+	DirectX::XMFLOAT3X4A cModel[53];
 };
 
 //ALIGN16 struct Flex_CBuffer_t
@@ -668,17 +667,17 @@ void CShaderAPIDx11::DoIssueShaderState( bool bForce )
 		memset( lightIndex, 0, sizeof( lightIndex ) );
 		SortLights( lightIndex );
 
-		pPerModelConstants->cLightCountRegister.x = m_ShaderState.light.m_NumLights;
+		//pPerModelConstants->cLightCountRegister.x = m_ShaderState.light.m_NumLights;
 
-		if ( m_ShaderState.light.m_NumLights == 0 )
-		{
-			memset( &pPerModelConstants->cLightEnabled, 0, sizeof( DirectX::XMINT4 ) );
-		}
+		//if ( m_ShaderState.light.m_NumLights == 0 )
+		//{
+		//	memset( &pPerModelConstants->cLightEnabled, 0, sizeof( DirectX::XMINT4 ) );
+		//}
 
 		for ( int i = 0; i < m_ShaderState.light.m_NumLights; i++ )
 		{
 			const LightDesc_t &light = m_ShaderState.light.m_Lights[lightIndex[i]];
-			XMSetComponent4( pPerModelConstants->cLightEnabled, i, light.m_Type != MATERIAL_LIGHT_DISABLE );
+			//XMSetComponent4( pPerModelConstants->cLightEnabled, i, light.m_Type != MATERIAL_LIGHT_DISABLE );
 
 			// The first one is the light color ( and light type code )
 			float w = ( light.m_Type == MATERIAL_LIGHT_DIRECTIONAL ) ? 1.0f : 0.0f;
@@ -777,15 +776,15 @@ void CShaderAPIDx11::DoIssueShaderState( bool bForce )
 		// first bone matrix.
 		DirectX::XMMATRIX model = GetMatrix( MATERIAL_MODEL );
 		// This is stored row-major, needs to be column-major in shader.
-		model = DirectX::XMMatrixTranspose( model );
-		m_ShaderState.bone.m_BoneMatrix[0] = model;
+		// 3x4 in DirectXMath becomes 4x3 in HLSL shader
+		DirectX::XMStoreFloat3x4A( m_ShaderState.bone.m_BoneMatrix, model );
 		m_ShaderState.bone.m_MaxBoneLoaded++;
 		int matricesLoaded = max( 1, m_ShaderState.bone.m_MaxBoneLoaded );
 		m_ShaderState.bone.m_MaxBoneLoaded = 0;
 
 		// Copy bone matrices into cModel constant
-		memcpy_SSE( pSkinningConstants->cModel, m_ShaderState.bone.m_BoneMatrix,
-			sizeof( DirectX::XMMATRIX ) * matricesLoaded );
+		memcpy( pSkinningConstants->cModel, m_ShaderState.bone.m_BoneMatrix,
+			sizeof( DirectX::XMFLOAT3X4A ) * matricesLoaded );
 
 		m_ShaderState.bone.m_bBonesChanged = false;
 
@@ -1858,6 +1857,7 @@ void CShaderAPIDx11::SetLight( int lightNum, const LightDesc_t &desc )
 		}
 		m_ShaderState.light.m_Lights[lightNum] = desc;
 		m_ShaderState.light.m_NumLights = ComputeNumLights();
+		//m_ShaderState.light.m_bLightChanged = true;
 		//SortLights();
 		//if ( lightNum == 2 && desc.m_Type != MATERIAL_LIGHT_DISABLE)
 		//	DebuggerBreak();
@@ -1869,11 +1869,11 @@ void CShaderAPIDx11::SetAmbientLightCube( Vector4D cube[6] )
 {
 	LOCK_SHADERAPI();
 
-	if ( !m_ShaderState.light.m_bAmbientChanged && FastMemCompare( m_ShaderState.light.m_AmbientLightCube, cube, sizeof( Vector4D ) * 6 ) )
+	if ( !m_ShaderState.light.m_bAmbientChanged && FastMemCompare( m_ShaderState.light.m_AmbientLightCube, cube, sizeof( VectorAligned ) * 6 ) )
 	{
 		m_ShaderState.light.m_bAmbientChanged = true;
 	}
-	memcpy( m_ShaderState.light.m_AmbientLightCube, cube, 6 * sizeof( Vector4D ) );
+	memcpy( m_ShaderState.light.m_AmbientLightCube, cube, 6 * sizeof( VectorAligned ) );
 }
 
 // Get lights
@@ -2133,17 +2133,8 @@ void CShaderAPIDx11::LoadBoneMatrix( int boneIndex, const float *m )
 	// NOTE: Bone matrices are column major, and HLSL is column-major,
 	// so we don't have to transpose anything.
 
-	VMatrix boneMatrix;
-	boneMatrix.Init( *(matrix3x4_t *)m );
-
-	DirectX::XMFLOAT4X4 flt4x4( boneMatrix.Base() );
-	DirectX::XMMATRIX &mat = m_ShaderState.bone.m_BoneMatrix[boneIndex];
-	DirectX::XMMATRIX newmat = DirectX::XMLoadFloat4x4( &flt4x4 );
-	if ( !m_ShaderState.bone.m_bBonesChanged && FastMemCompare( &mat, &newmat, sizeof( DirectX::XMMATRIX ) ) )
-	{
-		m_ShaderState.bone.m_bBonesChanged = true;
-	}
-	mat = newmat;
+	m_ShaderState.bone.m_BoneMatrix[boneIndex] = DirectX::XMFLOAT3X4A( m );
+	m_ShaderState.bone.m_bBonesChanged = true;
 	if ( boneIndex > m_ShaderState.bone.m_MaxBoneLoaded )
 	{
 		m_ShaderState.bone.m_MaxBoneLoaded = boneIndex;
@@ -2153,9 +2144,10 @@ void CShaderAPIDx11::LoadBoneMatrix( int boneIndex, const float *m )
 		// We have to transpose here because when loading
 		// the model matrix into the shader it gets transposed again.
 		MatrixMode( MATERIAL_MODEL );
-		VMatrix transpose;
-		MatrixTranspose( boneMatrix, transpose );
-		LoadMatrix( transpose.Base() );
+		VMatrix boneMatrix;
+		boneMatrix.Init( *(matrix3x4_t *)m );
+		MatrixTranspose( boneMatrix, boneMatrix );
+		LoadMatrix( boneMatrix.Base() );
 	}
 }
 

@@ -504,7 +504,7 @@ float4 DecompressBoneWeights( const float4 weights )
 
 void SkinPosition( bool bSkinning, const float4 modelPos, 
                    const float4 boneWeights, uint4 boneIndices,
-		   float4x4 model[NUM_MODEL_TRANSFORMS],
+		   float4x3 model[NUM_MODEL_TRANSFORMS],
 				   out float3 worldPos )
 {
 
@@ -534,7 +534,7 @@ void SkinPosition( bool bSkinning, const float4 modelPos,
 
 void SkinPositionAndNormal( bool bSkinning, const float4 modelPos, const float3 modelNormal,
                             const float4 boneWeights, uint4 boneIndices,
-			    float4x4 model[NUM_MODEL_TRANSFORMS],
+			    float4x3 model[NUM_MODEL_TRANSFORMS],
 						    out float3 worldPos, out float3 worldNormal )
 {
 	// Needed for invariance issues caused by multipass rendering
@@ -572,7 +572,7 @@ void SkinPositionNormalAndTangentSpace(
 						    const float4 modelPos, const float3 modelNormal, 
 							const float4 modelTangentS,
                             const float4 boneWeights, uint4 boneIndices,
-				float4x4 model[NUM_MODEL_TRANSFORMS],
+				float4x3 model[NUM_MODEL_TRANSFORMS],
 						    out float3 worldPos, out float3 worldNormal, 
 							out float3 worldTangentS, out float3 worldTangentT )
 {
@@ -625,7 +625,7 @@ float3 AmbientLight( const float3 worldNormal, const float3 ambientCube[6] )
 	return linearColor;
 }
 
-float CosineTermInternal( const float3 worldPos, const float3 worldNormal, int lightNum, bool bHalfLambert, LightInfo lightInfo[NUM_LIGHTS] )
+float CosineTermInternal( const float3 worldPos, const float3 worldNormal, int lightNum, bool bHalfLambert, LightInfo lightInfo[MAX_NUM_LIGHTS] )
 {
 	// Calculate light direction assuming this is a point or spot
 	float3 lightDir = normalize( lightInfo[lightNum].pos - worldPos );
@@ -650,7 +650,7 @@ float CosineTermInternal( const float3 worldPos, const float3 worldNormal, int l
 
 // This routine uses booleans to do early-outs and is meant to be called by routines OUTSIDE of this file
 float CosineTerm( const float3 worldPos, const float3 worldNormal, int lightNum, bool bHalfLambert,
-		  int4 lightEnabled[NUM_LIGHTS], LightInfo lightInfo[NUM_LIGHTS] )
+		  int4 lightEnabled[MAX_NUM_LIGHTS], LightInfo lightInfo[MAX_NUM_LIGHTS] )
 {
 	float flResult = 0.0f;
 	//if ( lightEnabled[lightNum] != 0 )
@@ -663,7 +663,7 @@ float CosineTerm( const float3 worldPos, const float3 worldNormal, int lightNum,
 
 
 float3 DoLightInternal( const float3 worldPos, const float3 worldNormal, int lightNum, bool bHalfLambert,
-			LightInfo lightInfo[NUM_LIGHTS] )
+			LightInfo lightInfo[MAX_NUM_LIGHTS] )
 {
 	return lightInfo[lightNum].color *
 		CosineTermInternal( worldPos, worldNormal, lightNum, bHalfLambert, lightInfo ) *
@@ -671,10 +671,11 @@ float3 DoLightInternal( const float3 worldPos, const float3 worldNormal, int lig
 }
 
 
+#if 0
 // This routine
 float3 DoLighting( const float3 worldPos, const float3 worldNormal,
 				   const float3 staticLightingColor, const bool bStaticLight,
-				   const bool bDynamicLight, bool bHalfLambert, LightInfo lightInfo[NUM_LIGHTS],
+				   const bool bDynamicLight, bool bHalfLambert, LightInfo lightInfo[MAX_NUM_LIGHTS],
 		   float3 ambientCube[6])
 {
 	float3 linearColor = float3( 0.0f, 0.0f, 0.0f );
@@ -705,11 +706,13 @@ float3 DoLighting( const float3 worldPos, const float3 worldNormal,
 	return linearColor;
 }
 
+#endif
+
 
 float3 DoLightingUnrolled( const float3 worldPos, const float3 worldNormal,
 				  const float3 staticLightingColor, const bool bStaticLight,
 				  const bool bDynamicLight, bool bHalfLambert, const int nNumLights,
-			   LightInfo lightInfo[NUM_LIGHTS], float3 ambientCube[6])
+			   LightInfo lightInfo[MAX_NUM_LIGHTS], float3 ambientCube[6])
 {
 	float3 linearColor = float3( 0.0f, 0.0f, 0.0f );
 

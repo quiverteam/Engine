@@ -278,13 +278,10 @@ float LightAttenInternal( const float3 worldPos, int lightNum, LightInfo lightIn
 }
 
 // This routine uses booleans to do early-outs and is meant to be called by routines OUTSIDE of this file
-float GetAttenForLight( const float3 worldPos, int lightNum, int4 lightEnabled, LightInfo lightInfo[4] )
+float GetAttenForLight( const float3 worldPos, int lightNum, LightInfo lightInfo[4] )
 {
 	float result = 0.0f;
-	if ( lightEnabled[lightNum] )
-	{
-		result = LightAttenInternal( worldPos, lightNum, lightInfo );
-	}
+	result = LightAttenInternal( worldPos, lightNum, lightInfo );
 
 	return result;
 }

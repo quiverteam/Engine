@@ -409,7 +409,7 @@ namespace StatesDx11
 
 	struct BoneState
 	{
-		DirectX::XMMATRIX m_BoneMatrix[NUM_MODEL_TRANSFORMS];
+		DirectX::XMFLOAT3X4A m_BoneMatrix[NUM_MODEL_TRANSFORMS];
 		int m_MaxBoneLoaded;
 		int m_NumBones;
 
@@ -451,13 +451,14 @@ namespace StatesDx11
 			fog.m_flFogStart = -1;
 			fog.m_FogMode = MATERIAL_FOG_NONE;
 
-			for ( int i = 0; i < NUM_MODEL_TRANSFORMS; i++ )
-			{
-				bone.m_BoneMatrix[i] = DirectX::XMMatrixIdentity();
-				bone.m_BoneMatrix[i] = DirectX::XMMatrixTranspose(
-					bone.m_BoneMatrix[i]
-				);
-			}
+			memset( bone.m_BoneMatrix, 0, sizeof( bone.m_BoneMatrix ) );
+			//for ( int i = 0; i < NUM_MODEL_TRANSFORMS; i++ )
+			//{
+			//	bone.m_BoneMatrix[i] = DirectX::XMMatrixIdentity();
+			//	bone.m_BoneMatrix[i] = DirectX::XMMatrixTranspose(
+			//		bone.m_BoneMatrix[i]
+			//	);
+			//}
 			bone.m_bBonesChanged = true;
 
 			for ( int i = 0; i < MAX_NUM_LIGHTS; i++ )

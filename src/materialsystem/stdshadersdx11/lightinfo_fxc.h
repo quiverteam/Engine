@@ -14,6 +14,6 @@ struct LightInfo
 	float4 atten;
 };
 
-#define NUM_LIGHTS	4
+#define MAX_NUM_LIGHTS	4
 
 #endif // LIGHTINFO_FXC_H

@@ -1279,13 +1279,28 @@ retry_compile:
 	memset( wfilename, 0, MAX_PATH );
 	//mbtowc( wfilename, filename, strlen( filename ) );
 
+	int nCompileFlags = D3DCOMPILE_AVOID_FLOW_CONTROL;
+	nCompileFlags |= D3DCOMPILE_ENABLE_BACKWARDS_COMPATIBILITY;
+
+#ifdef _DEBUG
+	nCompileFlags |= D3DCOMPILE_DEBUG;
+#endif
+
 	LPD3DBLOB pShader;
 	LPD3DBLOB pErrorMessages;
 	HRESULT hr;
 	CDxInclude dxInclude( filename );
+	// Open the top-level file via our include interface
+	LPCVOID lpcvData;
+	UINT numBytes;
+	hr = dxInclude.Open( (D3D_INCLUDE_TYPE)0, filename, NULL, &lpcvData, &numBytes );
+
+	LPCSTR pShaderData = (LPCSTR)lpcvData;
+
 	MultiByteToWideChar( CP_ACP, MB_PRECOMPOSED, filename, -1, wfilename, MAX_PATH );
-	hr = D3DCompileFromFile( wfilename, macros.Base(), &dxInclude /* LPD3DXINCLUDE */,
-		"main",	pShaderModel, 0 /* DWORD Flags */, 0, 	&pShader, &pErrorMessages/*, NULL LPD3DXCONSTANTTABLE *ppConstantTable */ );
+	hr = D3DCompile( pShaderData, numBytes, filename, macros.Base(), &dxInclude, "main", pShaderModel, nCompileFlags, 0, &pShader, &pErrorMessages );
+
+	dxInclude.Close( lpcvData );
 
 	if ( hr != S_OK && pErrorMessages )
 	{
@@ -1331,9 +1346,9 @@ retry_compile:
 		Q_strncat( exampleCommandLine, filename, sizeof( exampleCommandLine ) );
 		Q_strncat( exampleCommandLine, "\n", sizeof( exampleCommandLine ) );
 
-		ID3DXBuffer *pd3dxBuffer;
+		ID3DBlob *pd3dxBuffer;
 		HRESULT hr;
-		hr = D3DXDisassembleShader( ( DWORD* )pShader->GetBufferPointer(), false, NULL, &pd3dxBuffer );
+		hr = D3DDisassemble( pShader->GetBufferPointer(), pShader->GetBufferSize(), 0, NULL, &pd3dxBuffer );
 		Assert( hr == D3D_OK );
 		CUtlBuffer tempBuffer;
 		tempBuffer.SetBufferType( true, false );
@@ -2200,9 +2215,9 @@ void CShaderManager::SetPixelShader( PixelShader_t shader )
 
 	int pshIndex = m_nPixelShaderIndex;
 	Assert( pshIndex >= 0 );
-//	PixelShaderLookup_t &lookup = m_PixelShaderDict[shader];
-//	Warning( "psh: %s static: %d dynamic: %d\n", m_ShaderSymbolTable.String( lookup.m_Name ),
-//		lookup.m_nStaticIndex, m_nPixelShaderIndex );
+	//ShaderLookupDx11_t &lookup = m_PixelShaderDict[shader];
+	//Warning( "psh: %s static: %d dynamic: %d\n", m_ShaderSymbolTable.String( lookup.m_Name ),
+	//	lookup.m_nStaticIndex, m_nPixelShaderIndex );
 #ifdef DYNAMIC_SHADER_COMPILE
 	HardwareShader_t &dxshader = m_PixelShaderDict[shader].m_ShaderStaticCombos.m_pHardwareShaders[pshIndex];
 	if ( dxshader == INVALID_HARDWARE_SHADER )

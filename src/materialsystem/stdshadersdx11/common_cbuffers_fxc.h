@@ -7,24 +7,22 @@
 #define CBUFFER_PERMODEL( reg ) \
 cbuffer PerModel_t : reg \
 { \
-	matrix cModelMatrix; \
+	float4x4 cModelMatrix; \
 	float4 cFlexScale; \
-	int4 cLightEnabled; \
-	int4 cLightCountRegister; \
-	LightInfo cLightInfo[4]; \
+	LightInfo cLightInfo[MAX_NUM_LIGHTS]; \
 	float3 cAmbientCube[6]; \
 };
 
 #define CBUFFER_SKINNING( reg )\
 cbuffer Skinning_t : reg \
 { \
-	float4x4 cModel[53]; \
+	float4x3 cModel[53]; \
 };
 
 #define CBUFFER_PERFRAME( reg ) \
 cbuffer PerFrame_t : reg \
 { \
-	matrix cViewMatrix; \
+	float4x4 cViewMatrix; \
 	float4 cEyePos; \
 	float4 cFlashlightPos; \
 };
@@ -32,8 +30,8 @@ cbuffer PerFrame_t : reg \
 #define CBUFFER_PERSCENE( reg ) \
 cbuffer PerScene_t : reg \
 { \
-	matrix cProjMatrix; \
-	matrix cFlashlightWorldToTexture; \
+	float4x4 cProjMatrix; \
+	float4x4 cFlashlightWorldToTexture; \
 	float4 cFlashlightScreenScale; \
 	float4 cFlashlightColor; \
 	float4 cFlashlightAttenuationFactors; \
