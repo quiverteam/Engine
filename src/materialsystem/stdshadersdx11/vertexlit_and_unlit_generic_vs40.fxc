@@ -232,7 +232,7 @@ VS_OUTPUT main( const VS_INPUT v )
 	o.worldPos_ProjPosZ.w = vProjPos.z;
 
 	// Needed for cubemaps 
-	o.worldVertToEyeVector.xyz = normalize( cEyePos.xyz - worldPos.xyz );
+	o.worldVertToEyeVector.xyz = VSHADER_VECT_SCALE * (cEyePos.xyz - worldPos.xyz);
 
 	if ( g_bVertexColor )
 	{

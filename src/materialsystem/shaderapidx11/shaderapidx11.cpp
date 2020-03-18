@@ -491,9 +491,11 @@ void CShaderAPIDx11::DoIssueShaderState( bool bForce )
 		pPerFrameConstants->cViewMatrix = DirectX::XMMatrixTranspose( view );
 
 		// Store new view position.
-		DirectX::XMVECTOR scale, rot, viewTranslation;
-		DirectX::XMMatrixDecompose( &scale, &rot, &viewTranslation, view );
-		DirectX::XMStoreFloat4( &pPerFrameConstants->cEyePos, viewTranslation );
+		DirectX::XMFLOAT4X4 flt4x4view;
+		DirectX::XMStoreFloat4x4( &flt4x4view, DirectX::XMMatrixInverse( NULL, view ) );
+		pPerFrameConstants->cEyePos.x = flt4x4view.m[3][0];
+		pPerFrameConstants->cEyePos.y = flt4x4view.m[3][1];
+		pPerFrameConstants->cEyePos.z = flt4x4view.m[3][2];
 
 		m_ShaderState.m_ChangedMatrices[MATERIAL_VIEW] = false;
 
@@ -2047,14 +2049,15 @@ void CShaderAPIDx11::LoadCameraToWorld( void )
 {
 	MatrixIsChanging();
 
-	DirectX::XMVECTOR det;
 	DirectX::XMMATRIX inv;
-	inv = DirectX::XMMatrixInverse( &det, GetMatrix( MATERIAL_VIEW ) );
+	inv = DirectX::XMMatrixInverse( NULL, GetMatrix( MATERIAL_VIEW ) );
+
+	DirectX::XMFLOAT4X4 flt4x4inv;
+	DirectX::XMStoreFloat4x4( &flt4x4inv, inv );
 
 	// Kill translation
-	// DX11FIXME
-	//inv.r[3].m128_f32[0] = inv.r[3].m128_f32[1] = inv.r[3].m128_f32[2] = 0.0f;
-	inv = DirectX::XMMatrixMultiply( inv, DirectX::XMMatrixTranslation( 0, 0, 0 ) );
+	flt4x4inv.m[3][0] = flt4x4inv.m[3][1] = flt4x4inv.m[3][2] = 0.0f;
+	inv = DirectX::XMLoadFloat4x4( &flt4x4inv );
 
 	m_pCurMatrixItem->m_Matrix = inv;
 

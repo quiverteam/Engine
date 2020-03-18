@@ -80,7 +80,7 @@ VS_OUTPUT main( const VS_INPUT v )
 	float3 vObjNormal;
 	DecompressVertex_Normal( v.vNormal, vObjNormal );
 
-	float3 worldPos = mul( float4( v.vPos, 1 ), cModelMatrix );
+	float3 worldPos = mul( float4( v.vPos, 1 ), cModelMatrix ).xyz;
 
 	float4 vProjPos = ComputeProjPos(v.vPos.xyz, cModelMatrix, cViewMatrix, cProjMatrix);
 	o.projPos = vProjPos;
@@ -97,7 +97,7 @@ VS_OUTPUT main( const VS_INPUT v )
 	o.tangentSpaceTranspose[2] = worldNormal;
 #endif
 
-	float3 worldVertToEyeVector = VSHADER_VECT_SCALE * (cEyePos - worldPos);
+	//float3 worldVertToEyeVector = VSHADER_VECT_SCALE * (cEyePos - worldPos);
 
 #if SEAMLESS
 	{
