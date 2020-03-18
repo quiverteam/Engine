@@ -563,7 +563,7 @@ inline CBitVecT<BASE_OPS>::CBitVecT(int numBits)
 template <class BASE_OPS>
 inline CBitVecAccessor CBitVecT<BASE_OPS>::operator[](int i)	
 {
-	Assert(i >= 0 && i < GetNumBits());
+	Assert(i >= 0 && i < BASE_OPS::GetNumBits());
 	return CBitVecAccessor(BASE_OPS::Base(), i);
 }
 
@@ -582,7 +582,7 @@ inline void CBitVecT<BASE_OPS>::Init( int val )
 template <class BASE_OPS>
 inline uint32 CBitVecT<BASE_OPS>::Get( uint32 bitNum ) const
 {
-	Assert( bitNum < (uint32)GetNumBits() );
+	Assert( bitNum < (uint32)BASE_OPS::GetNumBits() );
 	const uint32 *pInt = BASE_OPS::Base() + BitVec_Int( bitNum );
 	return ( *pInt & BitVec_Bit( bitNum ) );
 }
@@ -592,7 +592,7 @@ inline uint32 CBitVecT<BASE_OPS>::Get( uint32 bitNum ) const
 template <class BASE_OPS>
 inline bool CBitVecT<BASE_OPS>::IsBitSet( int bitNum ) const
 {
-	Assert( bitNum >= 0 && bitNum < GetNumBits() );
+	Assert( bitNum >= 0 && bitNum < BASE_OPS::GetNumBits() );
 	const uint32 *pInt = BASE_OPS::Base() + BitVec_Int( bitNum );
 	return ( ( *pInt & BitVec_Bit( bitNum ) ) != 0 );
 }
@@ -602,7 +602,7 @@ inline bool CBitVecT<BASE_OPS>::IsBitSet( int bitNum ) const
 template <class BASE_OPS>
 inline void CBitVecT<BASE_OPS>::Set( int bitNum )			
 {
-	Assert( bitNum >= 0 && bitNum < GetNumBits() );
+	Assert( bitNum >= 0 && bitNum < BASE_OPS::GetNumBits() );
 	uint32 *pInt = BASE_OPS::Base() + BitVec_Int( bitNum );
 	*pInt |= BitVec_Bit( bitNum );
 }
@@ -612,7 +612,7 @@ inline void CBitVecT<BASE_OPS>::Set( int bitNum )
 template <class BASE_OPS>
 inline bool CBitVecT<BASE_OPS>::TestAndSet(int bitNum)
 {
-	Assert( bitNum >= 0 && bitNum < GetNumBits() );
+	Assert( bitNum >= 0 && bitNum < BASE_OPS::GetNumBits() );
 	uint32 bitVecBit = BitVec_Bit( bitNum );
 	uint32 *pInt = BASE_OPS::Base() + BitVec_Int( bitNum );
 	bool bResult = ( ( *pInt & bitVecBit) != 0 );
@@ -625,7 +625,7 @@ inline bool CBitVecT<BASE_OPS>::TestAndSet(int bitNum)
 template <class BASE_OPS>
 inline void CBitVecT<BASE_OPS>::Clear(int bitNum)		
 {
-	Assert( bitNum >= 0 && bitNum < GetNumBits() );
+	Assert( bitNum >= 0 && bitNum < BASE_OPS::GetNumBits() );
 	uint32 *pInt = BASE_OPS::Base() + BitVec_Int( bitNum );
 	*pInt &= ~BitVec_Bit( bitNum );
 }
@@ -887,7 +887,7 @@ inline bool CBitVecT<BASE_OPS>::Compare( const CBitVecT<BASE_OPS> &other, int nB
 template <class BASE_OPS>
 inline uint32 CBitVecT<BASE_OPS>::GetDWord(int i) const
 {
-	Assert(i >= 0 && i < GetNumDWords());
+	Assert(i >= 0 && i < BASE_OPS::GetNumDWords());
 	return BASE_OPS::Base()[i];
 }
 
@@ -895,7 +895,7 @@ inline uint32 CBitVecT<BASE_OPS>::GetDWord(int i) const
 template <class BASE_OPS>
 inline void CBitVecT<BASE_OPS>::SetDWord(int i, uint32 val)
 {
-	Assert(i >= 0 && i < GetNumDWords());
+	Assert(i >= 0 && i < BASE_OPS::GetNumDWords());
 	BASE_OPS::Base()[i] = val;
 }
 
