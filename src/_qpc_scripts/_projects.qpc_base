@@ -51,9 +51,9 @@ project "dmxloader" 				"dmxloader/dmxloader.qpc"
 
 project "dmxtest" 					"unittests/dmxtest/dmxtest.qpc" [$WINDOWS]
 
-project "dx_proxy_dx9_v00_pc"		"utils/dx_proxy/dx_proxy_dx9_v00_pc.qpc"
+project "dx_proxy_dx9_v00_pc"		"utils/dx_proxy/dx_proxy_dx9_v00_pc.qpc" [$WINDOWS]
 
-project "dx_proxy_dx9_v30_pc"		"utils/dx_proxy/dx_proxy_dx9_v30_pc.qpc"
+project "dx_proxy_dx9_v30_pc"		"utils/dx_proxy/dx_proxy_dx9_v30_pc.qpc" [$WINDOWS]
  
 project "elementviewer" 			"utils/elementviewer/elementviewer.qpc"
 
@@ -212,6 +212,8 @@ project "tier1"						"tier1/tier1.qpc"
 project "tier2"						"tier2/tier2.qpc"
 
 project "tier3"						"tier3/tier3.qpc"
+
+project "tier4"						"tier4/tier4.qpc"
 
 project "tier1test"					"unittests/tier1test/tier1test.qpc" [$WINDOWS]
 

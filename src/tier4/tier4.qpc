@@ -1,0 +1,47 @@
+//-----------------------------------------------------------------------------
+// TIER4.QPC
+//-----------------------------------------------------------------------------
+macro PROJECT_NAME 	"tier4"
+
+macro SRCDIR		".."
+macro OUTLIBDIR		"$LIBPUBLIC"
+ 
+include "$SRCDIR/_qpc_scripts/source_lib_base.qpc"
+
+configuration
+{
+	general
+	{
+		include_directories		{ "$SRCDIR/public/tier4" "/usr/include" }
+	}
+
+	compiler
+	{
+		preprocessor_definitions	{ "TIER4_STATIC_LIB" }
+	}
+	
+	linker
+	{
+		libraries
+		{
+			"shlwapi.lib" "winmm.lib" "wsock32.lib" "odbc32.lib" "odbccp32.lib" "Rpcrt4.lib" [$WINDOWS]
+			"SDL2"	[$POSIX]
+		}
+	}
+}
+
+files
+{
+	folder	"Source Files"
+	{
+		"MessageBox.cpp"
+		"AssertDialog.cpp"
+	}
+
+	folder	"Header Files"
+	{
+		"$SRCDIR/public/tier4/tier4.h"
+		"$SRCDIR/public/tier4/MessageBox.h"
+		"$SRCDIR/public/tier4/AssertDialog.h"
+	}
+}
