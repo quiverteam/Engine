@@ -1,0 +1,78 @@
+// ---------------------------------------------------------------
+// Auto Generated QPC Script - Fix if needed before using
+// ---------------------------------------------------------------
+macro PROJECT_NAME "BulletMultiThreaded"
+
+macro SRCDIR "../../../.."
+macro OUTLIBDIR "$LIBCOMMON"
+macro BULLET_SRC "../BulletMultiThreaded"
+
+include "$SRCDIR/_qpc_scripts/source_lib_base.qpc"
+
+configuration
+{
+	general
+	{
+		int_dir "./$CONFIG/$_SUBDIRSUFFIX/$PROJECT_NAME"
+		configuration_type "static_library"
+		
+		include_directories
+		{
+			"../"
+		}
+		
+		options
+		{
+			"/ltcg" [$RELEASE]
+		}
+	}
+	
+	compiler
+	{
+		preprocessor_definitions
+		{
+			"_DEBUG" [$DEBUG]
+			"NDEBUG" [$RELEASE]
+			"MBCS"
+			"WIN32"
+			"_CRT_SECURE_NO_WARNINGS"
+			"_CRT_SECURE_NO_DEPRECATE"
+			"_SCL_SECURE_NO_WARNINGS"
+		}
+		
+		options
+		{
+			"/d2Zi+" [$RELEASE]
+			"/W3"
+		}
+	}
+}
+
+files
+{
+	folder "Source Files"
+	{
+		"$BULLET_SRC/btGpu3DGridBroadphase.cpp"
+		"$BULLET_SRC/btParallelCollisionDispatcher.cpp"
+		"$BULLET_SRC/btParallelConstraintSolver.cpp"
+		"$BULLET_SRC/PosixThreading.cpp"
+		"$BULLET_SRC/btThreadPool.cpp"
+		"$BULLET_SRC/Win32Threading.cpp"
+	}
+
+	folder "Header Files"
+	{
+		"$BULLET_SRC/btGpu3DGridBroadphase.h"
+		"$BULLET_SRC/btGpu3DGridBroadphaseSharedCode.h"
+		"$BULLET_SRC/btGpu3DGridBroadphaseSharedDefs.h"
+		"$BULLET_SRC/btGpu3DGridBroadphaseSharedTypes.h"
+		"$BULLET_SRC/btGpuDefines.h"
+		"$BULLET_SRC/btGpuUtilsSharedCode.h"
+		"$BULLET_SRC/btGpuUtilsSharedDefs.h"
+		"$BULLET_SRC/btParallelCollisionDispatcher.h"
+		"$BULLET_SRC/btParallelConstraintSolver.h"
+		"$BULLET_SRC/PlatformDefinitions.h"
+		"$BULLET_SRC/btThreading.h"
+		"$BULLET_SRC/btThreadPool.h"
+	}
+}

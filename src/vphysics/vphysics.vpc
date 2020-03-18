@@ -5,9 +5,32 @@
 //-----------------------------------------------------------------------------
 
 $macro SRCDIR		".."
-$Macro OUTBINDIR	"$SRCDIR\..\game\bin"
+$Macro OUTBINDIR	"$BINDEFAULT"
 
 $Include "$SRCDIR\vpc_scripts\source_dll_base.vpc"
+
+$Configuration "Debug"
+{
+    $Compiler
+    {
+        $PreprocessorDefinitions                "_WINDLL;_DEBUG"
+    }
+
+}
+
+$Configuration "Release"
+{
+    $General
+    {
+        $WholeProgramOptimization                "Use Link Time Code Generation"
+    }
+
+    $Compiler
+    {
+        $PreprocessorDefinitions                "_WINDLL;NDEBUG;_RELEASE"
+    }
+
+}
 
 $Configuration
 {
@@ -94,14 +117,15 @@ $Project "vphysics"
 
 	$folder "Link Libraries"
 	{
-		$Lib	"$LIBPUBLIC\tier0"
-		$Lib	"$LIBPUBLIC\tier2"
-		$Lib	"$LIBPUBLIC\mathlib"
-		$Lib	"$LIBPUBLIC\vstdlib"
-		$Lib	"$LIBCOMMON\BulletCollision"
-		$Lib	"$LIBCOMMON\BulletDynamics"
-		$Lib	"$LIBCOMMON\BulletSoftBody"
-		$Lib	"$LIBCOMMON\BulletMultithreaded"
-		$Lib	"$LIBCOMMON\LinearMath"
+		$Lib	"tier0"
+        $Lib 	"tier1"
+		$Lib	"tier2"
+		$Lib	"mathlib"
+		$Lib	"vstdlib"
+		$Lib	"BulletCollision"
+		$Lib	"BulletDynamics"
+		$Lib	"BulletSoftBody"
+		$Lib	"BulletMultithreaded"
+		$Lib	"LinearMath"
 	}
 }

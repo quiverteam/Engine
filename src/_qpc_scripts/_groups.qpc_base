@@ -39,6 +39,26 @@ group "hammer"
 	"vvis_dll"
 }
 
+group "physics"
+{
+	folder "Game"
+	{
+		"vphysics"
+	}
+	
+	folder "Libraries"
+	{
+		folder "Bullet 2"
+		{
+			"BulletCollision"
+			"BulletDynamics"
+			"BulletMultiThreaded"
+			"BulletSoftBody"
+			"LinearMath"
+		}
+	}
+}
+
 group "shaders"
 {
 	"shadercompile_dll"
@@ -184,6 +204,15 @@ group "game" "everything"
 			"tier2"
 			"tier3"
 		}
+		
+		folder "Bullet 2"
+		{
+			"BulletCollision"
+			"BulletDynamics"
+			"BulletMultiThreaded"
+			"BulletSoftBody"
+			"LinearMath"
+		}
 
 		"appframework"
 		"mathlib"
@@ -233,6 +262,7 @@ group "game" "everything"
 		"vstdlib"
 		"audio_minimp3"
 		"unicode"
+		"vphysics"
 	}
 }
 
@@ -251,6 +281,15 @@ group "libraries" "core" "everything"
 			"tier1"
 			"tier2"
 			"tier3"
+		}
+		
+		folder "Bullet 2"
+		{
+			"BulletCollision"
+			"BulletDynamics"
+			"BulletMultiThreaded"
+			"BulletSoftBody"
+			"LinearMath"
 		}
 		
 		"vtf"
@@ -341,5 +380,4 @@ group "everything"
 	"libspeex"
 	"vaudio_speex"
 	"vlocalize"
-	"vphysics"
 }
