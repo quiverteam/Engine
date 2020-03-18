@@ -32,7 +32,7 @@ configuration
 	{
 		libraries
 		{
-			"Ws2_32.lib" "odbc32.lib" "odbccp32.lib" "Shlwapi.lib" [$WIN32]
+			"Ws2_32.lib" "odbc32.lib" "odbccp32.lib" "Shlwapi.lib" [$WINDOWS]
 			"$LIBPUBLIC/bitmap"
 			"$LIBCOMMON/jpeglib"
 			"$LIBPUBLIC/mathlib"
