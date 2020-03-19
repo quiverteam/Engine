@@ -1,48 +1,37 @@
-//  STATIC: "DUALSEQUENCE"			"0..1" [vs20]
-//  STATIC: "DUALSEQUENCE"			"0..0" [vs11]
-
+//  STATIC: "DUALSEQUENCE"			"0..1"
 //	DYNAMIC: "ORIENTATION"			"0..2"
 
-#include "common_cbuffers_def_fxc.h"
+#include "common_cbuffers_fxc.h"
 
 #include "common_vs_fxc.h"
 
-cbuffer SpriteCard_VS40_t : register(USER_CBUFFER_REG_0)
+#include "spritecard_constants_fxc.h"
+
+CBUFFER_PERMODEL( register( b0 ) )
+CBUFFER_PERFRAME( register( b1 ) )
+CBUFFER_PERSCENE( register( b2 ) )
+
+cbuffer SpriteCard_CBuffer : register( b3 )
 {
-	float4x3 cModelView
+	SpriteCard_t c;
 };
 
-const float4x3 cModelView			: register(SHADER_SPECIFIC_CONST_0);
-const float4x4 cProj				: register(SHADER_SPECIFIC_CONST_3);
+#define OLDFRM_SCALE_START (c.ScaleParms.x)
+#define OLDFRM_SCALE_END (c.ScaleParms.y)
 
-#if !defined( SHADER_MODEL_VS_1_1 ) 
-const float4 ScaleParms             : register(SHADER_SPECIFIC_CONST_7);
-#define OLDFRM_SCALE_START (ScaleParms.x)
-#define OLDFRM_SCALE_END (ScaleParms.y)
-#endif
+#define g_bZoomAnimateSeq2 (c.SpriteControls.x != 0)
+#define g_bExtractGreenAlpha (c.SpriteControls.y != 0)
+#define g_bUseInstancing (c.SpriteControls.z != 0)
 
-const float4 SizeParms              : register(SHADER_SPECIFIC_CONST_8);
-const float4 SizeParms2             : register(SHADER_SPECIFIC_CONST_9);
+#define MINIMUM_SIZE_FACTOR (c.SizeParms.x)
+#define MAXIMUM_SIZE_FACTOR (c.SizeParms.y)
 
-#if !defined( SHADER_MODEL_VS_1_1 ) 
-const bool g_bZoomAnimateSeq2		: register( SHADER_SPECIFIC_BOOL_CONST_0 );
-const bool g_bExtractGreenAlpha		: register( SHADER_SPECIFIC_BOOL_CONST_1 );
-const bool g_bUseInstancing			: register( SHADER_SPECIFIC_BOOL_CONST_2 );
-#endif
-
-#define MINIMUM_SIZE_FACTOR (SizeParms.x)
-#define MAXIMUM_SIZE_FACTOR (SizeParms.y)
-
-#define START_FADE_SIZE_FACTOR (SizeParms.z)
-#define END_FADE_SIZE_FACTOR (SizeParms.w)
+#define START_FADE_SIZE_FACTOR (c.SizeParms.z)
+#define END_FADE_SIZE_FACTOR (c.SizeParms.w)
 
 // alpha fade w/ distance
-#define START_FAR_FADE  ( SizeParms2.x )
-#define FAR_FADE_FACTOR ( SizeParms2.y )	   // alpha = 1-min(1,max(0, (dist-start_fade)*factor))
-
-#define CONST_PC const
-#define VERTEX_INDEX_PARAM_360
-
+#define START_FAR_FADE  ( c.SizeParms2.x )
+#define FAR_FADE_FACTOR ( c.SizeParms2.y )	   // alpha = 1-min(1,max(0, (dist-start_fade)*factor))
 
 struct VS_INPUT
 {
@@ -64,16 +53,14 @@ struct VS_INPUT
 
 struct VS_OUTPUT
 {
-    float4 projPos			: POSITION;	
+    float4 projPos			: SV_POSITION;	
 
 	float2 texCoord0		: TEXCOORD0;
 	float2 texCoord1		: TEXCOORD1;
 	float4 argbcolor		: COLOR;
 	float4 blendfactor0		: TEXCOORD2;
 	float2 texCoord2		: TEXCOORD3;
-#if !defined( SHADER_MODEL_VS_1_1 ) 
 	float4 blendfactor1		: TEXCOORD4;	// for extracting green/alpha
-#endif
 #if DUALSEQUENCE
 	float2 vSeq2TexCoord0   : TEXCOORD5;
 	float2 vSeq2TexCoord1   : TEXCOORD6;
@@ -87,7 +74,6 @@ struct VS_OUTPUT
 #define RADIUS v.vParms.z
 #define YAW (v.vParms.w)
 
-#if !defined( SHADER_MODEL_VS_1_1 ) 
 float getlerpscaled( float l_in, float s0, float s1, float ts )
 {
 	l_in = 2.0*(l_in-.5);
@@ -104,7 +90,6 @@ float getlerpscale_for_new_frame( float l_in, float ts )
 {
 	return getlerpscaled( l_in, 1.0, OLDFRM_SCALE_START, ts );
 }
-#endif
 
 #ifdef DO_INSTANCING
 void InstancedVertexRead( inout VS_INPUT v, int index )
@@ -158,8 +143,7 @@ void InstancedVertexRead( inout VS_INPUT v, int index )
 }
 #endif
 
-VS_OUTPUT main( CONST_PC VS_INPUT v
-			    VERTEX_INDEX_PARAM_360 )
+VS_OUTPUT main( const VS_INPUT v )
 {
 	VS_OUTPUT o;
 
@@ -170,11 +154,7 @@ VS_OUTPUT main( CONST_PC VS_INPUT v
 	}
 #endif
 
-#if SHADER_MODEL_VS_1_1
-	float4 tint = v.vTint;
-#else
 	float4 tint = GammaToLinear( v.vTint );
-#endif
 
 	float2 sc_yaw;
 	sincos( YAW, sc_yaw.y, sc_yaw.x );
@@ -188,14 +168,13 @@ VS_OUTPUT main( CONST_PC VS_INPUT v
 
 	float4 projPos;
 	float3 worldPos;
-	worldPos = mul4x3( v.vPos, cModel[0] );
+	worldPos = mul( float4( v.vPos.xyz, 1.0f ), cModelMatrix ).xyz;
 
 	float rad = RADIUS;
-	float3 v2p = ( worldPos - cEyePos );
+	float3 v2p = ( worldPos - cEyePos.xyz );
 	float l = length(v2p);
 	rad=max(rad, MINIMUM_SIZE_FACTOR * l);
 	// now, perform fade out
-#ifndef SHADER_MODEL_VS_1_1
 	if ( rad > START_FADE_SIZE_FACTOR * l )
 	{
 		if ( rad > END_FADE_SIZE_FACTOR *l )
@@ -208,24 +187,22 @@ VS_OUTPUT main( CONST_PC VS_INPUT v
 			tint *= 1-(rad-START_FADE_SIZE_FACTOR*l)/(END_FADE_SIZE_FACTOR*l-START_FADE_SIZE_FACTOR*l);
 		}
 	}
-#endif
 
 
-#ifndef SHADER_MODEL_VS_1_1
 	// perform far fade
 	float tscale =  1-min(1, max(0, (l-START_FAR_FADE)*FAR_FADE_FACTOR) );
 	tint *= tscale;
 
 	if ( tscale <= 0)
 		rad = 0;											// cull so we emit 0-sized sprite
-#endif
 
 	rad=min(rad, MAXIMUM_SIZE_FACTOR * l);
 
 #if ORIENTATION == 0
 	// Screen-aligned case
 	float3 viewPos;
-	viewPos = mul4x3( v.vPos, cModelView );
+	float4x4 modelView = mul( cModelMatrix, cViewMatrix );
+	viewPos = mul( v.vPos, modelView ).xyz;
 
 	float3 disp=float3( -x1,y1,0);
  	float tmpx=disp.x*sc_yaw.x+disp.z*sc_yaw.y;
@@ -234,7 +211,7 @@ VS_OUTPUT main( CONST_PC VS_INPUT v
 
 	viewPos.xyz += disp * rad;
 
-	projPos  = mul( float4(viewPos, 1.0f), cProj );
+	projPos  = mul( float4(viewPos, 1.0f), cProjMatrix );
 #endif
 	
 #if ORIENTATION == 1
@@ -250,21 +227,20 @@ VS_OUTPUT main( CONST_PC VS_INPUT v
 		worldPos += (x1*rad)*right;
 		worldPos.z += (y1*rad)*up.z;
 		
-#ifndef SHADER_MODEL_VS_1_1
 		if (l < rad*2 )
 		{
 			tint *= smoothstep(rad/2,rad,l);
 		}
-#endif
 
 	}
-	projPos  = mul( float4(worldPos, 1.0f), cViewProj );
+	float4x4 viewProj = mul(cViewMatrix, cProjMatrix);
+	projPos  = mul( float4(worldPos, 1.0f), viewProj );
 #endif
 
 #if ORIENTATION == 2
 	// aligned with z plane case - easy
 	float3 wpos=v.vPos+RADIUS*float3( y1,x1,0);
-	projPos  = mul( float4(wpos, 1.0f), cModelViewProj );
+	projPos = ComputeProjPos( wpos, cModelMatrix, cViewMatrix, cProjMatrix );
 #endif
 
 	o.blendfactor0 = float4( v.vParms.x, 0, 0, 0 );
@@ -295,8 +271,6 @@ VS_OUTPUT main( CONST_PC VS_INPUT v
 #endif
 
 
-#if !defined( SHADER_MODEL_VS_1_1 ) 
-
 	o.blendfactor1 = float4( 0.0f, 0.0f, 0.0f, 0.0f );
 
 	if ( g_bExtractGreenAlpha )
@@ -318,7 +292,6 @@ VS_OUTPUT main( CONST_PC VS_INPUT v
 			o.blendfactor1.g = 1 - o.blendfactor1.a;					// 1.0 .. 0.5
 		}
 	}
-#endif
 
 	// Map projected position to the refraction texture
 	float2 vScreenPos;

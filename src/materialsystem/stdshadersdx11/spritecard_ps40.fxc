@@ -1,4 +1,3 @@
-// STATIC: "CONVERT_TO_SRGB"		"0..1"	[ps20b][= g_pHardwareConfig->NeedsShaderSRGBConversion()]
 // STATIC: "DUALSEQUENCE"			"0..1"
 // STATIC: "SEQUENCE_BLEND_MODE"	"0..2"
 // STATIC: "ADDBASETEXTURE2"		"0..1"
@@ -8,7 +7,8 @@
 // STATIC: "COLORRAMP"				"0..1"
 // STATIC: "ANIMBLEND"				"0..1"
 // STATIC: "ADDSELF"				"0..1"
-// STATIC: "DEPTHBLEND"				"0..1"	[ps20b]
+// STATIC: "ALPHATEST"				"0..1"
+// STATIC: "DEPTHBLEND"				"0..1"
 
 #define COMBINE_MODE_AVERAGE							0
 #define COMBINE_MODE_USE_FIRST_AS_ALPHA_MASK_ON_SECOND	1
@@ -17,8 +17,15 @@
 #define HDRTYPE HDR_TYPE_NONE
 #include "common_ps_fxc.h"
 
-const float4 g_Parameters	: register( c0 );
-const float4 g_DepthFeatheringConstants : register( c2 );
+#include "spritecard_constants_fxc.h"
+
+cbuffer SpriteCard_CBuffer : register( b0 )
+{
+	SpriteCard_t c;
+};
+
+#define g_Parameters c.g_Parameters
+#define g_DepthFeatheringConstants c.g_DepthFeatheringConstants
 
 #define fAdditiveBlendWeight		g_Parameters.x
 #define fOverbrightFactor			g_Parameters.y
@@ -26,6 +33,7 @@ const float4 g_DepthFeatheringConstants : register( c2 );
 
 struct PS_INPUT
 {
+	float4 projPos			: SV_POSITION;
 	float2 texCoord0		: TEXCOORD0;
 	float2 texCoord1		: TEXCOORD1;
 	float4 argbcolor		: COLOR;
@@ -45,11 +53,14 @@ struct PS_INPUT
 	float4 vScreenPos		: TEXCOORD7;
 };
 
+Texture2D BaseTexture		: register( t0 );
 sampler BaseTextureSampler	: register( s0 );
+Texture2D ColorRampTexture	: register( t1 );
 sampler ColorRampSampler	: register( s1 );
+Texture2D DepthTexture		: registeR( t2 );
 sampler DepthSampler		: register( s2 );
 
-float4 main( PS_INPUT i ) : COLOR
+float4 main( PS_INPUT i ) : SV_TARGET
 {
 	bool bMaxLumFrameBlend1 = MAXLUMFRAMEBLEND1 ? true : false;
 	bool bMaxLumFrameBlend2 = MAXLUMFRAMEBLEND2 ? true : false;
@@ -63,9 +74,9 @@ float4 main( PS_INPUT i ) : COLOR
 	int nSequenceBlendMode  = SEQUENCE_BLEND_MODE;
 
 	// Sample frames from texture 0
-	float4 baseTex0 = tex2D( BaseTextureSampler, i.texCoord0 );
+	float4 baseTex0 = BaseTexture.Sample( BaseTextureSampler, i.texCoord0 );
 
-	float4 baseTex1 = tex2D( BaseTextureSampler, i.texCoord1 );
+	float4 baseTex1 = BaseTexture.Sample( BaseTextureSampler, i.texCoord1 );
 
 	// Blend by default (may override with bMaxLumFrameBlend1 or bExtractGreenAlpha)
 #if ANIMBLEND
@@ -96,8 +107,8 @@ float4 main( PS_INPUT i ) : COLOR
 #if DUALSEQUENCE
 	if ( bDualSequence )
 	{
-		baseTex0 = tex2D( BaseTextureSampler, i.vSeq2TexCoord0 );
-		baseTex1 = tex2D( BaseTextureSampler, i.vSeq2TexCoord1 );
+		baseTex0 = BaseTexture.Sample( BaseTextureSampler, i.vSeq2TexCoord0 );
+		baseTex1 = BaseTexture.Sample( BaseTextureSampler, i.vSeq2TexCoord1 );
 
 		// Blend by default (may override with bMaxLumFrameBlend2)
 		float4 rgb2 = lerp( baseTex0, baseTex1, i.blendfactor0.z );
@@ -132,7 +143,7 @@ float4 main( PS_INPUT i ) : COLOR
 	// Optional color ramp
 	if ( bColorRamp )
 	{
-		blended_rgb.rgb = tex2D( ColorRampSampler, float2( blended_rgb.r, blended_rgb.g ) );
+		blended_rgb.rgb = ColorRampTexture.Sample( ColorRampSampler, float2( blended_rgb.r, blended_rgb.g ) );
 	}
 
 	// Overbright
@@ -140,7 +151,8 @@ float4 main( PS_INPUT i ) : COLOR
 
 	//Soft Particles FTW
 #	if (DEPTHBLEND == 1)
-		float fDepthBlend = DepthFeathering( DepthSampler, i.vScreenPos.xy / i.vScreenPos.w, i.vScreenPos.z, i.vScreenPos.w, g_DepthFeatheringConstants );
+		float fDepthBlend = DepthFeathering( DepthTexture, DepthSampler, i.vScreenPos.xy / i.vScreenPos.w,
+								i.vScreenPos.z, i.vScreenPos.w, g_DepthFeatheringConstants );
 		i.argbcolor.a *= fDepthBlend;
 #	endif
 
@@ -162,7 +174,7 @@ float4 main( PS_INPUT i ) : COLOR
 		}
 		else
 		{
-			blended_rgb.rgb += fOverbrightFactor * fAdditiveBlendWeight * i.argbcolor.a * tex2D( BaseTextureSampler, i.texCoord2 );
+			blended_rgb.rgb += fOverbrightFactor * fAdditiveBlendWeight * i.argbcolor.a * BaseTexture.Sample( BaseTextureSampler, i.texCoord2 );
 		}
 
 		blended_rgb.rgb *= i.argbcolor.rgb;
@@ -179,6 +191,13 @@ float4 main( PS_INPUT i ) : COLOR
 		blended_rgb *= i.argbcolor;
 #endif
 	}
+
+#if ALPHATEST
+	if ( !GreaterAlphaTest(blended_rgb.a, 0.01f) )
+	{
+		discard;
+	}
+#endif
 
 	return FinalOutput( blended_rgb, 0, PIXEL_FOG_TYPE_NONE, TONEMAP_SCALE_LINEAR );
 }

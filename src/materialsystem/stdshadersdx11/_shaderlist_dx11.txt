@@ -6,6 +6,10 @@
 //bik_vs40.fxc
 //bik_ps40.fxc
 
+splinecard_vs40.fxc
+spritecard_vs40.fxc
+spritecard_ps40.fxc
+
 sprite_ps40.fxc
 sprite_vs40.fxc
 

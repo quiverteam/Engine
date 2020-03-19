@@ -750,6 +750,11 @@ bool GreaterEqualAlphaTest( float alpha, float ref )
 	return alpha >= ref;
 }
 
+bool GreaterAlphaTest( float alpha, float ref )
+{
+	return alpha > ref;
+}
+
 float3 lerp5(float3 f1, float3 f2, float i1, float i2, float x)
 {
   return f1+(f2-f1)*(x-i1)/(i2-i1);
