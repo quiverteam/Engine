@@ -52,7 +52,7 @@
 #define DYNAMIC_SHADER_COMPILE
 
 // uncomment to get spew about what combos are being compiled.
-//#define DYNAMIC_SHADER_COMPILE_VERBOSE
+#define DYNAMIC_SHADER_COMPILE_VERBOSE
 
 // uncomment and fill in with a path to use a specific set of shader source files. Meant for network use.
 //		PC path format is of style "\\\\somemachine\\sourcetreeshare\\materialsystem\\stdshaders"
@@ -62,7 +62,7 @@
 //#define DYNAMIC_SHADER_COMPILE_CUSTOM_PATH ""
 
 // uncomment to get disassembled (asm) shader code in your game dir as *.asm
-//#define DYNAMIC_SHADER_COMPILE_WRITE_ASSEMBLY
+#define DYNAMIC_SHADER_COMPILE_WRITE_ASSEMBLY
 
 // uncomment to get disassembled (asm) shader code in your game dir as *.asm
 //#define WRITE_ASSEMBLY
@@ -330,8 +330,8 @@ public:
 	virtual void				DestroyVertexShader( VertexShaderHandle_t hShader );
 	virtual PixelShaderHandle_t CreatePixelShader( IShaderBuffer* pShaderBuffer );
 	virtual void				DestroyPixelShader( PixelShaderHandle_t hShader );
-	virtual VertexShader_t		CreateVertexShader( const char *pVertexShaderFile, int nStaticVshIndex = 0 );
-	virtual PixelShader_t		CreatePixelShader( const char *pPixelShaderFile, int nStaticPshIndex = 0 );
+	virtual VertexShader_t		CreateVertexShader( const char *pVertexShaderFile, ShaderIndex_t nStaticVshIndex = 0 );
+	virtual PixelShader_t		CreatePixelShader( const char *pPixelShaderFile, ShaderIndex_t nStaticPshIndex = 0 );
 	virtual void				SetVertexShader( VertexShader_t shader );
 	virtual void				SetPixelShader( PixelShader_t shader );
 	virtual void				BindVertexShader( VertexShaderHandle_t shader );
@@ -370,7 +370,7 @@ private:
 	struct ShaderLookupDx11_t
 	{
 		CUtlSymbol				m_Name;
-		int						m_nStaticIndex;
+		ShaderIndex_t						m_nStaticIndex;
 		ShaderStaticCombos_t	m_ShaderStaticCombos;
 		DWORD					m_Flags;
 		int						m_nRefCount;
@@ -424,9 +424,9 @@ private:
 	{
 		CUtlVector<Combo_t> m_StaticCombos;
 		CUtlVector<Combo_t> m_DynamicCombos;
-		int GetNumDynamicCombos( void ) const
+		uint64 GetNumDynamicCombos( void ) const
 		{
-			int combos = 1;
+			uint64 combos = 1;
 			int i;
 			for( i = 0; i < m_DynamicCombos.Count(); i++ )
 			{
@@ -434,9 +434,9 @@ private:
 			}
 			return combos;
 		}
-		int GetNumStaticCombos( void ) const
+		uint64 GetNumStaticCombos( void ) const
 		{
-			int combos = 1;
+			uint64 combos = 1;
 			int i;
 			for( i = 0; i < m_StaticCombos.Count(); i++ )
 			{
@@ -471,10 +471,10 @@ private:
 #ifdef DYNAMIC_SHADER_COMPILE
 	bool					LoadAndCreateShaders_Dynamic( ShaderLookupDx11_t &lookup, bool bVertexShader );
 	const ShaderCombos_t	*FindOrCreateShaderCombos( const char *pShaderName );
-	HardwareShader_t		CompileShader( const char *pShaderName, int nStaticIndex, int nDynamicIndex, bool bVertexShader );
+	HardwareShader_t		CompileShader( const char *pShaderName, ShaderIndex_t nStaticIndex, ShaderIndex_t nDynamicIndex, bool bVertexShader );
 #endif
 
-	void					DisassembleShader( ShaderLookupDx11_t *pLookup, int dynamicCombo, uint8 *pByteCode );
+	void					DisassembleShader( ShaderLookupDx11_t *pLookup, ShaderIndex_t dynamicCombo, uint8 *pByteCode );
 
 	CUtlFixedLinkedList< ShaderLookupDx11_t > m_VertexShaderDict;
 	CUtlFixedLinkedList< ShaderLookupDx11_t > m_PixelShaderDict;
@@ -1104,7 +1104,7 @@ static ConVar mat_flushshaders_generate_updbs( "mat_flushshaders_generate_updbs"
 #endif
 
 HardwareShader_t CShaderManager::CompileShader( const char *pShaderName, 
-						int nStaticIndex, int nDynamicIndex, bool bVertexShader )
+						ShaderIndex_t nStaticIndex, ShaderIndex_t nDynamicIndex, bool bVertexShader )
 {
 	VPROF_BUDGET( "CompileShader", "CompileShader" );
 	Assert( m_ShaderNameToCombos.Defined( pShaderName ) );
@@ -1114,8 +1114,8 @@ HardwareShader_t CShaderManager::CompileShader( const char *pShaderName,
 	}
 	const ShaderCombos_t &combos = m_ShaderNameToCombos[pShaderName];
 #ifdef _DEBUG
-	int numStaticCombos = combos.GetNumStaticCombos();
-	int numDynamicCombos = combos.GetNumDynamicCombos();
+	uint64 numStaticCombos = combos.GetNumStaticCombos();
+	uint64 numDynamicCombos = combos.GetNumDynamicCombos();
 #endif
 	Assert( nStaticIndex % numDynamicCombos == 0 );
 	Assert( ( nStaticIndex % numDynamicCombos ) >= 0 && ( nStaticIndex % numDynamicCombos ) < numStaticCombos );
@@ -1137,7 +1137,7 @@ HardwareShader_t CShaderManager::CompileShader( const char *pShaderName,
 	// plus 1 for null termination, plus 1 for #define SHADER_MODEL_*, and plus 1 for #define _X360 on 360
 	macros.SetCount( combos.m_DynamicCombos.Count() + combos.m_StaticCombos.Count() + 2 + ( IsX360() ? 1 : 0 ) );
 
-	int nCombo = nStaticIndex + nDynamicIndex;
+	uint64 nCombo = nStaticIndex + nDynamicIndex;
 	int macroIndex = 0;
 	int i;
 	for( i = 0; i < combos.m_DynamicCombos.Count(); i++ )
@@ -1448,7 +1448,7 @@ FileHandle_t CShaderManager::OpenFileAndLoadHeader( const char *pFileName, Shade
 //-----------------------------------------------------------------------------
 // Disassemble a shader for debugging. Writes .asm files.
 //-----------------------------------------------------------------------------
-void CShaderManager::DisassembleShader( ShaderLookupDx11_t *pLookup, int dynamicCombo, uint8 *pByteCode )
+void CShaderManager::DisassembleShader( ShaderLookupDx11_t *pLookup, ShaderIndex_t dynamicCombo, uint8 *pByteCode )
 {
 #if defined( WRITE_ASSEMBLY )
 	const char *pName = m_ShaderSymbolTable.String( pLookup->m_Name );
@@ -1967,7 +1967,7 @@ bool CShaderManager::LoadAndCreateShaders( ShaderLookupDx11_t &lookup, bool bVer
 //-----------------------------------------------------------------------------
 // Creates and destroys vertex shaders
 //-----------------------------------------------------------------------------
-VertexShader_t CShaderManager::CreateVertexShader( const char *pFileName, int nStaticVshIndex )
+VertexShader_t CShaderManager::CreateVertexShader( const char *pFileName, ShaderIndex_t nStaticVshIndex )
 {
 	MEM_ALLOC_CREDIT();
 
@@ -1996,7 +1996,7 @@ VertexShader_t CShaderManager::CreateVertexShader( const char *pFileName, int nS
 //-----------------------------------------------------------------------------
 // Create pixel shader
 //-----------------------------------------------------------------------------
-PixelShader_t CShaderManager::CreatePixelShader( const char *pFileName, int nStaticPshIndex )
+PixelShader_t CShaderManager::CreatePixelShader( const char *pFileName, ShaderIndex_t nStaticPshIndex )
 {
 	MEM_ALLOC_CREDIT();
 

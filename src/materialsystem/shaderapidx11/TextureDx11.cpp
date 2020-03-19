@@ -901,32 +901,43 @@ void CTextureDx11::BlitSurfaceBits( CTextureDx11::TextureLoadInfo_t &info, int x
 		return;
 	}
 
+	int width = info.m_nWidth;
+	int height = info.m_nHeight;
+	if ( m_Format == IMAGE_FORMAT_DXT3 || m_Format == IMAGE_FORMAT_DXT3_SRGB ||
+	     m_Format == IMAGE_FORMAT_DXT5 || m_Format == IMAGE_FORMAT_DXT5_SRGB ||
+	     m_Format == IMAGE_FORMAT_DXT1 || m_Format == IMAGE_FORMAT_DXT1_SRGB ||
+	     m_Format == IMAGE_FORMAT_DXT1_ONEBITALPHA || m_Format == IMAGE_FORMAT_DXT1_ONEBITALPHA_SRGB )
+	{
+		width = ALIGN_VALUE( width, 4 );
+		height = ALIGN_VALUE( height, 4 );
+	}
+
 	CD3D11_BOX box;
 	box.left = xOffset;
-	box.right = xOffset + info.m_nWidth;
+	box.right = xOffset + width;
 	box.top = yOffset;
-	box.bottom = yOffset + info.m_nHeight;
+	box.bottom = yOffset + height;
 	box.front = info.m_nZOffset;
 	box.back = info.m_nZOffset + 1;
 
-	int mem = ImageLoader::GetMemRequired( info.m_nWidth, info.m_nHeight, info.m_nZOffset, m_Format, false );
+	int mem = ImageLoader::GetMemRequired( width, height, info.m_nZOffset, m_Format, false );
 	unsigned char *pNewImage = new unsigned char[mem];
 	int dstStride = ImageLoader::SizeInBytes( m_Format );
-	int pitch = dstStride * info.m_nWidth;
+	int pitch = dstStride * width;
 	if ( m_Format == IMAGE_FORMAT_DXT3 || m_Format == IMAGE_FORMAT_DXT3_SRGB ||
 	     m_Format == IMAGE_FORMAT_DXT5 || m_Format == IMAGE_FORMAT_DXT5_SRGB )
 	{
-		pitch = 16 * ( info.m_nWidth / 4 );
+		pitch = 16 * ( width / 4 );
 	}
 	else if ( m_Format == IMAGE_FORMAT_DXT1 || m_Format == IMAGE_FORMAT_DXT1_SRGB ||
 		  m_Format == IMAGE_FORMAT_DXT1_ONEBITALPHA || m_Format == IMAGE_FORMAT_DXT1_ONEBITALPHA_SRGB )
 	{
-		pitch = 8 * ( info.m_nWidth / 4 );
+		pitch = 8 * ( width / 4 );
 	}
 
 	bool ret =
 		ShaderUtil()->ConvertImageFormat( info.m_pSrcData, info.m_SrcFormat, pNewImage, m_Format,
-						  info.m_nWidth, info.m_nHeight, srcStride );
+						  width, height, srcStride );
 	if ( !ret )
 	{
 		Warning( "Couldn't convert texture for uploading to D3D!\n" );

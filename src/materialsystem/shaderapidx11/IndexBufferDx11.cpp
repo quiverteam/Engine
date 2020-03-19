@@ -44,14 +44,16 @@ CIndexBufferDx11::CIndexBufferDx11( ShaderBufferType_t type, MaterialIndexFormat
 	//Assert( nIndexCount != 0 );
 	Assert( IsDynamicBufferType( type ) || ( fmt != MATERIAL_INDEX_FORMAT_UNKNOWN ) );
 
+	m_pIndexMemory = NULL;
 	m_pIndexBuffer = NULL;
 	m_IndexFormat = fmt;
 	m_nIndexSize = SizeForIndex( fmt );
 	m_nIndexCount =  nIndexCount;
 	m_nBufferSize = nIndexCount * m_nIndexSize;
-	m_nFirstUnwrittenOffset = 0;
+	m_Position = 0;
 	m_bIsLocked = false;
 	m_bIsDynamic = IsDynamicBufferType( type );
+	m_nIndicesLocked = 0;
 	m_bFlush = false;
 
 #ifdef _DEBUG
@@ -92,15 +94,35 @@ bool CIndexBufferDx11::Allocate()
 {
 	Assert( !m_pIndexBuffer );
 
-	m_nFirstUnwrittenOffset = 0;
+	if ( !m_bIsDynamic )
+	{
+		m_pIndexMemory = (unsigned char *)malloc( m_nBufferSize );
+		memset( m_pIndexMemory, 0, m_nBufferSize );
+	}
+	else
+	{
+		m_pIndexMemory = NULL;
+	}
+
+	m_Position = 0;
 
 	//Log( "Creating D3D index buffer: size: %i\n", m_nBufferSize );
 
 	D3D11_BUFFER_DESC bd;
-	bd.Usage = D3D11_USAGE_DYNAMIC;
+	if ( m_bIsDynamic )
+	{
+		bd.Usage = D3D11_USAGE_DYNAMIC;
+		bd.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
+	}
+	else
+	{
+		bd.Usage = D3D11_USAGE_DEFAULT;
+		bd.CPUAccessFlags = 0;
+	}
+
 	bd.ByteWidth = m_nBufferSize;
 	bd.BindFlags = D3D11_BIND_INDEX_BUFFER;
-	bd.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
+	
 	bd.MiscFlags = 0;
 
 	HRESULT hr = D3D11Device()->CreateBuffer( &bd, NULL, &m_pIndexBuffer );
@@ -147,6 +169,12 @@ void CIndexBufferDx11::Free()
 			VPROF_INCREMENT_GROUP_COUNTER( "TexGroup_global_" TEXTURE_GROUP_DYNAMIC_INDEX_BUFFER,
 						       COUNTER_GROUP_TEXTURE_GLOBAL, -m_nBufferSize );
 		}
+	}
+
+	if ( m_pIndexMemory )
+	{
+		free( m_pIndexMemory );
+		m_pIndexMemory = NULL;
 	}
 }
 
@@ -234,14 +262,10 @@ void CIndexBufferDx11::EndCastBuffer()
 //-----------------------------------------------------------------------------
 int CIndexBufferDx11::GetRoomRemaining() const
 {
-	return ( m_nBufferSize - m_nFirstUnwrittenOffset ) / IndexSize();
+	return ( m_nBufferSize - m_Position ) / IndexSize();
 }
 
-
-//-----------------------------------------------------------------------------
-// Locks, unlocks the mesh
-//-----------------------------------------------------------------------------
-bool CIndexBufferDx11::Lock( int nMaxIndexCount, bool bAppend, IndexDesc_t &desc )
+bool CIndexBufferDx11::LockEx( int nFirstIndex, int nMaxIndexCount, IndexDesc_t &desc )
 {
 	Assert( !m_bIsLocked && ( nMaxIndexCount != 0 ) && ( nMaxIndexCount <= m_nIndexCount ) );
 	if ( m_bIsLocked || ( nMaxIndexCount == 0 ) || ( nMaxIndexCount > m_nIndexCount ) )
@@ -253,9 +277,6 @@ bool CIndexBufferDx11::Lock( int nMaxIndexCount, bool bAppend, IndexDesc_t &desc
 	// FIXME: Why do we need to sync matrices now?
 	ShaderUtil()->SyncMatrices();
 	g_ShaderMutex.Lock();
-
-	D3D11_MAPPED_SUBRESOURCE lockedData;
-	HRESULT hr;
 
 	// This can happen if the buffer was locked but a type wasn't bound
 	if ( m_IndexFormat == MATERIAL_INDEX_FORMAT_UNKNOWN )
@@ -282,73 +303,102 @@ bool CIndexBufferDx11::Lock( int nMaxIndexCount, bool bAppend, IndexDesc_t &desc
 
 	//Log( "Locking index buffer %p\n", m_pIndexBuffer );
 
-	// Check to see if we have enough memory 
-	int nMemoryRequired = nMaxIndexCount * IndexSize();
-	bool bHasEnoughMemory = ( m_nFirstUnwrittenOffset + nMemoryRequired <= m_nBufferSize );
-
-	D3D11_MAP map;
-	if ( bAppend )
+	if ( m_bIsDynamic )
 	{
-		// Can't have the first lock after a flush be an appending lock
-		Assert( !m_bFlush );
+		// Check to see if we have enough memory 
+		int nMemoryRequired = nMaxIndexCount * IndexSize();
+		bool bHasEnoughMemory = ( m_Position + nMemoryRequired <= m_nBufferSize );
 
-		// If we're appending and we don't have enough room, then puke!
-		if ( !bHasEnoughMemory || m_bFlush )
-			goto indexBufferLockFailed;
-		map = ( m_nFirstUnwrittenOffset == 0 ) ? D3D11_MAP_WRITE_DISCARD : D3D11_MAP_WRITE_NO_OVERWRITE;
-	}
-	else
-	{
-		// If we're not appending, no overwrite unless we don't have enough room
-		if ( !m_bFlush && bHasEnoughMemory && m_bIsDynamic )
+		D3D11_MAPPED_SUBRESOURCE lockedData;
+		HRESULT hr;
+
+		D3D11_MAP map;
+		if ( !m_bFlush && bHasEnoughMemory )
 		{
-			map = ( m_nFirstUnwrittenOffset == 0 ) ? D3D11_MAP_WRITE_DISCARD : D3D11_MAP_WRITE_NO_OVERWRITE;
+			map = ( m_Position == 0 ) ? D3D11_MAP_WRITE_DISCARD : D3D11_MAP_WRITE_NO_OVERWRITE;
 		}
 		else
 		{
 			map = D3D11_MAP_WRITE_DISCARD;
-			m_nFirstUnwrittenOffset = 0;
+			m_Position = 0;
 			m_bFlush = false;
 		}
-	}
-	//goto indexBufferLockFailed;
-	hr = D3D11DeviceContext()->Map( m_pIndexBuffer, 0, map, 0, &lockedData );
-	if ( FAILED( hr ) )
-	{
-		Warning( "Failed to lock index buffer in CIndexBufferDx11::Lock\n" );
-		goto indexBufferLockFailed;
-	}
-	//Log( "LOcking index buffer at %i\n", m_nFirstUnwrittenOffset );
-	desc.m_pIndices = (unsigned short*)( (unsigned char*)lockedData.pData + m_nFirstUnwrittenOffset );
-	desc.m_nIndexSize = IndexSize() >> 1;
-	desc.m_nOffset = m_nFirstUnwrittenOffset;
-	desc.m_nFirstIndex = desc.m_nOffset / IndexSize();
+
+		//goto indexBufferLockFailed;
+		hr = D3D11DeviceContext()->Map( m_pIndexBuffer, 0, map, 0, &lockedData );
+		if ( FAILED( hr ) )
+		{
+			Warning( "Failed to lock index buffer in CIndexBufferDx11::Lock\n" );
+			goto indexBufferLockFailed;
+		}
+		//Log( "LOcking index buffer at %i\n", m_Position );
+		desc.m_pIndices = (unsigned short *)( (unsigned char *)lockedData.pData + m_Position );
+		desc.m_nIndexSize = IndexSize() >> 1;
+		desc.m_nOffset = m_Position;
+		desc.m_nFirstIndex = desc.m_nOffset / IndexSize();
 #ifdef _DEBUG
-	m_LockedStartIndex = desc.m_nFirstIndex;
-	m_LockedNumIndices = nMaxIndexCount;
+		m_LockedStartIndex = desc.m_nFirstIndex;
+		m_LockedNumIndices = nMaxIndexCount;
 #endif
-	m_bIsLocked = true;
-	return true;
+		m_bIsLocked = true;
+		return true;
+	}
+	else
+	{
+		// Static index buffer case
+		// Check to see if we have enough memory 
+		int nOffset;
+		if ( nFirstIndex >= 0 )
+			nOffset = nFirstIndex * IndexSize();
+		else
+			nOffset = m_Position;
+		int nMemoryRequired = nMaxIndexCount * IndexSize();
+		bool bHasEnoughMemory = ( nOffset + nMemoryRequired <= m_nBufferSize );
+
+		if ( !bHasEnoughMemory )
+		{
+			goto indexBufferLockFailed;
+		}
+
+		m_Position = nOffset;
+
+		desc.m_pIndices = (unsigned short *)( m_pIndexMemory + nOffset );
+
+		desc.m_nIndexSize = IndexSize() >> 1;
+		desc.m_nOffset = nOffset;
+		desc.m_nFirstIndex = desc.m_nOffset / IndexSize();
+
+		m_nIndicesLocked = nMaxIndexCount;
+		m_bIsLocked = true;
+		return true;
+	}
+
+
 
 indexBufferLockFailed:
 	g_ShaderMutex.Unlock();
 
 	// Set up a bogus index descriptor
-	desc.m_pIndices = (unsigned short*)( &s_nScratchIndexBuffer );
+	desc.m_pIndices = (unsigned short *)( &s_nScratchIndexBuffer );
 	desc.m_nFirstIndex = 0;
 	desc.m_nIndexSize = 0;
 	desc.m_nOffset = 0;
 	return false;
 }
 
+
+//-----------------------------------------------------------------------------
+// Locks, unlocks the mesh
+//-----------------------------------------------------------------------------
+bool CIndexBufferDx11::Lock( int nMaxIndexCount, bool bAppend, IndexDesc_t &desc )
+{
+	return LockEx( 0, nMaxIndexCount, desc );
+}
+
 void CIndexBufferDx11::Unlock( int nWrittenIndexCount, IndexDesc_t& desc )
 {
 	//Log( "Unlocking index buffer %p\n", m_pIndexBuffer );
 	Assert( nWrittenIndexCount <= m_nIndexCount );
-
-	// For write-combining, ensure we always have locked memory aligned to 4-byte boundaries
-	if ( m_bIsDynamic )
-		nWrittenIndexCount = nWrittenIndexCount;
 
 	//Log( "Wrote %i indices\n", nWrittenIndexCount );
 
@@ -358,18 +408,38 @@ void CIndexBufferDx11::Unlock( int nWrittenIndexCount, IndexDesc_t& desc )
 		return;
 
 	//Spew( nWrittenIndexCount, desc );
-
 	if ( m_pIndexBuffer )
 	{
-		D3D11DeviceContext()->Unmap( m_pIndexBuffer, 0 );
+		if ( m_bIsDynamic )
+		{
+			D3D11DeviceContext()->Unmap( m_pIndexBuffer, 0 );
+			m_Position += nWrittenIndexCount * IndexSize();
+		}
+		else
+		{
+			// Static vertex buffers
+			D3D11_BOX box;
+			box.back = 1;
+			box.front = 0;
+			box.bottom = 1;
+			box.top = 0;
+			box.left = m_Position;
+			box.right = box.left + ( m_nIndicesLocked * IndexSize() );
+			D3D11DeviceContext()->UpdateSubresource( m_pIndexBuffer, 0, &box, m_pIndexMemory + m_Position, 0, 0 );
+			m_Position += m_nIndicesLocked * IndexSize();
+		}
 	}
+
+	
 
 #ifdef _DEBUG
 	m_LockedStartIndex = 0;
 	m_LockedNumIndices = 0;
 #endif
 
-	m_nFirstUnwrittenOffset += nWrittenIndexCount * IndexSize();
+	//Log( "Unlock index buffer: just wrote %i indices\n", nWrittenIndexCount );
+
+	
 	m_bIsLocked = false;
 	g_ShaderMutex.Unlock();
 }

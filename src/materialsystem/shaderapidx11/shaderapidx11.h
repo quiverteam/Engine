@@ -342,8 +342,8 @@ private:
 	virtual void DestroyVertexBuffers( bool bExitingLevel = false );
 
 	// Sets the vertex and pixel shaders
-	void SetVertexShaderIndex( int vshIndex );
-	void SetPixelShaderIndex( int pshIndex );
+	void SetVertexShaderIndex( ShaderIndex_t vshIndex );
+	void SetPixelShaderIndex( ShaderIndex_t pshIndex );
 
 	// Sets the constant register for vertex and pixel shaders
 	void SetVertexShaderConstant( int var, float const *pVec, int numConst = 1, bool bForce = false );
@@ -642,14 +642,11 @@ private:
 		return NULL;
 	}
 
-	void SetToneMappingScaleLinear( const Vector &scale )
-	{
-	}
+	void SetToneMappingScaleLinear( const Vector &scale );
 
 	const Vector &GetToneMappingScaleLinear( void ) const
 	{
-		static Vector dummy;
-		return dummy;
+		return m_ShaderState.m_ToneMappingScale.AsVector3D();
 	}
 
 	virtual float GetLightMapScaleFactor( void ) const;

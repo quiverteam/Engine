@@ -282,7 +282,7 @@ sub WriteDynamicHelperClasses
 		push @outputHeader, "\t\t$varname = 0;\n";
 	}
 	push @outputHeader, "\t}\n";
-	push @outputHeader, "\tint GetIndex()\n";
+	push @outputHeader, "\tShaderIndex_t GetIndex()\n";
 	push @outputHeader, "\t{\n";
 	push @outputHeader, "\t\t// Asserts to make sure that we aren't using any skipped combinations.\n";
 	foreach $skip (@perlskipcodeindividual)
@@ -382,7 +382,7 @@ sub WriteStaticHelperClasses
 		  }
 	}
 	push @outputHeader, "\t}\n";
-	push @outputHeader, "\tint GetIndex()\n";
+	push @outputHeader, "\tShaderIndex_t GetIndex()\n";
 	push @outputHeader, "\t{\n";
 	push @outputHeader, "\t\t// Asserts to make sure that we aren't using any skipped combinations.\n";
 	foreach $skip (@perlskipcodeindividual)

@@ -34,8 +34,8 @@ abstract_class IShaderManager
 protected:
 
 	// The current vertex and pixel shader index
-	int m_nVertexShaderIndex;
-	int m_nPixelShaderIndex;
+	ShaderIndex_t m_nVertexShaderIndex;
+	ShaderIndex_t m_nPixelShaderIndex;
 
 public:
 	// Initialize, shutdown
@@ -52,12 +52,12 @@ public:
 	virtual void DestroyPixelShader( PixelShaderHandle_t hShader ) = 0;
 
 	// Creates vertex, pixel shaders
-	virtual VertexShader_t CreateVertexShader( const char *pVertexShaderFile, int nStaticVshIndex = 0 ) = 0;
-	virtual PixelShader_t CreatePixelShader( const char *pPixelShaderFile, int nStaticPshIndex = 0 ) = 0;
+	virtual VertexShader_t CreateVertexShader( const char *pVertexShaderFile, ShaderIndex_t nStaticVshIndex = 0 ) = 0;
+	virtual PixelShader_t CreatePixelShader( const char *pPixelShaderFile, ShaderIndex_t nStaticPshIndex = 0 ) = 0;
 
 	// Sets which dynamic version of the vertex + pixel shader to use
-	void SetVertexShaderIndex( int vshIndex );
-	void SetPixelShaderIndex( int pshIndex );
+	void SetVertexShaderIndex( ShaderIndex_t vshIndex );
+	void SetPixelShaderIndex( ShaderIndex_t pshIndex );
 
 	// Sets the vertex + pixel shader render state
 	virtual void SetVertexShader( VertexShader_t shader ) = 0;
@@ -83,12 +83,12 @@ public:
 // Methods related to setting vertex + pixel shader state
 //
 //-----------------------------------------------------------------------------
-FORCEINLINE void IShaderManager::SetVertexShaderIndex( int vshIndex )
+FORCEINLINE void IShaderManager::SetVertexShaderIndex( ShaderIndex_t vshIndex )
 {
 	m_nVertexShaderIndex = vshIndex;
 }
 
-FORCEINLINE void IShaderManager::SetPixelShaderIndex( int pshIndex )
+FORCEINLINE void IShaderManager::SetPixelShaderIndex( ShaderIndex_t pshIndex )
 {
 	m_nPixelShaderIndex = pshIndex;
 }

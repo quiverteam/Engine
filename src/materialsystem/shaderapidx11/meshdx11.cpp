@@ -1451,15 +1451,16 @@ int CMeshDX11::Lock( bool bReadOnly, int nFirstIndex, int nIndexCount, IndexDesc
 {
 	Assert( !m_IsIBLocked );
 
+	// Static index buffer case
 	if ( !m_pIndexBuffer )
 	{
 		m_pIndexBuffer = static_cast<CIndexBufferDx11 *>(
-			g_pShaderDeviceDx11->CreateIndexBuffer( SHADER_BUFFER_TYPE_DYNAMIC,
+			g_pShaderDeviceDx11->CreateIndexBuffer( SHADER_BUFFER_TYPE_STATIC,
 								MATERIAL_INDEX_FORMAT_16BIT,
 								nIndexCount, m_pTextureGroupName ) );
 	}
 
-	bool ret = m_pIndexBuffer->Lock( nIndexCount, false/*bAppend*/, desc );
+	bool ret = m_pIndexBuffer->LockEx( nFirstIndex, nIndexCount, desc );
 	if ( !ret )
 	{
 		return desc.m_nFirstIndex;
@@ -1529,7 +1530,7 @@ void CMeshDX11::UnlockMesh( int numVerts, int numIndices, MeshDesc_t &desc )
 
 void CMeshDX11::ModifyBeginEx( bool bReadOnly, int firstVertex, int numVerts, int firstIndex, int numIndices, MeshDesc_t &desc )
 {
-	VPROF( "CMeshDX8::ModifyBegin" );
+	VPROF( "CMeshDX11::ModifyBegin" );
 
 	// Just give the app crap buffers to fill up while we're suppressed...
 
@@ -2035,7 +2036,7 @@ void CMeshDX11::RenderPass()
 //-----------------------------------------------------------------------------
 // constructor, destructor
 //-----------------------------------------------------------------------------
-CDynamicMeshDX11::CDynamicMeshDX11() : CMeshDX11( "CDynamicMeshDX8" )
+CDynamicMeshDX11::CDynamicMeshDX11() : CMeshDX11( "CDynamicMeshDX11" )
 {
 	m_nBufferId = 0;
 	ResetVertexAndIndexCounts();
@@ -2247,7 +2248,7 @@ void CDynamicMeshDX11::Draw( int nFirstIndex, int nIndexCount )
 		return;
 	}
 
-	VPROF( "CDynamicMeshDX8::Draw" );
+	VPROF( "CDynamicMeshDX11::Draw" );
 
 	m_HasDrawn = true;
 

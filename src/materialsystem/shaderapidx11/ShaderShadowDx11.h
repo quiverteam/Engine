@@ -81,8 +81,8 @@ public:
 	void BlendFuncSeparateAlpha( ShaderBlendFactor_t srcFactor, ShaderBlendFactor_t dstFactor );
 
 	// Sets the vertex and pixel shaders
-	void SetVertexShader( const char *pFileName, int vshIndex );
-	void SetPixelShader( const char *pFileName, int pshIndex );
+	void SetVertexShader( const char *pFileName, ShaderIndex_t vshIndex );
+	void SetPixelShader( const char *pFileName, ShaderIndex_t pshIndex );
 
 	virtual void SetMorphFormat( MorphFormat_t flags );
 

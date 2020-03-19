@@ -217,10 +217,6 @@ namespace StatesDx11
 		ConstantBufferDesc gsConstantBuffers;
 		ConstantBufferDesc psConstantBuffers;
 
-		bool bEnableAlphaTest;
-		ShaderAlphaFunc_t alphaTestFunc;
-		float alphaTestRef;
-
 		VertexShader_t vertexShader;
 		int staticVertexShaderIndex;
 		PixelShader_t pixelShader;
@@ -248,10 +244,6 @@ namespace StatesDx11
 			depthStencil.SetDefault();
 			rasterizer.SetDefault();
 			blend.SetDefault();
-
-			bEnableAlphaTest = false;
-			alphaTestFunc = SHADER_ALPHAFUNC_GEQUAL;
-			alphaTestRef = 0.0f;
 
 			vertexShader = -1;
 			staticVertexShaderIndex = 0;
@@ -366,6 +358,12 @@ namespace StatesDx11
 		void Reset()
 		{
 			ZeroMemory( this, sizeof( DynamicState ) );
+			// We always need viewports
+			m_nViewportCount = 1;
+			m_pViewports[0].Width = 640;
+			m_pViewports[0].Height = 480;
+			m_pViewports[0].MinDepth = 0;
+			m_pViewports[0].MaxDepth = 1;
 			m_MaxPSSampler = -1;
 			m_MaxVSSampler = -1;
 			m_PrevMaxPSSampler = -1;
@@ -441,12 +439,18 @@ namespace StatesDx11
 		BoneState bone;
 		MorphState morph;
 
+		Vector4D m_ToneMappingScale;
+		bool m_bToneMappingScaleChanged;
+
 		CUtlStack<MatrixItem_t> m_MatrixStacks[NUM_MATRIX_MODES];
 		bool m_ChangedMatrices[NUM_MATRIX_MODES];
 
 		void SetDefault()
 		{
 			ZeroMemory( this, sizeof( ShaderState ) );
+
+			m_ToneMappingScale.Init( 1, 1, 1, 1 );
+			m_bToneMappingScaleChanged = true;
 
 			fog.m_FogColor[0] = 1.0f;
 			fog.m_FogColor[1] = 1.0f;

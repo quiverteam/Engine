@@ -101,6 +101,7 @@ ALIGN16 struct Skinning_CBuffer_t
 ALIGN16 struct PerFrame_CBuffer_t
 {
 	DirectX::XMMATRIX cViewMatrix;
+	DirectX::XMFLOAT4 cTonemappingScale;
 	DirectX::XMFLOAT4 cEyePos;
 	DirectX::XMFLOAT4 cFlashlightPos;
 };
@@ -117,7 +118,6 @@ ALIGN16 struct PerScene_CBuffer_t
 	DirectX::XMFLOAT4 cFlashlightColor;
 	DirectX::XMFLOAT4 cFlashlightAttenuationFactors;
 	DirectX::XMFLOAT4 cShadowTweaks;
-	DirectX::XMFLOAT4 cLightScale;
 	DirectX::XMFLOAT4 cConstants;
 	DirectX::XMFLOAT4 cLinearFogColor;
 	DirectX::XMFLOAT4 cFogParams;
@@ -742,6 +742,12 @@ void CShaderAPIDx11::DoIssueShaderState( bool bForce )
 		m_bFlashlightStateChanged = false;
 	}
 
+	if ( bForce || m_ShaderState.m_bToneMappingScaleChanged )
+	{
+		pPerFrameConstants->cTonemappingScale = DirectX::XMFLOAT4( m_ShaderState.m_ToneMappingScale.Base() );
+		m_ShaderState.m_bToneMappingScaleChanged = false;
+	}
+
 	//{
 		//VPROF_BUDGET( "ForceUpdate constants", VPROF_BUDGETGROUP_OTHER_UNACCOUNTED );
 
@@ -1349,11 +1355,6 @@ bool CShaderAPIDx11::OnDeviceInit()
 
 	// Write some constants that don't change
 	PerScene_CBuffer_t *pPerScene = (PerScene_CBuffer_t *)( (CShaderConstantBufferDx11 *)m_hPerSceneConstants )->GetData();
-	// [ linear light scale, lightmap scale, envmap scale, gamma light scale ]
-	pPerScene->cLightScale.x = 0.0f;
-	pPerScene->cLightScale.y = 1.0f;
-	pPerScene->cLightScale.z = 2.0f;
-	pPerScene->cLightScale.w = 0.5f;
 	// [ gamma, overbright, 1/3, 1/overbright]
 	pPerScene->cConstants.x = 1.0f / 2.2f;
 	pPerScene->cConstants.y = OVERBRIGHT;
@@ -1433,7 +1434,8 @@ bool CShaderAPIDx11::IsTranslucent( StateSnapshot_t id ) const
 bool CShaderAPIDx11::IsAlphaTested( StateSnapshot_t id ) const
 {
 	LOCK_SHADERAPI();
-	return g_pShaderShadowDx11->GetShadowState( id )->desc.bEnableAlphaTest;
+	return false;
+	//return g_pShaderShadowDx11->GetShadowState( id )->desc.bEnableAlphaTest;
 }
 
 bool CShaderAPIDx11::IsDepthWriteEnabled( StateSnapshot_t id ) const
@@ -2323,13 +2325,13 @@ MaterialFogMode_t CShaderAPIDx11::GetCurrentFogType( void ) const
 }
 
 // Sets the *dynamic* vertex and pixel shaders
-void CShaderAPIDx11::SetVertexShaderIndex( int vshIndex )
+void CShaderAPIDx11::SetVertexShaderIndex( ShaderIndex_t vshIndex )
 {
 	ShaderManager()->SetVertexShaderIndex( vshIndex );
 	ShaderManager()->SetVertexShader( g_pShaderShadowDx11->GetShadowState( m_CurrentSnapshot )->desc.vertexShader );
 }
 
-void CShaderAPIDx11::SetPixelShaderIndex( int pshIndex )
+void CShaderAPIDx11::SetPixelShaderIndex( ShaderIndex_t pshIndex )
 {
 	ShaderManager()->SetPixelShaderIndex( pshIndex );
 	ShaderManager()->SetPixelShader( g_pShaderShadowDx11->GetShadowState( m_CurrentSnapshot )->desc.pixelShader );
@@ -3315,6 +3317,48 @@ void CShaderAPIDx11::SetFlexWeights( int nFirstWeight, int nCount, const MorphWe
 	}
 	memcpy( m_ShaderState.morph.m_pWeights + nFirstWeight, pWeights, sizeof( MorphWeight_t ) * nCount );
 	m_ShaderState.morph.m_bMorphChanged = true;
+}
+
+void CShaderAPIDx11::SetToneMappingScaleLinear( const Vector &scale )
+{
+	// Flush buffered primitives before changing the tone map scalar!
+	FlushBufferedPrimitives();
+
+	Vector4D old = m_ShaderState.m_ToneMappingScale;
+
+	Vector scale_to_use = scale;
+	m_ShaderState.m_ToneMappingScale.AsVector3D() = scale_to_use;
+
+	bool mode_uses_srgb = false;
+
+	switch ( HardwareConfig()->GetHDRType() )
+	{
+	case HDR_TYPE_NONE:
+		m_ShaderState.m_ToneMappingScale.x = 1.0;										// output scale
+		m_ShaderState.m_ToneMappingScale.z = 1.0;										// reflection map scale
+		break;
+
+	case HDR_TYPE_FLOAT:
+		m_ShaderState.m_ToneMappingScale.x = scale_to_use.x;							// output scale
+		m_ShaderState.m_ToneMappingScale.z = 1.0;										// reflection map scale
+		break;
+
+	case HDR_TYPE_INTEGER:
+		mode_uses_srgb = true;
+		m_ShaderState.m_ToneMappingScale.x = scale_to_use.x;							// output scale
+		m_ShaderState.m_ToneMappingScale.z = 16.0;									// reflection map scale
+		break;
+	}
+
+	m_ShaderState.m_ToneMappingScale.y = GetLightMapScaleFactor();	// light map scale
+
+	// w component gets gamma scale
+	m_ShaderState.m_ToneMappingScale.w = LinearToGammaFullRange( m_ShaderState.m_ToneMappingScale.x );
+
+	if ( old != m_ShaderState.m_ToneMappingScale )
+	{
+		m_ShaderState.m_bToneMappingScaleChanged = true;
+	}
 }
 
 void CShaderAPIDx11::BindStandardVertexTexture( VertexTextureSampler_t stage, StandardTextureId_t id )

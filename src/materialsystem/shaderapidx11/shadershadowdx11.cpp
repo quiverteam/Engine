@@ -131,15 +131,19 @@ void CShaderShadowDx11::BlendFunc( ShaderBlendFactor_t srcFactor, ShaderBlendFac
 }
 
 // Alpha testing
+// NOTE: Unused since alpha testing is no longer fixed-function in DX11.
+//       Just set an ALPHA_TEST combo in your shader and provide the
+//       reference value as a constant.
+//
 void CShaderShadowDx11::EnableAlphaTest( bool bEnable )
 {
-	m_ShadowState.bEnableAlphaTest = bEnable;
+	//m_ShadowState.bEnableAlphaTest = bEnable;
 }
 
 void CShaderShadowDx11::AlphaFunc( ShaderAlphaFunc_t alphaFunc, float alphaRef /* [0-1] */ )
 {
-	m_ShadowState.alphaTestFunc = alphaFunc;
-	m_ShadowState.alphaTestRef = alphaRef;
+	//m_ShadowState.alphaTestFunc = alphaFunc;
+	//m_ShadowState.alphaTestRef = alphaRef;
 }
 
 // Wireframe/filled polygons
@@ -252,7 +256,7 @@ void CShaderShadowDx11::EnableTexture( Sampler_t sampler, bool bEnable )
 }
 
 // Sets the vertex and pixel shaders
-void CShaderShadowDx11::SetVertexShader( const char *pShaderName, int vshIndex )
+void CShaderShadowDx11::SetVertexShader( const char *pShaderName, ShaderIndex_t vshIndex )
 {
 	m_ShadowState.vertexShader = ShaderManager()->CreateVertexShader( pShaderName, vshIndex );
 	m_ShadowState.staticVertexShaderIndex = vshIndex;
@@ -265,7 +269,7 @@ void CShaderShadowDx11::EnableBlendingSeparateAlpha( bool bEnable )
 	//m_ShadowState.colorBlendAttrib.bIndependentAlphaBlend = bEnable;
 }
 
-void CShaderShadowDx11::SetPixelShader( const char *pShaderName, int pshIndex )
+void CShaderShadowDx11::SetPixelShader( const char *pShaderName, ShaderIndex_t pshIndex )
 {
 	m_ShadowState.pixelShader = ShaderManager()->CreatePixelShader( pShaderName, pshIndex );
 	m_ShadowState.staticPixelShaderIndex = pshIndex;
@@ -326,7 +330,7 @@ void CShaderShadowDx11::BlendFuncSeparateAlpha( ShaderBlendFactor_t srcFactor, S
 // Alpha to coverage
 void CShaderShadowDx11::EnableAlphaToCoverage( bool bEnable )
 {
-	m_ShadowState.blend.AlphaToCoverageEnable = bEnable;
+	m_ShadowState.blend.AlphaToCoverageEnable = bEnable ? TRUE : FALSE;
 }
 
 StateSnapshot_t CShaderShadowDx11::FindOrCreateSnapshot()

@@ -296,8 +296,8 @@ public:
 			int nTexCoordCount, int* pTexCoordDimensions, int nUserDataSize ) = 0;
 
 	// Pixel and vertex shader methods
-	virtual void SetVertexShader( const char* pFileName, int nStaticVshIndex ) = 0;
-	virtual	void SetPixelShader( const char* pFileName, int nStaticPshIndex = 0 ) = 0;
+	virtual void SetVertexShader( const char* pFileName, ShaderIndex_t nStaticVshIndex ) = 0;
+	virtual	void SetPixelShader( const char* pFileName, ShaderIndex_t nStaticPshIndex = 0 ) = 0;
 
 	// Indicates we're going to light the model
 	virtual void EnableLighting( bool bEnable ) = 0;

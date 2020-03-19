@@ -21,6 +21,7 @@ public:
 	virtual VertexFormat_t GetVertexFormat() const;
 	unsigned char *Modify( bool bReadOnly, int nFirstVertex, int nVertexCount );
 	virtual bool Lock( int nMaxVertexCount, bool bAppend, VertexDesc_t& desc );
+	bool LockEx( int nFirstVertex, int nMaxVertexCount, VertexDesc_t &desc );
 	virtual void Unlock( int nWrittenVertexCount, VertexDesc_t& desc );
 	virtual bool IsDynamic() const;
 	virtual void BeginCastBuffer( VertexFormat_t format );
@@ -30,7 +31,7 @@ public:
 
 	int NextLockOffset() const
 	{
-		int nNextOffset = ( m_nFirstUnwrittenOffset + m_VertexSize - 1 ) / m_VertexSize;
+		int nNextOffset = ( m_Position + m_VertexSize - 1 ) / m_VertexSize;
 		nNextOffset *= m_VertexSize;
 		return nNextOffset;
 	}
@@ -62,12 +63,14 @@ protected:
 	bool Allocate();
 	void Free();
 
+	unsigned char *m_pVertexMemory;
+	int m_nVerticesLocked;
 	ID3D11Buffer* m_pVertexBuffer;
 	VertexFormat_t m_VertexFormat;
 	int m_VertexSize;
 	int m_nVertexCount;
 	int m_nBufferSize;
-	int m_nFirstUnwrittenOffset;
+	int m_Position;
 	bool m_bIsLocked : 1;
 	bool m_bIsDynamic : 1;
 	bool m_bFlush : 1;				// Used only for dynamic buffers, indicates to discard the next time

@@ -249,6 +249,7 @@ bool CShaderDeviceMgrDx11::ComputeCapsFromD3D( HardwareCaps_t *pCaps, IDXGIAdapt
 	pCaps->m_HasProjectedBumpEnv = true;
 	pCaps->m_MaxUserClipPlanes = 6;		// FIXME
 	pCaps->m_HDRType = bForceFloatHDR ? HDR_TYPE_FLOAT : HDR_TYPE_INTEGER;
+	pCaps->m_MaxHDRType = HDR_TYPE_FLOAT;
 	pCaps->m_SupportsSRGB = true;
 	pCaps->m_bSupportsSpheremapping = true;
 	pCaps->m_UseFastClipping = false;
