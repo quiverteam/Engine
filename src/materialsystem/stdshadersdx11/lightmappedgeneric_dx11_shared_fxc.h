@@ -21,6 +21,10 @@ struct LightmappedGeneric_t
 	float4 g_EdgeSoftnessParms;
 	float4 cEnvmapContrast;
 	float4 cEnvmapSaturation;
+
+	int4 g_DetailBlendMode;
+
+	float g_AlphaTestRef;
 };
 
 #endif // LIGHTMAPPEDGENERIC_DX11_SHARED_FXC_H_

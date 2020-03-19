@@ -748,7 +748,7 @@ void DrawLightmappedGeneric_DX11_Internal( CBaseVSShader *pShader, IMaterialVar 
 		if ( pShaderShadow || bNeedRegenStaticCmds )
 		{
 			bool hasVertexColor = IS_FLAG_SET( MATERIAL_VAR_VERTEXCOLOR );
-			bool hasDiffuseBumpmap = false;//pContextData->m_bHasBump && ( params[info.m_nNoDiffuseBumpLighting]->GetIntValue() == 0 );
+			bool hasDiffuseBumpmap = pContextData->m_bHasBump && ( params[info.m_nNoDiffuseBumpLighting]->GetIntValue() == 0 );
 
 			bool hasEnvmap = params[info.m_nEnvmap]->IsTexture();
 			pContextData->m_bHasEnvmap = hasEnvmap;
@@ -788,14 +788,6 @@ void DrawLightmappedGeneric_DX11_Internal( CBaseVSShader *pShader, IMaterialVar 
 			}
 			if ( pShaderShadow )
 			{
-
-				// Alpha test: FIXME: shouldn't this be handled in Shader_t::SetInitialShadowState
-				pShaderShadow->EnableAlphaTest( bIsAlphaTested );
-				if ( info.m_nAlphaTestReference != -1 && params[info.m_nAlphaTestReference]->GetFloatValue() > 0.0f )
-				{
-					pShaderShadow->AlphaFunc( SHADER_ALPHAFUNC_GEQUAL, params[info.m_nAlphaTestReference]->GetFloatValue() );
-				}
-
 				pShader->SetDefaultBlendingShadowState( nAlphaChannelTextureVar, hasBaseTexture );
 
 				// Bind em
@@ -811,20 +803,6 @@ void DrawLightmappedGeneric_DX11_Internal( CBaseVSShader *pShader, IMaterialVar 
 				if ( hasEnvmap )
 				{
 					flags |= VERTEX_TANGENT_S | VERTEX_TANGENT_T | VERTEX_NORMAL;
-				}
-
-				int nDetailBlendMode = 0;
-				if ( hasDetailTexture )
-				{
-					nDetailBlendMode = GetIntParam( info.m_nDetailTextureCombineMode, params );
-					ITexture *pDetailTexture = params[info.m_nDetail]->GetTextureValue();
-					if ( pDetailTexture->GetFlags() & TEXTUREFLAGS_SSBUMP )
-					{
-						if ( pContextData->m_bHasBump )
-							nDetailBlendMode = 10;					// ssbump
-						else
-							nDetailBlendMode = 11;					// ssbump_nobump
-					}
 				}
 
 				if ( hasVertexColor || hasBaseTexture2 || pContextData->m_bHasBump2 )
@@ -882,7 +860,7 @@ void DrawLightmappedGeneric_DX11_Internal( CBaseVSShader *pShader, IMaterialVar 
 				SET_STATIC_PIXEL_SHADER_COMBO( FANCY_BLENDING, bHasBlendModulateTexture );
 				SET_STATIC_PIXEL_SHADER_COMBO( MASKEDBLENDING, bMaskedBlending );
 				SET_STATIC_PIXEL_SHADER_COMBO( SEAMLESS, pContextData->m_bSeamlessMapping );
-				SET_STATIC_PIXEL_SHADER_COMBO( DETAIL_BLEND_MODE, nDetailBlendMode );
+				SET_STATIC_PIXEL_SHADER_COMBO( ALPHATEST, bIsAlphaTested );
 				SET_STATIC_PIXEL_SHADER( lightmappedgeneric_ps40 );
 
 				// HACK HACK HACK - enable alpha writes all the time so that we have them for
@@ -901,6 +879,21 @@ void DrawLightmappedGeneric_DX11_Internal( CBaseVSShader *pShader, IMaterialVar 
 			// need to regenerate the semistatic cmds
 			pContextData->m_SemiStaticCmdsOut.Reset();
 			pContextData->m_bMaterialVarsChanged = false;
+
+			int nDetailBlendMode = 0;
+			if ( hasDetailTexture )
+			{
+				nDetailBlendMode = GetIntParam( info.m_nDetailTextureCombineMode, params );
+				ITexture *pDetailTexture = params[info.m_nDetail]->GetTextureValue();
+				if ( pDetailTexture->GetFlags() & TEXTUREFLAGS_SSBUMP )
+				{
+					if ( pContextData->m_bHasBump )
+						nDetailBlendMode = 10;					// ssbump
+					else
+						nDetailBlendMode = 11;					// ssbump_nobump
+				}
+			}
+			pContextData->m_Constants.g_DetailBlendMode.x = nDetailBlendMode;
 
 			pContextData->m_bHasBlendMaskTransform = (
 				( info.m_nBlendMaskTransform != -1 ) &&
@@ -1035,6 +1028,15 @@ void DrawLightmappedGeneric_DX11_Internal( CBaseVSShader *pShader, IMaterialVar 
 						0, 0 );
 				}
 			}
+
+			if ( bIsAlphaTested )
+			{
+				if ( info.m_nAlphaTestReference != -1 && params[info.m_nAlphaTestReference]->GetFloatValue() > 0.0f )
+				{
+					pContextData->m_Constants.g_AlphaTestRef = params[info.m_nAlphaTestReference]->GetFloatValue();
+				}
+			}
+
 			// texture binds
 			if ( hasBaseTexture )
 			{

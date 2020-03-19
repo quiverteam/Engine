@@ -416,7 +416,7 @@ float4 main( PS_INPUT i ) : SV_TARGET
 
 	if ( bDetailTexture )
 	{
-		albedo = TextureCombine( albedo, detailColor, DETAIL_BLEND_MODE, g_DetailBlendFactor );
+		albedo = TextureCombine( albedo, detailColor, c.g_DetailBlendMode.x, g_DetailBlendFactor );
 	}
 
 	// The vertex color contains the modulation color + vertex color combined
@@ -436,7 +436,7 @@ float4 main( PS_INPUT i ) : SV_TARGET
 		diffuseLighting = vNormal.x * lightmapColor1 +
 						  vNormal.y * lightmapColor2 +
 						  vNormal.z * lightmapColor3;
-		diffuseLighting *= g_TintValuesAndLightmapScale.rgb;
+		diffuseLighting *= c.g_TintValuesAndLightmapScale.rgb;
 
 		// now, calculate vNormal for reflection purposes. if vNormal isn't needed, hopefully
 		// the compiler will eliminate these calculations
@@ -448,9 +448,9 @@ float4 main( PS_INPUT i ) : SV_TARGET
 		dp.z = saturate( dot( vNormal.xyz, bumpBasis[2] ) );
 		dp *= dp;
 
-#if ( DETAIL_BLEND_MODE == TCOMBINE_SSBUMP_BUMP )
-		dp *= 2 * detailColor;
-#endif
+		if ( c.g_DetailBlendMode.x == TCOMBINE_SSBUMP_BUMP )
+			dp *= 2 * detailColor;
+
 		diffuseLighting = dp.x * lightmapColor1 +
 						  dp.y * lightmapColor2 +
 						  dp.z * lightmapColor3;
@@ -497,11 +497,14 @@ float4 main( PS_INPUT i ) : SV_TARGET
 		fresnel = pow( fresnel, 5.0 );
 		fresnel = fresnel * g_OneMinusFresnelReflection + g_FresnelReflection;
 
+		//return float4( specularFactor, 1.0f );
+
 		specularLighting = ENV_MAP_SCALE * EnvmapTexture.Sample( EnvmapSampler, reflectVect ).rgb;
 		//return float4( specularLighting, 1.0f );
 		specularLighting *= specularFactor;
 
 		specularLighting *= c.g_EnvmapTint.rgb;
+		//return float4( c.g_EnvmapTint.rgb, 1.0f );
 #if FANCY_BLENDING == 0
 		float3 specularLightingSquared = specularLighting * specularLighting;
 		specularLighting = lerp( specularLighting, specularLightingSquared, g_EnvmapContrast );
@@ -509,6 +512,8 @@ float4 main( PS_INPUT i ) : SV_TARGET
 		specularLighting = lerp( greyScale, specularLighting, g_EnvmapSaturation );
 #endif
 		specularLighting *= fresnel;
+
+		//return float4( specularLighting, 1.0f );
 	}
 #endif
 
@@ -529,6 +534,13 @@ float4 main( PS_INPUT i ) : SV_TARGET
 #	endif
 #else // == end LIGHTING_PREVIEW ==
 
+#if ALPHATEST
+	if ( !GreaterEqualAlphaTest( alpha, c.g_AlphaTestRef ) )
+		discard;
+#endif
+
+	return float4( result.rgb, alpha );
+
 	bool bWriteDepthToAlpha = false;
 
 	// ps_2_b and beyond
@@ -541,6 +553,11 @@ float4 main( PS_INPUT i ) : SV_TARGET
 
 #if WRITEWATERFOGTODESTALPHA && (PIXELFOGTYPE == PIXEL_FOG_TYPE_HEIGHT)
 	alpha = fogFactor;
+#endif
+
+#if ALPHATEST
+	if ( !GreaterEqualAlphaTest( alpha, c.g_AlphaTestRef ) )
+		discard;
 #endif
 
 	return FinalOutput( float4( result.rgb, alpha ), fogFactor, PIXELFOGTYPE, TONEMAP_SCALE_LINEAR, bWriteDepthToAlpha, i.worldPos_projPosZ.w );

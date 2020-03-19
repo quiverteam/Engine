@@ -6,6 +6,8 @@
 // $NoKeywords: $
 //=============================================================================//
 
+#if 1
+
 #include "BaseVSShader.h"
 #include "convar.h"
 
@@ -145,3 +147,4 @@ SHADER_DRAW
 }
 	END_SHADER
 
+#endif

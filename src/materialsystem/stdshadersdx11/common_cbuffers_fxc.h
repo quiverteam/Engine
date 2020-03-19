@@ -23,6 +23,7 @@ cbuffer Skinning_t : reg \
 cbuffer PerFrame_t : reg \
 { \
 	float4x4 cViewMatrix; \
+	float4 cToneMappingScale; \
 	float4 cEyePos; \
 	float4 cFlashlightPos; \
 };
@@ -36,7 +37,6 @@ cbuffer PerScene_t : reg \
 	float4 cFlashlightColor; \
 	float4 cFlashlightAttenuationFactors; \
 	float4 cShadowTweaks; \
-	float4 cLightScale; \
 	float4 cConstants; \
 	float4 cLinearFogColor; \
 	float4 cFogParams; \

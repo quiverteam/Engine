@@ -173,6 +173,7 @@ BEGIN_VS_SHADER( Sprite_DX11,
 		SET_DYNAMIC_PIXEL_SHADER( sprite_ps40 );
 
 		ALIGN16 Sprite_CBuffer_t psConsts;
+		psConsts.cModulationColor.Init( 1, 1, 1, 1 );
 		if ( IsHDREnabled() )
 		{
 			if ( bSRGB )

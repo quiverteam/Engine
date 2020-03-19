@@ -40,6 +40,10 @@ ALIGN16 struct LightmappedGeneric_CBuffer_t
 	Vector4D g_SoftEdgeParams;
 	Vector4D g_EnvmapContrast;
 	Vector4D g_EnvmapSaturation;
+
+	IntVector4D g_DetailBlendMode;
+
+	float g_AlphaTestRef;
 };
 
 extern ALIGN16 ConstantBufferHandle_t g_hLightmappedGeneric_CBuffer;

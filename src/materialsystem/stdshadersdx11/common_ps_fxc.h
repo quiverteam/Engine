@@ -46,10 +46,10 @@
 #define OO_DESTALPHA_DEPTH_RANGE (cLinearFogColor.w)
 
 // Linear and gamma light scale values
-#define LINEAR_LIGHT_SCALE cLightScale.x
-#define LIGHT_MAP_SCALE cLightScale.y
-#define ENV_MAP_SCALE cLightScale.z
-#define GAMMA_LIGHT_SCALE cLightScale.w
+#define LINEAR_LIGHT_SCALE cToneMappingScale.x
+#define LIGHT_MAP_SCALE cToneMappingScale.y
+#define ENV_MAP_SCALE cToneMappingScale.z
+#define GAMMA_LIGHT_SCALE cToneMappingScale.w
 
 // Flashlight constants
 #define flFlashlightNoLambertValue cFlashlightColor.w // This is either 0.0 or 2.0
@@ -743,6 +743,11 @@ float4 TextureCombine( float4 baseColor, float4 detailColor, int combine_mode,
 		baseColor.rgb = baseColor.rgb * dot( detailColor.rgb, 2.0/3.0 );
 	}
 	return baseColor;
+}
+
+bool GreaterEqualAlphaTest( float alpha, float ref )
+{
+	return alpha >= ref;
 }
 
 float3 lerp5(float3 f1, float3 f2, float i1, float i2, float x)

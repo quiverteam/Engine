@@ -15,7 +15,7 @@
 // STATIC: "FANCY_BLENDING"				"0..1"
 // STATIC: "SEAMLESS"					"0..1"
 // STATIC: "BUMPMASK"                   "0..1"
-// STATIC: "DETAIL_BLEND_MODE"			"0..11"
+// STATIC: "ALPHATEST"					"0..1"
 
 #define NORMALMASK_DECODE_MODE 0
 #define NORMAL_DECODE_MODE 0

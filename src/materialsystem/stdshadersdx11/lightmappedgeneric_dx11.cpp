@@ -13,7 +13,6 @@
 
 static LightmappedGeneric_DX11_Vars_t s_info;
 
-
 BEGIN_VS_SHADER( LightmappedGeneric,
 		 "Help for LightmappedGeneric" )
 

@@ -52,6 +52,10 @@ ALIGN16 struct VertexLitGeneric_CBuffer_t
 	Vector4D cSpecularRimParams;
 	Vector4D cPhongRimParams;
 	Vector4D cSpecExponent;
+
+	IntVector4D cDetailBlendMode;
+
+	float cAlphaTestRef;
 };
 
 extern ConstantBufferHandle_t g_hVertexLitGeneric_CBuffer;

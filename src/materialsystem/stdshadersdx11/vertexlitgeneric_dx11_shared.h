@@ -32,6 +32,10 @@ struct VertexLitAndUnlitGeneric_t
 	// RimBoost_RimMaskControl_BaseMapAlphaPhongMask_InvertPhongMask
 	float4 g_RimPhongParams;
 	float4 g_SpecExponent;
+
+	int4 g_DetailBlendMode;
+
+	float g_AlphaTestRef;
 };
 
 #endif //#ifndef VERTEXLITGENERIC_DX11_SHARED_H_
