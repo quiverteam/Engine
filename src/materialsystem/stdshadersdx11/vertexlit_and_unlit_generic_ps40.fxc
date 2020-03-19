@@ -462,7 +462,7 @@ float4 main( PS_INPUT i ) : SV_TARGET
 	{
 		diffuseLighting = i.color.rgb;
 	}
-	else
+	else if ( bDiffuseLighting )
 	{
 		diffuseLighting = float3(0.0f, 0.0f, 0.0f);
 	}
