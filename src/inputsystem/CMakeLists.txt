@@ -38,10 +38,10 @@ set(POSIX32_LINK_DIRS	)
 set(POSIX64_LINK_DIRS	)
 
 # Generic libs to link against
-set(LINK_LIBS			)
+set(LINK_LIBS			SDL2 )
 
 # Other projects this one depends on
-set(DEPENDENCIES mathlib tier2)
+set(DEPENDENCIES mathlib tier2 vstdlib)
 
 # Platform specific link libs
 set(WINDOWS_LINK_LIBS	)
