@@ -54,6 +54,8 @@ static const bool g_bDecalOffset	= false;
 
 #include "vertexlitgeneric_dx11_shared.h"
 
+//CBUFFER_FLEX( USER_CBUFFER_REG_0 )
+
 cbuffer VertexLitAndUnlitGeneric_CBuffer : USER_CBUFFER_REG_0
 {
 	VertexLitAndUnlitGeneric_t c;

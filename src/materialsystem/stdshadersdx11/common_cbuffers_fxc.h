@@ -8,7 +8,6 @@
 cbuffer PerModel_t : reg \
 { \
 	float4x4 cModelMatrix; \
-	float4 cFlexScale; \
 	LightInfo cLightInfo[MAX_NUM_LIGHTS]; \
 	float3 cAmbientCube[6]; \
 };
@@ -17,6 +16,12 @@ cbuffer PerModel_t : reg \
 cbuffer Skinning_t : reg \
 { \
 	float4x3 cModel[53]; \
+};
+
+#define CBUFFER_FLEX( reg )\
+cbuffer Flex_t : reg \
+{ \
+	float4 cFlexWeights[512]; \
 };
 
 #define CBUFFER_PERFRAME( reg ) \
@@ -38,6 +43,7 @@ cbuffer PerScene_t : reg \
 	float4 cFlashlightAttenuationFactors; \
 	float4 cShadowTweaks; \
 	float4 cConstants; \
+	float4 cFlexScale; \
 	float4 cLinearFogColor; \
 	float4 cFogParams; \
 	float4 cFogColor; \

@@ -74,10 +74,6 @@ ALIGN16 struct DX11LightInfo_t
 ALIGN16 struct PerModel_CBuffer_t
 {
 	DirectX::XMMATRIX cModelMatrix; // If using skinning, same as cModel[0]
-	// Only cFlexScale.x is used
-	// It is a binary value used to switch on/off the addition of the flex delta stream
-	DirectX::XMFLOAT4 cFlexScale;
-
 	// Four lights x 5 constants each = 20 constants
 	DX11LightInfo_t cLightInfo[4];
 	DirectX::XMFLOAT3A cAmbientCube[6];
@@ -90,10 +86,10 @@ ALIGN16 struct Skinning_CBuffer_t
 	DirectX::XMFLOAT3X4A cModel[53];
 };
 
-//ALIGN16 struct Flex_CBuffer_t
-//{
-//	DirectX::XMFLOAT4 cFlexWeights[512];
-//};
+ALIGN16 struct Flex_CBuffer_t
+{
+	DirectX::XMFLOAT4 cFlexWeights[512];
+};
 
 // Constants that can be expected to change each frame.
 // TODO: Can we save a constant by having the vertex shader
@@ -119,6 +115,9 @@ ALIGN16 struct PerScene_CBuffer_t
 	DirectX::XMFLOAT4 cFlashlightAttenuationFactors;
 	DirectX::XMFLOAT4 cShadowTweaks;
 	DirectX::XMFLOAT4 cConstants;
+	// Only cFlexScale.x is used
+	// It is a binary value used to switch on/off the addition of the flex delta stream
+	DirectX::XMFLOAT4 cFlexScale;
 	DirectX::XMFLOAT4 cLinearFogColor;
 	DirectX::XMFLOAT4 cFogParams;
 	DirectX::XMFLOAT4 cFogColor;
@@ -674,17 +673,17 @@ void CShaderAPIDx11::DoIssueShaderState( bool bForce )
 		// avoid an extra memcpy.
 
 		//Flex_CBuffer_t *pFlexConstants = (Flex_CBuffer_t *)
-		//	( (CShaderConstantBufferDx11 *)m_hSkinningConstants )->Lock();
+		//	( (CShaderConstantBufferDx11 *)m_hFlexConstants )->Lock();
 
 		//memcpy( pFlexConstants->cFlexWeights, m_ShaderState.morph.m_pWeights,
 		//	sizeof( MorphWeight_t ) * m_ShaderState.morph.m_nMaxWeightLoaded );
 		//m_ShaderState.morph.m_nMaxWeightLoaded = 0;
-		pPerModelConstants->cFlexScale = DirectX::XMFLOAT4( 0.0f, 0.0f, 0.0f, 0.0f );
-		m_ShaderState.morph.m_bMorphChanged = false;
+		//pPerModelConstants->cFlexScale = DirectX::XMFLOAT4( 0.0f, 0.0f, 0.0f, 0.0f );
+		//m_ShaderState.morph.m_bMorphChanged = false;
 
-		bPerModelChanged = true;
+		//bPerModelChanged = true;
 
-		//( (CShaderConstantBufferDx11 *)m_hSkinningConstants )->Unlock();
+		//( (CShaderConstantBufferDx11 *)m_hFlexConstants )->Unlock();
 	}
 
 	//
@@ -1040,19 +1039,22 @@ void CShaderAPIDx11::BindVertexBuffer( int nStreamID, IVertexBuffer *pVertexBuff
 	// FIXME: What to do about repetitions?
 	CVertexBufferDx11 *pVertexBufferDx11 = static_cast<CVertexBufferDx11 *>( pVertexBuffer );
 
+
 	ID3D11Buffer *pBuffer = NULL;
 	UINT stride = 0;
-	UINT offset = nOffsetInBytes;
 	if ( pVertexBufferDx11 )
 	{
 		pBuffer = pVertexBufferDx11->GetDx11Buffer();
 		stride = pVertexBufferDx11->VertexSize();
 	}
 
-	if ( nOffsetInBytes == 0 && nFirstVertex > 0 )
+	// Offset can be provided by first index
+	if ( nOffsetInBytes < 0 )
 	{
-		offset = nFirstVertex * stride;
+		nOffsetInBytes = nFirstVertex * stride;
 	}
+
+	UINT offset = nOffsetInBytes;
 
 	if ( pBuffer != dynamic.m_pVertexBuffer[nStreamID] )
 	{
@@ -1356,7 +1358,7 @@ bool CShaderAPIDx11::OnDeviceInit()
 	m_hPerModelConstants = g_pShaderDeviceDx11->CreateConstantBuffer( sizeof( PerModel_CBuffer_t ) );
 	m_hPerSceneConstants = g_pShaderDeviceDx11->CreateConstantBuffer( sizeof( PerScene_CBuffer_t ) );
 	m_hSkinningConstants = g_pShaderDeviceDx11->CreateConstantBuffer( sizeof( Skinning_CBuffer_t ) );
-	//m_hFlexConstants = g_pShaderDeviceDx11->CreateConstantBuffer( sizeof( Flex_CBuffer_t ) );
+	m_hFlexConstants = g_pShaderDeviceDx11->CreateConstantBuffer( sizeof( Flex_CBuffer_t ) );
 
 	// Write some constants that don't change
 	PerScene_CBuffer_t *pPerScene = (PerScene_CBuffer_t *)( (CShaderConstantBufferDx11 *)m_hPerSceneConstants )->GetData();
@@ -1365,6 +1367,10 @@ bool CShaderAPIDx11::OnDeviceInit()
 	pPerScene->cConstants.y = OVERBRIGHT;
 	pPerScene->cConstants.z = 1.0f / 3.0f;
 	pPerScene->cConstants.w = 1.0f / OVERBRIGHT;
+	pPerScene->cFlexScale.x = 1.0f;
+	pPerScene->cFlexScale.y = 1.0f;
+	pPerScene->cFlexScale.z = 0.0f;
+	pPerScene->cFlexScale.w = 0.0f;
 
 	( (CShaderConstantBufferDx11 *)m_hPerSceneConstants )->ForceUpdate();
 
@@ -3315,13 +3321,13 @@ void CShaderAPIDx11::SetFlexWeights( int nFirstWeight, int nCount, const MorphWe
 
 	//m_ShaderState.morph.m_nFirstWeight = nFirstWeight;
 	//m_ShaderState.morph.m_nCount = nCount;
-	int numLoaded = nFirstWeight + nCount;
-	if ( numLoaded > m_ShaderState.morph.m_nMaxWeightLoaded )
-	{
-		m_ShaderState.morph.m_nMaxWeightLoaded = numLoaded;
-	}
-	memcpy( m_ShaderState.morph.m_pWeights + nFirstWeight, pWeights, sizeof( MorphWeight_t ) * nCount );
-	m_ShaderState.morph.m_bMorphChanged = true;
+	//int numLoaded = nFirstWeight + nCount;
+	//if ( numLoaded > m_ShaderState.morph.m_nMaxWeightLoaded )
+	//{
+	//	m_ShaderState.morph.m_nMaxWeightLoaded = numLoaded;
+	//}
+	//memcpy( m_ShaderState.morph.m_pWeights + nFirstWeight, pWeights, sizeof( MorphWeight_t ) * nCount );
+	//m_ShaderState.morph.m_bMorphChanged = true;
 }
 
 void CShaderAPIDx11::SetToneMappingScaleLinear( const Vector &scale )

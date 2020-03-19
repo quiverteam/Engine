@@ -412,7 +412,7 @@ public:
 
 protected:
 	// Sets the render state.
-	bool SetRenderState( int nVertexOffsetInBytes, int nFirstVertexIdx, VertexFormat_t vertexFormat = VERTEX_FORMAT_INVALID );
+	bool SetRenderState( int nFirstIndex, int nFirstVertexIdx, VertexFormat_t vertexFormat = VERTEX_FORMAT_INVALID );
 
 	// Is the vertex format valid?
 	bool IsValidVertexFormat( VertexFormat_t vertexFormat = VERTEX_FORMAT_INVALID );
@@ -1799,7 +1799,7 @@ bool CMeshDX11::IsValidVertexFormat( VertexFormat_t vertexFormat )
 	return true;
 }
 
-bool CMeshDX11::SetRenderState( int nVertexOffsetInBytes, int nFirstVertexIdx, VertexFormat_t vertexFormat )
+bool CMeshDX11::SetRenderState( int nFirstIndex, int nFirstVertexIdx, VertexFormat_t vertexFormat )
 {
 	// Can't set the state if we're deactivated
 	if ( g_pShaderDeviceDx11->IsDeactivated() )
@@ -1814,20 +1814,20 @@ bool CMeshDX11::SetRenderState( int nVertexOffsetInBytes, int nFirstVertexIdx, V
 	g_pShaderAPIDx11->SetTopology( m_Type );
 
 	Assert( m_pVertexBuffer );
-	g_pShaderAPIDx11->BindVertexBuffer( 0, GetVertexBuffer(), nVertexOffsetInBytes, nFirstVertexIdx, m_NumVertices, GetVertexFormat() );
+	g_pShaderAPIDx11->BindVertexBuffer( 0, GetVertexBuffer(), -1, nFirstVertexIdx, m_NumVertices, GetVertexFormat() );
 
 	// Bind separate color vertex buffer
 	if ( HasColorMesh() )
 	{
 		g_pShaderAPIDx11->BindVertexBuffer( 1, m_pColorMesh->GetVertexBuffer(), m_nColorMeshVertOffsetInBytes,
-						    nFirstVertexIdx, m_NumVertices,
+						    -1, m_NumVertices,
 						    GetVertexFormat() );
 	}
 
 	// Bind flex vertex buffer
 	if ( HasFlexMesh() )
 	{
-		g_pShaderAPIDx11->BindVertexBuffer( 2, GetVertexBuffer(), m_nFlexVertOffsetInBytes, nFirstVertexIdx, m_flexVertCount, GetVertexFormat() );
+		g_pShaderAPIDx11->BindVertexBuffer( 2, m_pFlexVertexBuffer, m_nFlexVertOffsetInBytes, -1, m_flexVertCount, GetVertexFormat() );
 	}
 
 	// Bind vertex ID buffer
@@ -1838,7 +1838,7 @@ bool CMeshDX11::SetRenderState( int nVertexOffsetInBytes, int nFirstVertexIdx, V
 	}
 	
 	Assert( m_pIndexBuffer );
-	g_pShaderAPIDx11->BindIndexBuffer( GetIndexBuffer(), nVertexOffsetInBytes );
+	g_pShaderAPIDx11->BindIndexBuffer( GetIndexBuffer(), nFirstIndex * GetIndexBuffer()->IndexSize() );
 
 	g_pLastIndex = GetIndexBuffer();
 	g_pLastVertex = GetVertexBuffer();
@@ -2259,8 +2259,7 @@ void CDynamicMeshDX11::Draw( int nFirstIndex, int nIndexCount )
 
 		// only have a non-zero first vertex when we are using static indices
 		int nFirstVertex = m_VertexOverride ? 0 : m_nFirstVertex;
-		int actualFirstVertex = m_IndexOverride ? nFirstVertex : 0;
-		int nVertexOffsetInBytes = HasFlexMesh() ? nFirstVertex * g_MeshMgr.VertexFormatSize( GetVertexFormat() ) : 0;
+		int actualFirstVertex = m_IndexOverride || HasFlexMesh() ? nFirstVertex : 0;
 		int baseIndex = m_IndexOverride ? 0 : m_FirstIndex;
 
 		// Overriding with the dynamic index buffer, preserve state!
@@ -2270,7 +2269,7 @@ void CDynamicMeshDX11::Draw( int nFirstIndex, int nIndexCount )
 		}
 
 		VertexFormat_t fmt = m_VertexOverride ? GetVertexFormat() : VERTEX_FORMAT_INVALID;
-		if ( !SetRenderState( nVertexOffsetInBytes, actualFirstVertex, fmt ) )
+		if ( !SetRenderState( 0, actualFirstVertex, fmt ) )
 			return;
 
 		// Draws a portion of the mesh
