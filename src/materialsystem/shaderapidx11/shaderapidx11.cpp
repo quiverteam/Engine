@@ -1049,6 +1049,11 @@ void CShaderAPIDx11::BindVertexBuffer( int nStreamID, IVertexBuffer *pVertexBuff
 		stride = pVertexBufferDx11->VertexSize();
 	}
 
+	if ( nOffsetInBytes == 0 && nFirstVertex > 0 )
+	{
+		offset = nFirstVertex * stride;
+	}
+
 	if ( pBuffer != dynamic.m_pVertexBuffer[nStreamID] )
 	{
 		dynamic.m_pVertexBuffer[nStreamID] = pBuffer;

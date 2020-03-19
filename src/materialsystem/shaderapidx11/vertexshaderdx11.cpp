@@ -52,7 +52,7 @@
 #define DYNAMIC_SHADER_COMPILE
 
 // uncomment to get spew about what combos are being compiled.
-#define DYNAMIC_SHADER_COMPILE_VERBOSE
+//#define DYNAMIC_SHADER_COMPILE_VERBOSE
 
 // uncomment and fill in with a path to use a specific set of shader source files. Meant for network use.
 //		PC path format is of style "\\\\somemachine\\sourcetreeshare\\materialsystem\\stdshaders"
@@ -62,7 +62,7 @@
 //#define DYNAMIC_SHADER_COMPILE_CUSTOM_PATH ""
 
 // uncomment to get disassembled (asm) shader code in your game dir as *.asm
-#define DYNAMIC_SHADER_COMPILE_WRITE_ASSEMBLY
+//#define DYNAMIC_SHADER_COMPILE_WRITE_ASSEMBLY
 
 // uncomment to get disassembled (asm) shader code in your game dir as *.asm
 //#define WRITE_ASSEMBLY
