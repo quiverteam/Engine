@@ -1118,16 +1118,11 @@ static void DrawVertexLitGeneric_DX11_Internal( CBaseVSShader *pShader, IMateria
 							 pShaderAPI->GetIntRenderingParameter( INT_RENDERPARM_ENABLE_FIXED_LIGHTING ) != 0 );
 			SET_DYNAMIC_VERTEX_SHADER_COMBO( MORPHING, /*bHasFastVertexTextures && pShaderAPI->IsHWMorphingEnabled()*/false );
 			SET_DYNAMIC_VERTEX_SHADER_COMBO( COMPRESSED_VERTS, (int)vertexCompression );
-			SET_DYNAMIC_VERTEX_SHADER_COMBO( CASCADED_SHADOW, 0 );
 			SET_DYNAMIC_VERTEX_SHADER_COMBO( FLASHLIGHT, bHasFlashlight );
 			SET_DYNAMIC_VERTEX_SHADER_CMD( DynamicCmdsOut, vertexlit_and_unlit_generic_vs40 );
 
 			DECLARE_DYNAMIC_PIXEL_SHADER( vertexlit_and_unlit_generic_ps40 );
 			SET_DYNAMIC_PIXEL_SHADER_COMBO( FLASHLIGHTSHADOWS, bHasFlashlight );
-			SET_DYNAMIC_PIXEL_SHADER_COMBO( NUM_LIGHTS, lightState.m_nNumLights );
-			//SET_DYNAMIC_PIXEL_SHADER_COMBO( UBERLIGHT, false /*flashlightState.m_bUberlight*/ );
-			SET_DYNAMIC_PIXEL_SHADER_COMBO( LIGHTING_PREVIEW,
-							pShaderAPI->GetIntRenderingParameter( INT_RENDERPARM_ENABLE_FIXED_LIGHTING ) );
 			//SET_DYNAMIC_PIXEL_SHADER_COMBO( CASCADED_SHADOW, iCascadedShadowCombo );
 			SET_DYNAMIC_PIXEL_SHADER_COMBO( AMBIENT_LIGHT, lightState.m_bAmbientLight ? 1 : 0 );
 			SET_DYNAMIC_PIXEL_SHADER_COMBO( PHONG, pContextData->m_bHasPhong );

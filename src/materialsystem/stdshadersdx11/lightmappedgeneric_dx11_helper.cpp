@@ -836,8 +836,6 @@ void DrawLightmappedGeneric_DX11_Internal( CBaseVSShader *pShader, IMaterialVar 
 				SET_STATIC_VERTEX_SHADER_COMBO( VERTEXCOLOR, IS_FLAG_SET( MATERIAL_VAR_VERTEXCOLOR ) );
 				SET_STATIC_VERTEX_SHADER_COMBO( VERTEXALPHATEXBLENDFACTOR, hasBaseTexture2 || pContextData->m_bHasBump2 );
 				SET_STATIC_VERTEX_SHADER_COMBO( BUMPMASK, hasBumpMask );
-
-				SET_STATIC_VERTEX_SHADER_COMBO( RELIEF_MAPPING, false );
 				SET_STATIC_VERTEX_SHADER_COMBO( SEAMLESS, pContextData->m_bSeamlessMapping );
 				SET_STATIC_VERTEX_SHADER( lightmappedgeneric_vs40 );
 
@@ -1175,10 +1173,6 @@ void DrawLightmappedGeneric_DX11_Internal( CBaseVSShader *pShader, IMaterialVar 
 		DECLARE_DYNAMIC_VERTEX_SHADER( lightmappedgeneric_vs40 );
 		SET_DYNAMIC_VERTEX_SHADER_COMBO( DOWATERFOG, fogType == MATERIAL_FOG_LINEAR_BELOW_FOG_Z );
 		SET_DYNAMIC_VERTEX_SHADER_COMBO( FASTPATH, bVertexShaderFastPath );
-		SET_DYNAMIC_VERTEX_SHADER_COMBO(
-			LIGHTING_PREVIEW,
-			( nFixedLightingMode ) ? 1 : 0
-		);
 		SET_DYNAMIC_VERTEX_SHADER_CMD( DynamicCmdsOut, lightmappedgeneric_vs40 );
 
 		bool bPixelShaderFastPath = pContextData->m_bPixelShaderFastPath;
@@ -1209,7 +1203,6 @@ void DrawLightmappedGeneric_DX11_Internal( CBaseVSShader *pShader, IMaterialVar 
 		// Don't write fog to alpha if we're using translucency
 		SET_DYNAMIC_PIXEL_SHADER_COMBO( WRITE_DEPTH_TO_DESTALPHA, bWriteDepthToAlpha );
 		SET_DYNAMIC_PIXEL_SHADER_COMBO( WRITEWATERFOGTODESTALPHA, bWriteWaterFogToAlpha );
-		SET_DYNAMIC_PIXEL_SHADER_COMBO( LIGHTING_PREVIEW, nFixedLightingMode );
 		SET_DYNAMIC_PIXEL_SHADER_CMD( DynamicCmdsOut, lightmappedgeneric_ps40 );
 
 		DynamicCmdsOut.End();

@@ -4,14 +4,11 @@
 //  STATIC: "DIFFUSEBUMPMAP"			"0..1"
 //  STATIC: "VERTEXCOLOR"				"0..1"
 //  STATIC: "VERTEXALPHATEXBLENDFACTOR"	"0..1"
-//  STATIC: "RELIEF_MAPPING"            "0..0"
 //  STATIC: "SEAMLESS"                  "0..1"
 //  STATIC: "BUMPMASK"                  "0..1"
 
 //  DYNAMIC: "FASTPATH"					"0..1"
 //	DYNAMIC: "DOWATERFOG"				"0..1"
-//  DYNAMIC: "LIGHTING_PREVIEW"			"0..1"	[PC]
-//	DYNAMIC: "CASCADED_SHADOW"			"0..1"	[vs30]
 
 // This should not be a combo since I'm a moron with the tangent space and the flashlight.
 //  SKIP: !$BUMPMAP && $DIFFUSEBUMPMAP

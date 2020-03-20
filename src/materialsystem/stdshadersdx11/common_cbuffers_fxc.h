@@ -9,6 +9,7 @@ cbuffer PerModel_t : reg \
 { \
 	float4x4 cModelMatrix; \
 	LightInfo cLightInfo[MAX_NUM_LIGHTS]; \
+	int4 cLightCount; \
 	float3 cAmbientCube[6]; \
 };
 
