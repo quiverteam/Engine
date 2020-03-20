@@ -49,7 +49,6 @@
 #include "tier2/tier2.h"
 #include "tier1/UtlSortVector.h"
 #include "tier1/lzmaDecoder.h"
-#include "ipooledvballocator.h"
 
 // memdbgon must be the last include file in a .cpp file!!!
 #include "tier0/memdbgon.h"
@@ -87,7 +86,6 @@ ConVar r_debugrandomstaticlighting( "r_debugrandomstaticlighting", "0", FCVAR_CH
 ConVar r_proplightingfromdisk( "r_proplightingfromdisk", "1", 0, "0=Off, 1=On, 2=Show Errors" );
 static ConVar r_itemblinkmax( "r_itemblinkmax", ".3", FCVAR_CHEAT );
 static ConVar r_itemblinkrate( "r_itemblinkrate", "4.5", FCVAR_CHEAT );
-static ConVar r_proplightingpooling( "r_proplightingpooling", "-1.0", FCVAR_CHEAT, "0 - off, 1 - static prop color meshes are allocated from a single shared vertex buffer (on hardware that supports stream offset)" );
 
 //-----------------------------------------------------------------------------
 // StudioRender config 
@@ -580,62 +578,10 @@ float Engine_WorldLightAngle( const dworldlight_t *wl, const Vector& lnormal, co
 	return 0;
 }
 
-//-----------------------------------------------------------------------------
-// Allocator for color mesh vertex buffers (for use with static props only).
-// It uses a trivial allocation scheme, which assumes that allocations and
-// deallocations are not interleaved (you do all allocs, then all deallocs).
-//-----------------------------------------------------------------------------
-class CPooledVBAllocator_ColorMesh : public IPooledVBAllocator
-{
-public:
-
-	CPooledVBAllocator_ColorMesh();
-	virtual ~CPooledVBAllocator_ColorMesh();
-
-	// Allocate the shared mesh (vertex buffer)
-	virtual bool			Init( VertexFormat_t format, int numVerts );
-	// Free the shared mesh (after Deallocate is called for all sub-allocs)
-	virtual void			Clear();
-
-	// Get the shared mesh (vertex buffer) from which sub-allocations are made
-	virtual IMesh			*GetSharedMesh() { return m_pMesh; }
-
-	// Get a pointer to the start of the vertex buffer data
-	virtual void			*GetVertexBufferBase() { return m_pVertexBufferBase; }
-	virtual int				GetNumVertsAllocated() { return m_totalVerts; } 
-
-	// Allocate a sub-range of 'numVerts' from free space in the shared vertex buffer
-	// (returns the byte offset from the start of the VB to the new allocation)
-	virtual int				Allocate( int numVerts );
-	// Deallocate an existing allocation
-	virtual void			Deallocate( int offset, int numVerts );
-
-private:
-
-	// Assert/warn that the allocator is in a clear/empty state (returns FALSE if not)
-	bool					CheckIsClear( void );
-
-	IMesh		*m_pMesh;				// The shared mesh (vertex buffer) from which sub-allocations are made
-	void		*m_pVertexBufferBase;	// A pointer to the start of the vertex buffer data
-	int			m_totalVerts;			// The number of verts in the shared vertex buffer
-	int			m_vertexSize;			// The stride of the shared vertex buffer
-
-	int			m_numAllocations;		// The number of extant allocations
-	int			m_numVertsAllocated;	// The number of vertices in extant allocations
-	int			m_nextFreeOffset;		// The offset to be returned by the next call to Allocate()
-	// (incremented as a simple stack)
-	bool		m_bStartedDeallocation;	// This is set when Deallocate() is called for the first time,
-	// at which point Allocate() cannot be called again until all
-	// extant allocations have been deallocated.
-};
-
 struct colormeshparams_t
 {
 	int					m_nMeshes;
 	int					m_nTotalVertexes;
-	// Given memory alignment (VBs must be 4-KB aligned on X360, for example), it can be more efficient
-	// to allocate many color meshes out of a single shared vertex buffer (using vertex 'stream offset')
-	IPooledVBAllocator *m_pPooledVBAllocator;
 	int					m_nVertexes[256];
 	FileNameHandle_t	m_fnHandle;
 };
@@ -653,16 +599,8 @@ public:
 
 		for ( int i=0; i<m_nMeshes; i++ )
 		{
-			if ( m_pMeshInfos[i].m_pPooledVBAllocator )
-			{
-				// Let the pooling allocator dealloc this sub-range of the shared vertex buffer
-				m_pMeshInfos[i].m_pPooledVBAllocator->Deallocate( m_pMeshInfos[i].m_nVertOffsetInBytes, m_pMeshInfos[i].m_nNumVerts );
-			}
-			else
-			{
-				// Free this standalone mesh
-				pRenderContext->DestroyStaticMesh( m_pMeshInfos[i].m_pMesh );
-			}
+			// Free this standalone mesh
+			pRenderContext->DestroyStaticMesh( m_pMeshInfos[i].m_pMesh );
 		}
 		delete [] m_pMeshInfos;
 		delete [] m_ppTargets;
@@ -694,7 +632,6 @@ public:
 		Q_memset( data->m_pMeshInfos, 0, params.m_nMeshes*sizeof( ColorMeshInfo_t ) );
 		data->m_ppTargets = new unsigned char *[params.m_nMeshes];
 
-		CMeshBuilder meshBuilder;
 		MaterialLock_t hLock = materials->Lock();
 		CMatRenderContextPtr pRenderContext( materials );
 	
@@ -703,28 +640,7 @@ public:
 			VertexFormat_t vertexFormat = VERTEX_SPECULAR;
 
 			data->m_pMeshInfos[i].m_pMesh				= NULL;
-			data->m_pMeshInfos[i].m_pPooledVBAllocator	= params.m_pPooledVBAllocator;
-			data->m_pMeshInfos[i].m_nVertOffsetInBytes	= 0;
 			data->m_pMeshInfos[i].m_nNumVerts			= params.m_nVertexes[i];
-
-			if ( params.m_pPooledVBAllocator != NULL )
-			{
-				// Allocate a portion of a single, shared VB for each color mesh
-				data->m_pMeshInfos[i].m_nVertOffsetInBytes = params.m_pPooledVBAllocator->Allocate( params.m_nVertexes[i] );
-				
-				if ( data->m_pMeshInfos[i].m_nVertOffsetInBytes == -1 )
-				{
-					// Failed (fall back to regular allocations)
-					data->m_pMeshInfos[i].m_pPooledVBAllocator = NULL;
-					data->m_pMeshInfos[i].m_nVertOffsetInBytes = 0;
-				}
-				else
-				{
-					// Set up the mesh+data pointers
-					data->m_pMeshInfos[i].m_pMesh	= params.m_pPooledVBAllocator->GetSharedMesh();
-					data->m_ppTargets[i]			= ( (unsigned char *)params.m_pPooledVBAllocator->GetVertexBufferBase() ) + data->m_pMeshInfos[i].m_nVertOffsetInBytes;
-				}
-			}
 
 			if ( data->m_pMeshInfos[i].m_pMesh == NULL )
 			{
@@ -736,9 +652,8 @@ public:
 
 				// build out the underlying vertex buffer
 				// lock now in same thread as draw, otherwise d3drip
-				meshBuilder.Begin( data->m_pMeshInfos[i].m_pMesh, MATERIAL_HETEROGENOUS, params.m_nVertexes[i], 0 );
-				data->m_ppTargets[i] = meshBuilder.Specular();
-				meshBuilder.End();
+				data->m_pMeshInfos[i].m_MeshBuilder.Begin( data->m_pMeshInfos[i].m_pMesh, MATERIAL_HETEROGENOUS, params.m_nVertexes[i], 0 );
+				data->m_ppTargets[i] = data->m_pMeshInfos[i].m_MeshBuilder.Specular();
 
 				if ( g_VBAllocTracker )
 					g_VBAllocTracker->TrackMeshAllocations( NULL );
@@ -957,9 +872,6 @@ private:
 
 	CUtlDict< DataCacheHandle_t, int > m_CachedStaticPropColorData;
 	CThreadFastMutex m_CachedStaticPropMutex;
-
-	// Allocator for static prop color mesh vertex buffers (all are pooled into one VB)
-	CPooledVBAllocator_ColorMesh	m_colorMeshVBAllocator;
 };
 
 
@@ -3215,16 +3127,6 @@ void CModelRender::InitColormeshParams( ModelInstance_t &instance, studiohwdata_
 {
 	pColorMeshParams->m_nMeshes = 0;
 	pColorMeshParams->m_nTotalVertexes = 0;
-	pColorMeshParams->m_pPooledVBAllocator = NULL;
-
-	if ( ( instance.m_nFlags & MODEL_INSTANCE_HAS_DISKCOMPILED_COLOR ) &&
-		g_pMaterialSystemHardwareConfig->SupportsStreamOffset() &&
-		 ( r_proplightingpooling.GetInt() == 1 ) )
-	{
-		// Color meshes can be allocated in a shared pool for static props
-		// (saves memory on X360 due to 4-KB VB alignment)
-		pColorMeshParams->m_pPooledVBAllocator = (IPooledVBAllocator *)&m_colorMeshVBAllocator;
-	}
 
 	for ( int lodID = pStudioHWData->m_RootLOD; lodID < pStudioHWData->m_NumLODs; lodID++ )
 	{
@@ -3656,13 +3558,17 @@ void CModelRender::StaticPropColorMeshCallback( void *pContext, const void *pDat
 	int meshID;
 	for ( meshID = startMesh; meshID<pVhvHdr->m_nMeshes; meshID++ )
 	{
+		int iMesh = meshID - startMesh;
 		int numVertexes = pVhvHdr->pMesh( meshID )->m_nVertexes;
-		if ( numVertexes != pStaticPropContext->m_pColorMeshData->m_pMeshInfos[meshID-startMesh].m_nNumVerts )
+		if ( numVertexes != pStaticPropContext->m_pColorMeshData->m_pMeshInfos[iMesh].m_nNumVerts )
 		{
 			// meshes are out of sync, discard data
 			break;
 		}
-		V_memcpy( (void*)pStaticPropContext->m_pColorMeshData->m_ppTargets[meshID-startMesh], pVhvHdr->pVertexBase( meshID ), numVertexes*4 );
+		V_memcpy( (void*)pStaticPropContext->m_pColorMeshData->m_ppTargets[iMesh], pVhvHdr->pVertexBase( meshID ), numVertexes*4 );
+
+		// It's safe to unlock ourselves.
+		pStaticPropContext->m_pColorMeshData->m_pMeshInfos[iMesh].m_MeshBuilder.End();
 	}
 
 cleanUp:
@@ -3996,10 +3902,6 @@ bool CModelRender::UpdateStaticPropColorData( IHandleEntity *pProp, ModelInstanc
 							return false;		// Aborting processing, since something was wrong with D3D
 						}
 
-						// We need to account for the stream offset used by pool-allocated (static-lit) color meshes:
-						int streamOffset = pColorMeshInfo->m_nVertOffsetInBytes / meshBuilder.VertexSize();
-						meshBuilder.AdvanceVertices( streamOffset );
-
 						// Iterate over all vertices
 						for ( int i = 0; i < pMeshGroup->m_NumVertices; ++i)
 						{
@@ -4254,7 +4156,6 @@ void CModelRender::PurgeCachedStaticPropColorData( void )
 		DevWarning( "CModelRender: ColorMesh %d bytes failed to flush!\n", status.nBytes );
 	}
 
-	m_colorMeshVBAllocator.Clear();
 	m_CachedStaticPropColorData.Purge();
 }
 
@@ -4322,33 +4223,6 @@ void CModelRender::SetupColorMeshes( int nTotalVerts )
 		// oops, the queued loader didn't run which does the pre-purge cleanup
 		// do the cleanup now
 		PurgeCachedStaticPropColorData();
-	}
-
-	// Set up the appropriate default value for color mesh pooling
-	if ( r_proplightingpooling.GetInt() == -1 )
-	{
-		// This is useful on X360 because VBs are 4-KB aligned, so using a shared VB saves tons of memory
-		r_proplightingpooling.SetValue( true );
-	}
-
-	if ( r_proplightingpooling.GetInt() == 1 )
-	{
-		if ( m_colorMeshVBAllocator.GetNumVertsAllocated() == 0 )
-		{
-			if ( nTotalVerts )
-			{
-				// Allocate a mesh (vertex buffer) big enough to accommodate all static prop color meshes
-				// (which are allocated inside CModelRender::FindOrCreateStaticPropColorData() ):
-				m_colorMeshVBAllocator.Init( VERTEX_SPECULAR, nTotalVerts );
-			}
-		}
-		else
-		{
-			// already allocated
-			// 360 keeps the color meshes during same map loads
-			// vb allocator already allocated, needs to match
-			Assert( m_colorMeshVBAllocator.GetNumVertsAllocated() == nTotalVerts );
-		}
 	}
 }
 
@@ -4545,209 +4419,5 @@ void FlushLOD_f()
 	{
 		// force a full discard and rebuild of all loaded models
 		modelloader->Studio_ReloadModels( IModelLoader::RELOAD_EVERYTHING );
-	}
-}
-
-//-----------------------------------------------------------------------------
-//
-// CPooledVBAllocator_ColorMesh implementation
-//
-//-----------------------------------------------------------------------------
-
-//-----------------------------------------------------------------------------
-// CPooledVBAllocator_ColorMesh constructor
-//-----------------------------------------------------------------------------
-CPooledVBAllocator_ColorMesh::CPooledVBAllocator_ColorMesh()
-: m_pMesh( NULL )
-{
-	Clear();
-}
-
-//-----------------------------------------------------------------------------
-// CPooledVBAllocator_ColorMesh destructor
-//  - Clear should have been called
-//-----------------------------------------------------------------------------
-CPooledVBAllocator_ColorMesh::~CPooledVBAllocator_ColorMesh()
-{
-	CheckIsClear();
-
-	// Clean up, if it hadn't been done already
-	Clear();
-}
-
-//-----------------------------------------------------------------------------
-// Init
-//  - Allocate the internal shared mesh (vertex buffer)
-//-----------------------------------------------------------------------------
-bool CPooledVBAllocator_ColorMesh::Init( VertexFormat_t format, int numVerts )
-{
-	if ( !CheckIsClear() )
-		return false;
-
-	if ( g_VBAllocTracker )
-		g_VBAllocTracker->TrackMeshAllocations( "CPooledVBAllocator_ColorMesh::Init" );
-
-	CMatRenderContextPtr pRenderContext( materials );
-	m_pMesh = pRenderContext->CreateStaticMesh( format, TEXTURE_GROUP_STATIC_VERTEX_BUFFER_COLOR );
-	if ( m_pMesh )
-	{
-		// Build out the underlying vertex buffer
-		CMeshBuilder meshBuilder;
-		int numIndices = 0;
-		meshBuilder.Begin( m_pMesh, MATERIAL_HETEROGENOUS, numVerts, numIndices );
-		{
-			m_pVertexBufferBase	= meshBuilder.Specular();
-			m_totalVerts		= numVerts;
-			m_vertexSize		= meshBuilder.VertexSize();
-			// Probably good to catch any change to vertex size... there may be assumptions based on it:
-			Assert( m_vertexSize == 4 );
-			// Start at the bottom of the VB and work your way up like a simple stack
-			m_nextFreeOffset	= 0;
-		}
-		meshBuilder.End();
-	}
-
-	if ( g_VBAllocTracker )
-		g_VBAllocTracker->TrackMeshAllocations( NULL );
-
-	return ( m_pMesh != NULL );
-}
-
-//-----------------------------------------------------------------------------
-// Clear
-//  - frees the shared mesh (vertex buffer), resets member variables
-//-----------------------------------------------------------------------------
-void CPooledVBAllocator_ColorMesh::Clear( void )
-{
-	if ( m_pMesh != NULL )
-	{
-		if ( m_numAllocations > 0 )
-		{
-			Warning( "ERROR: CPooledVBAllocator_ColorMesh::Clear should not be called until all allocations released!" );
-			Assert( m_numAllocations == 0 );
-		}
-		CMatRenderContextPtr pRenderContext( materials );
-		pRenderContext->DestroyStaticMesh( m_pMesh );
-		m_pMesh = NULL;
-	}
-
-	m_pVertexBufferBase		= NULL;
-	m_totalVerts			= 0;
-	m_vertexSize			= 0;
-
-	m_numAllocations		= 0;
-	m_numVertsAllocated		= 0;
-	m_nextFreeOffset		= -1;
-	m_bStartedDeallocation	= false;
-}
-
-//-----------------------------------------------------------------------------
-// CheckIsClear
-//  - assert/warn if the allocator isn't in a clear state
-//    (no extant allocations, no internal mesh)
-//-----------------------------------------------------------------------------
-bool CPooledVBAllocator_ColorMesh::CheckIsClear( void )
-{
-	if ( m_pMesh )
-	{
-		Warning( "ERROR: CPooledVBAllocator_ColorMesh's internal mesh (vertex buffer) should have been freed!" );
-		Assert( m_pMesh == NULL );
-		return false;
-	}
-
-	if ( m_numAllocations > 0 )
-	{
-		Warning( "ERROR: CPooledVBAllocator_ColorMesh has unfreed allocations!" );
-		Assert( m_numAllocations == 0 );
-		return false;
-	}
-
-	return true;
-}
-
-//-----------------------------------------------------------------------------
-// Allocate
-//  - Allocate a sub-range of 'numVerts' from free space in the shared vertex buffer
-//    (returns the byte offset from the start of the VB to the new allocation)
-//  - returns -1 on failure
-//-----------------------------------------------------------------------------
-int CPooledVBAllocator_ColorMesh::Allocate( int numVerts )
-{
-	if ( m_pMesh == NULL )
-	{
-		Warning( "ERROR: CPooledVBAllocator_ColorMesh::Allocate cannot be called before Init (expect a crash)" );
-		Assert( m_pMesh );
-		return -1;
-	}
-
-	// Once we start deallocating, we have to keep going until everything has been freed
-	if ( m_bStartedDeallocation )
-	{
-		Warning( "ERROR: CPooledVBAllocator_ColorMesh::Allocate being called after some (but not all) calls to Deallocate have been called - invalid! (expect visual artifacts)" );
-		Assert( !m_bStartedDeallocation );
-		return -1;
-	}
-
-	if ( numVerts > ( m_totalVerts - m_numVertsAllocated ) )
-	{
-		Warning( "ERROR: CPooledVBAllocator_ColorMesh::Allocate failing - not enough space left in the vertex buffer!" );
-		Assert( numVerts <= ( m_totalVerts - m_numVertsAllocated ) );
-		return -1;
-	}
-
-	int result = m_nextFreeOffset;
-
-	m_numAllocations	+= 1;
-	m_numVertsAllocated	+= numVerts;
-	m_nextFreeOffset	+= numVerts*m_vertexSize;
-
-	return result;
-}
-
-//-----------------------------------------------------------------------------
-// Deallocate
-//  - Deallocate an existing allocation
-//-----------------------------------------------------------------------------
-void CPooledVBAllocator_ColorMesh::Deallocate( int offset, int numVerts )
-{
-	if ( m_pMesh == NULL )
-	{
-		Warning( "ERROR: CPooledVBAllocator_ColorMesh::Deallocate cannot be called before Init" );
-		Assert( m_pMesh != NULL );
-		return;
-	}
-
-	if ( m_numAllocations == 0 )
-	{
-		Warning( "ERROR: CPooledVBAllocator_ColorMesh::Deallocate called too many times! (bug in calling code)" );
-		Assert( m_numAllocations > 0 );
-		return;
-	}
-
-	if ( numVerts > m_numVertsAllocated )
-	{
-		Warning( "ERROR: CPooledVBAllocator_ColorMesh::Deallocate called with too many verts, trying to free more than were allocated (bug in calling code)" );
-		Assert( numVerts <= m_numVertsAllocated );
-		numVerts = m_numVertsAllocated; // Hack (avoid counters ever going below zero)
-	}
-
-	// Now all extant allocations must be freed before we make any new allocations
-	m_bStartedDeallocation = true;
-
-	m_numAllocations	-= 1;
-	m_numVertsAllocated	-= numVerts;
-	m_nextFreeOffset	 = 0; // (we shouldn't be returning this until everything's free, at which point 0 is valid)
-
-	// Are we empty?
-	if ( m_numAllocations == 0 )
-	{
-		if ( m_numVertsAllocated != 0 )
-		{
-			Warning( "ERROR: CPooledVBAllocator_ColorMesh::Deallocate, after all allocations have been freed too few verts total have been deallocated (bug in calling code)" );
-			Assert( m_numVertsAllocated == 0 );
-		}
-
-		// We can start allocating again, now
-		m_bStartedDeallocation = false;
 	}
 }

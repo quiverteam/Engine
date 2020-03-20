@@ -18,6 +18,7 @@
 #include "tier1/utlvector.h"
 #include "materialsystem/imaterial.h"
 #include "materialsystem/imaterialsystem.h"
+#include "materialsystem/imesh.h"
 #include "appframework/IAppSystem.h"
 #include "datacache/imdlcache.h"
 #include "studio.h"
@@ -175,11 +176,8 @@ struct DrawModelResults_t
 
 struct ColorMeshInfo_t
 {
-	// A given color mesh can own a unique Mesh, or it can use a shared Mesh
-	// (in which case it uses a sub-range defined by m_nVertOffset and m_nNumVerts)
+	CMeshBuilder			m_MeshBuilder;
 	IMesh				*	m_pMesh;
-	IPooledVBAllocator	*	m_pPooledVBAllocator;
-	int						m_nVertOffsetInBytes;
 	int						m_nNumVerts;
 };
 

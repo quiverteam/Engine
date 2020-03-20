@@ -2188,7 +2188,7 @@ int CStudioRender::R_StudioDrawGroupHWSkin( IMatRenderContext *pRenderContext, s
 	}
 
 	if ( pColorMeshInfo )
-		pMesh->SetColorMesh( pColorMeshInfo->m_pMesh, pColorMeshInfo->m_nVertOffsetInBytes );
+		pMesh->SetColorMesh( pColorMeshInfo->m_pMesh, 0 );
 	else
 		pMesh->SetColorMesh( NULL, 0 );
 
