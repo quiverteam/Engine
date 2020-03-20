@@ -1,0 +1,41 @@
+// DYNAMIC: "PIXELFOGTYPE"				"0..1"
+// DYNAMIC: "WRITE_DEPTH_TO_DESTALPHA"	"0..1"
+
+#include "common_ps_fxc.h"
+#include "modulate_constants_fxc.h"
+#include "common_cbuffers_fxc.h"
+
+CBUFFER_PERFRAME( register(b0) )
+CBUFFER_PERSCENE( register(b1) )
+
+cbuffer Modulate_CBuffer : register( b2 )
+{
+	Modulate_t c;
+};
+
+Texture2D BaseTexture		: register( t0 );
+sampler BaseTextureSampler	: register( s0 );
+
+#define g_WhiteGrayMix	c.cWhiteGrayMix
+#define g_FogParams				cFogParams
+#define g_EyePos_SpecExponent		cEyePos
+
+struct PS_INPUT
+{
+	float4 projPos		: SV_POSITION;
+	float2 vTexCoord0	: TEXCOORD0;
+	float4 vColor		: COLOR0;
+	
+	float4 worldPos_projPosZ		: TEXCOORD1;		// Necessary for pixel fog
+};
+
+float4 main( PS_INPUT i ) : SV_TARGET
+{
+	float4 textureColor = BaseTexture.Sample( BaseTextureSampler, i.vTexCoord0 );
+
+	float4 resultColor = saturate( textureColor * i.vColor );
+	resultColor.rgb = lerp( g_WhiteGrayMix.rgb, resultColor.rgb, resultColor.a );
+
+	float fogFactor = CalcPixelFogFactor( PIXELFOGTYPE, g_FogParams, g_EyePos_SpecExponent.z, i.worldPos_projPosZ.z, i.worldPos_projPosZ.w );
+	return FinalOutput( resultColor, fogFactor, PIXELFOGTYPE, TONEMAP_SCALE_NONE, (WRITE_DEPTH_TO_DESTALPHA != 0), i.worldPos_projPosZ.w );
+}

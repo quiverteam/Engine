@@ -1,0 +1,79 @@
+//	DYNAMIC: "COMPRESSED_VERTS"		"0..1"
+//	DYNAMIC: "DOWATERFOG"			"0..1"
+//	DYNAMIC: "SKINNING"				"0..1"
+
+#include "common_vs_fxc.h"
+
+static const bool g_bSkinning		= SKINNING ? true : false;
+static const int  g_FogType			= DOWATERFOG;
+
+#include "unlittwotexture_constants_fxc.h"
+#include "common_cbuffers_fxc.h"
+
+CBUFFER_SKINNING(register(b0))
+CBUFFER_PERFRAME(register(b1))
+CBUFFER_PERSCENE(register(b2))
+
+cbuffer UnlitTwoTexture_CBuffer : register(b3)
+{
+	UnlitTwoTexture_t c;
+};
+
+#define cBaseTexCoordTransform c.cBaseTextureTransform
+#define cBaseTexCoordTransform2 c.cBaseTexture2Transform
+
+struct VS_INPUT
+{
+	float4 vPos				: POSITION;
+	float4 vBoneWeights		: BLENDWEIGHT;
+	float4 vBoneIndices		: BLENDINDICES;
+	// make these float2's and stick the [n n 0 1] in the dot math.
+	float4 vTexCoord0		: TEXCOORD0;
+};
+
+struct VS_OUTPUT
+{
+    float4 projPos					: SV_POSITION;			// Projection-space position	
+	HALF2 baseTexCoord				: TEXCOORD0;		// Base texture coordinate
+	HALF2 baseTexCoord2				: TEXCOORD1;		// Base texture coordinate
+	float4 worldPos_projPosZ		: TEXCOORD7;		// Necessary for water fog dest alpha
+	
+	float4 fogFactorW				: COLOR1;
+};
+
+VS_OUTPUT main( const VS_INPUT v )
+{
+	VS_OUTPUT o = ( VS_OUTPUT )0;
+	
+	float4 vPosition = v.vPos;
+
+	// Perform skinning
+	float3 worldNormal, worldPos;
+	SkinPosition( 
+		g_bSkinning, 
+		vPosition,
+		v.vBoneWeights, v.vBoneIndices,
+		cModel,
+		worldPos );
+
+	float4x4 viewProj = mul(cViewMatrix, cProjMatrix);
+
+	// Transform into projection space
+	float4 projPos = mul( float4( worldPos, 1 ), viewProj );
+	o.projPos = projPos;
+	o.fogFactorW.w = CalcFog( worldPos.xyz, projPos.xyz, cEyePos.xyz, g_FogType, cFogZ, cFogParams );
+	
+	// Needed for water fog alpha; 
+	// FIXME: we shouldn't have to compute this all thie time.
+	o.worldPos_projPosZ = float4( worldPos.xyz, projPos.z );
+
+	// Base texture coordinates
+	o.baseTexCoord.x = dot( v.vTexCoord0, cBaseTexCoordTransform[0] );
+	o.baseTexCoord.y = dot( v.vTexCoord0, cBaseTexCoordTransform[1] );
+
+	// Base texture coordinates
+	o.baseTexCoord2.x = dot( v.vTexCoord0, cBaseTexCoordTransform2[0] );
+	o.baseTexCoord2.y = dot( v.vTexCoord0, cBaseTexCoordTransform2[1] );
+
+	return o;
+}

@@ -6,6 +6,15 @@
 //bik_vs40.fxc
 //bik_ps40.fxc
 
+unlittwotexture_vs40.fxc
+unlittwotexture_ps40.fxc
+
+white_ps40.fxc
+writez_vs40.fxc
+
+modulate_ps40.fxc
+modulate_vs40.fxc
+
 splinecard_vs40.fxc
 spritecard_vs40.fxc
 spritecard_ps40.fxc

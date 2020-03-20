@@ -1,0 +1,47 @@
+// DYNAMIC: "PIXELFOGTYPE"				"0..1"
+// DYNAMIC: "WRITE_DEPTH_TO_DESTALPHA"	"0..1"
+
+#include "common_ps_fxc.h"
+#include "unlittwotexture_constants_fxc.h"
+#include "common_cbuffers_fxc.h"
+
+CBUFFER_PERFRAME(register(b0))
+CBUFFER_PERSCENE(register(b1))
+
+cbuffer UnlitTwoTexture_CBuffer : register(b2)
+{
+	UnlitTwoTexture_t c;
+};
+
+#define g_DiffuseModulation	c.cModulationColor
+
+#define g_FogParams				cFogParams
+#define g_EyePos_SpecExponent		cEyePos
+
+Texture2D BaseTexture			: register( t0 );
+sampler BaseTextureSampler	   : register( s0 );
+Texture2D BaseTexture2			: register( t1 );
+sampler BaseTextureSampler2	   : register( s1 );
+
+struct PS_INPUT
+{
+    float4 projPos					: SV_POSITION;			// Projection-space position	
+	HALF2 baseTexCoord				: TEXCOORD0;		// Base texture coordinate
+	HALF2 baseTexCoord2				: TEXCOORD1;		// Base texture coordinate
+	float4 worldPos_projPosZ		: TEXCOORD7;		// Necessary for water fog dest alpha
+	float4 fogFactorW				: COLOR1;
+};
+
+float4 main( PS_INPUT i ) : SV_TARGET
+{
+
+
+	HALF4 baseColor = BaseTexture.Sample( BaseTextureSampler, i.baseTexCoord.xy );
+	HALF4 baseColor2 = BaseTexture2.Sample( BaseTextureSampler2, i.baseTexCoord2.xy );
+	HALF4 result = baseColor * baseColor2 * g_DiffuseModulation;
+	float alpha = 1.0f;
+	
+	float fogFactor = CalcPixelFogFactor( PIXELFOGTYPE, g_FogParams, g_EyePos_SpecExponent.z, i.worldPos_projPosZ.z, i.worldPos_projPosZ.w );
+	return FinalOutput( float4( result.rgb, alpha ), fogFactor, PIXELFOGTYPE, TONEMAP_SCALE_LINEAR, (WRITE_DEPTH_TO_DESTALPHA != 0), i.worldPos_projPosZ.w );
+}
+

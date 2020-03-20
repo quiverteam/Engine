@@ -1,0 +1,72 @@
+// DYNAMIC: "COMPRESSED_VERTS"		"0..1"
+// DYNAMIC: "DOWATERFOG"			"0..1"
+// DYNAMIC: "SKINNING"				"0..1"
+
+#include "common_vs_fxc.h"
+
+#include "common_cbuffers_fxc.h"
+#include "modulate_constants_fxc.h"
+
+static const int g_FogType			= DOWATERFOG;
+static const bool g_bSkinning		= SKINNING ? true : false;
+
+CBUFFER_SKINNING(register(b0))
+CBUFFER_PERFRAME(register(b1))
+CBUFFER_PERSCENE(register(b2))
+
+cbuffer Modulate_CBuffer : register(b3)
+{
+	Modulate_t c;
+};
+
+#define cBaseTextureTransform c.cBaseTextureTransform
+
+struct VS_INPUT
+{
+	float4 vPos			: POSITION;
+	float4 vBoneWeights	: BLENDWEIGHT;
+	float4 vBoneIndices	: BLENDINDICES;
+	float4 vNormal		: NORMAL;
+
+	float4 vColor		: COLOR;
+
+	float4 vTexCoord0	: TEXCOORD0;
+};
+
+struct VS_OUTPUT
+{
+	float4 vProjPos		: SV_POSITION;
+	float2 vTexCoord0	: TEXCOORD0;
+	float4 vColor		: COLOR0;
+	float4 worldPos_projPosZ : TEXCOORD1;		// Necessary for pixel fog
+};
+
+
+VS_OUTPUT main( const VS_INPUT v )
+{
+	VS_OUTPUT o = ( VS_OUTPUT )0;
+
+	float3 worldPos;
+	float3 worldNormal;
+
+	//------------------------------------------------------------------------------
+	// Vertex blending
+	//------------------------------------------------------------------------------
+	SkinPosition( g_bSkinning, v.vPos, v.vBoneWeights, v.vBoneIndices, cModel, worldPos );
+
+	float4x4 viewProj = mul( cViewMatrix, cProjMatrix );
+	o.vProjPos = mul( float4( worldPos, 1 ), viewProj );
+	o.worldPos_projPosZ = float4( worldPos.xyz, o.vProjPos.z );
+
+	//------------------------------------------------------------------------------
+	// Texture coord transforms
+	//------------------------------------------------------------------------------
+	o.vTexCoord0 = mul( v.vTexCoord0, (float2x4)cBaseTextureTransform );
+
+	o.vColor = c.cModulationColor;
+
+	return o;
+}
+
+
+

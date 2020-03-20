@@ -1,0 +1,26 @@
+#include "common_vs_fxc.h"
+#include "common_cbuffers_fxc.h"
+
+CBUFFER_PERMODEL(register(b0))
+CBUFFER_PERFRAME(register(b1))
+CBUFFER_PERSCENE(register(b2))
+
+struct VS_INPUT
+{
+	float4 vPos		: POSITION;
+};
+
+struct VS_OUTPUT
+{
+	float4 vProjPos		: SV_POSITION;
+};
+
+
+VS_OUTPUT main( const VS_INPUT v )
+{
+	VS_OUTPUT o = ( VS_OUTPUT )0;
+
+	o.vProjPos = ComputeProjPos( v.vPos.xyz, cModelMatrix, cViewMatrix, cProjMatrix );
+
+	return o;
+}

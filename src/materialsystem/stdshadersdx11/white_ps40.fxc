@@ -1,0 +1,11 @@
+#include "common_ps_fxc.h"
+
+struct PS_INPUT
+{
+	float4 projPos	: SV_POSITION;
+};
+
+float4 main( PS_INPUT i ) : SV_TARGET
+{
+	return FinalOutput( float4( 1.0f, 1.0f, 1.0f, 1.0f ), 0, PIXEL_FOG_TYPE_NONE, TONEMAP_SCALE_NONE );
+}
