@@ -669,8 +669,8 @@ public:
 	virtual void EnableHWMorphing( bool bEnable );
 
 	// Sets the vertex and pixel shaders
-	virtual void SetVertexShaderIndex( int vshIndex = -1 );
-	virtual void SetPixelShaderIndex( int pshIndex = 0 );
+	virtual void SetVertexShaderIndex( ShaderIndex_t vshIndex = 0 );
+	virtual void SetPixelShaderIndex( ShaderIndex_t pshIndex = 0 );
 
 	// Matrix state
 	void MatrixMode( MaterialMatrixMode_t matrixMode );
@@ -6046,12 +6046,12 @@ D3DCOLOR CShaderAPIDx8::ComputeGammaCorrectedFogColor( unsigned char r, unsigned
 //-----------------------------------------------------------------------------
 // Some methods chaining vertex + pixel shaders through to the shader manager
 //-----------------------------------------------------------------------------
-void CShaderAPIDx8::SetVertexShaderIndex( int vshIndex )
+void CShaderAPIDx8::SetVertexShaderIndex( ShaderIndex_t vshIndex )
 {
 	ShaderManager()->SetVertexShaderIndex( vshIndex );
 }
 
-void CShaderAPIDx8::SetPixelShaderIndex( int pshIndex )
+void CShaderAPIDx8::SetPixelShaderIndex( ShaderIndex_t pshIndex )
 {
 	ShaderManager()->SetPixelShaderIndex( pshIndex );
 }
