@@ -386,12 +386,14 @@ CTextureDx11::CTextureDx11()
 	m_nTimesBoundThisFrame = 0;
 	m_Anisotropy = 0;
 	m_Format	       = IMAGE_FORMAT_RGBA8888;
-	m_MinFilter = SHADER_TEXFILTERMODE_LINEAR;
-	m_MagFilter = SHADER_TEXFILTERMODE_LINEAR;
+	m_MinFilter = D3D11_FILTER_TYPE_LINEAR;
+	m_MagFilter = D3D11_FILTER_TYPE_LINEAR;
+	m_MipFilter = D3D11_FILTER_TYPE_POINT;
+	m_bIsAnisotropic = false;
 	m_UTexWrap = D3D11_TEXTURE_ADDRESS_CLAMP;
 	m_VTexWrap = D3D11_TEXTURE_ADDRESS_CLAMP;
 	m_WTexWrap = D3D11_TEXTURE_ADDRESS_CLAMP;
-	m_Filter = D3D11_FILTER_MIN_MAG_MIP_LINEAR;
+	m_Filter = D3D11_FILTER_MIN_MAG_LINEAR_MIP_POINT;
 
 	m_pTexture = NULL;
 	m_ppTexture = NULL;
@@ -527,13 +529,13 @@ void CTextureDx11::SetupTexture2D( int width, int height, int depth, int count, 
 	m_VTexWrap = D3D11_TEXTURE_ADDRESS_CLAMP;
 	m_WTexWrap = D3D11_TEXTURE_ADDRESS_CLAMP;
 
-	m_Filter = ( numMipLevels != 1 ) ?
-		D3D11_FILTER_MIN_MAG_MIP_LINEAR :
-		D3D11_FILTER_MIN_MAG_LINEAR_MIP_POINT;
+	m_MipFilter = ( numMipLevels != 1 ) ?
+		D3D11_FILTER_TYPE_LINEAR : D3D11_FILTER_TYPE_POINT;
+	m_MinFilter = m_MagFilter = D3D11_FILTER_TYPE_LINEAR;
 
 	m_SwitchNeeded = false;
 	
-	AdjustSamplerState();
+	AdjustD3DFilter();
 	MakeView();
 }
 
@@ -554,14 +556,16 @@ void CTextureDx11::SetupDepthTexture( ImageFormat depthFormat, int width, int he
 	m_Count = 1;
 	m_CountIndex = 0;
 	m_CreationFlags = TEXTURE_CREATE_DEPTHBUFFER;
-	m_Filter = D3D11_FILTER_MIN_MAG_LINEAR_MIP_POINT;
+	m_MinFilter = D3D11_FILTER_TYPE_LINEAR;
+	m_MagFilter = D3D11_FILTER_TYPE_LINEAR;
+	m_MipFilter = D3D11_FILTER_TYPE_POINT;
 	m_NumLevels = 1;
 	m_NumCopies = 1;
 	m_CurrentCopy = 0;
 
 	m_pTexture = CreateD3DTexture(
 		width, height, m_Depth, depthFormat, m_NumLevels, m_CreationFlags );
-	AdjustSamplerState();
+	AdjustD3DFilter();
 	MakeDepthStencilView();	
 	if ( bTexture )
 	{
@@ -583,7 +587,9 @@ void CTextureDx11::SetupBackBuffer( int width, int height, const char *pDebugNam
 	m_Count = 1;
 	m_CountIndex = 0;
 	m_CreationFlags = TEXTURE_CREATE_RENDERTARGET;
-	m_Filter = D3D11_FILTER_MIN_MAG_LINEAR_MIP_POINT;
+	m_MinFilter = D3D11_FILTER_TYPE_LINEAR;
+	m_MagFilter = D3D11_FILTER_TYPE_LINEAR;
+	m_MipFilter = D3D11_FILTER_TYPE_POINT;
 	m_NumLevels = 1;
 	m_NumCopies = 1;
 	m_CurrentCopy = 0;
@@ -595,20 +601,60 @@ void CTextureDx11::SetupBackBuffer( int width, int height, const char *pDebugNam
 	else
 		m_pTexture = CreateD3DTexture( width, height, m_Depth, format, m_NumLevels, m_CreationFlags );
 
-	AdjustSamplerState();
+	AdjustD3DFilter();
 	MakeRenderTargetView();
 	MakeView();
 }
 
 void CTextureDx11::SetMinFilter( ShaderTexFilterMode_t texFilterMode )
 {
-	m_MinFilter = texFilterMode;
+	switch ( texFilterMode )
+	{
+	case SHADER_TEXFILTERMODE_LINEAR:
+	case SHADER_TEXFILTERMODE_LINEAR_MIPMAP_NEAREST:
+		m_MinFilter = D3D11_FILTER_TYPE_LINEAR;
+		m_MipFilter = D3D11_FILTER_TYPE_POINT;
+		m_bIsAnisotropic = false;
+		break;
+	case SHADER_TEXFILTERMODE_LINEAR_MIPMAP_LINEAR:
+		m_MinFilter = D3D11_FILTER_TYPE_LINEAR;
+		m_MipFilter = D3D11_FILTER_TYPE_LINEAR;
+		m_bIsAnisotropic = false;
+		break;
+
+	case SHADER_TEXFILTERMODE_NEAREST:
+	case SHADER_TEXFILTERMODE_NEAREST_MIPMAP_NEAREST:
+		m_MinFilter = D3D11_FILTER_TYPE_POINT;
+		m_MipFilter = D3D11_FILTER_TYPE_POINT;
+		m_bIsAnisotropic = false;
+		break;
+	case SHADER_TEXFILTERMODE_NEAREST_MIPMAP_LINEAR:
+		m_MinFilter = D3D11_FILTER_TYPE_POINT;
+		m_MipFilter = D3D11_FILTER_TYPE_LINEAR;
+		m_bIsAnisotropic = false;
+		break;
+
+	case SHADER_TEXFILTERMODE_ANISOTROPIC:
+		m_bIsAnisotropic = true;
+		break;
+
+	}
+
 	AdjustD3DFilter();
 }
 
 void CTextureDx11::SetMagFilter( ShaderTexFilterMode_t texFilterMode )
 {
-	m_MagFilter = texFilterMode;
+	switch ( texFilterMode )
+	{
+	case SHADER_TEXFILTERMODE_LINEAR:
+		m_MagFilter = D3D11_FILTER_TYPE_LINEAR;
+		break;
+	case SHADER_TEXFILTERMODE_NEAREST:
+		m_MagFilter = D3D11_FILTER_TYPE_POINT;
+		break;
+	}
+
 	AdjustD3DFilter();
 }
 
@@ -653,90 +699,17 @@ void CTextureDx11::SetWrap( ShaderTexCoordComponent_t coord, ShaderTexWrapMode_t
 
 void CTextureDx11::AdjustD3DFilter()
 {
-	// Determines the D3D11 filter from the specified combination
-	// of min and mag filter on the texture.
-
-	// Non-mip combinations
-	if ( m_MinFilter == SHADER_TEXFILTERMODE_NEAREST &&
-	     m_MagFilter == SHADER_TEXFILTERMODE_NEAREST )
+	// Set to anisotropic if the texture was already set to an anisotropic filter,
+	// or we are using at least bilinear filtering and have an anisotropic level > 1
+	if ( m_bIsAnisotropic ||
+		( m_MinFilter == D3D11_FILTER_TYPE_LINEAR && m_MagFilter == D3D11_FILTER_TYPE_LINEAR && m_Anisotropy > 1 ) )
 	{
-		m_Filter = D3D11_FILTER_MIN_MAG_MIP_POINT;
+		m_Filter = D3D11_FILTER_ANISOTROPIC;
 	}
-
-	else if ( m_MinFilter == SHADER_TEXFILTERMODE_LINEAR &&
-		  m_MagFilter == SHADER_TEXFILTERMODE_LINEAR )
-	{
-		m_Filter = D3D11_FILTER_MIN_MAG_LINEAR_MIP_POINT;
-	}
-
-	else if ( m_MinFilter == SHADER_TEXFILTERMODE_NEAREST &&
-		  m_MagFilter == SHADER_TEXFILTERMODE_LINEAR )
-	{
-		m_Filter = D3D11_FILTER_MIN_POINT_MAG_LINEAR_MIP_POINT;
-	}
-
-	else if ( m_MinFilter == SHADER_TEXFILTERMODE_LINEAR &&
-		  m_MagFilter == SHADER_TEXFILTERMODE_NEAREST )
-	{
-		m_Filter = D3D11_FILTER_MIN_LINEAR_MAG_MIP_POINT;
-	}
-
-	// Linear_Mipmap combinations
-
-	else if ( m_MinFilter == SHADER_TEXFILTERMODE_LINEAR_MIPMAP_LINEAR &&
-		  m_MagFilter == SHADER_TEXFILTERMODE_LINEAR )
-	{
-		m_Filter = D3D11_FILTER_MIN_MAG_MIP_LINEAR;
-	}
-
-	else if ( m_MinFilter == SHADER_TEXFILTERMODE_LINEAR_MIPMAP_LINEAR &&
-		  m_MagFilter == SHADER_TEXFILTERMODE_NEAREST )
-	{
-		m_Filter = D3D11_FILTER_MIN_LINEAR_MAG_POINT_MIP_LINEAR;
-	}
-
-	else if ( m_MinFilter == SHADER_TEXFILTERMODE_LINEAR_MIPMAP_NEAREST &&
-		  m_MagFilter == SHADER_TEXFILTERMODE_LINEAR )
-	{
-		m_Filter = D3D11_FILTER_MIN_MAG_LINEAR_MIP_POINT;
-	}
-
-	else if ( m_MinFilter == SHADER_TEXFILTERMODE_LINEAR_MIPMAP_NEAREST &&
-		  m_MagFilter == SHADER_TEXFILTERMODE_NEAREST )
-	{
-		m_Filter = D3D11_FILTER_MIN_LINEAR_MAG_MIP_POINT;
-	}
-
-	// Nearest_Mipmap combinations
-
-	else if ( m_MinFilter == SHADER_TEXFILTERMODE_NEAREST_MIPMAP_NEAREST &&
-		  m_MagFilter == SHADER_TEXFILTERMODE_LINEAR )
-	{
-		m_Filter = D3D11_FILTER_MIN_MAG_POINT_MIP_LINEAR;
-	}
-
-	else if ( m_MinFilter == SHADER_TEXFILTERMODE_NEAREST_MIPMAP_NEAREST &&
-		  m_MagFilter == SHADER_TEXFILTERMODE_NEAREST )
-	{
-		m_Filter = D3D11_FILTER_MIN_MAG_MIP_POINT;
-	}
-
-	else if ( m_MinFilter == SHADER_TEXFILTERMODE_NEAREST_MIPMAP_LINEAR &&
-		  m_MagFilter == SHADER_TEXFILTERMODE_LINEAR )
-	{
-		m_Filter = D3D11_FILTER_MIN_POINT_MAG_MIP_LINEAR;
-	}
-
-	else if ( m_MinFilter == SHADER_TEXFILTERMODE_NEAREST_MIPMAP_LINEAR &&
-		  m_MagFilter == SHADER_TEXFILTERMODE_NEAREST )
-	{
-		m_Filter = D3D11_FILTER_MIN_MAG_POINT_MIP_LINEAR;
-	}
-
 	else
 	{
-		Warning( "CTextureDx11::AdjustD3DFilter: Invalid combination of min and mag filter. Min: %i, Mag: %i\n",
-			 m_MinFilter, m_MagFilter );
+		m_Filter = D3D11_ENCODE_BASIC_FILTER( m_MinFilter, m_MagFilter, m_MipFilter,
+						      D3D11_FILTER_REDUCTION_TYPE_STANDARD );
 	}
 
 	AdjustSamplerState();
@@ -745,9 +718,7 @@ void CTextureDx11::AdjustD3DFilter()
 void CTextureDx11::SetAnisotropicLevel( int level )
 {
 	m_Anisotropy = level;
-	if ( level > 1 )
-		m_Filter = D3D11_FILTER_ANISOTROPIC;
-	AdjustSamplerState();
+	AdjustD3DFilter();
 }
 
 void CTextureDx11::AdjustSamplerState()

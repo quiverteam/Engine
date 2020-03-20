@@ -827,6 +827,7 @@ private:
 	void DoIssueGeometryShader();
 	bool DoIssueConstantBuffers( bool bForce );
 	void DoIssueSampler( bool bPixel, bool bVertex );
+	void DoIssueTexture( bool bPixel, bool bVertex );
 	void DoIssueRasterState();
 	void DoIssueBlendState();
 	void DoIssueDepthStencilState();
@@ -873,6 +874,7 @@ private:
 	// Members related to textures
 	// UNDONE: Should this stuff be in ShaderDeviceDx11?
 	CUtlVector<CTextureDx11> m_Textures;
+	unsigned char m_TexAnisotropy;
 	char m_ModifyTextureLockedLevel;
 	char m_ModifyTextureLockedFace;
 	ShaderAPITextureHandle_t m_ModifyTextureHandle;

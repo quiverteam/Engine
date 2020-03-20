@@ -76,6 +76,7 @@ ALIGN16 struct PerModel_CBuffer_t
 	DirectX::XMMATRIX cModelMatrix; // If using skinning, same as cModel[0]
 	// Four lights x 5 constants each = 20 constants
 	DX11LightInfo_t cLightInfo[4];
+	DirectX::XMINT4 cLightCount;
 	DirectX::XMFLOAT3A cAmbientCube[6];
 };
 
@@ -157,7 +158,8 @@ EXPOSE_SINGLE_INTERFACE_GLOBALVAR( CShaderAPIDx11, IShaderAPI,
 	m_SelectionMaxZ( FLT_MIN ),
 	m_pSelectionBuffer( 0 ),
 	m_pSelectionBufferEnd( 0 ),
-	m_nDynamicVBSize( DYNAMIC_VERTEX_BUFFER_MEMORY )
+	m_nDynamicVBSize( DYNAMIC_VERTEX_BUFFER_MEMORY ),
+	m_TexAnisotropy( 0 )
 {
 	m_ModifyTextureHandle = INVALID_SHADERAPI_TEXTURE_HANDLE;
 	m_ModifyTextureLockedLevel = -1;
@@ -339,6 +341,13 @@ void CShaderAPIDx11::IssueStateChanges( bool bForce )
 		DoIssueSampler( bPixel, bVertex );
 		dynamic.m_PrevMaxPSSampler = dynamic.m_MaxPSSampler;
 		dynamic.m_PrevMaxVSSampler = dynamic.m_MaxVSSampler;
+	}
+
+	bPixel = bForce || IsStateSet( STATE_CHANGED_TEXTURES );
+	bVertex = bForce || IsStateSet( STATE_CHANGED_VERTEXTEXTURES );
+	if ( bPixel || bVertex )
+	{
+		DoIssueTexture( bPixel, bVertex );
 	}
 
 	if ( bForce ||
@@ -537,7 +546,7 @@ void CShaderAPIDx11::DoIssueShaderState( bool bForce )
 		memset( lightIndex, 0, sizeof( lightIndex ) );
 		SortLights( lightIndex );
 
-		//pPerModelConstants->cLightCountRegister.x = m_ShaderState.light.m_NumLights;
+		pPerModelConstants->cLightCount.x = m_ShaderState.light.m_NumLights;
 
 		//if ( m_ShaderState.light.m_NumLights == 0 )
 		//{
@@ -809,13 +818,26 @@ void CShaderAPIDx11::DoIssueSampler( bool bPixel, bool bVertex )
 	{
 		int nSamplers = m_DynamicState.m_MaxPSSampler + 1;
 		D3D11DeviceContext()->PSSetSamplers( 0, nSamplers, m_DynamicState.m_ppSamplers );
-		D3D11DeviceContext()->PSSetShaderResources( 0, nSamplers, m_DynamicState.m_ppTextures );
 	}
 
 	if ( bVertex )
 	{
 		int nSamplers = m_DynamicState.m_MaxVSSampler + 1;
 		D3D11DeviceContext()->VSSetSamplers( 0, nSamplers, m_DynamicState.m_ppVertexSamplers );
+	}
+}
+
+void CShaderAPIDx11::DoIssueTexture( bool bPixel, bool bVertex )
+{
+	if ( bPixel )
+	{
+		int nSamplers = m_DynamicState.m_MaxPSSampler + 1;
+		D3D11DeviceContext()->PSSetShaderResources( 0, nSamplers, m_DynamicState.m_ppTextures );
+	}
+
+	if ( bVertex )
+	{
+		int nSamplers = m_DynamicState.m_MaxVSSampler + 1;
 		D3D11DeviceContext()->VSSetShaderResources( 0, nSamplers, m_DynamicState.m_ppVertexTextures );
 	}
 }
@@ -1062,7 +1084,7 @@ void CShaderAPIDx11::BindVertexBuffer( int nStreamID, IVertexBuffer *pVertexBuff
 		SetStateFlag( STATE_CHANGED_VERTEXBUFFER );
 	}
 
-	if ( stride != dynamic.m_pVBOffsets[nStreamID] )
+	if ( stride != dynamic.m_pVBStrides[nStreamID] )
 	{
 		dynamic.m_pVBStrides[nStreamID] = stride;
 		SetStateFlag( STATE_CHANGED_VERTEXBUFFER );
@@ -2370,11 +2392,18 @@ void CShaderAPIDx11::BindTexture( Sampler_t stage, ShaderAPITextureHandle_t text
 	StatesDx11::DynamicState &dynamic = m_DynamicState;
 
 	ID3D11ShaderResourceView *pView = pTex->GetView();
+	ID3D11SamplerState *pSampler = pTex->GetSamplerState();
 
 	if ( pView != dynamic.m_ppTextures[stage] )
 	{
 		dynamic.m_ppTextures[stage] = pView;
-		dynamic.m_ppSamplers[stage] = pTex->GetSamplerState();
+		
+		SetStateFlag( STATE_CHANGED_TEXTURES );
+	}
+
+	if ( pSampler != dynamic.m_ppSamplers[stage] )
+	{
+		dynamic.m_ppSamplers[stage] = pSampler;
 		
 		SetStateFlag( STATE_CHANGED_SAMPLERS );
 	}
@@ -2385,7 +2414,7 @@ void CShaderAPIDx11::BindTexture( Sampler_t stage, ShaderAPITextureHandle_t text
 
 		if ( dynamic.m_MaxPSSampler > dynamic.m_PrevMaxPSSampler )
 		{
-			SetStateFlag( STATE_CHANGED_SAMPLERS );
+			SetStateFlag( STATE_CHANGED_SAMPLERS | STATE_CHANGED_TEXTURES );
 		}
 	}
 }
@@ -2424,7 +2453,7 @@ void CShaderAPIDx11::UnbindTexture( ShaderAPITextureHandle_t textureHandle )
 
 	m_DynamicState.m_MaxPSSampler = maxSampler;
 
-	SetStateFlag( STATE_CHANGED_SAMPLERS );
+	SetStateFlag( STATE_CHANGED_SAMPLERS | STATE_CHANGED_TEXTURES );
 	
 }
 
@@ -2760,6 +2789,7 @@ void CShaderAPIDx11::CreateTextures(
 		CTextureDx11 *pTexture = arrTxp[idxFrame];
 		pTexture->SetupTexture2D( width, height, depth, count, idxFrame, flags,
 					  numCopies, numMipLevels, dstImageFormat );
+		pTexture->SetAnisotropicLevel( m_TexAnisotropy );
 
 	}
 
@@ -2842,13 +2872,15 @@ void CShaderAPIDx11::SetAnisotropicLevel( int nAnisotropyLevel )
 		nAnisotropyLevel = max( 2, min( 8, ( g_pHardwareConfig->Caps().m_nMaxAnisotropy / 4 ) ) );
 	}
 
+	m_TexAnisotropy = nAnisotropyLevel;
+
 	// Set the D3D max aninsotropy state for all samplers
 	for ( ShaderAPITextureHandle_t handle = 0;
 	      handle < m_Textures.Count();
 	      handle++ )
 	{
 		CTextureDx11 &tex = GetTexture( handle );
-		tex.SetAnisotropicLevel( nAnisotropyLevel );
+		tex.SetAnisotropicLevel( m_TexAnisotropy );
 	}
 }
 
@@ -3297,11 +3329,17 @@ void CShaderAPIDx11::BindVertexTexture( VertexTextureSampler_t stage, ShaderAPIT
 	StatesDx11::DynamicState &dynamic = m_DynamicState;
 
 	ID3D11ShaderResourceView *pView = pTex->GetView();
+	ID3D11SamplerState *pSampler = pTex->GetSamplerState();
 
 	if ( pView != dynamic.m_ppVertexTextures[stage] )
 	{
 		dynamic.m_ppVertexTextures[stage] = pView;
-		dynamic.m_ppVertexSamplers[stage] = pTex->GetSamplerState();
+		SetStateFlag( STATE_CHANGED_VERTEXTEXTURES );
+	}
+
+	if ( pSampler != dynamic.m_ppVertexSamplers[stage] )
+	{
+		dynamic.m_ppVertexSamplers[stage] = pSampler;
 		SetStateFlag( STATE_CHANGED_VERTEXSAMPLERS );
 	}
 
@@ -3310,7 +3348,7 @@ void CShaderAPIDx11::BindVertexTexture( VertexTextureSampler_t stage, ShaderAPIT
 		dynamic.m_MaxVSSampler = stage;
 		if ( dynamic.m_MaxVSSampler > dynamic.m_PrevMaxVSSampler )
 		{
-			SetStateFlag( STATE_CHANGED_VERTEXSAMPLERS );
+			SetStateFlag( STATE_CHANGED_VERTEXSAMPLERS | STATE_CHANGED_VERTEXTEXTURES );
 		}
 	}
 }

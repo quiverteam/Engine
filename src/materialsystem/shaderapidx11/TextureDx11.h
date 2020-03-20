@@ -148,9 +148,11 @@ private:
 	D3D11_TEXTURE_ADDRESS_MODE m_VTexWrap;
 	D3D11_TEXTURE_ADDRESS_MODE m_WTexWrap;
 	D3D11_FILTER m_Filter;
-	ShaderTexFilterMode_t m_MinFilter;
-	ShaderTexFilterMode_t m_MagFilter;
+	D3D11_FILTER_TYPE m_MinFilter;
+	D3D11_FILTER_TYPE m_MipFilter;
+	D3D11_FILTER_TYPE m_MagFilter;
 	int m_Anisotropy;
+	bool m_bIsAnisotropic;
 
 public:
 	unsigned char m_NumLevels;

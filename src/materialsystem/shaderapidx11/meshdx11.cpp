@@ -1819,15 +1819,17 @@ bool CMeshDX11::SetRenderState( int nFirstIndex, int nFirstVertexIdx, VertexForm
 	// Bind separate color vertex buffer
 	if ( HasColorMesh() )
 	{
-		g_pShaderAPIDx11->BindVertexBuffer( 1, m_pColorMesh->GetVertexBuffer(), m_nColorMeshVertOffsetInBytes,
+		g_pShaderAPIDx11->BindVertexBuffer( 1, m_pColorMesh->GetVertexBuffer(),
+						    m_nColorMeshVertOffsetInBytes,
 						    -1, m_NumVertices,
-						    GetVertexFormat() );
+						    m_pColorMesh->GetVertexBuffer()->GetVertexFormat() );
 	}
 
 	// Bind flex vertex buffer
 	if ( HasFlexMesh() )
 	{
-		g_pShaderAPIDx11->BindVertexBuffer( 2, m_pFlexVertexBuffer, m_nFlexVertOffsetInBytes, -1, m_flexVertCount, GetVertexFormat() );
+		g_pShaderAPIDx11->BindVertexBuffer( 2, m_pFlexVertexBuffer, m_nFlexVertOffsetInBytes, -1,
+						    m_flexVertCount, m_pFlexVertexBuffer->GetVertexFormat() );
 	}
 
 	// Bind vertex ID buffer

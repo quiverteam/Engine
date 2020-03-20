@@ -224,7 +224,7 @@ bool CShaderDeviceMgrDx11::ComputeCapsFromD3D( HardwareCaps_t *pCaps, IDXGIAdapt
 	pCaps->m_bSupportsAnisotropicFiltering = true;
 	pCaps->m_bSupportsMagAnisotropicFiltering = true;
 	pCaps->m_bSupportsVertexTextures = true;
-	pCaps->m_nMaxAnisotropy = 16;
+	pCaps->m_nMaxAnisotropy = D3D11_REQ_MAXANISOTROPY;
 	pCaps->m_MaxTextureWidth = D3D11_REQ_TEXTURE2D_U_OR_V_DIMENSION;
 	pCaps->m_MaxTextureHeight = D3D11_REQ_TEXTURE2D_U_OR_V_DIMENSION;
 	pCaps->m_MaxTextureDepth = D3D11_REQ_TEXTURE3D_U_V_OR_W_DIMENSION;
