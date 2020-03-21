@@ -176,7 +176,6 @@ struct DrawModelResults_t
 
 struct ColorMeshInfo_t
 {
-	CMeshBuilder			m_MeshBuilder;
 	IMesh				*	m_pMesh;
 	int						m_nNumVerts;
 };

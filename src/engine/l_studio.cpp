@@ -603,7 +603,6 @@ public:
 			pRenderContext->DestroyStaticMesh( m_pMeshInfos[i].m_pMesh );
 		}
 		delete [] m_pMeshInfos;
-		delete [] m_ppTargets;
 		delete this;
 	}
 
@@ -630,7 +629,6 @@ public:
 		data->m_nMeshes = params.m_nMeshes;
 		data->m_pMeshInfos = new ColorMeshInfo_t[params.m_nMeshes];
 		Q_memset( data->m_pMeshInfos, 0, params.m_nMeshes*sizeof( ColorMeshInfo_t ) );
-		data->m_ppTargets = new unsigned char *[params.m_nMeshes];
 
 		MaterialLock_t hLock = materials->Lock();
 		CMatRenderContextPtr pRenderContext( materials );
@@ -639,25 +637,16 @@ public:
 		{
 			VertexFormat_t vertexFormat = VERTEX_SPECULAR;
 
-			data->m_pMeshInfos[i].m_pMesh				= NULL;
 			data->m_pMeshInfos[i].m_nNumVerts			= params.m_nVertexes[i];
 
-			if ( data->m_pMeshInfos[i].m_pMesh == NULL )
-			{
-				if ( g_VBAllocTracker )
-					g_VBAllocTracker->TrackMeshAllocations( "CColorMeshData::CreateResource" );
+			if ( g_VBAllocTracker )
+				g_VBAllocTracker->TrackMeshAllocations( "CColorMeshData::CreateResource" );
 
-				// Allocate a standalone VB per color mesh
-				data->m_pMeshInfos[i].m_pMesh = pRenderContext->CreateStaticMesh( vertexFormat, TEXTURE_GROUP_STATIC_VERTEX_BUFFER_COLOR );
+			// Allocate a standalone VB per color mesh
+			data->m_pMeshInfos[i].m_pMesh = pRenderContext->CreateStaticMesh( vertexFormat, TEXTURE_GROUP_STATIC_VERTEX_BUFFER_COLOR );
 
-				// build out the underlying vertex buffer
-				// lock now in same thread as draw, otherwise d3drip
-				data->m_pMeshInfos[i].m_MeshBuilder.Begin( data->m_pMeshInfos[i].m_pMesh, MATERIAL_HETEROGENOUS, params.m_nVertexes[i], 0 );
-				data->m_ppTargets[i] = data->m_pMeshInfos[i].m_MeshBuilder.Specular();
-
-				if ( g_VBAllocTracker )
-					g_VBAllocTracker->TrackMeshAllocations( NULL );
-			}
+			if ( g_VBAllocTracker )
+				g_VBAllocTracker->TrackMeshAllocations( NULL );
 
 			Assert( data->m_pMeshInfos[i].m_pMesh );
 			if ( !data->m_pMeshInfos[i].m_pMesh )
@@ -679,7 +668,6 @@ public:
 
 	int					m_nMeshes;
 	ColorMeshInfo_t		*m_pMeshInfos;
-	unsigned char		**m_ppTargets;
 	unsigned int		m_nTotalSize;
 	FSAsyncControl_t	m_hAsyncControl;
 	unsigned int		m_bColorMeshValid : 1;
@@ -3559,16 +3547,19 @@ void CModelRender::StaticPropColorMeshCallback( void *pContext, const void *pDat
 	for ( meshID = startMesh; meshID<pVhvHdr->m_nMeshes; meshID++ )
 	{
 		int iMesh = meshID - startMesh;
+		ColorMeshInfo_t &pInfo = pStaticPropContext->m_pColorMeshData->m_pMeshInfos[iMesh];
+		
 		int numVertexes = pVhvHdr->pMesh( meshID )->m_nVertexes;
-		if ( numVertexes != pStaticPropContext->m_pColorMeshData->m_pMeshInfos[iMesh].m_nNumVerts )
+		if ( numVertexes != pInfo.m_nNumVerts )
 		{
 			// meshes are out of sync, discard data
 			break;
 		}
-		V_memcpy( (void*)pStaticPropContext->m_pColorMeshData->m_ppTargets[iMesh], pVhvHdr->pVertexBase( meshID ), numVertexes*4 );
 
-		// It's safe to unlock ourselves.
-		pStaticPropContext->m_pColorMeshData->m_pMeshInfos[iMesh].m_MeshBuilder.End();
+		CMeshBuilder builder;
+		builder.Begin( pInfo.m_pMesh, MATERIAL_HETEROGENOUS, numVertexes, 0 );
+		V_memcpy( (void *)builder.Specular(), pVhvHdr->pVertexBase( meshID ), numVertexes * 4 );
+		builder.End();
 	}
 
 cleanUp:
