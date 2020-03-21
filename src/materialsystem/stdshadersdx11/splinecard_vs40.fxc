@@ -37,7 +37,7 @@ struct VS_INPUT
 
 struct VS_OUTPUT
 {
-    float4 projPos			: POSITION;	
+    float4 projPos			: SV_POSITION;	
 
 	float2 texCoord0		: TEXCOORD0;
 	float2 texCoord1		: TEXCOORD1;

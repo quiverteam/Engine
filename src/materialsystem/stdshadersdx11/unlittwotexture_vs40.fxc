@@ -26,7 +26,7 @@ struct VS_INPUT
 {
 	float4 vPos				: POSITION;
 	float4 vBoneWeights		: BLENDWEIGHT;
-	float4 vBoneIndices		: BLENDINDICES;
+	uint4 vBoneIndices		: BLENDINDICES;
 	// make these float2's and stick the [n n 0 1] in the dot math.
 	float4 vTexCoord0		: TEXCOORD0;
 };

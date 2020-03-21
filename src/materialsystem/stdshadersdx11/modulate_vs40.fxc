@@ -25,7 +25,7 @@ struct VS_INPUT
 {
 	float4 vPos			: POSITION;
 	float4 vBoneWeights	: BLENDWEIGHT;
-	float4 vBoneIndices	: BLENDINDICES;
+	uint4 vBoneIndices	: BLENDINDICES;
 	float4 vNormal		: NORMAL;
 
 	float4 vColor		: COLOR;
