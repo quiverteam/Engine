@@ -18,7 +18,7 @@ CAudioSourceMP3::CAudioSourceMP3( CSfxTable *pSfx )
 
 	m_dataStart = 0;
 
-	int file = g_pSndIO->open( pSfx->GetFileName() );
+	intp file = g_pSndIO->open( pSfx->GetFileName() );
 	if ( file != -1 )
 	{
 		m_dataSize = g_pSndIO->size( file );
@@ -94,7 +94,7 @@ bool CAudioSourceMP3::GetStartupData( void *dest, int destsize, int& bytesCopied
 {
 	bytesCopied = 0;
 
-	int file = g_pSndIO->open( m_pSfx->GetFileName() );
+	intp file = g_pSndIO->open( m_pSfx->GetFileName() );
 	if ( !file )
 	{
 		return false;
