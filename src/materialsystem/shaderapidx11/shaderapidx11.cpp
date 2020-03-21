@@ -494,7 +494,11 @@ void CShaderAPIDx11::DoIssueShaderState( bool bForce )
 	{
 		//VPROF_BUDGET( "CShaderAPIDx11::IssueViewMatrix", VPROF_BUDGETGROUP_OTHER_UNACCOUNTED );
 
+#ifdef _DEBUG
+		const DirectX::XMMATRIX view = GetMatrix( MATERIAL_VIEW );
+#else
 		const DirectX::XMMATRIX &view = GetMatrix( MATERIAL_VIEW );
+#endif
 		// Row-major -> column-major
 		pPerFrameConstants->cViewMatrix = DirectX::XMMatrixTranspose( view );
 
@@ -514,8 +518,13 @@ void CShaderAPIDx11::DoIssueShaderState( bool bForce )
 	{
 		//VPROF_BUDGET( "CShaderAPIDx11::IssueModelMatrix", VPROF_BUDGETGROUP_OTHER_UNACCOUNTED );
 
+#ifdef _DEBUG
+		const DirectX::XMMATRIX model = GetMatrix( MATERIAL_MODEL );
+#else
+		const DirectX::XMMATRIX &model = GetMatrix( MATERIAL_MODEL );
+#endif
 		// Row-major -> column-major
-		pPerModelConstants->cModelMatrix = DirectX::XMMatrixTranspose( GetMatrix( MATERIAL_MODEL ) );
+		pPerModelConstants->cModelMatrix = DirectX::XMMatrixTranspose( model );
 
 		m_ShaderState.m_ChangedMatrices[MATERIAL_MODEL] = false;
 
@@ -526,8 +535,13 @@ void CShaderAPIDx11::DoIssueShaderState( bool bForce )
 	{
 		//VPROF_BUDGET( "CShaderAPIDx11::IssueProjMatrix", VPROF_BUDGETGROUP_OTHER_UNACCOUNTED );
 
+#ifdef _DEBUG
+		const DirectX::XMMATRIX proj = GetMatrix( MATERIAL_PROJECTION );
+#else
+		const DirectX::XMMATRIX &proj = GetMatrix( MATERIAL_PROJECTION );
+#endif
 		// Row-major -> column-major
-		pPerSceneConstants->cProjMatrix = DirectX::XMMatrixTranspose( GetMatrix( MATERIAL_PROJECTION ) );
+		pPerSceneConstants->cProjMatrix = DirectX::XMMatrixTranspose( proj );
 
 		m_ShaderState.m_ChangedMatrices[MATERIAL_PROJECTION] = false;
 
@@ -1336,7 +1350,7 @@ void CShaderAPIDx11::Draw( MaterialPrimitiveType_t primitiveType, int nFirstInde
 
 void CShaderAPIDx11::DrawIndexed( int nFirstIndex, int nIndexCount, int nBaseVertexLocation )
 {
-	Assert( m_State.dynamic.m_pVertexShader != NULL );
+	//Assert( m_State.dynamic.m_pVertexShader != NULL );
 	D3D11DeviceContext()->DrawIndexed( (UINT)nIndexCount, (UINT)nFirstIndex, (UINT)nBaseVertexLocation );
 	//g_pShaderDeviceDx11->Present();
 	//Log( "Presented" );

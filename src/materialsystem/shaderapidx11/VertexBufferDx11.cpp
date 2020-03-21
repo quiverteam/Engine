@@ -246,7 +246,7 @@ bool CVertexBufferDx11::Lock( int nMaxVertexCount, bool bAppend, VertexDesc_t& d
 
 bool CVertexBufferDx11::LockEx( int nFirstVertex, int nMaxVertexCount, VertexDesc_t &desc )
 {
-	Assert( !m_bIsLocked && ( nMaxVertexCount != 0 ) && ( nMaxVertexCount <= m_nVertexCount ) );
+	Assert( !m_bIsLocked && ( nMaxVertexCount <= m_nVertexCount ) );
 	Assert( m_VertexFormat != 0 );
 
 	// FIXME: Why do we need to sync matrices now?
