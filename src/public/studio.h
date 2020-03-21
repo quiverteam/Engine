@@ -2192,7 +2192,7 @@ struct studiohdr_t
 	inline void			SetVirtualModel( MDLHandle_t p ) { MDLHandle_t* ptr = ( MDLHandle_t* )( ( ( byte* )this ) + virtualModel ); *ptr = p; };
 	inline MDLHandle_t		VirtualModel( void ) const { MDLHandle_t* ptr = ( MDLHandle_t* )( ( ( byte* )this ) + virtualModel ); return ( MDLHandle_t )( *ptr ); };
 #else
-	inline void			SetVirtualModel( void *p ) { virtualModel = ( uint32 )p; };
+	inline void			SetVirtualModel( MDLHandle_t p ) { virtualModel = ( uint32 )p; };
 	inline MDLHandle_t		VirtualModel( void ) const { return ( MDLHandle_t )virtualModel; };
 #endif
 	virtualmodel_t		*GetVirtualModel( void ) const;
