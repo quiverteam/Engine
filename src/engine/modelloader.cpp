@@ -1730,8 +1730,11 @@ void *Hunk_AllocNameAlignedClear_( int size, int alignment, const char *pHunkNam
 	Assert(IsPowerOfTwo(alignment));
 	void *pMem = Hunk_AllocName( alignment + size, pHunkName );
 	memset( pMem, 0, size + alignment );
-	pMem = (void *)( ( ( ( unsigned long )pMem ) + (alignment-1) ) & ~(alignment-1) );
-
+#ifdef PLATFORM_64BITS
+	pMem = ( void* )( ( ( ( unsigned long long )pMem ) + ( alignment - 1 ) ) & ~( alignment - 1 ) );
+#else
+	pMem = ( void* )( ( ( ( unsigned long )pMem ) + ( alignment - 1 ) ) & ~( alignment - 1 ) );
+#endif
 	return pMem;
 }
 
@@ -1770,11 +1773,19 @@ void Mod_LoadFaces( void )
 	// align these allocations
 	// If you trip one of these, you need to rethink the alignment of the struct
 	Assert( sizeof(msurface1_t) == 16 );
-	Assert( sizeof(msurface2_t) == 32 );
+#ifdef PLATFORM_64BITS
+	Assert( sizeof( msurface2_t ) == 40 );
+#else
+	Assert( sizeof( msurface2_t ) == 32 );
+#endif
 	Assert( sizeof(msurfacelighting_t) == 32 );
 
 	msurface1_t *out1 = Hunk_AllocNameAlignedClear< msurface1_t >( count, 16, va( "%s [%s]", lh.GetLoadName(), "surface1" ) );
+#ifdef PLATFORM_64BITS
+	msurface2_t* out2 = Hunk_AllocNameAlignedClear< msurface2_t >( count, 40, va( "%s [%s]", lh.GetLoadName(), "surface2" ) );
+#else
 	msurface2_t *out2 = Hunk_AllocNameAlignedClear< msurface2_t >( count, 32, va( "%s [%s]", lh.GetLoadName(), "surface2" ) );
+#endif
 
 	msurfacelighting_t *pLighting = Hunk_AllocNameAlignedClear< msurfacelighting_t >( count, 32, va( "%s [%s]", lh.GetLoadName(), "surfacelighting" ) );
 
