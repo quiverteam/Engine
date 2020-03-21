@@ -236,6 +236,28 @@ namespace StatesDx11
 		// aggregate of the morph formats used by all snapshots in a material
 		MorphFormat_t morphFormat;
 
+		bool Equals( const ShadowStateDesc &other ) const
+		{
+			if ( vertexShader != other.vertexShader					||
+				staticVertexShaderIndex != other.staticVertexShaderIndex	||
+				pixelShader != other.pixelShader				||
+				staticPixelShaderIndex != other.staticPixelShaderIndex		||
+				geometryShader != other.geometryShader				||
+				staticGeometryShaderIndex != other.staticGeometryShaderIndex	||
+				vertexFormat != other.vertexFormat				||
+				morphFormat != other.morphFormat )
+			{
+				return false;
+			}
+
+			return ( blend == other.blend &&
+					depthStencil == other.depthStencil &&
+					rasterizer == other.rasterizer &&
+					vsConstantBuffers == other.vsConstantBuffers &&
+					gsConstantBuffers == other.gsConstantBuffers &&
+					psConstantBuffers == other.psConstantBuffers );
+		}
+
 		// Sets the default shadow state
 		void SetDefault()
 		{
@@ -278,7 +300,7 @@ namespace StatesDx11
 
 		bool operator==( const ShadowState &other ) const
 		{
-			return memcmp( &desc, &other.desc, sizeof( ShadowStateDesc ) ) == 0;
+			return desc.Equals( other.desc );
 		}
 
 		ShadowState()
