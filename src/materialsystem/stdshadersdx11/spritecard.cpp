@@ -345,6 +345,9 @@ BEGIN_VS_SHADER_FLAGS( Spritecard, "Help for Spritecard", SHADER_NOT_EDITABLE )
 				SET_DYNAMIC_VERTEX_SHADER_COMBO( ORIENTATION, nOrientation );
 				SET_DYNAMIC_VERTEX_SHADER( spritecard_vs40 );
 			}
+
+			DECLARE_DYNAMIC_PIXEL_SHADER( spritecard_ps40 );
+			SET_DYNAMIC_PIXEL_SHADER( spritecard_ps40 );
 		}
 		Draw( );
 	}

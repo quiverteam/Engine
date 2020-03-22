@@ -1035,7 +1035,7 @@ void CShaderAPIDx11::ClearBuffers( bool bClearColor, bool bClearDepth, bool bCle
 void CShaderAPIDx11::BindVertexShader( VertexShaderHandle_t hVertexShader )
 {
 	ID3D11VertexShader *pVertexShader = g_pShaderDeviceDx11->GetVertexShader( hVertexShader );
-	if ( m_DynamicState.m_pVertexShader != (ID3D11VertexShader *)hVertexShader )
+	if ( m_DynamicState.m_pVertexShader != pVertexShader )
 	{
 		SetStateFlag( STATE_CHANGED_VERTEXSHADER );
 	}
@@ -1050,7 +1050,7 @@ void CShaderAPIDx11::BindVertexShader( VertexShaderHandle_t hVertexShader )
 void CShaderAPIDx11::BindGeometryShader( GeometryShaderHandle_t hGeometryShader )
 {
 	ID3D11GeometryShader *pGeometryShader = g_pShaderDeviceDx11->GetGeometryShader( hGeometryShader );
-	if ( m_DynamicState.m_pGeometryShader != (ID3D11GeometryShader *)hGeometryShader )
+	if ( m_DynamicState.m_pGeometryShader != pGeometryShader )
 	{
 		SetStateFlag( STATE_CHANGED_GEOMETRYSHADER );
 	}
@@ -1060,7 +1060,7 @@ void CShaderAPIDx11::BindGeometryShader( GeometryShaderHandle_t hGeometryShader 
 void CShaderAPIDx11::BindPixelShader( PixelShaderHandle_t hPixelShader )
 {
 	ID3D11PixelShader *pPixelShader = g_pShaderDeviceDx11->GetPixelShader( hPixelShader );
-	if ( m_DynamicState.m_pPixelShader != (ID3D11PixelShader *)hPixelShader )
+	if ( m_DynamicState.m_pPixelShader != pPixelShader )
 	{
 		SetStateFlag( STATE_CHANGED_PIXELSHADER );
 	}

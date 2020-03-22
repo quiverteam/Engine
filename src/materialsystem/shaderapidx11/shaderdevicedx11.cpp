@@ -844,7 +844,6 @@ VertexShaderHandle_t CShaderDeviceDx11::CreateVertexShader( const void* pBuffer,
 {
 	// Create the vertex shader
 	ID3D11VertexShader* pShader = NULL;
-	Log( "Creating vertex shader with len %u\n", nBufLen );
 	HRESULT hr = m_pDevice->CreateVertexShader( pBuffer, nBufLen, NULL, &pShader );
 
 	if ( FAILED( hr ) || !pShader )
@@ -946,7 +945,6 @@ PixelShaderHandle_t CShaderDeviceDx11::CreatePixelShader( IShaderBuffer* pShader
 
 PixelShaderHandle_t CShaderDeviceDx11::CreatePixelShader( const void* pBuffer, size_t nBufLen )
 {
-	Log( "Creating pixel shader with len %u\n", nBufLen );
 	// Create the pixel shader
 	ID3D11PixelShader* pShader = NULL;
 	HRESULT hr = m_pDevice->CreatePixelShader( pBuffer,

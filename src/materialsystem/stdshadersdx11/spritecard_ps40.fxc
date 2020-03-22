@@ -24,12 +24,9 @@ cbuffer SpriteCard_CBuffer : register( b0 )
 	SpriteCard_t c;
 };
 
-#define g_Parameters c.g_Parameters
-#define g_DepthFeatheringConstants c.g_DepthFeatheringConstants
-
-#define fAdditiveBlendWeight		g_Parameters.x
-#define fOverbrightFactor			g_Parameters.y
-#define fAdditiveSelfBlendWeight	g_Parameters.z
+#define fAdditiveBlendWeight		c.g_Parameters.x
+#define fOverbrightFactor			c.g_Parameters.y
+#define fAdditiveSelfBlendWeight	c.g_Parameters.z
 
 struct PS_INPUT
 {
@@ -57,7 +54,7 @@ Texture2D BaseTexture		: register( t0 );
 sampler BaseTextureSampler	: register( s0 );
 Texture2D ColorRampTexture	: register( t1 );
 sampler ColorRampSampler	: register( s1 );
-Texture2D DepthTexture		: registeR( t2 );
+Texture2D DepthTexture		: register( t2 );
 sampler DepthSampler		: register( s2 );
 
 float4 main( PS_INPUT i ) : SV_TARGET
@@ -152,7 +149,7 @@ float4 main( PS_INPUT i ) : SV_TARGET
 	//Soft Particles FTW
 #	if (DEPTHBLEND == 1)
 		float fDepthBlend = DepthFeathering( DepthTexture, DepthSampler, i.vScreenPos.xy / i.vScreenPos.w,
-								i.vScreenPos.z, i.vScreenPos.w, g_DepthFeatheringConstants );
+								i.vScreenPos.z, i.vScreenPos.w, c.g_DepthFeatheringConstants );
 		i.argbcolor.a *= fDepthBlend;
 #	endif
 

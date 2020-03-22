@@ -461,7 +461,7 @@ float4 main( PS_INPUT i ) : SV_TARGET
 		diffuseLighting = float3(0.0f, 0.0f, 0.0f);
 	}
 
-	float3 worldSpaceNormal = float3(0.0f, 0.0f, 1.0f);
+	float3 worldSpaceNormal = i.worldSpaceNormal.xyz;
 	if ( bDiffuseLighting || bFlashlight || bCubemap || bSelfIllumFresnel )
 	{
 #if BUMPMAP
