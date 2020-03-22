@@ -1,4 +1,4 @@
-//========== Copyright © 2005, Valve Corporation, All rights reserved. ========
+//========== Copyright ï¿½ 2005, Valve Corporation, All rights reserved. ========
 //
 // Purpose:
 //
@@ -16,80 +16,6 @@
 
 ConVar mat_report_queue_status("mat_report_queue_status", "0");
 
-//-----------------------------------------------------------------------------
-// 
-//-----------------------------------------------------------------------------
-
-#if defined( _WIN32 ) && !WIN64
-void FastCopy( byte *pDest, const byte *pSrc, size_t nBytes )
-{
-	if ( !nBytes )
-	{
-		return;
-	}
-
-#if !defined( _X360 )
-	if ( (size_t)pDest % 16 == 0 && (size_t)pSrc % 16 == 0 )
-	{
-		const int BYTES_PER_FULL = 128;
-		int nBytesFull = nBytes - ( nBytes % BYTES_PER_FULL );
-		for ( byte *pLimit = pDest + nBytesFull; pDest < pLimit; pDest += BYTES_PER_FULL, pSrc += BYTES_PER_FULL )
-		{
-			// memcpy( pDest, pSrc, BYTES_PER_FULL);
-			__asm
-			{
-				mov esi, pSrc
-				mov edi, pDest
-
-				movaps xmm0, [esi + 0]
-				movaps xmm1, [esi + 16]
-				movaps xmm2, [esi + 32]
-				movaps xmm3, [esi + 48]
-				movaps xmm4, [esi + 64]
-				movaps xmm5, [esi + 80]
-				movaps xmm6, [esi + 96]
-				movaps xmm7, [esi + 112]
-
-				movntps [edi + 0], xmm0
-				movntps [edi + 16], xmm1
-				movntps [edi + 32], xmm2
-				movntps [edi + 48], xmm3
-				movntps [edi + 64], xmm4
-				movntps [edi + 80], xmm5
-				movntps [edi + 96], xmm6
-				movntps [edi + 112], xmm7
-			}
-		}
-		nBytes -= nBytesFull;
-	}
-
-	if ( nBytes )
-	{
-		memcpy( pDest, pSrc, nBytes );
-	}
-#else
-	if ( (size_t)pDest % 4 == 0 && nBytes % 4 == 0 )
-	{
-		XMemCpyStreaming_WriteCombined( pDest, pSrc, nBytes );
-	}
-	else
-	{
-		// work around a bug in memcpy
-		if ((size_t)pDest % 2 == 0 && nBytes == 4)
-		{
-			*(reinterpret_cast<short *>(pDest)) = *(reinterpret_cast<const short *>(pSrc));
-			*(reinterpret_cast<short *>(pDest)+1) = *(reinterpret_cast<const short *>(pSrc)+1);
-		}
-		else
-		{
-			memcpy( pDest, pSrc, nBytes );
-		}
-	}
-#endif
-}
-#else
-#define FastCopy memcpy
-#endif
 
 //-----------------------------------------------------------------------------
 // 
@@ -436,7 +362,7 @@ public:
 			Assert( pDest );
 			if ( pDest )
 			{
-				FastCopy( (byte *)pDest, pVertexData, nBytesVerts );
+				memcpy( (byte *)pDest, pVertexData, nBytesVerts );
 			}
 		}
 
@@ -445,7 +371,7 @@ public:
 			if ( !desc.m_nFirstVertex )
 			{
 				// AssertMsg(desc.m_pIndices & 0x03 == 0,"desc.m_pIndices is misaligned in CMatQueuedMesh::ExecuteDefferedBuild\n");
-				FastCopy( (byte *)desc.m_pIndices, (byte *)pIndexData, nIndices * sizeof(*pIndexData) );
+				memcpy( (byte *)desc.m_pIndices, (byte *)pIndexData, nIndices * sizeof(*pIndexData) );
 			}
 			else
 			{
@@ -464,7 +390,7 @@ public:
 					{
 						tempIndices[j] = pIndexData[i+j] + desc.m_nFirstVertex;
 					}
-					FastCopy( (byte *)(desc.m_pIndices + i), (byte *)tempIndices, nToCopy * sizeof(uint16)  );
+					memcpy( (byte *)(desc.m_pIndices + i), (byte *)tempIndices, nToCopy * sizeof(uint16)  );
 					i += nToCopy;
 				}
 			}
