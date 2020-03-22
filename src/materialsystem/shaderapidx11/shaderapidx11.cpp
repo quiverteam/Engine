@@ -98,8 +98,8 @@ ALIGN16 struct Flex_CBuffer_t
 ALIGN16 struct PerFrame_CBuffer_t
 {
 	DirectX::XMMATRIX cViewMatrix;
-	DirectX::XMFLOAT4 cTonemappingScale;
 	DirectX::XMFLOAT4 cEyePos;
+	DirectX::XMFLOAT4 cTonemappingScale;
 	DirectX::XMFLOAT4 cFlashlightPos;
 };
 
@@ -119,10 +119,7 @@ ALIGN16 struct PerScene_CBuffer_t
 	// Only cFlexScale.x is used
 	// It is a binary value used to switch on/off the addition of the flex delta stream
 	DirectX::XMFLOAT4 cFlexScale;
-	DirectX::XMFLOAT4 cLinearFogColor;
-	DirectX::XMFLOAT4 cFogParams;
-	DirectX::XMFLOAT4 cFogColor;
-	DirectX::XMFLOAT4 cFogZ;
+	// NOTE: Fog has moved to per-material constants, defined and requested by each shader.
 };
 
 enum
@@ -616,38 +613,6 @@ void CShaderAPIDx11::DoIssueShaderState( bool bForce )
 		memcpy( pPerModelConstants->cAmbientCube, m_ShaderState.light.m_AmbientLightCube, sizeof( DirectX::XMFLOAT3A ) * 6 );
 		m_ShaderState.light.m_bAmbientChanged = false;
 		bPerModelChanged = true;
-	}
-
-	//
-	// Fog
-	//
-
-	if ( bForce || m_ShaderState.fog.m_bFogChanged )
-	{
-		//VPROF_BUDGET( "CShaderAPIDx11::IssueFogState", VPROF_BUDGETGROUP_OTHER_UNACCOUNTED );
-
-		float ooFogRange = 1.0f;
-		float fStart = m_ShaderState.fog.m_flFogStart;
-		float fEnd = m_ShaderState.fog.m_flFogEnd;
-		// Check for divide by zero
-		if ( fStart != fEnd )
-		{
-			ooFogRange = 1.0f / ( fEnd - fStart );
-		}
-
-		pPerSceneConstants->cFogParams.x = ooFogRange * fEnd;
-		pPerSceneConstants->cFogParams.y = 1.0f;
-		pPerSceneConstants->cFogParams.z = 1.0f - clamp( m_ShaderState.fog.m_flFogMaxDensity, 0.0f, 1.0f );
-		pPerSceneConstants->cFogParams.w = ooFogRange;
-		pPerSceneConstants->cFogZ.x = m_ShaderState.fog.m_flFogZ;
-		pPerSceneConstants->cFogColor.x = m_ShaderState.fog.m_FogColor[0];
-		pPerSceneConstants->cFogColor.y = m_ShaderState.fog.m_FogColor[1];
-		pPerSceneConstants->cFogColor.z = m_ShaderState.fog.m_FogColor[2];
-		pPerSceneConstants->cFogColor.w = 1.0f;
-
-		bPerSceneChanged = true;
-
-		m_ShaderState.fog.m_bFogChanged = false;
 	}
 
 	//
@@ -2335,34 +2300,131 @@ int CShaderAPIDx11::GetPixelFogCombo()
 
 void CShaderAPIDx11::FogColor3f( float r, float g, float b )
 {
-	m_ShaderState.fog.m_FogColor[0] = r;
-	m_ShaderState.fog.m_FogColor[1] = g;
-	m_ShaderState.fog.m_FogColor[2] = b;
-	m_ShaderState.fog.m_bFogChanged = true;
 }
 
 void CShaderAPIDx11::FogColor3fv( float const *rgb )
 {
-	m_ShaderState.fog.m_FogColor[0] = rgb[0];
-	m_ShaderState.fog.m_FogColor[1] = rgb[1];
-	m_ShaderState.fog.m_FogColor[2] = rgb[2];
-	m_ShaderState.fog.m_bFogChanged = true;
 }
 
 void CShaderAPIDx11::FogColor3ub( unsigned char r, unsigned char g, unsigned char b )
 {
-	m_ShaderState.fog.m_FogColor[0] = r / 255.0f;
-	m_ShaderState.fog.m_FogColor[1] = g / 255.0f;
-	m_ShaderState.fog.m_FogColor[2] = b / 255.0f;
-	m_ShaderState.fog.m_bFogChanged = true;
 }
 
 void CShaderAPIDx11::FogColor3ubv( unsigned char const *rgb )
 {
-	m_ShaderState.fog.m_FogColor[0] = rgb[0] / 255.0f;
-	m_ShaderState.fog.m_FogColor[1] = rgb[1] / 255.0f;
-	m_ShaderState.fog.m_FogColor[2] = rgb[2] / 255.0f;
-	m_ShaderState.fog.m_bFogChanged = true;
+}
+
+void CShaderAPIDx11::GetFogColor( float *rgb )
+{
+	const StatesDx11::ShadowState *state = g_pShaderShadowDx11->GetShadowState( m_CurrentSnapshot );
+}
+
+void CShaderAPIDx11::GetFogParamsAndColor( float *fogParams, float *rgba )
+{
+	const StatesDx11::ShadowState *state = g_pShaderShadowDx11->GetShadowState( m_CurrentSnapshot );
+
+	// Compute fog parameters
+
+	if ( GetSceneFogMode() != MATERIAL_FOG_NONE && state->desc.fogMode != SHADER_FOGMODE_DISABLED )
+	{
+		float fStart = m_ShaderState.fog.m_flFogStart;
+		float fEnd = m_ShaderState.fog.m_flFogEnd;
+
+		fogParams[0] = fStart * 2; // fog begin distance
+		fogParams[1] = fEnd * 1.5f; // fog end distance (fully fogged)
+		fogParams[2] = clamp( m_ShaderState.fog.m_flFogMaxDensity, 0.0f, 1.0f ); // Max fog factor
+		fogParams[3] = m_ShaderState.fog.m_flFogZ; // water height		
+	}
+	else
+	{
+		//emulating MATERIAL_FOG_NONE by setting the parameters so that CalcRangeFog() always returns 0. Gets rid of a dynamic combo across the ps2x set.
+		fogParams[0] = 1.0f; // begin
+		fogParams[1] = 1.0f; // end
+		fogParams[2] = 0.0f; // Max fog density
+		fogParams[3] = 0.0f; // water height
+
+		rgba[0] = 0.0f;
+		rgba[1] = 0.0f;
+		rgba[2] = 0.0f;
+		rgba[3] = 0.0f;
+
+		return;
+	}
+
+	// Compute fog color
+
+	ShaderFogMode_t fogMode = state->desc.fogMode;
+	bool bDisableFogGammaCorrection = state->desc.disableFogGammaCorrection;
+	bool bShouldGammaCorrect = true;			// By default, we'll gamma correct.
+	unsigned char rgb[3] = { 0 };
+
+	switch ( fogMode )
+	{
+	case SHADER_FOGMODE_BLACK:				// Additive decals
+		bShouldGammaCorrect = false;
+		break;
+	case SHADER_FOGMODE_OO_OVERBRIGHT:
+	case SHADER_FOGMODE_GREY:				// Mod2x decals
+		rgb[0] = rgb[1] = rgb[2] = 128;
+		break;
+	case SHADER_FOGMODE_WHITE:				// Multiplicative decals
+		rgb[0] = rgb[1] = rgb[2] = 255;
+		bShouldGammaCorrect = false;
+		break;
+	case SHADER_FOGMODE_FOGCOLOR:
+		GetSceneFogColor( rgb );		// Scene fog color
+		break;
+		NO_DEFAULT
+	}
+
+	rgba[0] = rgb[0] / 255.0f;
+	rgba[1] = rgb[1] / 255.0f;
+	rgba[2] = rgb[2] / 255.0f;
+	rgba[3] = 1.0f;
+
+	bShouldGammaCorrect &= !bDisableFogGammaCorrection;
+	if ( bShouldGammaCorrect )
+	{
+		GammaCorrectFogColor( rgba );
+	}
+}
+
+void CShaderAPIDx11::GammaCorrectFogColor( float *rgb )
+{
+	bool bLinearSpace = g_pHardwareConfig->GetHDRType() == HDR_TYPE_FLOAT;
+
+	bool bScaleFogByToneMappingScale = false;//g_pHardwareConfig->GetHDRType() == HDR_TYPE_INTEGER;
+
+	float fr = rgb[0];
+	float fg = rgb[1];
+	float fb = rgb[2];
+	if ( bLinearSpace )
+	{
+		fr = GammaToLinear( fr );
+		fg = GammaToLinear( fg );
+		fb = GammaToLinear( fb );
+		if ( bScaleFogByToneMappingScale )
+		{
+			fr *= m_ShaderState.m_ToneMappingScale.x;		//
+			fg *= m_ShaderState.m_ToneMappingScale.x;		// Linear
+			fb *= m_ShaderState.m_ToneMappingScale.x;		//
+		}
+	}
+
+	else if ( bScaleFogByToneMappingScale )
+	{
+		fr *= m_ShaderState.m_ToneMappingScale.w;			//
+		fg *= m_ShaderState.m_ToneMappingScale.w;			// Gamma
+		fb *= m_ShaderState.m_ToneMappingScale.w;			//
+	}
+
+	fr = min( fr, 1.0f );
+	fg = min( fg, 1.0f );
+	fb = min( fb, 1.0f );
+
+	rgb[0] = fr;
+	rgb[1] = fg;
+	rgb[2] = fb;
 }
 
 // KMS

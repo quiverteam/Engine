@@ -236,6 +236,11 @@ namespace StatesDx11
 		// aggregate of the morph formats used by all snapshots in a material
 		MorphFormat_t morphFormat;
 
+		// Set this to something other than SHADER_FOGMODE_DISABLED
+		// to override the scene fog color
+		ShaderFogMode_t fogMode;
+		bool disableFogGammaCorrection;
+
 		bool Equals( const ShadowStateDesc &other ) const
 		{
 			if ( vertexShader != other.vertexShader					||
@@ -245,7 +250,9 @@ namespace StatesDx11
 				geometryShader != other.geometryShader				||
 				staticGeometryShaderIndex != other.staticGeometryShaderIndex	||
 				vertexFormat != other.vertexFormat				||
-				morphFormat != other.morphFormat )
+				morphFormat != other.morphFormat				||
+				fogMode != other.fogMode					||
+				disableFogGammaCorrection != other.disableFogGammaCorrection )
 			{
 				return false;
 			}
@@ -278,6 +285,8 @@ namespace StatesDx11
 
 			vertexFormat = VERTEX_FORMAT_UNKNOWN;
 			morphFormat = 0;
+
+			fogMode = SHADER_FOGMODE_FOGCOLOR;
 		}
 
 		ShadowStateDesc()

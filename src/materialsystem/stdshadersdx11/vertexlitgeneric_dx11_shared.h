@@ -24,7 +24,7 @@ struct VertexLitAndUnlitGeneric_t
 	float4 g_EnvmapContrast_ShadowTweaks;
 	float4 g_SelfIllumTint_and_BlendFactor;
 	float4 g_DepthFeatheringConstants;
-	float4 g_ShaderControls;
+	int4 g_ShaderControls;
 
 	// Pixel shader (phong)
 	float4 g_FresnelSpecParams;
@@ -34,6 +34,9 @@ struct VertexLitAndUnlitGeneric_t
 	float4 g_SpecExponent;
 
 	int4 g_DetailBlendMode;
+
+	float4 g_FogParams;
+	float4 g_FogColor;
 
 	float g_AlphaTestRef;
 };

@@ -333,6 +333,12 @@ void CShaderShadowDx11::EnableAlphaToCoverage( bool bEnable )
 	m_ShadowState.blend.AlphaToCoverageEnable = bEnable ? TRUE : FALSE;
 }
 
+void CShaderShadowDx11::FogMode( ShaderFogMode_t fogMode )
+{
+	m_ShadowState.fogMode = fogMode;
+}
+
+
 StateSnapshot_t CShaderShadowDx11::FindOrCreateSnapshot()
 {
 	StatesDx11::ShadowState lookup;
@@ -550,12 +556,6 @@ void CShaderShadowDx11::EnableSRGBRead( Sampler_t stage, bool bEnable )
 {
 	//Warning( "Unsupported CShaderShadowDx11::EnableSRGBRead() called\n" );
 }
-
-void CShaderShadowDx11::FogMode( ShaderFogMode_t fogMode )
-{
-	//Warning( "Unsupported CShaderShadowDx11::FogMode() called\n" );
-}
-
 void CShaderShadowDx11::SetDiffuseMaterialSource( ShaderMaterialSource_t materialSource )
 {
 	//Warning( "Unsupported CShaderShadowDx11::SetDiffuseMaterialSource() called\n" );
@@ -579,7 +579,7 @@ void CShaderShadowDx11::OverbrightValue( TextureStage_t stage, float value )
 
 void CShaderShadowDx11::DisableFogGammaCorrection( bool bDisable )
 {
-	//Warning( "Unsupported CShaderShadowDx11::DisableFogGammaCorrection() called\n" );
+	m_ShadowState.disableFogGammaCorrection = bDisable;
 }
 
 void CShaderShadowDx11::EnableSpecular( bool bEnable )

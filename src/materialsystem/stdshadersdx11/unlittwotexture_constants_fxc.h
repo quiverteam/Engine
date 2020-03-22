@@ -9,6 +9,8 @@ struct UnlitTwoTexture_t
 
 	// psh
 	float4 cModulationColor;
+	float4 g_FogParams;
+	float4 g_FogColor;
 };
 
 #endif // UNLITTWOTEXTURE_CONSTANTS_FXC_H_

@@ -43,6 +43,9 @@ ALIGN16 struct LightmappedGeneric_CBuffer_t
 
 	IntVector4D g_DetailBlendMode;
 
+	Vector4D g_FogParams;
+	Vector4D g_FogColor;
+
 	float g_AlphaTestRef;
 };
 

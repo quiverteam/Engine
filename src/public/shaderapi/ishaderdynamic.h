@@ -169,6 +169,8 @@ public:
 	virtual int GetCurrentNumBones( void ) const = 0;
 	virtual int GetCurrentLightCombo( void ) const = 0;
 
+	virtual void GetFogParamsAndColor( float *params, float *rgba ) = 0;
+	virtual void GetFogColor( float *rgb ) = 0;
 	virtual MaterialFogMode_t GetCurrentFogType( void ) const = 0;
 
 	// fixme: move this to shadow state

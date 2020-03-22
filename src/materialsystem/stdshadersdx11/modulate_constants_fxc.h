@@ -9,6 +9,8 @@ struct Modulate_t
 
 	// psh
 	float4 cWhiteGrayMix;
+	float4 g_FogParams;
+	float4 g_FogColor;
 };
 
 #endif // MODULATE_CONSTANTS_FXC_H_

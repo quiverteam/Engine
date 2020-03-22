@@ -29,8 +29,8 @@ cbuffer Flex_t : reg \
 cbuffer PerFrame_t : reg \
 { \
 	float4x4 cViewMatrix; \
-	float4 cToneMappingScale; \
 	float4 cEyePos; \
+	float4 cToneMappingScale; \
 	float4 cFlashlightPos; \
 };
 
@@ -45,10 +45,6 @@ cbuffer PerScene_t : reg \
 	float4 cShadowTweaks; \
 	float4 cConstants; \
 	float4 cFlexScale; \
-	float4 cLinearFogColor; \
-	float4 cFogParams; \
-	float4 cFogColor; \
-	float4 cFogZ; \
 };
 
 #endif // COMMON_CBUFFERS_H_

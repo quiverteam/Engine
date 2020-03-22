@@ -72,6 +72,7 @@ SHADER_DRAW
 
 		SetPixelShaderConstantBuffer( 0, SHADER_CONSTANTBUFFER_PERSCENE );
 		SetPixelShaderConstantBuffer( 1, SHADER_CONSTANTBUFFER_PERFRAME );
+		SetPixelShaderConstantBuffer( 2, CONSTANT_BUFFER( VertexLitGeneric ) );
 
 		// Be sure not to write to dest alpha
 		pShaderShadow->EnableAlphaWrites( false );
@@ -131,6 +132,7 @@ SHADER_DRAW
 			constants.cBaseTextureTransform[0].Init( 1.0f, 0.0f, 0.0f, 0.0f );
 			constants.cBaseTextureTransform[1].Init( 0.0f, 1.0f, 0.0f, 0.0f );
 			SetHWMorphVertexShaderState( constants.cMorphDimensions, constants.cMorphSubrect, SHADER_VERTEXTEXTURE_SAMPLER0 );
+			pShaderAPI->GetFogParamsAndColor( constants.g_FogParams.Base(), constants.g_FogColor.Base() );
 			UPDATE_CONSTANT_BUFFER( VertexLitGeneric, constants );
 
 			MaterialFogMode_t fogType = s_pShaderAPI->GetSceneFogMode();

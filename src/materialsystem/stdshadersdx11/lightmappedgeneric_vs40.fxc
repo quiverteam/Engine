@@ -67,7 +67,9 @@ struct VS_OUTPUT
 
 #if TANGENTSPACE || (LIGHTING_PREVIEW)
 	float3x3 tangentSpaceTranspose	: TEXCOORD5;	// and 6 and 7
-#endif			
+#endif
+
+	float3 eyePos					: COLOR1;
 };
 
 VS_OUTPUT main( const VS_INPUT v )
@@ -78,6 +80,8 @@ VS_OUTPUT main( const VS_INPUT v )
 	DecompressVertex_Normal( v.vNormal, vObjNormal );
 
 	float3 worldPos = mul( float4( v.vPos, 1 ), cModelMatrix ).xyz;
+
+	o.eyePos = mul(float4(worldPos, 1), cViewMatrix).xyz;
 
 	float4 vProjPos = ComputeProjPos(v.vPos.xyz, cModelMatrix, cViewMatrix, cProjMatrix);
 	o.projPos = vProjPos;

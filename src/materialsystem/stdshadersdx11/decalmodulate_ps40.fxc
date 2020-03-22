@@ -9,11 +9,17 @@ CBUFFER_PERFRAME( register( b1 ) )
 
 #include "common_ps_fxc.h"
 
+#include "vertexlitgeneric_dx11_shared.h"
+
+cbuffer DecalModulate_CBuffer : register( b2 )
+{
+	VertexLitAndUnlitGeneric_t c;
+};
+
 Texture2D Tex : register( t0 );
 sampler TexSampler	: register( s0 );
 
-#define g_FogParams cFogParams
-#define g_EyePos cEyePos.xyz
+#define g_EyePos cEyePos
 
 struct PS_INPUT
 {
@@ -27,19 +33,19 @@ struct PS_INPUT
     float3 worldSpaceNormal         : TEXCOORD4;
 	float4 worldPos_projPosZ		: TEXCOORD5;		// Necessary for pixel fog
 
-	float4 fogFactorW				: COLOR1;
+	float3 eyeSpacePos				: COLOR0;
 };
 
 float4 main( PS_INPUT i ) : SV_TARGET
 {
 	float4 result = Tex.Sample( TexSampler, i.baseTexCoord );
 	
-	float fogFactor = CalcPixelFogFactor( PIXELFOGTYPE, g_FogParams, g_EyePos.z, i.worldPos_projPosZ.z, i.worldPos_projPosZ.w );
+	float fogFactor = CalcPixelFogFactor( PIXELFOGTYPE, c.g_FogParams, g_EyePos.z, i.worldPos_projPosZ.z, length( i.eyeSpacePos ) );
 	
 	// Since we're blending with a mod2x, we need to compensate with this hack
 	// NOTE: If the fog color (not fog density) is extremely dark, this can makes some decals seem
 	//       a little transparent, but it's better than not doing this
 	fogFactor = pow( saturate( fogFactor ), 0.4f );
 
-	return FinalOutput( result, fogFactor, PIXELFOGTYPE, TONEMAP_SCALE_NONE );
+	return FinalOutput( result, fogFactor, PIXELFOGTYPE, c.g_FogColor, TONEMAP_SCALE_NONE );
 }

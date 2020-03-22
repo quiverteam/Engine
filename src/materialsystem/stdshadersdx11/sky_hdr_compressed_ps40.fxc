@@ -1,5 +1,7 @@
 // DYNAMIC: "WRITE_DEPTH_TO_DESTALPHA"	"0..1"
 #include "common_ps_fxc.h"
+#include "common_cbuffers_fxc.h"
+CBUFFER_PERFRAME(register(b0))
 
 Texture2D ExposureTexture0		: register( t0 );
 sampler ExposureTextureSampler0	: register( s0 );
@@ -26,5 +28,6 @@ float4 main( PS_INPUT i ) : SV_TARGET
 	HALF3 color2 = 16.0*ExposureTexture2.Sample( ExposureTextureSampler2, i.baseTexCoord );
 
 	// This is never fogged.
-	return FinalOutput( float4(1,0,0,1 ), 0, PIXEL_FOG_TYPE_NONE, TONEMAP_SCALE_LINEAR, WRITE_DEPTH_TO_DESTALPHA, 1e20 ); //when writing depth to dest alpha, write a value guaranteed to saturate
+	return FinalOutput( float4(1,0,0,1 ), 0, PIXEL_FOG_TYPE_NONE, float4(0, 0, 0, 1),
+						TONEMAP_SCALE_LINEAR, cToneMappingScale, WRITE_DEPTH_TO_DESTALPHA, 1e20 ); //when writing depth to dest alpha, write a value guaranteed to saturate
 }

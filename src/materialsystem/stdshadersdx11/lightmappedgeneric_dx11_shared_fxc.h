@@ -24,6 +24,9 @@ struct LightmappedGeneric_t
 
 	int4 g_DetailBlendMode;
 
+	float4 g_FogParams;
+	float4 g_FogColor;
+
 	float g_AlphaTestRef;
 };
 

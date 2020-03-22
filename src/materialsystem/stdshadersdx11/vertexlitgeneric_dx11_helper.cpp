@@ -1039,6 +1039,9 @@ static void DrawVertexLitGeneric_DX11_Internal( CBaseVSShader *pShader, IMateria
 		CCommandBufferBuilder< CFixedCommandStorageBuffer< 1000 > > DynamicCmdsOut;
 		DynamicCmdsOut.Call( pContextData->m_SemiStaticCmdsOut.Base() );
 
+		pShaderAPI->GetFogParamsAndColor( pContextData->m_Constants.g_FogParams.Base(),
+						  pContextData->m_Constants.g_FogColor.Base() );
+
 		if ( bHasEnvmap )
 		{
 			DynamicCmdsOut.BindTexture( pShader, SHADER_SAMPLER2, info.m_nEnvmap, info.m_nEnvmapFrame );
@@ -1160,14 +1163,11 @@ static void DrawVertexLitGeneric_DX11_Internal( CBaseVSShader *pShader, IMateria
 			pContextData->m_Constants.cDepthFeathering[0] = GetFloatParam( info.m_nDepthBlendScale, params, 50.0f );
 		}
 
-		float fPixelFogType = pShaderAPI->GetPixelFogCombo() == 1 ? 1 : 0;
-		float fWriteDepthToAlpha = bWriteDepthToAlpha && IsPC() ? 1 : 0;
-		float fWriteWaterFogToDestAlpha = ( pShaderAPI->GetPixelFogCombo() == 1 && bWriteWaterFogToAlpha ) ? 1 : 0;
-		float fVertexAlpha = bHasVertexAlpha ? 1 : 0;
-
-		// Controls for lerp-style paths through shader code (bump and non-bump have use different register)
-		float vShaderControls[4] = { fPixelFogType, fWriteDepthToAlpha, fWriteWaterFogToDestAlpha, fVertexAlpha };
-		pContextData->m_Constants.cShaderControls = vShaderControls;
+		int fPixelFogType = pShaderAPI->GetPixelFogCombo() == 1 ? 1 : 0;
+		int fWriteDepthToAlpha = bWriteDepthToAlpha && IsPC() ? 1 : 0;
+		int fWriteWaterFogToDestAlpha = ( pShaderAPI->GetPixelFogCombo() == 1 && bWriteWaterFogToAlpha ) ? 1 : 0;
+		int fVertexAlpha = bHasVertexAlpha ? 1 : 0;
+		pContextData->m_Constants.cShaderControls.Init( fPixelFogType, fWriteDepthToAlpha, fWriteWaterFogToDestAlpha, fVertexAlpha );
 
 		// flashlightfixme: put this in common code.
 		if ( bHasFlashlight )

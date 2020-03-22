@@ -268,7 +268,8 @@ BEGIN_VS_SHADER_FLAGS( Spritecard, "Help for Spritecard", SHADER_NOT_EDITABLE )
 				SET_STATIC_VERTEX_SHADER( spritecard_vs40 );
 			}
 
-			SetPixelShaderConstantBuffer( 0, CONSTANT_BUFFER( SpriteCard ) );
+			SetPixelShaderConstantBuffer( 0, SHADER_CONSTANTBUFFER_PERFRAME );
+			SetPixelShaderConstantBuffer( 1, CONSTANT_BUFFER( SpriteCard ) );
 
 			DECLARE_STATIC_PIXEL_SHADER( spritecard_ps40 );
 			SET_STATIC_PIXEL_SHADER_COMBO( ADDBASETEXTURE2, bAdditive2ndTexture );

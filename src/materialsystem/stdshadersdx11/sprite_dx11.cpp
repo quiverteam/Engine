@@ -27,6 +27,8 @@ CREATE_CONSTANT_BUFFER( Sprite )
 {
 	Vector4D cHDRColorScale;
 	Vector4D cModulationColor;
+	Vector4D cFogParams;
+	Vector4D cFogColor;
 };
 
 
@@ -185,6 +187,7 @@ BEGIN_VS_SHADER( Sprite_DX11,
 		{
 			psConsts.cHDRColorScale.Init( 0, 0, 0, 0 );
 		}
+		pShaderAPI->GetFogParamsAndColor( psConsts.cFogParams.Base(), psConsts.cFogColor.Base() );
 		
 		UPDATE_CONSTANT_BUFFER( Sprite, psConsts );
 
@@ -384,6 +387,7 @@ BEGIN_VS_SHADER( Sprite_DX11,
 					{
 						psConsts.cHDRColorScale.Init( 0, 0, 0, 0 );
 					}
+					pShaderAPI->GetFogParamsAndColor( psConsts.cFogParams.Base(), psConsts.cFogColor.Base() );
 
 					UPDATE_CONSTANT_BUFFER( Sprite, psConsts );
 				}
@@ -432,6 +436,7 @@ BEGIN_VS_SHADER( Sprite_DX11,
 					{
 						psConsts.cHDRColorScale.Init( 0, 0, 0, 0 );
 					}
+					pShaderAPI->GetFogParamsAndColor( psConsts.cFogParams.Base(), psConsts.cFogColor.Base() );
 
 					UPDATE_CONSTANT_BUFFER( Sprite, psConsts );
 				}

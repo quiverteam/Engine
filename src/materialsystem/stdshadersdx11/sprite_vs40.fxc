@@ -24,11 +24,11 @@ struct VS_INPUT
 struct VS_OUTPUT
 {
     float4 projPos					: SV_POSITION;			// Projection-space position
-	float  fog						: FOG;
 	HALF2 baseTexCoord				: TEXCOORD0;		// Base texture coordinate
 	float4 color					: TEXCOORD2;		// Vertex color (from lighting or unlit)
 	
 	float4 worldPos_projPosZ		: TEXCOORD7;		// Necessary for pixel fog
+	float3 eyeSpacePos				: TEXCOORD3;
 };
 
 
@@ -44,10 +44,10 @@ VS_OUTPUT main( const VS_INPUT v )
 	// Transform into projection space
 	float4 projPos = mul( float4( worldPos, 1 ), viewProj );
 	o.projPos = projPos;
+
+	o.eyeSpacePos = mul(float4(worldPos, 1), cViewMatrix).xyz;
 	
 	o.worldPos_projPosZ = float4( worldPos.xyz, projPos.z );
-	
-	o.fog = CalcFog( worldPos, projPos, cEyePos.xyz, g_FogType, cFogZ.x, cFogParams );
 
 	if ( g_bVertexColor )
 	{

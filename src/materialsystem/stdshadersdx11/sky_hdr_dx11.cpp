@@ -103,13 +103,15 @@ BEGIN_VS_SHADER( Sky_HDR_DX11, "Help for Sky_HDR_DX11 shader" )
 							SHADER_CONSTANTBUFFER_PERSCENE );
 			SetVertexShaderConstantBuffer( 3, CONSTANT_BUFFER( Sky_HDR ) );
 
+			SetPixelShaderConstantBuffer( 0, SHADER_CONSTANTBUFFER_PERFRAME );
+
 			DECLARE_STATIC_VERTEX_SHADER( sky_vs40 );
 			SET_STATIC_VERTEX_SHADER( sky_vs40 );
 
 			if ( (params[HDRCOMPRESSEDTEXTURE]->IsDefined()) &&
 				 mat_use_compressed_hdr_textures.GetBool() )
 			{
-				SetPixelShaderConstantBuffer( 0, CONSTANT_BUFFER( Sky_HDR ) );
+				SetPixelShaderConstantBuffer( 1, CONSTANT_BUFFER( Sky_HDR ) );
 
 				DECLARE_STATIC_PIXEL_SHADER( sky_hdr_compressed_rgbs_ps40 );
 				SET_STATIC_PIXEL_SHADER( sky_hdr_compressed_rgbs_ps40 );
@@ -123,7 +125,7 @@ BEGIN_VS_SHADER( Sky_HDR_DX11, "Help for Sky_HDR_DX11 shader" )
 				}
 				else
 				{
-					SetPixelShaderConstantBuffer( 0, CONSTANT_BUFFER( Sky_HDR ) );
+					SetPixelShaderConstantBuffer( 1, CONSTANT_BUFFER( Sky_HDR ) );
 
 					DECLARE_STATIC_PIXEL_SHADER( sky_ps40 );
 					SET_STATIC_PIXEL_SHADER( sky_ps40 );

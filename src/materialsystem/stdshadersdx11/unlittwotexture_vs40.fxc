@@ -36,9 +36,8 @@ struct VS_OUTPUT
     float4 projPos					: SV_POSITION;			// Projection-space position	
 	HALF2 baseTexCoord				: TEXCOORD0;		// Base texture coordinate
 	HALF2 baseTexCoord2				: TEXCOORD1;		// Base texture coordinate
+	float3 eyeSpacePos				: TEXCOORD2;
 	float4 worldPos_projPosZ		: TEXCOORD7;		// Necessary for water fog dest alpha
-	
-	float4 fogFactorW				: COLOR1;
 };
 
 VS_OUTPUT main( const VS_INPUT v )
@@ -61,7 +60,8 @@ VS_OUTPUT main( const VS_INPUT v )
 	// Transform into projection space
 	float4 projPos = mul( float4( worldPos, 1 ), viewProj );
 	o.projPos = projPos;
-	o.fogFactorW.w = CalcFog( worldPos.xyz, projPos.xyz, cEyePos.xyz, g_FogType, cFogZ, cFogParams );
+
+	o.eyeSpacePos = mul(float4(worldPos, 1), cViewMatrix).xyz;
 	
 	// Needed for water fog alpha; 
 	// FIXME: we shouldn't have to compute this all thie time.

@@ -39,6 +39,7 @@ struct VS_OUTPUT
 	float2 vTexCoord0	: TEXCOORD0;
 	float4 vColor		: COLOR0;
 	float4 worldPos_projPosZ : TEXCOORD1;		// Necessary for pixel fog
+	float3 eyeSpacePos	: COLOR1;
 };
 
 
@@ -57,6 +58,7 @@ VS_OUTPUT main( const VS_INPUT v )
 	float4x4 viewProj = mul( cViewMatrix, cProjMatrix );
 	o.vProjPos = mul( float4( worldPos, 1 ), viewProj );
 	o.worldPos_projPosZ = float4( worldPos.xyz, o.vProjPos.z );
+	o.eyeSpacePos = mul(float4(worldPos, 1), cViewMatrix).xyz;
 
 	//------------------------------------------------------------------------------
 	// Texture coord transforms

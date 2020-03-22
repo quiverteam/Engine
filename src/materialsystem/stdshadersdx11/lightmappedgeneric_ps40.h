@@ -91,7 +91,6 @@ cbuffer LightmappedGeneric_PS : register( b3 )
 
 #define g_flAlpha2 c.g_TintValuesAndLightmapScale.w
 #define g_EyePos cEyePos.xyz
-#define g_FogParams cFogParams
 
 Texture2D BaseTexture			: register( t0 );
 sampler BaseTextureSampler		: register( s0 );
@@ -167,13 +166,11 @@ struct PS_INPUT
 	// tangentSpaceTranspose				: TEXCOORD6
 	// tangentSpaceTranspose				: TEXCOORD7
 #endif
+
+	float3 eyePos : COLOR1;
 };
 
-#if LIGHTING_PREVIEW == 2
-LPREVIEW_PS_OUT main( PS_INPUT i ) : SV_TARGET
-#else
 float4 main( PS_INPUT i ) : SV_TARGET
-#endif
 {
 	bool bBaseTexture2 = BASETEXTURE2 ? true : false;
 	bool bDetailTexture = DETAILTEXTURE ? true : false;
@@ -519,27 +516,10 @@ float4 main( PS_INPUT i ) : SV_TARGET
 
 	float3 result = diffuseComponent + specularLighting;
 
-#if LIGHTING_PREVIEW
-#	if LIGHTING_PREVIEW == 1
-	float dotprod = 0.7 + 0.25 * dot( worldSpaceNormal, normalize( float3( 1, 2, -.5 ) ) );
-	return FinalOutput( float4( dotprod * albedo.xyz, alpha ), 0, PIXEL_FOG_TYPE_NONE, TONEMAP_SCALE_NONE );
-#	else
-	LPREVIEW_PS_OUT ret;
-	ret.color = float4( albedo.xyz,alpha );
-	ret.normal = float4( worldSpaceNormal,alpha );
-	ret.position = float4( i.worldPos_projPosZ.xyz, alpha );
-	ret.flags = float4( 1, 1, 1, alpha );
-
-	return FinalOutput( ret, 0, PIXEL_FOG_TYPE_NONE, TONEMAP_SCALE_NONE );
-#	endif
-#else // == end LIGHTING_PREVIEW ==
-
 #if ALPHATEST
 	if ( !GreaterEqualAlphaTest( alpha, c.g_AlphaTestRef ) )
 		discard;
 #endif
-
-	return float4( result.rgb, alpha );
 
 	bool bWriteDepthToAlpha = false;
 
@@ -548,9 +528,7 @@ float4 main( PS_INPUT i ) : SV_TARGET
 	bWriteDepthToAlpha = ( WRITE_DEPTH_TO_DESTALPHA != 0 ) && ( WRITEWATERFOGTODESTALPHA == 0 );
 #endif
 
-	//float fogFactor = CalcPixelFogFactor( PIXELFOGTYPE, g_FogParams, g_EyePos.xyz, i.worldPos_projPosZ.xyz, i.worldPos_projPosZ.w );
-	float fogFactor = CalcPixelFogFactor( PIXELFOGTYPE, g_FogParams, g_EyePos.z, i.worldPos_projPosZ.z, i.worldPos_projPosZ.w );
-
+	float fogFactor = CalcPixelFogFactor( PIXELFOGTYPE, c.g_FogParams, cEyePos.z, i.worldPos_projPosZ.z, length( i.eyePos ) );
 #if WRITEWATERFOGTODESTALPHA && (PIXELFOGTYPE == PIXEL_FOG_TYPE_HEIGHT)
 	alpha = fogFactor;
 #endif
@@ -560,8 +538,7 @@ float4 main( PS_INPUT i ) : SV_TARGET
 		discard;
 #endif
 
-	return FinalOutput( float4( result.rgb, alpha ), fogFactor, PIXELFOGTYPE, TONEMAP_SCALE_LINEAR, bWriteDepthToAlpha, i.worldPos_projPosZ.w );
-
-#endif
+	return FinalOutput( float4( result.rgb, alpha ), fogFactor, PIXELFOGTYPE, c.g_FogColor,
+			    TONEMAP_SCALE_LINEAR, cToneMappingScale, bWriteDepthToAlpha, i.worldPos_projPosZ.w );
 }
 

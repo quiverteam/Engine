@@ -17,9 +17,12 @@
 #define HDRTYPE HDR_TYPE_NONE
 #include "common_ps_fxc.h"
 
+#include "common_cbuffers_fxc.h"
+CBUFFER_PERFRAME(register(b0))
+
 #include "spritecard_constants_fxc.h"
 
-cbuffer SpriteCard_CBuffer : register( b0 )
+cbuffer SpriteCard_CBuffer : register( b1 )
 {
 	SpriteCard_t c;
 };
@@ -196,6 +199,6 @@ float4 main( PS_INPUT i ) : SV_TARGET
 	}
 #endif
 
-	return FinalOutput( blended_rgb, 0, PIXEL_FOG_TYPE_NONE, TONEMAP_SCALE_LINEAR );
+	return FinalOutput( blended_rgb, 0, PIXEL_FOG_TYPE_NONE, float4(0, 0, 0, 1), TONEMAP_SCALE_LINEAR, cToneMappingScale );
 }
 

@@ -107,6 +107,8 @@ public:
 	virtual void SetPixelShaderConstantBuffer( int slot, ConstantBufferHandle_t cbuffer );
 	virtual void SetPixelShaderConstantBuffer( int slot, ShaderInternalConstantBuffer_t cbuffer );
 
+	virtual void FogMode( ShaderFogMode_t fogMode );
+
 	// ---------------------------------------------------
 	// Below are unsupported by Dx11, only included to
 	// not break Dx9 compatibility.
@@ -115,7 +117,6 @@ public:
 	// Convert from linear to gamma color space on writes to frame buffer.
 	void EnableSRGBWrite( bool bEnable );
 	void EnableSRGBRead( Sampler_t stage, bool bEnable );
-	virtual void FogMode( ShaderFogMode_t fogMode );
 	virtual void SetDiffuseMaterialSource( ShaderMaterialSource_t materialSource );
 	void EnableTexGen( TextureStage_t stage, bool bEnable );
 	void TexGen( TextureStage_t stage, ShaderTexGenParam_t param );

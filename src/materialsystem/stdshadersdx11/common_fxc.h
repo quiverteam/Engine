@@ -302,4 +302,15 @@ float4 ComputeProjPos( const float3 vPos, const matrix model, const matrix view,
 	return projPos;
 }
 
+float4 ComputeEyeSpacePos( const float3 vPos, const matrix view, const matrix model )
+{
+	matrix viewModel = mul( view, model );
+	return mul( float4( vPos, 1 ), viewModel );
+}
+
+float4 WorldToEye( const float3 worldPos, const matrix view )
+{
+	return mul( float4( worldPos, 1 ), view );
+}
+
 #endif //#ifndef COMMON_FXC_H_

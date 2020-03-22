@@ -1149,6 +1149,9 @@ void DrawLightmappedGeneric_DX11_Internal( CBaseVSShader *pShader, IMaterialVar 
 		DynamicCmdsOut.Call( pContextData->m_pStaticCmds );
 		DynamicCmdsOut.Call( pContextData->m_SemiStaticCmdsOut.Base() );
 
+		pShaderAPI->GetFogParamsAndColor( pContextData->m_Constants.g_FogParams.Base(),
+						  pContextData->m_Constants.g_FogColor.Base() );
+
 		// Upload the constants to the gpu
 		pShaderAPI->UpdateConstantBuffer( g_hLightmappedGeneric_CBuffer, &pContextData->m_Constants );
 

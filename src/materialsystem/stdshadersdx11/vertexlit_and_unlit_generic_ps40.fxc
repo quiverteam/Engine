@@ -133,7 +133,6 @@ cbuffer VertexLitAndUnlitGeneric_t : register(b3)
 
 #define g_DiffuseModulation c.cModulationColor
 #define g_EyePos cEyePos
-#define g_FogParams cFogParams
 
 #define g_SelfIllumTint				c.g_SelfIllumTint_and_BlendFactor.xyz
 #define g_DetailBlendFactor			c.g_SelfIllumTint_and_BlendFactor.w
@@ -257,10 +256,10 @@ struct PS_INPUT
 #if WRINKLEMAP
 	float4 wrinkleHeight			: TEXCOORD7;
 #endif
-	float4 fogFactorW				: COLOR1;
 #if SEAMLESS_BASE || SEAMLESS_DETAIL
 	float3 SeamlessWeights          : COLOR0;				// x y z projection weights
 #endif
+	float3 eyeSpacePos				: COLOR1;
 };
 
 #define GLOW_UV_OFFSET c.g_GlowParameters.xy
@@ -287,8 +286,8 @@ struct PS_INPUT
 // Calculate unified fog
 float CalcPixelFogFactorConst( float fPixelFogType, const float4 fogParams, const float flEyePosZ, const float flWorldPosZ, const float flProjPosZ )
 {
-	float fRangeFog = CalcRangeFog( flProjPosZ, fogParams.x, fogParams.z, fogParams.w );
-	float fHeightFog = CalcWaterFogAlpha( fogParams.y, flEyePosZ, flWorldPosZ, flProjPosZ, fogParams.w );
+	float fRangeFog = CalcRangeFog( flProjPosZ, fogParams.x, fogParams.y, fogParams.z );
+	float fHeightFog = CalcWaterFogAlpha( fogParams.w, flEyePosZ, flWorldPosZ, flProjPosZ, fogParams.x );
 	return lerp( fRangeFog, fHeightFog, fPixelFogType );
 }
 
@@ -316,7 +315,7 @@ float4 FinalOutputConst( const float4 vShaderColor, float pixelFogFactor, float 
 
 	result.a = lerp( result.a, DepthToDestAlpha( flProjZ ), fWriteDepthToDestAlpha );
 
-	result.rgb = BlendPixelFogConst( result.rgb, pixelFogFactor, cLinearFogColor.rgb, fPixelFogType );
+	result.rgb = BlendPixelFogConst( result.rgb, pixelFogFactor, c.g_FogColor.rgb, fPixelFogType );
 	result.rgb = SRGBOutput( result.rgb ); //SRGB in pixel shader conversion
 
 	return result;
@@ -673,7 +672,7 @@ float4 main( PS_INPUT i ) : SV_TARGET
 		discard;
 #endif
 
-	return float4(result, alpha);
+	//return float4(result, alpha);
 
 #	if (DEPTHBLEND == 1)
 	{
@@ -687,10 +686,11 @@ float4 main( PS_INPUT i ) : SV_TARGET
 #	endif
 
 
-	float fogFactor = CalcPixelFogFactorConst( g_fPixelFogType, g_FogParams, g_EyePos.z, i.worldPos_projPosZ.z, i.projPos.z );
-	alpha = lerp( alpha, fogFactor, g_fPixelFogType * g_fWriteWaterFogToDestAlpha ); // Use the fog factor if it's height fog
+	float fogFactor = CalcPixelFogFactorConst( g_fPixelFogType, c.g_FogParams, g_EyePos.z, i.worldPos_projPosZ.z, length( i.eyeSpacePos ) );
+	//alpha = lerp( alpha, fogFactor, g_fPixelFogType * g_fWriteWaterFogToDestAlpha ); // Use the fog factor if it's height fog
 
-	return FinalOutputConst( float4( result.rgb, alpha ), fogFactor, g_fPixelFogType, TONEMAP_SCALE_LINEAR, g_fWriteDepthToAlpha, i.projPos.z );
+	return FinalOutputConst( float4( result.rgb, alpha ), fogFactor, g_fPixelFogType,
+							 TONEMAP_SCALE_LINEAR, g_fWriteDepthToAlpha, i.projPos.z );
 
 }
 

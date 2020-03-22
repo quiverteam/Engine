@@ -5,8 +5,10 @@ Texture2D RGBSTexture		: register( t0 );
 sampler RGBSTextureSampler	: register( s0 );
 
 #include "common_sky_fxc.h"
+#include "common_cbuffers_fxc.h"
+CBUFFER_PERFRAME(register(b0))
 
-cbuffer Sky_CBuffer : register(b0)
+cbuffer Sky_CBuffer : register(b1)
 {
 	Sky_t cSky;
 };
@@ -44,5 +46,6 @@ float4 main( PS_INPUT i ) : SV_TARGET
 	result = lerp(s00, s01, fracCoord.y); 
  
 	// This is never fogged.
-	return FinalOutput( float4( cSky.InputScale*result, 1.0f ), 0, PIXEL_FOG_TYPE_NONE, TONEMAP_SCALE_LINEAR, WRITE_DEPTH_TO_DESTALPHA, 1e20 ); //when writing depth to dest alpha, write a value guaranteed to saturate
+	return FinalOutput( float4( cSky.InputScale*result, 1.0f ), 0, PIXEL_FOG_TYPE_NONE, float4(0, 0, 0, 1),
+		TONEMAP_SCALE_LINEAR, cToneMappingScale, WRITE_DEPTH_TO_DESTALPHA, 1e20 ); //when writing depth to dest alpha, write a value guaranteed to saturate
 }

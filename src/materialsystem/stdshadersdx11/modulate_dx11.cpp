@@ -22,6 +22,8 @@ CREATE_CONSTANT_BUFFER( Modulate )
 
 	// psh
 	Vector4D WhiteGrayMix;
+	Vector4D FogParams;
+	Vector4D FogColor;
 };
 
 DEFINE_FALLBACK_SHADER( Modulate, Modulate_DX11 )
@@ -225,6 +227,8 @@ BEGIN_VS_SHADER( Modulate_DX11,
 					BindTexture( SHADER_SAMPLER0, BASETEXTURE, FRAME );
 					StoreVertexShaderTextureTransform( consts.BaseTextureTransform, BASETEXTURETRANSFORM );
 				}
+
+				pShaderAPI->GetFogParamsAndColor( consts.FogParams.Base(), consts.FogColor.Base() );
 
 				// set constant color for modulation
 				SetModulationDynamicState( consts.ModulationColor );

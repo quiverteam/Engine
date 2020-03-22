@@ -238,16 +238,12 @@ float CalcWaterFogAlpha( const float flWaterZ, const float flEyePosZ, const floa
 #endif
 }
 
-float CalcRangeFog( const float flProjPosZ, const float flFogEndOverRange, const float flFogMaxDensity, const float flFogOORange )
+float CalcRangeFog( const float flEyeDist, const float flFogStart, const float flFogEnd, const float flFogMaxDensity )
 {
-#if !(defined(SHADER_MODEL_PS_1_1) || defined(SHADER_MODEL_PS_1_4) || defined(SHADER_MODEL_PS_2_0)) //Minimum requirement of ps2b
-	return min( flFogMaxDensity, ( saturate( 1.0 - (flFogEndOverRange - (flProjPosZ * flFogOORange)) ) ) );
-#else
-	return 0.0f; //ps20 shaders will never have range fog enabled because too many ran out of slots.
-#endif
+	return min( flFogMaxDensity, ( flFogEnd - flEyeDist ) / ( flFogEnd - flFogStart ) );
 }
 
-float CalcPixelFogFactor( int iPIXELFOGTYPE, const float4 fogParams, const float flEyePosZ, const float flWorldPosZ, const float flProjPosZ )
+float CalcPixelFogFactor( int iPIXELFOGTYPE, const float4 fogParams, const float flEyePosZ, const float flWorldPosZ, const float flEyeDist )
 {
 	float retVal;
 	if ( iPIXELFOGTYPE == PIXEL_FOG_TYPE_NONE )
@@ -256,21 +252,21 @@ float CalcPixelFogFactor( int iPIXELFOGTYPE, const float4 fogParams, const float
 	}
 	if ( iPIXELFOGTYPE == PIXEL_FOG_TYPE_RANGE ) //range fog, or no fog depending on fog parameters
 	{
-		retVal = CalcRangeFog( flProjPosZ, fogParams.x, fogParams.z, fogParams.w );
+		retVal = CalcRangeFog( flEyeDist, fogParams.x, fogParams.y, fogParams.z );
 	}
 	else if ( iPIXELFOGTYPE == PIXEL_FOG_TYPE_HEIGHT ) //height fog
 	{
-		retVal = CalcWaterFogAlpha( fogParams.y, flEyePosZ, flWorldPosZ, flProjPosZ, fogParams.w );
+		retVal = CalcWaterFogAlpha( fogParams.w, flEyePosZ, flWorldPosZ, flEyeDist, fogParams.x );
 	}
 
 	return retVal;
 }
 
 //g_FogParams not defined by default, but this is the same layout for every shader that does define it
-#define g_FogEndOverRange	g_FogParams.x
-#define g_WaterZ			g_FogParams.y
-#define g_FogMaxDensity		g_FogParams.z
-#define g_FogOORange		g_FogParams.w
+#define g_FogStart	c.g_FogParams.x
+#define g_FogEnd			c.g_FogParams.y
+#define g_FogMaxDensity		c.g_FogParams.z
+#define g_WaterZ		c.g_FogParams.w
 
 float3 BlendPixelFog( const float3 vShaderColor, float pixelFogFactor, const float3 vFogColor, const int iPIXELFOGTYPE )
 {
@@ -341,16 +337,17 @@ float DepthToDestAlpha( const float flProjZ )
 }
 
 
-float4 FinalOutput( const float4 vShaderColor, float pixelFogFactor, const int iPIXELFOGTYPE, const int iTONEMAP_SCALE_TYPE, const bool bWriteDepthToDestAlpha = false, const float flProjZ = 1.0f )
+float4 FinalOutput( const float4 vShaderColor, float pixelFogFactor, const int iPIXELFOGTYPE, float4 pixelFogColor,
+		    const int iTONEMAP_SCALE_TYPE, float4 toneMappingScale = float4(1, 1, 1, 1), const bool bWriteDepthToDestAlpha = false, const float flProjZ = 1.0f )
 {
 	float4 result;
 	if( iTONEMAP_SCALE_TYPE == TONEMAP_SCALE_LINEAR )
 	{
-		result.rgb = vShaderColor.rgb * 1.0f;//LINEAR_LIGHT_SCALE;
+		result.rgb = vShaderColor.rgb * toneMappingScale.x;
 	}
 	else if( iTONEMAP_SCALE_TYPE == TONEMAP_SCALE_GAMMA )
 	{
-		result.rgb = vShaderColor.rgb * 1.0f;//GAMMA_LIGHT_SCALE;
+		result.rgb = vShaderColor.rgb * toneMappingScale.w;
 	}
 	else if( iTONEMAP_SCALE_TYPE == TONEMAP_SCALE_NONE )
 	{
@@ -362,7 +359,7 @@ float4 FinalOutput( const float4 vShaderColor, float pixelFogFactor, const int i
 	else
 		result.a = vShaderColor.a;
 
-	result.rgb = BlendPixelFog( result.rgb, pixelFogFactor, /*g_LinearFogColor.rgb*/float3(1, 1, 1), iPIXELFOGTYPE );
+	result.rgb = BlendPixelFog( result.rgb, pixelFogFactor, pixelFogColor.rgb, iPIXELFOGTYPE );
 	
 #if !(defined(SHADER_MODEL_PS_1_1) || defined(SHADER_MODEL_PS_1_4) || defined(SHADER_MODEL_PS_2_0)) //Minimum requirement of ps2b
 	result.rgb = SRGBOutput( result.rgb ); //SRGB in pixel shader conversion
@@ -379,10 +376,10 @@ struct LPREVIEW_PS_OUT
 	float4 flags : COLOR3;
 };
 
-LPREVIEW_PS_OUT FinalOutput( const LPREVIEW_PS_OUT vShaderColor, float pixelFogFactor, const int iPIXELFOGTYPE, const int iTONEMAP_SCALE_TYPE )
+LPREVIEW_PS_OUT FinalOutput( const LPREVIEW_PS_OUT vShaderColor, float pixelFogFactor, const int iPIXELFOGTYPE, float4 fogColor, const int iTONEMAP_SCALE_TYPE )
 {
 	LPREVIEW_PS_OUT result;
-	result.color = FinalOutput( vShaderColor.color, pixelFogFactor, iPIXELFOGTYPE, iTONEMAP_SCALE_TYPE );
+	result.color = FinalOutput( vShaderColor.color, pixelFogFactor, iPIXELFOGTYPE, fogColor, iTONEMAP_SCALE_TYPE );
 	result.normal.rgb = SRGBOutput( vShaderColor.normal.rgb );
 	result.normal.a = vShaderColor.normal.a;
 

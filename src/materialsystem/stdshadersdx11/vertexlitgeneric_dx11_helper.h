@@ -45,7 +45,7 @@ ALIGN16 struct VertexLitGeneric_CBuffer_t
 	Vector4D cEnvMapContrast;
 	Vector4D cSelfIllumTint;
 	Vector4D cDepthFeathering;
-	Vector4D cShaderControls;
+	IntVector4D cShaderControls;
 
 	// Pixel shader (phong)
 	Vector4D cFresnelSpecParams;
@@ -54,6 +54,9 @@ ALIGN16 struct VertexLitGeneric_CBuffer_t
 	Vector4D cSpecExponent;
 
 	IntVector4D cDetailBlendMode;
+
+	Vector4D g_FogParams;
+	Vector4D g_FogColor;
 
 	float cAlphaTestRef;
 };

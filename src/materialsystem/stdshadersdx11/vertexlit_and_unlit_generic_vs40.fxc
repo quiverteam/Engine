@@ -125,10 +125,10 @@ struct VS_OUTPUT
 #if WRINKLEMAP
 	float4 wrinkleHeight			: TEXCOORD7;
 #endif
-	float4 fogFactorW				: COLOR1;
 #if SEAMLESS_DETAIL || SEAMLESS_BASE
 	float3 SeamlessWeights          : COLOR0;				// x y z projection weights
 #endif
+	float3 eyeSpacePos				: COLOR1;
 
 };
 
@@ -197,6 +197,8 @@ VS_OUTPUT main( const VS_INPUT v )
 		worldNormal, worldTangentS, worldTangentT );
 #endif
 
+	o.eyeSpacePos = mul(float4(worldPos, 1), cViewMatrix).xyz;
+
 	if ( !g_bVertexColor || g_bBumpmap )
 	{
 		worldNormal = normalize( worldNormal );
@@ -220,11 +222,6 @@ VS_OUTPUT main( const VS_INPUT v )
 	// Transform into projection space
 	float4 vProjPos = mul( float4( worldPos, 1 ), viewProj );
 	o.projPos = vProjPos;
-
-	//o.vProjPos = vProjPos;
-	o.fogFactorW.w = CalcFog( worldPos, vProjPos, cEyePos.xyz, g_FogType, cFogZ.x, cFogParams );
-	
-	//o.fog = o.fogFactorW.w;
 	
 	o.worldPos_ProjPosZ.xyz = worldPos.xyz;
 	o.worldPos_ProjPosZ.w = vProjPos.z;

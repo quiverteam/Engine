@@ -321,6 +321,8 @@ private:
 	void FogColor3fv( float const *rgb );
 	void FogColor3ub( unsigned char r, unsigned char g, unsigned char b );
 	void FogColor3ubv( unsigned char const *rgb );
+	virtual void GetFogColor( float *rgb );
+	virtual void GetFogParamsAndColor( float *params, float *rgba );
 
 	virtual void SceneFogColor3ub( unsigned char r, unsigned char g, unsigned char b );
 	virtual void SceneFogMode( MaterialFogMode_t fogMode );
@@ -821,6 +823,8 @@ private:
 	void CreateTextureHandles( ShaderAPITextureHandle_t *handles, int count );
 	CTextureDx11 &GetTexture(ShaderAPITextureHandle_t handle);
 	ShaderAPITextureHandle_t CreateTextureHandle();
+
+	void GammaCorrectFogColor( float *rgb );
 
 	void DoIssueVertexShader();
 	void DoIssuePixelShader();

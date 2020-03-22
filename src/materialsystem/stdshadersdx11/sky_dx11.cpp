@@ -64,7 +64,8 @@ BEGIN_VS_SHADER( Sky_DX11, "Help for Sky_DX11 shader" )
 			SetVertexShaderConstantBuffer( 2, SHADER_CONSTANTBUFFER_PERSCENE );
 			SetVertexShaderConstantBuffer( 3, CONSTANT_BUFFER( Sky ) );
 
-			SetPixelShaderConstantBuffer( 0, CONSTANT_BUFFER( Sky ) );
+			SetPixelShaderConstantBuffer( 0, SHADER_CONSTANTBUFFER_PERFRAME );
+			SetPixelShaderConstantBuffer( 1, CONSTANT_BUFFER( Sky ) );
 
 			DECLARE_STATIC_VERTEX_SHADER( sky_vs40 );
 			SET_STATIC_VERTEX_SHADER( sky_vs40 );

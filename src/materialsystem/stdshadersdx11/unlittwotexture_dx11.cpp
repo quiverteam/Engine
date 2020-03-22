@@ -23,6 +23,8 @@ CREATE_CONSTANT_BUFFER( UnlitTwoTexture )
 
 	// psh
 	Vector4D ModulationColor;
+	Vector4D FogParams;
+	Vector4D FogColor;
 };
 
 DEFINE_FALLBACK_SHADER( UnlitTwoTexture, UnlitTwoTexture_DX11 )
@@ -219,6 +221,8 @@ BEGIN_VS_SHADER( UnlitTwoTexture_DX11, "Help for UnlitTwoTexture_DX11" )
 				BindTexture( SHADER_SAMPLER1, TEXTURE2, FRAME2 );
 
 				ALIGN16 CONSTANT_BUFFER_TYPE( UnlitTwoTexture ) consts;
+
+				pShaderAPI->GetFogParamsAndColor( consts.FogParams.Base(), consts.FogColor.Base() );
 
 				StoreVertexShaderTextureTransform( consts.BaseTextureTransform, BASETEXTURETRANSFORM );
 				StoreVertexShaderTextureTransform( consts.BaseTexture2Transform, TEXTURE2TRANSFORM );
