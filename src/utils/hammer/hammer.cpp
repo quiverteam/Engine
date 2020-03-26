@@ -1560,7 +1560,7 @@ CDocument* CHammer::OpenDocumentFile(LPCTSTR lpszFileName)
 		char szRenameMessage[MAX_PATH+MAX_PATH+256];
 		CString newMapPath = *((CMapDoc *)pDoc)->AutosavedFrom();
 
-		sprintf( szRenameMessage, "This map was loaded from an autosave file.\nWould you like to rename it from \"%s\" to \"%s\"?\nNOTE: This will not save the file with the new name; it will only rename it.", lpszFileName, newMapPath );
+		sprintf( szRenameMessage, "This map was loaded from an autosave file.\nWould you like to rename it from \"%s\" to \"%s\"?\nNOTE: This will not save the file with the new name; it will only rename it.", lpszFileName, newMapPath.GetString() );
 
 		if ( AfxMessageBox( szRenameMessage, MB_YESNO ) == IDYES )
 		{			
@@ -2232,7 +2232,7 @@ void CHammer::LoadLastGoodSave( void )
 			CString newMapPath( szMapDir );
 			newMapPath.Append( "\\" );
 			newMapPath.Append( pszFileName );
-			sprintf( szRenameMessage, "The last saved map was found in the autosave directory.\nWould you like to rename it from \"%s\" to \"%s\"?\nNOTE: This will not save the file with the new name; it will only rename it.", szLastSaveCopy, newMapPath );
+			sprintf( szRenameMessage, "The last saved map was found in the autosave directory.\nWould you like to rename it from \"%s\" to \"%s\"?\nNOTE: This will not save the file with the new name; it will only rename it.", szLastSaveCopy, newMapPath.GetString() );
 
 			if ( AfxMessageBox( szRenameMessage, MB_YESNO ) == IDYES )
 			{			

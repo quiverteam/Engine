@@ -180,7 +180,7 @@ int CProcessWnd::Execute(LPCTSTR pszCmd, LPCTSTR pszCmdLine)
 				{
 					SetForegroundWindow();
 					CString strTmp;
-					strTmp.Format("* Could not execute the command:\r\n   %s\r\n", str);
+					strTmp.Format("* Could not execute the command:\r\n   %s\r\n", str.GetString());
 					Append(strTmp);
 					strTmp.Format("* Windows gave the error message:\r\n   \"%s\"\r\n", GetErrorString());
 					Append(strTmp);
