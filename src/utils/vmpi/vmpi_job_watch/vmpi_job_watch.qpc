@@ -40,14 +40,18 @@ configuration
 	{
 		libraries
 		{
-			"nafxcw.lib"
-			"libcmt.lib"
+			"nafxcw.lib" [$RELEASE]
+			"libcmt.lib" [$RELEASE]
+			"nafxcwd.lib" [$DEBUG]
+			"libcmtd.lib" [$DEBUG]
 		}
 
 		ignore_libraries
 		{
-			"nafxcwd.lib"
-			"libcmtd.lib"
+			"nafxcwd.lib" [$RELEASE]
+			"libcmtd.lib" [$RELEASE]
+			"nafxcw.lib" [$DEBUG]
+			"libcmt.lib" [$DEBUG]
 		}
 	}
 }
