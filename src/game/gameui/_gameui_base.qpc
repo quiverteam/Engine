@@ -63,14 +63,6 @@ configuration
 			"$LIBPUBLIC/vtf"
 			"$LIBPUBLIC/steam_api"
 		}
-
-		ignore_libraries
-		{
-			"libc"
-			"libcd"
-			"libcmtd"
-			"msvcrt"
-		}
 	}
 }
 
