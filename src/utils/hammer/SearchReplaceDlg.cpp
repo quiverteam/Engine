@@ -539,7 +539,7 @@ BOOL CSearchReplaceDlg::OnFindReplace(UINT uCmd)
 			if ((m_bNewSearch) || (uCmd != IDC_REPLACE_ALL))
 			{
 				CString str;
-				str.Format("Finished searching for '%s'.", m_strFindText);
+				str.Format("Finished searching for '%s'.", m_strFindText.GetString());
 				MessageBox(str, "Find/Replace Text", MB_OK);
 
 				// TODO: put the old selection back
@@ -547,7 +547,7 @@ BOOL CSearchReplaceDlg::OnFindReplace(UINT uCmd)
 			else if (uCmd == IDC_REPLACE_ALL)
 			{
 				CString str;
-				str.Format("Replaced %d occurrences of the string '%s' with '%s'.", nReplaceCount, m_strFindText, m_strReplaceText);
+				str.Format("Replaced %d occurrences of the string '%s' with '%s'.", nReplaceCount, m_strFindText.GetString(), m_strReplaceText.GetString());
 				MessageBox(str, "Find/Replace Text", MB_OK);
 			}
 

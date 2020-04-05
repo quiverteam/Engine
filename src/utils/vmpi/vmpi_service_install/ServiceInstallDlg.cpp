@@ -854,7 +854,7 @@ void CServiceInstallDlg::OnInstall()
 		return;
 
 	// Create the directory.
-	Msg( "Creating install directory %s.\n", strInstallLocation );
+	Msg( "Creating install directory %s.\n", strInstallLocation.GetString() );
 	if ( !CreateDirectory_R( strInstallLocation ) )
 	{
 		Warning( "Unable to create directory: %s.", (const char*)strInstallLocation );
@@ -925,7 +925,7 @@ bool CServiceInstallDlg::DoUninstall( bool bShowMessage )
 		if ( AnyNonInstallFilesInDirectory( strInstallLocation ) )
 		{		
 			char str[512];
-			V_snprintf( str, sizeof( str ), "Warning: this will delete all files under this directory: \n%s\nContinue?", strInstallLocation );
+			V_snprintf( str, sizeof( str ), "Warning: this will delete all files under this directory: \n%s\nContinue?", strInstallLocation.GetString() );
 			if ( AfxMessageBox( str, MB_YESNO ) != IDYES )
 				return false;
 		}
@@ -946,11 +946,11 @@ bool CServiceInstallDlg::DoUninstall( bool bShowMessage )
 		if ( !NukeDirectory( strInstallLocation, errorFile ) )
 		{
 			if ( errorFile[0] )
-				Msg( "NukeDirectory( %s ) failed.\nError on file: %s\n", strInstallLocation, errorFile );
+				Msg( "NukeDirectory( %s ) failed.\nError on file: %s\n", strInstallLocation.GetString(), errorFile );
 			else
-				Msg( "NukeDirectory( %s ) failed.\n", strInstallLocation );
+				Msg( "NukeDirectory( %s ) failed.\n", strInstallLocation.GetString() );
 			
-			Msg( "Uninstall complete, but files are left over in %s.\n", strInstallLocation );
+			Msg( "Uninstall complete, but files are left over in %s.\n", strInstallLocation.GetString() );
 			
 			bSuccess = false;
 		}

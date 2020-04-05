@@ -547,7 +547,7 @@ FSReturnCode_t FileSystem_LoadSearchPaths( CFSSearchPathsInit &initInfo )
 	// TODO: only create these paths if they don't exist already in the gameinfo
 	// sounds like a job for Msal
 	char gameBin[MAX_PATH];
-	sprintf(gameBin, "%s/bin/%s", initInfo.m_ModPath, PLATFORM_SUBDIR, DLL_EXT_STRING); // we should only do this when a gamebin is specified
+	sprintf(gameBin, "%s/bin/%s", initInfo.m_ModPath, PLATFORM_SUBDIR); // we should only do this when a gamebin is specified
 	FileSystem_AddLoadedSearchPath(initInfo, "gamebin", gameBin, bLowViolence);
 
 	char download[MAX_PATH];

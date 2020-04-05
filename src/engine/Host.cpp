@@ -378,7 +378,7 @@ void ReserveThreads( int nToReserve )
 		g_pThreadPool->QueueCall( &ThreadPoolReserverFunction )->Release();
 	}
 
-	Msg( "%d threads being reserved\n", g_NumReservedThreads );
+	Msg( "%d threads being reserved\n", (int)g_NumReservedThreads );
 }
 
 void OnChangeThreadReserve( IConVar *var, const char *pOldValue, float flOldValue )

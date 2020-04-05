@@ -132,7 +132,7 @@ void CJobSearchDlg::OnDblclkJobsList(NMHDR* pNMHDR, LRESULT* pResult)
 			&pi ) )
 		{
 			CString errStr;
-			errStr.Format( "Error launching '%s'", cmdLine );
+			errStr.Format( "Error launching '%s'", cmdLine.GetString() );
 			MessageBox( errStr, "Error", MB_OK );
 		}
 	}
@@ -238,7 +238,7 @@ void CJobSearchDlg::OnDblclkUserList()
 
 		// Look for jobs that this user initiated.
 		char query[4096];
-		Q_snprintf( query, sizeof( query ), "select RunningTimeMS, JobID, BSPFilename, StartTime, MachineName from job_master_start where MachineName=\"%s\"", computerName );
+		Q_snprintf( query, sizeof( query ), "select RunningTimeMS, JobID, BSPFilename, StartTime, MachineName from job_master_start where MachineName=\"%s\"", computerName.GetString() );
 		GetMySQL()->Execute( query );
 		
 		RepopulateJobsList();
@@ -263,7 +263,7 @@ void CJobSearchDlg::OnDblclkWorkerList()
 			"where job_worker_start.MachineName = \"%s\" and "
 			"IsMaster = 0 and "
 			"job_master_start.JobID = job_worker_start.JobID",
-			computerName );
+			computerName.GetString() );
 		GetMySQL()->Execute( query );
 		
 		RepopulateJobsList();
@@ -362,7 +362,7 @@ BOOL CJobSearchDlg::OnInitDialog()
 	
 	if ( !m_pSQL->InitMySQL( m_DBName, m_HostName, m_UserName ) )
 	{
-		Q_snprintf( str, sizeof( str ), "Can't init MYSQL db (db = '%s', host = '%s', user = '%s')", m_DBName, m_HostName, m_UserName );
+		Q_snprintf( str, sizeof( str ), "Can't init MYSQL db (db = '%s', host = '%s', user = '%s')", m_DBName.GetString(), m_HostName.GetString(), m_UserName.GetString() );
 		MessageBox( str, "Error", MB_OK );
 		EndDialog( 0 );
 		return FALSE;
@@ -400,7 +400,7 @@ BOOL CJobSearchDlg::OnInitDialog()
 		Sleep( 30 );
 		if ( GetTickCount() - startTime > 5000 )
 		{
-			Q_snprintf( str, sizeof( str ), "Unable to get computer names Can't init MYSQL db (db = '%s', host = '%s', user = '%s')", m_DBName, m_HostName, m_UserName );
+			Q_snprintf( str, sizeof( str ), "Unable to get computer names Can't init MYSQL db (db = '%s', host = '%s', user = '%s')", m_DBName.GetString(), m_HostName.GetString(), m_UserName.GetString() );
 			MessageBox( str, "Error", MB_OK );
 			EndDialog( 0 );
 			return FALSE;

@@ -136,7 +136,7 @@ void DetailObjects::ParseDetailGroup( int detailId, KeyValues* pGroupKeyValues )
 					int nValid = sscanf( pSpriteData, "%f %f %f %f %f", &x, &y, &flWidth, &flHeight, &flTextureSize ); 
 					if ( (nValid != 5) || (flTextureSize == 0) )
 					{
-						Error( "Invalid arguments to \"sprite\" in detail.vbsp (model %s)!\n", model.m_ModelName );
+						Error( "Invalid arguments to \"sprite\" in detail.vbsp (model %s)!\n", model.m_ModelName.String() );
 					}
 
 					model.m_Tex[0].x = ( x + 0.5f ) / flTextureSize;

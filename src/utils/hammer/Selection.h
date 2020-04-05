@@ -24,7 +24,7 @@ enum
 };
 
 // SelectObject/SelectFace parameters:
-typedef enum
+enum
 {
 	scToggle = 0x01,			// toogle selection state of this object
 	scSelect = 0x02,			// select this object
