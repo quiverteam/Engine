@@ -604,26 +604,102 @@ CBasePlayer* UTIL_PlayerByUserId( int userID )
 }
 
 //
-// Return the local player.
-// If this is a multiplayer game, return NULL.
+// Return any player.
 // 
 CBasePlayer *UTIL_GetLocalPlayer( void )
 {
-	if ( gpGlobals->maxClients > 1 )
-	{
-		if ( developer.GetBool() )
-		{
-			Assert( !"UTIL_GetLocalPlayer" );
-			
-#ifdef	DEBUG
-			Warning( "UTIL_GetLocalPlayer() called in multiplayer game.\n" );
-#endif
-		}
+	CBasePlayer* pHost = UTIL_GetListenServerHost();
+	if (pHost)
+		return pHost;
 
-		return NULL;
+	for (int i = 1; i <= gpGlobals->maxClients; i++)
+	{
+		CBasePlayer* pPlayer = UTIL_PlayerByIndex(i);
+		if (pPlayer)
+			return pPlayer;
 	}
 
-	return UTIL_PlayerByIndex( 1 );
+	return NULL;
+}
+
+//
+// Return the nearest available player.
+// source: https://github.com/whoozzem/SecobMod
+// pPlayer = UTIL_GetNearestPlayer(GetAbsOrigin());
+// 
+CBasePlayer* UTIL_GetNearestPlayer(const Vector& origin)
+{
+	float distToNearest = 9999999999999999999.0f;
+	CBasePlayer* pNearest = NULL;
+
+	for (int i = 1; i <= gpGlobals->maxClients; i++)
+	{
+		CBasePlayer* pPlayer = UTIL_PlayerByIndex(i);
+		if (!pPlayer)
+			continue;
+
+		float flDist = (pPlayer->GetAbsOrigin() - origin).LengthSqr();
+		if (flDist < distToNearest)
+		{
+			pNearest = pPlayer;
+			distToNearest = flDist;
+		}
+	}
+
+	return pNearest;
+}
+
+//
+// Return the nearest visible player.
+// 
+CBasePlayer* UTIL_GetNearestVisiblePlayer(CBaseEntity* pLooker, int mask)
+{
+	float distToNearest = 9999999999999999999.0f;
+	CBasePlayer* pNearest = NULL;
+
+	for (int i = 1; i <= gpGlobals->maxClients; i++)
+	{
+		CBasePlayer* pPlayer = UTIL_PlayerByIndex(i);
+		if (!pPlayer)
+			continue;
+
+		float flDist = (pPlayer->GetAbsOrigin() - pLooker->GetAbsOrigin()).LengthSqr();
+		if (flDist < distToNearest && pLooker->FVisible(pPlayer, mask))  // only difference
+		{
+			pNearest = pPlayer;
+			distToNearest = flDist;
+		}
+	}
+
+	return pNearest;
+}
+
+//
+// Get the nearest player to a player that called the command
+//
+CBasePlayer* UTIL_GetOtherNearestPlayer(const Vector& origin)
+{
+	// End of copied and pasted code.                                    //4WH - Information: See the following Null Pointer line.
+	float distToOtherNearest = 128.0f; //4WH - Information: We don't want the OtherNearest player to be the player that called this function.
+	CBasePlayer* pOtherNearest = NULL;
+
+	for (int i = 1; i <= gpGlobals->maxClients; i++)
+	{
+		CBasePlayer* pPlayer = UTIL_PlayerByIndex(i);
+		if (!pPlayer)
+			continue;
+
+		float flDist = (pPlayer->GetAbsOrigin() - origin).LengthSqr();
+		if (flDist >= distToOtherNearest)
+
+		{
+			pOtherNearest = pPlayer;
+			distToOtherNearest = flDist;
+
+		}
+	}
+
+	return pOtherNearest;
 }
 
 //
