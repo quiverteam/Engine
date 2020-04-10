@@ -204,14 +204,15 @@ float		UTIL_GetSimulationInterval();
 // Input  : playerIndex - index of the player - first player is index 1
 //-----------------------------------------------------------------------------
 
-// NOTENOTE: Use UTIL_GetLocalPlayer instead of UTIL_PlayerByIndex IF you're in single player
-// and you want the player.
 CBasePlayer	*UTIL_PlayerByIndex( int playerIndex );
 
-// NOTENOTE: Use this instead of UTIL_PlayerByIndex IF you're in single player
-// and you want the player.
-// not useable in multiplayer - see UTIL_GetListenServerHost()
+// returns first valid player
 CBasePlayer* UTIL_GetLocalPlayer( void );
+
+// multiplayer use
+CBasePlayer* UTIL_GetNearestPlayer(const Vector& origin);
+CBasePlayer* UTIL_GetNearestVisiblePlayer(CBaseEntity* pLooker, int mask = MASK_SOLID_BRUSHONLY);
+CBasePlayer* UTIL_GetOtherNearestPlayer(const Vector& origin);
 
 // get the local player on a listen server
 CBasePlayer *UTIL_GetListenServerHost( void );
