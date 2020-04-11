@@ -7461,27 +7461,30 @@ void CRevertSaved::Use( CBaseEntity *pActivator, CBaseEntity *pCaller, USE_TYPE 
 
 void CRevertSaved::InputReload( inputdata_t &inputdata )
 {
-	UTIL_ScreenFadeAll( m_clrRender, Duration(), HoldTime(), FFADE_OUT );
-
-#ifdef HL1_DLL
-	SetNextThink( gpGlobals->curtime + MessageTime() );
-	SetThink( &CRevertSaved::MessageThink );
-#else
-	SetNextThink( gpGlobals->curtime + LoadTime() );
-	SetThink( &CRevertSaved::LoadThink );
-#endif
-
-	CBasePlayer *pPlayer = UTIL_GetLocalPlayer();
-
-	if ( pPlayer )
+	if ( gpGlobals->maxClients == 1 )
 	{
-		//Adrian: Setting this flag so we can't move or save a game.
-		pPlayer->pl.deadflag = true;
-		pPlayer->AddFlag( (FL_NOTARGET|FL_FROZEN) );
+		UTIL_ScreenFadeAll( m_clrRender, Duration(), HoldTime(), FFADE_OUT );
 
-		// clear any pending autosavedangerous
-		g_ServerGameDLL.m_fAutoSaveDangerousTime = 0.0f;
-		g_ServerGameDLL.m_fAutoSaveDangerousMinHealthToCommit = 0.0f;
+	#ifdef HL1_DLL
+		SetNextThink( gpGlobals->curtime + MessageTime() );
+		SetThink( &CRevertSaved::MessageThink );
+	#else
+		SetNextThink( gpGlobals->curtime + LoadTime() );
+		SetThink( &CRevertSaved::LoadThink );
+	#endif
+
+		CBasePlayer *pPlayer = UTIL_GetLocalPlayer();
+
+		if ( pPlayer )
+		{
+			//Adrian: Setting this flag so we can't move or save a game.
+			pPlayer->pl.deadflag = true;
+			pPlayer->AddFlag( (FL_NOTARGET|FL_FROZEN) );
+
+			// clear any pending autosavedangerous
+			g_ServerGameDLL.m_fAutoSaveDangerousTime = 0.0f;
+			g_ServerGameDLL.m_fAutoSaveDangerousMinHealthToCommit = 0.0f;
+		}
 	}
 }
 
@@ -7503,7 +7506,8 @@ void CRevertSaved::MessageThink( void )
 
 void CRevertSaved::LoadThink( void )
 {
-	if ( !gpGlobals->deathmatch )
+	// reload doesn't do anything in multiplayer, at least not currently
+	if ( gpGlobals->maxClients == 1 )
 	{
 		engine->ServerCommand("reload\n");
 	}
