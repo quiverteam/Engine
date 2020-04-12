@@ -38,6 +38,9 @@ public:
 	{
 		if ( m_distSq != 0 )
 		{
+			if (pEntity1 == NULL || pEntity2 == NULL)
+				return false;
+
 			float distSq = ( pEntity1->GetAbsOrigin() - pEntity2->GetAbsOrigin() ).LengthSqr();
 			bool fInside = ( distSq < m_distSq );
 
