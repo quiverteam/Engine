@@ -1519,6 +1519,10 @@ void CChangeLevel::WarnAboutActiveLead( void )
 	}
 }
 
+ConVar mp_transition_players_percent("mp_transition_players_percent",
+									 "66", FCVAR_NOTIFY | FCVAR_REPLICATED,
+									 "How many players in percent are needed for a level transition?");
+
 void CChangeLevel::ChangeLevelNow( CBaseEntity *pActivator )
 {
 	CBaseEntity	*pLandmark;
@@ -1530,13 +1534,31 @@ void CChangeLevel::ChangeLevelNow( CBaseEntity *pActivator )
 	if ( g_pGameRules->IsDeathmatch() )
 		return;
 
-	// Some people are firing these multiple times in a frame, disable
-	if ( m_bTouched )
-		return;
+	CBasePlayer *pPlayer = (pActivator && pActivator->IsPlayer()) ? ToBasePlayer(pActivator) : UTIL_GetLocalPlayer();
 
-	m_bTouched = true;
+	pPlayer->m_bTransition = true;
 
-	CBaseEntity *pPlayer = (pActivator && pActivator->IsPlayer()) ? pActivator : UTIL_GetLocalPlayer();
+	if (mp_transition_players_percent.GetInt() > 0)
+	{
+		int totalPlayers = 0;
+		int transitionPlayers = 0;
+		for (int i = 1; i <= gpGlobals->maxClients; i++)
+		{
+			CBasePlayer* pPlayer = UTIL_PlayerByIndex(i);
+			if (pPlayer && pPlayer->IsAlive())
+			{
+				totalPlayers++;
+				if (pPlayer->m_bTransition)
+					transitionPlayers++;
+			}
+		}
+
+		if (((int) (transitionPlayers / totalPlayers * 100)) < mp_transition_players_percent.GetInt())
+		{
+			Msg("Transitions: Not enough players to trigger level change\n");
+			return;
+		}
+	}
 
 	int transitionState = InTransitionVolume(pPlayer, m_szLandmarkName);
 	if ( transitionState == TRANSITION_VOLUME_SCREENED_OUT )
@@ -1546,7 +1568,7 @@ void CChangeLevel::ChangeLevelNow( CBaseEntity *pActivator )
 	}
 
 	// look for a landmark entity		
-	pLandmark = FindLandmark( m_szLandmarkName );
+ 	pLandmark = FindLandmark( m_szLandmarkName );
 
 	if ( !pLandmark )
 		return;
@@ -2447,7 +2469,7 @@ void CTriggerToggleSave::Touch( CBaseEntity *pOther )
 	// Can be re-enabled
 	m_bDisabled = true;
 
-	engine->ServerCommand( "autosave\n" );
+	// engine->ServerCommand( "autosave\n" );
 }
 
 //-----------------------------------------------------------------------------
@@ -2538,7 +2560,7 @@ void CTriggerSave::Touch( CBaseEntity *pOther )
 	}
 	else
 	{
-		engine->ServerCommand( "autosave\n" );
+		// engine->ServerCommand( "autosave\n" );
 	}
 }
 
@@ -2935,19 +2957,12 @@ void CTriggerCamera::Enable( void )
 
 		if (pPlayer == NULL)
 		{
-			//Must be a Local Server Host if we get here (i think).
-			Assert(m_hPlayer->IsPlayer());
-			pPlayer = ((CBasePlayer*) m_hPlayer.Get());
+			continue;
 		}
 
 		m_hPlayer = pPlayer;
 
 		m_state = USE_ON;
-
-		if ( !m_hPlayer || !m_hPlayer->IsPlayer() )
-		{
-			m_hPlayer = UTIL_GetNearestPlayer(GetAbsOrigin());
-		}
 
 		if ( !m_hPlayer )
 		{
@@ -3121,7 +3136,7 @@ void CTriggerCamera::Disable( void )
 
 		if (pPlayer == NULL)
 		{
-			pPlayer = ((CBasePlayer*) m_hPlayer.Get());
+			continue;
 		}
 
 		m_hPlayer = pPlayer;
