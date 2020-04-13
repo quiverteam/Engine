@@ -119,7 +119,7 @@ void CMessageEntity::Think( void )
 	SetNextThink( gpGlobals->curtime + 0.1f );
 
 	// check for player distance
-	CBasePlayer *pPlayer = UTIL_GetLocalPlayer();
+	CBasePlayer *pPlayer = UTIL_GetNearestPlayer( GetAbsOrigin() );
 
 	if ( !pPlayer || ( pPlayer->GetFlags() & FL_NOTARGET ) )
 		return;

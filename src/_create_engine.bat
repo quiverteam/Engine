@@ -1,5 +1,5 @@
 @echo off
 
-py devtools\qpc\qpc.py -a game -t vstudio -m hl2 hl2mp episodic -mf engine
+py devtools\qpc\qpc.py -b "_qpc_scripts/_default.qpc_base" -a game -g visual_studio -m HL2 HL2MP EPISODIC -mf engine
 
 pause

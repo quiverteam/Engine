@@ -13,12 +13,12 @@ configuration
 {
 	general
 	{
-		toolset_version "msvc_142" [$VS2019 || $VSTUDIO || $VISUAL_STUDIO]
-		toolset_version "msvc_141" [$VS2017]
-		toolset_version "msvc_140" [$VS2015]
-		toolset_version "msvc_120" [$VS2013]
-		toolset_version "msvc_110" [$VS2012]
-		toolset_version "msvc_100" [$VS2010]
+		compiler "msvc_142" [$VS2019 || $VSTUDIO || $VISUAL_STUDIO]
+		compiler "msvc_141" [$VS2017]
+		compiler "msvc_140" [$VS2015]
+		compiler "msvc_120" [$VS2013]
+		compiler "msvc_110" [$VS2012]
+		compiler "msvc_100" [$VS2010]
 		
 		options
 		{

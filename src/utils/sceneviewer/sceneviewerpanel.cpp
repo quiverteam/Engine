@@ -805,7 +805,7 @@ bool CSceneViewerPanel::Reload()
 		return false;
 	}
 
-	Msg( "Reload( \"%s\" )\n", m_filename );
+	Msg( "Reload( \"%s\" )\n", m_filename.Get() );
 	CDmeCombinationOperator *pComboOp = m_pRoot->GetValueElement< CDmeCombinationOperator >( "combinationOperator" );
 	CUtlStringMap< Vector > oldComboVals;
 	if ( pComboOp )

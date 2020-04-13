@@ -162,10 +162,7 @@ void CColorCorrectionVolume::Spawn( void )
 
 bool CColorCorrectionVolume::PassesTriggerFilters( CBaseEntity *pEntity )
 {
-	if( pEntity == UTIL_GetLocalPlayer() )
-		return true;
-
-	return false;
+	return (pEntity->IsPlayer());
 }
 
 void CColorCorrectionVolume::StartTouch( CBaseEntity *pEntity )

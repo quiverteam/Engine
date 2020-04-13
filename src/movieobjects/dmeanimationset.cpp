@@ -463,19 +463,19 @@ bool CDmePresetGroup::ExportToTXT( const char *pFileName, CDmeAnimationSet *pAni
 		ExportedControl_t &control = exportedControls[i];
 		if ( !control.m_bIsStereo )
 		{
-			buf.Printf("%s ", control.m_Name );
+			buf.Printf("%s ", control.m_Name.Get() );
 		}
 		else
 		{
-			Q_snprintf( pTempBuf, sizeof(pTempBuf), "right_%s", control.m_Name );
+			Q_snprintf( pTempBuf, sizeof(pTempBuf), "right_%s", control.m_Name.Get() );
 			buf.Printf("%s ", pTempBuf );
-			Q_snprintf( pTempBuf, sizeof(pTempBuf), "left_%s", control.m_Name );
+			Q_snprintf( pTempBuf, sizeof(pTempBuf), "left_%s", control.m_Name.Get() );
 			buf.Printf("%s ", pTempBuf );
 		}
 
 		if ( control.m_bIsMulti )
 		{
-			Q_snprintf( pTempBuf, sizeof(pTempBuf), "multi_%s", control.m_Name );
+			Q_snprintf( pTempBuf, sizeof(pTempBuf), "multi_%s", control.m_Name.Get() );
 			buf.Printf("%s ", pTempBuf );
 		}
 	}
@@ -825,17 +825,17 @@ bool CDmePresetGroup::ExportToVFE( const char *pFileName, CDmeAnimationSet *pAni
 		{
 			pKeynames[j++] = (char *)(pData - pDataStart);
 			strcpy( (char *)pData, control.m_Name );
-			pData += Q_strlen( control.m_Name ) + 1;
+			pData += control.m_Name.Length() + 1;
 		}
 		else
 		{
 			pKeynames[j++] = (char *)(pData - pDataStart);
-			Q_snprintf( pTempBuf, sizeof(pTempBuf), "right_%s", control.m_Name );
+			Q_snprintf( pTempBuf, sizeof(pTempBuf), "right_%s", control.m_Name.Get() );
 			strcpy( (char *)pData, pTempBuf );
 			pData += Q_strlen( pTempBuf ) + 1;
 
 			pKeynames[j++] = (char *)(pData - pDataStart);
-			Q_snprintf( pTempBuf, sizeof(pTempBuf), "left_%s", control.m_Name );
+			Q_snprintf( pTempBuf, sizeof(pTempBuf), "left_%s", control.m_Name.Get() );
 			strcpy( (char *)pData, pTempBuf );
 			pData += Q_strlen( pTempBuf ) + 1;
 		}
@@ -843,7 +843,7 @@ bool CDmePresetGroup::ExportToVFE( const char *pFileName, CDmeAnimationSet *pAni
 		if ( control.m_bIsMulti )
 		{
 			pKeynames[j++] = (char *)(pData - pDataStart);
-			Q_snprintf( pTempBuf, sizeof(pTempBuf), "multi_%s", control.m_Name );
+			Q_snprintf( pTempBuf, sizeof(pTempBuf), "multi_%s", control.m_Name.Get() );
 			strcpy( (char *)pData, pTempBuf );
 			pData += Q_strlen( pTempBuf ) + 1;
 		}

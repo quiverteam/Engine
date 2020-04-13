@@ -8494,17 +8494,19 @@ void Load_ProceduralBones( )
 		while (GetLineInput()) 
 		{
 			g_iLinecount++;
-			sscanf( g_szLine, "%s", cmd, &option );
-			if (stricmp( cmd, "version" ) == 0) 
+			if (sscanf( g_szLine, "%s %d", cmd, &option ) > 0)
 			{
-				if (option != 1) 
+				if (stricmp( cmd, "version" ) == 0) 
 				{
-					MdlError("bad version\n");
+					if (option != 1) 
+					{
+						MdlError("bad version\n");
+					}
 				}
-			}
-			else if (stricmp( cmd, "proceduralbones" ) == 0) 
-			{
-				Grab_AxisInterpBones( );
+				else if (stricmp( cmd, "proceduralbones" ) == 0) 
+				{
+					Grab_AxisInterpBones( );
+				}
 			}
 		}
 	}
@@ -8962,7 +8964,7 @@ bool GenerateAnimations( CDmeMDLMakefile *pMDLMakeFile )
 			}
 			else
 			{
-				MdlError( "Requested unknown animation block name %s\n", animationFiles[i]->m_SourceAnimationName );
+				MdlError( "Requested unknown animation block name %s\n", animationFiles[i]->m_SourceAnimationName.Get() );
 			}
 		}
 
