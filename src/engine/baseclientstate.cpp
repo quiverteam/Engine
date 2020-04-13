@@ -398,7 +398,7 @@ bool CBaseClientState::SetSignonState ( int state, int count )
 //   response before the timeout, send another "connect" request.
 // Output : void CL_SendConnectPacket
 //-----------------------------------------------------------------------------
-void CBaseClientState::SendConnectPacket (int challengeNr, int authProtocol, int keySize, const char *encryptionKey, uint64 unGSSteamID, bool bGSSecure )
+void CBaseClientState::SendConnectPacket( int challengeNr, int authProtocol, bool bGSSecure )
 {
 	COM_TimestampedLog( "SendConnectPacket" );
 
@@ -439,7 +439,7 @@ void CBaseClientState::SendConnectPacket (int challengeNr, int authProtocol, int
 									msg.WriteString( CDKey );		// cdkey
 									break;
 
-		case PROTOCOL_STEAM:		if (!PrepareSteamConnectResponse( keySize, encryptionKey, unGSSteamID, bGSSecure, adr, msg ))
+		case PROTOCOL_STEAM:		if ( !PrepareSteamConnectResponse( bGSSecure, msg ) )
 									{
 										return;
 									}
@@ -463,7 +463,7 @@ void CBaseClientState::SendConnectPacket (int challengeNr, int authProtocol, int
 //-----------------------------------------------------------------------------
 // Purpose: append steam specific data to a connection response
 //-----------------------------------------------------------------------------
-bool CBaseClientState::PrepareSteamConnectResponse( int keySize, const char *encryptionKey, uint64 unGSSteamID, bool bGSSecure, const netadr_t &adr, bf_write &msg )
+bool CBaseClientState::PrepareSteamConnectResponse( bool bGSSecure, bf_write &msg )
 {
 	// X360TBD: Network - Steam Dedicated Server hack
 	if ( IsX360() )
@@ -479,28 +479,15 @@ bool CBaseClientState::PrepareSteamConnectResponse( int keySize, const char *enc
 		return false;
 	}
 
-	// Size looks bogus
-	if ( keySize >= STEAM_KEYSIZE || keySize <= 0 )
-	{
-		Warning( "STEAM userid keysize is bogus (%i)\n", keySize);
-		Disconnect();
-		return false;
-	}
 #endif
-	
-	netadr_t checkAdr = adr;
-	if ( adr.GetType() == NA_LOOPBACK || adr.IsLocalhost() )
-	{
-		checkAdr.SetIP( net_local_adr.GetIPNetworkByteOrder() );
-	}
 
 #ifndef SWDS
-	// now append the steam3 cookie
-	char steam3Cookie[ STEAM_KEYSIZE ];
-	int steam3CookieLen = Steam3Client().InitiateConnection( steam3Cookie, sizeof(steam3Cookie), checkAdr.GetIPNetworkByteOrder(), checkAdr.GetPort(), unGSSteamID, bGSSecure, (void *)encryptionKey, keySize );
-	msg.WriteShort( steam3CookieLen );
-	if ( steam3CookieLen > 0 )
-		msg.WriteBytes( steam3Cookie, steam3CookieLen );
+	// now append the steam auth ticket
+	char AuthTicket[ 1024 ];
+	uint32 AuthTicketLength = Steam3Client().InitiateConnection( AuthTicket, sizeof( AuthTicket ), bGSSecure );
+	msg.WriteShort( AuthTicketLength );
+	msg.WriteBytes( AuthTicket, AuthTicketLength );
+	msg.WriteVarInt64( SteamUser()->GetSteamID().ConvertToUint64() );
 #endif
 
 	return true;
@@ -742,35 +729,14 @@ bool CBaseClientState::ProcessConnectionlessPacket( netpacket_t *packet )
 							// Blow it off if we are not connected.
 							if ( m_nSignonState == SIGNONSTATE_CHALLENGE )
 							{
-								char keyData[ STEAM_KEYSIZE ];
 								int challenge = msg.ReadLong();
 								int authprotocol = msg.ReadLong();
-								int keysize = 0;
-								uint64 unGSSteamID = 0;
 								bool bGSSecure = false;
 								if ( authprotocol == PROTOCOL_STEAM )
 								{
-									keysize = msg.ReadShort();
-									if ( keysize <= 0 || keysize > sizeof(keyData) )
-									{
-										Msg("Invalid Steam key size.\n");
-										Disconnect();
-										return false;
-									}
-									msg.ReadBytes( keyData, keysize );
-									if ( msg.GetNumBytesLeft() > sizeof(unGSSteamID) ) 
-									{
-										if ( !msg.ReadBytes( &unGSSteamID, sizeof(unGSSteamID) ) )
-										{
-											Msg("Invalid GS Steam ID.\n");
-											Disconnect();
-											return false;
-										}
-
-										bGSSecure = ( msg.ReadByte() == 1 );
-									}
+									bGSSecure = ( msg.ReadByte() == 1 );
 								}
-								SendConnectPacket ( challenge, authprotocol, keysize, keyData, unGSSteamID, bGSSecure );
+								SendConnectPacket( challenge, authprotocol, bGSSecure );
 							}
 							break;
 
