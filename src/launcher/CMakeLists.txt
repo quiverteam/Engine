@@ -42,7 +42,7 @@ set(POSIX64_LINK_DIRS	)
 set(LINK_LIBS			)
 
 # Other projects this one depends on
-set(DEPENDENCIES vstdlib tier1 tier0 tier2 tier3 appframework tier4)
+set(DEPENDENCIES tier1 tier0 tier2 tier3 appframework tier4 vstdlib)
 
 # Platform specific link libs
 set(WINDOWS_LINK_LIBS	shlwapi.lib winmm.lib wsock32.lib odbc32.lib odbccp32.lib
