@@ -23,9 +23,9 @@
 #include <stdio.h>
 #include <windows.h>
 #include <tchar.h>
-#include <ImageHlp.h>
+#include <imagehlp.h>
 #include "tier0/valve_on.h"
-#include "ExtendedTrace.h"
+#include "extendedtrace.h"
 
 #define BUFFERSIZE   0x200
 
