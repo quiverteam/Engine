@@ -1,4 +1,4 @@
-//========= Copyright © 1996-2005, Valve Corporation, All rights reserved. ============//
+//========= Copyright ï¿½ 1996-2005, Valve Corporation, All rights reserved. ============//
 //
 // Purpose: Memory allocation!
 //
@@ -1180,7 +1180,7 @@ void* CDbgMemAlloc::CrtSetReportHook( void* pfnNewHook )
 int CDbgMemAlloc::CrtDbgReport( int nRptType, const char * szFile,
 		int nLine, const char * szModule, const char * pMsg )
 {
-#ifdef _LINUX
+#if defined(_LINUX) || defined(__GNUC__)
 	return 0;
 #else
 	return _CrtDbgReport( nRptType, szFile, nLine, szModule, pMsg );
