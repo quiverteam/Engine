@@ -431,6 +431,18 @@ PLATFORM_INTERFACE int Plat_FileExists(const char* file)
 	return PathFileExistsA(file) == TRUE;
 }
 
+PLATFORM_INTERFACE size_t Plat_GetPageSize()
+{
+	static size_t pagesize = 0;
+	if(!pagesize)
+	{
+		SYSTEM_INFO info;
+		GetSystemInfo(&info);
+		pagesize = (size_t)info.dwPageSize;
+	}
+	return pagesize;
+}
+
 /*
 Allocates memory in the virtual memory space of this program, very similar to VirtualAlloc.
 
@@ -440,7 +452,7 @@ Params:
 */
 PLATFORM_INTERFACE void* Plat_PageAlloc(void* start, size_t regsz)
 {
-	if(start) Assert(start % m_nPageSize == 0); /* Alignment check! */
+	if(start) Assert((uintptr_t)start % Plat_GetPageSize() == 0); /* Alignment check! */
 	Assert(regsz != 0);
 	return VirtualAlloc(start, (SIZE_T)regsz, MEM_COMMIT, PAGE_READWRITE);
 }
@@ -456,7 +468,7 @@ Returns:
 PLATFORM_INTERFACE int Plat_PageFree(void* blk, size_t sz)
 {
 	Assert(blk);
-	Assert(blk % m_nPageSize == 0); /* Alignment check */
+	Assert((uintptr_t)blk % Plat_GetPageSize() == 0); /* Alignment check */
 	return VirtualFree(blk, (SIZE_T)sz, MEM_DECOMMIT) == 0 ? -1 : 0;
 }
 
@@ -471,7 +483,7 @@ Returns:
 */
 PLATFORM_INTERFACE int Plat_PageLock(void* blk, size_t sz)
 {
-	Assert(blk % m_nPageSize == 0); /* Alignment check */
+	Assert((uintptr_t)blk % Plat_GetPageSize() == 0); /* Alignment check */
 	Assert(blk);
 	return VirtualLock(blk, sz) == 0 ? -1 : 0;
 }
@@ -486,7 +498,7 @@ Params:
 */
 PLATFORM_INTERFACE void* Plat_PageResize(void* blk, size_t pgsz)
 {
-	Assert(blk % m_nPageSize == 0);
+	Assert((uintptr_t)blk % Plat_GetPageSize() == 0); /* Alignment check */
 	Assert(pgsz > 0);
 	return VirtualAlloc(blk, pgsz, MEM_COMMIT, PAGE_READWRITE);
 }
@@ -502,7 +514,7 @@ Returns:
 PLATFORM_INTERFACE int Plat_PageUnlock(void* blk, size_t sz)
 {
 	Assert(blk);
-	Assert(blk % m_nPageSize == 0);
+	Assert((uintptr_t)blk % Plat_GetPageSize() == 0); /* Alignment check */
 	return VirtualUnlock(blk, sz) == 0 ? -1 : 0;
 }
 
@@ -518,7 +530,7 @@ Returns:
 PLATFORM_INTERFACE int Plat_PageProtect(void* blk, size_t sz, int flags)
 {
 	Assert(blk);
-	Assert(blk % m_nPageSize);
+	Assert((uintptr_t)blk % Plat_GetPageSize() == 0); /* Alignment check */
 	int realflags = 0;
 	if(flags & PAGE_PROT_EXEC && flags & PAGE_PROT_READ && flags & PAGE_PROT_WRITE)
 		realflags |= PAGE_EXECUTE_READWRITE;
@@ -547,7 +559,7 @@ Returns:
 PLATFORM_INTERFACE int Plat_PageAdvise(void* blk, size_t sz, int advice)
 {
 	Assert(blk);
-	Assert(blk % m_nPageSize == 0);
+	Assert((uintptr_t)blk % Plat_GetPageSize() == 0); /* Alignment check */
 	return 0;
 }
 
@@ -608,8 +620,8 @@ PLATFORM_INTERFACE bool Plat_CreateProcess(const char* exe, const char** cmdline
 	}
 	STARTUPINFOA startinfo;
 	PROCESS_INFORMATION procinfo;
-	memset(procinfo, 0, sizeof(PROCESS_INFORMATION));
-	memset(startinfo, 0, sizeof(STARTUPINFOA));
+	memset(&procinfo, 0, sizeof(PROCESS_INFORMATION));
+	memset(&startinfo, 0, sizeof(STARTUPINFOA));
 
 	BOOL ret = CreateProcessA((LPCSTR)exe, cmdbuf, NULL, NULL, FALSE, 0, environ ? _environ : environ, 
 			NULL, &startinfo, &procinfo);
