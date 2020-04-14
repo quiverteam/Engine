@@ -112,9 +112,15 @@ inline void *MemAlloc_InlineCallocMemset( void *pMem, size_t nCount, size_t nEle
 	#define new DEBUG_NEW
 #else
 	#undef new
+
+#ifdef __GNUC__
+	#define MEMALL_DEBUG_NEW new
+#else
 	#define MEMALL_DEBUG_NEW new(_NORMAL_BLOCK, __FILE__, __LINE__)
+#endif
 	#define new MEMALL_DEBUG_NEW
 #endif
+
 #endif
 
 #undef _strdup
