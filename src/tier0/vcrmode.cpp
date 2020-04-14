@@ -121,6 +121,7 @@ void VCR_Debug( const char *pMsg, ... )
 
 
 
+
 // ------------------------------------------------------------------------------------------ //
 // VCR threading support.
 // It uses 2 methods to implement threading, depending on whether you're recording or not.
@@ -1730,6 +1731,36 @@ void VCR_EnterCriticalSection( void *pInputCS )
 	}
 }
 
+/* Fix for mingw builds: This function is nowhere to be found, so define it here */
+bool g_bTraceRead = false;
+void OutputDebugStringFormat( const char *pMsg, ... )
+{
+	char msg[4096];
+	va_list marker;
+	va_start( marker, pMsg );
+	_vsnprintf( msg, sizeof( msg )-1, pMsg, marker );
+	va_end( marker );
+	int len = strlen( msg );
+
+	if ( g_bTraceRead )
+	{
+		char tempData[4096];
+		int tempLen;
+		VCR_ReadVal( tempLen );
+		VCR_RuntimeAssert( tempLen <= sizeof( tempData ) );
+		VCR_Read( tempData, tempLen );
+		tempData[tempLen] = 0;
+		fprintf( stderr, "FILE: " );
+		fprintf( stderr, tempData );
+
+		VCR_RuntimeAssert( memcmp( msg, tempData, len ) == 0 );
+	}
+	else
+	{
+		VCR_WriteVal( len );
+		VCR_Write( msg, len );
+	}
+}
 
 // ---------------------------------------------------------------------- //
 // The global VCR interface.

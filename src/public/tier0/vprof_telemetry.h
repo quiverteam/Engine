@@ -135,7 +135,7 @@ public:
 	}
 
 private:
-	uint64_t time0;
+	uint64 time0;
 	float m_threshold;
 	const char *m_message;
 };

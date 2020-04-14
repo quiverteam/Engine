@@ -47,7 +47,7 @@ set(LINK_LIBS			)
 set(DEPENDENCIES		tier1)
 
 # Platform specific link libs
-set(WINDOWS_LINK_LIBS	shlwapi ws2_32)
+set(WINDOWS_LINK_LIBS	shlwapi ws2_32 dbghelp kernel32)
 set(WIN32_LINK_LIBS		)
 set(WIN64_LINK_LIBS		)
 set(POSIX32_LINK_LIBS	)
