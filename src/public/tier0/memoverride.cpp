@@ -46,6 +46,34 @@
 #undef _CrtGetCheckCount
 #undef _CrtSetDebugFillThreshold
 
+/* Fixes for mingw */
+#ifdef __GNUC__
+#undef _CrtCheckMemory
+#undef _CrtGetAllocHook
+#undef _CrtDumpMemoryLeaks
+#undef _CrtSetBreakAlloc
+#undef _CrtSetDbgFlag
+#undef _CrtSetDumpClient
+#undef _CrtIsValidHeapPointer
+#undef _CrtIsValidPointer
+#undef _CrtGetDumpClient
+#undef _malloc_dbg
+#undef _realloc_dbg
+#undef _expand_dbg
+#undef _msize_dbg
+#undef _CrtSetAllocHook
+#undef _CrtIsMemoryBlock
+#undef _CrtMemDifference
+#undef _CrtMemDumpStatistics
+#undef _CrtMemCheckpoint
+#undef _CrtMemDumpAllObjectsSince
+#undef _CrtDoForAllClientObjects
+#undef _CrtSetReportMode
+#undef _CrtSetReportFile
+#undef _CrtSetReportHook
+#undef _CrtReportBlockType
+#endif
+
 #if defined( _WIN32 ) && !defined( _X360 )
 const char *MakeModuleFileName()
 {

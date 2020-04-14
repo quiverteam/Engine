@@ -38,14 +38,16 @@
 #include "memalloc.h"
 
 #if defined(USE_MEM_DEBUG)
-	#if defined( POSIX )
+	#if defined( POSIX ) || defined(__GNUC__)
 	
 		#define _NORMAL_BLOCK 1
-		
+
+	#ifdef POSIX
 		#include <cstddef>
 		#include <glob.h>
 		#include <new>
 		#include <sys/types.h>
+	#endif 
 		#if !defined( DID_THE_OPERATOR_NEW )
                         #define DID_THE_OPERATOR_NEW
 			// posix doesn't have a new of this form, so we impl our own
@@ -117,11 +119,7 @@ inline void *MemAlloc_InlineCallocMemset( void *pMem, size_t nCount, size_t nEle
 #else
 	#undef new
 
-#ifdef __GNUC__
-	#define MEMALL_DEBUG_NEW new
-#else
 	#define MEMALL_DEBUG_NEW new(_NORMAL_BLOCK, __FILE__, __LINE__)
-#endif
 	#define new MEMALL_DEBUG_NEW
 #endif
 
