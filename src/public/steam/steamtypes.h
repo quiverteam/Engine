@@ -1,4 +1,4 @@
-//========= Copyright © 1996-2008, Valve LLC, All rights reserved. ============
+//========= Copyright ï¿½ 1996-2008, Valve LLC, All rights reserved. ============
 //
 // Purpose:
 //
@@ -17,7 +17,7 @@
 typedef unsigned char uint8;
 #endif
 
-#if defined( __GNUC__ ) && !defined(POSIX)
+#if defined( __GNUC__ ) && !defined(POSIX) && !defined(_WIN32)
 	#if __GNUC__ < 4
 		#error "Steamworks requires GCC 4.X (4.2 or 4.4 have been tested)"
 	#endif
