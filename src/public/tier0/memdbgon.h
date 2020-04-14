@@ -105,6 +105,10 @@ inline void *MemAlloc_InlineCallocMemset( void *pMem, size_t nCount, size_t nEle
 #define realloc(p, s)			g_pMemAlloc->Realloc( p, s, __FILE__, __LINE__ )
 #define _aligned_malloc( s, a )	MemAlloc_AllocAligned( s, a, __FILE__, __LINE__ )
 
+#ifdef _malloc_dbg
+#undef _malloc_dbg
+#endif
+
 #define _malloc_dbg(s, t, f, l)	WHYCALLINGTHISDIRECTLY(s)
 
 #if !defined( LINUX )
