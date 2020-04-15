@@ -44,7 +44,7 @@ set(LINK_LIBS			)
 set(DEPENDENCIES 		)
 
 # Platform specific link libs
-set(WINDOWS_LINK_LIBS	nvtc.lib ATI_Compress_MT_VC8.lib)
+set(WINDOWS_LINK_LIBS	)
 set(WIN32_LINK_LIBS		)
 set(WIN64_LINK_LIBS		)
 set(POSIX32_LINK_LIBS	)

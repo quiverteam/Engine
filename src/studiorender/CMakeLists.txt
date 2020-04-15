@@ -58,7 +58,7 @@ set(POSIX32_INCLUDE_DIRS	)
 set(POSIX64_INCLUDE_DIRS	)
 
 # Projects this depends on
-set(DEPENDENCIES            bitmap mathlib tier2 tier3)
+set(DEPENDENCIES            bitmap mathlib tier2 tier3 tier0 tier1 vstdlib)
 
 # Set the variable of target for stuff
 set(TARGET studiorender)

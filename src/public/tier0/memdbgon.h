@@ -47,7 +47,7 @@
 		#include <glob.h>
 		#include <new>
 		#include <sys/types.h>
-	#endif 
+	#endif
 		#if !defined( DID_THE_OPERATOR_NEW )
                         #define DID_THE_OPERATOR_NEW
 			// posix doesn't have a new of this form, so we impl our own
@@ -119,7 +119,12 @@ inline void *MemAlloc_InlineCallocMemset( void *pMem, size_t nCount, size_t nEle
 #else
 	#undef new
 
-	#define MEMALL_DEBUG_NEW new(_NORMAL_BLOCK, __FILE__, __LINE__)
+	#ifdef __GNUC__
+		#define MEMALL_DEBUG_NEW new
+	#else
+		#define MEMALL_DEBUG_NEW new(_NORMAL_BLOCK, __FILE__, __LINE__)
+	#endif
+
 	#define new MEMALL_DEBUG_NEW
 #endif
 

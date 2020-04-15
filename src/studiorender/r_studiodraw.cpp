@@ -1,4 +1,4 @@
-//========= Copyright © 1996-2005, Valve Corporation, All rights reserved. ============//
+//========= Copyright ï¿½ 1996-2005, Valve Corporation, All rights reserved. ============//
 //
 // Purpose: 
 //
@@ -654,7 +654,7 @@ static matrix3x4_t *ComputeSkinMatrix( mstudioboneweight_t &boneweights, matrix3
 static matrix3x4_t *ComputeSkinMatrixSSE( mstudioboneweight_t &boneweights, matrix3x4_t *pPoseToWorld, matrix3x4_t &result )
 {
 	// NOTE: pPoseToWorld, being cache aligned, doesn't need explicit initialization
-#if defined( _WIN32 ) && !defined( _X360 )
+#if defined( _WIN32 ) && !defined( __GNUC__ )
 	switch( boneweights.numbones )
 	{
 	default:
@@ -859,7 +859,7 @@ static matrix3x4_t *ComputeSkinMatrixSSE( mstudioboneweight_t &boneweights, matr
 		}
 		return &result;
 	}
-#elif _LINUX
+#elif defined(_LINUX) || defined(__GNUC__)
 #warning "ComputeSkinMatrixSSE C implementation only"
 	return ComputeSkinMatrix( boneweights, pPoseToWorld, result );
 #elif defined( _X360 )
