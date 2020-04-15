@@ -9,7 +9,7 @@ project(vstdlib C CXX)
 set(WINDOWS_SRCS	)
 set(POSIX_SRCS	)
 
-set(SRCS			)
+set(SRCS			"${ROOT}/public/tier0/memoverride.cpp")
 
 file(GLOB SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/ *.c *.cpp)
 list(APPEND SRCS ${SOURCES})
