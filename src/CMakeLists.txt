@@ -29,6 +29,7 @@ option(HL2MP "Build HL2MP game stuff" ON)
 option(HL2R "Build HL2:Revamped game stuff" ON)
 option(POSIX_UNSUPPORT "Enable project generation for things not quite ported to posix yet" OFF)
 option(CLANG "Enables the use of the clang toolchain instead of the default GNU toolchain (Only for POSIX)" OFF)
+option(MALLOC_OVERRIDE "Enables the use of internal allocators" OFF)
 
 # Definitions that should always be enabled
 # TODO: Will NO_MALLOC_OVERRIDE work on windows?
@@ -177,6 +178,10 @@ if(NOT USE_AVX)
 	add_definitions(-DSDL_DISABLE_IMMINTRIN_H)
 endif(NOT USE_AVX)
 
+if(NOT MALLOC_OVERRIDE)
+	add_definitions(-DNO_MALLOC_OVERRIDE)
+endif(NOT MALLOC_OVERRIDE)
+
 
 set(CMAKESCRIPTS_DIR ${CMAKE_HOME_DIRECTORY}/cmake_scripts/)
 set(ROOT_DIR ${CMAKE_HOME_DIRECTORY})
@@ -231,7 +236,7 @@ if(DEFINED WINDOWS_BUILD OR UNIX_CROSS)
 	add_subdirectory(materialsystem/shaderapidx9)
 	add_subdirectory(vgui2/vgui_controls)
 	add_subdirectory(vgui2/src)
-	add_subdirectory(hammer)
-	add_subdirectory(hammer_launcher)
+	#add_subdirectory(utils/hammer)
+	#add_subdirectory(utils/hammer_launcher)
 endif(DEFINED WINDOWS_BUILD OR UNIX_CROSS)
 
