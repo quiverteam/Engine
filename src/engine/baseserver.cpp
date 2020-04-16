@@ -1724,6 +1724,8 @@ void CBaseServer::UpdateMasterServer()
 	if ( serverGameDLL && serverGameDLL->ShouldHideServer() )
 		bActive = false;
 
+	SteamGameServer()->EnableHeartbeats( bActive );
+
 	if ( !bActive )
 		return;
 
