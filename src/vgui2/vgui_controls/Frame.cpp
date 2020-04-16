@@ -765,7 +765,7 @@ Frame::Frame(Panel *parent, const char *panelName, bool showTaskbarIcon /*=true*
 
 	m_hPreviousModal = 0;
 
-	_title=null;
+	_title=NULL;
 	_moveable=true;
 	_sizeable=true;
 	m_bHasFocus=false;

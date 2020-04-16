@@ -569,7 +569,7 @@ void ScrollBarSlider::OnMouseDoublePressed(MouseCode code)
 void ScrollBarSlider::OnMouseReleased(MouseCode code)
 {
 	_dragging = false;
-	input()->SetMouseCapture(null);
+	input()->SetMouseCapture(NULL);
 }
 
 //-----------------------------------------------------------------------------

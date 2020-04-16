@@ -137,9 +137,9 @@ DECLARE_BUILD_FACTORY_CUSTOM( ScrollBar, ScrollBar_Horizontal_Factory );
 //-----------------------------------------------------------------------------
 ScrollBar::ScrollBar(Panel *parent, const char *panelName, bool vertical) : Panel(parent, panelName)
 {
-	_slider=null;
-	_button[0]=null;
-	_button[1]=null;
+	_slider=NULL;
+	_button[0]=NULL;
+	_button[1]=NULL;
 	_scrollDelay = SCROLL_BAR_DELAY;
 	_respond = true;
 	m_pUpArrow = NULL;
@@ -398,7 +398,7 @@ bool ScrollBar::HasFullRange()
 //LEAK: new and old slider will leak
 void ScrollBar::SetButton(Button *button, int index)
 {
-	if(_button[index]!=null)
+	if(_button[index]!=NULL)
 	{
 		_button[index]->SetParent((Panel *)NULL);
 	}
@@ -426,7 +426,7 @@ Button* ScrollBar::GetButton(int index)
 //LEAK: new and old slider will leak
 void ScrollBar::SetSlider(ScrollBarSlider *slider)
 {
-	if(_slider!=null)
+	if(_slider!=NULL)
 	{
 		_slider->SetParent((Panel *)NULL);
 	}
@@ -560,13 +560,13 @@ int ScrollBar::GetRangeWindow()
 //-----------------------------------------------------------------------------
 void ScrollBar::Validate()
 {
-	if ( _slider != null )
+	if ( _slider != NULL )
 	{
 		int buttonOffset = 0;
 
 		for( int i=0; i<2; i++ )
 		{
-			if( _button[i] != null )
+			if( _button[i] != NULL )
 			{
 				if( _button[i]->IsVisible() )
 				{
@@ -593,7 +593,7 @@ void ScrollBar::SetScrollbarButtonsVisible(bool visible)
 {
 	for( int i=0; i<2; i++ )
 	{
-		if( _button[i] != null )
+		if( _button[i] != NULL )
 		{
 			_button[i]->SetShouldPaint( visible );
 			_button[i]->SetEnabled( visible );
