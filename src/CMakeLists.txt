@@ -229,6 +229,8 @@ add_subdirectory(dmxloader)
 add_subdirectory(vgui2/matsys_controls)
 add_subdirectory(vgui2/vgui_surfacelib)
 add_subdirectory(tools/toolutils)
+add_subdirectory(particles)
+add_subdirectory(vphysics)
 
 if(VULKAN)
 	add_subdirectory(materialsystem/shaderapivk)
