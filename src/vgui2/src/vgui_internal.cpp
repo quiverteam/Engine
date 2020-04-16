@@ -1,4 +1,4 @@
-//========= Copyright © 1996-2005, Valve Corporation, All rights reserved. ============//
+//========= Copyright ï¿½ 1996-2005, Valve Corporation, All rights reserved. ============//
 //
 // Purpose: Core implementation of vgui
 //
@@ -10,7 +10,7 @@
 #include <vgui/ISurface.h>
 #include <vgui/ILocalize.h>
 #include <vgui/IPanel.h>
-#include "FileSystem.h"
+#include "filesystem.h"
 #include <vstdlib/IKeyValuesSystem.h>
 
 #include <stdio.h>

@@ -1,4 +1,4 @@
-//========= Copyright © 1996-2005, Valve Corporation, All rights reserved. ============//
+//========= Copyright ï¿½ 1996-2005, Valve Corporation, All rights reserved. ============//
 //
 // Purpose: 
 //
@@ -325,7 +325,7 @@ void VPanel::SetParent(VPanel *newParent)
 	if (_parent != NULL)
 	{
 		_parent->_childDar.RemoveElement(this);
-		_parent = null;
+		_parent = NULL;
 	}
 
 	if (newParent != NULL)

@@ -1,4 +1,4 @@
-//========= Copyright © 1996-2005, Valve Corporation, All rights reserved. ============//
+//========= Copyright ï¿½ 1996-2005, Valve Corporation, All rights reserved. ============//
 //
 // Purpose: 
 //
@@ -17,9 +17,9 @@
 #include <vgui/ISystem.h>
 #include <vstdlib/IKeyValuesSystem.h>
 
-#include <UtlVector.h>
-#include <UtlRBTree.h>
-#include "vgui_border.h"
+#include <utlvector.h>
+#include <utlrbtree.h>
+#include "VGUI_Border.h"
 #include "vgui_internal.h"
 #include "bitmap.h"
 #include "filesystem.h"

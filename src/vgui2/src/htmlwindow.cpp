@@ -1,4 +1,4 @@
-//========= Copyright © 1996-2005, Valve Corporation, All rights reserved. ============//
+//========= Copyright ï¿½ 1996-2005, Valve Corporation, All rights reserved. ============//
 //
 // Purpose: Provides an ActiveX control hosting environment for an Internet Explorer control.
 //
@@ -12,17 +12,17 @@
 #define _WIN32_WINNT 0x0502
 #include <oleidl.h>
 #include <winerror.h>
-#include <comdef.h>
 #include <assert.h>
 #include <vgui/HtmlWindow.h> // in common/vgui/
 #include <tier0/dbg.h>
+#include <comdef.h>
 
 #include <mshtml.h>  // for HtmlDocument2 defines
 #include <mshtmdid.h> 
 #include <mshtmhst.h>	// for IDocHostUIHandler
 
 #include <vgui/ISurface.h> // for surface()
-#include "vgui/iinputinternal.h"
+#include "vgui/IInputInternal.h"
 #include "vgui_internal.h"
 #include "vgui_key_translation.h"
 
@@ -37,15 +37,16 @@
 
 #ifdef UNICODE
 #define GetClassName  GetClassNameW
+#define PostMessage PostMessageW
 #else
 #define GetClassName  GetClassNameA
+#define PostMessage PostMessageA
 #endif // !UNICODE
 
 #ifdef _DEBUG
 #ifdef DEBUG
 #undef DEBUG
 #endif
-//#define DEBUG( x ) OutputDebugString( #x "\n" )
 #define DEBUG( x )
 #else
 #define DEBUG( x )
@@ -1452,7 +1453,7 @@ bool HtmlWindow::OnStartURL(const char * url, const char *target, bool first)
 
 	if (m_events)
 	{
-		if ( m_events->OnStartURL(url, target, first) )
+		if ( m_events->Obsolete_OnStartURL(url, target, first) )
 		{
 			return true;
 		}
@@ -1472,7 +1473,7 @@ void HtmlWindow::OnProgressURL(long current, long maximum)
 	DEBUG("progress url");
 	if(m_events)
 	{
-		m_events->OnProgressURL(current,maximum);
+		m_events->Obsolete_OnProgressURL(current,maximum);
 	}
 }
 
@@ -1821,7 +1822,7 @@ void HtmlWindow::OnFinishURL(const char * url)
 	// tell the parent to repaint itself, we have a new page
 	if(m_events)
 	{
-		m_events->OnFinishURL(url);
+		m_events->Obsolete_OnFinishURL(url);
 	}
 
 	HWND tst=m_oleObjectHWND;

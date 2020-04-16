@@ -9,5 +9,6 @@ Undefines various Mingw/win32 structures
 #undef PropertySheet
 #undef SendMessage
 #undef PostMessage
+#undef GetClassName
 
 #endif

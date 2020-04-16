@@ -1,4 +1,4 @@
-//========= Copyright © 1996-2005, Valve Corporation, All rights reserved. ============//
+//========= Copyright ï¿½ 1996-2005, Valve Corporation, All rights reserved. ============//
 //
 // Purpose: 
 //
@@ -20,8 +20,8 @@
 #undef GetCharABCWidths
 #endif
 
-#include "UtlRBTree.h"
-#include "tier1/UtlSymbol.h"
+#include "utlrbtree.h"
+#include "tier1/utlsymbol.h"
 
 //-----------------------------------------------------------------------------
 // Purpose: encapsulates a windows font

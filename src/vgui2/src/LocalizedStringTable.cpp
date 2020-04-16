@@ -1,4 +1,4 @@
-//===== Copyright © 1996-2005, Valve Corporation, All rights reserved. ======//
+//===== Copyright ï¿½ 1996-2005, Valve Corporation, All rights reserved. ======//
 //
 // Purpose: 
 //
@@ -12,17 +12,17 @@
 #endif
 #include <wchar.h>
 
-#include "FileSystem.h"
+#include "filesystem.h"
 
 #include "vgui_internal.h"
 #include "vgui/ILocalize.h"
 #include "vgui/ISystem.h"
 #include "vgui/ISurface.h"
 
-#include "tier1/UtlVector.h"
-#include "tier1/UtlRBTree.h"
-#include "tier1/UtlSymbol.h"
-#include "tier1/UtlString.h"
+#include "tier1/utlvector.h"
+#include "tier1/utlrbtree.h"
+#include "tier1/utlsymbol.h"
+#include "tier1/utlstring.h"
 #include "UnicodeFileHelpers.h"
 #include "tier0/icommandline.h"
 #include "byteswap.h"
@@ -970,7 +970,7 @@ int CLocalizedStringTable::ConvertUnicodeToANSI(const wchar_t *unicode, char *an
 	return result;
 }
 
-#define va_argByIndex(ap,t,i)    ( *(t *)(ap + i * _INTSIZEOF(t)) )
+#define va_argByIndex(ap,t,i)    ( *(t *)(ap + i * sizeof(t)) )
 
 //-----------------------------------------------------------------------------
 // Purpose: builds a localized formatted string

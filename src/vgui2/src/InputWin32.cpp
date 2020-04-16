@@ -1,4 +1,4 @@
-//===== Copyright © 1996-2005, Valve Corporation, All rights reserved. ======//
+//===== Copyright ï¿½ 1996-2005, Valve Corporation, All rights reserved. ======//
 //
 // Purpose: 
 //
@@ -14,7 +14,7 @@
 
 #include "vgui_internal.h"
 #include "VPanel.h"
-#include "UtlVector.h"
+#include "utlvector.h"
 #include <KeyValues.h>
 #include "tier0/vcrmode.h"
 
@@ -28,7 +28,7 @@
 #include <vgui/MouseCode.h>
 #include "vgui/Cursor.h"
 
-#include "UtlLinkedList.h"
+#include "utllinkedlist.h"
 #include "tier0/icommandline.h"
 
 #if defined( _X360 )
@@ -293,8 +293,8 @@ CInputWin32::CInputWin32()
 {
 	m_nDebugMessages = -1;
 #ifndef _X360
-	_imeWnd = null;
-	_imeCandidates = null;
+	_imeWnd = NULL;
+	_imeCandidates = NULL;
 #endif
 	InitInputContext( &m_DefaultInputContext );
 	m_hContext = DEFAULT_INPUT_CONTEXT;
@@ -2680,7 +2680,7 @@ void CInputWin32::DestroyCandidateList()
 	if ( _imeCandidates )
 	{
 		delete[] (char *)_imeCandidates;
-		_imeCandidates = null;
+		_imeCandidates = NULL;
 	}
 #endif
 }

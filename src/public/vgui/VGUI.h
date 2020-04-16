@@ -18,7 +18,12 @@
 #pragma once
 #endif
 
+/*
+#ifdef null
+#undef null
+#endif
 #define null 0L
+*/
 
 #ifndef NULL
 #ifdef __cplusplus

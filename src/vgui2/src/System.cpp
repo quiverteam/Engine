@@ -1,4 +1,4 @@
-//========= Copyright © 1996-2005, Valve Corporation, All rights reserved. ============//
+//========= Copyright ï¿½ 1996-2005, Valve Corporation, All rights reserved. ============//
 //
 // Purpose: 
 //
@@ -39,7 +39,7 @@
 #include <vgui/IInputInternal.h>
 #include <vgui/ISurface.h>
 #include "tier0/vcrmode.h"
-#include "FileSystem.h"
+#include "filesystem.h"
 
 #include "vgui_internal.h"
 #include "filesystem_helpers.h"
@@ -381,7 +381,7 @@ void CSystem::SetClipboardText(const char *text, int textLen)
 	if (hmem)
 	{
 		void *ptr = GlobalLock(hmem);
-		if (ptr != null)
+		if (ptr != NULL)
 		{
 			memset(ptr, 0, textLen + 1);
 			memcpy(ptr, text, textLen);
@@ -417,7 +417,7 @@ void CSystem::SetClipboardText(const wchar_t *text, int textLen)
 	if (hmem)
 	{
 		void *ptr = GlobalLock(hmem);
-		if (ptr != null)
+		if (ptr != NULL)
 		{
 			memset(ptr, 0, (textLen + 1) * sizeof(wchar_t));
 			memcpy(ptr, text, textLen * sizeof(wchar_t));
@@ -548,7 +548,7 @@ int CSystem::GetClipboardText(int offset, wchar_t *buf, int bufLen)
 
 static bool staticSplitRegistryKey(const char *key, char *key0, int key0Len, char *key1, int key1Len)
 {
-	if(key==null)
+	if(key==NULL)
 	{
 		return false;
 	}
@@ -606,7 +606,7 @@ bool CSystem::SetRegistryString(const char *key, const char *value)
 		return false;
 	}
 
-	if(VCRHook_RegCreateKeyEx(hSlot,key0,null,null,REG_OPTION_NON_VOLATILE, value ? KEY_WRITE : KEY_ALL_ACCESS,null,&hKey,null)!=ERROR_SUCCESS)
+	if(VCRHook_RegCreateKeyEx(hSlot,key0,NULL,NULL,REG_OPTION_NON_VOLATILE, value ? KEY_WRITE : KEY_ALL_ACCESS,NULL,&hKey,NULL)!=ERROR_SUCCESS)
 	{
 		return false;
 	}
@@ -650,13 +650,13 @@ bool CSystem::GetRegistryString(const char *key, char *value, int valueLen)
 		return false;
 	}
 
-	if(VCRHook_RegOpenKeyEx(hSlot,key0,null,KEY_READ,&hKey)!=ERROR_SUCCESS)
+	if(VCRHook_RegOpenKeyEx(hSlot,key0,NULL,KEY_READ,&hKey)!=ERROR_SUCCESS)
 	{
 		return false;
 	}
 
 	ulong len=valueLen;
-	if(VCRHook_RegQueryValueEx(hKey,key1,null,null,(uchar*)value,&len)==ERROR_SUCCESS)
+	if(VCRHook_RegQueryValueEx(hKey,key1,NULL,NULL,(uchar*)value,&len)==ERROR_SUCCESS)
 	{		
 		VCRHook_RegCloseKey(hKey);
 		return true;
@@ -690,12 +690,12 @@ bool CSystem::SetRegistryInteger(const char *key, int value)
 		return false;
 	}
 
-	if(VCRHook_RegCreateKeyEx(hSlot,key0,null,null,REG_OPTION_NON_VOLATILE,KEY_WRITE,null,&hKey,null)!=ERROR_SUCCESS)
+	if(VCRHook_RegCreateKeyEx(hSlot,key0,NULL,NULL,REG_OPTION_NON_VOLATILE,KEY_WRITE,NULL,&hKey,NULL)!=ERROR_SUCCESS)
 	{
 		return false;
 	}
 		
-	if(VCRHook_RegSetValueEx(hKey,key1,null,REG_DWORD,(uchar*)&value,4)==ERROR_SUCCESS)
+	if(VCRHook_RegSetValueEx(hKey,key1,NULL,REG_DWORD,(uchar*)&value,4)==ERROR_SUCCESS)
 	{
 		VCRHook_RegCloseKey(hKey);
 		return true;
@@ -728,13 +728,13 @@ bool CSystem::GetRegistryInteger(const char *key, int &value)
 		return false;
 	}
 
-	if(VCRHook_RegOpenKeyEx(hSlot,key0,null,KEY_READ,&hKey)!=ERROR_SUCCESS)
+	if(VCRHook_RegOpenKeyEx(hSlot,key0,NULL,KEY_READ,&hKey)!=ERROR_SUCCESS)
 	{
 		return false;
 	}
 
 	ulong len=4;
-	if(VCRHook_RegQueryValueEx(hKey,key1,null,null,(uchar*)&value,&len)==ERROR_SUCCESS)
+	if(VCRHook_RegQueryValueEx(hKey,key1,NULL,NULL,(uchar*)&value,&len)==ERROR_SUCCESS)
 	{		
 		VCRHook_RegCloseKey(hKey);
 		return true;

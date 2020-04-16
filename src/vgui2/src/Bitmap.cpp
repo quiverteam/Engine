@@ -1,4 +1,4 @@
-//========= Copyright © 1996-2005, Valve Corporation, All rights reserved. ============//
+//========= Copyright ï¿½ 1996-2005, Valve Corporation, All rights reserved. ============//
 //
 // Purpose: 
 //
@@ -12,7 +12,7 @@
 #include "bitmap.h"
 #include "vgui_internal.h"
 #include "filesystem.h"
-#include "UtlBuffer.h"
+#include "utlbuffer.h"
 #include <tier0/dbg.h>
 
 // memdbgon must be the last include file in a .cpp file!!!

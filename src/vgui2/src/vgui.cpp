@@ -1,4 +1,4 @@
-//===== Copyright © 1996-2005, Valve Corporation, All rights reserved. ======//
+//===== Copyright ï¿½ 1996-2005, Valve Corporation, All rights reserved. ======//
 //
 // Purpose: Core implementation of vgui
 //
@@ -23,7 +23,7 @@
 #include <vgui/IScheme.h>
 #include <KeyValues.h>
 #include <string.h>
-#include <Assert.h>
+#include <assert.h>
 #include <stdio.h>
 #include <stdarg.h>
 #include <malloc.h>
@@ -33,9 +33,9 @@
 #include "VPanel.h"
 #include "IMessageListener.h"
 #include "tier3/tier3.h"
-#include "UtlLinkedList.h"
-#include "UtlPriorityQueue.h"
-#include "UtlVector.h"
+#include "utllinkedlist.h"
+#include "utlpriorityqueue.h"
+#include "utlvector.h"
 #include "tier0/vprof.h"
 #include "tier0/icommandline.h"
 
@@ -909,11 +909,11 @@ void CVGui::ShutdownMessage(unsigned int shutdownID)
 	VPANEL panel = g_pSurface->GetEmbeddedPanel();
 	for (int i = 0; i < ((VPanel *)panel)->GetChildCount(); i++)
 	{
-		g_pIVgui->PostMessage((VPANEL)((VPanel *)panel)->GetChild(i), new KeyValues("ShutdownRequest", "id", shutdownID), NULL);
+		g_pIVgui->PostMessage((VPANEL)((VPanel *)panel)->GetChild(i), new KeyValues("ShutdownRequest", "id", (int)shutdownID), NULL);
 	}
 
 	// post to the top level window as well
-	g_pIVgui->PostMessage(panel, new KeyValues("ShutdownRequest", "id", shutdownID), NULL);
+	g_pIVgui->PostMessage(panel, new KeyValues("ShutdownRequest", "id", (int)shutdownID), NULL);
 }
 
 //-----------------------------------------------------------------------------
@@ -1020,9 +1020,9 @@ void CVGui::DPrintf2(const char* format,...)
 
 void vgui::vgui_strcpy(char* dst,int dstLen,const char* src)
 {
-	Assert(dst!=null);
+	Assert(dst!=NULL);
 	Assert(dstLen>=0);
-	Assert(src!=null);
+	Assert(src!=NULL);
 
 	int srcLen=strlen(src)+1;
 	if(srcLen>dstLen)
