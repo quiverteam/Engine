@@ -22,6 +22,10 @@ for arg in "$@"; do
 		HL2_DIR="$1"
 		echo -e "HL2_DIR=$HL2_DIR"
 		;;
+	--dir=*)
+		HL2_DIR=$(echo $arg | sed "s/--dir=//")
+		shift
+		;;
 	-b|--batch)
 		echo "FUCK"
 		BATCHMODE=1
