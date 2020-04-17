@@ -8,3 +8,6 @@
 	path = src/devtools/qpc
 	url = https://github.com/quiverteam/QuiverProjectCreator
 	branch = refactor
+[submodule "src/thirdparty/bullet3"]
+	path = src/thirdparty/bullet3
+	url = https://github.com/quiverteam/bullet3

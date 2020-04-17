@@ -59,10 +59,10 @@ set(POSIX32_LINK_DIRS	)
 set(POSIX64_LINK_DIRS	)
 
 # Projects this depends on
-set(DEPENDENCIES		tier2 tier1 tier0 mathlib vstdlib)
+set(DEPENDENCIES		tier2 tier1 tier0 mathlib vstdlib BulletCollision BulletDynamics BulletSoftBody BulletMultithreaded LinearMath)
 
 # Generic libs to link against
-set(LINK_LIBS	        BulletCollision BulletDynamics BulletSoftBody BulletMultithreaded LinearMath)
+set(LINK_LIBS	        )
 
 # Platform specific link libs
 set(WINDOWS_LINK_LIBS	)
@@ -72,7 +72,9 @@ set(POSIX32_LINK_LIBS	)
 set(POSIX64_LINK_LIBS	)
 
 # Generic include dirs
-set(INCLUDE_DIRS		${PUBLIC_INCLUDE}/tier1 ${PUBLIC_INCLUDE}/tier0)
+set(INCLUDE_DIRS		${PUBLIC_INCLUDE}/tier1
+                        ${PUBLIC_INCLUDE}/tier0
+                        ${ROOT}/thirdparty/bullet3/src)
 
 # Platform specific includes
 set(WIN32_INCLUDE_DIRS	)

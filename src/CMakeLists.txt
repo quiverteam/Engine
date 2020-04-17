@@ -30,6 +30,7 @@ option(HL2R "Build HL2:Revamped game stuff" ON)
 option(POSIX_UNSUPPORT "Enable project generation for things not quite ported to posix yet" OFF)
 option(CLANG "Enables the use of the clang toolchain instead of the default GNU toolchain (Only for POSIX)" OFF)
 option(MALLOC_OVERRIDE "Enables the use of internal allocators" OFF)
+option(USE_BULLET3 "Uses bullet3 instead of bullet2 when building vphysics. In the future this option will be removed." OFF)
 
 # Definitions that should always be enabled
 # TODO: Will NO_MALLOC_OVERRIDE work on windows?
@@ -231,6 +232,12 @@ add_subdirectory(vgui2/vgui_surfacelib)
 add_subdirectory(tools/toolutils)
 add_subdirectory(particles)
 add_subdirectory(vphysics)
+
+if(USE_BULLET3)
+	add_subdirectory(thirdparty/bullet3)
+else()
+	add_subdirectory(thirdparty/bullet)
+endif(USE_BULLET3)
 
 if(VULKAN)
 	add_subdirectory(materialsystem/shaderapivk)
