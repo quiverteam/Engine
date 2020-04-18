@@ -43,6 +43,7 @@
 
 #define DEBUG_TRANSITIONS_VERBOSE	2
 ConVar g_debug_transitions( "g_debug_transitions", "0", FCVAR_NONE, "Set to 1 and restart the map to be warned if the map has no trigger_transition volumes. Set to 2 to see a dump of all entities & associated results during a transition." );
+ConVar sv_use_changelevel2( "sv_use_changelevel2", "0", FCVAR_NONE, "Disabled for Multiplayer for now" );
 
 // Global list of triggers that care about weapon fire
 // Doesn't need saving, the triggers re-add themselves on restore.
@@ -1621,7 +1622,14 @@ void CChangeLevel::ChangeLevelNow( CBaseEntity *pActivator )
 	// If we're debugging, don't actually change level
 	if ( g_debug_transitions.GetInt() == 0 )
 	{
-		engine->ChangeLevel( st_szNextMap, st_szNextSpot );
+		if ( sv_use_changelevel2.GetBool() )
+		{
+			engine->ChangeLevel( st_szNextMap, st_szNextSpot );
+		}
+		else
+		{
+			engine->ChangeLevel( st_szNextMap, NULL );
+		}
 	}
 	else
 	{
