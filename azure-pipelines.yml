@@ -15,13 +15,18 @@ pool:
 
 
 steps:
+- script: |
+    py -m pip install --upgrade pip
+    py -m pip install lxml
+  displayName: 'Install lxml'
+  
 - task: PythonScript@0
   displayName: Generate Projects
   inputs:
     scriptSource: 'filePath'
     scriptPath: 'src/devtools/qpc/qpc.py'
     workingDirectory: 'src/'
-    arguments: '-a everything -m episodic hl2 hl2mp -t vstudio -mf everything'
+    arguments: '-a everything -m EPISODIC HL2 HL2MP -g visual_studio -mf everything'
     
 # no difference from MSBuild@1?
 - task: VSBuild@1
