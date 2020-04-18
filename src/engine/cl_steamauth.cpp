@@ -123,10 +123,13 @@ void CSteam3Client::TerminateConnection( uint32 unIP, uint16 usPort )
 {
 	m_bGSSecure = false;
 
-
 #if !defined( NO_STEAM )
 	if ( !SteamUser() )
 		return;
+
+	if ( !m_hAuthTicket )
+		return;
+
 	SteamUser()->CancelAuthTicket( m_hAuthTicket );
 	m_hAuthTicket = NULL;
 #endif

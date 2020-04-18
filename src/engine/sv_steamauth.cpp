@@ -147,7 +147,7 @@ void CSteam3::Activate()
 		NET_StringToAdr( ipname.GetString(), &ipaddr );
 		if ( !ipaddr.IsLoopback() && !ipaddr.IsLocalhost() )
 		{
-			m_unIP = ipaddr.GetIPNetworkByteOrder();
+			m_unIP = ipaddr.GetIPHostByteOrder();
 		}
 	}
 
