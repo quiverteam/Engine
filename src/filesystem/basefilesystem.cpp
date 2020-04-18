@@ -3901,6 +3901,8 @@ const char *CBaseFileSystem::FindFirstHelper( const char *pWildCard, const char 
 	{
 		pFindData->findHandle = FS_FindFirstFile( pWildCard, &pFindData->findData );
 		pFindData->currentSearchPathID = -1;
+		if ( pFindData->findHandle != INVALID_HANDLE_VALUE )
+		 	goto FileFound;
 	}
 	else
 	{
@@ -3964,7 +3966,7 @@ const char *CBaseFileSystem::FindFirst( const char *pWildCard, FileFindHandle_t 
 bool CBaseFileSystem::FindNextFileHelper( FindData_t *pFindData, int *pFoundStoreID )
 {
 	// Pack files
-	if ( m_SearchPaths[pFindData->currentSearchPathID].GetPackFile() )
+	if ( pFindData->currentSearchPathID != -1 && m_SearchPaths[pFindData->currentSearchPathID].GetPackFile() )
 	{
 		if ( m_SearchPaths[pFindData->currentSearchPathID].GetPackFile()->FindNext( pFindData ) )
 			return true;
