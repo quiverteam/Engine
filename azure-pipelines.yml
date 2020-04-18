@@ -19,14 +19,11 @@ steps:
     py -m pip install --upgrade pip
     py -m pip install lxml
   displayName: 'Install lxml'
-  
-- task: PythonScript@0
-  displayName: Generate Projects
+
+- task: CmdLine@2
   inputs:
-    scriptSource: 'filePath'
-    scriptPath: 'src/devtools/qpc/qpc.py'
+    script: 'py src/devtools/qpc/qpc.py -a everything -m EPISODIC HL2 HL2MP -g visual_studio -mf everything'
     workingDirectory: 'src/'
-    arguments: '-a everything -m EPISODIC HL2 HL2MP -g visual_studio -mf everything'
     
 # no difference from MSBuild@1?
 - task: VSBuild@1
