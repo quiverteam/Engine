@@ -1,0 +1,44 @@
+// ---------------------------------------------------------------
+// Auto Generated QPC Script - Fix if needed before using
+// ---------------------------------------------------------------
+macro PROJECT_NAME "Dmxloader"
+
+macro SRCDIR ".."
+macro OUTLIBDIR "$LIBPUBLIC"
+
+include "$SRCDIR/_qpc_scripts/source_lib_base.qpc"
+
+configuration
+{
+	compiler
+	{
+		preprocessor_definitions
+		{
+			"DMXLOADER_LIB"
+		}
+	}
+}
+
+files
+{
+	folder "Source Files"
+	{
+		"dmxattribute.cpp"
+		"dmxelement.cpp"
+		"dmxloader.cpp"
+		"dmxloadertext.cpp"
+		"dmxserializationdictionary.cpp"
+	}
+
+	folder "Header Files"
+	{
+		"dmxserializationdictionary.h"
+	}
+
+	folder "Interface"
+	{
+		"$SRCDIR/public/dmxloader/dmxattribute.h"
+		"$SRCDIR/public/dmxloader/dmxelement.h"
+		"$SRCDIR/public/dmxloader/dmxloader.h"
+	}
+}

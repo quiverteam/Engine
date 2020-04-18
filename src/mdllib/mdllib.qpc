@@ -1,0 +1,28 @@
+// ---------------------------------------------------------------
+// Auto Generated QPC Script - Fix if needed before using
+// ---------------------------------------------------------------
+macro PROJECT_NAME "mdllib"
+
+macro SRCDIR ".."
+macro OUTBINDIR "$BINDEFAULT"
+
+include "$SRCDIR/_qpc_scripts/source_dll_base.qpc"
+
+files
+{
+	folder "Source Files"
+	{
+		"mdllib.cpp"
+		"mdllib_stripinfo.cpp"
+		"mdllib_stripmodel.cpp"
+		"mdllib_utils.cpp"
+	}
+
+	folder "Header Files"
+	{
+		"$SRCDIR/public/mdllib/mdllib.h"
+		"mdllib_common.h"
+		"mdllib_stripinfo.h"
+		"mdllib_utils.h"
+	}
+}

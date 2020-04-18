@@ -2163,7 +2163,7 @@ void CBaseMeshDX8::Spew( int nVertexCount, int nIndexCount, const MeshDesc_t &sp
 
 	char tempbuf[256];
 	char* temp = tempbuf;
-	sprintf( tempbuf,"\nVerts: (Vertex Format %x)\n", fmt);
+	sprintf( tempbuf,"\nVerts: (Vertex Format %llx)\n", fmt);
 	Plat_DebugString(tempbuf);
 
 	CVertexBufferBase::PrintVertexFormat( fmt );

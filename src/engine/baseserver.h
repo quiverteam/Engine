@@ -155,7 +155,7 @@ public: // IConnectionlessPacketHandler implementation
 protected:
 
 	virtual IClient *ConnectClient ( netadr_t &adr, int protocol, int challenge, int authProtocol, 
-					    const char *name, const char *password, const char *hashedCDkey, int cdKeyLen );
+					    const char *name, const char *password, const char *hashedCDkey, int cdKeyLen, CSteamID steamid );
 	
 	virtual CBaseClient *GetFreeClient( netadr_t &adr );
 

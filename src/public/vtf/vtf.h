@@ -138,11 +138,11 @@ enum CubeMapFaceIndex_t
 	CUBEMAP_FACE_UP,
 	CUBEMAP_FACE_DOWN,
 
-	// This is the fallback for low-end
-	CUBEMAP_FACE_SPHEREMAP,
+	CUBEMAP_FACE_COUNT,
 
-	// NOTE: Cubemaps have *7* faces; the 7th is the fallback spheremap
-	CUBEMAP_FACE_COUNT
+	// vtf 7.5: spheremap isn't used anymore, just
+	// here for backward compatibility.
+	CUBEMAP_FACE_SPHEREMAP = CUBEMAP_FACE_COUNT,
 };
 
 
@@ -424,7 +424,7 @@ bool GetVTFPreload360Data( const char *pDebugName, CUtlBuffer &fileBufferIn, CUt
 
 // version number for the disk texture cache
 #define VTF_MAJOR_VERSION 7
-#define VTF_MINOR_VERSION 4
+#define VTF_MINOR_VERSION 5
 
 //-----------------------------------------------------------------------------
 // !!!!CRITICAL!!!! BEFORE YOU CHANGE THE FORMAT

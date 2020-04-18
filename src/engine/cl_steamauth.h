@@ -25,7 +25,7 @@ public:
 	void Activate();
 	void Shutdown();
 
-	int InitiateConnection( void *pData, int cbMaxData, uint32 unIP, uint16 usPort, uint64 unGSSteamID, bool bSecure, void *pvSteam2GetEncryptionKey, int cbSteam2GetEncryptionKey );
+	int InitiateConnection( void *pData, int cbMaxData, bool bSecure );
 	void TerminateConnection( uint32 unIP, uint16 usPort );
 	bool BGSSecure() { return m_bGSSecure; }
 	void RunFrame();
@@ -39,6 +39,7 @@ public:
 private:
 	bool m_bActive;
 	bool m_bGSSecure;
+	HAuthTicket m_hAuthTicket;
 };
 
 // singleton accessor

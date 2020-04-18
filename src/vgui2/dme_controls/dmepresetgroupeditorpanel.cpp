@@ -1055,7 +1055,7 @@ bool CDmePresetGroupEditorPanel::OnReadFileFromDisk( const char *pFileName, cons
 				char pBuf[512];
 				Q_snprintf( pBuf, sizeof(pBuf), 
 					"Import contains a remap which refers to an unknown preset group \"%s\"!\n", 
-					pPresetRemap->m_SourcePresetGroup );
+					pPresetRemap->m_SourcePresetGroup.Get() );
 				vgui::MessageBox *pError = new vgui::MessageBox( "Bad source remap name!", pBuf, this );
 				pError->DoModal();
 			}

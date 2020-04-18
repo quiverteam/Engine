@@ -1,0 +1,50 @@
+// ---------------------------------------------------------------
+// Auto Generated QPC Script - Fix if needed before using
+// ---------------------------------------------------------------
+macro PROJECT_NAME "Audio_minimp3"
+
+macro SRCDIR "../../.."
+macro OUTBINDIR "$BINDEFAULT"
+
+include "$SRCDIR/_qpc_scripts/source_dll_base.qpc"
+
+configuration
+{
+	general
+	{
+		include_directories
+		{
+			"../.."
+		}
+	}
+
+	compiler
+	{
+		preprocessor_definitions
+		{
+			"WINDOWS_IGNORE_PACKING_MISMATCH"	[$WINDOWS]
+		}
+	}
+
+	linker
+	{
+		libraries
+		{
+			"$LIBCOMMON/mss32"
+		}
+	}
+}
+
+files
+{
+	folder "Source Files"
+	{
+		"mp3_minimp3.cpp"
+	}
+
+	folder "Header Files"
+	{
+		"$SRCDIR/public/tier1/interface.h"
+		"$SRCDIR/public/vaudio/ivaudio.h"
+	}
+}

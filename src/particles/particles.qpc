@@ -1,0 +1,33 @@
+// ---------------------------------------------------------------
+// Auto Generated QPC Script - Fix if needed before using
+// ---------------------------------------------------------------
+macro PROJECT_NAME "Particles"
+
+macro SRCDIR ".."
+macro OUTLIBDIR "$LIBPUBLIC"
+
+include "$SRCDIR/_qpc_scripts/source_lib_base.qpc"
+
+files
+{
+	folder "Source Files"
+	{
+		"builtin_constraints.cpp"
+		"builtin_initializers.cpp"
+		"builtin_particle_emitters.cpp"
+		"builtin_particle_forces.cpp"
+		"addbuiltin_ops.cpp"
+		"builtin_particle_ops.cpp"
+		"builtin_particle_render_ops.cpp"
+		"particle_sort.cpp"
+		"particles.cpp"
+		"psheet.cpp"
+	}
+
+	folder "Header Files"
+	{
+		"$SRCDIR/public/particles/particles.h"
+		"random_floats.h"
+		"particles_internal.h"
+	}
+}

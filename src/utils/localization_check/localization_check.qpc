@@ -1,0 +1,138 @@
+// ---------------------------------------------------------------
+// Auto Generated QPC Script - Fix if needed before using
+// ---------------------------------------------------------------
+macro PROJECT_NAME "Localization_check"
+
+macro SRCDIR "../.."
+macro OUTBINDIR "$BINDEFAULT"
+
+include "$SRCDIR/_qpc_scripts/source_exe_con_base.qpc"
+
+configuration
+{
+	general
+	{
+		include_directories
+		{
+			"$SRCDIR/utils/localization_check"
+			"$SRCDIR/game/shared"
+			"../common"
+			"../hlfaceposer"
+		}
+	}
+
+	linker
+	{
+		libraries
+		{
+			"winmm.lib"
+			"odbc32.lib"
+			"odbccp32.lib"
+			"appframework"
+			"choreoobjects"
+			"mathlib"
+			"tier2"
+			"tier3"
+		}
+	}
+}
+
+dependencies
+{
+	"appframework"
+	"choreoobjects"
+	"mathlib"
+	"tier2"
+	"tier3"
+}
+
+files
+{
+	folder "Source Files"
+	{
+		"../common/cmdlib.cpp"
+		"faceposersound_simple.cpp"
+		"$SRCDIR/public/filesystem_helpers.cpp"
+		"$SRCDIR/public/filesystem_helpers.h"
+		"$SRCDIR/public/filesystem_init.cpp"
+		"../common/filesystem_tools.cpp"
+		"$SRCDIR/game/shared/ichoreoeventcallback.h"
+		"$SRCDIR/public/interpolatortypes.cpp"
+		"$SRCDIR/game/shared/interval.cpp"
+		"$SRCDIR/game/shared/iscenetokenprocessor.h"
+		"$SRCDIR/public/isoundcombiner.h"
+		"localization_check.cpp"
+		"../common/pacifier.cpp"
+		"../common/pacifier.h"
+		"../common/scriplib.cpp"
+		"../common/scriplib.h"
+		"$SRCDIR/public/sentence.cpp"
+		"$SRCDIR/public/soundcombiner.cpp"
+		"$SRCDIR/public/UnicodeFileHelpers.cpp"
+	}
+
+	folder "Header Files"
+	{
+		"$SRCDIR/public/UnicodeFileHelpers.h"
+		"$SRCDIR/Public/mathlib/amd3dx.h"
+		"$SRCDIR/Public/tier0/basetypes.h"
+		"cbase.h"
+		"$SRCDIR/game/shared/choreoactor.h"
+		"$SRCDIR/game/shared/choreochannel.h"
+		"$SRCDIR/game/shared/choreoevent.h"
+		"$SRCDIR/game/shared/choreoscene.h"
+		"../common/cmdlib.h"
+		"$SRCDIR/public/Color.h"
+		"$SRCDIR/Public/commonmacros.h"
+		"$SRCDIR/public/tier1/convar.h"
+		"$SRCDIR/public/tier0/dbg.h"
+		"$SRCDIR/game/shared/ExpressionSample.h"
+		"$SRCDIR/public/tier0/fasttimer.h"
+		"$SRCDIR/Public/FileSystem.h"
+		"../common/filesystem_tools.h"
+		"$SRCDIR/public/appframework/IAppSystem.h"
+		"$SRCDIR/public/tier0/ICommandLine.h"
+		"$SRCDIR/Public/engine/IEngineSound.h"
+		"$SRCDIR/public/vstdlib/IKeyValuesSystem.h"
+		"$SRCDIR/public/tier1/interface.h"
+		"$SRCDIR/public/interpolatortypes.h"
+		"$SRCDIR/game/shared/interval.h"
+		"$SRCDIR/public/irecipientfilter.h"
+		"$SRCDIR/public/tier1/KeyValues.h"
+		"$SRCDIR/Public/mathlib/MATHLIB.H"
+		"$SRCDIR/public/tier0/mem.h"
+		"$SRCDIR/public/tier0/memdbgoff.h"
+		"$SRCDIR/public/tier0/memdbgon.h"
+		"$SRCDIR/public/networkvar.h"
+		"$SRCDIR/public/tier0/platform.h"
+		"$SRCDIR/public/protected_things.h"
+		"$SRCDIR/public/vstdlib/random.h"
+		"$SRCDIR/game/shared/sharedInterface.h"
+		"$SRCDIR/public/soundchars.h"
+		"$SRCDIR/Public/soundflags.h"
+		"$SRCDIR/public/string_t.h"
+		"$SRCDIR/public/tier1/strtools.h"
+		"$SRCDIR/public/tier1/utldict.h"
+		"$SRCDIR/public/tier1/utllinkedlist.h"
+		"$SRCDIR/public/tier1/utlmemory.h"
+		"$SRCDIR/public/tier1/utlrbtree.h"
+		"$SRCDIR/public/tier1/utlsymbol.h"
+		"$SRCDIR/public/tier1/utlvector.h"
+		"$SRCDIR/Public/mathlib/vector.h"
+		"$SRCDIR/Public/mathlib/vector2d.h"
+		"$SRCDIR/public/vstdlib/vstdlib.h"
+	}
+
+	folder "Audio"
+	{
+		"../hlfaceposer/snd_audio_source.cpp"
+		"../hlfaceposer/snd_audio_source.h"
+		"../hlfaceposer/snd_wave_mixer.cpp"
+		"../hlfaceposer/snd_wave_mixer.h"
+		"../hlfaceposer/snd_wave_mixer_adpcm.cpp"
+		"../hlfaceposer/snd_wave_mixer_adpcm.h"
+		"../hlfaceposer/snd_wave_mixer_private.h"
+		"../hlfaceposer/snd_wave_source.cpp"
+		"../hlfaceposer/snd_wave_source.h"
+	}
+}

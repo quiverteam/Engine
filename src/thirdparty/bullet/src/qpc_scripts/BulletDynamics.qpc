@@ -1,0 +1,142 @@
+// ---------------------------------------------------------------
+// Auto Generated QPC Script - Fix if needed before using
+// ---------------------------------------------------------------
+macro PROJECT_NAME "BulletDynamics"
+
+macro SRCDIR "../../../.."
+macro OUTLIBDIR "$LIBCOMMON"
+macro BULLET_SRC "../BulletDynamics"
+
+include "$SRCDIR/_qpc_scripts/source_lib_base.qpc"
+
+configuration
+{
+	general
+	{
+		int_dir "./$CONFIG/$_SUBDIRSUFFIX/$PROJECT_NAME"
+		configuration_type "static_library"
+		
+		include_directories
+		{
+			"../"
+		}
+		
+		options
+		{
+			"/ltcg" [$RELEASE]
+		}
+	}
+	
+	compiler
+	{
+		preprocessor_definitions
+		{
+			"_DEBUG" [$DEBUG]
+			"NDEBUG" [$RELEASE]
+			"MBCS"
+			"WIN32"
+			"_CRT_SECURE_NO_WARNINGS"
+			"_CRT_SECURE_NO_DEPRECATE"
+			"_SCL_SECURE_NO_WARNINGS"
+		}
+		
+		options
+		{
+			"/d2Zi+" [$RELEASE]
+			"/W3"
+		}
+	}
+}
+
+files
+{
+	folder "Source Files"
+	{
+		"$BULLET_SRC/Character/btKinematicCharacterController.cpp"
+		"$BULLET_SRC/ConstraintSolver/btConeTwistConstraint.cpp"
+		"$BULLET_SRC/ConstraintSolver/btContactConstraint.cpp"
+		"$BULLET_SRC/ConstraintSolver/btFixedConstraint.cpp"
+		"$BULLET_SRC/ConstraintSolver/btGearConstraint.cpp"
+		"$BULLET_SRC/ConstraintSolver/btGeneric6DofConstraint.cpp"
+		"$BULLET_SRC/ConstraintSolver/btGeneric6DofSpringConstraint.cpp"
+		"$BULLET_SRC/ConstraintSolver/btHinge2Constraint.cpp"
+		"$BULLET_SRC/ConstraintSolver/btHingeConstraint.cpp"
+		"$BULLET_SRC/ConstraintSolver/btNNCGConstraintSolver.cpp"
+		"$BULLET_SRC/ConstraintSolver/btPoint2PointConstraint.cpp"
+		"$BULLET_SRC/ConstraintSolver/btSequentialImpulseConstraintSolver.cpp"
+		"$BULLET_SRC/ConstraintSolver/btSliderConstraint.cpp"
+		"$BULLET_SRC/ConstraintSolver/btSolve2LinearConstraint.cpp"
+		"$BULLET_SRC/ConstraintSolver/btTypedConstraint.cpp"
+		"$BULLET_SRC/ConstraintSolver/btUniversalConstraint.cpp"
+		"$BULLET_SRC/Dynamics/btDiscreteDynamicsWorld.cpp"
+		"$BULLET_SRC/Dynamics/btRigidBody.cpp"
+		"$BULLET_SRC/Dynamics/btSimpleDynamicsWorld.cpp"
+		"$BULLET_SRC/Dynamics/Bullet-C-API.cpp"
+		"$BULLET_SRC/Featherstone/btMultiBody.cpp"
+		"$BULLET_SRC/Featherstone/btMultiBodyConstraint.cpp"
+		"$BULLET_SRC/Featherstone/btMultiBodyConstraintSolver.cpp"
+		"$BULLET_SRC/Featherstone/btMultiBodyDynamicsWorld.cpp"
+		"$BULLET_SRC/Featherstone/btMultiBodyJointLimitConstraint.cpp"
+		"$BULLET_SRC/Featherstone/btMultiBodyJointMotor.cpp"
+		"$BULLET_SRC/Featherstone/btMultiBodyPoint2Point.cpp"
+		"$BULLET_SRC/MLCPSolvers/btDantzigLCP.cpp"
+		"$BULLET_SRC/MLCPSolvers/btLemkeAlgorithm.cpp"
+		"$BULLET_SRC/MLCPSolvers/btMLCPSolver.cpp"
+		"$BULLET_SRC/Vehicle/btRaycastVehicle.cpp"
+		"$BULLET_SRC/Vehicle/btWheeledVehicle.cpp"
+		"$BULLET_SRC/Vehicle/btWheelInfo.cpp"
+	}
+
+	folder "Header Files"
+	{
+		"$BULLET_SRC/Character/btCharacterControllerInterface.h"
+		"$BULLET_SRC/Character/btKinematicCharacterController.h"
+		"$BULLET_SRC/ConstraintSolver/btConeTwistConstraint.h"
+		"$BULLET_SRC/ConstraintSolver/btConstraintSolver.h"
+		"$BULLET_SRC/ConstraintSolver/btContactConstraint.h"
+		"$BULLET_SRC/ConstraintSolver/btContactSolverInfo.h"
+		"$BULLET_SRC/ConstraintSolver/btFixedConstraint.h"
+		"$BULLET_SRC/ConstraintSolver/btGearConstraint.h"
+		"$BULLET_SRC/ConstraintSolver/btGeneric6DofConstraint.h"
+		"$BULLET_SRC/ConstraintSolver/btGeneric6DofSpringConstraint.h"
+		"$BULLET_SRC/ConstraintSolver/btHinge2Constraint.h"
+		"$BULLET_SRC/ConstraintSolver/btHingeConstraint.h"
+		"$BULLET_SRC/ConstraintSolver/btJacobianEntry.h"
+		"$BULLET_SRC/ConstraintSolver/btNNCGConstraintSolver.h"
+		"$BULLET_SRC/ConstraintSolver/btPoint2PointConstraint.h"
+		"$BULLET_SRC/ConstraintSolver/btSequentialImpulseConstraintSolver.h"
+		"$BULLET_SRC/ConstraintSolver/btSliderConstraint.h"
+		"$BULLET_SRC/ConstraintSolver/btSolve2LinearConstraint.h"
+		"$BULLET_SRC/ConstraintSolver/btSolverBody.h"
+		"$BULLET_SRC/ConstraintSolver/btSolverConstraint.h"
+		"$BULLET_SRC/ConstraintSolver/btTypedConstraint.h"
+		"$BULLET_SRC/ConstraintSolver/btUniversalConstraint.h"
+		"$BULLET_SRC/Dynamics/btActionInterface.h"
+		"$BULLET_SRC/Dynamics/btDiscreteDynamicsWorld.h"
+		"$BULLET_SRC/Dynamics/btDynamicsWorld.h"
+		"$BULLET_SRC/Dynamics/btRigidBody.h"
+		"$BULLET_SRC/Dynamics/btSimpleDynamicsWorld.h"
+		"$BULLET_SRC/Featherstone/btMultiBody.h"
+		"$BULLET_SRC/Featherstone/btMultiBodyConstraint.h"
+		"$BULLET_SRC/Featherstone/btMultiBodyConstraintSolver.h"
+		"$BULLET_SRC/Featherstone/btMultiBodyDynamicsWorld.h"
+		"$BULLET_SRC/Featherstone/btMultiBodyJointLimitConstraint.h"
+		"$BULLET_SRC/Featherstone/btMultiBodyJointMotor.h"
+		"$BULLET_SRC/Featherstone/btMultiBodyLink.h"
+		"$BULLET_SRC/Featherstone/btMultiBodyLinkCollider.h"
+		"$BULLET_SRC/Featherstone/btMultiBodyPoint2Point.h"
+		"$BULLET_SRC/Featherstone/btMultiBodySolverConstraint.h"
+		"$BULLET_SRC/MLCPSolvers/btDantzigLCP.h"
+		"$BULLET_SRC/MLCPSolvers/btDantzigSolver.h"
+		"$BULLET_SRC/MLCPSolvers/btLemkeAlgorithm.h"
+		"$BULLET_SRC/MLCPSolvers/btLemkeSolver.h"
+		"$BULLET_SRC/MLCPSolvers/btMLCPSolver.h"
+		"$BULLET_SRC/MLCPSolvers/btMLCPSolverInterface.h"
+		"$BULLET_SRC/MLCPSolvers/btPATHSolver.h"
+		"$BULLET_SRC/MLCPSolvers/btSolveProjectedGaussSeidel.h"
+		"$BULLET_SRC/Vehicle/btRaycastVehicle.h"
+		"$BULLET_SRC/Vehicle/btVehicleRaycaster.h"
+		"$BULLET_SRC/Vehicle/btWheeledVehicle.h"
+		"$BULLET_SRC/Vehicle/btWheelInfo.h"
+	}
+}

@@ -43,6 +43,7 @@
 
 #define DEBUG_TRANSITIONS_VERBOSE	2
 ConVar g_debug_transitions( "g_debug_transitions", "0", FCVAR_NONE, "Set to 1 and restart the map to be warned if the map has no trigger_transition volumes. Set to 2 to see a dump of all entities & associated results during a transition." );
+ConVar sv_use_changelevel2( "sv_use_changelevel2", "0", FCVAR_NONE, "Disabled for Multiplayer for now" );
 
 // Global list of triggers that care about weapon fire
 // Doesn't need saving, the triggers re-add themselves on restore.
@@ -1519,6 +1520,10 @@ void CChangeLevel::WarnAboutActiveLead( void )
 	}
 }
 
+ConVar mp_transition_players_percent("mp_transition_players_percent",
+									 "66", FCVAR_NOTIFY | FCVAR_REPLICATED,
+									 "How many players in percent are needed for a level transition?");
+
 void CChangeLevel::ChangeLevelNow( CBaseEntity *pActivator )
 {
 	CBaseEntity	*pLandmark;
@@ -1530,13 +1535,31 @@ void CChangeLevel::ChangeLevelNow( CBaseEntity *pActivator )
 	if ( g_pGameRules->IsDeathmatch() )
 		return;
 
-	// Some people are firing these multiple times in a frame, disable
-	if ( m_bTouched )
-		return;
+	CBasePlayer *pPlayer = (pActivator && pActivator->IsPlayer()) ? ToBasePlayer(pActivator) : UTIL_GetLocalPlayer();
 
-	m_bTouched = true;
+	pPlayer->m_bTransition = true;
 
-	CBaseEntity *pPlayer = (pActivator && pActivator->IsPlayer()) ? pActivator : UTIL_GetLocalPlayer();
+	if (mp_transition_players_percent.GetInt() > 0)
+	{
+		int totalPlayers = 0;
+		int transitionPlayers = 0;
+		for (int i = 1; i <= gpGlobals->maxClients; i++)
+		{
+			CBasePlayer* pPlayer = UTIL_PlayerByIndex(i);
+			if (pPlayer && pPlayer->IsAlive())
+			{
+				totalPlayers++;
+				if (pPlayer->m_bTransition)
+					transitionPlayers++;
+			}
+		}
+
+		if (((int) (transitionPlayers / totalPlayers * 100)) < mp_transition_players_percent.GetInt())
+		{
+			Msg("Transitions: Not enough players to trigger level change\n");
+			return;
+		}
+	}
 
 	int transitionState = InTransitionVolume(pPlayer, m_szLandmarkName);
 	if ( transitionState == TRANSITION_VOLUME_SCREENED_OUT )
@@ -1546,7 +1569,7 @@ void CChangeLevel::ChangeLevelNow( CBaseEntity *pActivator )
 	}
 
 	// look for a landmark entity		
-	pLandmark = FindLandmark( m_szLandmarkName );
+ 	pLandmark = FindLandmark( m_szLandmarkName );
 
 	if ( !pLandmark )
 		return;
@@ -1599,7 +1622,14 @@ void CChangeLevel::ChangeLevelNow( CBaseEntity *pActivator )
 	// If we're debugging, don't actually change level
 	if ( g_debug_transitions.GetInt() == 0 )
 	{
-		engine->ChangeLevel( st_szNextMap, st_szNextSpot );
+		if ( sv_use_changelevel2.GetBool() )
+		{
+			engine->ChangeLevel( st_szNextMap, st_szNextSpot );
+		}
+		else
+		{
+			engine->ChangeLevel( st_szNextMap, NULL );
+		}
 	}
 	else
 	{
@@ -2447,7 +2477,7 @@ void CTriggerToggleSave::Touch( CBaseEntity *pOther )
 	// Can be re-enabled
 	m_bDisabled = true;
 
-	engine->ServerCommand( "autosave\n" );
+	// engine->ServerCommand( "autosave\n" );
 }
 
 //-----------------------------------------------------------------------------
@@ -2538,7 +2568,7 @@ void CTriggerSave::Touch( CBaseEntity *pOther )
 	}
 	else
 	{
-		engine->ServerCommand( "autosave\n" );
+		// engine->ServerCommand( "autosave\n" );
 	}
 }
 
@@ -2929,179 +2959,178 @@ void CTriggerCamera::InputDisable( inputdata_t &inputdata )
 //-----------------------------------------------------------------------------
 void CTriggerCamera::Enable( void )
 {
-	m_state = USE_ON;
-
-	if ( !m_hPlayer || !m_hPlayer->IsPlayer() )
+	for (int i = 1; i <= gpGlobals->maxClients; i++)
 	{
-		m_hPlayer = UTIL_GetLocalPlayer();
-	}
+		CBasePlayer* pPlayer = UTIL_PlayerByIndex(i);
 
-	if ( !m_hPlayer )
-	{
-		DispatchUpdateTransmitState();
-		return;
-	}
-
-	Assert( m_hPlayer->IsPlayer() );
-	CBasePlayer *pPlayer = NULL;
-
-	if ( m_hPlayer->IsPlayer() )
-	{
-		pPlayer = ((CBasePlayer*)m_hPlayer.Get());
-	}
-	else
-	{
-		Warning("CTriggerCamera could not find a player!\n");
-		return;
-	}
-
-	// if the player was already under control of a similar trigger, disable the previous trigger.
-	{
-		CBaseEntity *pPrevViewControl = pPlayer->GetViewEntity();
-		if (pPrevViewControl && pPrevViewControl != pPlayer)
+		if (pPlayer == NULL)
 		{
-			CTriggerCamera *pOtherCamera = dynamic_cast<CTriggerCamera *>(pPrevViewControl);
-			if ( pOtherCamera )
+			continue;
+		}
+
+		m_hPlayer = pPlayer;
+
+		m_state = USE_ON;
+
+		if ( !m_hPlayer )
+		{
+			DispatchUpdateTransmitState();
+			return;
+		}
+
+		if ( !m_hPlayer->IsPlayer() )
+		{
+			Warning("CTriggerCamera could not find a player!\n");
+			return;
+		}
+
+		// if the player was already under control of a similar trigger, disable the previous trigger.
+		{
+			CBaseEntity *pPrevViewControl = pPlayer->GetViewEntity();
+			if (pPrevViewControl && pPrevViewControl != pPlayer)
 			{
-				if ( pOtherCamera == this )
+				CTriggerCamera *pOtherCamera = dynamic_cast<CTriggerCamera *>(pPrevViewControl);
+				if ( pOtherCamera )
 				{
-					// what the hell do you think you are doing?
-					Warning("Viewcontrol %s was enabled twice in a row!\n", GetDebugName());
-					return;
+					if ( pOtherCamera == this )
+					{
+						// what the hell do you think you are doing?
+						Warning("Viewcontrol %s was enabled twice in a row!\n", GetDebugName());
+						return;
+					}
+					else
+					{
+						pOtherCamera->Disable();
+					}
+				}
+			}
+		}
+
+		m_nPlayerButtons = pPlayer->m_nButtons;
+	
+		// Make the player invulnerable while under control of the camera.  This will prevent situations where the player dies while under camera control but cannot restart their game due to disabled player inputs.
+		m_nOldTakeDamage = m_hPlayer->m_takedamage;
+		m_hPlayer->m_takedamage = DAMAGE_NO;
+	
+		if ( HasSpawnFlags( SF_CAMERA_PLAYER_NOT_SOLID ) )
+		{
+			m_hPlayer->AddSolidFlags( FSOLID_NOT_SOLID );
+		}
+	
+		m_flReturnTime = gpGlobals->curtime + m_flWait;
+		m_flSpeed = m_initialSpeed;
+		m_targetSpeed = m_initialSpeed;
+
+		// this pertains to view angles, not translation.
+		if ( HasSpawnFlags( SF_CAMERA_PLAYER_SNAP_TO ) )
+		{
+			m_bSnapToGoal = true;
+		}
+
+		if ( HasSpawnFlags(SF_CAMERA_PLAYER_TARGET ) )
+		{
+			m_hTarget = m_hPlayer;
+		}
+		else
+		{
+			m_hTarget = GetNextTarget();
+		}
+
+		// If we don't have a target, ignore the attachment / etc
+		if ( m_hTarget )
+		{
+			m_iAttachmentIndex = 0;
+			if ( m_iszTargetAttachment != NULL_STRING )
+			{
+				if ( !m_hTarget->GetBaseAnimating() )
+				{
+					Warning("%s tried to target an attachment (%s) on target %s, which has no model.\n", GetClassname(), STRING(m_iszTargetAttachment), STRING(m_hTarget->GetEntityName()) );
 				}
 				else
 				{
-					pOtherCamera->Disable();
+					m_iAttachmentIndex = m_hTarget->GetBaseAnimating()->LookupAttachment( STRING(m_iszTargetAttachment) );
+					if ( !m_iAttachmentIndex )
+					{
+						Warning("%s could not find attachment %s on target %s.\n", GetClassname(), STRING(m_iszTargetAttachment), STRING(m_hTarget->GetEntityName()) );
+					}
 				}
 			}
 		}
-	}
 
-
-	m_nPlayerButtons = pPlayer->m_nButtons;
-
-	
-	// Make the player invulnerable while under control of the camera.  This will prevent situations where the player dies while under camera control but cannot restart their game due to disabled player inputs.
-	m_nOldTakeDamage = m_hPlayer->m_takedamage;
-	m_hPlayer->m_takedamage = DAMAGE_NO;
-	
-	if ( HasSpawnFlags( SF_CAMERA_PLAYER_NOT_SOLID ) )
-	{
-		m_hPlayer->AddSolidFlags( FSOLID_NOT_SOLID );
-	}
-	
-	m_flReturnTime = gpGlobals->curtime + m_flWait;
-	m_flSpeed = m_initialSpeed;
-	m_targetSpeed = m_initialSpeed;
-
-	// this pertains to view angles, not translation.
-	if ( HasSpawnFlags( SF_CAMERA_PLAYER_SNAP_TO ) )
-	{
-		m_bSnapToGoal = true;
-	}
-
-	if ( HasSpawnFlags(SF_CAMERA_PLAYER_TARGET ) )
-	{
-		m_hTarget = m_hPlayer;
-	}
-	else
-	{
-		m_hTarget = GetNextTarget();
-	}
-
-	// If we don't have a target, ignore the attachment / etc
-	if ( m_hTarget )
-	{
-		m_iAttachmentIndex = 0;
-		if ( m_iszTargetAttachment != NULL_STRING )
+		if (HasSpawnFlags(SF_CAMERA_PLAYER_TAKECONTROL ) )
 		{
-			if ( !m_hTarget->GetBaseAnimating() )
-			{
-				Warning("%s tried to target an attachment (%s) on target %s, which has no model.\n", GetClassname(), STRING(m_iszTargetAttachment), STRING(m_hTarget->GetEntityName()) );
-			}
-			else
-			{
-				m_iAttachmentIndex = m_hTarget->GetBaseAnimating()->LookupAttachment( STRING(m_iszTargetAttachment) );
-				if ( !m_iAttachmentIndex )
-				{
-					Warning("%s could not find attachment %s on target %s.\n", GetClassname(), STRING(m_iszTargetAttachment), STRING(m_hTarget->GetEntityName()) );
-				}
-			}
+			// ((CBasePlayer*)m_hPlayer.Get())->EnableControl(FALSE);
+			pPlayer->EnableControl(false);
 		}
-	}
 
-	if (HasSpawnFlags(SF_CAMERA_PLAYER_TAKECONTROL ) )
-	{
-		((CBasePlayer*)m_hPlayer.Get())->EnableControl(FALSE);
-	}
+		if ( m_sPath != NULL_STRING )
+		{
+			m_pPath = gEntList.FindEntityByName( NULL, m_sPath, NULL, m_hPlayer );
+		}
+		else
+		{
+			m_pPath = NULL;
+		}
 
-	if ( m_sPath != NULL_STRING )
-	{
-		m_pPath = gEntList.FindEntityByName( NULL, m_sPath, NULL, m_hPlayer );
-	}
-	else
-	{
-		m_pPath = NULL;
-	}
-
-	m_flStopTime = gpGlobals->curtime;
-	if ( m_pPath )
-	{
-		if ( m_pPath->m_flSpeed != 0 )
-			m_targetSpeed = m_pPath->m_flSpeed;
+		m_flStopTime = gpGlobals->curtime;
+		if ( m_pPath )
+		{
+			if ( m_pPath->m_flSpeed != 0 )
+				m_targetSpeed = m_pPath->m_flSpeed;
 		
-		m_flStopTime += m_pPath->GetDelay();
+			m_flStopTime += m_pPath->GetDelay();
+		}
+
+
+		// copy over player information. If we're interpolating from
+		// the player position, do something more elaborate.
+	#if HL2_EPISODIC
+		if (m_bInterpolatePosition)
+		{
+			// initialize the values we'll spline between
+			m_vStartPos = m_hPlayer->EyePosition();
+			m_vEndPos = GetAbsOrigin();
+			m_flInterpStartTime = gpGlobals->curtime;
+			UTIL_SetOrigin( this, m_hPlayer->EyePosition() );
+			SetLocalAngles( QAngle( m_hPlayer->GetLocalAngles().x, m_hPlayer->GetLocalAngles().y, 0 ) );
+
+			SetAbsVelocity( vec3_origin );
+		}
+		else
+	#endif
+		if (HasSpawnFlags(SF_CAMERA_PLAYER_POSITION ) )
+		{
+			UTIL_SetOrigin( this, m_hPlayer->EyePosition() );
+			SetLocalAngles( QAngle( m_hPlayer->GetLocalAngles().x, m_hPlayer->GetLocalAngles().y, 0 ) );
+			SetAbsVelocity( m_hPlayer->GetAbsVelocity() );
+		}
+		else
+		{
+			SetAbsVelocity( vec3_origin );
+		}
+
+
+		pPlayer->SetViewEntity( this );
+
+		// Hide the player's viewmodel
+		if ( pPlayer->GetActiveWeapon() )
+		{
+			pPlayer->GetActiveWeapon()->AddEffects( EF_NODRAW );
+		}
+
+		// Only track if we have a target
+		if ( m_hTarget )
+		{
+			// follow the player down
+			SetThink( &CTriggerCamera::FollowTarget );
+			SetNextThink( gpGlobals->curtime );
+		}
+
+		m_moveDistance = 0;
+		Move();
+
+		DispatchUpdateTransmitState();
 	}
-
-
-	// copy over player information. If we're interpolating from
-	// the player position, do something more elaborate.
-#if HL2_EPISODIC
-	if (m_bInterpolatePosition)
-	{
-		// initialize the values we'll spline between
-		m_vStartPos = m_hPlayer->EyePosition();
-		m_vEndPos = GetAbsOrigin();
-		m_flInterpStartTime = gpGlobals->curtime;
-		UTIL_SetOrigin( this, m_hPlayer->EyePosition() );
-		SetLocalAngles( QAngle( m_hPlayer->GetLocalAngles().x, m_hPlayer->GetLocalAngles().y, 0 ) );
-
-		SetAbsVelocity( vec3_origin );
-	}
-	else
-#endif
-	if (HasSpawnFlags(SF_CAMERA_PLAYER_POSITION ) )
-	{
-		UTIL_SetOrigin( this, m_hPlayer->EyePosition() );
-		SetLocalAngles( QAngle( m_hPlayer->GetLocalAngles().x, m_hPlayer->GetLocalAngles().y, 0 ) );
-		SetAbsVelocity( m_hPlayer->GetAbsVelocity() );
-	}
-	else
-	{
-		SetAbsVelocity( vec3_origin );
-	}
-
-
-	pPlayer->SetViewEntity( this );
-
-	// Hide the player's viewmodel
-	if ( pPlayer->GetActiveWeapon() )
-	{
-		pPlayer->GetActiveWeapon()->AddEffects( EF_NODRAW );
-	}
-
-	// Only track if we have a target
-	if ( m_hTarget )
-	{
-		// follow the player down
-		SetThink( &CTriggerCamera::FollowTarget );
-		SetNextThink( gpGlobals->curtime );
-	}
-
-	m_moveDistance = 0;
-	Move();
-
-	DispatchUpdateTransmitState();
 }
 
 //-----------------------------------------------------------------------------
@@ -3109,25 +3138,37 @@ void CTriggerCamera::Enable( void )
 //-----------------------------------------------------------------------------
 void CTriggerCamera::Disable( void )
 {
-	if ( m_hPlayer && m_hPlayer->IsAlive() )
+	for (int i = 1; i <= gpGlobals->maxClients; i++)
 	{
-		if ( HasSpawnFlags( SF_CAMERA_PLAYER_NOT_SOLID ) )
+		CBasePlayer* pPlayer = UTIL_PlayerByIndex(i);
+
+		if (pPlayer == NULL)
 		{
-			m_hPlayer->RemoveSolidFlags( FSOLID_NOT_SOLID );
+			continue;
 		}
 
-		((CBasePlayer*)m_hPlayer.Get())->SetViewEntity( m_hPlayer );
-		((CBasePlayer*)m_hPlayer.Get())->EnableControl(TRUE);
+		m_hPlayer = pPlayer;
 
-		// Restore the player's viewmodel
-		if ( ((CBasePlayer*)m_hPlayer.Get())->GetActiveWeapon() )
+		if (m_hPlayer && m_hPlayer->IsAlive())
 		{
-			((CBasePlayer*)m_hPlayer.Get())->GetActiveWeapon()->RemoveEffects( EF_NODRAW );
+			if (HasSpawnFlags(SF_CAMERA_PLAYER_NOT_SOLID))
+			{
+				m_hPlayer->RemoveSolidFlags(FSOLID_NOT_SOLID);
+			}
+
+			((CBasePlayer*) m_hPlayer.Get())->SetViewEntity(m_hPlayer);
+			((CBasePlayer*) m_hPlayer.Get())->EnableControl(TRUE);
+
+			// Restore the player's viewmodel
+			if (((CBasePlayer*) m_hPlayer.Get())->GetActiveWeapon())
+			{
+				((CBasePlayer*) m_hPlayer.Get())->GetActiveWeapon()->RemoveEffects(EF_NODRAW);
+			}
 		}
+
+		//return the player to previous takedamage state
+		m_hPlayer->m_takedamage = m_nOldTakeDamage;
 	}
-
-	//return the player to previous takedamage state
-	m_hPlayer->m_takedamage = m_nOldTakeDamage;
 
 	m_state = USE_OFF;
 	m_flReturnTime = gpGlobals->curtime;

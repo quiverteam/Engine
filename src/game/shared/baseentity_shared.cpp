@@ -1971,12 +1971,16 @@ void CBaseEntity::FireBullets( const FireBulletsInfo_t &info )
 //-----------------------------------------------------------------------------
 bool CBaseEntity::ShouldDrawUnderwaterBulletBubbles()
 {
-#if defined( HL2_DLL ) && defined( GAME_DLL )
-	CBaseEntity *pPlayer = ( gpGlobals->maxClients == 1 ) ? UTIL_GetLocalPlayer() : NULL;
-	return pPlayer && (pPlayer->GetWaterLevel() == 3);
-#else
-	return false;
+// why is this on the server dll only?
+#if defined( GAME_DLL )
+	for (int i = 1; i <= gpGlobals->maxClients; i++)
+	{
+		CBasePlayer* pPlayer = UTIL_PlayerByIndex(i);
+		if (pPlayer && pPlayer->FInViewCone(this) && pPlayer->GetWaterLevel() == 3)
+			return true;
+	}
 #endif
+	return false;
 }
 
 

@@ -306,7 +306,7 @@ void CDmxEditApp::PrintHelp( bool bWiki /* = false */ )
 					Msg( "\n" );
 				}
 				Msg( ";%s( %s );\n", pLuaFuncs[ i ].m_pFuncName, pLuaFuncs[ i ].m_pFuncPrototype );
-				Msg( ":%s\n", Wikize( pLuaState, pLuaFuncs[ i ].m_pFuncDesc ) );
+				Msg( ":%s\n", Wikize( pLuaState, pLuaFuncs[ i ].m_pFuncDesc ).Get() );
 			}
 
 			return;
@@ -359,7 +359,7 @@ void CDmxEditApp::PrintHelp( bool bWiki /* = false */ )
 				{
 					bNewline = true;
 				}
-				Msg( "%s\n", tmpStr );
+				Msg( "%s\n", tmpStr.Get() );
 				tmpStr.Set( "" );
 			}
 
@@ -383,7 +383,7 @@ void CDmxEditApp::PrintHelp( bool bWiki /* = false */ )
 			{
 				Msg( "        " );
 			}
-			Msg( "%s\n", tmpStr );
+			Msg( "%s\n", tmpStr.Get() );
 		}
 		Msg( "\n" );
 	}

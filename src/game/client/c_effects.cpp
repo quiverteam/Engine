@@ -1653,7 +1653,7 @@ private:
 
 	bool							m_bRayParticles;
 
-	typedef struct SnowFall_t
+	struct SnowFall_t
 	{
 		PMaterialHandle			m_hMaterial;
 		CClient_Precipitation	*m_pEntity;

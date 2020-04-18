@@ -1,0 +1,92 @@
+// ---------------------------------------------------------------
+// Auto Generated QPC Script - Fix if needed before using
+// ---------------------------------------------------------------
+macro PROJECT_NAME "Vmpi_service_install"
+
+macro SRCDIR "../../.."
+macro OUTBINDIR "$BINDEFAULT"
+macro OUTBINNAME "vmpi_service_install"
+
+include "$SRCDIR/_qpc_scripts/source_exe_base.qpc"
+
+configuration
+{
+	general
+	{
+		include_directories
+		{
+			"./"
+			"../"
+			"../../common"
+			"../../../public"
+		}
+	}
+
+	compiler
+	{
+		preprocessor_definitions
+		{
+			"PROTECTED_THINGS_DISABLE"
+		}
+
+		precompiled_header "use"
+		precompiled_header_file "stdafx.h"
+	}
+
+	linker
+	{
+		libraries
+		{
+			"nafxcwd.lib" "libcmtd.lib" [$DEBUG]
+			"nafxcw.lib" "libcmt.lib" [$RELEASE]
+			"$LIBPUBLIC/vmpi"
+		}
+
+		ignore_libraries
+		{
+			"nafxcw.lib" "libcmt.lib" [$DEBUG]
+			"nafxcwd.lib" "libcmtd.lib" [$RELEASE]
+		}
+	}
+}
+
+dependencies
+{
+	"vmpi"
+}
+
+files
+{
+	folder "Source Files"
+	{
+		- "$SRCDIR/public/tier0/memoverride.cpp"
+		"StdAfx.cpp"
+		{
+			configuration
+			{
+				compiler
+				{
+					precompiled_header "create"
+				}
+			}
+		}
+
+		"ServiceInstallDlg.cpp"
+		"vmpi_service_install.cpp"
+		"vmpi_service_install.rc"
+	}
+
+	folder "Header Files"
+	{
+		"ServiceInstallDlg.h"
+		"Resource.h"
+		"StdAfx.h"
+		"vmpi_service_install.h"
+	}
+
+	folder "Resource Files"
+	{
+		"res/vmpi_service_install.ico"
+		"res/vmpi_service_install.rc2"
+	}
+}

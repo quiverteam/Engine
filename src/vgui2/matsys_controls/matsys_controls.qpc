@@ -1,0 +1,47 @@
+// ---------------------------------------------------------------
+// Auto Generated QPC Script - Fix if needed before using
+// ---------------------------------------------------------------
+macro PROJECT_NAME "matsys_controls"
+
+macro SRCDIR "../.."
+macro OUTLIBDIR "$LIBPUBLIC"
+
+include "$SRCDIR/_qpc_scripts/source_lib_base.qpc"
+
+files
+{
+	folder "Source Files"
+	{
+		"assetpicker.cpp"
+		"baseassetpicker.cpp"
+		"colorpickerpanel.cpp"
+		"curveeditorpanel.cpp"
+		"gamefiletreeview.cpp"
+		"matsyscontrols.cpp"
+		"picker.cpp"
+		"proceduraltexturepanel.cpp"
+		"QCGenerator.cpp"
+		"tgapreviewpanel.cpp"
+		"vmtpicker.cpp"
+		"vmtpreviewpanel.cpp"
+		"vtfpicker.cpp"
+		"vtfpreviewpanel.cpp"
+	}
+
+	folder "Header Files"
+	{
+		"$SRCDIR/public/matsys_controls/assetpicker.h"
+		"$SRCDIR/public/matsys_controls/baseassetpicker.h"
+		"$SRCDIR/public/matsys_controls/colorpickerpanel.h"
+		"$SRCDIR/public/matsys_controls/gamefiletreeview.h"
+		"$SRCDIR/public/matsys_controls/matsyscontrols.h"
+		"$SRCDIR/public/matsys_controls/picker.h"
+		"$SRCDIR/public/matsys_controls/proceduraltexturepanel.h"
+		"$SRCDIR/public/matsys_controls/QCGenerator.h"
+		"$SRCDIR/public/matsys_controls/tgapreviewpanel.h"
+		"$SRCDIR/public/matsys_controls/vmtpicker.h"
+		"$SRCDIR/public/matsys_controls/vmtpreviewpanel.h"
+		"$SRCDIR/public/matsys_controls/vtfpicker.h"
+		"$SRCDIR/public/matsys_controls/vtfpreviewpanel.h"
+	}
+}

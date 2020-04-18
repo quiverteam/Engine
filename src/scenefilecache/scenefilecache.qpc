@@ -1,0 +1,47 @@
+// ---------------------------------------------------------------
+// Auto Generated QPC Script - Fix if needed before using
+// ---------------------------------------------------------------
+macro PROJECT_NAME "SceneFileCache"
+
+macro SRCDIR ".."
+macro OUTBINDIR "$BINDEFAULT"
+
+include "$SRCDIR/_qpc_scripts/source_dll_base.qpc"
+
+configuration
+{
+	general
+	{
+		include_directories
+		{
+			"./"
+			"$SRCDIR/game/shared"
+		}
+	}
+
+	compiler
+	{
+		preprocessor_definitions
+		{
+			"_WINDOWS"
+			"PROTECTED_THINGS_ENABLE"
+		}
+	}
+}
+
+files
+{
+	folder "Source Files"
+	{
+		"SceneFileCache.cpp"
+	}
+
+	folder "Public Header Files"
+	{
+		"$SRCDIR/public/appframework/IAppSystem.h"
+		"$SRCDIR/public/tier1/interface.h"
+		"$SRCDIR/public/scenefilecache/ISceneFileCache.h"
+		"$SRCDIR/public/tier1/utlbuffer.h"
+		"$SRCDIR/public/vstdlib/vstdlib.h"
+	}
+}

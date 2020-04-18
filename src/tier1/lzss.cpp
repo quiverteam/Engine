@@ -234,7 +234,7 @@ unsigned int CLZSS::SafeUncompress( const unsigned char *pInput, unsigned char *
 	int cmdByte = 0;
 	int getCmdByte = 0;
 
-	unsigned int actualSize = unBufSize;
+	unsigned int actualSize = GetActualSize(pInput);
 	if ( !actualSize )
 	{
 		// unrecognized

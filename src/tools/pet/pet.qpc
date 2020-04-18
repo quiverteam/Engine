@@ -1,0 +1,72 @@
+// ---------------------------------------------------------------
+// Auto Generated QPC Script - Fix if needed before using
+// ---------------------------------------------------------------
+macro PROJECT_NAME "Pet"
+
+macro SRCDIR "../.."
+macro OUTBINDIR "$BINDEFAULT/tools"
+
+include "$SRCDIR/_qpc_scripts/source_dll_base.qpc"
+
+configuration
+{
+	general
+	{
+		include_directories
+		{
+			"./"
+			"$SRCDIR/game/shared"
+		}
+	}
+
+	compiler
+	{
+		preprocessor_definitions
+		{
+			"PET_EXPORTS"
+		}
+	}
+
+	linker
+	{
+		libraries
+		{
+			"Psapi.lib"
+			"datamodel"
+			"dme_controls"
+			"dmserializers"
+			"dmxloader"
+			"mathlib"
+			"matsys_controls"
+			"movieobjects"
+			"particles"
+			"tier2"
+			"tier3"
+			"toolutils"
+			"vgui_controls"
+		}
+	}
+}
+
+files
+{
+	folder "Source Files"
+	{
+		"$SRCDIR/public/interpolatortypes.cpp"
+		"particlesystemdefinitionbrowser.cpp"
+		"particlesystempropertiescontainer.cpp"
+		"petdoc.cpp"
+		"pettool.cpp"
+		"$SRCDIR/public/registry.cpp"
+		"$SRCDIR/public/vgui_controls/vgui_controls.cpp"
+	}
+
+	folder "Header Files"
+	{
+		"$SRCDIR/public/mathlib/mathlib.h"
+		"particlesystemdefinitionbrowser.h"
+		"particlesystempropertiescontainer.h"
+		"petdoc.h"
+		"pettool.h"
+	}
+}

@@ -1,0 +1,101 @@
+// ---------------------------------------------------------------
+// Auto Generated QPC Script - Fix if needed before using
+// ---------------------------------------------------------------
+macro PROJECT_NAME "Phonemeextractor"
+
+macro SRCDIR "../.."
+macro OUTBINDIR "$BINDEFAULT"
+
+include "$SRCDIR/_qpc_scripts/source_dll_base.qpc"
+
+configuration
+{
+	general
+	{
+		include_directories
+		{
+			"../common"
+			"../hlfaceposer"
+			"$SRCDIR/thirdparty/sapi51/include"
+		}
+	}
+
+	compiler
+	{
+		preprocessor_definitions
+		{
+			"PHONEMEEXTRACTOR_EXPORTS"
+		}
+
+		options
+		{
+			"/wd4995"
+		}
+	}
+
+	linker
+	{
+		libraries
+		{
+			"odbc32.lib"
+			"odbccp32.lib"
+			"mathlib"
+			"$LIBCOMMON/sapi"
+		}
+	}
+}
+
+dependencies
+{
+	"mathlib"
+}
+
+files
+{
+	folder "Source Files"
+	{
+		"extractor_utils.cpp"
+		"$SRCDIR/public/phonemeconverter.cpp"
+		"$SRCDIR/public/sentence.cpp"
+		"phonemeextractor.cpp"
+	}
+
+	folder "Header Files"
+	{
+		"talkback.h"
+	}
+
+	folder "SAPI Header Files"
+	{
+		"../sapi51/Include/sapi.h"
+		"../sapi51/Include/sapiddk.h"
+		"../sapi51/Include/Spddkhlp.h"
+		"../sapi51/Include/spdebug.h"
+		"../sapi51/Include/sperror.h"
+		"../sapi51/Include/sphelper.h"
+	}
+
+	folder "Public Header Files"
+	{
+		"$SRCDIR/public/mathlib/amd3dx.h"
+		"$SRCDIR/public/tier0/basetypes.h"
+		"$SRCDIR/public/tier0/commonmacros.h"
+		"$SRCDIR/public/tier0/dbg.h"
+		"$SRCDIR/public/tier0/fasttimer.h"
+		"$SRCDIR/public/appframework/IAppSystem.h"
+		"$SRCDIR/public/mathlib/mathlib.h"
+		"$SRCDIR/public/phonemeconverter.h"
+		"$SRCDIR/public/phonemeextractor/phonemeextractor.h"
+		"$SRCDIR/public/tier0/platform.h"
+		"$SRCDIR/public/tier0/protected_things.h"
+		"$SRCDIR/public/sentence.h"
+		"$SRCDIR/public/string_t.h"
+		"$SRCDIR/public/tier1/strtools.h"
+		"$SRCDIR/public/tier1/utllinkedlist.h"
+		"$SRCDIR/public/tier1/utlmemory.h"
+		"$SRCDIR/public/tier1/utlvector.h"
+		"$SRCDIR/public/mathlib/vector.h"
+		"$SRCDIR/public/mathlib/vector2d.h"
+		"$SRCDIR/public/vstdlib/vstdlib.h"
+	}
+}

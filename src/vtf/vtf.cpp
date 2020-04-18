@@ -223,6 +223,7 @@ int VTFFileHeaderSize( int nMajorVersion, int nMinorVersion )
 			return sizeof( VTFFileHeaderV7_2_t );
 		case 3:
 			return sizeof( VTFFileHeaderV7_3_t ) + sizeof( ResourceEntryInfo ) * MAX_RSRC_DICTIONARY_ENTRIES;
+		case 4:
 		case VTF_MINOR_VERSION:
 			return sizeof( VTFFileHeader_t ) + sizeof( ResourceEntryInfo ) * MAX_RSRC_DICTIONARY_ENTRIES;
 		}
@@ -817,7 +818,7 @@ bool CVTFTexture::SetupByteSwap( CUtlBuffer &buf )
 static bool ReadHeaderFromBufferPastBaseHeader( CUtlBuffer &buf, VTFFileHeader_t &header )
 {
 	unsigned char *pBuf = (unsigned char*)(&header) + sizeof(VTFFileBaseHeader_t);
-	if ( header.version[1] == VTF_MINOR_VERSION )
+	if ( header.version[1] == VTF_MINOR_VERSION || header.version[1] == 4 )
 	{
 		buf.Get( pBuf, sizeof(VTFFileHeader_t) - sizeof(VTFFileBaseHeader_t) );
 	}
@@ -879,7 +880,7 @@ bool CVTFTexture::ReadHeader( CUtlBuffer &buf, VTFFileHeader_t &header )
 			{
 				m_Swap.SwapFieldsToTargetEndian( (VTFFileHeaderV7_3_t*)buf.PeekGet() );
 			}
-			else if ( baseHeader.version[1] == VTF_MINOR_VERSION )
+			else if ( baseHeader.version[1] == 4 || baseHeader.version[1] == VTF_MINOR_VERSION )
 			{
 				m_Swap.SwapFieldsToTargetEndian( (VTFFileHeader_t*)buf.PeekGet() );
 			}
@@ -926,6 +927,7 @@ bool CVTFTexture::ReadHeader( CUtlBuffer &buf, VTFFileHeader_t &header )
 	case 3:
 		header.flags &= VERSIONED_VTF_FLAGS_MASK_7_3;
 		// fall-through
+	case 4:
 	case VTF_MINOR_VERSION:
 		break;
 	}
@@ -2223,41 +2225,44 @@ void CVTFTexture::ComputeHemispheremapFrame( unsigned char **ppCubeFaces, unsign
 //-----------------------------------------------------------------------------
 void CVTFTexture::GenerateSpheremap( LookDir_t lookDir )
 {
-	if (!IsCubeMap())
-		return;
-	
-	// HDRFIXME: Need to re-enable this.
-//	Assert( m_Format == IMAGE_FORMAT_RGBA8888 );
+	// vtf 7.5: this causes a crash when creating cubemaps,
+	// but spheremaps aren't used so this isn't needed anyway
 
-	// We'll be doing our work in IMAGE_FORMAT_RGBA8888 mode 'cause it's easier
-	unsigned char *pCubeMaps[6];
-
-	// Allocate the bits for the spheremap
-	Assert( m_nDepth == 1 );
-	int iMemRequired = ComputeFaceSize( 0, IMAGE_FORMAT_RGBA8888 );
-	unsigned char *pSphereMapBits = (unsigned char *)MemAllocScratch(iMemRequired);
-
-	// Generate a spheremap for each frame of the cubemap
-	for (int iFrame = 0; iFrame < m_nFrameCount; ++iFrame)
-	{
-		// Point to our own textures (highest mip level)
-		for (int iFace = 0; iFace < 6; ++iFace)
-		{
-			pCubeMaps[iFace] = ImageData( iFrame, iFace, 0 );
-		}
-
-		// Compute the spheremap of the top LOD
-		// HDRFIXME: Make this work?
-		if( m_Format == IMAGE_FORMAT_RGBA8888 )
-		{
-			ComputeSpheremapFrame( pCubeMaps, pSphereMapBits, lookDir );
-		}
-
-		// Compute the mip levels of the spheremap, converting from RGBA8888 to our format
-		unsigned char *pFinalSphereMapBits = ImageData( iFrame, CUBEMAP_FACE_SPHEREMAP, 0 );
-		ImageLoader::GenerateMipmapLevels( pSphereMapBits, pFinalSphereMapBits, 
-			m_nWidth, m_nHeight, m_nDepth, m_Format, 2.2, 2.2, m_nMipCount );
-	}
+	//if (!IsCubeMap())
+	//	return;
+	//
+	//// HDRFIXME: Need to re-enable this.
+	////	Assert( m_Format == IMAGE_FORMAT_RGBA8888 );
+	//
+	//// We'll be doing our work in IMAGE_FORMAT_RGBA8888 mode 'cause it's easier
+	//unsigned char *pCubeMaps[6];
+	//
+	//// Allocate the bits for the spheremap
+	//Assert( m_nDepth == 1 );
+	//int iMemRequired = ComputeFaceSize( 0, IMAGE_FORMAT_RGBA8888 );
+	//unsigned char *pSphereMapBits = (unsigned char *)MemAllocScratch(iMemRequired);
+	//
+	//// Generate a spheremap for each frame of the cubemap
+	//for (int iFrame = 0; iFrame < m_nFrameCount; ++iFrame)
+	//{
+	//	// Point to our own textures (highest mip level)
+	//	for (int iFace = 0; iFace < 6; ++iFace)
+	//	{
+	//		pCubeMaps[iFace] = ImageData( iFrame, iFace, 0 );
+	//	}
+	//
+	//	// Compute the spheremap of the top LOD
+	//	// HDRFIXME: Make this work?
+	//	if( m_Format == IMAGE_FORMAT_RGBA8888 )
+	//	{
+	//		ComputeSpheremapFrame( pCubeMaps, pSphereMapBits, lookDir );
+	//	}
+	//
+	//	// Compute the mip levels of the spheremap, converting from RGBA8888 to our format
+	//	unsigned char *pFinalSphereMapBits = ImageData( iFrame, CUBEMAP_FACE_SPHEREMAP, 0 );
+	//	ImageLoader::GenerateMipmapLevels( pSphereMapBits, pFinalSphereMapBits, 
+	//		m_nWidth, m_nHeight, m_nDepth, m_Format, 2.2, 2.2, m_nMipCount );
+	//}
 
 	// Free memory
 	MemFreeScratch();

@@ -1,0 +1,8 @@
+// ---------------------------------------------------------------
+// Auto Generated QPC Script - Fix if needed before using
+// ---------------------------------------------------------------
+macro SRCDIR "../.."
+macro OUTBINDIR "$SRCDIR/dx_proxy/dx9_00"
+macro DX_SDK_VER "DX9_V00_PC"
+
+include "dx_proxy_base.qpc"

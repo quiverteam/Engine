@@ -12,7 +12,7 @@
 #if defined( CLIENT_DLL )
 
 #include "IGameSystem.h"
-#include <typeinfo.h>
+#include <typeinfo>
 
 #endif
 #include <memory.h>
@@ -1593,7 +1593,7 @@ void CPredictionDescribeData::DescribeQuaternion( const Quaternion *inValue, int
 
 void CPredictionDescribeData::DescribeEHandle( EHANDLE const *invalue, int count )
 {
-	Describe( "EHandle (%p)\n", invalue[ 0 ] );
+	Describe( "EHandle (%p)\n", (void *)invalue[ 0 ].Get() );
 }
 
 void CPredictionDescribeData::DescribeFields_R( int chain_count, datamap_t *pRootMap, typedescription_t *pFields, int fieldCount )

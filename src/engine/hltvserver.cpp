@@ -1915,7 +1915,7 @@ IClient *CHLTVServer::ConnectClient ( netadr_t &adr, int protocol, int challenge
 									 const char *name, const char *password, const char *hashedCDkey, int cdKeyLen )
 {
 	IClient	*client = (CHLTVClient*)CBaseServer::ConnectClient( 
-		adr, protocol, challenge,authProtocol, name, password, hashedCDkey, cdKeyLen );
+		adr, protocol, challenge,authProtocol, name, password, hashedCDkey, cdKeyLen, CSteamID() );
 
 	if ( client )
 	{

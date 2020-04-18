@@ -378,7 +378,7 @@ void ReserveThreads( int nToReserve )
 		g_pThreadPool->QueueCall( &ThreadPoolReserverFunction )->Release();
 	}
 
-	Msg( "%d threads being reserved\n", g_NumReservedThreads );
+	Msg( "%d threads being reserved\n", (int)g_NumReservedThreads );
 }
 
 void OnChangeThreadReserve( IConVar *var, const char *pOldValue, float flOldValue )
@@ -2164,12 +2164,6 @@ void _Host_RunFrame_Client( bool framefinished )
 
 	// Resend connection request if needed.
 	cl.RunFrame();
-
-	if ( CL_IsHL2Demo() || CL_IsPortalDemo() ) // don't need sv.IsDedicated() because ded servers don't run this
-	{
-		void CL_DemoCheckGameUIRevealTime();
-		CL_DemoCheckGameUIRevealTime();
-	}
 
 	Steam3Client().RunFrame();
 

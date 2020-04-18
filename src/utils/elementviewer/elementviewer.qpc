@@ -1,0 +1,79 @@
+// ---------------------------------------------------------------
+// Auto Generated QPC Script - Fix if needed before using
+// ---------------------------------------------------------------
+macro PROJECT_NAME "Elementviewer"
+
+macro SRCDIR "../.."
+macro OUTBINDIR "$BINDEFAULT"
+
+include "$SRCDIR/_qpc_scripts/source_exe_base.qpc"
+
+configuration
+{
+	general
+	{
+		include_directories
+		{
+			"$SRCDIR/vgui2/include"
+			"$SRCDIR/vgui2/controls"
+			"../common"
+		}
+	}
+
+	linker
+	{
+		libraries
+		{
+			"comctl32.lib"
+			"odbc32.lib"
+			"odbccp32.lib"
+			"Rpcrt4.lib"
+			"appframework"
+			"datamodel"
+			"dme_controls"
+			"dmserializers"
+			"mathlib"
+			"matsys_controls"
+			"movieobjects"
+			"tier2"
+			"tier3"
+			"vgui_controls"
+		}
+	}
+}
+
+dependencies
+{
+	"appframework"
+	"datamodel"
+	"dme_controls"
+	"dmserializers"
+	"mathlib"
+	"matsys_controls"
+	"movieobjects"
+	"tier2"
+	"tier3"
+	"vgui_controls"
+}
+
+files
+{
+	folder "Source Files"
+	{
+		"elementviewer.cpp"
+		"elementviewerPanel.cpp"
+		"$SRCDIR/public/interpolatortypes.cpp"
+		"$SRCDIR/public/interpolatortypes.h"
+		"$SRCDIR/public/movieobjects/movieobjects.cpp"
+		"$SRCDIR/public/vgui_controls/vgui_controls.cpp"
+	}
+
+	folder "Header Files"
+	{
+		"../common/cmdlib.h"
+		"elementviewer.h"
+		"$SRCDIR/Public/FileSystem.h"
+		"$SRCDIR/utils/common/FileSystem_Tools.h"
+		"$SRCDIR/Public/tier1/interface.h"
+	}
+}

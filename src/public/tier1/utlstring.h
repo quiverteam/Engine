@@ -66,7 +66,7 @@ public:
 	// which are about to be destroyed. It can also be explicitly invoked with
 	// std::move().
 	// Move constructor:
-	CUtlString( CUtlString&& rhs )
+	CUtlString( CUtlString&& rhs ) noexcept
 	{
 		// Move the string pointer from the source to this -- be sure to
 		// zero out the source to avoid double frees.
@@ -74,7 +74,7 @@ public:
 		rhs.m_pString = 0;
 	}
 	// Move assignment operator:
-	CUtlString& operator=( CUtlString&& rhs )
+	CUtlString& operator=( CUtlString&& rhs ) noexcept
 	{
 		// Move the string pointer from the source to this -- be sure to
 		// zero out the source to avoid double frees.

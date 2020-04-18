@@ -1,0 +1,62 @@
+// ---------------------------------------------------------------
+// Auto Generated QPC Script - Fix if needed before using
+// ---------------------------------------------------------------
+macro PROJECT_NAME "shaderapiempty"
+
+macro SRCDIR "../.."
+macro OUTBINDIR "$BINDEFAULT"
+
+include "$SRCDIR/_qpc_scripts/source_dll_base.qpc"
+
+configuration
+{
+	general
+	{
+		include_directories
+		{
+			".."
+		}
+	}
+
+	compiler
+	{
+		preprocessor_definitions
+		{
+			"SHADER_DLL_EXPORT"
+			"PROTECTED_THINGS_ENABLE"
+		}
+	}
+
+	linker
+	{
+		libraries
+		{
+			"odbc32.lib"
+			"odbccp32.lib"
+		}
+	}
+}
+
+files
+{
+	folder "Source Files"
+	{
+		"ShaderAPIEmpty.cpp"
+		"ShaderAPIEmpty.h"
+		"Mesh.h"
+		"Mesh.cpp"
+		"DeviceManager.h"
+		"DeviceManager.cpp"
+		"ShaderDevice.h"
+		"ShaderDevice.cpp"
+		"ShaderShadow.h"
+		"ShaderShadow.cpp"
+		"ShaderAPI.h"
+		"ShaderAPI.cpp"
+	}
+
+	folder "Header Files"
+	{
+		"$SRCDIR/public/tier0/platform.h"
+	}
+}

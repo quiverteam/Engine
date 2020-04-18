@@ -1,6 +1,9 @@
-[submodule "game/hl2r"]
-	path = game/hl2r
-	url = https://github.com/Demez/Half-Life-2-Revamped
 [submodule "game/core"]
 	path = game/core
-	url = https://github.com/quiverteam/Core
+	url = https://github.com/quiverteam/Core.git
+[submodule "src/devtools/pyqpc"]
+	path = src/devtools/pyqpc
+	url = https://github.com/quiverteam/PyQuiverProjectCreator
+[submodule "src/devtools/qpc"]
+	path = src/devtools/qpc
+	url = https://github.com/quiverteam/QuiverProjectCreator.git

@@ -81,7 +81,10 @@ public:
 
 	// memory handling, uses calloc so members are zero'd out on instantiation
     static void						*operator new( size_t stAllocateBlock );
+	static void						*operator new( size_t stAllocateBlock, int nBlockUse, const char *pFileName, int nLine );
+
 	static void						operator delete( void *pMem );
+	static void						operator delete( void *pMem, int nBlockUse, const char *pFileName, int nLine );
 
 	static void				Init( void );
 	static void				Shutdown( void ); // garymcthack - need to call this.

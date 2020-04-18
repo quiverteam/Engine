@@ -1,0 +1,42 @@
+// ---------------------------------------------------------------
+// Auto Generated QPC Script - Fix if needed before using
+// ---------------------------------------------------------------
+macro PROJECT_NAME "Testprocess"
+
+macro SRCDIR "../.."
+macro OUTBINDIR "$BINDEFAULT/unittests"
+
+include "$SRCDIR/_qpc_scripts/source_exe_con_base.qpc"
+
+configuration
+{
+	compiler
+	{
+		preprocessor_definitions
+		{
+			"PROTECTED_THINGS_DISABLE" [$DEBUG]
+		}
+	}
+
+	linker
+	{
+		libraries
+		{
+			"winmm.lib" [$DEBUG]
+			"$LIBPUBLIC/tier2"
+		}
+	}
+}
+
+dependencies
+{
+	"tier2/tier2.qpc"
+}
+
+files
+{
+	folder "Source Files"
+	{
+		"testprocess.cpp"
+	}
+}
