@@ -39,6 +39,8 @@ InitReturnVal_t CPhysics::Init() {
 	InitReturnVal_t nRetVal = BaseClass::Init();
 	if (nRetVal != INIT_OK) return nRetVal;
 
+	MathLib_Init();
+
 	// Hook up our debug output functions
 	btSetDbgMsgFn(btDebugMessage);
 	btSetDbgWarnFn(btDebugWarning);
