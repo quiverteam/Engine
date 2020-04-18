@@ -22,7 +22,7 @@ steps:
 
 - task: CmdLine@2
   inputs:
-    script: 'py devtools/qpc/qpc.py -a everything -m EPISODIC HL2 HL2MP -g visual_studio -mf everything'
+    script: 'py devtools/qpc/qpc.py -b "_qpc_scripts/_default.qpc_base" -a everything -m EPISODIC HL2 HL2MP -g visual_studio -mf everything'
     workingDirectory: 'src/'
     
 # no difference from MSBuild@1?
