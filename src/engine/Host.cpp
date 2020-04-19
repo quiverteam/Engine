@@ -3381,11 +3381,6 @@ void Host_Init( bool bDedicated )
 
 	TRACEINIT( sv.Init( bDedicated ), sv.Shutdown() );
 
-#if !defined( SWDS )
-	// turn on the Steam3 API early so we can query app data up front
-	TRACEINIT( Steam3Client().Activate(), Steam3Client().Shutdown() );
-#endif
-
 	if ( !CommandLine()->FindParm( "-nogamedll" ) )
 	{
 		SV_InitGameDLL();
@@ -3400,6 +3395,9 @@ void Host_Init( bool bDedicated )
 #if defined( _WIN32 ) && !defined( SWDS )
 	if ( !bDedicated )
 	{
+		// turn on the Steam3 API early so we can query app data up front
+		TRACEINIT( Steam3Client().Activate(), Steam3Client().Shutdown() );
+
 		TRACEINIT( CL_Init(), CL_Shutdown() );
 
 		// NOTE: This depends on the mod search path being set up
@@ -3424,6 +3422,8 @@ void Host_Init( bool bDedicated )
 
 		TRACEINIT( Decal_Init(), Decal_Shutdown() );
 
+		TRACEINIT( S_Init(), S_Shutdown() );
+
 		// hookup interfaces
 		EngineVGui()->Connect();
 	}
@@ -3445,7 +3445,6 @@ void Host_Init( bool bDedicated )
 
 #ifndef SWDS
 	Host_ReadConfiguration();
-	TRACEINIT( S_Init(), S_Shutdown() );
 #endif
 
 	// Execute valve.rc
