@@ -6,6 +6,7 @@
 #include "Physics_Environment.h"
 #include "Physics_ObjectPairHash.h"
 #include "Physics_CollisionSet.h"
+#include "Physics_Object.h"
 
 // memdbgon must be the last include file in a .cpp file!!!
 #include "tier0/memdbgon.h"
@@ -121,3 +122,25 @@ void CPhysics::DestroyAllCollisionSets() {
 CPhysics g_Physics;
 EXPOSE_SINGLE_INTERFACE_GLOBALVAR(CPhysics, IPhysics, VPHYSICS_INTERFACE_VERSION, g_Physics);
 EXPOSE_SINGLE_INTERFACE_GLOBALVAR(CPhysics, IPhysics32, "VPhysics032", g_Physics); // "Undocumented" way to determine if this is the newer vphysics or not.
+
+ConCommand vphysics_pause_simulation("vphysics_pause_simulation", []() -> void {
+	/* Loop through the active physics envs */
+	for (int i = 0; i < g_Physics.GetActiveEnvironmentCount(); i++)
+	{
+		IPhysicsEnvironment* env = g_Physics.GetActiveEnvironmentByIndex(i);
+		if (!env) continue;
+
+		((CPhysicsEnvironment*)env)->m_bPaused = true;
+	}
+}, "Pauses the physics simulation");
+
+ConCommand vphysics_unpause_simulation("vphysics_unpause_simulation", []() -> void {
+	/* Loop through the active physics envs */
+	for (int i = 0; i < g_Physics.GetActiveEnvironmentCount(); i++)
+	{
+		IPhysicsEnvironment* env = g_Physics.GetActiveEnvironmentByIndex(i);
+		if (!env) continue;
+
+		((CPhysicsEnvironment*)env)->m_bPaused = false;
+	}
+}, "Unpauses the physics simulation");

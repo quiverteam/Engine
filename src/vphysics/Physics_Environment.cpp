@@ -539,6 +539,7 @@ CPhysicsEnvironment::CPhysicsEnvironment() {
 	m_invPSIScale = 0.f;
 	m_simPSICurrent = 0;
 	m_simPSI = 0;
+	m_bPaused = false;
 
 #ifdef MULTITHREADED
 	// Maximum number of parallel tasks (number of threads in the thread support)
@@ -959,6 +960,8 @@ void CPhysicsEnvironment::SetCollisionSolver(IPhysicsCollisionSolver *pSolver) {
 static ConVar cvar_substeps("vphysics_substeps", "1", FCVAR_REPLICATED, "Sets the amount of simulation substeps (higher number means higher precision)", true, 1, false, 0);
 void CPhysicsEnvironment::Simulate(float deltaTime) {
 	Assert(m_pBulletEnvironment);
+
+	if (m_bPaused) return;
 
 	// Input deltaTime is how many seconds have elapsed since the previous frame
 	// phys_timescale can scale this parameter however...

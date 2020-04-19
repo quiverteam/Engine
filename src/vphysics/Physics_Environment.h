@@ -239,6 +239,9 @@ private:
 	physics_stats_t							m_stats;
 
 	CDebugDrawer *							m_debugdraw;
+
+public:
+	bool									m_bPaused;
 };
 
 #endif // PHYSICS_ENVIRONMENT_H
