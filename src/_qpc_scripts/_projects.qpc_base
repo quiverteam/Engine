@@ -108,6 +108,8 @@ project "lua"						"thirdparty/lua-5.1.1/lua.qpc"
 
 project "lzma"						"thirdparty/lzma/lzma.qpc" [$WINDOWS]
 
+project "mapedit"				"tools/mapedit/mapedit.qpc" [$WINDOWS]
+
 project "materialsystem"			"materialsystem/materialsystem.qpc"
 
 project "materialsystemtest"		"unittests/materialsystemtest/materialsystemtest.qpc" [$WINDOWS]

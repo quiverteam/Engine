@@ -81,6 +81,7 @@ group "tools" "everything"
 		"toolutils"
 		"vcdblock"
 		"vmt"
+		"mapedit"
 	}
 }
 
