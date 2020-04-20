@@ -108,7 +108,9 @@ int APIENTRY WinMain( HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdL
 	}
 
 	LauncherMain_t main = (LauncherMain_t)GetProcAddress( launcher, "LauncherMain" );
-	return main( hInstance, hPrevInstance, lpCmdLine, nCmdShow );
+	int ret = main( hInstance, hPrevInstance, lpCmdLine, nCmdShow );
+	FreeLibrary( launcher );
+	return ret;
 }
 #endif
 
