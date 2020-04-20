@@ -7,6 +7,8 @@
 #include "Physics_SurfaceProps.h"
 #include "Physics_Collision.h"
 
+#include <vprof.h>
+
 // memdbgon must be the last include file in a .cpp file!!!
 #include "tier0/memdbgon.h"
 
@@ -170,6 +172,7 @@ static btVector3 calculateBuoyantCenter(btRigidBody *pBody, btVector3 &planePos,
 
 // TODO: Refactor this code to be less messy.
 void CPhysicsFluidController::Tick(float dt) {
+	VPROF_BUDGET(__FUNCTION__, VPROF_BUDGETGROUP_PHYSICS);
 	// TODO: Buoyancy calculation
 	int numObjects = m_pGhostObject->getNumOverlappingObjects();
 	for (int i = 0; i < numObjects; i++) {
@@ -234,6 +237,7 @@ void CPhysicsFluidController::Tick(float dt) {
 			body->applyForce(force, relPos);
 		}
 
+		
 		// Old code that actually works better
 		/*
 		btVector3 mins, maxs, omins, omaxs;

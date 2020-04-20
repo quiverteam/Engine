@@ -16,6 +16,7 @@
 #include "Physics_SoftBody.h"
 #include "miscmath.h"
 #include "convert.h"
+#include <vprof.h>
 
 #if DEBUG_DRAW
 	#include "DebugDrawer.h"
@@ -961,6 +962,8 @@ static ConVar cvar_substeps("vphysics_substeps", "1", FCVAR_REPLICATED, "Sets th
 void CPhysicsEnvironment::Simulate(float deltaTime) {
 	Assert(m_pBulletEnvironment);
 
+	VPROF_BUDGET(__FUNCTION__, VPROF_BUDGETGROUP_PHYSICS);
+
 	if (m_bPaused) return;
 
 	// Input deltaTime is how many seconds have elapsed since the previous frame
@@ -1270,6 +1273,7 @@ float CPhysicsEnvironment::GetInvPSIScale() {
 
 // UNEXPOSED
 void CPhysicsEnvironment::BulletTick(btScalar dt) {
+	VPROF_BUDGET(__FUNCTION__, VPROF_BUDGETGROUP_PHYSICS);
 	// Dirty hack to spread the controllers throughout the current simulation step
 	if (m_simPSICurrent) {
 		m_invPSIScale = 1.0f / (float)m_simPSICurrent;
@@ -1330,6 +1334,7 @@ btVector3 CPhysicsEnvironment::GetMaxAngularVelocity() const {
 // we have to iterate through all the contact manifolds and generate the callbacks ourselves.
 // FIXME: Remove this function and implement callbacks in bullet code
 void CPhysicsEnvironment::DoCollisionEvents(float dt) {
+	VPROF_BUDGET(__FUNCTION__, VPROF_BUDGETGROUP_PHYSICS);
 	if (m_pCollisionEvent) {
 		int numManifolds = m_pBulletEnvironment->getDispatcher()->getNumManifolds();
 		for (int i = 0; i < numManifolds; i++) {

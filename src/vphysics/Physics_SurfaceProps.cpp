@@ -132,6 +132,7 @@ int CPhysicsSurfaceProps::ParseSurfaceData(const char *pFilename, const char *pT
 		m_props.AddToTail(prop);
 	}
 	surfprops->deleteThis();
+	DevMsg("Finished parsing surface properties\n");
 	return 0;
 }
 
