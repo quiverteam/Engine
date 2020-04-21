@@ -144,3 +144,14 @@ ConCommand vphysics_unpause_simulation("vphysics_unpause_simulation", []() -> vo
 		((CPhysicsEnvironment*)env)->m_bPaused = false;
 	}
 }, "Unpauses the physics simulation");
+
+ConCommand vphysics_step("vphysics_step", []() -> void {
+	int nPhysEnvs = g_Physics.GetActiveEnvironmentCount();
+	for (int i = 0; i < nPhysEnvs; i++)
+	{
+		IPhysicsEnvironment* env = g_Physics.GetActiveEnvironmentByIndex(i);
+		if (!env) continue;
+
+		((CPhysicsEnvironment*)env)->DoSimulationStep();
+	}
+}, "Performs a single physics sim step");

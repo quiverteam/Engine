@@ -49,6 +49,12 @@
 #include "tier0/memdbgon.h"
 
 /*****************************
+* CONVARS
+*****************************/
+static ConVar vphysics_step_time("vphysics_step_time", "100", FCVAR_CHEAT, "When in stepped moode, the time between physics steps in milliseconds");
+static ConVar vphysics_enable_step_mode("vphysics_enable_step_mode", "0", FCVAR_CHEAT, "Enables stepped mode");
+
+/*****************************
 * MISC. CLASSES
 *****************************/
 
@@ -541,6 +547,9 @@ CPhysicsEnvironment::CPhysicsEnvironment() {
 	m_simPSICurrent = 0;
 	m_simPSI = 0;
 	m_bPaused = false;
+	m_bStepMode = vphysics_enable_step_mode.GetBool();
+	m_fStepTime = vphysics_step_time.GetFloat();
+	m_fRemainingStepTime = 0.0f;
 
 #ifdef MULTITHREADED
 	// Maximum number of parallel tasks (number of threads in the thread support)
@@ -964,7 +973,9 @@ void CPhysicsEnvironment::Simulate(float deltaTime) {
 
 	VPROF_BUDGET(__FUNCTION__, VPROF_BUDGETGROUP_PHYSICS);
 
-	if (m_bPaused) return;
+	m_bStepMode = vphysics_enable_step_mode.GetBool();
+
+	if (m_bPaused || (m_bStepMode && m_fRemainingStepTime <= 0.0f)) return;
 
 	// Input deltaTime is how many seconds have elapsed since the previous frame
 	// phys_timescale can scale this parameter however...
@@ -1008,6 +1019,8 @@ void CPhysicsEnvironment::Simulate(float deltaTime) {
 
 	// FIXME: See if this is even needed here
 	m_softBodyWorldInfo.m_sparsesdf.GarbageCollect();
+
+	if(m_bStepMode) this->m_fRemainingStepTime -= (deltaTime * 1000.0f);
 }
 
 bool CPhysicsEnvironment::IsInSimulation() const {
@@ -1420,4 +1433,11 @@ void CPhysicsEnvironment::HandleObjectExitedTrigger(CPhysicsObject *pTrigger, CP
 
 	if (m_pCollisionEvent)
 		m_pCollisionEvent->ObjectLeaveTrigger(pTrigger, pObject);
+}
+
+void CPhysicsEnvironment::DoSimulationStep()
+{
+	this->m_fStepTime = vphysics_step_time.GetFloat();
+	this->m_bStepMode = vphysics_enable_step_mode.GetBool();
+	this->m_fRemainingStepTime = this->m_fStepTime;
 }

@@ -242,6 +242,10 @@ private:
 
 public:
 	bool									m_bPaused;
+	bool									m_bStepMode;
+	float									m_fStepTime, m_fRemainingStepTime;
+
+	void									DoSimulationStep();
 };
 
 #endif // PHYSICS_ENVIRONMENT_H
