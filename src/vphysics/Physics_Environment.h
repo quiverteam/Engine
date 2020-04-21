@@ -246,6 +246,7 @@ public:
 	float									m_fStepTime, m_fRemainingStepTime;
 
 	void									DoSimulationStep();
+	void									DrawPhysHud();
 };
 
 #endif // PHYSICS_ENVIRONMENT_H

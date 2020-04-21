@@ -18,9 +18,7 @@
 #include "convert.h"
 #include <vprof.h>
 
-#if DEBUG_DRAW
-	#include "DebugDrawer.h"
-#endif
+#include "DebugDrawer.h"
 
 // Multithreading stuff
 
@@ -53,6 +51,7 @@
 *****************************/
 static ConVar vphysics_step_time("vphysics_step_time", "100", FCVAR_CHEAT, "When in stepped moode, the time between physics steps in milliseconds");
 static ConVar vphysics_enable_step_mode("vphysics_enable_step_mode", "0", FCVAR_CHEAT, "Enables stepped mode");
+static ConVar vphysics_draw_hud("vphysics_draw_hud", "0", FCVAR_CHEAT | FCVAR_ARCHIVE, "Enables or disables hud drawing for vphysics");
 
 /*****************************
 * MISC. CLASSES
@@ -619,9 +618,7 @@ CPhysicsEnvironment::CPhysicsEnvironment() {
 	m_pCollisionListener = new CCollisionEventListener(this);
 	m_pBulletSolver->setSolveCallback(m_pCollisionListener);
 
-#if DEBUG_DRAW
 	m_debugdraw = new CDebugDrawer(m_pBulletEnvironment);
-#endif
 
 	// HACK: Get ourselves a debug overlay on the client
 	CreateInterfaceFn engine = Sys_GetFactory("engine");
@@ -629,9 +626,7 @@ CPhysicsEnvironment::CPhysicsEnvironment() {
 }
 
 CPhysicsEnvironment::~CPhysicsEnvironment() {
-#if DEBUG_DRAW
 	delete m_debugdraw;
-#endif
 	SetQuickDelete(true);
 
 	for (int i = m_objects.Count() - 1; i >= 0; --i) {
@@ -686,10 +681,8 @@ void CPhysicsEnvironment::SetDebugOverlay(CreateInterfaceFn debugOverlayFactory)
 	if (debugOverlayFactory && !g_pDebugOverlay)
 		g_pDebugOverlay = (IVPhysicsDebugOverlay *)debugOverlayFactory(VPHYSICS_DEBUG_OVERLAY_INTERFACE_VERSION, NULL);
 
-#if DEBUG_DRAW
 	if (g_pDebugOverlay)
 		m_debugdraw->SetDebugOverlay(g_pDebugOverlay);
-#endif
 }
 
 IVPhysicsDebugOverlay *CPhysicsEnvironment::GetDebugOverlay() {
@@ -973,6 +966,10 @@ void CPhysicsEnvironment::Simulate(float deltaTime) {
 
 	VPROF_BUDGET(__FUNCTION__, VPROF_BUDGETGROUP_PHYSICS);
 
+	/* Draw the phys hud before any of the logic */
+	if (vphysics_draw_hud.GetBool())
+		this->DrawPhysHud();
+
 	m_bStepMode = vphysics_enable_step_mode.GetBool();
 
 	if (m_bPaused || (m_bStepMode && m_fRemainingStepTime <= 0.0f)) return;
@@ -1013,9 +1010,7 @@ void CPhysicsEnvironment::Simulate(float deltaTime) {
 		m_inSimulation = false;
 	}
 
-#if DEBUG_DRAW
 	m_debugdraw->DrawWorld();
-#endif
 
 	// FIXME: See if this is even needed here
 	m_softBodyWorldInfo.m_sparsesdf.GarbageCollect();
@@ -1440,4 +1435,40 @@ void CPhysicsEnvironment::DoSimulationStep()
 	this->m_fStepTime = vphysics_step_time.GetFloat();
 	this->m_bStepMode = vphysics_enable_step_mode.GetBool();
 	this->m_fRemainingStepTime = this->m_fStepTime;
+}
+
+void CPhysicsEnvironment::DrawPhysHud()
+{
+	IVPhysicsDebugOverlay *pOverlay = (IVPhysicsDebugOverlay*)GetDebugOverlay();
+	if (!pOverlay) return;
+
+	int r = 255, g = 255, b = 255;
+	char buf[256];
+
+	pOverlay->AddScreenTextOverlay(0.01f, 0.01f, 0.0f, 255, 255, 255, 255, "VPhyiscs Info\n");
+
+	/* Is paused? */
+	Q_snprintf(buf, sizeof(buf), "Paused: %s", this->m_bPaused ? "true" : "false");
+	pOverlay->AddScreenTextOverlay(0.01f, 0.03f, 0.0f, 255, 255, 255, 255, buf);
+
+	/* Is in step mode? */
+	Q_snprintf(buf, sizeof(buf), "In step mode: %s", this->m_bStepMode ? "true" : "false");
+	pOverlay->AddScreenTextOverlay(0.01f, 0.04f, 0.0f, 255, 255, 255, 255, buf);
+
+	/* Step time */
+	Q_snprintf(buf, sizeof(buf), "Step time: %f ms", this->m_fStepTime);
+	pOverlay->AddScreenTextOverlay(0.01f, 0.05f, 0.0f, 255, 255, 255, 255, buf);
+
+	/* Remaining time in step */
+	Q_snprintf(buf, sizeof(buf), "Step time remaining: %f ms", this->m_fRemainingStepTime >= 0.0f ? this->m_fRemainingStepTime : 0.0f);
+	if(this->m_fRemainingStepTime <= 0.0f)
+		pOverlay->AddScreenTextOverlay(0.01f, 0.06f, 0.0f, 255, 0, 0, 255, buf);
+	else
+		pOverlay->AddScreenTextOverlay(0.01f, 0.06f, 0.0f, 0, 255, 0, 255, buf);
+
+	/* Display a message if we're simulating or not */
+	if (m_bPaused || (m_bStepMode && m_fRemainingStepTime <= 0.0f))
+		pOverlay->AddScreenTextOverlay(0.01f, 0.08f, 0.0f, 255, 0, 0, 255, "SIMULATION PAUSED");
+	else
+		pOverlay->AddScreenTextOverlay(0.01f, 0.08f, 0.0f, 0, 255, 0, 255, "SIMULATION RUNNING");
 }
