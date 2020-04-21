@@ -22,7 +22,7 @@ set(WIN32_DEFINES	)
 set(POSIX32_DEFINES	)
 set(WIN64_DEFINES	)
 set(POSIX64_DEFINES	)
-set(WINDOWS_DEFINES	)
+set(WINDOWS_DEFINES	-DUSE_OLD_INPUTSYSTEM)
 set(POSIX_DEFINES	)
 
 set(PLATFORM_64BIT_DEFINES	)
@@ -41,10 +41,10 @@ set(POSIX64_LINK_DIRS	)
 set(LINK_LIBS			SDL2 )
 
 # Other projects this one depends on
-set(DEPENDENCIES mathlib tier2 vstdlib)
+set(DEPENDENCIES mathlib tier2 vstdlib tier1 tier0)
 
 # Platform specific link libs
-set(WINDOWS_LINK_LIBS	)
+set(WINDOWS_LINK_LIBS	winmm)
 set(WIN32_LINK_LIBS		)
 set(WIN64_LINK_LIBS		)
 set(POSIX32_LINK_LIBS	)

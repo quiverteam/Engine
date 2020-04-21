@@ -18,6 +18,9 @@
 #ifdef _WIN32
 #include <windows.h>
 #include <zmouse.h>
+#include <xinput.h>
+#include <xbox/xboxstubs.h>
+
 #endif
 
 #include "inputsystem/iinputsystem.h"
@@ -312,6 +315,7 @@ private:
 //-----------------------------------------------------------------------------
 // Implementation of the input system
 //-----------------------------------------------------------------------------
+#ifndef USE_OLD_INPUTSYSTEM
 class CInputSystem2 : public CTier2AppSystem<IInputSystem>
 {
 protected:
@@ -387,4 +391,5 @@ public:
 	virtual void SetConsoleTextMode( bool bConsoleTextMode ) {}
 
 };
+#endif
 

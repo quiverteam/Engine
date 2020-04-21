@@ -4,6 +4,7 @@
 // Date Created: July 16, 2019
 // Authors: JJL77 jeremy.lorelli.1337@gmail.com
 //===========================================================================//
+#ifndef USE_OLD_INPUTSYSTEM
 
 #include "inputsystem.h"
 #include "tier0/platform.h"
@@ -405,3 +406,5 @@ void CInputSystem2::SetCursorPosition(int x, int y)
 	Assert(pWindow);
 	SDL_WarpMouseInWindow(pWindow, x, y);
 }
+
+#endif //USE_OLD_INPUTSYSTEM

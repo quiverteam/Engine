@@ -84,7 +84,8 @@ InitReturnVal_t CInputSystem::Init()
 	m_pXInputDLL = Sys_LoadModule( "XInput1_3.dll" );
 	if ( m_pXInputDLL )
 	{
-		InitializeXDevices();
+		/* We won't be using xinput since we're not running on xbox, plus we're moving to SDL2 soon anyways */
+		//InitializeXDevices();
 	}
 
 	if ( !m_nJoystickCount )
@@ -463,7 +464,7 @@ void CInputSystem::SampleDevices( void )
 
 	if ( m_bXController )
 	{
-		PollXDevices();
+		//PollXDevices();
 	}
 	else
 	{
