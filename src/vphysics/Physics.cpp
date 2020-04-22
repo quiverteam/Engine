@@ -15,12 +15,12 @@ ConVar vphysics_bulletdebugoutput("vphysics_bulletdebugoutput", "0", FCVAR_ARCHI
 
 void btDebugMessage(const char *str) {
 	if (vphysics_bulletdebugoutput.GetBool()) {
-		Msg("%s", str);
+		Msg("[bullet-vphysics] %s", str);
 	}
 }
 
 void btDebugWarning(const char *str) {
-	Warning("%s", str);
+	Warning("[bullet-vphysics] %s", str);
 }
 
 /******************
