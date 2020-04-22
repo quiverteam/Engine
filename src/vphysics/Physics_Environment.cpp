@@ -19,7 +19,6 @@
 #include <vprof.h>
 
 #include "DebugDrawer.h"
-
 // Multithreading stuff
 
 #define USE_PARALLEL_DISPATCHER
@@ -52,6 +51,7 @@
 static ConVar vphysics_step_time("vphysics_step_time", "100", FCVAR_CHEAT, "When in stepped moode, the time between physics steps in milliseconds");
 static ConVar vphysics_enable_step_mode("vphysics_enable_step_mode", "0", FCVAR_CHEAT, "Enables stepped mode");
 static ConVar vphysics_draw_hud("vphysics_draw_hud", "0", FCVAR_CHEAT | FCVAR_ARCHIVE, "Enables or disables hud drawing for vphysics");
+static ConVar vphysics_show_velocity("vphysics_show_velocity", "0", FCVAR_CHEAT | FCVAR_ARCHIVE, "Shows velocity info for physics objects. NOTE: This can really lag things up");
 
 /*****************************
 * MISC. CLASSES
@@ -969,6 +969,8 @@ void CPhysicsEnvironment::Simulate(float deltaTime) {
 	/* Draw the phys hud before any of the logic */
 	if (vphysics_draw_hud.GetBool())
 		this->DrawPhysHud();
+	if (vphysics_show_velocity.GetBool())
+		this->DrawPhysPropOverlay();
 
 	m_bStepMode = vphysics_enable_step_mode.GetBool();
 
@@ -1471,4 +1473,32 @@ void CPhysicsEnvironment::DrawPhysHud()
 		pOverlay->AddScreenTextOverlay(0.01f, 0.08f, 0.0f, 255, 0, 0, 255, "SIMULATION PAUSED");
 	else
 		pOverlay->AddScreenTextOverlay(0.01f, 0.08f, 0.0f, 0, 255, 0, 255, "SIMULATION RUNNING");
+}
+
+void CPhysicsEnvironment::DrawPhysPropOverlay()
+{
+	IVPhysicsDebugOverlay* pOverlay = GetDebugOverlay();
+	if (!pOverlay) return;
+
+	/* Draw the solidbody objects */
+	for (IPhysicsObject* pObj : m_objects)
+	{
+		if (pObj->IsStatic()) continue;
+
+		Vector pos;
+		QAngle ang;
+		pObj->GetPosition(&pos, &ang);
+
+		/* Get velocity and angular velocity */
+		Vector velo;
+		AngularImpulse angimpulse;
+		pObj->GetVelocity(&velo, &angimpulse);
+		float mag = velo.NormalizeInPlace();
+
+		/* Draw velo text */
+		pOverlay->AddTextOverlay(pos, 0.0f, "speed: %f in/s", mag);
+
+		/* Draw the velocity vector */
+		pOverlay->AddLineOverlay(pos, velo * (mag * 0.1f) + pos, 0, 0, 255, false, 0.0f);
+	}
 }

@@ -247,6 +247,7 @@ public:
 
 	void									DoSimulationStep();
 	void									DrawPhysHud();
+	void									DrawPhysPropOverlay();
 };
 
 #endif // PHYSICS_ENVIRONMENT_H
