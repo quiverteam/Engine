@@ -25,24 +25,6 @@ configuration
 			"COMMEDIT_EXPORTS"
 		}
 	}
-
-	linker
-	{
-		libraries
-		{
-			"Psapi.lib"
-			"datamodel"
-			"dme_controls"
-			"dmserializers"
-			"mathlib"
-			"matsys_controls"
-			"movieobjects"
-			"tier2"
-			"tier3"
-			"toolutils"
-			"vgui_controls"
-		}
-	}
 }
 
 files
@@ -54,9 +36,6 @@ files
 		"commentarynodebrowserpanel.cpp"
 		"commentarypropertiespanel.cpp"
 		"dmecommentarynodeentity.cpp"
-		"$SRCDIR/public/interpolatortypes.cpp"
-		"$SRCDIR/public/registry.cpp"
-		"$SRCDIR/public/vgui_controls/vgui_controls.cpp"
 	}
 
 	folder "Header Files"
@@ -66,6 +45,5 @@ files
 		"commentarynodebrowserpanel.h"
 		"commentarypropertiespanel.h"
 		"dmecommentarynodeentity.h"
-		"$SRCDIR/public/mathlib/mathlib.h"
 	}
 }
