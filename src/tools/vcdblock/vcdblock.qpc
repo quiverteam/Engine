@@ -1,12 +1,10 @@
 // ---------------------------------------------------------------
-// Auto Generated QPC Script - Fix if needed before using
+// Engine Tool - Vcdblock
 // ---------------------------------------------------------------
-macro PROJECT_NAME "Vcdblock"
+macro PROJECT_NAME	"Vcdblock"
+macro SRCDIR		"../.."
 
-macro SRCDIR "../.."
-macro OUTBINDIR "$BINDEFAULT/tools"
-
-include "$SRCDIR/_qpc_scripts/source_dll_base.qpc"
+include "$SRCDIR/_qpc_scripts/base_tool.qpc"
 
 configuration
 {
@@ -27,24 +25,6 @@ configuration
 			"VCDBLOCK_EXPORTS"
 		}
 	}
-
-	linker
-	{
-		libraries
-		{
-			"Psapi.lib"
-			"datamodel"
-			"dme_controls"
-			"dmserializers"
-			"mathlib"
-			"matsys_controls"
-			"movieobjects"
-			"tier2"
-			"tier3"
-			"toolutils"
-			"vgui_controls"
-		}
-	}
 }
 
 files
@@ -54,11 +34,8 @@ files
 		"dmevmfentity.cpp"
 		"infotargetbrowserpanel.cpp"
 		"infotargetpropertiespanel.cpp"
-		"$SRCDIR/public/interpolatortypes.cpp"
-		"$SRCDIR/public/registry.cpp"
 		"vcdblockdoc.cpp"
 		"vcdblocktool.cpp"
-		"$SRCDIR/public/vgui_controls/vgui_controls.cpp"
 	}
 
 	folder "Header Files"
@@ -66,7 +43,6 @@ files
 		"dmevmfentity.h"
 		"infotargetbrowserpanel.h"
 		"infotargetpropertiespanel.h"
-		"$SRCDIR/public/mathlib/mathlib.h"
 		"vcdblockdoc.h"
 		"vcdblocktool.h"
 	}

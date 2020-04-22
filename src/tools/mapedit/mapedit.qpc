@@ -1,12 +1,10 @@
 // ---------------------------------------------------------------
-// Auto Generated QPC Script - Fix if needed before using
+// Engine Tool - Map Editor
 // ---------------------------------------------------------------
-macro PROJECT_NAME "MapEdit"
+macro PROJECT_NAME	"MapEdit"
+macro SRCDIR		"../.."
 
-macro SRCDIR "../.."
-macro OUTBINDIR "$BINDEFAULT/tools"
-
-include "$SRCDIR/_qpc_scripts/source_dll_base.qpc"
+include "$SRCDIR/_qpc_scripts/base_tool.qpc"
 
 configuration
 {
@@ -30,24 +28,6 @@ configuration
 		precompiled_header "use"
 		precompiled_header_file "cbase.h"
 	}
-
-	linker
-	{
-		libraries
-		{
-			"Psapi.lib"
-			"datamodel"
-			"dme_controls"
-			"dmserializers"
-			"mathlib"
-			"matsys_controls"
-			"movieobjects"
-			"tier2"
-			"tier3"
-			"toolutils"
-			"vgui_controls"
-		}
-	}
 }
 
 files
@@ -66,26 +46,11 @@ files
 				}
 			}
 		}
-
-		"$SRCDIR/public/interpolatortypes.cpp"	\
-		"$SRCDIR/public/registry.cpp"	\
-		"$SRCDIR/public/vgui_controls/vgui_controls.cpp"
-		{
-			configuration
-			{
-				compiler
-				{
-					precompiled_header "none"
-				}
-			}
-		}
 	}
 
 	folder "Header Files"
 	{
 		"cbase.h"
-		"$SRCDIR/public/interpolatortypes.h"
-		"$SRCDIR/public/mathlib/mathlib.h"
 		"menus.h"
 	}
 }

@@ -1,12 +1,10 @@
 // ---------------------------------------------------------------
-// Auto Generated QPC Script - Fix if needed before using
+// Engine Tool - Commentary Editor
 // ---------------------------------------------------------------
-macro PROJECT_NAME "Commedit"
+macro PROJECT_NAME	"Commedit"
+macro SRCDIR		"../.."
 
-macro SRCDIR "../.."
-macro OUTBINDIR "$BINDEFAULT/tools"
-
-include "$SRCDIR/_qpc_scripts/source_dll_base.qpc"
+include "$SRCDIR/_qpc_scripts/base_tool.qpc"
 
 configuration
 {
