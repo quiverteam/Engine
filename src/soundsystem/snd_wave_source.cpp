@@ -1,4 +1,4 @@
-//===== Copyright © 1996-2005, Valve Corporation, All rights reserved. ======//
+//===== Copyright ? 1996-2005, Valve Corporation, All rights reserved. ======//
 //
 // Purpose: 
 //
@@ -16,7 +16,7 @@
 #include <mmsystem.h>		// wave format
 #include <mmreg.h>			// adpcm format
 #include "soundsystem.h"
-#include "FileSystem.h"
+#include "filesystem.h"
 #include "tier1/utlbuffer.h"
 
 

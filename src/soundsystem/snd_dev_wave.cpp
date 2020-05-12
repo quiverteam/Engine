@@ -1,4 +1,4 @@
-//===== Copyright © 1996-2005, Valve Corporation, All rights reserved. ======//
+//===== Copyright ? 1996-2005, Valve Corporation, All rights reserved. ======//
 //
 // Purpose: 
 //
@@ -19,7 +19,7 @@
 #include "soundsystem.h"
 #include "soundsystem/snd_device.h"
 #include "tier1/utlvector.h"
-#include "FileSystem.h"
+#include "filesystem.h"
 #include "sentence.h"
 
 
