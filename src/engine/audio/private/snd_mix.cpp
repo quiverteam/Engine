@@ -865,7 +865,7 @@ inline int MIX_GetCurrentPaintbufferIndex( void )
 
 // return pointer to current paintbuffer struct
 
-inline paintbuffer_t *MIX_GetCurrentPaintbufferPtr( void )
+paintbuffer_t *MIX_GetCurrentPaintbufferPtr( void )
 {
 	int ipaint = MIX_GetCurrentPaintbufferIndex();
 	

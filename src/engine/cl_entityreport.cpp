@@ -1,4 +1,4 @@
-//========= Copyright © 1996-2005, Valve Corporation, All rights reserved. ============//
+//========= Copyright ? 1996-2005, Valve Corporation, All rights reserved. ============//
 //
 // Purpose: 
 //
@@ -191,7 +191,7 @@ CEntityReportPanel::CEntityReportPanel( vgui::Panel *parent ) :
 	SetSize( videomode->GetModeWidth(), videomode->GetModeHeight() );
 	SetPos( 0, 0 );
 	SetVisible( true );
-	SetCursor( null );
+	SetCursor( NULL );
 
 	m_hFont = vgui::INVALID_FONT;
 

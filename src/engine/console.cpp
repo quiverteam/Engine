@@ -667,7 +667,7 @@ CConPanel::CConPanel( vgui::Panel *parent ) : CBasePanel( parent, "CConPanel" )
 	SetSize( videomode->GetModeWidth(), videomode->GetModeHeight() );
 	SetPos( 0, 0 );
 	SetVisible( true );
-	SetCursor( null );
+	SetCursor( NULL );
 
 	da_default_color[0] = 1.0;
 	da_default_color[1] = 1.0;

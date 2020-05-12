@@ -782,17 +782,17 @@ void CBugUIPanel::Init()
 			}
 			else
 			{
-				ConColorMsg( clr, "Couldn't get interface '%s' from '%s'\n", INTERFACEVERSION_BUGREPORTER, m_sDllName );
+				ConColorMsg( clr, "Couldn't get interface '%s' from '%s'\n", INTERFACEVERSION_BUGREPORTER, (const char*)m_sDllName );
 			}
 		}
 		else
 		{
-			ConColorMsg( clr, "Couldn't get factory '%s'\n", m_sDllName );
+			ConColorMsg( clr, "Couldn't get factory '%s'\n", (const char*)m_sDllName );
 		}
 	}
 	else
 	{
-		ConColorMsg( clr, "Couldn't load '%s'\n", m_sDllName );
+		ConColorMsg( clr, "Couldn't load '%s'\n", (const char*)m_sDllName );
 	}
 
 	if ( m_bCanSubmit )
@@ -2169,7 +2169,7 @@ bool CBugUIPanel::UploadFile( char const *local, char const *remote, bool bDelet
 	if ( !g_pFileSystem->IsSteam() )
 	{
 		g_pFileSystem->Close( hLocal );
-		bResult = CopyFile( local, remote, false );
+		bResult = true; //CopyFile( local, remote, false ); TODO: Fix this later, idk where CopyFile is from!
 	}
 	else
 	{

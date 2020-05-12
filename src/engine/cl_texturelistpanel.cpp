@@ -1,4 +1,4 @@
-//========= Copyright © 1996-2005, Valve Corporation, All rights reserved. ============//
+//========= Copyright ? 1996-2005, Valve Corporation, All rights reserved. ============//
 //
 // Purpose: 
 //
@@ -2061,7 +2061,7 @@ CTextureListPanel::CTextureListPanel( vgui::Panel *parent ) :
 	SetSize( videomode->GetModeWidth() - 20, videomode->GetModeHeight() - 20 );
 	SetPos( 10, 10 );
 	SetVisible( true );
-	SetCursor( null );
+	SetCursor( NULL );
 
 	SetTitle( "Texture list", false );
 	SetMenuButtonVisible( false );

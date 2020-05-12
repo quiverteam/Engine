@@ -1,4 +1,4 @@
-//========= Copyright © 1996-2005, Valve Corporation, All rights reserved. ============//
+//========= Copyright ? 1996-2005, Valve Corporation, All rights reserved. ============//
 //
 // Purpose: 
 //
@@ -18,6 +18,7 @@
 #include "const.h"
 #include "bspfile.h"
 
+#include <mingw_off.h>
 
 
 // Entities can span this many clusters before we revert to a slower area checking algorithm

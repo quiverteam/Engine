@@ -1,4 +1,4 @@
-//========= Copyright © 1996-2005, Valve Corporation, All rights reserved. ============//
+//========= Copyright ? 1996-2005, Valve Corporation, All rights reserved. ============//
 //
 // Purpose: 
 //
@@ -1881,8 +1881,8 @@ int NET_SendTo( bool verbose, SOCKET s, const char FAR * buf, int len, const str
 
 #if defined( _DEBUG )
 
-#include "FileSystem.h"
-#include "FileSystem_Engine.h"
+#include "filesystem.h"
+#include "filesystem_engine.h"
 
 //-----------------------------------------------------------------------------
 // Purpose: 

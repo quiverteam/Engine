@@ -1,4 +1,4 @@
-//========= Copyright © 1996-2005, Valve Corporation, All rights reserved. ============//
+//========= Copyright ? 1996-2005, Valve Corporation, All rights reserved. ============//
 //
 // Purpose: 
 //
@@ -186,7 +186,7 @@ inline bool CShader_IsFlag2Set( IMaterialVar **params, MaterialVarFlags2_t _flag
 	static CShaderParam param( "$" #param, paramtype, paramdefault, paramhelp, flags );
 
 #define SHADER_PARAM_OVERRIDE( param, paramtype, paramdefault, paramhelp, flags ) \
-	static CShaderParam param( (ShaderMaterialVars_t)param, paramtype, paramdefault, paramhelp, flags );
+	static CShaderParam param( (ShaderMaterialVars_t)::param, paramtype, paramdefault, paramhelp, flags );
 
 #define END_SHADER_PARAMS \
 	class CShader : public CBaseClass\

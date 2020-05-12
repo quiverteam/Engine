@@ -46,15 +46,14 @@ set(POSIX32_LINK_DIRS	)
 set(POSIX64_LINK_DIRS	)
 
 # Generic libs to link against
-set(LINK_LIBS			)
+set(LINK_LIBS			SDL2)
 
 # Other projects this one depends on
-set(DEPENDENCIES 		vstdlib
-						tier0
-						tier1
+set(DEPENDENCIES
 						tier2
 						tier3
 						bitmap
+						soundsystem
 						vgui_controls
 						vtf
 						binkw32
@@ -63,7 +62,11 @@ set(DEPENDENCIES 		vstdlib
 						bzip2
 						mathlib
 						appframework
-						dmxloader)
+						dmxloader
+						tier0
+						vstdlib
+						tier1
+						)
 
 # Platform specific link libs
 set(WINDOWS_LINK_LIBS	dinput8
@@ -74,7 +77,10 @@ set(WINDOWS_LINK_LIBS	dinput8
 						vfw32
 						rpcrt4
 						dsound
-						dxguid)
+						dxguid
+						steam_api
+						ksuser
+						)
 
 set(WIN32_LINK_LIBS		)
 set(WIN64_LINK_LIBS		)

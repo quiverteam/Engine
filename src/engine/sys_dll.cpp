@@ -49,9 +49,6 @@
 #endif
 #endif
 #include "toolframework/itoolframework.h"
-#if defined( _X360 )
-#include "xbox/xbox_win32stubs.h"
-#endif
 
 // memdbgon must be the last include file in a .cpp file!!!
 #include "tier0/memdbgon.h"
@@ -312,7 +309,7 @@ void Sys_Printf(char *fmt, ...)
 bool Sys_MessageBox(const char *title, const char *info, bool bShowOkAndCancel)
 {
 #ifdef _WIN32
-	if (IDOK == ::MessageBox(NULL, title, info, MB_ICONEXCLAMATION | (bShowOkAndCancel ? MB_OKCANCEL : MB_OK)))
+	if (IDOK == ::MessageBoxA(NULL, title, info, MB_ICONEXCLAMATION | (bShowOkAndCancel ? MB_OKCANCEL : MB_OK)))
 	{
 		return true;
 	}
@@ -374,7 +371,7 @@ void Sys_Error(const char *error, ...)
 		 !CommandLine()->FindParm( "-makereslists" ) &&
 		 !CommandLine()->FindParm( "-nomessagebox" ) )
 	{
-		::MessageBox( NULL, text, "Engine Error", MB_OK | MB_TOPMOST );
+		::MessageBoxA( NULL, text, "Engine Error", MB_OK | MB_TOPMOST );
 	}
 
 	if ( IsPC() )

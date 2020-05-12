@@ -148,7 +148,7 @@ CVProfGraphPanel::CVProfGraphPanel( vgui::VPANEL parent ) : BaseClass( NULL, "CV
 	SetSize( videomode->GetModeWidth(), videomode->GetModeHeight() );
 	SetPos( 0, 0 );
 	SetVisible( false );
-	SetCursor( null );
+	SetCursor( NULL );
 
 	m_hFont = 0;
 
