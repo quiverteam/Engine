@@ -50,7 +50,6 @@ set(LINK_LIBS			SDL2)
 
 # Other projects this one depends on
 set(DEPENDENCIES
-						tier2
 						tier3
 						bitmap
 						soundsystem
@@ -66,6 +65,7 @@ set(DEPENDENCIES
 						tier0
 						vstdlib
 						tier1
+						tier2
 						)
 
 # Platform specific link libs

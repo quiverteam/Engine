@@ -1067,7 +1067,10 @@ int CEngineAPI::Run()
 #elif defined ( _WIN32 )
 	if ( !Plat_IsInDebugSession() && !CommandLine()->FindParm( "-nominidumps") )
 	{
+		/* Mingw-w64 does not support Windows structured exceptions */
+#ifndef __GNUC__
 		_set_se_translator( WriteMiniDumpUsingExceptionInfo );
+#endif
 
 		try  // this try block allows the SE translator to work
 		{
