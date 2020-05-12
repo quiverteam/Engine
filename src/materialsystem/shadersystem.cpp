@@ -1,4 +1,4 @@
-//===== Copyright © 1996-2005, Valve Corporation, All rights reserved. ======//
+//===== Copyright ? 1996-2005, Valve Corporation, All rights reserved. ======//
 //
 // Purpose: 
 //
@@ -417,10 +417,13 @@ bool CShaderSystem::LoadShaderDLL( const char *pFullPath )
 // HACKHACK: remove me when VAC2 is online.
 #if defined( _WIN32 ) && !defined( _X360 )
 // Instead of including windows.h
+#ifndef __GNUC__
 extern "C"
 {
 	extern void * __stdcall GetProcAddress( void *hModule, const char *pszProcName );
 };
+#endif //__GNUC__
+
 #endif
 
 void CShaderSystem::VerifyBaseShaderDLL( CSysModule *pModule )
@@ -431,7 +434,7 @@ void CShaderSystem::VerifyBaseShaderDLL( CSysModule *pModule )
 
 	unsigned char *testData1 = new unsigned char[SHADER_DLL_VERIFY_DATA_LEN1];
 
-	ShaderDLLVerifyFn fn = (ShaderDLLVerifyFn)GetProcAddress( (void *)pModule, SHADER_DLL_FNNAME_1 );
+	ShaderDLLVerifyFn fn = (ShaderDLLVerifyFn)GetProcAddress( (HINSTANCE)pModule, SHADER_DLL_FNNAME_1 );
 	if ( !fn )
 		Error( pErrorStr );
 

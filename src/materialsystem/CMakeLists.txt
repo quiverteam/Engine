@@ -58,7 +58,7 @@ set(POSIX32_INCLUDE_DIRS	)
 set(POSIX64_INCLUDE_DIRS	)
 
 # Projects this depends on
-set(DEPENDENCIES            bitmap mathlib shaderlib tier2 vtf)
+set(DEPENDENCIES            bitmap mathlib shaderlib tier1 tier2 vtf tier0 vstdlib ati_compress_mt_vc8)
 
 # Set the variable of target for stuff
 set(TARGET materialsystem)

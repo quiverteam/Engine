@@ -1,4 +1,4 @@
-//========= Copyright © 1996-2005, Valve Corporation, All rights reserved. ============//
+//========= Copyright ? 1996-2005, Valve Corporation, All rights reserved. ============//
 //
 // Purpose: 
 //
@@ -3784,7 +3784,11 @@ CON_COMMAND_F( mat_texture_list_txlod_sync, "'reset' - resets all run-time chang
 	using namespace TextureLodOverride;
 
 	if ( args.ArgC() != 2 )
-		goto usage;
+		Warning(
+				"Usage:\n"
+				"  mat_texture_list_txlod_sync reset - resets all run-time changes to LOD overrides;\n"
+				"  mat_texture_list_txlod_sync save  - saves all changes to material content files.\n"
+		);
 
 	char const *szCmd = args.Arg( 1 );
 	Msg( "mat_texture_list_txlod_sync %s...\n", szCmd );
