@@ -10,7 +10,7 @@ set(WINDOWS_SRCS	        )
 set(POSIX_SRCS	            )
 
 # Require some stuff from base vgui2
-set(SRCS	                ../src/vgui_key_translation.cpp)
+set(SRCS	                ../src/vgui_key_translation.cpp ${PUBLIC}/filesystem_helpers.cpp)
 
 file(GLOB SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/ *.c *.cpp)
 list(APPEND SRCS ${SOURCES})
