@@ -18,7 +18,7 @@ if(DEFINED POSIX OR CLANG_BUILD)
 endif()
 
 if(UNIX_CROSS)
-	set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wno-attributes -Wno-write-strings -Wno-conversion-null")
+	set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wno-attributes -Wno-write-strings")
 	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-attributes -Wno-write-strings -Wno-conversion-null")
 	set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -ffast-math")
 	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -ffast-math")
