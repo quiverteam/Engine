@@ -9,8 +9,7 @@ project(tier2 C CXX)
 set(WINDOWS_SRCS	)
 set(POSIX_SRCS	)
 
-# We need to append damn lzma shit
-set(SRCS	)
+set(SRCS	${PUBLIC_INCLUDE}/materialsystem/MaterialSystemUtil.cpp)
 
 file(GLOB SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/ *.c *.cpp)
 list(APPEND SRCS ${SOURCES})

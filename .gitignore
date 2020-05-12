@@ -32,6 +32,7 @@ ipch
 *.opendb
 .vs/*
 *.mdmp
+*.vim # This is for vim workspaces
 
 # --------------------------------------------
 # Shader Files made during build
