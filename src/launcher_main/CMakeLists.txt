@@ -69,7 +69,7 @@ set(POSIX64_INCLUDE_DIRS	)
 set(TARGET launcher_main)
 
 # Set the output file name
-set(OUTPUT_FILE_NAME launcher_main)
+set(OUTPUT_FILE_NAME quiver)
 
 # If this is a shared lib
 #set(SHARED_LIB 1)
