@@ -43,7 +43,7 @@ extern IInputSystem *g_pInputSystem;
 extern INetworkSystem *g_pNetworkSystem;
 extern IMaterialSystemHardwareConfig *g_pMaterialSystemHardwareConfig;
 extern IDebugTextureInfo *g_pMaterialSystemDebugTextureInfo;
-extern IVBAllocTracker *g_VBAllocTracker;
+extern IVBAllocTracker *g_pVBAllocTracker;
 extern IColorCorrectionSystem *colorcorrection;
 extern IMdlLib *mdllib;
 extern IQueuedLoader *g_pQueuedLoader;

@@ -1,4 +1,4 @@
-//===== Copyright © 2005-2005, Valve Corporation, All rights reserved. ======//
+//===== Copyright ? 2005-2005, Valve Corporation, All rights reserved. ======//
 //
 // Purpose: A higher level link library for general use in the game and tools.
 //
@@ -31,7 +31,7 @@ IInputSystem *g_pInputSystem = 0;
 INetworkSystem *g_pNetworkSystem = 0;
 IMaterialSystemHardwareConfig *g_pMaterialSystemHardwareConfig = 0;
 IDebugTextureInfo *g_pMaterialSystemDebugTextureInfo = 0;
-IVBAllocTracker *g_VBAllocTracker = 0;
+IVBAllocTracker *g_pVBAllocTracker = 0;
 IColorCorrectionSystem *colorcorrection = 0;
 IMdlLib *mdllib = 0;
 IQueuedLoader *g_pQueuedLoader = 0;
@@ -45,7 +45,7 @@ void ConnectTier2Libraries( CreateInterfaceFn *pFactoryList, int nFactoryCount )
 {
 	// Don't connect twice..
 	Assert( !g_pFullFileSystem && !materials && !g_pInputSystem && !g_pNetworkSystem && 
-		!mdllib && !g_pMaterialSystemDebugTextureInfo && !g_VBAllocTracker &&
+		!mdllib && !g_pMaterialSystemDebugTextureInfo && !g_pVBAllocTracker &&
 		!g_pMaterialSystemHardwareConfig && !g_pQueuedLoader );
 
 	for ( int i = 0; i < nFactoryCount; ++i )
@@ -74,9 +74,9 @@ void ConnectTier2Libraries( CreateInterfaceFn *pFactoryList, int nFactoryCount )
 		{
 			g_pMaterialSystemDebugTextureInfo = (IDebugTextureInfo*)pFactoryList[i]( DEBUG_TEXTURE_INFO_VERSION, 0 );
 		}
-		if ( !g_VBAllocTracker )
+		if ( !g_pVBAllocTracker)
 		{
-			g_VBAllocTracker = (IVBAllocTracker*)pFactoryList[i]( VB_ALLOC_TRACKER_INTERFACE_VERSION, 0 );
+			g_pVBAllocTracker = (IVBAllocTracker*)pFactoryList[i]( VB_ALLOC_TRACKER_INTERFACE_VERSION, 0 );
 		}
 		if ( !colorcorrection )
 		{
