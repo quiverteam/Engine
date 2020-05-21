@@ -1,4 +1,4 @@
-//========= Copyright © 1996-2005, Valve Corporation, All rights reserved. ====//
+//========= Copyright ? 1996-2005, Valve Corporation, All rights reserved. ====//
 //
 // Purpose: 
 //
@@ -9,7 +9,7 @@
 #ifndef COLORFORMATDX8_H
 #define COLORFORMATDX8_H
 
-#include <PixelWriter.h>
+#include <pixelwriter.h>
 
 // FOURCC formats for ATI shadow depth textures
 #define ATIFMT_D16		((D3DFORMAT)(MAKEFOURCC('D','F','1','6')))

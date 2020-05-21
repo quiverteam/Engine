@@ -1,4 +1,4 @@
-//===== Copyright © 1996-2005, Valve Corporation, All rights reserved. ======//
+//===== Copyright ? 1996-2005, Valve Corporation, All rights reserved. ======//
 //
 // Purpose: 
 //
@@ -10,9 +10,9 @@
 #include "vertexdecl.h" // this includes <windows.h> inside the dx headers
 #define PROTECTED_THINGS_ENABLE
 #include "materialsystem/imaterialsystemhardwareconfig.h"
-#include "ShaderAPIDX8_Global.h"
+#include "shaderapidx8_global.h"
 #include "tier0/dbg.h"
-#include "UtlRBTree.h"
+#include "utlrbtree.h"
 #include "recording.h"
 #include "tier1/strtools.h"
 #include "tier0/vprof.h"

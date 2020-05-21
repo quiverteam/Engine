@@ -1,4 +1,4 @@
-//========= Copyright © 1996-2005, Valve Corporation, All rights reserved. ============//
+//========= Copyright ? 1996-2005, Valve Corporation, All rights reserved. ============//
 //
 // Purpose: 
 //
@@ -10,7 +10,7 @@
 #define IVERTEXBUFFERDX8_H
 #pragma once
 
-#include "IVertexBuffer.h"
+#include "materialsystem/imesh.h"
 
 abstract_class IVertexBufferDX8 : public IVertexBuffer
 {

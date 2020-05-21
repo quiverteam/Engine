@@ -1,4 +1,4 @@
-//===== Copyright © 1996-2005, Valve Corporation, All rights reserved. ======//
+//===== Copyright ? 1996-2005, Valve Corporation, All rights reserved. ======//
 //
 // Purpose: 
 //
@@ -7,10 +7,10 @@
 //===========================================================================//
 
 #include "locald3dtypes.h"
-#include "ColorFormatDX8.h"
-#include "ShaderAPIDX8_Global.h"
+#include "colorformatdx8.h"
+#include "shaderapidx8_global.h"
 #include "bitmap/imageformat.h"
-#include "shaderapi/IShaderUtil.h"
+#include "shaderapi/ishaderutil.h"
 #include "tier0/dbg.h"
 #include "tier1/strtools.h"
 #include "shaderdevicedx8.h"

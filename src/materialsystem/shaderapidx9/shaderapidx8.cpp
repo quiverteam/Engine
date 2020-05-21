@@ -1,4 +1,4 @@
-//======Copyright © 1996-2005, Valve Corporation, All rights reserved. ======//
+//======Copyright ? 1996-2005, Valve Corporation, All rights reserved. ======//
 //
 // Purpose: 
 //
@@ -29,35 +29,35 @@ mat_fullbright 1 doesn't work properly on alpha materials in testroom_standards
 #endif
 #include "shaderapidx8.h"
 #include "shaderapidx8_global.h"
-#include "ShaderShadowDX8.h"
+#include "shadershadowdx8.h"
 #include "locald3dtypes.h"												   
-#include "UtlVector.h"
+#include "utlvector.h"
 #include "IHardwareConfigInternal.h"
-#include "UtlStack.h"
-#include "shaderapi/IShaderUtil.h"
+#include "utlstack.h"
+#include "shaderapi/ishaderutil.h"
 #include "shaderapi/commandbuffer.h"
-#include "ShaderAPIDX8_Global.h"
-#include "materialsystem/IMaterialSystem.h"
-#include "materialsystem/ITexture.h"
-#include "IMaterialInternal.h"
+#include "shaderapidx8_global.h"
+#include "materialsystem/imaterialsystem.h"
+#include "materialsystem/itexture.h"
+#include "imaterialinternal.h"
 #include "imeshdx8.h"
 #include "materialsystem/imorph.h"
-#include "ColorFormatDX8.h"
-#include "TextureDX8.h"
+#include "colorformatdx8.h"
+#include "texturedx8.h"
 #include "textureheap.h"
 #include <malloc.h>
 #include "interface.h"
-#include "UtlRBTree.h"
-#include "UtlSymbol.h"
+#include "utlrbtree.h"
+#include "utlsymbol.h"
 #include "tier1/strtools.h"
-#include "Recording.h"
+#include "recording.h"
 #ifndef _X360
 #include <crtmemdebug.h>
 #endif
-#include "VertexShaderDX8.h"
-#include "FileSystem.h"
+#include "vertexshaderdx8.h"
+#include "filesystem.h"
 #include "mathlib/mathlib.h"
-#include "materialsystem/MaterialSystem_Config.h"
+#include "materialsystem/materialsystem_config.h"
 #include "worldsize.h"
 #include "TransitionTable.h"
 #include "tier0/vcrmode.h"
@@ -66,15 +66,15 @@ mat_fullbright 1 doesn't work properly on alpha materials in testroom_standards
 #include "tier1/utlbuffer.h"
 #include "vertexdecl.h"
 #include "tier0/icommandline.h"
-#include "ishadersystem.h"
+#include "IShaderSystem.h"
 #include "tier1/convar.h"
 #include "tier1/KeyValues.h"
-#include "color.h"
+#include "Color.h"
 #ifdef RECORDING
 #include "materialsystem/ishader.h"
 #endif
 #include "../stdshaders/common_hlsl_cpp_consts.h" // hack hack hack!
-#include "keyvalues.h"
+#include "KeyValues.h"
 #include "bitmap/imageformat.h"
 #include "materialsystem/idebugtextureinfo.h"
 #include "tier1/utllinkedlist.h"
@@ -379,9 +379,9 @@ enum CommitShaderType_t
 
 #define ADD_VERTEX_TEXTURE_FUNC( _func, _shader, _func_name, _stage, _state, _val )	\
 	Assert( _stage < MAX_VERTEX_TEXTURE_COUNT );							\
-	if ( m_bResettingRenderState || (m_DesiredState.m_VertexTextureState[_stage]. ## _state != _val) )	\
+	if ( m_bResettingRenderState || (m_DesiredState.m_VertexTextureState[_stage]._state != _val) )	\
 	{																		\
-		m_DesiredState.m_VertexTextureState[_stage]. ## _state = _val;		\
+		m_DesiredState.m_VertexTextureState[_stage]._state = _val;		\
 		ADD_COMMIT_FUNC( _func, _shader, _func_name )						\
 	}
 
@@ -11006,11 +11006,12 @@ IDirect3DSurface* CShaderAPIDx8::GetBackBufferImageHDR( Rect_t *pSrcRect, Rect_t
 
 	// Find about its size and format
 	D3DSURFACE_DESC desc;
+	D3DTEXTUREFILTERTYPE filter;
 	hr = pBackBuffer->GetDesc( &desc );
 	if (FAILED(hr))
 		goto CleanUp;
 
-	D3DTEXTUREFILTERTYPE filter = ((pDstRect->width != pSrcRect->width) || (pDstRect->height != pSrcRect->height)) ? D3DTEXF_LINEAR : D3DTEXF_NONE;
+	filter = ((pDstRect->width != pSrcRect->width) || (pDstRect->height != pSrcRect->height)) ? D3DTEXF_LINEAR : D3DTEXF_NONE;
 
 	if ( ( pDstRect->x + pDstRect->width <= SMALL_BACK_BUFFER_SURFACE_WIDTH ) && 
 		 ( pDstRect->y + pDstRect->height <= SMALL_BACK_BUFFER_SURFACE_HEIGHT ) )
@@ -11115,6 +11116,9 @@ IDirect3DSurface* CShaderAPIDx8::GetBackBufferImage( Rect_t *pSrcRect, Rect_t *p
 	IDirect3DSurface *pSurfaceBits = NULL;
 	IDirect3DSurface *pTmpSurface = NULL;
 
+	D3DSURFACE_DESC tmpDesc;
+	int nRenderTargetRefCount;
+
 	if ( (desc.MultiSampleType == D3DMULTISAMPLE_NONE) && (pRenderTarget != m_pBackBufferSurface) && 
 		 (pSrcRect->width == pDstRect->width) && (pSrcRect->height == pDstRect->height) )
 	{
@@ -11163,7 +11167,6 @@ IDirect3DSurface* CShaderAPIDx8::GetBackBufferImage( Rect_t *pSrcRect, Rect_t *p
 		}
 	}
 
-	D3DSURFACE_DESC tmpDesc;
 	hr = pTmpSurface->GetDesc( &tmpDesc );
 	Assert( !FAILED(hr) );
 
@@ -11188,7 +11191,7 @@ IDirect3DSurface* CShaderAPIDx8::GetBackBufferImage( Rect_t *pSrcRect, Rect_t *p
 
 	pTmpSurface->Release();
 #ifdef _DEBUG
-	int nRenderTargetRefCount = 
+	nRenderTargetRefCount =
 #endif
 		pRenderTarget->Release();
 	Assert( nRenderTargetRefCount == 1 );

@@ -1,4 +1,4 @@
-//====== Copyright © 1996-2006, Valve Corporation, All rights reserved. =======
+//====== Copyright ? 1996-2006, Valve Corporation, All rights reserved. =======
 //
 // Purpose: 
 //
@@ -7,16 +7,19 @@
 #include "resource.h"
 
 #define _WIN32_DCOM
+#ifndef __GNUC__
 #include <comdef.h>
 #pragma warning( disable : 4127 )
 #include <atlcomtime.h>
+#endif
 #pragma warning( default : 4127 )
-#include <Wbemidl.h>
+#include <wbemidl.h>
 
 # pragma comment(lib, "wbemuuid.lib")
 
 int GetVidMemBytes( void )
 {
+#ifndef __GNUC__
 	static int bBeenHere = false;
 	static int nBytes = 0;
 
@@ -191,4 +194,7 @@ int GetVidMemBytes( void )
     CoUninitialize();
 
 	return nBytes;
+#else
+	return 0;
+#endif
 }

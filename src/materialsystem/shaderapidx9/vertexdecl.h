@@ -1,4 +1,4 @@
-//========= Copyright © 1996-2005, Valve Corporation, All rights reserved. ============//
+//========= Copyright ? 1996-2005, Valve Corporation, All rights reserved. ============//
 //
 // Purpose: 
 //
@@ -14,7 +14,7 @@
 #endif
 
 #include "locald3dtypes.h"
-#include "materialsystem/IMaterial.h"
+#include "materialsystem/imaterial.h"
 
 
 //-----------------------------------------------------------------------------

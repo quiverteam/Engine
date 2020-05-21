@@ -1,21 +1,33 @@
 #
 #
-# Project script for shaderapidx9
+# Project script for shaderapidx9. NO dx10 stuff here!
 #
 #
 project(shaderapidx9 C CXX)
 
 # Platform specific sources
-set(WINDOWS_SRCS	    )
+set(WINDOWS_SRCS	    "wmi.cpp" "recording.cpp" "d3d_async.cpp")
 set(POSIX_SRCS	        )
 
-set(SRCS	            )
+set(SRCS	            		"colorformatdx8.cpp"
+        "${PUBLIC}/filesystem_helpers.cpp"
+        "hardwareconfig.cpp"
+        "meshbase.cpp"
+        "meshdx8.cpp"
+        "shaderapidx8.cpp"
+        "shaderdevicebase.cpp"
+        "shaderapibase.cpp"
+        "shaderdevicedx8.cpp"
+        "shadershadowdx8.cpp"
+        "texturedx8.cpp"
+        "TransitionTable.cpp"
+        "cvballoctracker.cpp"
+        "vertexdecl.cpp"
+        "vertexshaderdx8.cpp")
 
-file(GLOB SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/ *.c *.cpp)
-list(APPEND SRCS ${SOURCES})
 
 # Preprocessor defs
-set(DEFINES	                -DSHADERAPIDX9 -DSHADER_DLL_EXPORT -DPROTECTED_THINGS_ENABLE)
+set(DEFINES	                -DSHADERAPIDX9 -DSHADER_DLL_EXPORT -DPROTECTED_THINGS_DISABLE)
 
 # Platform-specific preprocessor defines
 set(WIN32_DEFINES	        )
@@ -41,7 +53,7 @@ set(POSIX64_LINK_DIRS	    )
 set(LINK_LIBS	            )
 
 # Platform specific link libs
-set(WINDOWS_LINK_LIBS       )
+set(WINDOWS_LINK_LIBS       d3dx9 d3d9)
 set(WIN32_LINK_LIBS		    )
 set(WIN64_LINK_LIBS		    )
 set(POSIX32_LINK_LIBS	    )
@@ -58,7 +70,7 @@ set(POSIX32_INCLUDE_DIRS	)
 set(POSIX64_INCLUDE_DIRS	)
 
 # Projects this depends on
-set(DEPENDENCIES            bitmap mathlib tier2)
+set(DEPENDENCIES            bitmap mathlib tier2 tier1 tier0 vstdlib bzip2)
 
 # Set the variable of target for stuff
 set(TARGET shaderapidx9)

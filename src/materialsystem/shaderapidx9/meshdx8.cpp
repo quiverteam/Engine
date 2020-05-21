@@ -1,13 +1,13 @@
-//===== Copyright © 1996-2005, Valve Corporation, All rights reserved. ======//
+//===== Copyright ? 1996-2005, Valve Corporation, All rights reserved. ======//
 //
 // Purpose: 
 //
 //===========================================================================//
 
 #include "locald3dtypes.h"
-#include "IMeshDX8.h"
-#include "ShaderAPIDX8_Global.h"
-#include "materialsystem/ishader.h"
+#include "imeshdx8.h"
+#include "shaderapidx8_global.h"
+#include "materialsystem/IShader.h"
 #include "tier0/vprof.h"
 #include "studio.h"
 #include "tier1/fmtstr.h"
@@ -24,16 +24,16 @@
 #define CHECK_INDICES_MAX_NUM_STREAMS 2
 #endif
 
-#include "DynamicIB.h"
-#include "DynamicVB.h"
-#include "UtlVector.h"
-#include "shaderapi/ishaderAPI.h"
-#include "IMaterialInternal.h"
+#include "dynamicib.h"
+#include "dynamicvb.h"
+#include "utlvector.h"
+#include "shaderapi/ishaderapi.h"
+#include "imaterialinternal.h"
 #include "imaterialsysteminternal.h"
-#include "ShaderAPIDX8.h"
-#include "shaderapi/IShaderUtil.h"
-#include "materialsystem/IMaterialSystemHardwareConfig.h"
-#include "materialsystem/MaterialSystem_Config.h"
+#include "shaderapidx8.h"
+#include "shaderapi/ishaderutil.h"
+#include "materialsystem/imaterialsystemhardwareconfig.h"
+#include "materialsystem/materialsystem_config.h"
 #include "materialsystem/ivballoctracker.h"
 #include "tier1/strtools.h"
 #include "convar.h"
@@ -1357,6 +1357,10 @@ bool CIndexBufferDx8::Lock( int nMaxIndexCount, bool bAppend, IndexDesc_t &desc 
 	Assert( !m_bIsLocked && ( nMaxIndexCount != 0 ) && ( nMaxIndexCount <= m_nIndexCount ) );
 	Assert( m_IndexFormat != MATERIAL_INDEX_FORMAT_UNKNOWN );
 
+	int nMemoryRequired;
+	bool bHasEnoughMemory;
+	UINT nLockFlags;
+
 	// FIXME: Why do we need to sync matrices now?
 	ShaderUtil()->SyncMatrices();
 	g_ShaderMutex.Lock();
@@ -1389,10 +1393,10 @@ bool CIndexBufferDx8::Lock( int nMaxIndexCount, bool bAppend, IndexDesc_t &desc 
 	}
 
 	// Check to see if we have enough memory 
-	int nMemoryRequired = nMaxIndexCount * IndexSize();
-	bool bHasEnoughMemory = ( m_nFirstUnwrittenOffset + nMemoryRequired <= m_nBufferSize );
+	nMemoryRequired = nMaxIndexCount * IndexSize();
+	bHasEnoughMemory = ( m_nFirstUnwrittenOffset + nMemoryRequired <= m_nBufferSize );
 
-	UINT nLockFlags = D3DLOCK_NOSYSLOCK;
+	nLockFlags = D3DLOCK_NOSYSLOCK;
 	if ( bAppend )
 	{
 		// Can't have the first lock after a flush be an appending lock
@@ -1605,7 +1609,7 @@ bool CVertexBufferDx8::Allocate()
 	}
 
 	// Track VB allocations
-	g_VBAllocTracker->CountVB( m_pVertexBuffer, m_bIsDynamic, m_nBufferSize, VertexSize(), GetVertexFormat() );
+	g_pVBAllocTracker->CountVB( m_pVertexBuffer, m_bIsDynamic, m_nBufferSize, VertexSize(), GetVertexFormat() );
 
 #ifdef VPROF_ENABLED
 	if ( IsX360() || !m_bIsDynamic )
@@ -1632,7 +1636,7 @@ void CVertexBufferDx8::Free()
 #endif
 
 	// Track VB allocations
-	g_VBAllocTracker->UnCountVB( m_pVertexBuffer );
+		g_pVBAllocTracker->UnCountVB( m_pVertexBuffer );
 
 #ifdef VPROF_ENABLED
 		if ( IsX360() || !m_bIsDynamic )
@@ -1754,6 +1758,10 @@ bool CVertexBufferDx8::Lock( int nMaxVertexCount, bool bAppend, VertexDesc_t &de
 	ShaderUtil()->SyncMatrices();
 	g_ShaderMutex.Lock();
 
+	int nMemoryRequired;
+	bool bHasEnoughMemory;
+	UINT nLockFlags;
+
 	VPROF( "CVertexBufferDx8::Lock" );		
 
 	void *pLockedData = NULL;
@@ -1782,10 +1790,10 @@ bool CVertexBufferDx8::Lock( int nMaxVertexCount, bool bAppend, VertexDesc_t &de
 	}
 
 	// Check to see if we have enough memory 
-	int nMemoryRequired = nMaxVertexCount * VertexSize();
-	bool bHasEnoughMemory = ( m_nFirstUnwrittenOffset + nMemoryRequired <= m_nBufferSize );
+	nMemoryRequired = nMaxVertexCount * VertexSize();
+	bHasEnoughMemory = ( m_nFirstUnwrittenOffset + nMemoryRequired <= m_nBufferSize );
 
-	UINT nLockFlags = D3DLOCK_NOSYSLOCK;
+	nLockFlags = D3DLOCK_NOSYSLOCK;
 	if ( bAppend )
 	{
 		// Can't have the first lock after a flush be an appending lock
@@ -4852,14 +4860,14 @@ void CMeshMgr::CreateVertexIDBuffer()
 	DestroyVertexIDBuffer();
 
 	// Track mesh allocations
-	g_VBAllocTracker->TrackMeshAllocations( "CreateVertexIDBuffer" );
+	g_pVBAllocTracker->TrackMeshAllocations( "CreateVertexIDBuffer" );
 	if ( g_pHardwareConfig->HasFastVertexTextures() )
 	{
 		m_pVertexIDBuffer = new CVertexBuffer( Dx9Device(), 0, 0, sizeof(float), 
 			VERTEX_BUFFER_SIZE, TEXTURE_GROUP_STATIC_VERTEX_BUFFER_OTHER, ShaderAPI()->UsingSoftwareVertexProcessing() );
 		FillVertexIDBuffer( m_pVertexIDBuffer, VERTEX_BUFFER_SIZE );
 	}
-	g_VBAllocTracker->TrackMeshAllocations( NULL );
+	g_pVBAllocTracker->TrackMeshAllocations( NULL );
 }
 
 void CMeshMgr::DestroyVertexIDBuffer()
@@ -5359,8 +5367,8 @@ CVertexBuffer *CMeshMgr::FindOrCreateVertexBuffer( int nDynamicBufferId, VertexF
 	while ( m_DynamicVertexBuffers.Count() <= nDynamicBufferId )
 	{
 		// Track VB allocations (override any prior allocator string set higher up on the callstack)
-		g_VBAllocTracker->TrackMeshAllocations( NULL );
-		g_VBAllocTracker->TrackMeshAllocations( "CMeshMgr::FindOrCreateVertexBuffer (dynamic VB)" );
+		g_pVBAllocTracker->TrackMeshAllocations( NULL );
+		g_pVBAllocTracker->TrackMeshAllocations( "CMeshMgr::FindOrCreateVertexBuffer (dynamic VB)" );
 
 		// create the single 1MB dynamic vb that will be shared amongst all consumers
 		// the correct thing is to use the largest expected vertex format size of max elements, but this
@@ -5370,9 +5378,9 @@ CVertexBuffer *CMeshMgr::FindOrCreateVertexBuffer( int nDynamicBufferId, VertexF
 		int nIndex = m_DynamicVertexBuffers.AddToTail();
 		m_DynamicVertexBuffers[nIndex].m_VertexSize = 0;
 		m_DynamicVertexBuffers[nIndex].m_pBuffer = new CVertexBuffer( Dx9Device(), 0, 0, 
-			nBufferMemory / VERTEX_BUFFER_SIZE, VERTEX_BUFFER_SIZE, TEXTURE_GROUP_STATIC_VERTEX_BUFFER_OTHER, ShaderAPI()->UsingSoftwareVertexProcessing(), true ); 
+			nBufferMemory / VERTEX_BUFFER_SIZE, VERTEX_BUFFER_SIZE, TEXTURE_GROUP_STATIC_VERTEX_BUFFER_OTHER, ShaderAPI()->UsingSoftwareVertexProcessing(), true );
 
-		g_VBAllocTracker->TrackMeshAllocations( NULL );
+		g_pVBAllocTracker->TrackMeshAllocations( NULL );
 	}
 	
 	if ( m_DynamicVertexBuffers[nDynamicBufferId].m_VertexSize != vertexSize )

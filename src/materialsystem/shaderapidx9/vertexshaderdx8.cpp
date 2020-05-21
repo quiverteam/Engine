@@ -1,4 +1,4 @@
-//==== Copyright © 1996-2005, Valve Corporation, All rights reserved. =======//
+//==== Copyright ? 1996-2005, Valve Corporation, All rights reserved. =======//
 //
 // Vertex/Pixel Shaders
 //
@@ -7,29 +7,29 @@
 #if defined( _WIN32 ) && !defined( _X360 )
 #include <windows.h>
 #endif
-#include "VertexShaderDx8.h"
-#include "tier1/UtlSymbol.h"
-#include "tier1/UtlVector.h"
-#include "tier1/UtlDict.h"
+#include "vertexshaderdx8.h"
+#include "tier1/utlsymbol.h"
+#include "tier1/utlvector.h"
+#include "tier1/utldict.h"
 #include "tier1/utllinkedlist.h"
-#include "tier1/UtlBuffer.h"
+#include "tier1/utlbuffer.h"
 #include "tier1/UtlStringMap.h"
 #include "locald3dtypes.h"
-#include "ShaderAPIDX8_Global.h"
+#include "shaderapidx8_global.h"
 #include "recording.h"
 #include "tier0/vprof.h"
 #include "materialsystem/imaterialsystem.h"
 #include "materialsystem/imaterialsystemhardwareconfig.h"
 #include "shaderapidx8.h"
-#include "materialsystem/ishader.h"
-#include "ishadersystem.h"
+#include "materialsystem/IShader.h"
+#include "IShaderSystem.h"
 #include "tier0/fasttimer.h"
 #include <stdlib.h>
 #include "filesystem.h"
 #include "convar.h"
 #include "materialsystem/shader_vcs_version.h"
 #include "../thirdparty/bzip2/bzlib.h"
-#include "tier1/lzmadecoder.h"
+#include "tier1/lzmaDecoder.h"
 #include "tier1/utlmap.h"
 
 #include "datacache/idatacache.h"
@@ -625,8 +625,8 @@ private:
 	// FIXME: NOTE this is a parallel structure to mirror Dx10 for now
 	// I think I'm going to need to layer this into 2 classes, one which
 	// has a plain dictionary, and another which knows about static/dynamic combos.
-	typedef CUtlFixedLinkedList< IDirect3DVertexShader9* >::IndexType_t VertexShaderIndex_t;
-	typedef CUtlFixedLinkedList< IDirect3DPixelShader9* >::IndexType_t PixelShaderIndex_t;
+	//typedef CUtlFixedLinkedList< IDirect3DVertexShader9* >::IndexType_t VertexShaderIndex_t;
+	//typedef CUtlFixedLinkedList< IDirect3DPixelShader9* >::IndexType_t PixelShaderIndex_t;
 
 	CUtlFixedLinkedList< IDirect3DVertexShader9* > m_RawVertexShaderDict;
 	CUtlFixedLinkedList< IDirect3DPixelShader9* > m_RawPixelShaderDict;

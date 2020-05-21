@@ -1,11 +1,11 @@
-//===== Copyright © 1996-2007, Valve Corporation, All rights reserved. ======//
+//===== Copyright ? 1996-2007, Valve Corporation, All rights reserved. ======//
 //
 // Purpose: tracks VB allocations (and compressed/uncompressed vertex memory usage)
 //
 //===========================================================================//
 
 #include "materialsystem/imaterial.h"
-#include "IMeshDX8.h"
+#include "imeshdx8.h"
 #include "convar.h"
 #include "tier1/utlhash.h"
 #include "tier1/utlstack.h"
@@ -224,7 +224,8 @@ static ConVar mem_vballocspew( "mem_vballocspew", "0", FCVAR_CHEAT, "How often t
 
 CVBAllocTracker g_VBAllocTracker;
 EXPOSE_SINGLE_INTERFACE_GLOBALVAR( CVBAllocTracker, IVBAllocTracker, 
-						VB_ALLOC_TRACKER_INTERFACE_VERSION, g_VBAllocTracker );
+						VB_ALLOC_TRACKER_INTERFACE_VERSION,
+								  g_VBAllocTracker);
 
 //-----------------------------------------------------------------------------
 //

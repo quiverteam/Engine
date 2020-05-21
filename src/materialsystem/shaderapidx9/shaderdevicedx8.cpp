@@ -1,4 +1,4 @@
-//===== Copyright © 1996-2005, Valve Corporation, All rights reserved. ======//
+//===== Copyright ? 1996-2005, Valve Corporation, All rights reserved. ======//
 //
 // Purpose: 
 //
@@ -16,7 +16,7 @@
 #include "tier2/tier2.h"
 #include "shadershadowdx8.h"
 #include "colorformatdx8.h"
-#include "materialsystem/ishader.h"
+#include "materialsystem/IShader.h"
 #include "shaderapidx8.h"
 #include "shaderapidx8_global.h"
 #include "imeshdx8.h"

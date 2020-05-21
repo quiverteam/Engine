@@ -1,4 +1,4 @@
-//===== Copyright © 1996-2005, Valve Corporation, All rights reserved. ======//
+//===== Copyright ? 1996-2005, Valve Corporation, All rights reserved. ======//
 //
 // Purpose: 
 //
@@ -15,7 +15,7 @@
 #endif
 
 #include "meshbase.h"
-#include "shaderapi/ishaderdevice.h"
+#include "shaderapi/IShaderDevice.h"
 
 
 //-----------------------------------------------------------------------------

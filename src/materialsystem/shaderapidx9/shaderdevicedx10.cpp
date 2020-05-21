@@ -1,4 +1,4 @@
-//===== Copyright © 1996-2005, Valve Corporation, All rights reserved. ======//
+//===== Copyright ? 1996-2005, Valve Corporation, All rights reserved. ======//
 //
 // Purpose: 
 //
@@ -7,16 +7,17 @@
 //===========================================================================//
 
 #include <d3d10.h>
-#include <d3dx10.h>
+#include <d3d10.h>
+#include <d3dx.h>
 
 #include "shaderdevicedx10.h"
 #include "shaderdevicedx8.h"
 #include "shaderapi/ishaderutil.h"
 #include "shaderapidx10.h"
-#include "shadershadowdx10.h"
+#include "ShaderShadowDx10.h"
 #include "meshdx10.h"
 #include "shaderapidx10_global.h"
-#include "tier1/keyvalues.h"
+#include "tier1/KeyValues.h"
 #include "tier2/tier2.h"
 #include "tier0/icommandline.h"
 #include "inputlayoutdx10.h"

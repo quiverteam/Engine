@@ -1,4 +1,4 @@
-//===== Copyright © 1996-2005, Valve Corporation, All rights reserved. ======//
+//===== Copyright ? 1996-2005, Valve Corporation, All rights reserved. ======//
 //
 // Purpose: 
 //
@@ -6,16 +6,16 @@
 //
 //===========================================================================//
 
-#include "ShaderShadowDX8.h"
+#include "shadershadowdx8.h"
 #include "locald3dtypes.h"
-#include "UtlVector.h"
-#include "shaderapi/IShaderUtil.h"
-#include "ShaderAPIDX8_Global.h"
-#include "ShaderAPIDX8.h"
-#include "materialsystem/IMaterialSystemHardwareConfig.h"
-#include "materialsystem/IMaterialSystem.h"
-#include "IMeshDX8.h"
-#include "materialsystem/MaterialSystem_Config.h"
+#include "utlvector.h"
+#include "shaderapi/ishaderutil.h"
+#include "shaderapidx8_global.h"
+#include "shaderapidx8.h"
+#include "materialsystem/imaterialsystemhardwareconfig.h"
+#include "materialsystem/imaterialsystem.h"
+#include "imeshdx8.h"
+#include "materialsystem/materialsystem_config.h"
 #include "vertexshaderdx8.h"
 
 // NOTE: This must be the last file included!

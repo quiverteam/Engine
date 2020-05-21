@@ -1,4 +1,4 @@
-//===== Copyright © 1996-2005, Valve Corporation, All rights reserved. ======//
+//===== Copyright ? 1996-2005, Valve Corporation, All rights reserved. ======//
 //
 // Purpose: 
 //
@@ -12,9 +12,9 @@
 #endif
 
 #include "locald3dtypes.h"
-#include "Recording.h"
-#include "ShaderAPIDX8_Global.h"
-#include "shaderapi/IShaderUtil.h"
+#include "recording.h"
+#include "shaderapidx8_global.h"
+#include "shaderapi/ishaderutil.h"
 
 /////////////////////////////
 // D. Sim Dietrich Jr.

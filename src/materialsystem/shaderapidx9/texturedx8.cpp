@@ -1,4 +1,4 @@
-//===== Copyright © 1996-2005, Valve Corporation, All rights reserved. ======//
+//===== Copyright ? 1996-2005, Valve Corporation, All rights reserved. ======//
 //
 // Purpose: 
 //
@@ -7,18 +7,18 @@
 //===========================================================================//
 
 #include "locald3dtypes.h"
-#include "TextureDX8.h"
-#include "ShaderAPIDX8_Global.h"
-#include "ColorFormatDX8.h"
-#include "shaderapi/IShaderUtil.h"
-#include "materialsystem/IMaterialSystem.h"
-#include "UtlVector.h"
+#include "texturedx8.h"
+#include "shaderapidx8_global.h"
+#include "colorformatdx8.h"
+#include "shaderapi/ishaderutil.h"
+#include "materialsystem/imaterialsystem.h"
+#include "utlvector.h"
 #include "recording.h"
-#include "shaderapi/ishaderAPI.h"
+#include "shaderapi/ishaderapi.h"
 #include "filesystem.h"
 #include "locald3dtypes.h"
 #include "textureheap.h"
-#include "UtlBuffer.h"
+#include "utlbuffer.h"
 #include "tier0/vprof.h"
 
 #include "tier0/memdbgon.h"

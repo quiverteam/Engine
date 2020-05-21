@@ -1,4 +1,4 @@
-//===== Copyright © 1996-2005, Valve Corporation, All rights reserved. ======//
+//===== Copyright ? 1996-2005, Valve Corporation, All rights reserved. ======//
 //
 // Purpose: 
 //
@@ -12,7 +12,7 @@
 #include "materialsystem/materialsystem_config.h"
 #include "tier1/convar.h"
 #include "shaderdevicebase.h"
-#include "tier0/ICommandLine.h"
+#include "tier0/icommandline.h"
 
 //-----------------------------------------------------------------------------
 //

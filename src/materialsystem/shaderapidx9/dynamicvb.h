@@ -1,4 +1,4 @@
-//========= Copyright © 1996-2005, Valve Corporation, All rights reserved. ============//
+//========= Copyright ? 1996-2005, Valve Corporation, All rights reserved. ============//
 //
 // Purpose: 
 //
@@ -14,8 +14,8 @@
 #endif
 
 #include "locald3dtypes.h"
-#include "Recording.h"
-#include "ShaderAPIDX8_Global.h"
+#include "recording.h"
+#include "shaderapidx8_global.h"
 #include "materialsystem/ivballoctracker.h"
 #include "tier0/dbg.h"
 
@@ -380,7 +380,7 @@ CVertexBuffer::CVertexBuffer(D3DDeviceWrapper * pD3D, VertexFormat_t fmt, DWORD 
 
 	// Track VB allocations
 #if !defined( _X360 )
-	g_VBAllocTracker->CountVB( m_pVB, m_bDynamic, m_nBufferSize, m_VertexSize, fmt );
+	g_pVBAllocTracker->CountVB( m_pVB, m_bDynamic, m_nBufferSize, m_VertexSize, fmt );
 #else
 	g_VBAllocTracker->CountVB( m_pAllocatedMemory, m_bDynamic, m_iAllocationSize, m_VertexSize, fmt );
 #endif
@@ -390,7 +390,7 @@ CVertexBuffer::~CVertexBuffer()
 {
 	// Track VB allocations
 #if !defined( _X360 )
-	g_VBAllocTracker->UnCountVB( m_pVB );
+	g_pVBAllocTracker->UnCountVB( m_pVB );
 #else
 	g_VBAllocTracker->UnCountVB( m_pAllocatedMemory );
 #endif

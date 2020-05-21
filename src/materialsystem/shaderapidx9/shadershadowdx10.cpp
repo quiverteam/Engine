@@ -1,4 +1,4 @@
-//===== Copyright © 1996-2005, Valve Corporation, All rights reserved. ======//
+//===== Copyright ? 1996-2005, Valve Corporation, All rights reserved. ======//
 //
 // Purpose: 
 //
@@ -6,7 +6,7 @@
 //
 //===========================================================================//
 
-#include "shadershadowdx10.h"
+#include "ShaderShadowDx10.h"
 #include "utlvector.h"
 #include "materialsystem/imaterialsystem.h"
 #include "IHardwareConfigInternal.h"

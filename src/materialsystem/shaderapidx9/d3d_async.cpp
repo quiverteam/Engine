@@ -1,4 +1,4 @@
-//======Copyright © 1996-2006, Valve Corporation, All rights reserved. ======//
+//======Copyright ? 1996-2006, Valve Corporation, All rights reserved. ======//
 //
 // Purpose: 
 //
@@ -6,21 +6,21 @@
 //===========================================================================//
 
 #include <windows.h>
-#include "UtlSymbol.h"
-#include "UtlVector.h"
-#include "UtlDict.h"
-#include "UtlBuffer.h"
+#include "utlsymbol.h"
+#include "utlvector.h"
+#include "utldict.h"
+#include "utlbuffer.h"
 #include "UtlStringMap.h"
 #include "locald3dtypes.h"
-#include "ShaderAPIDX8_Global.h"
+#include "shaderapidx8_global.h"
 #include "recording.h"
 #include "tier0/vprof.h"
 #include "materialsystem/imaterialsystem.h"
 #include "materialsystem/imaterialsystemhardwareconfig.h"
 #include "shaderapidx8.h"
-#include "materialsystem/ishader.h"
+#include "materialsystem/IShader.h"
 #include "utllinkedlist.h"
-#include "ishadersystem.h"
+#include "IShaderSystem.h"
 #include "tier0/fasttimer.h"
 #include <stdlib.h>
 #include "convar.h"

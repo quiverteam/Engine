@@ -27,9 +27,46 @@
 // Forward declarations
 //-----------------------------------------------------------------------------
 struct IDirect3DStateBlock9;
-enum RenderStateFunc_t;
-enum TextureStateFunc_t;
 
+// Any function that does not require a texture stage
+// NOTE: If you change this, change the function table s_pRenderFunctionTable[] below!!
+enum RenderStateFunc_t
+{
+	RENDER_STATE_DepthTest = 0,
+	RENDER_STATE_ZWriteEnable,
+	RENDER_STATE_ColorWriteEnable,
+	RENDER_STATE_AlphaTest,
+	RENDER_STATE_FillMode,
+	RENDER_STATE_Lighting,
+	RENDER_STATE_SpecularEnable,
+	RENDER_STATE_SRGBWriteEnable,
+	RENDER_STATE_AlphaBlend,
+	RENDER_STATE_SeparateAlphaBlend,
+	RENDER_STATE_CullEnable,
+	RENDER_STATE_VertexBlendEnable,
+	RENDER_STATE_FogMode,
+	RENDER_STATE_ActivateFixedFunction,
+	RENDER_STATE_TextureEnable,
+	RENDER_STATE_DiffuseMaterialSource,
+	RENDER_STATE_DisableFogGammaCorrection,
+	RENDER_STATE_EnableAlphaToCoverage,
+
+	RENDER_STATE_COUNT,
+};
+
+
+// Any function that requires a texture stage
+// NOTE: If you change this, change the function table s_pTextureFunctionTable[] below!!
+enum TextureStateFunc_t
+{
+	TEXTURE_STATE_TexCoordIndex = 0,
+	TEXTURE_STATE_SRGBReadEnable,
+	TEXTURE_STATE_Fetch4Enable,
+	// Fixed function states
+	TEXTURE_STATE_ColorTextureStage,
+	TEXTURE_STATE_AlphaTextureStage,
+	TEXTURE_STATE_COUNT
+};
 
 //-----------------------------------------------------------------------------
 // Types related to transition table entries
