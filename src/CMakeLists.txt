@@ -3,7 +3,7 @@
 # Base project scripts
 #
 #
-cmake_minimum_required(VERSION 3.5)
+cmake_minimum_required(VERSION 3.13)
 project(Quiver)
 
 #set(CMAKE_CONFIGURATION_TYPES "Debug;Release" CACHE STRING "" FORCE)
@@ -221,7 +221,8 @@ add_subdirectory(materialsystem/shaderlib)
 add_subdirectory(materialsystem)
 add_subdirectory(materialsystem/shaderapiempty)
 add_subdirectory(materialsystem/shaderapigl)
-add_subdirectory(game)
+add_subdirectory(game/client)
+#add_subdirectory(game/server)
 add_subdirectory(engine)
 add_subdirectory(networksystem)
 add_subdirectory(utils/vrad)
@@ -235,6 +236,7 @@ add_subdirectory(vphysics)
 add_subdirectory(thirdparty/bzip2)
 add_subdirectory(thirdparty/jpeglib)
 add_subdirectory(soundsystem)
+add_subdirectory(soundemittersystem)
 
 if(USE_BULLET3)
 	add_subdirectory(thirdparty/bullet3)
@@ -254,3 +256,10 @@ if(DEFINED WINDOWS_BUILD OR UNIX_CROSS)
 	#add_subdirectory(utils/hammer_launcher)
 endif(DEFINED WINDOWS_BUILD OR UNIX_CROSS)
 
+# Install projects
+install(TARGETS tier0 vstdlib inputsystem launcher launcher_main engine networksystem vrad vrad_launcher vphysics soundsystem materialsystem
+		LIBRARY DESTINATION bin/${PLATFORM_SUBDIR})
+
+# Install the game stuff
+install(TARGETS client_hl2
+		LIBRARY DESTINATION bin/mod_hl2/${PLATFORM_SUBDIR})
