@@ -1,4 +1,4 @@
-//===== Copyright © 1996-2005, Valve Corporation, All rights reserved. ======//
+//===== Copyright ? 1996-2005, Valve Corporation, All rights reserved. ======//
 //
 // Purpose: 
 //
@@ -13,10 +13,10 @@
 #pragma once
 #endif
 
-
+#include "shareddefs.h"
 #include "materialsystem/imaterial.h"
 #include "appframework/IAppSystem.h"
-
+#include "ishaderdynamic.h"
 
 //-----------------------------------------------------------------------------
 // forward declarations
@@ -24,9 +24,6 @@
 class ITexture;
 struct MaterialSystem_Config_t;
 struct ImageFormatInfo_t;
-enum Sampler_t;
-enum VertexTextureSampler_t;
-enum StandardTextureId_t;
 class CPrimList;
 struct ShaderColorCorrectionInfo_t;
 

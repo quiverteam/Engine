@@ -1,4 +1,4 @@
-//===== Copyright © 1996-2007, Valve Corporation, All rights reserved. ======//
+//===== Copyright ? 1996-2007, Valve Corporation, All rights reserved. ======//
 //
 // Purpose: tracks VB allocations (and compressed/uncompressed vertex memory usage)
 //
