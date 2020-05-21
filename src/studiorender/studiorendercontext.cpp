@@ -1,4 +1,4 @@
-//===== Copyright © 1996-2005, Valve Corporation, All rights reserved. ======//
+//===== Copyright ? 1996-2005, Valve Corporation, All rights reserved. ======//
 //
 // Purpose: 
 //
@@ -1284,21 +1284,21 @@ void CStudioRenderContext::R_StudioCreateStaticMeshes( studiohdr_t *pStudioHdr,
 
 			// Support tracking of VB allocations
 			// FIXME: categorise studiomodel allocs more precisely
-			if ( g_VBAllocTracker )
+			if (g_pVBAllocTracker)
 			{
 				if ( ( pStudioHdr->numbones > 8 ) || ( pStudioHdr->numflexdesc > 0 ) )
 				{
-					g_VBAllocTracker->TrackMeshAllocations( "R_StudioCreateStaticMeshes (character)" );
+					g_pVBAllocTracker->TrackMeshAllocations( "R_StudioCreateStaticMeshes (character)" );
 				}
 				else
 				{
 					if ( pStudioHdr->flags & STUDIOHDR_FLAGS_STATIC_PROP )
 					{
-						g_VBAllocTracker->TrackMeshAllocations( "R_StudioCreateStaticMeshes (prop_static)" );
+						g_pVBAllocTracker->TrackMeshAllocations( "R_StudioCreateStaticMeshes (prop_static)" );
 					}
 					else
 					{
-						g_VBAllocTracker->TrackMeshAllocations( "R_StudioCreateStaticMeshes (prop_dynamic)" );
+						g_pVBAllocTracker->TrackMeshAllocations( "R_StudioCreateStaticMeshes (prop_dynamic)" );
 					}
 				}
 			}
@@ -1316,9 +1316,9 @@ void CStudioRenderContext::R_StudioCreateStaticMeshes( studiohdr_t *pStudioHdr,
 					&pStudioHWData->m_pLODs[nLodID].m_pMeshData[pMesh->meshid], pColorMeshID );
 			}
 
-			if ( g_VBAllocTracker )
+			if (g_pVBAllocTracker)
 			{
-				g_VBAllocTracker->TrackMeshAllocations( NULL );
+				g_pVBAllocTracker->TrackMeshAllocations( NULL );
 			}
 		}
 	}
