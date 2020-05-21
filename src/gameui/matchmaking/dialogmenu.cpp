@@ -1,19 +1,19 @@
-//========= Copyright © 1996-2005, Valve Corporation, All rights reserved. ============//
+//========= Copyright ? 1996-2005, Valve Corporation, All rights reserved. ============//
 //
 // Purpose: Multi-purpose menu for matchmaking dialogs, navigable with the xbox controller.
 //
 //=============================================================================//
 
 #include "engine/imatchmaking.h"
-#include "gameui_interface.h"
+#include "GameUI_Interface.h"
 #include "vgui_controls/Label.h"
 #include "vgui_controls/ImagePanel.h"
 #include "vgui/ILocalize.h"
 #include "vgui/ISurface.h"
-#include "keyvalues.h"
+#include "KeyValues.h"
 #include "dialogmenu.h"
-#include "basepanel.h"
-#include "vgui_controls\ImagePanel.h"
+#include "BasePanel.h"
+#include "vgui_controls/ImagePanel.h"
 #include "iachievementmgr.h"			// for iachievement abstract class in CAchievementItem
 #include "achievementsdialog.h"			// for helper functions used by both pc and xbox achievements
 

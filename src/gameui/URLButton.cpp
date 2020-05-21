@@ -1,4 +1,4 @@
-//========= Copyright © 1996-2005, Valve Corporation, All rights reserved. ============//
+//========= Copyright ? 1996-2005, Valve Corporation, All rights reserved. ============//
 //
 // Purpose: Basic button control
 //
@@ -6,7 +6,7 @@
 //=============================================================================//
 
 #include <stdio.h>
-#include <UtlSymbol.h>
+#include <utlsymbol.h>
 
 #include <vgui/IBorder.h>
 #include <vgui/IInput.h>

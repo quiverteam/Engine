@@ -1,14 +1,14 @@
-//========= Copyright © 1996-2005, Valve Corporation, All rights reserved. ============//
+//========= Copyright ? 1996-2005, Valve Corporation, All rights reserved. ============//
 //
 // Purpose: All matchmaking dialogs inherit from this
 //
 //=============================================================================//
 
 #include "vgui_controls/Label.h"
-#include "gameui_interface.h"
+#include "GameUI_Interface.h"
 #include "KeyValues.h"
 #include "basedialog.h"
-#include "basepanel.h"
+#include "BasePanel.h"
 #include "matchmakingbasepanel.h"
 
 // memdbgon must be the last include file in a .cpp file!!!

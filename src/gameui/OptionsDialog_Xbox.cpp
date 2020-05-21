@@ -1,4 +1,4 @@
-//========= Copyright © 1996-2005, Valve Corporation, All rights reserved. ============//
+//========= Copyright ? 1996-2005, Valve Corporation, All rights reserved. ============//
 //
 // Purpose: 
 //
@@ -26,8 +26,8 @@
 #include "matchmaking/matchmakingbasepanel.h"
 #include "vgui_controls/AnimationController.h"
 
-#include "tier1\utlbuffer.h"
-#include "FileSystem.h"
+#include "tier1/utlbuffer.h"
+#include "filesystem.h"
 
 using namespace vgui;
 

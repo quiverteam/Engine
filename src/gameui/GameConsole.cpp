@@ -1,4 +1,4 @@
-//========= Copyright © 1996-2005, Valve Corporation, All rights reserved. ============//
+//========= Copyright ? 1996-2005, Valve Corporation, All rights reserved. ============//
 //
 // Purpose: 
 //
@@ -15,7 +15,7 @@
 
 #include "KeyValues.h"
 #include "vgui/VGUI.h"
-#include "vgui/IVGUI.h"
+#include "vgui/IVGui.h"
 #include "vgui_controls/Panel.h"
 #include "convar.h"
 

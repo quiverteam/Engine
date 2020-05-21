@@ -10,5 +10,8 @@ Undefines various Mingw/win32 structures
 #undef SendMessage
 #undef PostMessage
 #undef GetClassName
+#undef ShellExecute
+#undef GetCurrentTime
+#undef ShellExecuteEx
 
 #endif

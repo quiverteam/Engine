@@ -1,4 +1,4 @@
-//========= Copyright © 1996-2005, Valve Corporation, All rights reserved. ============//
+//========= Copyright ? 1996-2005, Valve Corporation, All rights reserved. ============//
 //
 // Purpose: 
 //
@@ -8,7 +8,7 @@
 
 #include "VGuiSystemModuleLoader.h"
 #include "Sys_Utils.h"
-#include "IVGuiModule.h"
+#include "IVguiModule.h"
 #include "ServerBrowser/IServerBrowser.h"
 
 #include <vgui/IPanel.h>
@@ -20,7 +20,7 @@
 #include <vgui_controls/Controls.h>
 #include <vgui_controls/Panel.h>
 
-#include "FileSystem.h"
+#include "filesystem.h"
 #include "steam/steam_api.h"
 
 // memdbgon must be the last include file in a .cpp file!!!

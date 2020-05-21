@@ -1,11 +1,11 @@
-//========= Copyright © 1996-2005, Valve Corporation, All rights reserved. ============//
+//========= Copyright ? 1996-2005, Valve Corporation, All rights reserved. ============//
 //
 // Purpose: Multiplayer pause menu
 //
 //=============================================================================//
 
 #include "pausedialog.h"
-#include "gameui_interface.h"
+#include "GameUI_Interface.h"
 
 // memdbgon must be the last include file in a .cpp file!!!
 #include "tier0/memdbgon.h"

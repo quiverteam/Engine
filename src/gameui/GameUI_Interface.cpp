@@ -1,4 +1,4 @@
-//===== Copyright © 1996-2005, Valve Corporation, All rights reserved. ======//
+//===== Copyright ? 1996-2005, Valve Corporation, All rights reserved. ======//
 //
 // Purpose: Implements all the functions exported by the GameUI dll
 //
@@ -19,7 +19,7 @@
 #undef SendMessage
 #endif
 																
-#include "FileSystem.h"
+#include "filesystem.h"
 #include "GameUI_Interface.h"
 #include "Sys_Utils.h"
 #include "string.h"
@@ -29,7 +29,7 @@
 #include "EngineInterface.h"
 
 #include "VGuiSystemModuleLoader.h"
-#include "bitmap/TGALoader.h"
+#include "bitmap/tgaloader.h"
 
 #include "GameConsole.h"
 #include "LoadingDialog.h"
@@ -41,7 +41,7 @@
 #include "ixboxsystem.h"
 #include "iachievementmgr.h"
 #include "IGameUIFuncs.h"
-#include <IEngineVGUI.h>
+#include <ienginevgui.h>
 #include "steam/steam_api.h"
 #include "BonusMapsDatabase.h"
 #include "BonusMapsDialog.h"

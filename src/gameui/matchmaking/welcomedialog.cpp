@@ -1,14 +1,14 @@
-//========= Copyright © 1996-2005, Valve Corporation, All rights reserved. ============//
+//========= Copyright ? 1996-2005, Valve Corporation, All rights reserved. ============//
 //
 // Purpose: Matchmaking's "main menu"
 //
 //=============================================================================//
 
 #include "welcomedialog.h"
-#include "gameui_interface.h"
+#include "GameUI_Interface.h"
 #include "vgui_controls/MessageDialog.h"
 #include "ixboxsystem.h"
-#include "engineinterface.h"
+#include "EngineInterface.h"
 
 // memdbgon must be the last include file in a .cpp file!!!
 #include "tier0/memdbgon.h"

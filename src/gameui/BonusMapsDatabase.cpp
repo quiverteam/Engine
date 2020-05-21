@@ -1,4 +1,4 @@
-//========= Copyright © 1996-2005, Valve Corporation, All rights reserved. ============//
+//========= Copyright ? 1996-2005, Valve Corporation, All rights reserved. ============//
 //
 // Purpose: 
 //
@@ -9,14 +9,14 @@
 #include "EngineInterface.h"
 
 #include "tier1/convar.h"
-#include "tier1/UtlBuffer.h"
+#include "tier1/utlbuffer.h"
 
-#include "FileSystem.h"
+#include "filesystem.h"
 #include "ModInfo.h"
 #include "EngineInterface.h"
 #include "ixboxsystem.h"
 #include "KeyValues.h"
-#include "basepanel.h"
+#include "BasePanel.h"
 #include "GameUI_Interface.h"
 #include "BonusMapsDialog.h"
 

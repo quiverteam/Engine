@@ -1,4 +1,4 @@
-//========= Copyright © 1996-2005, Valve Corporation, All rights reserved. ============//
+//========= Copyright ? 1996-2005, Valve Corporation, All rights reserved. ============//
 //
 // Purpose: Handles loading/unloading of different vgui modules into a shared context
 //
@@ -11,7 +11,7 @@
 #endif
 
 #include "vgui_controls/PHandle.h"
-#include "UtlVector.h"
+#include "utlvector.h"
 #include "IVGuiModuleLoader.h"
 
 class IVGuiModule;

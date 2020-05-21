@@ -1,4 +1,4 @@
-//========= Copyright © 1996-2005, Valve Corporation, All rights reserved. ============//
+//========= Copyright ? 1996-2005, Valve Corporation, All rights reserved. ============//
 //
 // Purpose: 
 //
@@ -6,8 +6,8 @@
 
 #include "sessionlobbydialog.h"
 #include "engine/imatchmaking.h"
-#include "gameui_interface.h"
-#include "engineinterface.h"
+#include "GameUI_Interface.h"
+#include "EngineInterface.h"
 #include "vgui/ISurface.h"
 #include "vgui_controls/ImagePanel.h"
 #include "vgui/ILocalize.h"

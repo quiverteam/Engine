@@ -1,4 +1,4 @@
-//========= Copyright © 1996-2005, Valve Corporation, All rights reserved. ============//
+//========= Copyright ? 1996-2005, Valve Corporation, All rights reserved. ============//
 //
 // Purpose: 
 //
@@ -13,7 +13,7 @@
 
 #include "vgui_controls/Frame.h"
 #include "vgui_controls/KeyRepeat.h"
-#include "UtlVector.h"
+#include "utlvector.h"
 
 class CGameChapterPanel;
 class CSkillSelectionDialog;

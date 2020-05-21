@@ -1,4 +1,4 @@
-//========= Copyright © 1996-2005, Valve Corporation, All rights reserved. ============//
+//========= Copyright ? 1996-2005, Valve Corporation, All rights reserved. ============//
 //
 // Purpose: Display a list of achievements for the current game
 //
@@ -9,12 +9,12 @@
 #include "vgui/ILocalize.h"
 #include "ixboxsystem.h"
 #include "iachievementmgr.h"
-#include "engineinterface.h"
+#include "EngineInterface.h"
 #include "GameUI_Interface.h"
 #include "MouseMessageForwardingPanel.h"
-#include "FileSystem.h"
-#include "vgui_controls\ImagePanel.h"
-#include "vgui_controls\ComboBox.h"
+#include "filesystem.h"
+#include "vgui_controls/ImagePanel.h"
+#include "vgui_controls/ComboBox.h"
 #include "BasePanel.h"
 #include "fmtstr.h"
 

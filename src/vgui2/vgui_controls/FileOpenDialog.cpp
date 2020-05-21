@@ -53,6 +53,8 @@
 #undef GetCurrentDirectory
 #endif
 
+#include "winlite.h"
+
 // memdbgon must be the last include file in a .cpp file!!!
 #include <tier0/memdbgon.h>
 
@@ -860,7 +862,7 @@ void FileOpenDialog::OnOpenInExplorer()
 	char pCurrentDirectory[MAX_PATH];
 	GetCurrentDirectory( pCurrentDirectory, sizeof(pCurrentDirectory) );
 #if !defined( _X360 ) && defined( WIN32 )
-	ShellExecute( NULL, NULL, pCurrentDirectory, NULL, NULL, SW_SHOWNORMAL );
+	ShellExecuteA( NULL, NULL, pCurrentDirectory, NULL, NULL, SW_SHOWNORMAL );
 #elif defined( OSX )
 	char szCmd[ MAX_PATH * 2];
 	Q_snprintf( szCmd, sizeof(szCmd), "/usr/bin/open \"%s\"", pCurrentDirectory );

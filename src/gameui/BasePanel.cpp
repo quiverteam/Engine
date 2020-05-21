@@ -1,4 +1,4 @@
-//===== Copyright © 1996-2005, Valve Corporation, All rights reserved. ======//
+//===== Copyright ? 1996-2005, Valve Corporation, All rights reserved. ======//
 //
 // Purpose: 
 //
@@ -28,9 +28,9 @@ using namespace vgui;
 #include "GameConsole.h"
 #include "ModInfo.h"
 
-#include "igameuifuncs.h"
-#include "loadingdialog.h"
-#include "backgroundmenubutton.h"
+#include "IGameUIFuncs.h"
+#include "LoadingDialog.h"
+#include "BackgroundMenuButton.h"
 #include "vgui_controls/AnimationController.h"
 #include "vgui_controls/ImagePanel.h"
 #include "vgui_controls/Label.h"
@@ -73,9 +73,10 @@ using namespace vgui;
 #endif
 
 #include "../engine/imatchmaking.h"
-#include "tier1/UtlString.h"
+#include "tier1/utlstring.h"
 #include "steam/steam_api.h"
 
+#undef PropertySheet
 #undef MessageBox	// Windows helpfully #define's this to MessageBoxA, we're using vgui::MessageBox
 
 // memdbgon must be the last include file in a .cpp file!!!

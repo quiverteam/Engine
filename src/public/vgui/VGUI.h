@@ -11,9 +11,6 @@
 #include <stddef.h>
 #include <stdint.h>
 
-/* Undefine some mingw structures */
-#include <mingw_off.h>
-
 #ifdef _WIN32
 #pragma once
 #endif
@@ -88,5 +85,7 @@ const HFont INVALID_FONT = 0; // the value of an invalid font handle
 #define USE_GETKERNEDCHARWIDTH 0
 #endif
 
+/* Undefine some mingw structures */
+#include <mingw_off.h>
 
 #endif // VGUI_H

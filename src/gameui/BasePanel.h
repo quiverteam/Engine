@@ -1,4 +1,4 @@
-//========= Copyright © 1996-2005, Valve Corporation, All rights reserved. ============//
+//========= Copyright ? 1996-2005, Valve Corporation, All rights reserved. ============//
 //
 // Purpose: 
 //
@@ -14,9 +14,9 @@
 #include "vgui_controls/Panel.h"
 #include "vgui_controls/PHandle.h"
 #include "vgui_controls/MenuItem.h"
-#include "vgui_controls/messagedialog.h"
+#include "vgui_controls/MessageDialog.h"
 #include "KeyValues.h"
-#include "UtlVector.h"
+#include "utlvector.h"
 #include "tier1/CommandBuffer.h"
 
 #include "ixboxsystem.h"
@@ -35,6 +35,7 @@ enum
 class CMatchmakingBasePanel;
 class CBackgroundMenuButton;
 class CGameMenu;
+class CAsyncCtxOnDeviceAttached;
 
 // X360TBD: Move into a separate module when finished
 class CMessageDialogHandler

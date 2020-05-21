@@ -1,4 +1,4 @@
-//===== Copyright © 1996-2005, Valve Corporation, All rights reserved. ======//
+//===== Copyright ? 1996-2005, Valve Corporation, All rights reserved. ======//
 //
 // Purpose: 
 //
@@ -13,7 +13,7 @@ using namespace vgui;
 #include <vgui_controls/ComboBox.h>
 #include <vgui_controls/RadioButton.h>
 #include <vgui_controls/CheckButton.h>
-#include "FileSystem.h"
+#include "filesystem.h"
 #include "tier1/convar.h"
 #include "EngineInterface.h"
 #include "CvarToggleCheckButton.h"
@@ -149,7 +149,8 @@ void CCreateMultiplayerGameServerPage::LoadMaps( const char *pszPathID )
 		_snprintf( mapname, sizeof(mapname), "maps/%s", pszFilename );
 		if ( !g_pFullFileSystem->FileExists( mapname, pszPathID ) )
 		{
-			goto nextFile;
+			pszFilename = g_pFullFileSystem->FindNext( findHandle );
+			continue;
 		}
 
 		// remove the text 'maps/' and '.bsp' from the file name to get the map name

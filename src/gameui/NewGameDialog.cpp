@@ -1,4 +1,4 @@
-//========= Copyright © 1996-2005, Valve Corporation, All rights reserved. ============//
+//========= Copyright ? 1996-2005, Valve Corporation, All rights reserved. ============//
 //
 // Purpose: 
 //
@@ -20,7 +20,7 @@
 #include "vgui_controls/ImagePanel.h"
 #include "vgui_controls/Frame.h"
 #include "vgui_controls/ControllerMap.h"
-#include "FileSystem.h"
+#include "filesystem.h"
 #include "ModInfo.h"
 #include "tier1/convar.h"
 #include "GameUI_Interface.h"
@@ -31,6 +31,8 @@
 #include "BonusMapsDatabase.h"
 
 #include <stdio.h>
+
+#include <mingw_off.h>
 
 // memdbgon must be the last include file in a .cpp file!!!
 #include "tier0/memdbgon.h"

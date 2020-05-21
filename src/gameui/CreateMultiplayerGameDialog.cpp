@@ -1,4 +1,4 @@
-//========= Copyright © 1996-2005, Valve Corporation, All rights reserved. ============//
+//========= Copyright ? 1996-2005, Valve Corporation, All rights reserved. ============//
 //
 // Purpose: 
 //
@@ -20,7 +20,7 @@ using namespace vgui;
 
 #include <vgui/ILocalize.h>
 
-#include "FileSystem.h"
+#include "filesystem.h"
 #include <KeyValues.h>
 
 // memdbgon must be the last include file in a .cpp file!!!

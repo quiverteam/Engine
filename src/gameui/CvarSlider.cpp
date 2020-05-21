@@ -1,4 +1,4 @@
-//========= Copyright © 1996-2005, Valve Corporation, All rights reserved. ============//
+//========= Copyright ? 1996-2005, Valve Corporation, All rights reserved. ============//
 //
 // Purpose: 
 //
@@ -11,7 +11,7 @@
 #include "tier1/KeyValues.h"
 #include "tier1/convar.h"
 #include <vgui/IVGui.h>
-#include <vgui_controls/propertypage.h>
+#include <vgui_controls/PropertyPage.h>
 
 #define CVARSLIDER_SCALE_FACTOR 100.0f
 

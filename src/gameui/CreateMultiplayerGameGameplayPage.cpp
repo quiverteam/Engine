@@ -1,4 +1,4 @@
-//========= Copyright © 1996-2005, Valve Corporation, All rights reserved. ============//
+//========= Copyright ? 1996-2005, Valve Corporation, All rights reserved. ============//
 //
 // Purpose: 
 //
@@ -20,7 +20,7 @@ using namespace vgui;
 #include <vgui_controls/Label.h>
 #include <vgui_controls/TextEntry.h>
 
-#include "FileSystem.h"
+#include "filesystem.h"
 #include "PanelListPanel.h"
 #include "ScriptObject.h"
 #include <tier0/vcrmode.h>

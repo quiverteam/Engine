@@ -1,4 +1,4 @@
-//===== Copyright © 1996-2005, Valve Corporation, All rights reserved. ======//
+//===== Copyright ? 1996-2005, Valve Corporation, All rights reserved. ======//
 //
 // Purpose: 
 //
@@ -11,8 +11,8 @@
 #pragma once
 #endif
 
-#include "UtlVector.h"
-#include "UtlSymbol.h"
+#include "utlvector.h"
+#include "utlsymbol.h"
 
 #include <vgui_controls/PropertyPage.h>
 class VControlsListPanel;

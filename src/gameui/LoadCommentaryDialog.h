@@ -1,4 +1,4 @@
-//========= Copyright © 1996-2005, Valve Corporation, All rights reserved. ============//
+//========= Copyright ? 1996-2005, Valve Corporation, All rights reserved. ============//
 //
 // Purpose: 
 //
@@ -11,8 +11,8 @@
 #endif
 
 #include "vgui_controls/Frame.h"
-#include "FileSystem.h"
-#include "UtlVector.h"
+#include "filesystem.h"
+#include "utlvector.h"
 
 
 #define COMMENTARY_MAPFILENAME_MAX_LEN MAX_PATH

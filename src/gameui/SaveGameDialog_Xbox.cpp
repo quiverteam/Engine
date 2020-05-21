@@ -1,11 +1,11 @@
-//========= Copyright © 1996-2005, Valve Corporation, All rights reserved. ============//
+//========= Copyright ? 1996-2005, Valve Corporation, All rights reserved. ============//
 //
 // Purpose: 
 //
 //=============================================================================//
 
 #include "BasePanel.h"
-#include "SavegameDialog.h"
+#include "SaveGameDialog.h"
 
 #include "winlite.h"		// FILETIME
 #include "vgui/ILocalize.h"
@@ -31,7 +31,7 @@ using namespace vgui;
 #include "tier0/memdbgon.h"
 
 #include "vgui_controls/Frame.h"
-#include "UtlVector.h"
+#include "utlvector.h"
 
 extern const char *COM_GetModDirectory();
 

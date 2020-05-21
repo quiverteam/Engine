@@ -1,4 +1,4 @@
-//===== Copyright © 1996-2005, Valve Corporation, All rights reserved. ======//
+//===== Copyright ? 1996-2005, Valve Corporation, All rights reserved. ======//
 //
 // Purpose: 
 //
@@ -7,13 +7,13 @@
 
 #include "LoadCommentaryDialog.h"
 #include "EngineInterface.h"
-#include "igameuifuncs.h"
+#include "IGameUIFuncs.h"
 
 #include "vgui/ISystem.h"
 #include "vgui/IVGui.h"
 #include "tier1/KeyValues.h"
 #include "tier1/convar.h"
-#include "FileSystem.h"
+#include "filesystem.h"
 
 #include "vgui_controls/PanelListPanel.h"
 #include "vgui_controls/Label.h"

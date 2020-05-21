@@ -1,4 +1,4 @@
-//========= Copyright © 1996-2001, Valve LLC, All rights reserved. ============
+//========= Copyright ? 1996-2001, Valve LLC, All rights reserved. ============
 //
 // Purpose: 
 //
@@ -16,11 +16,11 @@
 #include "winsockx.h"
 #endif
 #include "msgbuffer.h"
-#include "socket.h"
+#include "Socket.h"
 #include "inetapi.h"
 #include "tier0/vcrmode.h"
 
-#include <VGUI/IVGui.h>
+#include <vgui/IVGui.h>
 
 #if defined( _X360 )
 #include "xbox/xbox_win32stubs.h"

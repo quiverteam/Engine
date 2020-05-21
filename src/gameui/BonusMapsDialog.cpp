@@ -1,4 +1,4 @@
-//========= Copyright © 1996-2005, Valve Corporation, All rights reserved. ============//
+//========= Copyright ? 1996-2005, Valve Corporation, All rights reserved. ============//
 //
 // Purpose: 
 //
@@ -12,7 +12,7 @@
 #include "vgui/ISurface.h"
 #include "vgui/IVGui.h"
 #include <vgui/ILocalize.h>
-#include "FileSystem.h"
+#include "filesystem.h"
 
 #include "vgui_controls/Button.h"
 #include "vgui_controls/ComboBox.h"
@@ -25,7 +25,7 @@
 #include "TGAImagePanel.h"
 #include "MouseMessageForwardingPanel.h"
 
-#include "basepanel.h"
+#include "BasePanel.h"
 
 // memdbgon must be the last include file in a .cpp file!!!
 #include "tier0/memdbgon.h"

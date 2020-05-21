@@ -238,6 +238,7 @@ add_subdirectory(thirdparty/jpeglib)
 add_subdirectory(soundsystem)
 add_subdirectory(soundemittersystem)
 add_subdirectory(datacache)
+add_subdirectory(gameui)
 
 if(USE_BULLET3)
 	add_subdirectory(thirdparty/bullet3)
@@ -258,7 +259,7 @@ if(DEFINED WINDOWS_BUILD OR UNIX_CROSS)
 endif(DEFINED WINDOWS_BUILD OR UNIX_CROSS)
 
 # Install projects
-install(TARGETS tier0 vstdlib inputsystem launcher launcher_main engine networksystem vrad vrad_launcher vphysics soundsystem materialsystem
+install(TARGETS tier0 vstdlib inputsystem launcher launcher_main engine networksystem vrad vrad_launcher vphysics soundsystem materialsystem soundemittersystem datacache
 		LIBRARY DESTINATION bin/${PLATFORM_SUBDIR})
 
 # Install the game stuff

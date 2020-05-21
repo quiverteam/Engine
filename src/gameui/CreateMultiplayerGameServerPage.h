@@ -1,4 +1,4 @@
-//========= Copyright © 1996-2005, Valve Corporation, All rights reserved. ============//
+//========= Copyright ? 1996-2005, Valve Corporation, All rights reserved. ============//
 //
 // Purpose: 
 //
@@ -12,7 +12,7 @@
 #endif
 
 #include <vgui_controls/PropertyPage.h>
-#include "cvartogglecheckbutton.h"
+#include "CvarToggleCheckButton.h"
 
 //-----------------------------------------------------------------------------
 // Purpose: server options page of the create game server dialog
