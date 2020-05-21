@@ -237,6 +237,7 @@ add_subdirectory(thirdparty/bzip2)
 add_subdirectory(thirdparty/jpeglib)
 add_subdirectory(soundsystem)
 add_subdirectory(soundemittersystem)
+add_subdirectory(datacache)
 
 if(USE_BULLET3)
 	add_subdirectory(thirdparty/bullet3)
