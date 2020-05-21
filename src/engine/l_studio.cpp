@@ -1,4 +1,4 @@
-//===== Copyright © 1996-2005, Valve Corporation, All rights reserved. ======//
+//===== Copyright ? 1996-2005, Valve Corporation, All rights reserved. ======//
 //
 // models are the only shared resource between a client and server running
 // on the same machine.
@@ -728,8 +728,8 @@ public:
 
 			if ( data->m_pMeshInfos[i].m_pMesh == NULL )
 			{
-				if ( g_VBAllocTracker )
-					g_VBAllocTracker->TrackMeshAllocations( "CColorMeshData::CreateResource" );
+				if (g_pVBAllocTracker)
+					g_pVBAllocTracker->TrackMeshAllocations( "CColorMeshData::CreateResource" );
 
 				// Allocate a standalone VB per color mesh
 				data->m_pMeshInfos[i].m_pMesh = pRenderContext->CreateStaticMesh( vertexFormat, TEXTURE_GROUP_STATIC_VERTEX_BUFFER_COLOR );
@@ -740,8 +740,8 @@ public:
 				data->m_ppTargets[i] = meshBuilder.Specular();
 				meshBuilder.End();
 
-				if ( g_VBAllocTracker )
-					g_VBAllocTracker->TrackMeshAllocations( NULL );
+				if (g_pVBAllocTracker)
+					g_pVBAllocTracker->TrackMeshAllocations( NULL );
 			}
 
 			Assert( data->m_pMeshInfos[i].m_pMesh );
@@ -4584,8 +4584,8 @@ bool CPooledVBAllocator_ColorMesh::Init( VertexFormat_t format, int numVerts )
 	if ( !CheckIsClear() )
 		return false;
 
-	if ( g_VBAllocTracker )
-		g_VBAllocTracker->TrackMeshAllocations( "CPooledVBAllocator_ColorMesh::Init" );
+	if (g_pVBAllocTracker)
+		g_pVBAllocTracker->TrackMeshAllocations( "CPooledVBAllocator_ColorMesh::Init" );
 
 	CMatRenderContextPtr pRenderContext( materials );
 	m_pMesh = pRenderContext->CreateStaticMesh( format, TEXTURE_GROUP_STATIC_VERTEX_BUFFER_COLOR );
@@ -4607,8 +4607,8 @@ bool CPooledVBAllocator_ColorMesh::Init( VertexFormat_t format, int numVerts )
 		meshBuilder.End();
 	}
 
-	if ( g_VBAllocTracker )
-		g_VBAllocTracker->TrackMeshAllocations( NULL );
+	if (g_pVBAllocTracker)
+		g_pVBAllocTracker->TrackMeshAllocations( NULL );
 
 	return ( m_pMesh != NULL );
 }

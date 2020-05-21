@@ -1,4 +1,4 @@
-//===== Copyright © 1996-2005, Valve Corporation, All rights reserved. ======//
+//===== Copyright ? 1996-2005, Valve Corporation, All rights reserved. ======//
 //
 // Purpose: loads and unloads main matsystem dll and interface
 //
@@ -1706,8 +1706,8 @@ void WorldStaticMeshCreate( void )
 	for ( i = 0; i < g_Meshes.Count(); i++ )
 	{
 		Assert( g_Meshes[i].vertCount > 0 );
-		if ( g_VBAllocTracker )
-			g_VBAllocTracker->TrackMeshAllocations( "WorldStaticMeshCreate" );
+		if (g_pVBAllocTracker)
+			g_pVBAllocTracker->TrackMeshAllocations( "WorldStaticMeshCreate" );
 		VertexFormat_t vertexFormat = ComputeWorldStaticMeshVertexFormat( g_Meshes[i].pMaterial );
 		g_Meshes[i].pMesh = pRenderContext->CreateStaticMesh( vertexFormat, TEXTURE_GROUP_STATIC_VERTEX_BUFFER_WORLD, g_Meshes[i].pMaterial );
 		int vertBufferIndex = 0;
@@ -1733,8 +1733,8 @@ void WorldStaticMeshCreate( void )
 		}
 		meshBuilder.End();
 		Assert(vertBufferIndex == g_Meshes[i].vertCount);
-		if ( g_VBAllocTracker )
-			g_VBAllocTracker->TrackMeshAllocations( NULL );
+		if (g_pVBAllocTracker)
+			g_pVBAllocTracker->TrackMeshAllocations( NULL );
 	}
 #endif
 	//Msg("Total %d meshes, %d before\n", g_Meshes.Count(), g_WorldStaticMeshes.Count() );

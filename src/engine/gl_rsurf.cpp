@@ -1515,18 +1515,18 @@ void Shader_DrawChains( const CWorldRenderList *pRenderList, int nSortGroup, boo
 	if( 1 )
 #endif
 	{
-		if ( g_VBAllocTracker )
-			g_VBAllocTracker->TrackMeshAllocations( "Shader_DrawChainsStatic" );
+		if (g_pVBAllocTracker)
+			g_pVBAllocTracker->TrackMeshAllocations( "Shader_DrawChainsStatic" );
 		Shader_DrawChainsStatic( pRenderList->m_SortList, nSortGroup, bShadowDepth );
 	}
 	else
 	{
-		if ( g_VBAllocTracker )
-			g_VBAllocTracker->TrackMeshAllocations( "Shader_DrawChainsDynamic" );
+		if (g_pVBAllocTracker)
+			g_pVBAllocTracker->TrackMeshAllocations( "Shader_DrawChainsDynamic" );
 		Shader_DrawChainsDynamic( pRenderList->m_SortList, nSortGroup, bShadowDepth );
 	}
-	if ( g_VBAllocTracker )
-		g_VBAllocTracker->TrackMeshAllocations( NULL );
+	if (g_pVBAllocTracker)
+		g_pVBAllocTracker->TrackMeshAllocations( NULL );
 
 #if MOVE_DLIGHTS_TO_NEW_TEXTURE
 	for ( int i = 0; i < pRenderList->m_DlightSurfaces[nSortGroup].Count(); i++ )

@@ -1,4 +1,4 @@
-//========= Copyright © 1996-2005, Valve Corporation, All rights reserved. ============//
+//========= Copyright ? 1996-2005, Valve Corporation, All rights reserved. ============//
 //
 // Purpose: 
 //
@@ -630,11 +630,11 @@ bool DispInfo_LoadDisplacements( model_t *pWorld, bool bRestoring )
 	DispInfo_CreateMaterialGroups( pWorld, pSortInfos );
 
 	// Now make the static buffers for each material/lightmap combo.
-	if ( g_VBAllocTracker )
-		g_VBAllocTracker->TrackMeshAllocations( "DispInfo_LoadDisplacements" );
+	if (g_pVBAllocTracker)
+		g_pVBAllocTracker->TrackMeshAllocations( "DispInfo_LoadDisplacements" );
 	DispInfo_CreateEmptyStaticBuffers( pWorld, tempDisps );
-	if ( g_VBAllocTracker )
-		g_VBAllocTracker->TrackMeshAllocations( NULL );
+	if (g_pVBAllocTracker)
+		g_pVBAllocTracker->TrackMeshAllocations( NULL );
 
 	// Now setup each displacement one at a time.
 	// using temporary storage that is not the stack for compatibility with console stack
