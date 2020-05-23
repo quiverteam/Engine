@@ -1,7 +1,7 @@
 // ---------------------------------------------------------------
-// Engine Tool - Commentary Editor
+// Engine Tool - Map Editor
 // ---------------------------------------------------------------
-macro PROJECT_NAME	"Commedit"
+macro PROJECT_NAME	"MapEdit"
 macro SRCDIR		"../.."
 
 include "$SRCDIR/_qpc_scripts/base_tool.qpc"
@@ -22,8 +22,11 @@ configuration
 	{
 		preprocessor_definitions
 		{
-			"COMMEDIT_EXPORTS"
+			"SAMPLETOOL_EXPORTS"
 		}
+
+		precompiled_header "use"
+		precompiled_header_file "cbase.h"
 	}
 }
 
@@ -31,19 +34,23 @@ files
 {
 	folder "Source Files"
 	{
-		"commeditdoc.cpp"
-		"commedittool.cpp"
-		"commentarynodebrowserpanel.cpp"
-		"commentarypropertiespanel.cpp"
-		"dmecommentarynodeentity.cpp"
+		"mapedit.cpp"
+		"menus.cpp"
+		"cbase.cpp"
+		{
+			configuration
+			{
+				compiler
+				{
+					precompiled_header "create"
+				}
+			}
+		}
 	}
 
 	folder "Header Files"
 	{
-		"commeditdoc.h"
-		"commedittool.h"
-		"commentarynodebrowserpanel.h"
-		"commentarypropertiespanel.h"
-		"dmecommentarynodeentity.h"
+		"cbase.h"
+		"menus.h"
 	}
 }

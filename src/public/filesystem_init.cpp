@@ -561,7 +561,7 @@ FSReturnCode_t FileSystem_LoadSearchPaths( CFSSearchPathsInit &initInfo )
 
 	char baseBin[MAX_PATH];
 	FileSystem_GetBaseDir(baseBin, MAX_PATH);
-	V_strcat(baseBin, "/bin", sizeof("/bin"));
+	V_strncat(baseBin, "/bin", sizeof(baseBin));
 	FileSystem_AddLoadedSearchPath(initInfo, "basebin", baseBin, bLowViolence);
 
 	for ( KeyValues *pCur=pSearchPaths->GetFirstValue(); pCur; pCur=pCur->GetNextValue() )

@@ -1278,6 +1278,7 @@ CVProfile::CVProfile()
 	m_pBudgetGroups = new CVProfile::CBudgetGroup[32];
 	m_nBudgetGroupNames = 0;
 	m_nBudgetGroupNamesAllocated = 32;
+	m_TargetThreadId = ThreadGetCurrentId();
 
 	m_TargetThreadId = ThreadGetCurrentId();
 

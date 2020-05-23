@@ -16,11 +16,9 @@
 #include "Physics_SoftBody.h"
 #include "miscmath.h"
 #include "convert.h"
+#include <vprof.h>
 
-#if DEBUG_DRAW
-	#include "DebugDrawer.h"
-#endif
-
+#include "DebugDrawer.h"
 // Multithreading stuff
 
 #define USE_PARALLEL_DISPATCHER
@@ -46,6 +44,14 @@
 
 // memdbgon must be the last include file in a .cpp file!!!
 #include "tier0/memdbgon.h"
+
+/*****************************
+* CONVARS
+*****************************/
+static ConVar vphysics_step_time("vphysics_step_time", "100", FCVAR_CHEAT, "When in stepped moode, the time between physics steps in milliseconds");
+static ConVar vphysics_enable_step_mode("vphysics_enable_step_mode", "0", FCVAR_CHEAT, "Enables stepped mode");
+static ConVar vphysics_draw_hud("vphysics_draw_hud", "0", FCVAR_CHEAT | FCVAR_ARCHIVE, "Enables or disables hud drawing for vphysics");
+static ConVar vphysics_show_velocity("vphysics_show_velocity", "0", FCVAR_CHEAT | FCVAR_ARCHIVE, "Shows velocity info for physics objects. NOTE: This can really lag things up");
 
 /*****************************
 * MISC. CLASSES
@@ -539,6 +545,10 @@ CPhysicsEnvironment::CPhysicsEnvironment() {
 	m_invPSIScale = 0.f;
 	m_simPSICurrent = 0;
 	m_simPSI = 0;
+	m_bPaused = false;
+	m_bStepMode = vphysics_enable_step_mode.GetBool();
+	m_fStepTime = vphysics_step_time.GetFloat();
+	m_fRemainingStepTime = 0.0f;
 
 #ifdef MULTITHREADED
 	// Maximum number of parallel tasks (number of threads in the thread support)
@@ -608,9 +618,7 @@ CPhysicsEnvironment::CPhysicsEnvironment() {
 	m_pCollisionListener = new CCollisionEventListener(this);
 	m_pBulletSolver->setSolveCallback(m_pCollisionListener);
 
-#if DEBUG_DRAW
 	m_debugdraw = new CDebugDrawer(m_pBulletEnvironment);
-#endif
 
 	// HACK: Get ourselves a debug overlay on the client
 	CreateInterfaceFn engine = Sys_GetFactory("engine");
@@ -618,9 +626,7 @@ CPhysicsEnvironment::CPhysicsEnvironment() {
 }
 
 CPhysicsEnvironment::~CPhysicsEnvironment() {
-#if DEBUG_DRAW
 	delete m_debugdraw;
-#endif
 	SetQuickDelete(true);
 
 	for (int i = m_objects.Count() - 1; i >= 0; --i) {
@@ -675,10 +681,8 @@ void CPhysicsEnvironment::SetDebugOverlay(CreateInterfaceFn debugOverlayFactory)
 	if (debugOverlayFactory && !g_pDebugOverlay)
 		g_pDebugOverlay = (IVPhysicsDebugOverlay *)debugOverlayFactory(VPHYSICS_DEBUG_OVERLAY_INTERFACE_VERSION, NULL);
 
-#if DEBUG_DRAW
 	if (g_pDebugOverlay)
 		m_debugdraw->SetDebugOverlay(g_pDebugOverlay);
-#endif
 }
 
 IVPhysicsDebugOverlay *CPhysicsEnvironment::GetDebugOverlay() {
@@ -960,6 +964,18 @@ static ConVar cvar_substeps("vphysics_substeps", "1", FCVAR_REPLICATED, "Sets th
 void CPhysicsEnvironment::Simulate(float deltaTime) {
 	Assert(m_pBulletEnvironment);
 
+	VPROF_BUDGET(__FUNCTION__, VPROF_BUDGETGROUP_PHYSICS);
+
+	/* Draw the phys hud before any of the logic */
+	if (vphysics_draw_hud.GetBool())
+		this->DrawPhysHud();
+	if (vphysics_show_velocity.GetBool())
+		this->DrawPhysPropOverlay();
+
+	m_bStepMode = vphysics_enable_step_mode.GetBool();
+
+	if (m_bPaused || (m_bStepMode && m_fRemainingStepTime <= 0.0f)) return;
+
 	// Input deltaTime is how many seconds have elapsed since the previous frame
 	// phys_timescale can scale this parameter however...
 	// Can cause physics to slow down on the client environment when the game's window is not in focus
@@ -996,12 +1012,12 @@ void CPhysicsEnvironment::Simulate(float deltaTime) {
 		m_inSimulation = false;
 	}
 
-#if DEBUG_DRAW
 	m_debugdraw->DrawWorld();
-#endif
 
 	// FIXME: See if this is even needed here
 	m_softBodyWorldInfo.m_sparsesdf.GarbageCollect();
+
+	if(m_bStepMode) this->m_fRemainingStepTime -= (deltaTime * 1000.0f);
 }
 
 bool CPhysicsEnvironment::IsInSimulation() const {
@@ -1267,6 +1283,7 @@ float CPhysicsEnvironment::GetInvPSIScale() {
 
 // UNEXPOSED
 void CPhysicsEnvironment::BulletTick(btScalar dt) {
+	VPROF_BUDGET(__FUNCTION__, VPROF_BUDGETGROUP_PHYSICS);
 	// Dirty hack to spread the controllers throughout the current simulation step
 	if (m_simPSICurrent) {
 		m_invPSIScale = 1.0f / (float)m_simPSICurrent;
@@ -1327,6 +1344,7 @@ btVector3 CPhysicsEnvironment::GetMaxAngularVelocity() const {
 // we have to iterate through all the contact manifolds and generate the callbacks ourselves.
 // FIXME: Remove this function and implement callbacks in bullet code
 void CPhysicsEnvironment::DoCollisionEvents(float dt) {
+	VPROF_BUDGET(__FUNCTION__, VPROF_BUDGETGROUP_PHYSICS);
 	if (m_pCollisionEvent) {
 		int numManifolds = m_pBulletEnvironment->getDispatcher()->getNumManifolds();
 		for (int i = 0; i < numManifolds; i++) {
@@ -1412,4 +1430,75 @@ void CPhysicsEnvironment::HandleObjectExitedTrigger(CPhysicsObject *pTrigger, CP
 
 	if (m_pCollisionEvent)
 		m_pCollisionEvent->ObjectLeaveTrigger(pTrigger, pObject);
+}
+
+void CPhysicsEnvironment::DoSimulationStep()
+{
+	this->m_fStepTime = vphysics_step_time.GetFloat();
+	this->m_bStepMode = vphysics_enable_step_mode.GetBool();
+	this->m_fRemainingStepTime = this->m_fStepTime;
+}
+
+void CPhysicsEnvironment::DrawPhysHud()
+{
+	IVPhysicsDebugOverlay *pOverlay = (IVPhysicsDebugOverlay*)GetDebugOverlay();
+	if (!pOverlay) return;
+
+	int r = 255, g = 255, b = 255;
+	char buf[256];
+
+	pOverlay->AddScreenTextOverlay(0.01f, 0.01f, 0.0f, 255, 255, 255, 255, "VPhyiscs Info\n");
+
+	/* Is paused? */
+	Q_snprintf(buf, sizeof(buf), "Paused: %s", this->m_bPaused ? "true" : "false");
+	pOverlay->AddScreenTextOverlay(0.01f, 0.03f, 0.0f, 255, 255, 255, 255, buf);
+
+	/* Is in step mode? */
+	Q_snprintf(buf, sizeof(buf), "In step mode: %s", this->m_bStepMode ? "true" : "false");
+	pOverlay->AddScreenTextOverlay(0.01f, 0.04f, 0.0f, 255, 255, 255, 255, buf);
+
+	/* Step time */
+	Q_snprintf(buf, sizeof(buf), "Step time: %f ms", this->m_fStepTime);
+	pOverlay->AddScreenTextOverlay(0.01f, 0.05f, 0.0f, 255, 255, 255, 255, buf);
+
+	/* Remaining time in step */
+	Q_snprintf(buf, sizeof(buf), "Step time remaining: %f ms", this->m_fRemainingStepTime >= 0.0f ? this->m_fRemainingStepTime : 0.0f);
+	if(this->m_fRemainingStepTime <= 0.0f)
+		pOverlay->AddScreenTextOverlay(0.01f, 0.06f, 0.0f, 255, 0, 0, 255, buf);
+	else
+		pOverlay->AddScreenTextOverlay(0.01f, 0.06f, 0.0f, 0, 255, 0, 255, buf);
+
+	/* Display a message if we're simulating or not */
+	if (m_bPaused || (m_bStepMode && m_fRemainingStepTime <= 0.0f))
+		pOverlay->AddScreenTextOverlay(0.01f, 0.08f, 0.0f, 255, 0, 0, 255, "SIMULATION PAUSED");
+	else
+		pOverlay->AddScreenTextOverlay(0.01f, 0.08f, 0.0f, 0, 255, 0, 255, "SIMULATION RUNNING");
+}
+
+void CPhysicsEnvironment::DrawPhysPropOverlay()
+{
+	IVPhysicsDebugOverlay* pOverlay = GetDebugOverlay();
+	if (!pOverlay) return;
+
+	/* Draw the solidbody objects */
+	for (IPhysicsObject* pObj : m_objects)
+	{
+		if (pObj->IsStatic()) continue;
+
+		Vector pos;
+		QAngle ang;
+		pObj->GetPosition(&pos, &ang);
+
+		/* Get velocity and angular velocity */
+		Vector velo;
+		AngularImpulse angimpulse;
+		pObj->GetVelocity(&velo, &angimpulse);
+		float mag = velo.NormalizeInPlace();
+
+		/* Draw velo text */
+		pOverlay->AddTextOverlay(pos, 0.0f, "speed: %f in/s", mag);
+
+		/* Draw the velocity vector */
+		pOverlay->AddLineOverlay(pos, velo * (mag * 0.1f) + pos, 0, 0, 255, false, 0.0f);
+	}
 }

@@ -239,6 +239,15 @@ private:
 	physics_stats_t							m_stats;
 
 	CDebugDrawer *							m_debugdraw;
+
+public:
+	bool									m_bPaused;
+	bool									m_bStepMode;
+	float									m_fStepTime, m_fRemainingStepTime;
+
+	void									DoSimulationStep();
+	void									DrawPhysHud();
+	void									DrawPhysPropOverlay();
 };
 
 #endif // PHYSICS_ENVIRONMENT_H

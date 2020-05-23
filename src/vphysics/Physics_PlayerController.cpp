@@ -6,6 +6,8 @@
 #include "convert.h"
 #include "miscmath.h"
 
+#include <vprof.h>
+
 // memdbgon must be the last include file in a .cpp file!!!
 #include "tier0/memdbgon.h"
 
@@ -281,6 +283,7 @@ CPhysicsObject *CPlayerController::GetGroundObject() {
 }
 
 void CPlayerController::Tick(float deltaTime) {
+	VPROF_BUDGET(__FUNCTION__, VPROF_BUDGETGROUP_PHYSICS);
 	if (!m_enable)
 		return;
 
