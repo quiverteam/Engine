@@ -375,16 +375,17 @@ void CFogSystem::LevelInitPostEntity( void )
 		}
 	} while ( pFogController );
 
-	// HACK: Singleplayer games don't get a call to CBasePlayer::Spawn on level transitions.
+	// HACK: Coop and Singleplayer games don't get a call to CBasePlayer::Spawn on level transitions.
 	// CBasePlayer::Activate is called before this is called so that's too soon to set up the fog controller.
 	// We don't have a hook similar to Activate that happens after LevelInitPostEntity
 	// is called, or we could just do this in the player itself.
-	if ( gpGlobals->maxClients == 1 )
+	if ( gpGlobals->maxClients == 1 || gpGlobals->coop )
 	{
-		CBasePlayer *pPlayer = UTIL_GetLocalPlayer();
-		if ( pPlayer && ( pPlayer->m_Local.m_PlayerFog.m_hCtrl.Get() == NULL ) )
+		for (int i = 1; i <= gpGlobals->maxClients; i++)
 		{
-			pPlayer->InitFogController();
+			CBasePlayer* pPlayer = UTIL_PlayerByIndex(i);
+			if ( pPlayer && ( pPlayer->m_Local.m_PlayerFog.m_hCtrl.Get() == NULL ) )
+				pPlayer->InitFogController();
 		}
 	}
 }

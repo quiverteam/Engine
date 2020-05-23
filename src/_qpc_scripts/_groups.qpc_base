@@ -39,16 +39,35 @@ group "hammer"
 	"vvis_dll"
 }
 
+group "physics"
+{
+	folder "Game"
+	{
+		"vphysics"
+	}
+	
+	folder "Libraries"
+	{
+		folder "Bullet 2"
+		{
+			"BulletCollision"
+			"BulletDynamics"
+			"BulletMultiThreaded"
+			"BulletSoftBody"
+			"LinearMath"
+		}
+	}
+}
+
 group "shaders"
 {
 	"shadercompile_dll"
 	"shadercompile_launcher"
 	"shaderapidx9"
-	"shaderapidx11"
+	"shaderapiempty"
 	"shaderlib"
 	"stdshader_dbg"
 	"stdshader_dx9"
-	"stdshader_dx11"
 }
 
 group "tools"
@@ -98,7 +117,6 @@ group "utils" "everything"
 		{
 			"dx_proxy_dx9_v00_pc"
 			"dx_proxy_dx9_v30_pc"
-			"dx_proxy_dx11_v00_pc"
 			"shadercompile_dll"
 			"shadercompile_launcher"
 			"mysql_wrapper"
@@ -187,6 +205,15 @@ group "game" "everything"
 			"tier2"
 			"tier3"
 		}
+		
+		folder "Bullet 2"
+		{
+			"BulletCollision"
+			"BulletDynamics"
+			"BulletMultiThreaded"
+			"BulletSoftBody"
+			"LinearMath"
+		}
 
 		"appframework"
 		"mathlib"
@@ -214,10 +241,9 @@ group "game" "everything"
 	{
 		"materialsystem"
 		"shaderapidx9"
-		"shaderapidx11"
+		"shaderapiempty"
 		"stdshader_dbg"
 		"stdshader_dx9"
-		"stdshader_dx11"
 	}
 
 	folder "Game"
@@ -238,6 +264,7 @@ group "game" "everything"
 		"vstdlib"
 		"audio_minimp3"
 		"unicode"
+		"vphysics"
 	}
 }
 
@@ -256,6 +283,15 @@ group "libraries" "core" "everything"
 			"tier1"
 			"tier2"
 			"tier3"
+		}
+		
+		folder "Bullet 2"
+		{
+			"BulletCollision"
+			"BulletDynamics"
+			"BulletMultiThreaded"
+			"BulletSoftBody"
+			"LinearMath"
 		}
 		
 		"vtf"
@@ -302,7 +338,6 @@ group "core"
 		{
 			"dx_proxy_dx9_v00_pc"
 			"dx_proxy_dx9_v30_pc"
-			"dx_proxy_dx11_v00_pc"
 			"shadercompile_dll"
 			"shadercompile_launcher"
 			"mysql_wrapper"
@@ -347,5 +382,4 @@ group "everything"
 	"libspeex"
 	"vaudio_speex"
 	"vlocalize"
-	"vphysics"
 }

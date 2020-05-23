@@ -2362,7 +2362,7 @@ void COP_Entity::OnAddkeyvalue(void)
 		CString strTemp;
 		for(int i = 1; ; i++)
 		{
-			strTemp.Format("%s#%d", newkv.m_Key, i);
+			strTemp.Format("%s#%d", newkv.m_Key.GetString(), i);
 			if(!m_kv.GetValue(strTemp))
 				break;
 		}

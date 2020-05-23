@@ -5,7 +5,7 @@
 // $NoKeywords: $
 //
 //=============================================================================//
-typedef enum eOSVersion
+enum eOSVersion
 {
     eUninitialized,
     eUnknown,

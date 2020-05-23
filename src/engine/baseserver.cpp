@@ -358,7 +358,7 @@ once for a player each game, not once for each level change.
 ================
 */
 IClient *CBaseServer::ConnectClient ( netadr_t &adr, int protocol, int challenge, int authProtocol, 
-							    const char *name, const char *password, const char *hashedCDkey, int cdKeyLen )
+							    const char *name, const char *password, const char *hashedCDkey, int cdKeyLen, CSteamID steamid )
 {
 	COM_TimestampedLog( "CBaseServer::ConnectClient" );
 
@@ -417,13 +417,13 @@ IClient *CBaseServer::ConnectClient ( netadr_t &adr, int protocol, int challenge
 	COM_TimestampedLog( "CBaseServer::ConnectClient:  GetFreeClient" );
 
 	CBaseClient	*client = GetFreeClient( adr );
-
 	if ( !client )
 	{
 		RejectConnection( adr, "Server is full.\n" );
 		return NULL;	// no free slot found
 	}
 
+	client->SetSteamID( steamid );
 	int nNextUserID = GetNextUserID();
 	if ( !CheckChallengeType( client, nNextUserID, adr, authProtocol, hashedCDkey, cdKeyLen ) ) // we use the client pointer to track steam requests
 	{
@@ -585,7 +585,7 @@ bool CBaseServer::ProcessConnectionlessPacket(netpacket_t * packet)
 		case A2S_SERVERQUERY_GETCHALLENGE: ReplyServerChallenge( packet->from );
 							break;
 
-		case C2S_CONNECT :	{	char cdkey[STEAM_KEYSIZE];
+		case C2S_CONNECT :	{	char AuthTicket[1024];
 								char name[256];
 								char password[256];
 								
@@ -597,22 +597,23 @@ bool CBaseServer::ProcessConnectionlessPacket(netpacket_t * packet)
 								msg.ReadString( password, sizeof(password) );
 								if ( authProtocol == PROTOCOL_STEAM )
 								{
-									int keyLen = msg.ReadShort();
-									if ( keyLen < 0 || keyLen > sizeof(cdkey) )
+									int AuthTicketLength = msg.ReadShort();
+									if ( AuthTicketLength < 0 || AuthTicketLength > sizeof( AuthTicket ) )
 									{
-										RejectConnection( packet->from, "Invalid Steam key length\n" );
+										RejectConnection( packet->from, "Invalid Auth Ticket length\n" );
 										break;
 									}
-									msg.ReadBytes( cdkey, keyLen );
+									msg.ReadBytes( AuthTicket, AuthTicketLength );
 
 									ConnectClient( packet->from, protocol, 
-										challengeNr, authProtocol, name, password, cdkey, keyLen );	// cd key is actually a raw encrypted key	
+										challengeNr, authProtocol, name, password, AuthTicket, AuthTicketLength, CSteamID(msg.ReadVarInt64()) );	// cd key is actually a raw encrypted key	
 								}
 								else
 								{
+									char cdkey[STEAM_KEYSIZE];
 									msg.ReadString( cdkey, sizeof(cdkey) );
 									ConnectClient( packet->from, protocol, 
-										challengeNr, authProtocol, name, password, cdkey, strlen(cdkey) );
+										challengeNr, authProtocol, name, password, cdkey, strlen(cdkey), CSteamID() );
 								}
 
 							}
@@ -842,9 +843,6 @@ void CBaseServer::ReplyChallenge(netadr_t &adr)
 #if !defined( NO_STEAM ) //#ifndef _XBOX
 	if ( authprotocol == PROTOCOL_STEAM )
 	{
-		CSteamID steamID = Steam3Server().GetGSSteamID();
-		uint64 unSteamID = steamID.ConvertToUint64();
-		msg.WriteBytes( &unSteamID, sizeof(unSteamID) );
 		msg.WriteByte( SteamGameServer()->BSecure() );
 	}
 #else
@@ -1376,20 +1374,14 @@ bool CBaseServer::CheckChallengeType( CBaseClient * client, int nNewUserID, neta
 		client->m_NetworkID.idtype = IDTYPE_STEAM;
 		Q_memset( &client->m_NetworkID.steamid, 0x0, sizeof(client->m_NetworkID.steamid) );
 		// Convert raw certificate back into data
-#ifndef NO_STEAM
-		if ( cbCookie <= 0 || cbCookie >= STEAM_KEYSIZE )
-		{
-			RejectConnection( adr, "STEAM certificate length error! %i/%i\n", cbCookie, STEAM_KEYSIZE );
-			return false;
-		}
-#endif
+
 		netadr_t checkAdr = adr;
 		if ( adr.GetType() == NA_LOOPBACK || adr.IsLocalhost() )
 		{
 			checkAdr.SetIP( net_local_adr.GetIPNetworkByteOrder() );
 		}
 #ifndef NO_STEAM
-		if ( !Steam3Server().NotifyClientConnect( client, nNewUserID, checkAdr, pchLogonCookie, cbCookie ) 
+		if ( !Steam3Server().NotifyClientConnect( client, checkAdr, pchLogonCookie, cbCookie ) 
 			&& !Steam3Server().BLanOnly() ) // the userID isn't alloc'd yet so we need to fill it in manually
 		{
 			RejectConnection( adr, "STEAM validation rejected\n" );
@@ -1731,6 +1723,8 @@ void CBaseServer::UpdateMasterServer()
 	bool bActive = IsActive() && IsMultiplayer() && g_bEnableMasterServerUpdater;
 	if ( serverGameDLL && serverGameDLL->ShouldHideServer() )
 		bActive = false;
+
+	SteamGameServer()->EnableHeartbeats( bActive );
 
 	if ( !bActive )
 		return;

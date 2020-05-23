@@ -54,6 +54,6 @@ The Source Engine was built heavily Windows-oriented, as it uses DirectX as it's
 
 ### Links
 
-[Discord Server](https://discord.gg/b5ExdCu)
+[Discord Server](https://discord.gg/UhGXx2u)
 
 (unused) [Trello](https://trello.com/b/WaxlL3kb/quiver-engine)

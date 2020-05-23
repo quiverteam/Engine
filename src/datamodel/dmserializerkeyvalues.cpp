@@ -321,14 +321,14 @@ void CDmSerializerKeyValues::UnserializeAttribute( CDmElement *pElement, KeyValu
 	if ( type == AT_UNKNOWN )
 	{
 		// Assume this is an empty attribute or attribute array element
-		Warning("Dm Unserialize: Attempted to read an attribute (\"%s\") of an inappropriate type!\n", pLowerName );
+		Warning("Dm Unserialize: Attempted to read an attribute (\"%s\") of an inappropriate type!\n", pLowerName.Get() );
 		return;
 	}
 
 	CDmAttribute *pAttribute = pElement->AddAttribute( pLowerName, type );
 	if ( !pAttribute )
 	{
-		Warning("Dm Unserialize: Attempted to read an attribute (\"%s\") of an inappropriate type!\n", pLowerName );
+		Warning("Dm Unserialize: Attempted to read an attribute (\"%s\") of an inappropriate type!\n", pLowerName.Get() );
 		return;
 	}
 

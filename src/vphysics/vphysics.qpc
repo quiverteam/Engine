@@ -1,10 +1,11 @@
 // ---------------------------------------------------------------
 // Auto Generated QPC Script - Fix if needed before using
 // ---------------------------------------------------------------
-macro PROJECT_NAME "vphysics"
+macro PROJECT_NAME 	"vphysics"
 
-macro SRCDIR ".."
-macro OUTBINDIR "$SRCDIR/../game/bin"
+macro SRCDIR		".."
+macro OUTBINDIR		"$BINDEFAULT"
+macro BULLET_SRC	"$SRCDIR/thirdparty/bullet/src"
 
 include "$SRCDIR/_qpc_scripts/source_dll_base.qpc"
 
@@ -17,7 +18,7 @@ configuration
 			"$SRCDIR/public"
 			"$SRCDIR/common"
 			"$SRCDIR/vphysics"
-			"$SRCDIR/thirdparty/bullet/src"
+			"$BULLET_SRC"
 		}
 	}
 
@@ -45,7 +46,11 @@ dependencies
 	"tier3"
 	"vstdlib"
 	
-	// TODO: put the bullet qpc projects in and add them here
+	"$BULLET_SRC/qpc_scripts/BulletCollision.qpc"
+	"$BULLET_SRC/qpc_scripts/BulletDynamics.qpc"
+	"$BULLET_SRC/qpc_scripts/BulletMultiThreaded.qpc"
+	"$BULLET_SRC/qpc_scripts/BulletSoftBody.qpc"
+	"$BULLET_SRC/qpc_scripts/LinearMath.qpc"
 }
 
 files

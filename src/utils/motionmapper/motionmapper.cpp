@@ -2562,7 +2562,7 @@ s_source_t *MotionMap( s_source_t *pSource, s_source_t *pTarget, s_template_t *p
 	}
 	else
 	{
-		printf("Error: Can't find node: %s\n" , rootScalePath);
+		printf("Error: Can't find node: %s\n" , pTemplate->rootScaleJoint);
 		exit(0);
 	}
 	float rootScaleLengthSrc = pSource->rawanim[0][rootScaleIndex].pos[BONEDIR];

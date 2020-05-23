@@ -52,7 +52,6 @@ configuration
 		libraries
 		{
 			"Ws2_32.lib" "odbc32.lib" "odbccp32.lib" "Shlwapi.lib" "winmm.lib" [$WINDOWS]
-			"msvcrt.lib" [$DEBUG && $WINDOWS]
 			"$LIBCOMMON/jpeglib"
 			"$LIBPUBLIC/bitmap"
 			"$LIBPUBLIC/mathlib"
@@ -63,14 +62,6 @@ configuration
 			"$LIBPUBLIC/matsys_controls"
 			"$LIBPUBLIC/vtf"
 			"$LIBPUBLIC/steam_api"
-		}
-
-		ignore_libraries
-		{
-			"libc"
-			"libcd"
-			"libcmtd"
-			"msvcrt" [$RELEASE]
 		}
 	}
 }

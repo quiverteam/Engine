@@ -4560,13 +4560,13 @@ void CMapDoc::OnFileSaveAs(void)
 			if (access(str, 2) == -1)
 			{
 				// The file is read-only
-				wsprintf(szConfirm, "The file %s is read-only. You must change the file's attributes to overwrite it.", str);
+				wsprintf(szConfirm, "The file %s is read-only. You must change the file's attributes to overwrite it.", str.GetString());
 				AfxMessageBox(szConfirm, MB_OK | MB_ICONEXCLAMATION);
 				bSave = false;
 			}
 			else
 			{
-				wsprintf(szConfirm, "Overwrite existing file %s?", str);
+				wsprintf(szConfirm, "Overwrite existing file %s?", str.GetString());
 				if (AfxMessageBox(szConfirm, MB_YESNO | MB_ICONQUESTION) != IDYES)
 				{
 					bSave = false;
@@ -5044,7 +5044,7 @@ void CMapDoc::OnFileRunmap(void)
 		//else
 		{
 			strcpy(cmd.szRun, "$game_exe");
-			sprintf(cmd.szParms, "-game $gamedir %s +map $file", dlg.m_strQuakeParms);
+			sprintf(cmd.szParms, "-game $gamedir %s +map $file", dlg.m_strQuakeParms.GetString());
 		}
 
 		cmds.Add(cmd);
@@ -8143,7 +8143,7 @@ void CMapDoc::OnMapLoadportalfile(void)
 	SetFilenameExtension( m_pPortalFile->fileName, ".prt" );
 
 	CString str;
-	str.Format("Load default portal file?\n(%s)", m_pPortalFile->fileName);
+	str.Format("Load default portal file?\n(%s)", m_pPortalFile->fileName.GetString());
 	if(GetFileAttributes(m_pPortalFile->fileName) == 0xFFFFFFFF ||
 		AfxMessageBox(str, MB_ICONQUESTION | MB_YESNO) == IDNO)
 	{
@@ -8237,7 +8237,7 @@ void CMapDoc::OnMapLoadpointfile(void)
 	}
 
 	CString str;
-	str.Format("Load default pointfile?\n(%s)", m_strLastPointFile);
+	str.Format("Load default pointfile?\n(%s)", m_strLastPointFile.GetString());
 	if(GetFileAttributes(m_strLastPointFile) == 0xFFFFFFFF ||
 		AfxMessageBox(str, MB_ICONQUESTION | MB_YESNO) == IDNO)
 	{
