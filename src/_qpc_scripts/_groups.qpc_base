@@ -64,10 +64,12 @@ group "shaders"
 	"shadercompile_dll"
 	"shadercompile_launcher"
 	"shaderapidx9"
+	"shaderapidx11"
 	"shaderapiempty"
 	"shaderlib"
 	"stdshader_dbg"
 	"stdshader_dx9"
+	"stdshader_dx11"
 }
 
 group "tools"
@@ -241,9 +243,11 @@ group "game" "everything"
 	{
 		"materialsystem"
 		"shaderapidx9"
+		"shaderapidx11"
 		"shaderapiempty"
 		"stdshader_dbg"
 		"stdshader_dx9"
+		"stdshader_dx11"
 	}
 
 	folder "Game"
