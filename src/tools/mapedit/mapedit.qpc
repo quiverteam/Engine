@@ -25,8 +25,10 @@ configuration
 			"SAMPLETOOL_EXPORTS"
 		}
 
-		precompiled_header "use"
-		precompiled_header_file "cbase.h"
+		// precompiled headers incompatible with interpolator types and other things from base_tool.qpc
+		// (as they don't include cbase.h, it causes compiler error C1010)
+		// precompiled_header "use"
+		// precompiled_header_file "cbase.h"
 	}
 }
 
@@ -36,16 +38,16 @@ files
 	{
 		"mapedit.cpp"
 		"menus.cpp"
-		"cbase.cpp"
-		{
-			configuration
-			{
-				compiler
-				{
-					precompiled_header "create"
-				}
-			}
-		}
+		//"cbase.cpp"
+		//{
+		//	configuration
+		//	{
+		//		compiler
+		//		{
+		//			precompiled_header "create"
+		//		}
+		//	}
+		//}
 	}
 
 	folder "Header Files"
