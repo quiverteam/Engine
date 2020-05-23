@@ -51,14 +51,30 @@ files
 	folder "Source Files"
 	{
 		"BaseVSShader.cpp"
-		"test_dx11.cpp"
 		"bik_dx11.cpp"
+		"decalmodulate_dx11.cpp"
+		"lightmappedgeneric_dx11.cpp"
+		"lightmappedgeneric_dx11_helper.cpp"
+		"modulate_dx11.cpp"
+		"occlusion_dx11.cpp"
+		"sky_dx11.cpp"
+		"sky_hdr_dx11.cpp"
+		"sprite_dx11.cpp"
+		"spritecard.cpp"
+		"test_dx11.cpp"
 		"unlitgeneric_dx11.cpp"
+		"unlittwotexture_dx11.cpp"
+		"vertexlitgeneric_dx11.cpp"
+		"vertexlitgeneric_dx11_helper.cpp"
 		"wireframe_dx11.cpp"
+		"worldvertextransition.cpp"
+		"writez_dx11.cpp"
 	}
 
 	folder "Header Files"
 	{
 		"BaseVSShader.h"
+		"lightmappedgeneric_dx11_helper.h"
+		"vertexlitgeneric_dx11_helper.h"
 	}
 }
