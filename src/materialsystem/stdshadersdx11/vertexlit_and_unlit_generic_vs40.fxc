@@ -104,14 +104,14 @@ struct VS_OUTPUT
     float4 projPos					: SV_POSITION;			// Projection-space position	
 
 #if SEAMLESS_BASE
-	HALF3 SeamlessTexCoord			: TEXCOORD0;		// Base texture x/y/z (indexed by swizzle)
+	float3 SeamlessTexCoord			: TEXCOORD0;		// Base texture x/y/z (indexed by swizzle)
 #else
-	HALF2 baseTexCoord				: TEXCOORD0;		// Base texture coordinate
+	float2 baseTexCoord				: TEXCOORD0;		// Base texture coordinate
 #endif
 #if SEAMLESS_DETAIL
-	HALF3 SeamlessDetailTexCoord	: TEXCOORD1;		// Detail texture coordinate
+	float3 SeamlessDetailTexCoord	: TEXCOORD1;		// Detail texture coordinate
 #else
-	HALF2 detailTexCoord			: TEXCOORD1;		// Detail texture coordinate
+	float2 detailTexCoord			: TEXCOORD1;		// Detail texture coordinate
 #endif
 	float4 color					: TEXCOORD2;		// Vertex color (from lighting or unlit)
 

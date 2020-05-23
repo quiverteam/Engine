@@ -19,8 +19,6 @@ cbuffer Modulate_CBuffer : register(b3)
 	Modulate_t c;
 };
 
-#define cBaseTextureTransform c.cBaseTextureTransform
-
 struct VS_INPUT
 {
 	float4 vPos			: POSITION;
@@ -63,7 +61,7 @@ VS_OUTPUT main( const VS_INPUT v )
 	//------------------------------------------------------------------------------
 	// Texture coord transforms
 	//------------------------------------------------------------------------------
-	o.vTexCoord0 = mul( v.vTexCoord0, (float2x4)cBaseTextureTransform );
+	o.vTexCoord0 = mul( v.vTexCoord0, (float2x4)c.cBaseTextureTransform );
 
 	o.vColor = c.cModulationColor;
 

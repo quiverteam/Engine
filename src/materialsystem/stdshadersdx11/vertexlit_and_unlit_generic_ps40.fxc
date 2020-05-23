@@ -235,14 +235,14 @@ struct PS_INPUT
 {
 	float4 projPos					: SV_POSITION;
 #if SEAMLESS_BASE
-	HALF3 baseTexCoord				: TEXCOORD0;	// Base texture coordinate
+	float3 baseTexCoord				: TEXCOORD0;	// Base texture coordinate
 #else
-	HALF2 baseTexCoord				: TEXCOORD0;	// Base texture coordinate
+	float2 baseTexCoord				: TEXCOORD0;	// Base texture coordinate
 #endif
 #if SEAMLESS_DETAIL
-	HALF3 detailTexCoord			: TEXCOORD1;	// Seamless texture coordinate
+	float3 detailTexCoord			: TEXCOORD1;	// Seamless texture coordinate
 #else
-	HALF2 detailTexCoord			: TEXCOORD1;	// Detail texture coordinate
+	float2 detailTexCoord			: TEXCOORD1;	// Detail texture coordinate
 #endif
 	float4 color					: TEXCOORD2;	// Vertex color (from lighting or unlit)
 

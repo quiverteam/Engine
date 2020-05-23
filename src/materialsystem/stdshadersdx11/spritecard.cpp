@@ -184,11 +184,8 @@ BEGIN_VS_SHADER_FLAGS( Spritecard, "Help for Spritecard", SHADER_NOT_EDITABLE )
 			bool bBlendFrames = ( params[BLENDFRAMES]->GetIntValue() != 0 );
 			if ( nSplineType )
 			{
-				bSecondSequence = false;
 				bBlendFrames = false;
 				bUseInstancing = false;
-				bExtractGreenAlpha = false;
-				bAdditive2ndTexture = false;
 			}
 			bool bAddSelf = params[ADDSELF]->GetFloatValue() != 0.0;
 
