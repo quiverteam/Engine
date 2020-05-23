@@ -86,10 +86,12 @@ group "shaders"
 	"shadercompile_dll"
 	"shadercompile_launcher"
 	"shaderapidx9"
+	"shaderapidx11"
 	"shaderapiempty"
 	"shaderlib"
 	"stdshader_dbg"
 	"stdshader_dx9"
+	"stdshader_dx11"
 }
 
 group "tools" "everything"
@@ -262,8 +264,10 @@ group "game_base" "game" "dedicated" "everything"
 		{
 			"materialsystem"
 			"shaderapidx9"
+			"shaderapidx11"
 			"stdshader_dbg"
 			"stdshader_dx9"
+			"stdshader_dx11"
 		}
 
 		folder "Video and Audio"
@@ -294,6 +298,7 @@ group "game" "everything"
 		folder "Shaders"
 		{
 			"shaderapidx9"
+			"shaderapidx11"
 		}
 		
 		folder "Launchers"
