@@ -791,41 +791,32 @@ void CTextureDx11::MakeDepthStencilView()
 }
 
 void CTextureDx11::MakeView()
-{
-	bool bGenMipMap = ( m_CreationFlags & TEXTURE_CREATE_AUTOMIPMAP ) != 0;
-
-	D3D11_SHADER_RESOURCE_VIEW_DESC desc;
-	ZeroMemory( &desc, sizeof( D3D11_SHADER_RESOURCE_VIEW_DESC ) );
-		
+{	
+	DXGI_FORMAT format;
 	if ( m_iTextureType == TEXTURE_DEPTHSTENCIL )
 	{
-		desc.Format = GetDepthSRVFormat( m_D3DFormat );
+		format = GetDepthSRVFormat( m_D3DFormat );
 	}
 	else
 	{
-		desc.Format = m_D3DFormat;
+		format = m_D3DFormat;
 	}
-	
+
+	D3D11_SRV_DIMENSION dim;
 	if ( m_Depth == 6 && ( ( m_CreationFlags & TEXTURE_CREATE_CUBEMAP ) != 0 ) )
 	{
-		desc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURECUBE;
-		desc.TextureCube.MipLevels = m_NumLevels;
-		desc.TextureCube.MostDetailedMip = 0;
+		dim = D3D11_SRV_DIMENSION_TEXTURECUBE;
 	}
 	else if ( m_Depth > 1 )
 	{
-		desc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2DARRAY;
-		desc.Texture2DArray.MipLevels = m_NumLevels;
-		desc.Texture2DArray.MostDetailedMip = 0;
-		desc.Texture2DArray.ArraySize = m_Depth;
-		desc.Texture2DArray.FirstArraySlice = 0;
+		dim = D3D11_SRV_DIMENSION_TEXTURE2DARRAY;
 	}
 	else
 	{
-		desc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2D;
-		desc.Texture2D.MipLevels = m_NumLevels;
-		desc.Texture2D.MostDetailedMip = 0;
+		dim = D3D11_SRV_DIMENSION_TEXTURE2D;
 	}
+
+	CD3D11_SHADER_RESOURCE_VIEW_DESC desc( dim, format );
 
 	if ( m_NumCopies > 1 )
 	{
