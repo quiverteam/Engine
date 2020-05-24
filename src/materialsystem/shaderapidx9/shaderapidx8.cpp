@@ -601,6 +601,13 @@ public:
 	virtual void SetRasterState( const ShaderRasterState_t& state );
 	virtual void SetFlexWeights( int nFirstWeight, int nCount, const MorphWeight_t* pWeights );
 
+	virtual void GetFogColor( float *rgb )
+	{
+	}
+	virtual void GetFogParamsAndColor( float *params, float *rgba )
+	{
+	}
+
 	// Methods of IShaderDynamicAPI
 public:
 	virtual void GetBackBufferDimensions( int &nWidth, int &nHeight ) const
