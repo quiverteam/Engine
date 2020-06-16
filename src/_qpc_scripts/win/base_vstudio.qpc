@@ -19,11 +19,6 @@ configuration
 		compiler "msvc_120" [$VS2013]
 		compiler "msvc_110" [$VS2012]
 		compiler "msvc_100" [$VS2010]
-		
-		options
-		{
-			"/ltcg" [$LTCG && $WIN32 && $RELEASE]
-		}
 	}
 
 	compiler

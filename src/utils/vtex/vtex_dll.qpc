@@ -12,8 +12,8 @@ configuration
 {
 	general
 	{
-		out_dir "./$CONFIG/$PLATFORM/dll"
-		int_dir "./$CONFIG/$PLATFORM/dll"
+		out_dir "./$CONFIG/$PLAT_DIR/dll"
+		int_dir "./$CONFIG/$PLAT_DIR/dll"
 
 		include_directories
 		{

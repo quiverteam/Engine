@@ -1,5 +1,19 @@
 // ---------------------------------------------------------------
-// Auto Generated QPC Script - Fix if needed before using
+// Quiver Projects
+// ---------------------------------------------------------------
+
+project "client_episodic"			"game/client/_client_episodic.qpc"	[$EPISODIC]
+project "client_hl2"				"game/client/_client_hl2.qpc"		[$HL2]
+project "client_hl2mp"				"game/client/_client_hl2mp.qpc"		[$HL2MP]
+
+project "server_episodic"			"game/server/_server_episodic.qpc"	[$EPISODIC]
+project "server_hl2"				"game/server/_server_hl2.qpc"		[$HL2]
+project "server_hl2mp"				"game/server/_server_hl2mp.qpc"		[$HL2MP]
+
+project "gameui_episodic"			"game/gameui/_gameui_episodic.qpc"	[$EPISODIC]
+project "gameui_hl2"				"game/gameui/_gameui_hl2.qpc"		[$HL2]
+project "gameui_hl2mp"				"game/gameui/_gameui_hl2mp.qpc"		[$HL2MP]
+
 // ---------------------------------------------------------------
 
 project "actbusy" 					"tools/actbusy/actbusy.qpc" [$WINDOWS]
@@ -21,13 +35,6 @@ project "bzip2" 					"thirdparty/bzip2/bzip2.qpc"
 project "captioncompiler" 			"utils/captioncompiler/captioncompiler.qpc"
 
 project "choreoobjects" 			"choreoobjects/choreoobjects.qpc"
-
-project "client"
-{
-	"game/client/_client_hl2.qpc" [$HL2]
-	"game/client/_client_episodic.qpc" [$EPISODIC]
-	"game/client/_client_hl2mp.qpc" [$HL2MP]
-}
 
 project "commedit" 					"tools/commedit/commedit.qpc" [$WINDOWS]
 
@@ -67,13 +74,6 @@ project "FileSystemOpenDialog" 		"utils/FileSystemOpenDialog/filesystemopendialo
 
 project "gameui" 					"gameui/GameUI.qpc"
 
-project "gameui_client"
-{
-	"game/gameui/_gameui_hl2.qpc" [$HL2]
-	"game/gameui/_gameui_episodic.qpc" [$EPISODIC]
-	"game/gameui/_gameui_hl2mp.qpc" [$HL2MP]
-}
-
 project "glview"					"utils/glview/glview.qpc" [$WINDOWS]
 
 project "hammer_dll"				"utils/hammer/hammer_dll.qpc" [$WINDOWS]
@@ -108,7 +108,7 @@ project "lua"						"thirdparty/lua-5.1.1/lua.qpc"
 
 project "lzma"						"thirdparty/lzma/lzma.qpc" [$WINDOWS]
 
-project "mapedit"				"tools/mapedit/mapedit.qpc" [$WINDOWS]
+project "mapedit"					"tools/mapedit/mapedit.qpc" [$WINDOWS]
 
 project "materialsystem"			"materialsystem/materialsystem.qpc"
 
@@ -167,13 +167,6 @@ project "scenemanager"				"utils/scenemanager/scenemanager.qpc" [$WINDOWS]
 project "sceneviewer"				"utils/sceneviewer/sceneviewer.qpc" [$WINDOWS]
 
 project "SDKLauncher"				"utils/sdklauncher/SDKLauncher.qpc" [$WINDOWS]
-
-project "server"
-{
-	"game/server/_server_hl2.qpc" [$HL2]
-	"game/server/_server_episodic.qpc" [$EPISODIC]
-	"game/server/_server_hl2mp.qpc" [$HL2MP]
-}
 
 project "ServerBrowser"				"ServerBrowser/ServerBrowser.qpc"
 

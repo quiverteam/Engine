@@ -6,21 +6,27 @@ group "gamedlls" "game" "binaries" "everything"
 {
 	folder "Game"
 	{
-		folder "Game DLLs"
+		folder "Game Binaries"
 		{
-			folder "Client"
+			folder "Episodic"	[$EPISODIC]
 			{
-				"client"
+				"client_episodic"
+				"server_episodic"
+				"gameui_episodic"
 			}
-
-			folder "Server"
+			
+			folder "HL2"		[$HL2]
 			{
-				"server"
+				"client_hl2"
+				"server_hl2"
+				"gameui_hl2"
 			}
-
-			folder "GameUI"
+			
+			folder "HL2MP"		[$HL2MP]
 			{
-				"gameui_client"
+				"client_hl2mp"
+				"server_hl2mp"
+				"gameui_hl2mp"
 			}
 		}
 	}
@@ -107,6 +113,19 @@ group "tools" "everything"
 	}
 }
 
+group "vmpi_group"
+{
+	"vmpi"
+	"vmpi_job_search"
+	"vmpi_job_watch"
+	"vmpi_services_watch"
+	"vmpi_service"
+	"vmpi_transfer"
+	"vmpi_service_install"
+	"vmpi_service_ui"
+	"WaitAndRestart"
+}
+
 group "utils" "everything"
 {
 	folder "Libraries"
@@ -160,15 +179,7 @@ group "utils" "everything"
 		
 		folder "vmpi"
 		{
-			"vmpi"
-			"vmpi_job_search"
-			"vmpi_job_watch"
-			"vmpi_services_watch"
-			"vmpi_service"
-			"vmpi_transfer"
-			"vmpi_service_install"
-			"vmpi_service_ui"
-			"WaitAndRestart"
+			contains "vmpi_group"
 		}
 
 		folder "Converters"

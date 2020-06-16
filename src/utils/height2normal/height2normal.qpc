@@ -28,7 +28,6 @@ configuration
 			"_ALLOW_RUNTIME_LIBRARY_MISMATCH"
 			"_ALLOW_ITERATOR_DEBUG_LEVEL_MISMATCH"
 			"_ALLOW_MSC_VER_MISMATCH"
-			"%(PreprocessorDefinitions)"
 		}
 	}
 

@@ -7,7 +7,7 @@ configuration
 	{
 		libraries
 		{
-			- "$SRCDIR/lib/$PLATFORM/tier1$_STATICLIB_EXT" [!$WINDOWS]
+			- "$SRCDIR/lib/$PLAT_DIR/tier1$_STATICLIB_EXT" [!$WINDOWS]
 			- "$LIBPUBLIC/tier1$_STATICLIB_EXT" [$WINDOWS]
 		}
 	}

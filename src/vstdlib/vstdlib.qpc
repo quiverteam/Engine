@@ -20,7 +20,7 @@ configuration
 
 	linker
 	{
-		import_library "$LIBPUBLIC/$(TargetName)"
+		import_library "$LIBPUBLIC/$OUTBINNAME"
 
 		libraries
 		{
