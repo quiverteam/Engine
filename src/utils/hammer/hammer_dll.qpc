@@ -78,7 +78,7 @@ dependencies
 	"bitmap/bitmap.qpc"
 	"choreoobjects/choreoobjects.qpc"
 	"datamodel/datamodel.qpc"
-	"dme_controls/dme_controls.qpc"
+	"dme_controls"
 	"dmserializers/dmserializers.qpc"
 	"fgdlib/fgdlib.qpc"
 	"mathlib/mathlib.qpc"
