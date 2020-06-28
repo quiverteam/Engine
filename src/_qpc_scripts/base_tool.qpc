@@ -44,9 +44,18 @@ files
 {
 	folder "Source Files"
 	{
-		"$SRCDIR/public/interpolatortypes.cpp"
-		"$SRCDIR/public/registry.cpp"
+		"$SRCDIR/public/interpolatortypes.cpp" \
+		"$SRCDIR/public/registry.cpp" \
 		"$SRCDIR/public/vgui_controls/vgui_controls.cpp"
+		{
+			configuration
+			{
+				compiler
+				{
+					precompiled_header "none"
+				}
+			}
+		}
 	}
 
 	folder "Header Files"
