@@ -586,17 +586,13 @@ bool CVPKFile::Prepare( int64 fileLen, int64 nFileOfs )
 
 				if ( entry.PreloadBytes )
 				{
-#if VPK_DEBUG
-					Warning( "VPK file entry %s has preload data and will be ignored\n", pFileEntry->szFullFilePath );
-#endif
-					m_fs->FS_fseek( m_hPackFileHandle, entry.PreloadBytes, FILESYSTEM_SEEK_CURRENT );
+					pFileEntry->PreloadData.EnsureCapacity(entry.PreloadBytes);
+					m_fs->FS_fread( pFileEntry->PreloadData.Base(), entry.PreloadBytes, m_hPackFileHandle );
 				}
-				else
-				{
-					// File only available for lookups if it has no preload data
-					m_PathMap[ base_path.Base() ].AddToTail( pFileEntry );
-					m_FileMap[ pFileEntry->szFullFilePath ] = pFileEntry;
-				}
+				
+				// File only available for lookups if it has no preload data
+				m_PathMap[ base_path.Base() ].AddToTail( pFileEntry );
+				m_FileMap[ pFileEntry->szFullFilePath ] = pFileEntry;
 			}
 		}
 	}
@@ -649,7 +645,7 @@ bool CVPKFile::FindFile( const char *pFilename, int &nIndex, int64 &nOffset, int
 	else
 		nOffset = (int64)pFileEntry->entry.EntryOffset;
 
-	nLength = pFileEntry->entry.EntryLength;
+	nLength = pFileEntry->entry.PreloadBytes + pFileEntry->entry.EntryLength;
 
 	return true;
 }
@@ -778,12 +774,43 @@ int CVPKFile::ReadFromPack( int nIndex, void* buffer, int nDestBytes, int nBytes
 		Msg( "Read From Pack: Sync I/O: Requested:%7d, Offset:0x%16.16llx, %s\n", nBytes, m_nBaseOffset + nOffset, szName );
 	}
 
+	int nBytesRead = 0;
+	int nFileOffset = m_pFileEntries[nIndex]->entry.EntryOffset - nOffset;
+	uint16_t PreloadBytes = m_pFileEntries[nIndex]->entry.PreloadBytes;
+
+	if ( PreloadBytes > 0  )
+	{
+		if ( nFileOffset < PreloadBytes  )
+		{
+			nBytesRead = nBytes > PreloadBytes - nFileOffset ? PreloadBytes - nFileOffset : nBytes;
+
+			V_memcpy( buffer, m_pFileEntries[nIndex]->PreloadData.Base() + nFileOffset, nBytesRead );
+
+			//All the file was stored in the preload bytes or we read the amount we were asked for already
+			if ( m_pFileEntries[nIndex]->entry.EntryLength == 0 || nBytes == nBytesRead )
+				return nBytesRead;
+
+			nOffset += PreloadBytes;
+		}
+
+		nOffset -= PreloadBytes;
+
+		FILE* vpk = (m_bVolumes) ? m_hArchiveHandles[m_pFileEntries[nIndex]->entry.ArchiveIndex] : m_hPackFileHandle;
+
+		m_mutex.Lock(); // We should only need to lock when doing filesystem operations
+		m_fs->FS_fseek( vpk, m_nBaseOffset + m_pFileEntries[nIndex]->entry.EntryOffset, SEEK_SET );
+		nBytesRead += m_fs->FS_fread( (byte*)buffer + nBytesRead, nDestBytes - nBytesRead, nBytes - nBytesRead, vpk );
+		m_mutex.Unlock();
+
+		return nBytesRead;
+	}
+
 	// Seek to the start of the read area and perform the read: TODO: CHANGE THIS INTO A CFileHandle
 	FILE *vpk = ( m_bVolumes ) ? m_hArchiveHandles[ m_pFileEntries[ nIndex ]->entry.ArchiveIndex ] : m_hPackFileHandle;
 
 	m_mutex.Lock(); // We should only need to lock when doing filesystem operations
 	m_fs->FS_fseek( vpk, m_nBaseOffset + nOffset, SEEK_SET );
-	int nBytesRead = m_fs->FS_fread( buffer, nDestBytes, nBytes, vpk );
+	nBytesRead = m_fs->FS_fread( buffer, nDestBytes, nBytes, vpk );
 	m_mutex.Unlock();
 
 	return nBytesRead;
