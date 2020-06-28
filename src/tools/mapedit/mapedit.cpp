@@ -3,8 +3,6 @@
 // Purpose: Core Movie Maker UI API
 //
 //=============================================================================
-#include "cbase.h"
-
 #include "toolutils/basetoolsystem.h"
 #include "toolutils/recentfilelist.h"
 #include "toolutils/toolmenubar.h"
