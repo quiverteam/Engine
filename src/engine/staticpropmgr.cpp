@@ -529,8 +529,8 @@ bool CStaticProp::Init( int index, StaticPropLump_t &lump, model_t *pModel )
 	m_Flags = ( lump.m_Flags & (STATIC_PROP_SCREEN_SPACE_FADE | STATIC_PROP_FLAG_FADES | STATIC_PROP_NO_PER_VERTEX_LIGHTING) );
 
 	int nCurrentDXLevel = g_pMaterialSystemHardwareConfig->GetDXSupportLevel();
-	bool bNoDraw = ( lump.m_nMinDXLevel && lump.m_nMinDXLevel >	nCurrentDXLevel );
-	bNoDraw = bNoDraw || ( lump.m_nMaxDXLevel && lump.m_nMaxDXLevel < nCurrentDXLevel );
+	bool bNoDraw = ( lump.m_nMinGPULevel && lump.m_nMinGPULevel >	nCurrentDXLevel );
+	bNoDraw = bNoDraw || ( lump.m_nMaxGPULevel && lump.m_nMaxGPULevel < nCurrentDXLevel );
 	if ( bNoDraw )
 	{
 		m_Flags |= STATIC_PROP_NO_DRAW;
@@ -1299,18 +1299,53 @@ void CStaticPropMgr::UnserializeModels( CUtlBuffer& buf )
 		switch ( nLumpVersion )
 		{
 		case 4:
-			buf.Get( &lump, sizeof(StaticPropLumpV4_t) );
+			buf.Get( &lump, sizeof( StaticPropLumpV4_t ) );
 			lump.m_flForcedFadeScale = 1.0f;
-			lump.m_nMinDXLevel = lump.m_nMaxDXLevel = 0;
+			lump.m_nMinGPULevel = lump.m_nMaxGPULevel = 0;
+			lump.m_nMinCPULevel = lump.m_nMaxCPULevel = 0;
+			lump.m_DiffuseModulation.r = 0;
+			lump.m_DiffuseModulation.g = 0;
+			lump.m_DiffuseModulation.b = 0;
+			lump.m_bDisableX360 = false;
 			break;
 
 		case 5:
-			buf.Get( &lump, sizeof(StaticPropLumpV5_t) );
-			lump.m_nMinDXLevel = lump.m_nMaxDXLevel = 0;
+			buf.Get( &lump, sizeof( StaticPropLumpV5_t ) );
+			lump.m_nMinGPULevel = lump.m_nMaxGPULevel = 0;
+			lump.m_nMinCPULevel = lump.m_nMaxCPULevel = 0;
+			lump.m_DiffuseModulation.r = 0;
+			lump.m_DiffuseModulation.g = 0;
+			lump.m_DiffuseModulation.b = 0;
+			lump.m_bDisableX360 = false;
 			break;
 
 		case 6:
-			buf.Get( &lump, sizeof(StaticPropLump_t) );
+			buf.Get( &lump, sizeof( StaticPropLumpV6_t ) );
+			lump.m_nMinGPULevel = lump.m_nMinCPULevel;
+			lump.m_nMaxGPULevel = lump.m_nMaxCPULevel;
+			lump.m_nMinCPULevel = lump.m_nMaxCPULevel = 0;
+			lump.m_DiffuseModulation.r = 0;
+			lump.m_DiffuseModulation.g = 0;
+			lump.m_DiffuseModulation.b = 0;
+			lump.m_bDisableX360 = false;
+			break;
+
+		case 7:
+			buf.Get( &lump, sizeof( StaticPropLumpV7_t ) );
+			V_memcpy( &lump.m_DiffuseModulation, &lump.m_nMinGPULevel, sizeof( color32 ) );
+			lump.m_nMinGPULevel = lump.m_nMinCPULevel;
+			lump.m_nMaxGPULevel = lump.m_nMaxCPULevel;
+			lump.m_nMinCPULevel = lump.m_nMaxCPULevel = 0;
+			lump.m_bDisableX360 = false;
+			break;
+
+		case 8:
+			buf.Get( &lump, sizeof( StaticPropLumpV8_t ) );
+			lump.m_bDisableX360 = false;
+			break;
+
+		case 9:
+			buf.Get( &lump, sizeof( StaticPropLump_t ) );
 			break;
 		}
 

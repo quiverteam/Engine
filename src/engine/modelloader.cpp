@@ -393,6 +393,22 @@ void CMapLoadHelper::Init( model_t *pMapModel, const char *loadname )
 
 	s_pMap = &g_ModelLoader.m_worldBrushData;
 
+	// lump_t fix for l4d2 maps
+	if ( s_MapHeader.version == 21 && s_MapHeader.lumps[0].fileofs == 0 )
+	{
+		DevMsg( "Detected l4d2 bsp, fixing lump struct order for compatibility\n" );
+
+		for ( int iLump = 0; iLump < HEADER_LUMPS; iLump++ )
+		{
+			l4d2_lump_t l4d2lump;
+			V_memcpy( &l4d2lump, &s_MapHeader.lumps[iLump], sizeof( lump_t ) );
+
+			s_MapHeader.lumps[iLump].version = l4d2lump.version;
+			s_MapHeader.lumps[iLump].filelen = l4d2lump.filelen;
+			s_MapHeader.lumps[iLump].fileofs = l4d2lump.fileofs;
+		}
+	}
+
 	if ( IsPC() )
 	{
 		// Now find and open our lump files, and create the master list of them.
@@ -487,6 +503,22 @@ void CMapLoadHelper::InitFromMemory( model_t *pMapModel, const void *pData, int 
 #endif
 
 	s_pMap = &g_ModelLoader.m_worldBrushData;
+
+	// lump_t fix for l4d2 maps
+	if ( s_MapHeader.version == 21 && s_MapHeader.lumps[0].fileofs == 0 )
+	{
+		DevMsg( "Detected l4d2 bsp, fixing lump struct order for compatibility\n" );
+
+		for ( int iLump = 0; iLump < HEADER_LUMPS; iLump++ )
+		{
+			l4d2_lump_t l4d2lump;
+			V_memcpy( &l4d2lump, &s_MapHeader.lumps[iLump], sizeof( lump_t ) );
+
+			s_MapHeader.lumps[iLump].version = l4d2lump.version;
+			s_MapHeader.lumps[iLump].filelen = l4d2lump.filelen;
+			s_MapHeader.lumps[iLump].fileofs = l4d2lump.fileofs;
+		}
+	}
 }
 
 //-----------------------------------------------------------------------------
@@ -1042,9 +1074,28 @@ void Mod_LoadWorldlights( CMapLoadHelper &lh, bool bIsHDR )
 		lh.GetMap()->worldlights = NULL;
 		return;
 	}
-	lh.GetMap()->numworldlights = lh.LumpSize() / sizeof( dworldlight_t );
-	lh.GetMap()->worldlights = (dworldlight_t *)Hunk_AllocName( lh.LumpSize(), va( "%s [%s]", lh.GetLoadName(), "worldlights" ) );
-	memcpy (lh.GetMap()->worldlights, lh.LumpBase(), lh.LumpSize());
+	
+	// dworldlight_t fix for previous bsp versions
+	if ( s_MapHeader.version < BSPVERSION )
+	{
+		DevMsg( "Detected bsp version lower than 21, fixing dworldlight_t struct order for compatibility\n" );
+
+		lh.GetMap()->numworldlights = lh.LumpSize() / ( sizeof( dworldlight_t ) - sizeof( Vector ) );
+		lh.GetMap()->worldlights = ( dworldlight_t* )Hunk_AllocName( lh.GetMap()->numworldlights * sizeof( dworldlight_t ), va( "%s [%s]", lh.GetLoadName(), "worldlights" ) );
+		for ( int iLight = 0; iLight < lh.GetMap()->numworldlights; iLight++ )
+		{
+			memcpy( &lh.GetMap()->worldlights[iLight], lh.LumpBase() + iLight * ( sizeof( dworldlight_t ) - sizeof( Vector ) ), sizeof( Vector ) * 3 );
+			lh.GetMap()->worldlights[iLight].shadow_cast_offset = lh.GetMap()->worldlights[iLight].origin;
+			memcpy( (byte*)&lh.GetMap()->worldlights[iLight] + sizeof( Vector ) * 4, lh.LumpBase() + iLight * ( sizeof( dworldlight_t ) - sizeof( Vector ) ) + sizeof( Vector ) * 3, sizeof( dworldlight_t ) - sizeof( Vector ) * 4 );
+		}
+	}
+	else
+	{
+		lh.GetMap()->numworldlights = lh.LumpSize() / sizeof( dworldlight_t );
+		lh.GetMap()->worldlights = ( dworldlight_t* )Hunk_AllocName( lh.LumpSize(), va( "%s [%s]", lh.GetLoadName(), "worldlights" ) );
+		memcpy ( lh.GetMap()->worldlights, lh.LumpBase(), lh.LumpSize() );
+	}
+	
 #if !defined( SWDS )
 	if ( r_lightcache_zbuffercache.GetInt() )
 	{

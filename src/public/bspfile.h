@@ -22,7 +22,7 @@
 
 // MINBSPVERSION is the minimum acceptable version.  The engine will load MINBSPVERSION through BSPVERSION
 #define MINBSPVERSION 19
-#define BSPVERSION 20
+#define BSPVERSION 21
 
 
 // This needs to match the value in gl_lightmap.h
@@ -370,6 +370,13 @@ enum
 #define	HEADER_LUMPS		64
 
 #include "zip_uncompressed.h"
+
+struct l4d2_lump_t
+{
+	int	version;
+	int		fileofs, filelen;
+	char	fourCC[4];
+};
 
 struct lump_t
 {
@@ -968,6 +975,7 @@ struct dworldlight_t
 	Vector		origin;
 	Vector		intensity;
 	Vector		normal;			// for surfaces and spotlights
+	Vector		shadow_cast_offset;
 	int			cluster;
 	emittype_t	type;
     int			style;
