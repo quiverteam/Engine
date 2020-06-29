@@ -798,7 +798,7 @@ int CVPKFile::ReadFromPack( int nIndex, void* buffer, int nDestBytes, int nBytes
 		FILE* vpk = (m_bVolumes) ? m_hArchiveHandles[m_pFileEntries[nIndex]->entry.ArchiveIndex] : m_hPackFileHandle;
 
 		m_mutex.Lock(); // We should only need to lock when doing filesystem operations
-		m_fs->FS_fseek( vpk, m_nBaseOffset + m_pFileEntries[nIndex]->entry.EntryOffset, SEEK_SET );
+		m_fs->FS_fseek( vpk, m_nBaseOffset + nOffset, SEEK_SET );
 		nBytesRead += m_fs->FS_fread( (byte*)buffer + nBytesRead, nDestBytes - nBytesRead, nBytes - nBytesRead, vpk );
 		m_mutex.Unlock();
 
