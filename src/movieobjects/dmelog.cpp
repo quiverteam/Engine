@@ -3420,13 +3420,13 @@ static void SpewKey( const T& val )
 }
 
 template< >
-static void SpewKey( const Vector& val )
+void SpewKey( const Vector& val )
 {
 	Msg( "[%f %f %f]", val.x, val.y, val.z );
 }
 
 template< >
-static void SpewKey( const Quaternion& val )
+void SpewKey( const Quaternion& val )
 {
 	Msg( "[%f %f %f %f]", val.x, val.y, val.z, val.w );
 }
