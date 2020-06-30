@@ -4,7 +4,7 @@
 macro SRCDIR "../.."
 macro GAMENAME
 macro OUTBINNAME "gameui"
-macro OUTBINDIR "$SRCDIR/../game/$GAMENAME/bin/$PLATFORM"
+macro OUTBINDIR "$SRCDIR/../game/$GAMENAME/bin/$PLAT_DIR"
 
 include "$SRCDIR/_qpc_scripts/source_dll_base.qpc" [$WINDOWS || $LINUX]
 
@@ -42,7 +42,7 @@ configuration
 
 		precompiled_header "use"
 		precompiled_header_file "cbase.h"
-		precompiled_header_output_file "$(IntDir)/gameui.pch"
+		precompiled_header_output_file "$BUILD_DIR/gameui.pch"
 	}
 
 	linker

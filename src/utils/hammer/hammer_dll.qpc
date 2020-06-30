@@ -30,7 +30,7 @@ configuration
 		}
 
 		precompiled_header "use"
-		precompiled_header_output_file "$CONFIG/$PLATFORM/hammer.pch"
+		precompiled_header_output_file "$CONFIG/$PLAT_DIR/hammer.pch"
 
 		options
 		{
@@ -78,7 +78,7 @@ dependencies
 	"bitmap/bitmap.qpc"
 	"choreoobjects/choreoobjects.qpc"
 	"datamodel/datamodel.qpc"
-	"dme_controls/dme_controls.qpc"
+	"dme_controls"
 	"dmserializers/dmserializers.qpc"
 	"fgdlib/fgdlib.qpc"
 	"mathlib/mathlib.qpc"

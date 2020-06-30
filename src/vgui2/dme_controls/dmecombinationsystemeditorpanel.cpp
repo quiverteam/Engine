@@ -63,7 +63,7 @@ static void ImportCombinationControls( CDmeCombinationOperator *pDestComboOp, CD
 			nMatchCount += pFoundMatch[j];
 		}
 
-		bool bPartialMatch = ( nMatchCount != nRawControls );
+		//bool bPartialMatch = ( nMatchCount != nRawControls );
 
 		// Found a match! Let's create the control and potentially raw control
 		bool bIsStereo = pSrcComboOp->IsStereoControl( i );

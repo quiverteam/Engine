@@ -19,11 +19,6 @@ configuration
 		compiler "msvc_120" [$VS2013]
 		compiler "msvc_110" [$VS2012]
 		compiler "msvc_100" [$VS2010]
-		
-		options
-		{
-			"/ltcg" [$LTCG && $WIN32 && $RELEASE]
-		}
 	}
 
 	compiler
@@ -44,6 +39,7 @@ configuration
 		options
 		{
 			"/ignore:4316" "/ignore:4594" "/ignore:4457" "/ignore:4456" "/ignore:4458" "/ignore:4459" "/ignore:4624" "/ignore:4577" "/Gw" [$_MSC_VER >= 1800]
+			"/ignore:4100" // 'identifier' : unreferenced formal parameter
 			
 			"/arch:SSE" [$WIN32]
 			

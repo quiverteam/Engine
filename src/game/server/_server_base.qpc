@@ -2,7 +2,7 @@
 // Base Server Game Module Script
 // ---------------------------------------------------------------
 macro OUTBINNAME "server"
-macro OUTBINDIR "$SRCDIR/../game/$GAMENAME/bin/$PLATFORM"
+macro OUTBINDIR "$SRCDIR/../game/$GAMENAME/bin/$PLAT_DIR"
 macro GAMENAME
 
 include "$SRCDIR/_qpc_scripts/source_dll_base.qpc"

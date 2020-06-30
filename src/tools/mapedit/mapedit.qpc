@@ -24,9 +24,6 @@ configuration
 		{
 			"SAMPLETOOL_EXPORTS"
 		}
-
-		precompiled_header "use"
-		precompiled_header_file "cbase.h"
 	}
 }
 
@@ -36,21 +33,10 @@ files
 	{
 		"mapedit.cpp"
 		"menus.cpp"
-		"cbase.cpp"
-		{
-			configuration
-			{
-				compiler
-				{
-					precompiled_header "create"
-				}
-			}
-		}
 	}
 
 	folder "Header Files"
 	{
-		"cbase.h"
 		"menus.h"
 	}
 }

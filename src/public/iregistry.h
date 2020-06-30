@@ -19,6 +19,8 @@
 abstract_class IRegistry
 {
 public:
+	virtual ~IRegistry() = default;
+
 	// Init/shutdown
 	virtual bool			Init( const char *platformName ) = 0;
 	virtual void			Shutdown( void ) = 0;

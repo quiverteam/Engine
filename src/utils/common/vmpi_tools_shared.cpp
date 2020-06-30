@@ -290,7 +290,7 @@ void VMPI_ExceptionFilter( unsigned long uCode, void *pvExceptionInfo )
 	#define ERR_RECORD( name ) { name, #name }
 	struct
 	{
-		int code;
+		unsigned long code;
 		char *pReason;
 	} errors[] =
 	{
@@ -317,8 +317,8 @@ void VMPI_ExceptionFilter( unsigned long uCode, void *pvExceptionInfo )
 		ERR_RECORD( EXCEPTION_ACCESS_VIOLATION ),
 	};
 
-	int nErrors = sizeof( errors ) / sizeof( errors[0] );
-	int i=0;
+	size_t nErrors = sizeof( errors ) / sizeof( errors[0] );
+	size_t i=0;
 	char *pchReason = NULL;
 	char chUnknownBuffer[32];
 	for ( i; ( i < nErrors ) && !pchReason; i++ )

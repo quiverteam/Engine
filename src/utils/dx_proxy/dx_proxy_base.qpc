@@ -6,7 +6,7 @@ macro PROJECT_NAME "DX_Proxy ($DX_SDK_VER)"
 macro SRCDIR
 macro OUTBINDIR
 macro DX_SDK_VER
-macro OUTBINDIR "$OUTBINDIR/$PLATFORM"
+macro OUTBINDIR "$OUTBINDIR/$PLAT_DIR"
 macro OUTBINNAME "dx_proxy"
 
 include "$SRCDIR/_qpc_scripts/source_dll_base.qpc"
@@ -15,8 +15,8 @@ configuration
 {
 	general
 	{
-		out_dir "./$CONFIG/$PLATFORM/$DX_SDK_VER"
-		int_dir "./$CONFIG/$PLATFORM/$DX_SDK_VER"
+		out_dir "./$CONFIG/$PLAT_DIR/$DX_SDK_VER"
+		int_dir "./$CONFIG/$PLAT_DIR/$DX_SDK_VER"
 	}
 
 	compiler

@@ -35,7 +35,7 @@ configuration
 		}
 
 		precompiled_header "none"
-		precompiled_header_output_file "$(IntDir)/speex.pch"
+		precompiled_header_output_file "$BUILD_DIR/speex.pch"
 	}
 
 	linker

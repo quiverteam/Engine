@@ -247,6 +247,7 @@ struct VPKFileEntry_t
 	char szFullFilePath[ MAX_FILEPATH ]; // Fully formed path of file inside VPK
 	char *pszFileExtension = nullptr; // File extension
 	int index; // Index into CVPKFile's CUtlVector of VPKFileEntry_t*
+	CUtlMemory< byte > PreloadData;
 };
 
 class CVPKFile : public CPackFile

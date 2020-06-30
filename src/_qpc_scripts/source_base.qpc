@@ -1,8 +1,6 @@
 // ---------------------------------------------------------------
 // Base file included in all projects
 // ---------------------------------------------------------------
-macro CONFIG	"$QPC_CONFIG"
-
 macro WIN32		"1"		[$WINDOWS && $I386]
 macro WIN64		"1"		[$WINDOWS && $AMD64]
 
@@ -12,18 +10,21 @@ macro LINUX64	"1"		[$LINUX && $AMD64]
 macro 32BITS	"1"		[$I386 || $ARM]
 macro 64BITS	"1"		[$AMD64 || $ARM64]
 
-macro PLATFORM	"win32"		[$WIN32]
-macro PLATFORM	"win64"		[$WIN64]
-macro PLATFORM	"linux32"	[$LINUX32]
-macro PLATFORM	"linux64"	[$LINUX64]
-macro PLATFORM	"macos"		[$MACOS]
+macro PLAT_DIR	"win32"		[$WIN32]
+macro PLAT_DIR	"win64"		[$WIN64]
+macro PLAT_DIR	"linux32"	[$LINUX32]
+macro PLAT_DIR	"linux64"	[$LINUX64]
+macro PLAT_DIR	"macos"		[$MACOS]
 
-macro LIBPUBLIC	"$SRCDIR/lib/public/$PLATFORM"
-macro LIBCOMMON	"$SRCDIR/lib/common/$PLATFORM"
+macro LIBPUBLIC	"$SRCDIR/lib/public/$PLAT_DIR"
+macro LIBCOMMON	"$SRCDIR/lib/common/$PLAT_DIR"
 
 macro GAMENAME
-macro _SUBDIRSUFFIX		"$PLATFORM/$GAMENAME"
+macro _SUBDIRSUFFIX		"$PLAT_DIR/$GAMENAME"
 macro BINDEFAULT		"$SRCDIR/../game/bin/$_SUBDIRSUFFIX"
+
+macro OUT_DIR           "$CONFIG/$_SUBDIRSUFFIX"    [!$OUT_DIR]
+macro BUILD_DIR         "$CONFIG/$_SUBDIRSUFFIX"    [!$BUILD_DIR]
 
 include "$SRCDIR/_qpc_scripts/win/base_vstudio.qpc"	[$WINDOWS]
 include "$SRCDIR/_qpc_scripts/posix_base.qpc"		[$POSIX]

@@ -41,7 +41,7 @@ files
 						"_USRDLL"
 						"DATAMODEL_LIB"
 						"_WIN32"
-						"$(NoInherit)"
+						"$(NoInherit)" [$VISUAL_STUDIO]
 					}
 				}
 			}

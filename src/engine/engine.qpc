@@ -102,7 +102,7 @@ files
 				{
 					precompiled_header "create"
 					precompiled_header_file "client_pch.h"
-					precompiled_header_output_file "$(IntDir)/client_pch.pch"
+					precompiled_header_output_file "$BUILD_DIR/client_pch.pch"
 				}
 			}
 		}
@@ -152,7 +152,7 @@ files
 				{
 					precompiled_header "use"
 					precompiled_header_file "client_pch.h"
-					precompiled_header_output_file "$(IntDir)/client_pch.pch"
+					precompiled_header_output_file "$BUILD_DIR/client_pch.pch"
 				}
 			}
 		}
@@ -165,7 +165,7 @@ files
 				{
 					precompiled_header "create"
 					precompiled_header_file "render_pch.h"
-					precompiled_header_output_file "$(IntDir)/render_pch.pch"
+					precompiled_header_output_file "$BUILD_DIR/render_pch.pch"
 				}
 			}
 		}
@@ -203,7 +203,7 @@ files
 				{
 					precompiled_header "use"
 					precompiled_header_file "render_pch.h"
-					precompiled_header_output_file "$(IntDir)/render_pch.pch"
+					precompiled_header_output_file "$BUILD_DIR/render_pch.pch"
 				}
 			}
 		}
@@ -219,7 +219,7 @@ files
 				{
 					precompiled_header "create"
 					precompiled_header_file "server_pch.h"
-					precompiled_header_output_file "$(IntDir)/server_pch.pch"
+					precompiled_header_output_file "$BUILD_DIR/server_pch.pch"
 				}
 			}
 		}
@@ -250,7 +250,7 @@ files
 				{
 					precompiled_header "use"
 					precompiled_header_file "server_pch.h"
-					precompiled_header_output_file "$(IntDir)/server_pch.pch"
+					precompiled_header_output_file "$BUILD_DIR/server_pch.pch"
 				}
 			}
 		}
@@ -422,7 +422,7 @@ files
 				{
 					precompiled_header "create"
 					precompiled_header_file "audio_pch.h"
-					precompiled_header_output_file "$(IntDir)/audio_pch.pch"
+					precompiled_header_output_file "$BUILD_DIR/audio_pch.pch"
 				}
 			}
 		}
@@ -447,7 +447,7 @@ files
 				{
 					precompiled_header "use"
 					precompiled_header_file "audio_pch.h"
-					precompiled_header_output_file "$(IntDir)/audio_pch.pch"
+					precompiled_header_output_file "$BUILD_DIR/audio_pch.pch"
 				}
 			}
 		}
@@ -468,7 +468,7 @@ files
 				{
 					precompiled_header "use"
 					precompiled_header_file "audio_pch.h"
-					precompiled_header_output_file "$(IntDir)/audio_pch.pch"
+					precompiled_header_output_file "$BUILD_DIR/audio_pch.pch"
 				}
 			}
 		}
@@ -482,7 +482,7 @@ files
 				{
 					precompiled_header "use"
 					precompiled_header_file "audio_pch.h"
-					precompiled_header_output_file "$(IntDir)/audio_pch.pch"
+					precompiled_header_output_file "$BUILD_DIR/audio_pch.pch"
 				}
 			}
 		}
@@ -555,7 +555,7 @@ files
 				{
 					precompiled_header "use"
 					precompiled_header_file "client_pch.h"
-					precompiled_header_output_file "$(IntDir)/client_pch.pch"
+					precompiled_header_output_file "$BUILD_DIR/client_pch.pch"
 				}
 			}
 		}

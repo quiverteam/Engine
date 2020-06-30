@@ -420,7 +420,7 @@ void MdlExceptionFilter( unsigned long code )
 	#define ERR_RECORD( name ) { name, #name }
 	struct
 	{
-		int code;
+		unsigned long code;
 		char *pReason;
 	} errors[] =
 	{
@@ -447,9 +447,9 @@ void MdlExceptionFilter( unsigned long code )
 		ERR_RECORD( EXCEPTION_ACCESS_VIOLATION ),
 	};
 
-	int nErrors = sizeof( errors ) / sizeof( errors[0] );
+	size_t nErrors = sizeof( errors ) / sizeof( errors[0] );
 	{
-		int i;
+		size_t i;
 		for ( i=0; i < nErrors; i++ )
 		{
 			if ( errors[i].code == code )

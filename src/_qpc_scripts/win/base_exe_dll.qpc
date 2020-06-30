@@ -5,8 +5,8 @@ configuration
 {	
 	linker
 	{
-		output_file "$(OutDir)/$OUTBINNAME"
-		debug_file "$(IntDir)/$(TargetName)"
+		output_file "$OUT_DIR/$OUTBINNAME"
+		debug_file "$BUILD_DIR/$OUTBINNAME"
 		
 		libraries
 		{

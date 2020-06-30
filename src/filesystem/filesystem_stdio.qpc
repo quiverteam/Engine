@@ -13,7 +13,7 @@ configuration
 {
 	general
 	{
-		int_dir "$CONFIG/$PLATFORM/Stdio"
+		int_dir "$CONFIG/$PLAT_DIR/Stdio"
 	}
 
 	compiler

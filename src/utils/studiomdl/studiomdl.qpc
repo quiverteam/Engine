@@ -52,7 +52,7 @@ dependencies
 	"dmserializers"
 	"mathlib"
 	"movieobjects"
-	"nvtristrip"
+	"nvtristriplib"
 	"tier2"
 	"tier3"
 }
