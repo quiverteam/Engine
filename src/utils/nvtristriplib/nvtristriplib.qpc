@@ -9,6 +9,14 @@ macro OUTLIBNAME "nvtristrip"
 
 include "$SRCDIR/_qpc_scripts/source_lib_base.qpc"
 
+configuration
+{
+	general
+	{
+		out_name "nvtristrip"
+	}
+}
+
 files
 {
 	folder "Source Files"

@@ -19,6 +19,6 @@ configuration
 	
 	linker
 	{
-		output_file "$OUTLIBDIR/$OUTLIBNAME"
+		output_file "$OUTLIBDIR/$OUTLIBNAME" [!$VISUAL_STUDIO]
 	}
 }

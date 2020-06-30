@@ -16,4 +16,9 @@ configuration
 			"$SRCDIR\lib\public\ftol3.obj" [$VS2013 && !$DISABLE_FTOL3_OVERRIDE && !$SOURCESDK]
 		}
 	}
+
+	post_build
+	{
+		"copy_file" "\"$(OutDir)$(TargetName)$(TargetExt)\"" "\"$OUTBINDIR/$OUTBINNAME$_APP_EXT\"" [$VISUAL_STUDIO]
+	}
 }
