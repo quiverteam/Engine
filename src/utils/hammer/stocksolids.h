@@ -39,7 +39,7 @@ class StockSolid
 
 		virtual void CreateMapSolid(CMapSolid *pSolid, TextureAlignment_t eAlignment) = 0;
 
-		~StockSolid();
+		virtual ~StockSolid();
 
 	protected:
 		StockSolid(int nFields);

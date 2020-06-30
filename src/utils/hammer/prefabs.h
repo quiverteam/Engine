@@ -130,7 +130,7 @@ class CPrefabLibrary
 {
 public:
 	CPrefabLibrary();
-	~CPrefabLibrary();
+	virtual ~CPrefabLibrary();
 
 	virtual int Load(LPCTSTR pszFilename) = 0;
 	virtual bool DeleteFile(void) = 0;

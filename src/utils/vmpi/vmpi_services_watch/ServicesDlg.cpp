@@ -1024,7 +1024,7 @@ void CServicesDlg::OnDblclkServicesList(NMHDR* pNMHDR, LRESULT* pResult)
 			{
 				// Launch vmpi_browser_job_search and have it auto-select this worker.
 				char cmdLine[1024];
-				Q_snprintf( cmdLine, sizeof( cmdLine ), "vmpi_job_search -SelectWorker %s", pInfo->m_ComputerName );
+				Q_snprintf( cmdLine, sizeof( cmdLine ), "vmpi_job_search -SelectWorker %s", pInfo->m_ComputerName.GetString() );
 
 				STARTUPINFO si;
 				memset( &si, 0, sizeof( si ) );

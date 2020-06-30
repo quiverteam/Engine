@@ -1423,7 +1423,7 @@ void CSceneViewerPanel::OnNew()
 //-----------------------------------------------------------------------------
 void CSceneViewerPanel::OnOpen()
 {
-	int nFlags = 0;
+	//int nFlags = 0;
 	const char *pFileName = NULL;
 	if ( m_pRoot )
 	{

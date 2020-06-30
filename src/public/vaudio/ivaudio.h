@@ -27,6 +27,8 @@ public:
 class IAudioStream
 {
 public:
+	virtual ~IAudioStream() = default;
+
 	// Decode another bufferSize output bytes from the stream
 	// returns number of bytes decoded
 	virtual int	Decode( void *pBuffer, unsigned int bufferSize ) = 0;

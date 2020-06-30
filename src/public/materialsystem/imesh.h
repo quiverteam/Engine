@@ -246,6 +246,8 @@ inline CPrimList::CPrimList( int nFirstIndex, int nIndexCount )
 abstract_class IVertexBuffer
 {
 public:
+	virtual ~IVertexBuffer() = default;
+
 	// NOTE: The following two methods are only valid for static vertex buffers
 	// Returns the number of vertices and the format of the vertex buffer
 	virtual int VertexCount() const = 0;
@@ -275,6 +277,8 @@ public:
 abstract_class IIndexBuffer
 {
 public:
+	virtual ~IIndexBuffer() = default;
+
 	// NOTE: The following two methods are only valid for static index buffers
 	// Returns the number of indices and the format of the index buffer
 	virtual int IndexCount() const = 0;
