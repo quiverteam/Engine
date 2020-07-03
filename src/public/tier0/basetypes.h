@@ -17,34 +17,6 @@
 #pragma once
 #endif
 
-#ifdef _WIN32
-	#define EXE_EXT_STRING ".exe"
-
-	#ifdef _WIN64
-		#define PLATFORM_SUBDIR "win64"
-	#else
-		#define PLATFORM_SUBDIR "win32"
-	#endif
-#elif _LINUX
-	#define EXE_EXT_STRING
-
-	#if _LINUX64
-		#define PLATFORM_SUBDIR "linux64"
-	#else
-		#define PLATFORM_SUBDIR "linux32"
-	#endif
-#elif OSX
-	#define EXE_EXT_STRING ".app"
-	
-	// TODO: Remove osx32 and rename osx64 to macos
-	// macOS does not support x86 anymore, only x64 now
-	#if OSX64
-		#define PLATFORM_SUBDIR "osx64"
-	#else
-		#define PLATFORM_SUBDIR "osx32"
-	#endif
-#endif
-
 // This is a trick to get the DLL extension off the -D option on the command line.
 #define DLLExtTokenPaste(x) #x
 #define DLLExtTokenPaste2(x) DLLExtTokenPaste(x)

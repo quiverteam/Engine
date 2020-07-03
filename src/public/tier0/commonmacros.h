@@ -152,20 +152,31 @@ char (*RtlpNumberOf( UNALIGNED T (&)[N] ))[N];
 #define ARRAYSIZE(A)    RTL_NUMBER_OF_V2(A)
 #define _ARRAYSIZE(A)   RTL_NUMBER_OF_V1(A)
 
-// TODO: Remove osx32 and rename osx64 to macos
-// macOS does not support x86 anymore, only x64 now
-#if defined(WIN32)
-#define PLATFORM_SUBDIR "win32"
-#elif defined(WIN64)
-#define PLATFORM_SUBDIR "win64"
-#elif defined(LINUX32)
-#define PLATFORM_SUBDIR "linux32"
-#elif defined(LINUX64)
-#define PLATFORM_SUBDIR "linux64"
-#elif defined(OSX32)
-#define PLATFORM_SUBDIR "osx32"
-#elif defined(OSX64)
-#define PLATFORM_SUBDIR "osx64"
+// FIX ME: move to a different, more proper header
+#ifdef _WIN32
+	#define EXE_EXT_STRING ".exe"
+
+	#ifdef _WIN64
+		#define PLATFORM_SUBDIR "win64"
+	#else
+		#define PLATFORM_SUBDIR "win32"
+	#endif
+#elif _LINUX
+	#define EXE_EXT_STRING
+
+	#if _LINUX64
+		#define PLATFORM_SUBDIR "linux64"
+	#else
+		#define PLATFORM_SUBDIR "linux32"
+	#endif
+#elif OSX
+	#define EXE_EXT_STRING ".app"
+	
+	#if OSX64
+		#define PLATFORM_SUBDIR "osx64"
+	#else
+		#define PLATFORM_SUBDIR "osx32"
+	#endif
 #endif
 
 #define Q_ARRAYSIZE(p)		ARRAYSIZE(p)
