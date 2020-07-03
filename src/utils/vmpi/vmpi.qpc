@@ -18,6 +18,11 @@ configuration
 			"zlib"
 			"."
 		}
+		
+		library_directories
+		{
+			"$SRCDIR/utils/vmpi"
+		}
 	}
 
 	compiler
@@ -33,7 +38,7 @@ configuration
 	{
 		libraries
 		{
-			"ZLib"
+			"$SRCDIR/utils/vmpi/ZLib"
 		}
 	}
 }

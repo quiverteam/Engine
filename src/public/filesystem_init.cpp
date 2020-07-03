@@ -547,7 +547,7 @@ FSReturnCode_t FileSystem_LoadSearchPaths( CFSSearchPathsInit &initInfo )
 	// TODO: only create these paths if they don't exist already in the gameinfo
 	// sounds like a job for Msal
 	char gameBin[MAX_PATH];
-	sprintf(gameBin, "%s/bin/%s", initInfo.m_ModPath, PLATFORM_SUBDIR, DLL_EXT_STRING); // we should only do this when a gamebin is specified
+	sprintf(gameBin, "%s/bin/%s", initInfo.m_ModPath, PLATFORM_SUBDIR); // we should only do this when a gamebin is specified
 	FileSystem_AddLoadedSearchPath(initInfo, "gamebin", gameBin, bLowViolence);
 
 	char download[MAX_PATH];
@@ -561,7 +561,7 @@ FSReturnCode_t FileSystem_LoadSearchPaths( CFSSearchPathsInit &initInfo )
 
 	char baseBin[MAX_PATH];
 	FileSystem_GetBaseDir(baseBin, MAX_PATH);
-	V_strcat(baseBin, "/bin", sizeof("/bin"));
+	V_strncat(baseBin, "/bin", sizeof(baseBin));
 	FileSystem_AddLoadedSearchPath(initInfo, "basebin", baseBin, bLowViolence);
 
 	for ( KeyValues *pCur=pSearchPaths->GetFirstValue(); pCur; pCur=pCur->GetNextValue() )
@@ -1227,7 +1227,7 @@ void FileSystem_AddSearchPath_Core( IFileSystem *pFileSystem, const char *szGame
 	char core[MAX_PATH];
 	Q_strncpy( core, szGameInfoPath, MAX_PATH );
 	V_StripFilename( core );
-	Q_strncat( core, "core", MAX_PATH, MAX_PATH );
+	Q_strncat( core, CORRECT_PATH_SEPARATOR_S "core", MAX_PATH, MAX_PATH );
 
 	pFileSystem->AddSearchPath( core, "CORE" );
 }

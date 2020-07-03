@@ -107,8 +107,8 @@ class CTextAttributes
 		{
 			CString s;
 			s.Format("\\plain%s%s%s%s\\f%d\\fs%d\\cb%d\\cf%d ",
-					(CString)m_bsBold,
-					(CString)m_bsUnderline, (CString)m_bsItalic, (CString)m_bsStrike,
+					((CString)m_bsBold).GetString(),
+					((CString)m_bsUnderline).GetString(), ((CString)m_bsItalic).GetString(), ((CString)m_bsStrike).GetString(),
 					m_nFontNumber ,
 					m_nFontSize ,
 					m_nColorBground,
@@ -134,7 +134,7 @@ class CFontList : public list<CString>
 			for (const_iterator i = begin(); i!=end(); i++)
 			{
 				CString s2;
-				s2.Format("{\\f%d %s;}", nCount++, (*i));
+				s2.Format("{\\f%d %s;}", nCount++, (*i).GetString());
 				s+=s2;
 			}
 

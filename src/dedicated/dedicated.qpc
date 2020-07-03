@@ -104,6 +104,7 @@ files
 			"$SRCDIR/filesystem/filesystem_async.cpp"
 			"$SRCDIR/filesystem/filesystem_stdio.cpp"
 			"$SRCDIR/filesystem/filesystem_steam.cpp"
+			"$SRCDIR/filesystem/packfile.cpp"
 			"$SRCDIR/public/zip_utils.cpp"
 		}
 	}

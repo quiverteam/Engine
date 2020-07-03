@@ -147,7 +147,7 @@ void CSteam3::Activate()
 		NET_StringToAdr( ipname.GetString(), &ipaddr );
 		if ( !ipaddr.IsLoopback() && !ipaddr.IsLocalhost() )
 		{
-			m_unIP = ipaddr.GetIPNetworkByteOrder();
+			m_unIP = ipaddr.GetIPHostByteOrder();
 		}
 	}
 
@@ -188,7 +188,7 @@ void CSteam3::Activate()
 			m_unIP, 
 			m_usPort+1,	// Steam lives on -steamport + 1, master server updater lives on -steamport.
 			usGamePort, 
-			usSpectatorPort, 
+			usMasterServerUpdaterPort, 
 			m_eServerMode, 
 			gpszVersionString ) )
 	{
@@ -200,6 +200,10 @@ void CSteam3::Activate()
 		sv_lan.SetValue( true );
 		return;
 	}
+	SteamGameServer()->SetDedicatedServer( NET_IsDedicated() );
+	SteamGameServer()->SetGameDescription( "Quiver" );
+	SteamGameServer()->SetModDir( COM_GetModDirectory() );
+	SteamGameServer()->LogOnAnonymous();
 #endif
 	SendUpdatedServerDetails();
 }
@@ -346,6 +350,14 @@ void CSteam3::OnLogonSuccess( SteamServersConnected_t *pLogonSuccess )
 			Msg( "Connection to Steam servers successful.\n" );
 		}
 	}
+	else
+	{
+		if ( !BLanOnly() )
+		{
+			Msg( "Connection to Steam servers re-established.\n" );
+		}
+	}
+
 	if ( SteamGameServer() )
 	{
 		m_SteamIDGS = SteamGameServer()->GetSteamID();
@@ -402,6 +414,11 @@ void CSteam3::OnLogonFailure( SteamServerConnectFailure_t *pLogonFailure )
 //-----------------------------------------------------------------------------
 void CSteam3::OnLoggedOff( SteamServersDisconnected_t *pLoggedOff )
 {
+	if ( !BIsActive() )
+		return;
+
+	if ( !BLanOnly() && ( pLoggedOff->m_eResult == k_EResultNoConnection ) )
+		Msg( "Lost connection to Steam servers.\n" );
 }
 
 
@@ -571,7 +588,7 @@ CBaseClient *CSteam3::ClientFindFromSteamID( CSteamID & steamIDFind )
 //-----------------------------------------------------------------------------
 // Purpose: tell Steam that a new user connected
 //-----------------------------------------------------------------------------
-bool CSteam3::NotifyClientConnect( CBaseClient *client, uint32 unUserID, netadr_t & adr, const void *pvCookie, uint32 ucbCookie )
+bool CSteam3::NotifyClientConnect( CBaseClient *client, netadr_t & adr, const void *pvCookie, uint32 ucbCookie )
 {
 	if ( !BIsActive() ) 
 		return true;
@@ -579,9 +596,12 @@ bool CSteam3::NotifyClientConnect( CBaseClient *client, uint32 unUserID, netadr_
 	if ( !client || client->IsFakeClient() )
 		return false;
 #ifndef NO_STEAM
-	// Msg("S3: Sending client logon request for %x\n", steamIDClient.ConvertToUint64( ) );
-//	bool bRet = SteamGameServer()->GSSendUserConnect( unUserID, htonl( adr.GetIP() ), htons( adr.GetPort() ), pvCookie, ucbCookie );
-	bool bRet = true;
+	bool bRet = false;
+	if ( SteamGameServer()->BeginAuthSession( pvCookie, ucbCookie, *client->m_SteamID ) == k_EBeginAuthSessionResultOK )
+	{
+		client->SetFullyAuthenticated();
+		bRet = true;
+	}
 #else
 	bool bRet = false;
 #endif
@@ -626,12 +646,8 @@ void CSteam3::NotifyClientDisconnect( CBaseClient *client )
 	}
 	else
 	{
-		USERID_t id = client->GetNetworkID();
-		if ( id.idtype != IDTYPE_STEAM )
-			return;
 #ifndef NO_STEAM
-		// Msg("S3: Sending client disconnect for %x\n", steamIDClient.ConvertToUint64( ) );
-		SteamGameServer()->SendUserDisconnect( id.steamid );
+		SteamGameServer()->EndAuthSession( *client->m_SteamID );
 #endif
 	}
 }

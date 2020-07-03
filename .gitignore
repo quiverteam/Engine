@@ -133,6 +133,7 @@ modeswitchsave.tga
 /game/ep2
 /game/episodic
 /game/hl2
+/game/hl2mp
 
 # --------------------------------------------
 # General
@@ -179,3 +180,4 @@ src/\.idea/
 .clang_complete
 .clangd
 compile_commands.json
+game/bin/win32/hlmv.rf

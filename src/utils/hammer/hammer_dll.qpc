@@ -30,7 +30,7 @@ configuration
 		}
 
 		precompiled_header "use"
-		precompiled_header_output_file "$CONFIG/$PLATFORM/hammer.pch"
+		precompiled_header_output_file "$CONFIG/$PLAT_DIR/hammer.pch"
 
 		options
 		{

@@ -17,21 +17,4 @@ configuration
 	}
 }
 
-/*files
-{
-	folder "Source Files"
-	{
-		"$SRCDIR/common/debug_dll_check.cpp" [!$SOURCESDK]
-		{
-			configuration
-			{
-				compiler
-				{
-					precompiled_header "none"
-				}
-			}
-		}
-	}
-}*/
-
 

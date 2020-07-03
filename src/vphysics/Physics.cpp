@@ -6,6 +6,7 @@
 #include "Physics_Environment.h"
 #include "Physics_ObjectPairHash.h"
 #include "Physics_CollisionSet.h"
+#include "Physics_Object.h"
 
 // memdbgon must be the last include file in a .cpp file!!!
 #include "tier0/memdbgon.h"
@@ -14,12 +15,12 @@ ConVar vphysics_bulletdebugoutput("vphysics_bulletdebugoutput", "0", FCVAR_ARCHI
 
 void btDebugMessage(const char *str) {
 	if (vphysics_bulletdebugoutput.GetBool()) {
-		Msg("%s", str);
+		Msg("[bullet-vphysics] %s", str);
 	}
 }
 
 void btDebugWarning(const char *str) {
-	Warning("%s", str);
+	Warning("[bullet-vphysics] %s", str);
 }
 
 /******************
@@ -38,6 +39,8 @@ CPhysics::~CPhysics() {
 InitReturnVal_t CPhysics::Init() {
 	InitReturnVal_t nRetVal = BaseClass::Init();
 	if (nRetVal != INIT_OK) return nRetVal;
+
+	MathLib_Init();
 
 	// Hook up our debug output functions
 	btSetDbgMsgFn(btDebugMessage);
@@ -119,3 +122,36 @@ void CPhysics::DestroyAllCollisionSets() {
 CPhysics g_Physics;
 EXPOSE_SINGLE_INTERFACE_GLOBALVAR(CPhysics, IPhysics, VPHYSICS_INTERFACE_VERSION, g_Physics);
 EXPOSE_SINGLE_INTERFACE_GLOBALVAR(CPhysics, IPhysics32, "VPhysics032", g_Physics); // "Undocumented" way to determine if this is the newer vphysics or not.
+
+ConCommand vphysics_pause_simulation("vphysics_pause_simulation", []() -> void {
+	/* Loop through the active physics envs */
+	for (int i = 0; i < g_Physics.GetActiveEnvironmentCount(); i++)
+	{
+		IPhysicsEnvironment* env = g_Physics.GetActiveEnvironmentByIndex(i);
+		if (!env) continue;
+
+		((CPhysicsEnvironment*)env)->m_bPaused = true;
+	}
+}, "Pauses the physics simulation");
+
+ConCommand vphysics_unpause_simulation("vphysics_unpause_simulation", []() -> void {
+	/* Loop through the active physics envs */
+	for (int i = 0; i < g_Physics.GetActiveEnvironmentCount(); i++)
+	{
+		IPhysicsEnvironment* env = g_Physics.GetActiveEnvironmentByIndex(i);
+		if (!env) continue;
+
+		((CPhysicsEnvironment*)env)->m_bPaused = false;
+	}
+}, "Unpauses the physics simulation");
+
+ConCommand vphysics_step("vphysics_step", []() -> void {
+	int nPhysEnvs = g_Physics.GetActiveEnvironmentCount();
+	for (int i = 0; i < nPhysEnvs; i++)
+	{
+		IPhysicsEnvironment* env = g_Physics.GetActiveEnvironmentByIndex(i);
+		if (!env) continue;
+
+		((CPhysicsEnvironment*)env)->DoSimulationStep();
+	}
+}, "Performs a single physics sim step");

@@ -13,8 +13,8 @@ configuration
 {
 	general
 	{
-		out_dir "./$CONFIG/$PLATFORM/launcher"
-		int_dir "./$CONFIG/$PLATFORM/launcher"
+		out_dir "./$CONFIG/$PLAT_DIR/launcher"
+		int_dir "./$CONFIG/$PLAT_DIR/launcher"
 
 		include_directories
 		{

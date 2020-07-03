@@ -1481,7 +1481,7 @@ void CWorkerAccumState < TMutexType > ::PrepareSubProcess( SubProcess **ppSp, Su
 		pSp->dwSvcThreadId = ThreadGetCurrentId();
 
 		char chBaseNameBuffer[0x30];
-		sprintf( chBaseNameBuffer, "SHCMPL_SUB_%08X_%08X_%08X", pSp->dwSvcThreadId, time( NULL ), GetCurrentProcessId() );
+		sprintf( chBaseNameBuffer, "SHCMPL_SUB_%08X_%08llX_%08X", pSp->dwSvcThreadId, time( NULL ), GetCurrentProcessId() );
 		pCommObjs = pSp->pCommObjs = new SubProcessKernelObjects_Create( chBaseNameBuffer );
 
 		ZeroMemory( &pSp->pi, sizeof( pSp->pi ) );
@@ -1611,7 +1611,7 @@ void CWorkerAccumState < TMutexType > ::HandleCommandResponse( CfgProcessor::Com
 		char chUnreportedListing[0xFF];
 		if ( !szListing )
 		{
-			sprintf( chUnreportedListing, "(0): error 0000: Compiler failed without error description, latest version of fxc.exe might give a description.", chCommandNumber );
+			sprintf( chUnreportedListing, "(0): error 0000: Compiler failed without error description, latest version of fxc.exe might give a description." );
 			szListing = chUnreportedListing;
 		}
 

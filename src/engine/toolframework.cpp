@@ -587,12 +587,8 @@ void CToolFrameworkInternal::LoadTools()
 			if ( !Q_stricmp( tool->GetName(),  "library" ) )
 			{
 				char str[MAX_PATH];
-				V_strcpy(str, PLATFORM_SUBDIR);
-				V_strcpy(str, tool->GetString());
-			//	char *addString = "\\";
-			//	V_strncpy(newString, strcpy(addString, PLATFORM_SUBDIR), 0);
+				sprintf(str, "%s/%s", PLATFORM_SUBDIR, tool->GetString());
 				LoadToolsFromLibrary( str );
-				Error(str);
 			}
 		}
 

@@ -15,13 +15,15 @@ pool:
 
 
 steps:
-- task: PythonScript@0
-  displayName: Generate Projects
+- script: |
+    py -m pip install --upgrade pip
+    py -m pip install lxml
+  displayName: 'Install lxml'
+
+- task: CmdLine@2
   inputs:
-    scriptSource: 'filePath'
-    scriptPath: 'src/devtools/qpc/qpc.py'
+    script: 'py devtools/qpc/qpc.py -b "_qpc_scripts/_default.qpc_base" -a everything -r physics -m EPISODIC HL2 HL2MP -g visual_studio -mf everything'
     workingDirectory: 'src/'
-    arguments: '-a everything -m episodic hl2 hl2mp -t vstudio -mf everything'
     
 # no difference from MSBuild@1?
 - task: VSBuild@1
@@ -42,6 +44,24 @@ steps:
     replaceExistingArchive: true
 
 - task: GitHubRelease@0
+  condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/master'))
+  displayName: Release to GitHub
+  inputs:
+    gitHubConnection: 'quiverteam'
+    repositoryName: '$(Build.Repository.Name)'
+    action: 'create'
+    target: '$(Build.SourceVersion)'
+    tagSource: 'manual'
+    tag: 'auto_build_$(Build.BuildId)_$(Build.SourceBranchName)_$(Build.BuildNumber)'
+    # releaseNotesSource: 'input'
+    isPreRelease: false
+    releaseNotes: "Auto Build on $(Build.Repository.Name) branch"
+    title: 'Auto Build $(Build.BuildId) - $(Build.SourceBranchName) - $(Build.BuildNumber)'
+    assets: |
+      QuiverSource_$(Build.BuildId)_$(Build.SourceBranchName)_$(Build.BuildNumber).7z
+      
+- task: GitHubRelease@0
+  condition: and(succeeded(), ne(variables['Build.SourceBranch'], 'refs/heads/master'))
   displayName: Release to GitHub
   inputs:
     gitHubConnection: 'quiverteam'
@@ -56,4 +76,3 @@ steps:
     title: 'Auto Build $(Build.BuildId) - $(Build.SourceBranchName) - $(Build.BuildNumber)'
     assets: |
       QuiverSource_$(Build.BuildId)_$(Build.SourceBranchName)_$(Build.BuildNumber).7z
-

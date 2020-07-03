@@ -72,6 +72,7 @@ CPhysicsObject::CPhysicsObject() {
 	m_pName = "UNINITIALIZED";
 
 	m_bRemoving = false;
+	m_bWakeable = true;
 }
 
 CPhysicsObject::~CPhysicsObject() {
@@ -253,7 +254,7 @@ void CPhysicsObject::Wake() {
 	// Static objects can't wake!
 	if (IsStatic())
 		return;
-
+	if (!m_bWakeable) return; // We can't wake if the physics sim is paused
 	m_pObject->setDeactivationTime(0);
 	m_pObject->setActivationState(ACTIVE_TAG);
 }
@@ -1261,6 +1262,19 @@ void CPhysicsObject::TransferToEnvironment(CPhysicsEnvironment *pDest) {
 	m_pEnv = pDest;
 
 	m_pEnv->GetBulletEnvironment()->addRigidBody(m_pObject);
+}
+
+void CPhysicsObject::PauseSimulation()
+{
+	this->m_bWasAwake = !this->IsAsleep();
+	this->m_bWakeable = false;
+	this->Sleep();
+}
+
+void CPhysicsObject::UnpauseSimulation()
+{
+	this->m_bWakeable = true;
+	if (this->m_bWasAwake) this->Wake();
 }
 
 /************************

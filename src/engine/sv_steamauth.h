@@ -39,7 +39,7 @@ public:
 	void SendUpdatedServerDetails();
 	void Shutdown();
 
-	bool NotifyClientConnect( CBaseClient *client, uint32 unUserID, netadr_t & adr, const void *pvCookie, uint32 ucbCookie );
+	bool NotifyClientConnect( CBaseClient *client, netadr_t & adr, const void *pvCookie, uint32 ucbCookie );
 	bool NotifyLocalClientConnect( CBaseClient *client );	// Used for local player on listen server and bots.
 	void NotifyClientDisconnect( CBaseClient *client );
 

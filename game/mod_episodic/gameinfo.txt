@@ -1,0 +1,34 @@
+"GameInfo"
+{
+	game 		"HALF-LIFE 2"
+	title 		"HALF-LIFE'"
+	title2		"== episode two =="
+	type		singleplayer_only
+
+	FileSystem
+	{
+		SteamAppId				220	
+		SearchPaths
+		{
+			gamebin				|gameinfo_path|bin
+			game				|gameinfo_path|.
+            
+			game				mod_episodic/custom/*
+			game				ep2/custom/*
+			game				episodic/custom/*
+			game				hl2/custom/*
+            
+            game			    ep2/ep2_pak.vpk
+			game				episodic/ep1_pak.vpk
+            
+			game				hl2/hl2_sound_vo_english.vpk
+			game				hl2/hl2_pak.vpk
+			game				hl2/hl2_textures.vpk
+			game				hl2/hl2_sound_misc.vpk
+			game				hl2/hl2_misc.vpk
+			game				hl2
+            
+			core				core
+		}
+	}
+}

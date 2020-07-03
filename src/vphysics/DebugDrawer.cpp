@@ -16,8 +16,6 @@
 // memdbgon must be the last include file in a .cpp file!!!
 #include "tier0/memdbgon.h"
 
-#if DEBUG_DRAW
-
 // BUG: Debug draw causes memory leak in the server
 
 static ConVar cvar_renderoverlay("vphysics_renderoverlay", "0", FCVAR_CHEAT | FCVAR_ARCHIVE, "Render debug overlay");
@@ -232,4 +230,4 @@ void CDebugDrawer::DrawWorld() {
 #endif
 }
 
-#endif // DEBUG_DRAW
+

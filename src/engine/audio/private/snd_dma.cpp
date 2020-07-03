@@ -445,7 +445,7 @@ static ConCommand snd_mixvol("snd_mixvol", MXR_DebugSetMixGroupVolume, "Set name
 
 // vaudio DLL
 IVAudio *vaudio = NULL;
-CSysModule *g_pVAudioModule = NULL;
+CSysModule *g_pAudioModule = NULL;
 
 //-----------------------------------------------------------------------------
 // Resource loading for sound
@@ -651,9 +651,8 @@ void S_Init( void )
 
 	if ( IsPC() )
 	{
-		g_pFileSystem->GetLocalCopy( "mss32.dll" ); // vaudio_miles.dll will load this...
-		g_pVAudioModule = FileSystem_LoadModule( "vaudio_miles" );
-		CreateInterfaceFn vaudioFactory = Sys_GetFactory( g_pVAudioModule );
+		g_pAudioModule = FileSystem_LoadModule( "audio_minimp3" );
+		CreateInterfaceFn vaudioFactory = Sys_GetFactory( g_pAudioModule );
 		vaudio = (IVAudio *)vaudioFactory( VAUDIO_INTERFACE_VERSION, NULL );
 	}
 
@@ -741,8 +740,8 @@ void S_Shutdown(void)
 	if ( IsPC() )
 	{
 		// shutdown vaudio
-		FileSystem_UnloadModule( g_pVAudioModule );
-		g_pVAudioModule = NULL;
+		FileSystem_UnloadModule( g_pAudioModule );
+		g_pAudioModule = NULL;
 		vaudio = NULL;
 	}
 

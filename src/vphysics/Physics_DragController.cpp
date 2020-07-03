@@ -4,6 +4,8 @@
 #include "Physics_Object.h"
 #include "convert.h"
 
+#include <vprof.h>
+
 // memdbgon must be the last include file in a .cpp file!!!
 #include "tier0/memdbgon.h"
 
@@ -39,6 +41,7 @@ bool CPhysicsDragController::IsControlling(const CPhysicsObject *obj) const {
 }
 
 void CPhysicsDragController::Tick(btScalar dt) {
+	VPROF_BUDGET(__FUNCTION__, VPROF_BUDGETGROUP_PHYSICS);
 	for (int i = 0; i < m_ents.Count(); i++) {
 		CPhysicsObject *pObject = (CPhysicsObject *)m_ents[i];
 		btRigidBody *body = pObject->GetObject();

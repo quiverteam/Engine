@@ -1,28 +1,6 @@
 // ---------------------------------------------------------------
 // Base Dynamic Library - Posix
 // ---------------------------------------------------------------
-macro OUTBINNAME	"$SCRIPT_NAME"	[!$OUTBINNAME]
-macro OUTBINDIR		"$BINDEFAULT"	[!$OUTBINDIR]
 
 include "$SRCDIR/_qpc_scripts/posix_base.qpc"
 
-configuration
-{
-	general
-	{
-		configuration_type "dynamic_library"
-	}
-
-	compiler
-	{
-		preprocessor_definitions
-		{
-			"DLLNAME=$OUTBINNAME"
-		}
-	}
-
-	linker
-	{
-		// output_file "$(OBJ_DIR)/$OUTBINNAME$OUTDLLEXT"
-	}
-}

@@ -52,7 +52,7 @@ CSteam3Client::CSteam3Client()
 {
 	m_bActive = false;
 	m_bGSSecure = false;
-
+	m_hAuthTicket = NULL;
 }
 
 
@@ -98,16 +98,18 @@ void CSteam3Client::Activate()
 
 
 //-----------------------------------------------------------------------------
-// Purpose: Get the steam3 logon cookie to use
+// Purpose: Get the steam auth ticket
 //-----------------------------------------------------------------------------
-int CSteam3Client::InitiateConnection( void *pData, int cbMaxData, uint32 unIP, uint16 usPort, uint64 unGSSteamID, bool bSecure, void *pvSteam2GetEncryptionKey, int cbSteam2GetEncryptionKey )
+int CSteam3Client::InitiateConnection( void *pData, int cbMaxData, bool bSecure )
 {
 	m_bGSSecure = bSecure;
 #if !defined( NO_STEAM )
 	if ( !SteamUser() )
 		return 0;
 
-	return SteamUser()->InitiateGameConnection( pData, cbMaxData, unGSSteamID, ntohl( unIP ), usPort, bSecure ); // port is already in host order
+	uint32 pCbticket = 0;
+	m_hAuthTicket = SteamUser()->GetAuthSessionTicket( pData, cbMaxData, &pCbticket );
+	return pCbticket;
 #else
 	return 0;
 #endif
@@ -121,11 +123,15 @@ void CSteam3Client::TerminateConnection( uint32 unIP, uint16 usPort )
 {
 	m_bGSSecure = false;
 
-
 #if !defined( NO_STEAM )
 	if ( !SteamUser() )
 		return;
-	SteamUser()->TerminateGameConnection( ntohl( unIP ), usPort );
+
+	if ( !m_hAuthTicket )
+		return;
+
+	SteamUser()->CancelAuthTicket( m_hAuthTicket );
+	m_hAuthTicket = NULL;
 #endif
 }
 

@@ -12,11 +12,8 @@ configuration
 {
 	general
 	{
-		// out_name "$OUTBINNAME"	[$OUTBINNAME]
-		
-		// out_dir "./$OUTBINDIR"
-		out_dir "./$CONFIG/$_SUBDIRSUFFIX"
-		int_dir "./$CONFIG/$_SUBDIRSUFFIX"
+		out_dir     "$OUT_DIR"
+		build_dir   "$BUILD_DIR"
 		
 		configuration_type "application"
 

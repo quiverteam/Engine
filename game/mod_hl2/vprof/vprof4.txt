@@ -1,0 +1,37 @@
+******** BEGIN VPROF REPORT ********
+-- Summary --
+18085 frames sampled for 91.96 seconds
+Average 196.67 fps, 5.08 ms per frame
+Peak 194.11 ms frame
+99 pct of time accounted for
+
+-- Hierarchical Call Graph --
+       Sum (ms)         Avg Time/Frame (ms)     Avg Time/Call (ms)
+[ func+child   func ]  [ func+child   func ]  [ func+child   func ]  Count   Peak
+  ---------- ------      ---------- ------      ---------- ------   ------ ------
+
+-- Profile scopes sorted by time (including children) --
+  Scope                                                      Calls Calls/Frame  Time+Child    Pct        Time    Pct   Avg/Frame    Avg/Call Avg-NoChild        Peak
+  ---------------------------------------------------- ----------- ----------- ----------- ------ ----------- ------ ----------- ----------- ----------- -----------
+
+-- Profile scopes sorted by time (without children) --
+  Scope                                                      Calls Calls/Frame  Time+Child    Pct        Time    Pct   Avg/Frame    Avg/Call Avg-NoChild        Peak
+  ---------------------------------------------------- ----------- ----------- ----------- ------ ----------- ------ ----------- ----------- ----------- -----------
+
+-- Profile scopes sorted by average time (including children) --
+  Scope                                                      Calls Calls/Frame  Time+Child    Pct        Time    Pct   Avg/Frame    Avg/Call Avg-NoChild        Peak
+  ---------------------------------------------------- ----------- ----------- ----------- ------ ----------- ------ ----------- ----------- ----------- -----------
+
+-- Profile scopes sorted by average time (without children) --
+  Scope                                                      Calls Calls/Frame  Time+Child    Pct        Time    Pct   Avg/Frame    Avg/Call Avg-NoChild        Peak
+  ---------------------------------------------------- ----------- ----------- ----------- ------ ----------- ------ ----------- ----------- ----------- -----------
+
+-- Profile scopes sorted by peak --
+  Scope                                                      Calls Calls/Frame  Time+Child    Pct        Time    Pct   Avg/Frame    Avg/Call Avg-NoChild        Peak
+  ---------------------------------------------------- ----------- ----------- ----------- ------ ----------- ------ ----------- ----------- ----------- -----------
+
+-- Profile scopes sorted by peak over average (including children) --
+  Scope                                                      Calls Calls/Frame  Time+Child    Pct        Time    Pct   Avg/Frame    Avg/Call Avg-NoChild        Peak
+  ---------------------------------------------------- ----------- ----------- ----------- ------ ----------- ------ ----------- ----------- ----------- -----------
+
+******** END VPROF REPORT ********

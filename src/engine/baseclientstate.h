@@ -116,7 +116,7 @@ public:
 	virtual void Connect(const char* adr); // start a connection challenge
 	virtual bool SetSignonState ( int state, int count );
 	virtual void Disconnect( bool bShowMainMenu = true );
-	virtual void SendConnectPacket (int challengeNr, int authProtocol, int keySize, const char *encryptionKey, uint64 unGSSteamID, bool bGSSecure );
+	virtual void SendConnectPacket( int challengeNr, int authProtocol, bool bGSSecure );
 	virtual const char *GetCDKeyHash() { return "123"; }
 	virtual void RunFrame ( void );
 	virtual void CheckForResend ( void );
@@ -163,7 +163,7 @@ protected:
 	bool InternalProcessStringCmd( NET_StringCmd *msg, bool bIsHLTV );
 
 private:
-	bool PrepareSteamConnectResponse( int keySize, const char *encryptionKey, uint64 unGSSteamID, bool bGSSecure, const netadr_t &adr, bf_write &msg );
+	bool PrepareSteamConnectResponse( bool bGSSecure, bf_write &msg );
 
 public:
 	// Connection to server.			

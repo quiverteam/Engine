@@ -1,1 +1,3 @@
-python3 devtools/qpc/qpc.py -a everything -g makefile -p linux32 -m HL2 HL2MP EPISODIC -mf everything
+#!/bin/sh 
+python devtools/qpc/qpc.py -b "_qpc_scripts/_default.qpc_base" -a everything -g makefile -g compile_commands -m HL2 HL2MP EPISODIC -mf everything
+

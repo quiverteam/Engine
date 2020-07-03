@@ -4,6 +4,8 @@
 #include "Physics_Object.h"
 #include "convert.h"
 
+#include <vprof.h>
+
 // memdbgon must be the last include file in a .cpp file!!!
 #include "tier0/memdbgon.h"
 
@@ -30,6 +32,7 @@ CPhysicsMotionController::~CPhysicsMotionController() {
 }
 
 void CPhysicsMotionController::Tick(float deltaTime) {
+	VPROF_BUDGET(__FUNCTION__, VPROF_BUDGETGROUP_PHYSICS);
 	if (!m_handler) return;
 
 	for (int i = 0; i < m_objectList.Count(); i++) {

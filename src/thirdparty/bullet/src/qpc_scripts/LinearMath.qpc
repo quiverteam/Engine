@@ -1,0 +1,98 @@
+// ---------------------------------------------------------------
+// Auto Generated QPC Script - Fix if needed before using
+// ---------------------------------------------------------------
+macro PROJECT_NAME "LinearMath"
+
+macro SRCDIR "../../../.."
+macro OUTLIBDIR "$LIBCOMMON"
+macro BULLET_SRC "../LinearMath"
+
+include "$SRCDIR/_qpc_scripts/source_lib_base.qpc"
+
+configuration
+{
+	general
+	{
+		int_dir "./$CONFIG/$_SUBDIRSUFFIX/$PROJECT_NAME"
+		configuration_type "static_library"
+		
+		include_directories
+		{
+			"../"
+		}
+		
+		options
+		{
+			"/ltcg" [$RELEASE]
+		}
+	}
+	
+	compiler
+	{
+		preprocessor_definitions
+		{
+			"_DEBUG" [$DEBUG]
+			"NDEBUG" [$RELEASE]
+			"MBCS"
+			"WIN32"
+			"_CRT_SECURE_NO_WARNINGS"
+			"_CRT_SECURE_NO_DEPRECATE"
+			"_SCL_SECURE_NO_WARNINGS"
+		}
+		
+		options
+		{
+			"/d2Zi+" [$RELEASE]
+			"/W3"
+		}
+	}
+}
+
+files
+{
+	folder "Source Files"
+	{
+		"$BULLET_SRC/btAlignedAllocator.cpp"
+		"$BULLET_SRC/btConvexHull.cpp"
+		"$BULLET_SRC/btConvexHullComputer.cpp"
+		"$BULLET_SRC/btDebug.cpp"
+		"$BULLET_SRC/btGeometryUtil.cpp"
+		"$BULLET_SRC/btPolarDecomposition.cpp"
+		"$BULLET_SRC/btQuickprof.cpp"
+		"$BULLET_SRC/btSerializer.cpp"
+		"$BULLET_SRC/btVector3.cpp"
+	}
+
+	folder "Header Files"
+	{
+		"$BULLET_SRC/btAabbUtil2.h"
+		"$BULLET_SRC/btAlignedAllocator.h"
+		"$BULLET_SRC/btAlignedObjectArray.h"
+		"$BULLET_SRC/btConvexHull.h"
+		"$BULLET_SRC/btConvexHullComputer.h"
+		"$BULLET_SRC/btDebug.h"
+		"$BULLET_SRC/btDefaultMotionState.h"
+		"$BULLET_SRC/btDefines.h"
+		"$BULLET_SRC/btGeometryUtil.h"
+		"$BULLET_SRC/btGrahamScan2dConvexHull.h"
+		"$BULLET_SRC/btHashMap.h"
+		"$BULLET_SRC/btIDebugDraw.h"
+		"$BULLET_SRC/btList.h"
+		"$BULLET_SRC/btMatrix3x3.h"
+		"$BULLET_SRC/btMatrixX.h"
+		"$BULLET_SRC/btMinMax.h"
+		"$BULLET_SRC/btMotionState.h"
+		"$BULLET_SRC/btPolarDecomposition.h"
+		"$BULLET_SRC/btPoolAllocator.h"
+		"$BULLET_SRC/btQuadWord.h"
+		"$BULLET_SRC/btQuaternion.h"
+		"$BULLET_SRC/btQuickprof.h"
+		"$BULLET_SRC/btRandom.h"
+		"$BULLET_SRC/btScalar.h"
+		"$BULLET_SRC/btSerializer.h"
+		"$BULLET_SRC/btStackAlloc.h"
+		"$BULLET_SRC/btTransform.h"
+		"$BULLET_SRC/btTransformUtil.h"
+		"$BULLET_SRC/btVector3.h"
+	}
+}

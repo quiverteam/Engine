@@ -206,6 +206,9 @@ class CPhysicsObject : public IPhysicsObject32 {
 
 		void								TransferToEnvironment(CPhysicsEnvironment *pDest);
 
+		void								PauseSimulation();
+		void								UnpauseSimulation();
+
 	private:
 		CPhysicsEnvironment *				m_pEnv;
 		void *								m_pGameData;
@@ -240,6 +243,8 @@ class CPhysicsObject : public IPhysicsObject32 {
 		CUtlVector<IObjectEventListener *>	m_pEventListeners;
 
 		int									m_iLastActivationState;
+		bool								m_bWakeable;
+		bool								m_bWasAwake;
 };
 
 CPhysicsObject *CreatePhysicsObject(CPhysicsEnvironment *pEnvironment, const CPhysCollide *pCollisionModel, int materialIndex, const Vector &position, const QAngle &angles, objectparams_t *pParams, bool isStatic);

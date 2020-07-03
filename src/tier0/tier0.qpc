@@ -27,12 +27,12 @@ configuration
 
 		precompiled_header "use"
 		precompiled_header_file "pch_tier0.h"
-		precompiled_header_output_file "$(IntDir)/tier0.pch"
+		precompiled_header_output_file "$BUILD_DIR/tier0.pch"
 	}
 
 	linker
 	{
-		import_library "$LIBPUBLIC/$(TargetName)" [$WINDOWS]
+		import_library "$LIBPUBLIC/$OUTBINNAME" [$WINDOWS]
 
 		libraries
 		{

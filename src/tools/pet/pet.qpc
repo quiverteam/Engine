@@ -1,10 +1,8 @@
 // ---------------------------------------------------------------
-// Auto Generated QPC Script - Fix if needed before using
+// Engine Tool - Pet
 // ---------------------------------------------------------------
-macro PROJECT_NAME "Pet"
-
-macro SRCDIR "../.."
-macro OUTBINDIR "$BINDEFAULT/tools"
+macro PROJECT_NAME	"Pet"
+macro SRCDIR		"../.."
 
 include "$SRCDIR/_qpc_scripts/source_dll_base.qpc"
 

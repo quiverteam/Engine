@@ -1,0 +1,81 @@
+// ---------------------------------------------------------------
+// Auto Generated QPC Script - Fix if needed before using
+// ---------------------------------------------------------------
+macro PROJECT_NAME "BulletSoftBody"
+
+macro SRCDIR "../../../.."
+macro OUTLIBDIR "$LIBCOMMON"
+macro BULLET_SRC "../BulletSoftBody"
+
+include "$SRCDIR/_qpc_scripts/source_lib_base.qpc"
+
+configuration
+{
+	general
+	{
+		int_dir "./$CONFIG/$_SUBDIRSUFFIX/$PROJECT_NAME"
+		configuration_type "static_library"
+		
+		include_directories
+		{
+			"../"
+		}
+		
+		options
+		{
+			"/ltcg" [$RELEASE]
+		}
+	}
+	
+	compiler
+	{
+		preprocessor_definitions
+		{
+			"_DEBUG" [$DEBUG]
+			"NDEBUG" [$RELEASE]
+			"MBCS"
+			"WIN32"
+			"_CRT_SECURE_NO_WARNINGS"
+			"_CRT_SECURE_NO_DEPRECATE"
+			"_SCL_SECURE_NO_WARNINGS"
+		}
+		
+		options
+		{
+			"/d2Zi+" [$RELEASE]
+			"/W3"
+		}
+	}
+}
+
+files
+{
+	folder "Source Files"
+	{
+		"$BULLET_SRC/btDefaultSoftBodySolver.cpp"
+		"$BULLET_SRC/btSoftBody.cpp"
+		"$BULLET_SRC/btSoftBodyConcaveCollisionAlgorithm.cpp"
+		"$BULLET_SRC/btSoftBodyHelpers.cpp"
+		"$BULLET_SRC/btSoftBodyRigidBodyCollisionConfiguration.cpp"
+		"$BULLET_SRC/btSoftRigidCollisionAlgorithm.cpp"
+		"$BULLET_SRC/btSoftRigidDynamicsWorld.cpp"
+		"$BULLET_SRC/btSoftSoftCollisionAlgorithm.cpp"
+	}
+
+	folder "Header Files"
+	{
+		"$BULLET_SRC/btDefaultSoftBodySolver.h"
+		"$BULLET_SRC/btSoftBody.h"
+		"$BULLET_SRC/btSoftBodyConcaveCollisionAlgorithm.h"
+		"$BULLET_SRC/btSoftBodyData.h"
+		"$BULLET_SRC/btSoftBodyHelpers.h"
+		"$BULLET_SRC/btSoftBodyInternals.h"
+		"$BULLET_SRC/btSoftBodyRigidBodyCollisionConfiguration.h"
+		"$BULLET_SRC/btSoftBodySolvers.h"
+		"$BULLET_SRC/btSoftBodySolverVertexBuffer.h"
+		"$BULLET_SRC/btSoftRigidCollisionAlgorithm.h"
+		"$BULLET_SRC/btSoftRigidDynamicsWorld.h"
+		"$BULLET_SRC/btSoftSoftCollisionAlgorithm.h"
+		"$BULLET_SRC/btSparseSDF.h"
+	}
+}

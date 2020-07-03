@@ -125,7 +125,26 @@ void *StudioModel::operator new( size_t stAllocateBlock )
 	return calloc( 1, stAllocateBlock );
 }
 
+void *StudioModel::operator new( size_t stAllocateBlock, int nBlockUse, const char *pFileName, int nLine )
+{
+	// call into engine to get memory
+	Assert( stAllocateBlock != 0 );
+	return calloc( 1, stAllocateBlock );
+}
+
 void StudioModel::operator delete( void *pMem )
+{
+#ifdef _DEBUG
+	// set the memory to a known value
+	int size = _msize( pMem );
+	memset( pMem, 0xcd, size );
+#endif
+
+	// get the engine to free the memory
+	free( pMem );
+}
+
+void StudioModel::operator delete( void *pMem, int nBlockUse, const char *pFileName, int nLine )
 {
 #ifdef _DEBUG
 	// set the memory to a known value
