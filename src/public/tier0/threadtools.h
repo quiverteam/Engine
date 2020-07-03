@@ -746,7 +746,7 @@ public:
     	}
     }
 
-#ifdef WIN32
+#ifdef WINDOWS
 	bool TryLock() const volatile							{ return (const_cast<CThreadFastMutex *>(this))->TryLock(); }
 	void Lock(unsigned nSpinSleepTime = 1 ) const volatile	{ (const_cast<CThreadFastMutex *>(this))->Lock( nSpinSleepTime ); }
 	void Unlock() const	volatile							{ (const_cast<CThreadFastMutex *>(this))->Unlock(); }
