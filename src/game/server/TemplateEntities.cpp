@@ -335,9 +335,9 @@ char *Templates_GetEntityIOFixedMapData( int iIndex )
 		Q_strncpy( g_Templates[iIndex]->pszFixedMapData, g_Templates[iIndex]->pszMapData, g_Templates[iIndex]->iMapDataLength );
 	}
 
-	int iFixupSize = strlen(ENTITYIO_FIXUP_STRING);
-	char *sOurFixup = new char[iFixupSize];
-	Q_snprintf( sOurFixup, iFixupSize, "%c%.4d", ENTITYIO_FIXUP_STRING[0], g_iCurrentTemplateInstance );
+	int iFixupSize = strlen(ENTITYIO_FIXUP_STRING); // strlen("&0000\0") = 5!
+	char *sOurFixup = new char[iFixupSize+1]; // do alloc room here for the null terminator
+	Q_snprintf( sOurFixup, iFixupSize+1, "%c%.4d", ENTITYIO_FIXUP_STRING[0], g_iCurrentTemplateInstance );
 
 	// Now rip through the map data string and replace any instances of the fixup string with our unique identifier
 	char *c = g_Templates[iIndex]->pszFixedMapData;
