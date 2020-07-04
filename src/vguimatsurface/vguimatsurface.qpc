@@ -68,7 +68,7 @@ files
 		"FontTextureCache.cpp"
 		"Input.cpp"
 		"MatSystemSurface.cpp"
-		"memorybitmap.cpp" [$WIN32]
+		"memorybitmap.cpp" [$WINDOWS]
 		"TextureDictionary.cpp"
 		"$SRCDIR/vgui2/src/vgui_key_translation.cpp"
 		"$SRCDIR/public/vgui_controls/vgui_controls.cpp"
@@ -79,7 +79,7 @@ files
 		"Clip2D.h"
 		"Cursor.h"
 		"Input.h"
-		"memorybitmap.h" [$WIN32]
+		"memorybitmap.h" [$WINDOWS]
 		"TextureDictionary.h"
 		"vguimatsurface.h"
 		"MatSystemSurface.h"
