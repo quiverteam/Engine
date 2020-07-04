@@ -14,7 +14,7 @@ configuration
 	{
 		include_directories
 		{
-			"$SRCDIR/dx9sdk/include" [$WIN32]
+			"$SRCDIR/dx9sdk/include" [$WINDOWS]
 		}
 	}
 
@@ -22,8 +22,8 @@ configuration
 	{
 		libraries
 		{
-			"$LIBPUBLIC/nvtc"
-			"$LIBPUBLIC/ATI_Compress_MT_VC8"
+			"$LIBPUBLIC/nvtc"	[$WIN32]
+			"$LIBPUBLIC/ATI_Compress_MT_VC8"	[$WIN32]
 		}
 	}
 }

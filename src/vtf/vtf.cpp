@@ -68,7 +68,7 @@ BEGIN_BYTESWAP_DATADESC_( VTFFileHeaderX360_t, VTFFileBaseHeader_t )
 	DEFINE_FIELD( compressedSize, FIELD_INTEGER ),
 END_DATADESC()
 
-#if defined( _LINUX ) || defined( _X360 )
+#if defined( _LINUX ) || defined( _X360 ) || defined( PLATFORM_64BITS )
 // stub functions
 const char* S3TC_GetBlock(
         const void *pCompressed,
