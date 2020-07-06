@@ -674,7 +674,7 @@ protected:
 protected:
 	virtual void OnChildSettingsApplied( KeyValues *pInResourceData, Panel *pChild );
 
-	MESSAGE_FUNC_ENUM_ENUM( OnRequestFocus, "OnRequestFocus", VPANEL, subFocus, VPANEL, defaultPanel);
+	MESSAGE_FUNC_VPANEL_VPANEL( OnRequestFocus, "OnRequestFocus", subFocus, defaultPanel );
 	MESSAGE_FUNC_INT_INT( OnScreenSizeChanged, "OnScreenSizeChanged", oldwide, oldtall );
 	virtual void *QueryInterface(EInterfaceID id);
 

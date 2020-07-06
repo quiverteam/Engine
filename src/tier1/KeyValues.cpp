@@ -444,6 +444,19 @@ KeyValues::KeyValues( const char *setName, const char *firstKey, int firstValue,
 }
 
 //-----------------------------------------------------------------------------
+// Purpose: Constructor
+//-----------------------------------------------------------------------------
+KeyValues::KeyValues( const char* setName, const char* firstKey, void* firstValue, const char* secondKey, void* secondValue )
+{
+	TRACK_KV_ADD( this, setName );
+
+	Init();
+	SetName( setName );
+	SetPtr( firstKey, firstValue );
+	SetPtr( secondKey, secondValue );
+}
+
+//-----------------------------------------------------------------------------
 // Purpose: Initialize member variables
 //-----------------------------------------------------------------------------
 void KeyValues::Init()
