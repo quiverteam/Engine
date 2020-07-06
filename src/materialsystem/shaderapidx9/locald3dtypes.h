@@ -116,8 +116,13 @@ typedef void *HardwareShader_t;
 //-----------------------------------------------------------------------------
 // The vertex and pixel shader type
 //-----------------------------------------------------------------------------
-typedef int VertexShader_t;
-typedef int PixelShader_t;	
+#ifdef PLATFORM_64BITS
+typedef __int64 VertexShader_t;
+typedef __int64 PixelShader_t;
+#else
+typedef __int32 VertexShader_t;
+typedef __int32 PixelShader_t;	
+#endif
 
 //-----------------------------------------------------------------------------
 // Bitpattern for an invalid shader
