@@ -1435,7 +1435,7 @@ bool CMDLCache::LoadHardwareData( MDLHandle_t handle )
 		return false;
 	}
 
-	int iAsync = GetAsyncInfoIndex( handle, MDLCACHE_STUDIOHWDATA );
+	intp iAsync = GetAsyncInfoIndex( handle, MDLCACHE_STUDIOHWDATA );
 
 	if ( iAsync == NO_ASYNC )
 	{
