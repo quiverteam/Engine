@@ -216,11 +216,11 @@ struct AsyncInfo_t
 	int					iAnimBlock;
 };
 
-const int NO_ASYNC = CUtlLinkedList< AsyncInfo_t >::InvalidIndex();
+const intp NO_ASYNC = CUtlLinkedList< AsyncInfo_t >::InvalidIndex();
 
 //-------------------------------------
 
-CUtlMap<int, int> g_AsyncInfoMap( DefLessFunc( int ) );
+CUtlMap<int, intp> g_AsyncInfoMap( DefLessFunc( int ) );
 
 inline int MakeAsyncInfoKey( MDLHandle_t hModel, MDLCacheDataType_t type, int iAnimBlock )
 {
@@ -228,7 +228,7 @@ inline int MakeAsyncInfoKey( MDLHandle_t hModel, MDLCacheDataType_t type, int iA
 	return ( ( ( (int)hModel) << 16 ) | ( (int)type << 13 ) | iAnimBlock );
 }
 
-inline int GetAsyncInfoIndex( MDLHandle_t hModel, MDLCacheDataType_t type, int iAnimBlock = 0 )
+inline intp GetAsyncInfoIndex( MDLHandle_t hModel, MDLCacheDataType_t type, int iAnimBlock = 0 )
 {
 	int key = MakeAsyncInfoKey( hModel, type, iAnimBlock );
 	int i = g_AsyncInfoMap.Find( key );
@@ -239,7 +239,7 @@ inline int GetAsyncInfoIndex( MDLHandle_t hModel, MDLCacheDataType_t type, int i
 	return g_AsyncInfoMap[i];
 }
 
-inline int SetAsyncInfoIndex( MDLHandle_t hModel, MDLCacheDataType_t type, int iAnimBlock, int index )
+inline intp SetAsyncInfoIndex( MDLHandle_t hModel, MDLCacheDataType_t type, int iAnimBlock, intp index )
 {
 	Assert( index == NO_ASYNC || GetAsyncInfoIndex( hModel, type, iAnimBlock ) == NO_ASYNC );
 	int key = MakeAsyncInfoKey( hModel, type, iAnimBlock );
@@ -255,7 +255,7 @@ inline int SetAsyncInfoIndex( MDLHandle_t hModel, MDLCacheDataType_t type, int i
 	return index;
 }
 
-inline int SetAsyncInfoIndex( MDLHandle_t hModel, MDLCacheDataType_t type, int index )
+inline intp SetAsyncInfoIndex( MDLHandle_t hModel, MDLCacheDataType_t type, intp index )
 {
 	return SetAsyncInfoIndex( hModel, type, 0, index );
 }
@@ -456,7 +456,7 @@ private:
 	bool BuildHardwareData( MDLHandle_t handle, studiodata_t *pStudioData, studiohdr_t *pStudioHdr, OptimizedModel::FileHeader_t *pVtxHdr );
 	void ConvertFlexData( studiohdr_t *pStudioHdr );
 
-	int ProcessPendingAsync( int iAsync );
+	int ProcessPendingAsync( intp iAsync );
 	void ProcessPendingAsyncs( MDLCacheDataType_t type = MDLCACHE_NONE );
 	bool ClearAsync( MDLHandle_t handle, MDLCacheDataType_t type, int iAnimBlock, bool bAbort = false );
 
@@ -886,7 +886,7 @@ void CMDLCache::UnserializeVCollide( MDLHandle_t handle, bool synchronousLoad )
 	// FIXME: Should the vcollde be played into cacheable memory?
 	studiodata_t *pStudioData = m_MDLDict[handle];
 
-	int iAsync = GetAsyncInfoIndex( handle, MDLCACHE_VCOLLIDE );
+	intp iAsync = GetAsyncInfoIndex( handle, MDLCACHE_VCOLLIDE );
 
 	if ( iAsync == NO_ASYNC )
 	{
@@ -1106,7 +1106,7 @@ unsigned char *CMDLCache::UnserializeAnimBlock( MDLHandle_t handle, int nBlock )
 
 	studiodata_t *pStudioData = m_MDLDict[handle];
 
-	int iAsync = GetAsyncInfoIndex( handle, MDLCACHE_ANIMBLOCK, nBlock );
+	intp iAsync = GetAsyncInfoIndex( handle, MDLCACHE_ANIMBLOCK, nBlock );
 
 	if ( iAsync == NO_ASYNC )
 	{
@@ -2903,7 +2903,7 @@ bool CMDLCache::ProcessDataIntoCache( MDLHandle_t handle, MDLCacheDataType_t typ
 //	=0: pending
 //	>0:	completed
 //-----------------------------------------------------------------------------
-int CMDLCache::ProcessPendingAsync( int iAsync )
+int CMDLCache::ProcessPendingAsync( intp iAsync )
 {
 	if ( !ThreadInMainThread() )
 	{
@@ -3014,7 +3014,7 @@ void CMDLCache::ProcessPendingAsyncs( MDLCacheDataType_t type )
 //-----------------------------------------------------------------------------
 bool CMDLCache::ClearAsync( MDLHandle_t handle, MDLCacheDataType_t type, int iAnimBlock, bool bAbort )
 {
-	int iAsyncInfo = GetAsyncInfoIndex( handle, type, iAnimBlock );
+	intp iAsyncInfo = GetAsyncInfoIndex( handle, type, iAnimBlock );
 	if ( iAsyncInfo != NO_ASYNC )
 	{
 		AsyncInfo_t *pInfo;
@@ -3207,7 +3207,7 @@ vertexFileHeader_t *CMDLCache::LoadVertexData( studiohdr_t *pStudioHdr )
 		return NULL;
 	}
 
-	int iAsync = GetAsyncInfoIndex( handle, MDLCACHE_VERTEXES );
+	intp iAsync = GetAsyncInfoIndex( handle, MDLCACHE_VERTEXES );
 
 	if ( iAsync == NO_ASYNC )
 	{
