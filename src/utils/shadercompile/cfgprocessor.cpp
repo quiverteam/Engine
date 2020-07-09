@@ -222,6 +222,7 @@ public:
 class IExpression
 {
 public:
+	virtual ~IExpression() = default;
 	virtual int  Evaluate( IEvaluationContext *pCtx ) const = 0;
 	virtual void Print( IEvaluationContext *pCtx ) const = 0;
 };

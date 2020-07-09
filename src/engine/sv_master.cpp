@@ -30,7 +30,7 @@ bool g_bEnableMasterServerUpdater = true;
 void Heartbeat_f()
 {
 #ifndef NO_STEAM
-	if( SteamGameServer )
+	if( SteamGameServer() )
 		SteamGameServer()->ForceHeartbeat();
 #endif
 }

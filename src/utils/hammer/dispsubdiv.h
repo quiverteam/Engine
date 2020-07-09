@@ -18,6 +18,7 @@ class CMapDisp;
 class IEditDispSubdivMesh
 {
 public:
+	virtual ~IEditDispSubdivMesh() = default;
 
 	virtual void Init( void ) = 0;
 	virtual void Shutdown( void ) = 0;

@@ -1,6 +1,7 @@
 // ---------------------------------------------------------------
 // Base Dynamic Library Settings for Visual Studio
 // ---------------------------------------------------------------
+
 configuration
 {
 	compiler
@@ -14,6 +15,11 @@ configuration
 		{
 			"/Zm200" 	[$WIN32]
 		}
+	}
+	
+	post_build
+	{
+		"copy_file" "\"$(OutDir)$(TargetName)$(TargetExt)\"" "\"$OUTBINDIR/$OUTBINNAME$OUTDLLEXT\"" [$VISUAL_STUDIO]
 	}
 }
 

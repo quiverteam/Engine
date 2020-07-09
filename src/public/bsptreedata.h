@@ -93,6 +93,8 @@ public:
 abstract_class IBSPTreeData
 {
 public:
+	virtual ~IBSPTreeData() = default;
+
 	// Initializes, shuts down
 	virtual void Init( ISpatialQuery* pBSPTree ) = 0;
 	virtual void Shutdown() = 0;

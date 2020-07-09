@@ -393,19 +393,19 @@ BEGIN_VS_SHADER_FLAGS( Spritecard_DX8, "Help for Spritecard_DX8", SHADER_NOT_EDI
 
 			if ( bZoomSeq2 )
 			{
-				float flZScale=1.0/(params[ZOOMANIMATESEQ2]->GetFloatValue());
-				float C0[4]={ 0.5*(1.0+flZScale), flZScale, 0, 0 };
+				float flZScale=1.0f/(params[ZOOMANIMATESEQ2]->GetFloatValue());
+				float C0[4]={ 0.5f*(1.0f+flZScale), flZScale, 0, 0 };
 				pShaderAPI->SetVertexShaderConstant( VERTEX_SHADER_SHADER_SPECIFIC_CONST_7, C0,
 													 ARRAYSIZE(C0)/4 );
 			}
 
 			// set fade constants in vsconsts 8 and 9
 			float flMaxDistance = params[MAXDISTANCE]->GetFloatValue();
-			float flStartFade = max( 1.0, flMaxDistance - params[FARFADEINTERVAL]->GetFloatValue() );
+			float flStartFade = max( 1.0f, flMaxDistance - params[FARFADEINTERVAL]->GetFloatValue() );
 
 			float VC0[8]={ params[MINSIZE]->GetFloatValue(), params[MAXSIZE]->GetFloatValue(),
 						   params[STARTFADESIZE]->GetFloatValue(), params[ENDFADESIZE]->GetFloatValue(),
-						   flStartFade, 1.0/(flMaxDistance-flStartFade),
+						   flStartFade, 1.0f/(flMaxDistance-flStartFade),
 						   0,0 };
 
 			pShaderAPI->SetVertexShaderConstant( VERTEX_SHADER_SHADER_SPECIFIC_CONST_8, VC0, ARRAYSIZE(VC0)/4 );

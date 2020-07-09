@@ -4,7 +4,7 @@
 //
 //==============================================================================
 
-#if defined (WIN32) && !defined( _X360 )
+#if defined (WINDOWS) && !defined( _X360 )
 #include <windows.h>
 #elif _LINUX
 #define _cdecl

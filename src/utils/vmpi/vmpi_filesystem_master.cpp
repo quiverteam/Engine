@@ -707,7 +707,7 @@ void CMasterMulticastThread::TCP_SendNextChunk( CMulticastFile *pFile, CClientFi
 		sizeof( cPacket ),
 		sizeof( pFile->m_Info ),
 		sizeof( m_iCurActiveChunk ),
-		strlen( pFile->GetFilename() ) + 1,
+		(int)strlen( pFile->GetFilename() ) + 1,
 		iEndByte - iStartByte
 	};
 	

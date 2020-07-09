@@ -970,7 +970,11 @@ int CLocalizedStringTable::ConvertUnicodeToANSI(const wchar_t *unicode, char *an
 	return result;
 }
 
+#ifdef PLATFORM_64BITS
+#define va_argByIndex(ap,t,i)    ( *(t *)(ap + i * sizeof(t)) )
+#else
 #define va_argByIndex(ap,t,i)    ( *(t *)(ap + i * _INTSIZEOF(t)) )
+#endif
 
 //-----------------------------------------------------------------------------
 // Purpose: builds a localized formatted string

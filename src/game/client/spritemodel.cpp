@@ -222,7 +222,7 @@ bool CEngineSprite::Init( const char *pName )
 
 	const char *pExt = Q_GetFileExtension( pName );
 	bool bIsAVI = pExt && !Q_stricmp( pExt, "avi" );
-	bool bIsBIK = pExt && !Q_stricmp( pExt, "bik" );
+	//bool bIsBIK = pExt && !Q_stricmp( pExt, "bik" );
 	if ( bIsAVI )
 	{
 		m_hAVIMaterial = avi->CreateAVIMaterial( pName, pName, "GAME" );

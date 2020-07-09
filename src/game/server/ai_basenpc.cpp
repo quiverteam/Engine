@@ -771,7 +771,7 @@ int CAI_BaseNPC::OnTakeDamage_Alive( const CTakeDamageInfo &info )
 		{
 			// See if the person that injured me is an NPC.
 			CAI_BaseNPC *pAttacker = dynamic_cast<CAI_BaseNPC *>( info.GetAttacker() );
-			CBasePlayer *pPlayer = UTIL_GetNearestPlayer(GetAbsOrigin());
+			//CBasePlayer *pPlayer = UTIL_GetNearestPlayer(GetAbsOrigin());
 
 			if (pAttacker && pAttacker->IsAlive() && UTIL_GetNearestPlayer(GetAbsOrigin()))
 			{

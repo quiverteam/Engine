@@ -40,8 +40,10 @@ configuration
 			"$LIBPUBLIC/bitmap"
 			"$LIBPUBLIC/mathlib"
 			"$LIBPUBLIC/tier2"
-			"$SRCDIR/dx9sdk/lib/d3d9"
-			"$SRCDIR/dx9sdk/lib/d3dx9"
+			"$SRCDIR/dx9sdk/lib/d3d9"	[$WIN32]
+			"$SRCDIR/dx9sdk/lib/d3dx9"	[$WIN32]
+			"$SRCDIR/dx9sdk/lib/x64/d3d9"	[$WIN64]
+			"$SRCDIR/dx9sdk/lib/x64/d3dx9"	[$WIN64]
 			"$LIBCOMMON/bzip2"
 		}
 	}
@@ -60,12 +62,12 @@ files
 	folder "Source Files"
 	{
 		"ColorFormatDX8.cpp"
-		"d3d_async.cpp" [$WIN32]
+		"d3d_async.cpp" [$WINDOWS]
 		"$SRCDIR/public/filesystem_helpers.cpp"
 		"HardwareConfig.cpp"
 		"meshbase.cpp"
 		"MeshDX8.cpp"
-		"Recording.cpp" [$WIN32]
+		"Recording.cpp" [$WINDOWS]
 		"ShaderAPIDX8.cpp"
 		"ShaderDeviceBase.cpp"
 		"ShaderAPIBase.cpp"
@@ -76,7 +78,7 @@ files
 		"cvballoctracker.cpp"
 		"vertexdecl.cpp"
 		"VertexShaderDX8.cpp"
-		"wmi.cpp" [$WIN32]
+		"wmi.cpp" [$WINDOWS]
 		"textureheap.cpp" [$X360]
 	}
 

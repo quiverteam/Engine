@@ -31,7 +31,7 @@ configuration
 	{
 		libraries
 		{
-			"Imm32.lib" "Shlwapi.lib" "odbc32.lib" "odbccp32.lib" "winmm.lib" [$WIN32]
+			"Imm32.lib" "Shlwapi.lib" "odbc32.lib" "odbccp32.lib" "winmm.lib" [$WINDOWS]
 			"vgui_surfacelib"
 			"tier2"
 			"tier3"
@@ -61,7 +61,7 @@ files
 		"Memorybitmap.h"
 		"MessageListener.cpp"
 		"Scheme.cpp"
-		"Surface.cpp" [$WIN32]
+		"Surface.cpp" [$WINDOWS]
 		"System.cpp"
 		"$SRCDIR/public/UnicodeFileHelpers.cpp"
 		"vgui.cpp"

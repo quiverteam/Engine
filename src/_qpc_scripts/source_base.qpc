@@ -29,6 +29,12 @@ macro BUILD_DIR         "$CONFIG/$_SUBDIRSUFFIX"    [!$BUILD_DIR]
 include "$SRCDIR/_qpc_scripts/win/base_vstudio.qpc"	[$WINDOWS]
 include "$SRCDIR/_qpc_scripts/posix_base.qpc"		[$POSIX]
 
+build_event "copy_file" "INFILE" "OUTFILE"
+{
+	"copy $INFILE $OUTFILE" [$WINDOWS]
+	"cp $INFILE $OUTFILE" [!$WINDOWS]
+}
+
 configuration
 {
 	general

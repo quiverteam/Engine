@@ -14,7 +14,7 @@ files
 	{
 		"AppSystemGroup.cpp"
 		"$SRCDIR/public/filesystem_init.cpp"
-		"VguiMatSysApp.cpp" [$WIN32]
+		"VguiMatSysApp.cpp" [$WINDOWS]
 		"WinApp.cpp"
 	}
 

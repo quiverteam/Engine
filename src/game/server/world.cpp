@@ -188,7 +188,7 @@ void CDecal::StaticDecal( void )
 
 	bool canDraw = true;
 
-	entityIndex = (short)trace.m_pEnt ? trace.m_pEnt->entindex() : 0;
+	entityIndex = trace.m_pEnt ? trace.m_pEnt->entindex() : 0;
 	if ( entityIndex )
 	{
 		CBaseEntity *ent = trace.m_pEnt;

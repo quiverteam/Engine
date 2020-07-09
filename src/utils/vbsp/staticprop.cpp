@@ -52,8 +52,12 @@ struct StaticPropBuild_t
 	float	m_FadeMaxDist;
 	bool	m_FadesOut;
 	float	m_flForcedFadeScale;
-	unsigned short	m_nMinDXLevel;
-	unsigned short	m_nMaxDXLevel;
+	unsigned char	m_nMinCPULevel;
+	unsigned char	m_nMaxCPULevel;
+	unsigned char	m_nMinGPULevel;
+	unsigned char	m_nMaxGPULevel;
+	color32			m_DiffuseModulation;
+	bool			m_bDisableX360;
 };
  
 
@@ -505,9 +509,13 @@ static void AddStaticPropToLump( StaticPropBuild_t const& build )
 	propLump.m_FadeMinDist = build.m_FadeMinDist;
 	propLump.m_FadeMaxDist = build.m_FadeMaxDist;
 	propLump.m_flForcedFadeScale = build.m_flForcedFadeScale;
-	propLump.m_nMinDXLevel = build.m_nMinDXLevel;
-	propLump.m_nMaxDXLevel = build.m_nMaxDXLevel;
-	
+	propLump.m_nMinCPULevel = build.m_nMinCPULevel;
+	propLump.m_nMaxCPULevel = build.m_nMaxCPULevel;
+	propLump.m_nMinGPULevel = build.m_nMinGPULevel;
+	propLump.m_nMaxGPULevel = build.m_nMaxGPULevel;
+	propLump.m_DiffuseModulation = build.m_DiffuseModulation;
+	propLump.m_bDisableX360 = build.m_bDisableX360;
+
 	if (build.m_pLightingOrigin && *build.m_pLightingOrigin)
 	{
 		if (ComputeLightingOrigin( build, propLump.m_LightingOrigin ))
@@ -642,8 +650,14 @@ void EmitStaticProps()
 			{
 				build.m_FadeMinDist = 0;
 			}
-			build.m_nMinDXLevel = (unsigned short)IntForKey( &entities[i], "mindxlevel" );
-			build.m_nMaxDXLevel = (unsigned short)IntForKey( &entities[i], "maxdxlevel" );
+			build.m_nMinCPULevel = ( unsigned short )IntForKey( &entities[i], "mincpulevel" );
+			build.m_nMaxCPULevel = ( unsigned short )IntForKey( &entities[i], "maxcpulevel" );
+			build.m_nMinGPULevel = ( unsigned short )IntForKey( &entities[i], "mingpulevel" );
+			build.m_nMaxGPULevel = ( unsigned short )IntForKey( &entities[i], "maxgpulevel" );
+			build.m_DiffuseModulation.r = 255;
+			build.m_DiffuseModulation.g = 255;
+			build.m_DiffuseModulation.b = 255;
+			build.m_bDisableX360 = ( bool )IntForKey( &entities[i], "disableX360" );
 			AddStaticPropToLump( build );
 
 			// strip this ent from the .bsp file

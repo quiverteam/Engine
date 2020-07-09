@@ -35,6 +35,7 @@ class CAudioSource;
 class IAudioDevice
 {
 public:
+	virtual ~IAudioDevice() = default;
 	virtual void MixBegin( void ) = 0;
 	virtual void Mix8Mono( channel_t *pChannel, char *pData, int outputOffset, int inputOffset, int rateScaleFix, int outCount, int timecompress, bool forward = true ) = 0;
 	virtual void Mix8Stereo( channel_t *pChannel, char *pData, int outputOffset, int inputOffset, int rateScaleFix, int outCount, int timecompress, bool forward = true ) = 0;

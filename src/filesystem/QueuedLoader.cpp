@@ -1097,7 +1097,7 @@ void CQueuedLoader::SubmitBatchedJobsAndWait()
 
 	if ( GetSpewDetail() )
 	{
-		Msg( "QueuedLoader: High Priority Jobs: %d\n", g_nHighPriorityJobs );
+		Msg( "QueuedLoader: High Priority Jobs: %d\n", (int)g_nHighPriorityJobs );
 	}
 	
 	// finish only the high priority jobs
@@ -1226,8 +1226,8 @@ void CQueuedLoader::SpewInfo()
 		Msg( "%d Total Jobs\n", m_SubmittedJobs.Count() );
 	}
 
-	Msg( "%d Queued Jobs\n", g_nQueuedJobs );
-	Msg( "%d Active Jobs\n", g_nActiveJobs );
+	Msg( "%d Queued Jobs\n", (int)g_nQueuedJobs );
+	Msg( "%d Active Jobs\n", (int)g_nActiveJobs );
 	Msg( "Peak IO Memory: %.2f MB\n", (float)g_nIOMemoryPeak / ( 1024.0f * 1024.0f ) );
 	Msg( "Peak Anonymous IO Memory: %.2f MB\n", (float)g_nAnonymousIOMemoryPeak / ( 1024.0f * 1024.0f ) );
 	Msg( "  Total Anonymous Claimed: %d\n", totalClaimed );
@@ -1755,7 +1755,7 @@ void CQueuedLoader::EndMapLoading( bool bAbort )
 		if ( g_nIOMemory || g_nAnonymousIOMemory )
 		{
 			// expected to be zero, otherwise logic flaw
-			DevWarning( "CQueuedLoader: Unclaimed I/O memory: total:%d anonymous:%d\n", g_nIOMemory, g_nAnonymousIOMemory );
+			DevWarning( "CQueuedLoader: Unclaimed I/O memory: total:%d anonymous:%d\n", (int)g_nIOMemory, (int)g_nAnonymousIOMemory );
 			g_nIOMemory = 0;
 			g_nAnonymousIOMemory = 0;
 		}

@@ -841,17 +841,17 @@ void MainMenu::ApplySchemeSettings( IScheme *pScheme )
 		FlyoutMenu *pFlyout = dynamic_cast< FlyoutMenu* >( FindChildByName( "FlmOptionsFlyout" ) );
 		if ( pFlyout )
 		{
-			bool bUsesCloud = false;
+			//bool bUsesCloud = false;
 
 #ifdef IS_WINDOWS_PC
-			ISteamRemoteStorage *pRemoteStorage = SteamClient()?(ISteamRemoteStorage *)SteamClient()->GetISteamGenericInterface(
-				SteamAPI_GetHSteamUser(), SteamAPI_GetHSteamPipe(), STEAMREMOTESTORAGE_INTERFACE_VERSION ):NULL;
+			//ISteamRemoteStorage *pRemoteStorage = SteamClient()?(ISteamRemoteStorage *)SteamClient()->GetISteamGenericInterface(
+				//SteamAPI_GetHSteamUser(), SteamAPI_GetHSteamPipe(), STEAMREMOTESTORAGE_INTERFACE_VERSION ):NULL;
 #else
 			ISteamRemoteStorage *pRemoteStorage =  NULL; 
 			AssertMsg( false, "This branch run on a PC build without IS_WINDOWS_PC defined." );
 #endif
 
-			int32 availableBytes, totalBytes = 0;
+			//int32 availableBytes, totalBytes = 0;
 			/*if ( pRemoteStorage && pRemoteStorage->GetQuota( &totalBytes, &availableBytes ) )
 			{
 				if ( totalBytes > 0 )

@@ -15,4 +15,9 @@ configuration
 			"/SUBSYSTEM:CONSOLE"
 		}
 	}
+
+	post_build
+	{
+		"copy_file" "\"$(OutDir)$(TargetName)$(TargetExt)\"" "\"$OUTBINDIR/$OUTBINNAME$_APP_EXT\"" [$VISUAL_STUDIO]
+	}
 }
