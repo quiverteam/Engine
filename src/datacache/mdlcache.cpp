@@ -1845,7 +1845,7 @@ studiohdr_t *CMDLCache::UnserializeMDL( MDLHandle_t handle, void *pData, int nDa
 
 	// critical! store a back link to our data
 	// this is fetched when re-establishing dependent cached data (vtx/vvd)
-	pStudioHdrIn->virtualModel = (void *)handle;
+	pStudioHdrIn->virtualModel = handle;
 
 	MdlCacheMsg( "MDLCache: Alloc studiohdr %s\n", GetModelName( handle ) );
 
@@ -1935,16 +1935,66 @@ bool CMDLCache::ReadMDLFile( MDLHandle_t handle, const char *pMDLFileName, CUtlB
 		}
 	}
 
-	studiohdr_t *pStudioHdr = (studiohdr_t*)buf.PeekGet();
+	studiohdr_t* pStudioHdr = ( studiohdr_t* )buf.Base();
 	if ( pStudioHdr->id != IDSTUDIOHEADER )
 	{
 		DevWarning( "Model %s not a .MDL format file!\n", pMDLFileName );
 		return false;
 	}
 
+#ifdef PLATFORM_64BITS
+	
+	buf.EnsureCapacity( buf.Size() + 8 );
+	pStudioHdr = ( studiohdr_t* )buf.Base();
+	pStudioHdr->animblockModelptr = pStudioHdr->length;
+	pStudioHdr->length += 8;
+	buf.PutInt64( 0 );
+
+	for ( int i = 0; i < pStudioHdr->numbodyparts; i++ )
+	{
+		mstudiobodyparts_t* pBodyPart = pStudioHdr->pBodypart( i );
+
+		for ( int j = 0; j < pBodyPart->nummodels; ++j )
+		{
+			mstudiomodel_t* pModel = pBodyPart->pModel( j );
+
+			buf.EnsureCapacity( buf.Size() + ( 24 * pModel->nummeshes )  );
+			if ( pStudioHdr != buf.Base() )
+			{
+				//The buffer has moved, fix the pointers
+				pStudioHdr = ( studiohdr_t* )buf.Base();
+				pBodyPart = pStudioHdr->pBodypart( i );
+				pModel = pBodyPart->pModel( j );
+			}
+
+			for ( int k = 0; k < pModel->nummeshes; ++k )
+			{
+				mstudiomesh_t* pMesh = pModel->pMesh( k );
+				
+				int idx = ( byte* )&pMesh->vertexdata - ( byte* )pStudioHdr;
+
+				pMesh->vertexdata.modelvertexdataptr = pStudioHdr->length - idx;
+
+				idx = (byte*)&pMesh->pModel()->vertexdata - ( byte* )pStudioHdr;
+
+				pMesh->pModel()->vertexdata.pVertexDataptr = pStudioHdr->length + 8 - idx;
+				pMesh->pModel()->vertexdata.pTangentDataptr = pStudioHdr->length + 16 - idx;
+
+				pStudioHdr->length += 24;
+
+				buf.PutInt64( 0 );
+				buf.PutInt64( 0 );
+				buf.PutInt64( 0 );
+			}
+		}
+	}
+
+	
+#endif
+
 	// critical! store a back link to our data
 	// this is fetched when re-establishing dependent cached data (vtx/vvd)
-	pStudioHdr->virtualModel = (void*)handle;
+	pStudioHdr->virtualModel = handle;
 
 	// Make sure all dependent files are valid
 	if ( !VerifyHeaders( pStudioHdr ) )

@@ -2504,7 +2504,7 @@ BEGIN_BYTESWAP_DATADESC( studiohdr_t )
 	DEFINE_INDEX( szanimblocknameindex, FIELD_INTEGER ),	
 	DEFINE_FIELD( numanimblocks, FIELD_INTEGER ),
 	DEFINE_INDEX( animblockindex, FIELD_INTEGER ),
-	DEFINE_FIELD( animblockModel, FIELD_INTEGER ),				// void*
+	DEFINE_FIELD( animblockModelptr, FIELD_INTEGER ),				// void*
 	DEFINE_INDEX( bonetablebynameindex, FIELD_INTEGER ),
 	DEFINE_FIELD( pVertexBase, FIELD_INTEGER ),					// void*
 	DEFINE_FIELD( pIndexBase, FIELD_INTEGER ),					// void*
@@ -2859,8 +2859,8 @@ BEGIN_BYTESWAP_DATADESC( mstudiomodel_t )
 END_BYTESWAP_DATADESC()
 
 BEGIN_BYTESWAP_DATADESC( mstudio_modelvertexdata_t )
-	DEFINE_FIELD( pVertexData, FIELD_INTEGER ),		// void*
-	DEFINE_FIELD( pTangentData, FIELD_INTEGER ),	// void*
+	DEFINE_FIELD( pVertexDataptr, FIELD_INTEGER ),		// void*
+	DEFINE_FIELD( pTangentDataptr, FIELD_INTEGER ),	// void*
 END_BYTESWAP_DATADESC()
 
 BEGIN_BYTESWAP_DATADESC( mstudioflexdesc_t )
@@ -2939,7 +2939,7 @@ BEGIN_BYTESWAP_DATADESC( mstudiomesh_t )
 END_BYTESWAP_DATADESC()
 
 BEGIN_BYTESWAP_DATADESC( mstudio_meshvertexdata_t )
-	DEFINE_FIELD( modelvertexdata, FIELD_INTEGER ),	// mstudio_modelvertexdata_t*
+	DEFINE_FIELD( modelvertexdataptr, FIELD_INTEGER ),	// mstudio_modelvertexdata_t*
 	DEFINE_ARRAY( numLODVertexes, FIELD_INTEGER, MAX_NUM_LODS ),
 END_BYTESWAP_DATADESC()
 
