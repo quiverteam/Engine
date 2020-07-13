@@ -196,14 +196,14 @@ bool CMdlLib::StripModelBuffers( CUtlBuffer &mdlBuffer, CUtlBuffer &vvdBuffer, C
 			mdlNumVerticesOld = mdlModel->numvertices;
 			mdlModel->numvertices = srcIndices.Count();
 
-			mdlModel->vertexdata.pVertexData = BYTE_OFF_PTR( vvdHdr, vvdHdr->vertexDataStart );
-			mdlModel->vertexdata.pTangentData = BYTE_OFF_PTR( vvdHdr, vvdHdr->tangentDataStart );
+			mdlModel->vertexdata.pVertexDataptr = BYTE_OFF_PTR( vvdHdr, vvdHdr->vertexDataStart );
+			mdlModel->vertexdata.pTangentDataptr = BYTE_OFF_PTR( vvdHdr, vvdHdr->tangentDataStart );
 
 			ITERATE_CHILDREN( mstudiomesh_t, mdlMesh, mdlModel, pMesh, nummeshes )
 				
 				CMdlStripInfo::MdlRangeItem mdlRangeItem( mdlMesh->vertexoffset, mdlMesh->numvertices );
 				
-				mdlMesh->vertexdata.modelvertexdata = &mdlModel->vertexdata;
+				mdlMesh->vertexdata.modelvertexdataptr = &mdlModel->vertexdata;
 				mdlMesh->numvertices = srcIndices.FindLess( mdlMesh->vertexoffset + mdlMesh->numvertices );
 				mdlMesh->vertexoffset = srcIndices.FindLess( mdlMesh->vertexoffset ) + 1;
 				mdlMesh->numvertices -= mdlMesh->vertexoffset - 1;
