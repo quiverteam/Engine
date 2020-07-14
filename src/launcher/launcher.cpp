@@ -28,6 +28,7 @@
 
 #ifdef _WIN32
 #include <direct.h>
+#include "shellapi.h"
 #else
 #include <unistd.h>
 #include <SDL2/SDL.h>
@@ -1115,7 +1116,7 @@ DLL_EXPORT int LauncherMain( HINSTANCE hInstance, HINSTANCE hPrevInstance, char*
 
 		if ( RegQueryValueEx( hKey, "Relaunch URL", NULL, NULL, (unsigned char*)szValue, &dwValueLen ) == ERROR_SUCCESS )
 		{
-			ShellExecute (0, "open", szValue, 0, 0, SW_SHOW);
+			ShellExecuteA (0, "open", szValue, 0, 0, SW_SHOW);
 			RegDeleteValue( hKey, "Relaunch URL" );
 		}
 
