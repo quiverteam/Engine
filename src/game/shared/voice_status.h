@@ -10,10 +10,10 @@
 #pragma once
 
 
-#include <vgui_controls/Label.h>
+#include <vgui_controls/label.h>
 //#include "VGUI_Bitmap.h"
-#include <vgui_controls/Button.h>
-#include <vgui_controls/Image.h>
+#include <vgui_controls/button.h>
+#include <vgui_controls/image.h>
 #include "voice_common.h"
 #include "voice_banmgr.h"
 #include "hudelement.h"

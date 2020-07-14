@@ -8,7 +8,7 @@
 #include "entitylist.h"
 #include "mapentities_shared.h"
 #include "soundent.h"
-#include "TemplateEntities.h"
+#include "templateentities.h"
 #include "point_template.h"
 #include "ai_initutils.h"
 #include "lights.h"

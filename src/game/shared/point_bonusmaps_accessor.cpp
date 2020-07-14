@@ -8,7 +8,7 @@
 
 #include "cbase.h"
 
-#include "GameUI/IGameUI.h"
+#include "gameui/igameui.h"
 #include "fmtstr.h"
 #include "igameevents.h"
 

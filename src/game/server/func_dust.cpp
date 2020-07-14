@@ -8,7 +8,7 @@
 #include "cbase.h"
 #include "func_dust_shared.h"
 #include "te_particlesystem.h"
-#include "IEffects.h"
+#include "ieffects.h"
 
 // memdbgon must be the last include file in a .cpp file!!!
 #include "tier0/memdbgon.h"

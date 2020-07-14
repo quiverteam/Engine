@@ -20,7 +20,7 @@
 #include "ai_hint.h"
 #include "ai_networkmanager.h"
 #include "ai_network.h"
-#include "engine/IEngineSound.h"
+#include "engine/ienginesound.h"
 #include "animation.h"
 #include "scripted.h"
 #include "entitylist.h"

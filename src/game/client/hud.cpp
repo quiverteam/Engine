@@ -16,15 +16,15 @@
 #include "iinput.h"
 #include "clientmode.h"
 #include "in_buttons.h"
-#include <vgui_controls/Controls.h>
-#include <vgui/ISurface.h>
-#include <KeyValues.h>
+#include <vgui_controls/controls.h>
+#include <vgui/isurface.h>
+#include <keyvalues.h>
 #include "itextmessage.h"
 #include "mempool.h"
-#include <KeyValues.h>
+#include <keyvalues.h>
 #include "filesystem.h"
-#include <vgui_controls/AnimationController.h>
-#include <vgui/iSurface.h>
+#include <vgui_controls/animationcontroller.h>
+#include <vgui/isurface.h>
 
 // memdbgon must be the last include file in a .cpp file!!!
 #include "tier0/memdbgon.h"

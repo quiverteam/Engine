@@ -10,8 +10,8 @@
 #pragma once
 #endif
 
-#include "IClientEntity.h"
-#include "ClientLeafSystem.h"
+#include "icliententity.h"
+#include "clientleafsystem.h"
 
 //-----------------------------------------------------------------------------
 // Forward declarations

@@ -14,7 +14,7 @@
 #include "texture_group_names.h"
 #include "tier0/icommandline.h"
 #include "keyvalues.h"
-#include "ScreenSpaceEffects.h"
+#include "screenspaceeffects.h"
 #include "materialsystem/imaterialsystemhardwareconfig.h"
 
 // memdbgon must be the last include file in a .cpp file!!!

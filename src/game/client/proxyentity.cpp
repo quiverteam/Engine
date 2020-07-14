@@ -6,7 +6,7 @@
 //=============================================================================//
 #include "cbase.h"
 #include "proxyentity.h"
-#include "IClientRenderable.h"
+#include "iclientrenderable.h"
 #include "toolframework_client.h"
 
 // memdbgon must be the last include file in a .cpp file!!!

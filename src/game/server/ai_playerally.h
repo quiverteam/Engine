@@ -9,7 +9,7 @@
 
 #include "utlmap.h"
 #include "simtimer.h"
-#include "AI_Criteria.h"
+#include "ai_criteria.h"
 #include "ai_baseactor.h"
 #include "ai_speechfilter.h"
 #ifndef _WIN32

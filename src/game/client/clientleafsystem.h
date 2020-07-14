@@ -15,10 +15,10 @@
 #pragma once
 #endif
 
-#include "IGameSystem.h"
-#include "engine/IClientLeafSystem.h"
+#include "igamesystem.h"
+#include "engine/iclientleafsystem.h"
 #include "cdll_int.h"
-#include "IVRenderView.h"
+#include "ivrenderview.h"
 #include "tier1/mempool.h"
 #include "tier1/refcount.h"
 

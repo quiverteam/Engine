@@ -14,7 +14,7 @@
 
 #include "particlemgr.h"
 #include "particles/particles.h"
-#include "ParticleSphereRenderer.h"
+#include "particlesphererenderer.h"
 #include "smartptr.h"
 #include "particles_simple.h"
 

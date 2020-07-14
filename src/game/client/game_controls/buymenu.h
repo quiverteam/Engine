@@ -11,7 +11,7 @@
 #pragma once
 #endif
 
-#include <vgui_controls/WizardPanel.h>
+#include <vgui_controls/wizardpanel.h>
 #include <game/client/iviewport.h>
 
 class CBuySubMenu;

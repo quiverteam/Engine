@@ -5,19 +5,19 @@
 // $NoKeywords: $
 //=============================================================================//
 
-#include "PlayerListDialog.h"
+#include "playerlistdialog.h"
 
-#include <vgui/ILocalize.h>
-#include <vgui/ISurface.h>
-#include <vgui_controls/ListPanel.h>
-#include <KeyValues.h>
-#include <vgui_controls/Label.h>
-#include <vgui_controls/Button.h>
-#include <vgui_controls/MessageBox.h>
+#include <vgui/ilocalize.h>
+#include <vgui/isurface.h>
+#include <vgui_controls/listpanel.h>
+#include <keyvalues.h>
+#include <vgui_controls/label.h>
+#include <vgui_controls/button.h>
+#include <vgui_controls/messagebox.h>
 
-#include "EngineInterface.h"
-#include "game/client/IGameClientExports.h"
-#include "GameUI_Interface.h"
+#include "engineinterface.h"
+#include "game/client/igameclientexports.h"
+#include "gameui_interface.h"
 #include "steam/steam_api.h"
 
 // memdbgon must be the last include file in a .cpp file!!!

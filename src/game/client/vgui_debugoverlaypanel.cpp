@@ -8,12 +8,12 @@
 #include "cbase.h"
 #include "idebugoverlaypanel.h"
 #include "overlaytext.h"
-#include <vgui/IVgui.h>
-#include "engine/IVDebugOverlay.h"
+#include <vgui/ivgui.h>
+#include "engine/ivdebugoverlay.h"
 #include "vguimatsurface/imatsystemsurface.h"
-#include <vgui_controls/Panel.h>
-#include <vgui_controls/Controls.h>
-#include <vgui/IScheme.h>
+#include <vgui_controls/panel.h>
+#include <vgui_controls/controls.h>
+#include <vgui/ischeme.h>
 #include "ienginevgui.h"
 
 // memdbgon must be the last include file in a .cpp file!!!

@@ -9,7 +9,7 @@
 #include "cbase.h"
 #include "c_basetempentity.h"
 #include "iefx.h"
-#include "engine/IStaticPropMgr.h"
+#include "engine/istaticpropmgr.h"
 #include "tier1/keyvalues.h"
 #include "tier0/vprof.h"
 #include "toolframework_client.h"

@@ -6,8 +6,8 @@
 
 #include "clientsideeffects.h"
 
-#include "materialsystem/IMaterial.h"
-#include "materialsystem/IMaterialSystem.h"
+#include "materialsystem/imaterial.h"
+#include "materialsystem/imaterialsystem.h"
 
 #ifndef FX_QUAD_H
 #define FX_QUAD_H

@@ -11,7 +11,7 @@
 #include "utlmap.h"
 
 #include "soundflags.h"
-#include "AI_ResponseSystem.h"
+#include "ai_responsesystem.h"
 #include "utldict.h"
 
 #if defined( _WIN32 )

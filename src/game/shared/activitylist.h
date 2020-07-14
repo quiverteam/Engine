@@ -11,7 +11,7 @@
 #pragma once
 #endif
 
-#include <KeyValues.h>
+#include <keyvalues.h>
 
 typedef struct activityentry_s activityentry_t;
 

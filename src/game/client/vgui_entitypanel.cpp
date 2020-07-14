@@ -6,14 +6,14 @@
 // $NoKeywords: $
 //=============================================================================//
 #include "cbase.h"
-#include "vgui_EntityPanel.h"
+#include "vgui_entitypanel.h"
 #include "ienginevgui.h"
-#include "c_BaseTFPlayer.h"
+#include "c_basetfplayer.h"
 #include "clientmode_commander.h"
 #include "hud_commander_statuspanel.h"
-#include <KeyValues.h>
+#include <keyvalues.h>
 #include "commanderoverlaypanel.h"
-#include <vgui/IVGui.h>
+#include <vgui/ivgui.h>
 #include "cdll_util.h"
 #include "view.h"
 

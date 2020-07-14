@@ -10,8 +10,8 @@
 #pragma once
 #endif
 
-#include <vgui_controls/Panel.h>
-#include <vgui_controls/EditablePanel.h>
+#include <vgui_controls/panel.h>
+#include <vgui_controls/editablepanel.h>
 #include "video/iavi.h"
 
 

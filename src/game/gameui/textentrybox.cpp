@@ -7,11 +7,11 @@
 
 // Author: Matthew D. Campbell (matt@turtlerockstudios.com), 2003
 
-#include <vgui/KeyCode.h>
+#include <vgui/keycode.h>
 
-#include "CvarTextEntry.h"
-#include "TextEntryBox.h"
-#include <vgui_controls/TextEntry.h>
+#include "cvartextentry.h"
+#include "textentrybox.h"
+#include <vgui_controls/textentry.h>
 
 // memdbgon must be the last include file in a .cpp file!!!
 #include <tier0/memdbgon.h>

@@ -8,7 +8,7 @@
 #ifndef PROXY_ENTITY_H
 #define PROXY_ENTITY_H
 
-#include "materialsystem/IMaterialProxy.h"
+#include "materialsystem/imaterialproxy.h"
 
 
 class IMaterialVar;

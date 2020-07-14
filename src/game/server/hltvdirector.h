@@ -11,7 +11,7 @@
 #pragma once
 #endif
 
-#include "GameEventListener.h"
+#include "gameeventlistener.h"
 #include <igamesystem.h>
 #include <ihltvdirector.h>
 #include <ihltv.h>

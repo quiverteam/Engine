@@ -12,11 +12,11 @@
 #pragma once
 #endif
 
-#include "IGameSystem.h"
-#include "IClientEntityInternal.h"
-#include "engine/IVModelRender.h"
+#include "igamesystem.h"
+#include "icliententityinternal.h"
+#include "engine/ivmodelrender.h"
 #include "mathlib/vector.h"
-#include "IVRenderView.h"
+#include "ivrenderview.h"
 
 struct model_t;
 

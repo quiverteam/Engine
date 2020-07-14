@@ -7,13 +7,13 @@
 //=============================================================================//
 #include "cbase.h"
 #include "c_vguiscreen.h"
-#include "vgui_controls/Label.h"
-#include "vgui_BitmapPanel.h"
-#include <vgui/IVGUI.h>
+#include "vgui_controls/label.h"
+#include "vgui_bitmappanel.h"
+#include <vgui/ivgui.h>
 #include "c_slideshow_display.h"
 #include "ienginevgui.h"
 #include "fmtstr.h"
-#include "vgui_controls/ImagePanel.h"
+#include "vgui_controls/imagepanel.h"
 
 using namespace vgui;
 

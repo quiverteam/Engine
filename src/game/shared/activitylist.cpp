@@ -12,7 +12,7 @@
 #include "isaverestore.h"
 
 #include "filesystem.h"
-#include <KeyValues.h>
+#include <keyvalues.h>
 #include "utldict.h"
 
 // memdbgon must be the last include file in a .cpp file!!!

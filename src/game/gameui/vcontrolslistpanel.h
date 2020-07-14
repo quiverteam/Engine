@@ -10,7 +10,7 @@
 #pragma once
 #endif
 
-#include <vgui_controls/SectionedListPanel.h>
+#include <vgui_controls/sectionedlistpanel.h>
 
 //-----------------------------------------------------------------------------
 // Purpose: Special list subclass to handle drawing of trap mode prompt on top of

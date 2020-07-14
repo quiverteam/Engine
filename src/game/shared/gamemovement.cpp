@@ -9,8 +9,8 @@
 #include "in_buttons.h"
 #include <stdarg.h>
 #include "movevars_shared.h"
-#include "engine/IEngineTrace.h"
-#include "SoundEmitterSystem/isoundemittersystembase.h"
+#include "engine/ienginetrace.h"
+#include "soundemittersystem/isoundemittersystembase.h"
 #include "decals.h"
 #include "coordsize.h"
 #include "rumble_shared.h"

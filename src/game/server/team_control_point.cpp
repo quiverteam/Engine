@@ -11,7 +11,7 @@
 #include "team.h"
 #include "team_control_point_master.h"
 #include "mp_shareddefs.h"
-#include "engine/IEngineSound.h"
+#include "engine/ienginesound.h"
 #include "soundenvelope.h"
 
 BEGIN_DATADESC(CTeamControlPoint)

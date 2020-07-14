@@ -8,8 +8,8 @@
 #include "hud_pdump.h"
 #include "iclientmode.h"
 #include "predictioncopy.h"
-#include <vgui/ISurface.h>
-#include <vgui/ILocalize.h>
+#include <vgui/isurface.h>
+#include <vgui/ilocalize.h>
 
 // memdbgon must be the last include file in a .cpp file!!!
 #include "tier0/memdbgon.h"

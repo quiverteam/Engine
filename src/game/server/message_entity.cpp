@@ -15,7 +15,7 @@
 #include "soundent.h"
 #include "ndebugoverlay.h"
 #include "vstdlib/random.h"
-#include "engine/IEngineSound.h"
+#include "engine/ienginesound.h"
 #include "game.h"
 
 #include "player.h"

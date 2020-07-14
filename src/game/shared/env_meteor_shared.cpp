@@ -7,7 +7,7 @@
 #include "cbase.h"
 #include "env_meteor_shared.h"
 #include "mapdata_shared.h"
-#include "sharedInterface.h"
+#include "sharedinterface.h"
 
 //=============================================================================
 //

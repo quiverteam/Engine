@@ -7,7 +7,7 @@
 //=============================================================================//
 #include "cbase.h"
 #include "particledraw.h"
-#include "materialsystem/IMesh.h"
+#include "materialsystem/imesh.h"
 
 // memdbgon must be the last include file in a .cpp file!!!
 #include "tier0/memdbgon.h"

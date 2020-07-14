@@ -10,10 +10,10 @@
 #pragma once
 #endif
 
-#include "vgui_controls/Frame.h"
-#include "vgui/MouseCode.h"
-#include "KeyValues.h"
-#include "UtlVector.h"
+#include "vgui_controls/frame.h"
+#include "vgui/mousecode.h"
+#include "keyvalues.h"
+#include "utlvector.h"
 
 
 #define SAVEGAME_MAPNAME_LEN 32

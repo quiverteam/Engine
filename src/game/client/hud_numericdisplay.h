@@ -10,7 +10,7 @@
 #pragma once
 #endif
 
-#include <vgui_controls/Panel.h>
+#include <vgui_controls/panel.h>
 
 //-----------------------------------------------------------------------------
 // Purpose: Base class for all the hud elements that are just a numeric display

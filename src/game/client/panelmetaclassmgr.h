@@ -16,7 +16,7 @@
 
 #include "tier0/dbg.h"
 #include "basetypes.h"
-#include <vgui/VGUI.h>
+#include <vgui/vgui.h>
 
 //-----------------------------------------------------------------------------
 // forward declarations

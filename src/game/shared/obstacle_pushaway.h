@@ -13,7 +13,7 @@
 #include "props_shared.h"
 #ifndef CLIENT_DLL
 #include "func_breakablesurf.h"
-#include "BasePropDoor.h"
+#include "basepropdoor.h"
 #include "doors.h"
 #endif // CLIENT_DLL
 

@@ -9,8 +9,8 @@
 
 
 #include "basemodui.h"
-#include "VFlyoutMenu.h"
-#include "../settings_old/OptionsSubAudio.h"
+#include "vflyoutmenu.h"
+#include "../settings_old/optionssubaudio.h"
 
 class CNB_Header_Footer;
 

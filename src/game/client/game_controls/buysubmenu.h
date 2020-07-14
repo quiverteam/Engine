@@ -11,9 +11,9 @@
 #pragma once
 #endif
 
-#include <vgui_controls/WizardSubPanel.h>
-#include <vgui_controls/Button.h>
-#include <UtlVector.h>
+#include <vgui_controls/wizardsubpanel.h>
+#include <vgui_controls/button.h>
+#include <utlvector.h>
 #include "mouseoverpanelbutton.h"
 
 class CBuyMenu;

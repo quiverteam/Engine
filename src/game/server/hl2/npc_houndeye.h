@@ -16,7 +16,7 @@
 #pragma once
 
 
-#include	"AI_BaseNPC.h"
+#include	"ai_basenpc.h"
 
 #include	"energy_wave.h"
 

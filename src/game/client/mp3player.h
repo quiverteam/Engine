@@ -19,9 +19,9 @@
 // It has a property sheet to switch between the file view and the current playlist
 //  it has a list view to show the actual files in either view
 
-#include "vgui_controls/Frame.h"
-#include "FileSystem.h"
-#include "UtlSymbol.h"
+#include "vgui_controls/frame.h"
+#include "filesystem.h"
+#include "utlsymbol.h"
 
 // Forward declarations
 namespace vgui

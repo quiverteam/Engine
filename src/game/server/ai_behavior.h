@@ -11,7 +11,7 @@
 #include "ai_component.h"
 #include "ai_basenpc.h"
 #include "ai_default.h"
-#include "AI_Criteria.h"
+#include "ai_criteria.h"
 #include "networkvar.h"
 
 #ifdef DEBUG

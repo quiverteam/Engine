@@ -11,7 +11,7 @@
 #pragma once
 #endif
 
-#include <vgui_controls/Button.h>
+#include <vgui_controls/button.h>
 
 //-----------------------------------------------------------------------------
 // Purpose: Baseclass for the left and right ingame menus that lay on the background

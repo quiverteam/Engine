@@ -1,8 +1,8 @@
 //---------------------------------------------------------------------
 #include "cbase.h"
 #include "nb_horiz_list.h"
-#include "vgui_controls/ImagePanel.h"
-#include "vgui_controls/ScrollBar.h"
+#include "vgui_controls/imagepanel.h"
+#include "vgui_controls/scrollbar.h"
 #include "vgui_bitmapbutton.h"
 #include "input.h"
 

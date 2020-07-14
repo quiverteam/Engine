@@ -9,13 +9,13 @@
 #include "hudelement.h"
 #include "hud_macros.h"
 #include "iclientmode.h"
-#include "vgui_controls/AnimationController.h"
-#include "vgui_controls/Label.h"
-#include "vgui/ILocalize.h"
-#include "vgui/ISurface.h"
+#include "vgui_controls/animationcontroller.h"
+#include "vgui_controls/label.h"
+#include "vgui/ilocalize.h"
+#include "vgui/isurface.h"
 #include "text_message.h"
 #include "c_baseplayer.h"
-#include "IGameUIFuncs.h"
+#include "igameuifuncs.h"
 #include "inputsystem/iinputsystem.h"
 
 // memdbgon must be the last include file in a .cpp file!!!

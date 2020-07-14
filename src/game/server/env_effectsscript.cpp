@@ -7,8 +7,8 @@
 
 #include "cbase.h"
 #include "baseanimating.h"
-#include "Sprite.h"
-#include "SpriteTrail.h"
+#include "sprite.h"
+#include "spritetrail.h"
 #include <ctype.h>
 #include "animation.h"
 #include "eventlist.h"

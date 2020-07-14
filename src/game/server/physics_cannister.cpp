@@ -16,7 +16,7 @@
 #include "steamjet.h"
 #include "eventqueue.h"
 #include "soundflags.h"
-#include "engine/IEngineSound.h"
+#include "engine/ienginesound.h"
 #include "props.h"
 #include "physics_cannister.h"
 #include "globals.h"

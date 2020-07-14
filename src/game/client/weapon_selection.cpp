@@ -10,7 +10,7 @@
 #include "history_resource.h"
 #include "menu.h"
 #include "in_buttons.h"
-#include <KeyValues.h>
+#include <keyvalues.h>
 #include "filesystem.h"
 #include "iinput.h"
 

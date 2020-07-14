@@ -9,7 +9,7 @@
 #ifndef VGUI_ENTITYIMAGEPANEL_H
 #define VGUI_ENTITYIMAGEPANEL_H
 
-#include "vgui_EntityPanel.h"
+#include "vgui_entitypanel.h"
 #include "shareddefs.h"
 
 //-----------------------------------------------------------------------------

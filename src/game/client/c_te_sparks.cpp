@@ -6,7 +6,7 @@
 //===========================================================================//
 #include "cbase.h"
 #include "c_te_particlesystem.h"
-#include "IEffects.h"
+#include "ieffects.h"
 #include "tier1/keyvalues.h"
 #include "toolframework_client.h"
 

@@ -5,10 +5,10 @@
 // $NoKeywords: $
 //=============================================================================//
 #include "cbase.h"
-#include "materialsystem/IMaterial.h"
-#include <KeyValues.h>
-#include "materialsystem/IMaterialVar.h"
-#include "FunctionProxy.h"
+#include "materialsystem/imaterial.h"
+#include <keyvalues.h>
+#include "materialsystem/imaterialvar.h"
+#include "functionproxy.h"
 #include "toolframework_client.h"
 
 // memdbgon must be the last include file in a .cpp file!!!

@@ -5,13 +5,13 @@
 //=============================================================================//
 
 #include "cbase.h"
-#include "ClientEffectPrecacheSystem.h"
-#include "FX_Sparks.h"
+#include "clienteffectprecachesystem.h"
+#include "fx_sparks.h"
 #include "iefx.h"
 #include "c_te_effect_dispatch.h"
 #include "particles_ez.h"
 #include "decals.h"
-#include "engine/IEngineSound.h"
+#include "engine/ienginesound.h"
 #include "fx_quad.h"
 #include "tier0/vprof.h"
 #include "fx.h"

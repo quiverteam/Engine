@@ -10,7 +10,7 @@
 #include "entitylist.h"
 #include "locksounds.h"
 #include "ndebugoverlay.h"
-#include "engine/IEngineSound.h"
+#include "engine/ienginesound.h"
 #include "physics_saverestore.h"
 
 // memdbgon must be the last include file in a .cpp file!!!

@@ -10,7 +10,7 @@
 
 #include "ai_component.h"
 #include "ai_basenpc.h"
-#include "SoundEmitterSystem/isoundemittersystembase.h"
+#include "soundemittersystem/isoundemittersystembase.h"
 
 
 //-----------------------------------------------------------------------------

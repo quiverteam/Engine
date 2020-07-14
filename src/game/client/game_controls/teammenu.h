@@ -11,13 +11,13 @@
 #pragma once
 #endif
 
-#include <vgui_controls/Frame.h>
-#include <vgui_controls/Button.h>
+#include <vgui_controls/frame.h>
+#include <vgui_controls/button.h>
 
 #include <game/client/iviewport.h>
 
-#include <vgui/KeyCode.h>
-#include <UtlVector.h>
+#include <vgui/keycode.h>
+#include <utlvector.h>
 
 namespace vgui
 {

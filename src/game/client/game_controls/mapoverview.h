@@ -11,7 +11,7 @@
 #pragma once
 #endif
 
-#include <vgui_controls/Panel.h>
+#include <vgui_controls/panel.h>
 #include <game/client/iviewport.h>
 #include "mathlib/vector.h"
 #include <igameevents.h>

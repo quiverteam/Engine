@@ -11,14 +11,14 @@
 #pragma once
 #endif
 
-#include <vgui/IScheme.h>
+#include <vgui/ischeme.h>
 #include <vgui/keycode.h>
-#include <vgui_controls/Frame.h>
-#include <vgui_controls/EditablePanel.h>
-#include <vgui_controls/Button.h>
-#include <vgui_controls/ComboBox.h>
+#include <vgui_controls/frame.h>
+#include <vgui_controls/editablepanel.h>
+#include <vgui_controls/button.h>
+#include <vgui_controls/combobox.h>
 #include <igameevents.h>
-#include "GameEventListener.h"
+#include "gameeventlistener.h"
 
 #include <game/client/iviewport.h>
 

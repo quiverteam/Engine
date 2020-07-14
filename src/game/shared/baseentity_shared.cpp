@@ -33,7 +33,7 @@
 	#include "te_hl2mp_shotgun_shot.h"
 #endif
 
-	#include "GameStats.h"
+	#include "gamestats.h"
 
 #endif
 

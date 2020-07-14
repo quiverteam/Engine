@@ -12,8 +12,8 @@
 #include "clientmode.h"
 #include "hudelement.h"
 #include "keyvalues.h"
-#include "vgui_controls/AnimationController.h"
-#include "engine/IEngineSound.h"
+#include "vgui_controls/animationcontroller.h"
+#include "engine/ienginesound.h"
 #include <bitbuf.h>
 
 // memdbgon must be the last include file in a .cpp file!!!

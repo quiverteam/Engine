@@ -6,10 +6,10 @@
 // $NoKeywords: $
 //=============================================================================//
 #include "cbase.h"
-#include "vgui_BasePanel.h"
-#include <KeyValues.h>
-#include <vgui/IScheme.h>
-#include <vgui/IVGui.h>
+#include "vgui_basepanel.h"
+#include <keyvalues.h>
+#include <vgui/ischeme.h>
+#include <vgui/ivgui.h>
 
 // memdbgon must be the last include file in a .cpp file!!!
 #include "tier0/memdbgon.h"

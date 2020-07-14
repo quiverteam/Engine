@@ -8,7 +8,7 @@
 #ifndef TOGGLETEXTUREPROXY
 #define TOGGLETEXTUREPROXY
 
-#include "materialsystem/IMaterialProxy.h"
+#include "materialsystem/imaterialproxy.h"
 
 class IMaterial;
 class IMaterialVar;

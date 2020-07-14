@@ -10,7 +10,7 @@
 #include "tempent.h"
 #include "iefx.h"
 #include "decals.h"
-#include "IViewRender.h"
+#include "iviewrender.h"
 #include "engine/ivmodelinfo.h"
 #include "view.h"
 

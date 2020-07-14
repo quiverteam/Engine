@@ -1,10 +1,10 @@
 #include "cbase.h"
-#include "VDropDownMenu.h"
-#include "VHybridButton.h"
-#include "VFlyoutMenu.h"
+#include "vdropdownmenu.h"
+#include "vhybridbutton.h"
+#include "vflyoutmenu.h"
 
-#include "vgui/ISurface.h"
-#include "tier1/KeyValues.h"
+#include "vgui/isurface.h"
+#include "tier1/keyvalues.h"
 
 // memdbgon must be the last include file in a .cpp file!!!
 #include "tier0/memdbgon.h"

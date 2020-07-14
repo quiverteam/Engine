@@ -11,7 +11,7 @@
 #pragma once
 #endif
 
-#include "ISpatialPartition.h"
+#include "ispatialpartition.h"
 
 //Enumator class for ragdolls being affected by explosive forces
 class CRagdollExplosionEnumerator : public IPartitionEnumerator

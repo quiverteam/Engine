@@ -11,12 +11,12 @@
 #pragma once
 #endif
 
-#include <vgui_controls/Frame.h>
-#include <vgui_controls/Button.h>
-#include <vgui_controls/HTML.h>
-#include <UtlVector.h>
-#include <vgui/ILocalize.h>
-#include <vgui/KeyCode.h>
+#include <vgui_controls/frame.h>
+#include <vgui_controls/button.h>
+#include <vgui_controls/html.h>
+#include <utlvector.h>
+#include <vgui/ilocalize.h>
+#include <vgui/keycode.h>
 #include <game/client/iviewport.h>
 
 #include "mouseoverpanelbutton.h"

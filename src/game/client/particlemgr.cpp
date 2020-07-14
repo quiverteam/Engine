@@ -13,7 +13,7 @@
 #include "materialsystem/imesh.h"
 #include "materialsystem/imaterialvar.h"
 #include "mempool.h"
-#include "IClientMode.h"
+#include "iclientmode.h"
 #include "view_scene.h"
 #include "tier0/vprof.h"
 #include "engine/ivdebugoverlay.h"
@@ -26,7 +26,7 @@
 #include "filesystem.h"
 #include "particle_parse.h"
 #include "model_types.h"
-#include "tier0/ICommandLine.h"
+#include "tier0/icommandline.h"
 // memdbgon must be the last include file in a .cpp file!!!
 #include "tier0/memdbgon.h"
 

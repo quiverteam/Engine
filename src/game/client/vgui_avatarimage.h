@@ -10,9 +10,9 @@
 #pragma once
 #endif
 
-#include <vgui_controls/Image.h>
-#include <vgui_controls/ImagePanel.h>
-#include "steam\steam_api.h"
+#include <vgui_controls/image.h>
+#include <vgui_controls/imagepanel.h>
+#include "steam/steam_api.h"
 #include "c_baseplayer.h"
 
 //-----------------------------------------------------------------------------

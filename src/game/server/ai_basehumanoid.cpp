@@ -6,7 +6,7 @@
 
 #include "cbase.h"
 
-#include "BasePropDoor.h"
+#include "basepropdoor.h"
 
 #include "ai_basehumanoid.h"
 #include "ai_blended_movement.h"

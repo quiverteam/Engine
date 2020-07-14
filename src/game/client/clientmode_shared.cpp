@@ -15,12 +15,12 @@
 #include "iviewrender.h"
 #include "hud_basechat.h"
 #include "weapon_selection.h"
-#include <vgui/IVGUI.h>
-#include <vgui/Cursor.h>
-#include <vgui/IPanel.h>
+#include <vgui/ivgui.h>
+#include <vgui/cursor.h>
+#include <vgui/ipanel.h>
 #include "engine/ienginesound.h"
 #include <keyvalues.h>
-#include <vgui_controls/AnimationController.h>
+#include <vgui_controls/animationcontroller.h>
 #include "vgui_int.h"
 #include "hud_macros.h"
 #include "hltvcamera.h"
@@ -31,7 +31,7 @@
 #include "fmtstr.h"
 #include "achievementmgr.h"
 #include "c_playerresource.h"
-#include <vgui/ILocalize.h>
+#include <vgui/ilocalize.h>
 #if defined( _X360 )
 #include "xbox/xbox_console.h"
 #endif

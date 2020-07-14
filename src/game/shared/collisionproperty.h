@@ -12,7 +12,7 @@
 #endif
 
 #include "networkvar.h"
-#include "engine/ICollideable.h"
+#include "engine/icollideable.h"
 #include "mathlib/vector.h"
 #include "ispatialpartition.h"
 

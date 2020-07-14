@@ -9,7 +9,7 @@
 #include "cbase.h"
 #include "beamdraw.h"
 #include "enginesprite.h"
-#include "IViewRender_Beams.h"
+#include "iviewrender_beams.h"
 #include "view.h"
 #include "iviewrender.h"
 #include "engine/ivmodelinfo.h"

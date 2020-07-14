@@ -15,7 +15,7 @@
 #include "gamerules.h"
 #include "bspfile.h"
 #include "mathlib/mathlib.h"
-#include "engine/IEngineSound.h"
+#include "engine/ienginesound.h"
 #include "saverestoretypes.h"
 #include "saverestore_utlvector.h"
 #include "model_types.h"

@@ -12,10 +12,10 @@
 #include "entityoutput.h"
 #include "ai_basenpc.h"
 #include "monstermaker.h"
-#include "TemplateEntities.h"
+#include "templateentities.h"
 #include "ndebugoverlay.h"
 #include "mapentities.h"
-#include "IEffects.h"
+#include "ieffects.h"
 #include "props.h"
 
 // memdbgon must be the last include file in a .cpp file!!!

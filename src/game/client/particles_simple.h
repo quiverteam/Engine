@@ -12,7 +12,7 @@
 #endif
 
 #include "particlemgr.h"
-#include "ParticleSphereRenderer.h"
+#include "particlesphererenderer.h"
 #include "smartptr.h"
 
 

@@ -12,7 +12,7 @@
 #include "model_types.h"
 #include "movehelper_server.h"
 #include "shake.h"				// For screen fade constants
-#include "engine/IEngineSound.h"
+#include "engine/ienginesound.h"
 
 // memdbgon must be the last include file in a .cpp file!!!
 #include "tier0/memdbgon.h"

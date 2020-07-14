@@ -9,7 +9,7 @@
 #include "decals.h"
 #include "explode.h"
 #include "ai_basenpc.h"
-#include "IEffects.h"
+#include "ieffects.h"
 #include "vstdlib/random.h"
 #include "tier1/strtools.h"
 #include "shareddefs.h"

@@ -7,8 +7,8 @@
 //=============================================================================//
 
 #include "materialsystem/imesh.h"
-#include "materialsystem/ITexture.h"
-#include "materialsystem/MaterialSystemUtil.h"
+#include "materialsystem/itexture.h"
+#include "materialsystem/materialsystemutil.h"
 #include "tier1/strtools.h"
 #include "rendertexture.h"
 

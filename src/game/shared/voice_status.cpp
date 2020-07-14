@@ -11,7 +11,7 @@
 #include <stdio.h>
 #include "voice_status.h"
 #include "r_efx.h"
-#include <vgui_controls/TextImage.h>
+#include <vgui_controls/textimage.h>
 #include <vgui/mousecode.h>
 #include "cdll_client_int.h"
 #include "hud_macros.h"
@@ -21,14 +21,14 @@
 #include "materialsystem/imesh.h"
 #include "view.h"
 #include "convar.h"
-#include <vgui_controls/Controls.h>
-#include <vgui/IScheme.h>
-#include <vgui/ISurface.h>
-#include "vgui_BitmapImage.h"
+#include <vgui_controls/controls.h>
+#include <vgui/ischeme.h>
+#include <vgui/isurface.h>
+#include "vgui_bitmapimage.h"
 #include "materialsystem/imaterial.h"
 #include "tier0/dbg.h"
 #include "cdll_int.h"
-#include <vgui/IPanel.h>
+#include <vgui/ipanel.h>
 
 // memdbgon must be the last include file in a .cpp file!!!
 #include "tier0/memdbgon.h"

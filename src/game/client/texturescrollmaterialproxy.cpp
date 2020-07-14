@@ -5,11 +5,11 @@
 // $NoKeywords: $
 //=============================================================================//
 #include "cbase.h"
-#include "materialsystem/IMaterialProxy.h"
-#include "materialsystem/IMaterial.h"
-#include "materialsystem/IMaterialVar.h"
-#include <KeyValues.h>
-#include "mathlib/VMatrix.h"
+#include "materialsystem/imaterialproxy.h"
+#include "materialsystem/imaterial.h"
+#include "materialsystem/imaterialvar.h"
+#include <keyvalues.h>
+#include "mathlib/vmatrix.h"
 #include "functionproxy.h"
 #include "toolframework_client.h"
 

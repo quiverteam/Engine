@@ -11,9 +11,9 @@
 #pragma once
 #endif
 
-#include <vgui_controls/Frame.h>
-#include "ScriptObject.h"
-#include <vgui/KeyCode.h>
+#include <vgui_controls/frame.h>
+#include "scriptobject.h"
+#include <vgui/keycode.h>
 
 //-----------------------------------------------------------------------------
 // Purpose: Displays a game-specific list of options

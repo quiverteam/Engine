@@ -6,7 +6,7 @@
 //===========================================================================//
 
 #include "cbase.h"
-#include "engine/IEngineSound.h"
+#include "engine/ienginesound.h"
 #include "mempool.h"
 #include "movevars_shared.h"
 #include "utlrbtree.h"

@@ -14,7 +14,7 @@
 #pragma once
 #endif
 
-#include "engine/IEngineSound.h"
+#include "engine/ienginesound.h"
 
 class CSoundPatch;
 

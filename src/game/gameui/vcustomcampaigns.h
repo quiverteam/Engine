@@ -8,7 +8,7 @@
 #define __VCUSTOMCAMPAIGNS_H__
 
 #include "basemodui.h"
-#include "VGenericPanelList.h"
+#include "vgenericpanellist.h"
 
 namespace BaseModUI {
 

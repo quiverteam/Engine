@@ -11,7 +11,7 @@
 #include "toolframework/iclientenginetools.h"
 #include "client_factorylist.h"
 #include "iviewrender.h"
-#include "materialsystem/IMaterialVar.h"
+#include "materialsystem/imaterialvar.h"
 
 extern IViewRender *view;
 

@@ -11,9 +11,9 @@
 #pragma once
 #endif
 
-#include "UtlVector.h"
+#include "utlvector.h"
 #include "ehandle.h"
-#include "ISpatialPartition.h"
+#include "ispatialpartition.h"
 
 class C_BaseEntity;
 

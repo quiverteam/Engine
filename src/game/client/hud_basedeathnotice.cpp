@@ -11,9 +11,9 @@
 #include "iclientmode.h"
 #include <vgui_controls/controls.h>
 #include <vgui_controls/panel.h>
-#include <vgui/ISurface.h>
-#include <vgui/ILocalize.h>
-#include <KeyValues.h>
+#include <vgui/isurface.h>
+#include <vgui/ilocalize.h>
+#include <keyvalues.h>
 #include <game_controls/baseviewport.h>
 #include "clientmode_shared.h"
 #include "c_baseplayer.h"

@@ -8,11 +8,11 @@
 #include "hud.h"
 #include "hudelement.h"
 #include "clientmode.h"
-#include <vgui_controls/Panel.h>
+#include <vgui_controls/panel.h>
 #include <vgui/isurface.h>
-#include <vgui/ILocalize.h>
-#include <vgui/IScheme.h>
-#include <vgui_controls/AnimationController.h>
+#include <vgui/ilocalize.h>
+#include <vgui/ischeme.h>
+#include <vgui_controls/animationcontroller.h>
 #include "materialsystem/imaterialsystemhardwareconfig.h"
 #include "soundenvelope.h"
 #include "convar.h"

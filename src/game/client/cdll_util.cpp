@@ -9,9 +9,9 @@
 #include <stdarg.h>
 #include "hud.h"
 #include "itextmessage.h"
-#include "materialsystem/IMaterial.h"
-#include "materialsystem/ITexture.h"
-#include "materialsystem/IMaterialSystem.h"
+#include "materialsystem/imaterial.h"
+#include "materialsystem/itexture.h"
+#include "materialsystem/imaterialsystem.h"
 #include "imovehelper.h"
 #include "checksum_crc.h"
 #include "decals.h"
@@ -19,12 +19,12 @@
 #include "view_scene.h"
 #include "filesystem.h"
 #include "model_types.h"
-#include "engine/IEngineTrace.h"
+#include "engine/ienginetrace.h"
 #include "engine/ivmodelinfo.h"
 #include "c_te_effect_dispatch.h"
-#include <vgui_controls/Controls.h>
-#include <vgui/ISurface.h>
-#include <vgui/ILocalize.h>
+#include <vgui_controls/controls.h>
+#include <vgui/isurface.h>
+#include <vgui/ilocalize.h>
 #include "view.h"
 #include "ixboxsystem.h"
 

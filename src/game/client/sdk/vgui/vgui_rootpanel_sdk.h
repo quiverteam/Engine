@@ -11,9 +11,9 @@
 #endif
 
 
-#include <vgui_controls/Panel.h>
-#include <vgui_controls/EditablePanel.h>
-#include "UtlVector.h"
+#include <vgui_controls/panel.h>
+#include <vgui_controls/editablepanel.h>
+#include "utlvector.h"
 
 
 class CPanelEffect;

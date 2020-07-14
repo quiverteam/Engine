@@ -13,9 +13,9 @@
 #endif
 
 
-#include <vgui_controls/EditablePanel.h>
-#include "C_BaseEntity.h"
-#include "PanelMetaClassMgr.h"
+#include <vgui_controls/editablepanel.h>
+#include "c_baseentity.h"
+#include "panelmetaclassmgr.h"
 
 class KeyValues;
 

@@ -11,11 +11,11 @@
 #include "hud_numericdisplay.h"
 #include "hud_macros.h"
 #include "iclientmode.h"
-#include <vgui_controls/AnimationController.h>
-#include <vgui/ISurface.h>
-#include <vgui/ILocalize.h>
-#include <vgui_controls/Panel.h>
-#include <vgui/IVgui.h>
+#include <vgui_controls/animationcontroller.h>
+#include <vgui/isurface.h>
+#include <vgui/ilocalize.h>
+#include <vgui_controls/panel.h>
+#include <vgui/ivgui.h>
 
 
 using namespace vgui;

@@ -18,7 +18,7 @@
 #include "fmtstr.h"
 #include "props_shared.h"
 #include "func_breakablesurf.h"
-#include "Color.h"
+#include "color.h"
 #include "collisionutils.h"
 
 // memdbgon must be the last include file in a .cpp file!!!

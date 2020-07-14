@@ -16,10 +16,10 @@
 #endif
 
 #include "mathlib/vector.h"
-#include "IClientEntityInternal.h"
-#include "engine/IVModelRender.h"
+#include "icliententityinternal.h"
+#include "engine/ivmodelrender.h"
 #include "client_class.h"
-#include "IClientShadowMgr.h"
+#include "iclientshadowmgr.h"
 #include "ehandle.h"
 #include "iclientunknown.h"
 #include "client_thinklist.h"

@@ -6,20 +6,20 @@
 //=============================================================================//
 
 #include <stdio.h>
-#include <UtlSymbol.h>
+#include <utlsymbol.h>
 
-#include <vgui/IBorder.h>
-#include <vgui/IInput.h>
-#include <vgui/IScheme.h>
-#include <vgui/ISurface.h>
-#include <vgui/ISystem.h>
-#include <vgui/IVGui.h>
-#include <vgui/MouseCode.h>
-#include <vgui/KeyCode.h>
-#include <KeyValues.h>
+#include <vgui/iborder.h>
+#include <vgui/iinput.h>
+#include <vgui/ischeme.h>
+#include <vgui/isurface.h>
+#include <vgui/isystem.h>
+#include <vgui/ivgui.h>
+#include <vgui/mousecode.h>
+#include <vgui/keycode.h>
+#include <keyvalues.h>
 
-#include "URLButton.h"
-#include <vgui_controls/FocusNavGroup.h>
+#include "urlbutton.h"
+#include <vgui_controls/focusnavgroup.h>
 
 // memdbgon must be the last include file in a .cpp file!!!
 #include <tier0/memdbgon.h>

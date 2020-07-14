@@ -9,8 +9,8 @@
 // identifier was truncated to '255' characters in the debug information
 //#pragma warning(disable: 4786)
 
-#include "ProxyEntity.h"
-#include "materialsystem/IMaterialVar.h"
+#include "proxyentity.h"
+#include "materialsystem/imaterialvar.h"
 
 class CEntityOriginMaterialProxy : public CEntityMaterialProxy
 {

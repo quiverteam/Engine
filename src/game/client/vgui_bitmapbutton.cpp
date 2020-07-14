@@ -9,8 +9,8 @@
 #pragma warning (disable: 4514)
 
 #include "vgui_bitmapimage.h"
-#include "vgui_BitmapButton.h"
-#include <KeyValues.h>
+#include "vgui_bitmapbutton.h"
+#include <keyvalues.h>
 
 // memdbgon must be the last include file in a .cpp file!!!
 #include "tier0/memdbgon.h"

@@ -8,7 +8,7 @@
 #include "igamesystem.h"
 #include "utlsymbol.h"
 #include "utldict.h"
-#include "KeyValues.h"
+#include "keyvalues.h"
 #include "filesystem.h"
 
 #ifdef CLIENT_DLL

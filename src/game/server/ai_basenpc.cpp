@@ -47,7 +47,7 @@
 #include "ai_tacticalservices.h"
 #include "ai_behavior.h"
 #include "ai_dynamiclink.h"
-#include "AI_Criteria.h"
+#include "ai_criteria.h"
 #include "basegrenade_shared.h"
 #include "ammodef.h"
 #include "player.h"
@@ -55,12 +55,12 @@
 #include "ndebugoverlay.h"
 #include "mathlib/mathlib.h"
 #include "bone_setup.h"
-#include "IEffects.h"
+#include "ieffects.h"
 #include "vstdlib/random.h"
-#include "engine/IEngineSound.h"
+#include "engine/ienginesound.h"
 #include "tier1/strtools.h"
 #include "doors.h"
-#include "BasePropDoor.h"
+#include "basepropdoor.h"
 #include "saverestore_utlvector.h"
 #include "npcevent.h"
 #include "movevars_shared.h"
@@ -105,7 +105,7 @@ extern ConVar sk_healthkit;
 #include "ai_waypoint.h"
 
 #include "utlbuffer.h"
-#include "GameStats.h"
+#include "gamestats.h"
 
 // memdbgon must be the last include file in a .cpp file!!!
 #include "tier0/memdbgon.h"

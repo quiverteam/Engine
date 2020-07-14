@@ -23,7 +23,7 @@
 #include "vphysics_interface.h"
 #include "mempool.h"
 #include "entitylist.h"
-#include "engine/IEngineSound.h"
+#include "engine/ienginesound.h"
 #include "datacache/imdlcache.h"
 #include "ispatialpartition.h"
 #include "tier0/vprof.h"

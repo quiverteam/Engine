@@ -7,7 +7,7 @@
 
 #include "cbase.h"
 
-#include "IEffects.h"
+#include "ieffects.h"
 #include "collisionutils.h"
 
 #include "ai_basenpc.h"

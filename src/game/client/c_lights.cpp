@@ -1,10 +1,10 @@
 #include "cbase.h"
 #include "c_lights.h"
 
-#include "game_controls/FloatSlider.h"
-#include "vgui_controls/TextEntry.h"
-#include "vgui_controls/Frame.h"
-#include "vgui/IInput.h"
+#include "game_controls/floatslider.h"
+#include "vgui_controls/textentry.h"
+#include "vgui_controls/frame.h"
+#include "vgui/iinput.h"
 #include "ienginevgui.h"
 
 #include "tier0/memdbgon.h"

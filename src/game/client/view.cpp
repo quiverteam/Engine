@@ -17,12 +17,12 @@
 #include "c_te_legacytempents.h"
 #include "cl_mat_stub.h"
 #include "tier0/vprof.h"
-#include "IClientVehicle.h"
-#include "engine/IEngineTrace.h"
+#include "iclientvehicle.h"
+#include "engine/ienginetrace.h"
 #include "mathlib/vmatrix.h"
 #include "rendertexture.h"
 #include "c_world.h"
-#include <KeyValues.h>
+#include <keyvalues.h>
 #include "igameevents.h"
 #include "smoke_fog_overlay.h"
 #include "bitmap/tgawriter.h"
@@ -32,17 +32,17 @@
 #include "materialsystem/itexture.h"
 #include "toolframework_client.h"
 #include "tier0/icommandline.h"
-#include "IEngineVGui.h"
-#include <vgui_controls/Controls.h>
-#include <vgui/ISurface.h>
-#include "ScreenSpaceEffects.h"
+#include "ienginevgui.h"
+#include <vgui_controls/controls.h>
+#include <vgui/isurface.h>
+#include "screenspaceeffects.h"
 
 #if defined( HL2_CLIENT_DLL ) || defined( CSTRIKE_DLL )
 #define USE_MONITORS
 #endif
 
 #ifdef PORTAL
-#include "C_Prop_Portal.h" //portal surface rendering functions
+#include "c_prop_portal.h" //portal surface rendering functions
 #endif
 
 	

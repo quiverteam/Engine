@@ -10,7 +10,7 @@
 #pragma once
 #endif
 
-#include <vgui_controls/Panel.h>
+#include <vgui_controls/panel.h>
 #include "hudelement.h"
 
 namespace vgui

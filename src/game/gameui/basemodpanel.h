@@ -7,17 +7,17 @@
 #ifndef _BASEMODFACTORYBASEPANEL_H__
 #define _BASEMODFACTORYBASEPANEL_H__
 
-#include "vgui_controls/Panel.h"
-#include "vgui_controls/Frame.h"
-#include "vgui_controls/Button.h"
-#include "vgui_controls/PHandle.h"
-#include "vgui_controls/MenuItem.h"
+#include "vgui_controls/panel.h"
+#include "vgui_controls/frame.h"
+#include "vgui_controls/button.h"
+#include "vgui_controls/phandle.h"
+#include "vgui_controls/menuitem.h"
 #include "vgui_controls/messagedialog.h"
 #include "tier1/utllinkedlist.h"
-#include "shared\settings_old\OptionsDialog.h"
-#include "shared\settings_old\OptionsSubKeyboard.h"
-#include "shared\settings_old\OptionsSubMouse.h"
-#include "shared\settings_old\optionsmousedialog.h"
+#include "shared/settings_old/optionsdialog.h"
+#include "shared/settings_old/optionssubkeyboard.h"
+#include "shared/settings_old/optionssubmouse.h"
+#include "shared/settings_old/optionsmousedialog.h"
 
 //#include "avi/ibik.h"
 #include "ixboxsystem.h"

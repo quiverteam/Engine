@@ -12,10 +12,10 @@
 #endif
 
 #include <stdarg.h>
-#include <vgui_controls/Panel.h>
-#include <vgui_controls/Label.h>
-#include <vgui_controls/Controls.h>
-#include <vgui/ISurface.h>
+#include <vgui_controls/panel.h>
+#include <vgui_controls/label.h>
+#include <vgui_controls/controls.h>
+#include <vgui/isurface.h>
 
 //-----------------------------------------------------------------------------
 // Global interface allowing various rendering

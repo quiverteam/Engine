@@ -6,7 +6,7 @@
 // $NoKeywords: $
 //=============================================================================//
 #include "cbase.h"
-#include "particle_simple3D.h"
+#include "particle_simple3d.h"
 #include "view.h"
 
 // memdbgon must be the last include file in a .cpp file!!!

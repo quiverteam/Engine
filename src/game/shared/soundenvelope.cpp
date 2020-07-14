@@ -7,17 +7,17 @@
 // $NoKeywords: $
 //=============================================================================//
 #include "cbase.h"
-#include "sharedInterface.h"
+#include "sharedinterface.h"
 #include "soundenvelope.h"
-#include "engine/IEngineSound.h"
-#include "IEffects.h"
+#include "engine/ienginesound.h"
+#include "ieffects.h"
 #include "isaverestore.h"
 #include "saverestore_utlvector.h"
 #include "gamestringpool.h"
 #include "igamesystem.h"
 #include "utlpriorityqueue.h"
 #include "mempool.h"
-#include "SoundEmitterSystem/isoundemittersystembase.h"
+#include "soundemittersystem/isoundemittersystembase.h"
 #include "tier0/vprof.h"
 
 // memdbgon must be the last include file in a .cpp file!!!

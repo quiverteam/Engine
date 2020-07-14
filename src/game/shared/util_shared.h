@@ -14,8 +14,8 @@
 #include "cmodel.h"
 #include "utlvector.h"
 #include "networkvar.h"
-#include "engine/IEngineTrace.h"
-#include "engine/IStaticPropMgr.h"
+#include "engine/ienginetrace.h"
+#include "engine/istaticpropmgr.h"
 #include "shared_classnames.h"
 
 #ifdef CLIENT_DLL

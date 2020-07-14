@@ -10,8 +10,8 @@
 #pragma once
 #endif
 
-#include <vgui/VGUI.h>
-#include <vgui_controls/Panel.h>
+#include <vgui/vgui.h>
+#include <vgui_controls/panel.h>
 
 class KeyValues;
 

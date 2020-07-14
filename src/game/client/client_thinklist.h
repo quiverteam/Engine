@@ -12,7 +12,7 @@
 #endif
 
 
-#include "IGameSystem.h"
+#include "igamesystem.h"
 #include "utllinkedlist.h"
 #include "cliententitylist.h"
 #include "iclientthinkable.h"

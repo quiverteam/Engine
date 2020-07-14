@@ -9,20 +9,20 @@
 #include <stdio.h>
 #include <time.h>
 
-#include "CreateMultiplayerGameGameplayPage.h"
+#include "createmultiplayergamegameplaypage.h"
 
 using namespace vgui;
 
-#include <KeyValues.h>
-#include <vgui/ILocalize.h>
-#include <vgui_controls/ComboBox.h>
-#include <vgui_controls/CheckButton.h>
-#include <vgui_controls/Label.h>
-#include <vgui_controls/TextEntry.h>
+#include <keyvalues.h>
+#include <vgui/ilocalize.h>
+#include <vgui_controls/combobox.h>
+#include <vgui_controls/checkbutton.h>
+#include <vgui_controls/label.h>
+#include <vgui_controls/textentry.h>
 
-#include "FileSystem.h"
-#include "PanelListPanel.h"
-#include "ScriptObject.h"
+#include "filesystem.h"
+#include "panellistpanel.h"
+#include "scriptobject.h"
 
 // memdbgon must be the last include file in a .cpp file!!!
 #include <tier0/memdbgon.h>

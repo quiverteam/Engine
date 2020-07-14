@@ -11,7 +11,7 @@
 
 #include "shareddefs.h"
 #include "weapon_parse.h"
-#include "UtlDict.h"
+#include "utldict.h"
 #include "hud.h"
 
 class C_BaseCombatWeapon;

@@ -6,9 +6,9 @@
 
 #include "cbase.h"
 #include "hudelement.h"
-#include <vgui_controls/Panel.h>
+#include <vgui_controls/panel.h>
 #include <vgui/isurface.h>
-#include <vgui/ILocalize.h>
+#include <vgui/ilocalize.h>
 #include "c_baseplayer.h"
 #include "voice_status.h"
 #include "clientmode_shared.h"

@@ -8,7 +8,7 @@
 #include "toolframework/itoolentity.h"
 #include "entitylist.h"
 #include "toolframework/itoolsystem.h"
-#include "KeyValues.h"
+#include "keyvalues.h"
 #include "icliententity.h"
 #include "iserverentity.h"
 #include "sceneentity.h"

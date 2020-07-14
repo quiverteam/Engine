@@ -10,10 +10,10 @@
 #pragma once
 #endif
 
-#include <vgui_controls/Panel.h>
-#include <vgui_controls/Label.h>
+#include <vgui_controls/panel.h>
+#include <vgui_controls/label.h>
 #include "hl2_vehicle_radar.h"
-#include "C_VGUIScreen.h"
+#include "c_vguiscreen.h"
 
 class CRadarContact
 {

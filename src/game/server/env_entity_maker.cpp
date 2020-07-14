@@ -8,7 +8,7 @@
 
 #include "cbase.h"
 #include "entityoutput.h"
-#include "TemplateEntities.h"
+#include "templateentities.h"
 #include "point_template.h"
 
 // memdbgon must be the last include file in a .cpp file!!!

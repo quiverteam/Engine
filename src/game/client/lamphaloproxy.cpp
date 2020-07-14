@@ -5,9 +5,9 @@
 // $NoKeywords: $
 //=============================================================================//
 #include "cbase.h"
-#include "ProxyEntity.h"
-#include "materialsystem/IMaterialVar.h"
-#include "materialsystem/IMaterial.h"
+#include "proxyentity.h"
+#include "materialsystem/imaterialvar.h"
+#include "materialsystem/imaterial.h"
 #include "view.h"
 
 // memdbgon must be the last include file in a .cpp file!!!

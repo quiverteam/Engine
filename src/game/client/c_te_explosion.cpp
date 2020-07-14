@@ -7,10 +7,10 @@
 #include "cbase.h"
 #include "tempentity.h"  // FLAGS
 #include "c_te_particlesystem.h"
-#include "RagdollExplosionEnumerator.h"
+#include "ragdollexplosionenumerator.h"
 #include "glow_overlay.h"
 #include "fx_explosion.h"
-#include "ClientEffectPrecacheSystem.h"
+#include "clienteffectprecachesystem.h"
 #include "engine/ivdebugoverlay.h"
 #include "tier1/keyvalues.h"
 #include "toolframework_client.h"

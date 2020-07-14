@@ -17,7 +17,8 @@ class CUtlBuffer;
 class ISceneTokenProcessor;
 class IChoreoStringPool;
 
-#pragma pack(1)
+/* winemaker: #pragma pack(1) */
+#include <pshpack1.h>
 struct EdgeInfo_t
 {
 	EdgeInfo_t() : 
@@ -61,7 +62,9 @@ struct CExpressionSample
 private:
 	unsigned short	m_curvetype	: 15;
 };
-#pragma pack()
+/* winemaker: #pragma pack() */
+/* winemaker:warning: Using 4 as the default alignment */
+#include <pshpack4.h>
 
 //-----------------------------------------------------------------------------
 // Purpose: Provides generic access to scene or event ramp data

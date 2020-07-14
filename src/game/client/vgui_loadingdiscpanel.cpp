@@ -8,10 +8,10 @@
 //=============================================================================//
 #include "cbase.h"
 #include "iloadingdisc.h"
-#include "vgui_controls/Frame.h"
-#include "vgui_controls/Label.h"
+#include "vgui_controls/frame.h"
+#include "vgui_controls/label.h"
 #include "hud_numericdisplay.h"
-#include "vgui/ISurface.h"
+#include "vgui/isurface.h"
 
 // memdbgon must be the last include file in a .cpp file!!!
 #include "tier0/memdbgon.h"

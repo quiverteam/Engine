@@ -5,20 +5,20 @@
 // $NoKeywords: $
 //===========================================================================//
 
-#include "CreateMultiplayerGameServerPage.h"
+#include "createmultiplayergameserverpage.h"
 
 using namespace vgui;
 
-#include <KeyValues.h>
-#include <vgui_controls/ComboBox.h>
-#include <vgui_controls/RadioButton.h>
-#include <vgui_controls/CheckButton.h>
-#include "FileSystem.h"
+#include <keyvalues.h>
+#include <vgui_controls/combobox.h>
+#include <vgui_controls/radiobutton.h>
+#include <vgui_controls/checkbutton.h>
+#include "filesystem.h"
 #include "tier1/convar.h"
-#include "EngineInterface.h"
-#include "CvarToggleCheckButton.h"
+#include "engineinterface.h"
+#include "cvartogglecheckbutton.h"
 
-#include "ModInfo.h"
+#include "modinfo.h"
 
 // for SRC
 #include <vstdlib/random.h>

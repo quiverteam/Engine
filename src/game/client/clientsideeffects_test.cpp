@@ -6,7 +6,7 @@
 // $NoKeywords: $
 //=============================================================================//
 #include "cbase.h"
-#include "engine/IEngineSound.h"
+#include "engine/ienginesound.h"
 #include "view.h"
 
 #include "fx_line.h"
@@ -14,10 +14,10 @@
 #include "fx_quad.h"
 #include "clientsideeffects.h"
 
-#include "SoundEmitterSystem/isoundemittersystembase.h"
+#include "soundemittersystem/isoundemittersystembase.h"
 #include "tier0/vprof.h"
-#include "CollisionUtils.h"
-#include "ClientEffectPrecacheSystem.h"
+#include "collisionutils.h"
+#include "clienteffectprecachesystem.h"
 
 // memdbgon must be the last include file in a .cpp file!!!
 #include "tier0/memdbgon.h"

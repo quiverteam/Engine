@@ -7,29 +7,29 @@
 
 #include "cbase.h"
 #include "networkstringtable_clientdll.h"
-#include <KeyValues.h>
-#include "PanelMetaClassMgr.h"
-#include <vgui_controls/Controls.h>
-#include "mathlib/VMatrix.h"
-#include "VGUIMatSurface/IMatSystemSurface.h"
+#include <keyvalues.h>
+#include "panelmetaclassmgr.h"
+#include <vgui_controls/controls.h>
+#include "mathlib/vmatrix.h"
+#include "vguimatsurface/imatsystemsurface.h"
 #include "view.h"
-#include "CollisionUtils.h"
-#include <vgui/IInput.h>
-#include <vgui/IPanel.h>
-#include <vgui/IVGui.h>
+#include "collisionutils.h"
+#include <vgui/iinput.h>
+#include <vgui/ipanel.h>
+#include <vgui/ivgui.h>
 #include "ienginevgui.h"
 #include "in_buttons.h"
-#include <vgui/Mousecode.h>
-#include "materialsystem/IMesh.h"
-#include "ClientEffectPrecacheSystem.h"
-#include "C_VGuiScreen.h"
-#include "IClientMode.h"
+#include <vgui/mousecode.h>
+#include "materialsystem/imesh.h"
+#include "clienteffectprecachesystem.h"
+#include "c_vguiscreen.h"
+#include "iclientmode.h"
 #include "vgui_bitmapbutton.h"
 #include "vgui_bitmappanel.h"
 #include "filesystem.h"
 #include "iinput.h"
 
-#include <vgui/IInputInternal.h>
+#include <vgui/iinputinternal.h>
 extern vgui::IInputInternal *g_InputInternal;
 
 // memdbgon must be the last include file in a .cpp file!!!

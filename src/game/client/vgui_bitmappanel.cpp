@@ -8,9 +8,9 @@
 #include "cbase.h"
 #pragma warning (disable: 4514)
 #include "vgui_bitmappanel.h"
-#include <KeyValues.h>
+#include <keyvalues.h>
 #include "panelmetaclassmgr.h"
-#include "vgui_BitmapImage.h"
+#include "vgui_bitmapimage.h"
 
 #ifdef INVASION_CLIENT_DLL
 #include "hud_commander_statuspanel.h"

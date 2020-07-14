@@ -16,7 +16,7 @@
 
 #include "baseanimating.h"
 #include "player_pickup.h"
-#include "Sprite.h"
+#include "sprite.h"
 
 extern CBaseEntity *CreateRagGib( const char *szModel, const Vector &vecOrigin, const QAngle &vecAngles, const Vector &vecForce, float flFadeTime = 0.0, bool bShouldIgnite = false );
 

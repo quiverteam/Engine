@@ -17,7 +17,7 @@
 #include "soundent.h"
 #include "envmicrophone.h"
 #include "soundflags.h"
-#include "engine/IEngineSound.h"
+#include "engine/ienginesound.h"
 #include "filters.h"
 
 // memdbgon must be the last include file in a .cpp file!!!

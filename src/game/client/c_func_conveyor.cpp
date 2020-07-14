@@ -5,12 +5,12 @@
 //===========================================================================//
 
 #include "cbase.h"
-#include "materialsystem/IMaterialProxy.h"
-#include "materialsystem/IMaterial.h"
-#include "materialsystem/IMaterialVar.h"
-#include "FunctionProxy.h"
-#include <KeyValues.h>
-#include "mathlib/VMatrix.h"
+#include "materialsystem/imaterialproxy.h"
+#include "materialsystem/imaterial.h"
+#include "materialsystem/imaterialvar.h"
+#include "functionproxy.h"
+#include <keyvalues.h>
+#include "mathlib/vmatrix.h"
 #include "toolframework_client.h"
 
 // memdbgon must be the last include file in a .cpp file!!!

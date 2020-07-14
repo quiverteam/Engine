@@ -8,7 +8,7 @@
 #define C_PROP_VEHICLE_H
 #pragma once
 
-#include "IClientVehicle.h"
+#include "iclientvehicle.h"
 #include "vehicle_viewblend_shared.h"
 class C_PropVehicleDriveable : public C_BaseAnimating, public IClientVehicle
 {

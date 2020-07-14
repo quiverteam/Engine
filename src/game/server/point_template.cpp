@@ -7,7 +7,7 @@
 #include "cbase.h"
 #include "entityinput.h"
 #include "entityoutput.h"
-#include "TemplateEntities.h"
+#include "templateentities.h"
 #include "point_template.h"
 #include "saverestore_utlvector.h"
 #include "mapentities.h"

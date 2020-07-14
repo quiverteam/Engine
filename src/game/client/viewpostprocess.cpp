@@ -16,7 +16,7 @@
 #include "view_scene.h"
 #include "c_world.h"
 
-#include "ProxyEntity.h"
+#include "proxyentity.h"
 
 //-----------------------------------------------------------------------------
 // Globals

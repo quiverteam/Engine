@@ -10,9 +10,9 @@
 #include "func_dust_shared.h"
 #include "c_te_particlesystem.h"
 #include "env_wind_shared.h"
-#include "engine/IEngineTrace.h"
+#include "engine/ienginetrace.h"
 #include "tier0/vprof.h"
-#include "ClientEffectPrecacheSystem.h"
+#include "clienteffectprecachesystem.h"
 #include "particles_ez.h"
 
 // memdbgon must be the last include file in a .cpp file!!!

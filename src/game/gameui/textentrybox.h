@@ -13,8 +13,8 @@
 #pragma once
 #endif
 
-#include "KeyValues.h"
-#include <vgui_controls/QueryBox.h>
+#include "keyvalues.h"
+#include <vgui_controls/querybox.h>
 
 class vgui::Frame;
 class vgui::TextEntry;

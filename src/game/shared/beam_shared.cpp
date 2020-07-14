@@ -9,7 +9,7 @@
 #include "beam_shared.h"
 #include "decals.h"
 #include "model_types.h"
-#include "IEffects.h"
+#include "ieffects.h"
 #include "util_shared.h"
 
 #if !defined( CLIENT_DLL )

@@ -9,7 +9,7 @@
 #include "trains.h"
 #include "ndebugoverlay.h"
 #include "entitylist.h"
-#include "engine/IEngineSound.h"
+#include "engine/ienginesound.h"
 #include "soundenvelope.h"
 #include "physics_npc_solver.h"
 #include "vphysics/friction.h"

@@ -8,20 +8,20 @@
 #include "cbase.h"
 #include "hud_basechat.h"
 
-#include <vgui/IScheme.h>
-#include <vgui/IVGui.h>
+#include <vgui/ischeme.h>
+#include <vgui/ivgui.h>
 #include "iclientmode.h"
 #include "hud_macros.h"
-#include "engine/IEngineSound.h"
+#include "engine/ienginesound.h"
 #include "text_message.h"
-#include <vgui/ILocalize.h>
+#include <vgui/ilocalize.h>
 #include "vguicenterprint.h"
 #include "vgui/keycode.h"
-#include <KeyValues.h>
+#include <keyvalues.h>
 #include "ienginevgui.h"
 #include "c_playerresource.h"
-#include "vgui/IInput.h"
-#include "vgui/ILocalize.h"
+#include "vgui/iinput.h"
+#include "vgui/ilocalize.h"
 #include "multiplay_gamerules.h"
 
 

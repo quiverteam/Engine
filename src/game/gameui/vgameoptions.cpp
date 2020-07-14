@@ -5,11 +5,11 @@
 //=====================================================================================//
 
 #include "cbase.h"
-#include "VGameOptions.h"
-#include "VSpinnerControl.h"
-#include "VFooterPanel.h"
+#include "vgameoptions.h"
+#include "vspinnercontrol.h"
+#include "vfooterpanel.h"
 #include "gameui_util.h"
-#include "vgui_controls/CheckButton.h"
+#include "vgui_controls/checkbutton.h"
 
 // memdbgon must be the last include file in a .cpp file!!!
 #include "tier0/memdbgon.h"

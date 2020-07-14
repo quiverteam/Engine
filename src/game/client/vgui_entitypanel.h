@@ -13,9 +13,9 @@
 #pragma once
 #endif
 
-#include "C_BaseEntity.h"
-#include <vgui/MouseCode.h>
-#include "VGUI_BasePanel.h"
+#include "c_baseentity.h"
+#include <vgui/mousecode.h>
+#include "vgui_basepanel.h"
 
 // forward declarations
 class KeyValues;

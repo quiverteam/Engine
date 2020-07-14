@@ -7,10 +7,10 @@
 #include "cbase.h"
 #include <tier0/platform.h>
 #include "vgetlegacydata.h"
-#include "VGenericConfirmation.h"
-#include "EngineInterface.h"
-#include "vgui_controls/Label.h"
-#include "vgui/ISurface.h"
+#include "vgenericconfirmation.h"
+#include "engineinterface.h"
+#include "vgui_controls/label.h"
+#include "vgui/isurface.h"
 
 #ifdef IS_WINDOWS_PC
 #include "windows.h"

@@ -17,10 +17,10 @@
 #include "weapon_selection.h"
 
 #include <vgui/vgui.h>
-#include <vgui/ISurface.h>
+#include <vgui/isurface.h>
 #include <vgui/ilocalize.h>
-#include <KeyValues.h>
-#include <vgui_controls/AnimationController.h>
+#include <keyvalues.h>
+#include <vgui_controls/animationcontroller.h>
 
 #define MAX_MENU_STRING	512
 wchar_t g_szMenuString[MAX_MENU_STRING];

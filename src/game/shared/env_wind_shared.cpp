@@ -67,9 +67,9 @@
 #include "cbase.h"
 #include "env_wind_shared.h"
 #include "soundenvelope.h"
-#include "IEffects.h"
-#include "engine/IEngineSound.h"
-#include "sharedInterface.h"
+#include "ieffects.h"
+#include "engine/ienginesound.h"
+#include "sharedinterface.h"
 
 // memdbgon must be the last include file in a .cpp file!!!
 #include "tier0/memdbgon.h"

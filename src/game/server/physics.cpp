@@ -18,8 +18,8 @@
 #include "init_factory.h"
 #include "igamesystem.h"
 #include "hierarchy.h"
-#include "IEffects.h"
-#include "engine/IEngineSound.h"
+#include "ieffects.h"
+#include "engine/ienginesound.h"
 #include "world.h"
 #include "decals.h"
 #include "physics_fx.h"
@@ -30,7 +30,7 @@
 #include "physics_saverestore.h"
 #include "solidsetdefaults.h"
 #include "tier0/vprof.h"
-#include "engine/IStaticPropMgr.h"
+#include "engine/istaticpropmgr.h"
 #include "physics_prop_ragdoll.h"
 #if HL2_EPISODIC
 #include "particle_parse.h"
@@ -49,7 +49,7 @@
 #ifdef PORTAL
 #include "portal_physics_collisionevent.h"
 #include "physicsshadowclone.h"
-#include "PortalSimulation.h"
+#include "portalsimulation.h"
 void PortalPhysFrame( float deltaTime ); //small wrapper for PhysFrame that simulates all 3 environments at once
 #endif
 

@@ -11,7 +11,7 @@
 #endif
 
 #include "ep1_gamestats.h"
-#include "tier1/UtlString.h"
+#include "tier1/utlstring.h"
 
 // EP2 Game Stats
 enum Ep2GameStatsVersions_t
@@ -387,7 +387,8 @@ public:
 		short	m_nSaveHealth;
 	};
 
-#pragma pack( 1 )
+/* winemaker: #pragma pack( 1 ) */
+#include <pshpack1.h>
 	// Adds save game type
 	struct SaveGameInfoRecord2_t : public SaveGameInfoRecord_t
 	{
@@ -405,7 +406,9 @@ public:
 
 		byte m_SaveType;
 	};
-#pragma pack()
+/* winemaker: #pragma pack() */
+/* winemaker:warning: Using 4 as the default alignment */
+#include <pshpack4.h>
 
 	struct SaveGameInfo_t
 	{

@@ -9,7 +9,7 @@
 #include "engine/ienginesound.h"
 #include "filesystem.h"
 #include "igamemovement.h"
-#include "engine/IEngineTrace.h"
+#include "engine/ienginetrace.h"
 #include "engine/ivmodelinfo.h"
 
 // memdbgon must be the last include file in a .cpp file!!!

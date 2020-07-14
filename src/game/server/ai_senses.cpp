@@ -41,8 +41,11 @@ CAI_SensedObjectsManager g_AI_SensedObjectsManager;
 
 //-----------------------------------------------------------------------------
 
-#pragma pack(push)
-#pragma pack(1)
+/* winemaker: #pragma pack(push) */
+/* winemaker:warning: Using 4 as the default alignment */
+#include <pshpack4.h>
+/* winemaker: #pragma pack(1) */
+#include <pshpack1.h>
 
 struct AISightIterVal_t
 {
@@ -51,7 +54,9 @@ struct AISightIterVal_t
 	char  SeenArray;
 };
 
-#pragma pack(pop)
+/* winemaker: #pragma pack(pop) */
+#include <poppack.h>
+#include <poppack.h>
 
 
 //=============================================================================

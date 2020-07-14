@@ -8,7 +8,7 @@
 #ifndef BASEANIMATEDTEXTUREPROXY
 #define BASEANIMATEDTEXTUREPROXY
 
-#include "materialsystem/IMaterialProxy.h"
+#include "materialsystem/imaterialproxy.h"
 
 class IMaterial;
 class IMaterialVar;

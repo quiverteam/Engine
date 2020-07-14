@@ -13,10 +13,10 @@
 #include "basecombatcharacter.h"
 #include "usercmd.h"
 #include "playerlocaldata.h"
-#include "PlayerState.h"
+#include "playerstate.h"
 #include "game/server/iplayerinfo.h"
 #include "hintsystem.h"
-#include "SoundEmitterSystem/isoundemittersystembase.h"
+#include "soundemittersystem/isoundemittersystembase.h"
 
 // For queuing and processing usercmds
 class CCommandContext

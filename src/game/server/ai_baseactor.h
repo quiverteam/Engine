@@ -10,7 +10,7 @@
 
 #include "ai_basehumanoid.h"
 #include "ai_speech.h"
-#include "AI_Interest_Target.h"
+#include "ai_interest_target.h"
 #include <limits.h>
 
 

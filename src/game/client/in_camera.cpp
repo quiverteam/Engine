@@ -11,7 +11,7 @@
 #include "kbutton.h"
 #include "input.h"
 
-#include <vgui/IInput.h>
+#include <vgui/iinput.h>
 #include "vgui_controls/controls.h"
 #include "tier0/vprof.h"
 

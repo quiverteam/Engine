@@ -11,7 +11,7 @@
 #pragma once
 #endif
 
-#include <vgui_controls/PropertyPage.h>
+#include <vgui_controls/propertypage.h>
 
 typedef struct IVoiceTweak_s IVoiceTweak;
 

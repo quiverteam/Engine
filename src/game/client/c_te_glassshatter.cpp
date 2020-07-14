@@ -7,7 +7,7 @@
 //===========================================================================//
 #include "cbase.h"
 #include "c_basetempentity.h"
-#include "particle_simple3D.h"
+#include "particle_simple3d.h"
 #include "tier1/keyvalues.h"
 #include "toolframework_client.h"
 #include "fx.h"
@@ -24,7 +24,7 @@
 #define GLASS_SHARD_GRAVITY  500
 #define GLASS_SHARD_DAMPING	 0.3
 
-#include "ClientEffectPrecacheSystem.h"
+#include "clienteffectprecachesystem.h"
 
 CLIENTEFFECT_REGISTER_BEGIN( PrecacheEffectGlassShatter )
 CLIENTEFFECT_MATERIAL( "effects/fleck_glass1" )

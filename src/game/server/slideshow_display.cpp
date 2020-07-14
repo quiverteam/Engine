@@ -5,7 +5,7 @@
 //=============================================================================//
 
 #include "cbase.h"
-#include "EnvMessage.h"
+#include "envmessage.h"
 #include "fmtstr.h"
 #include "vguiscreen.h"
 #include "filesystem.h"

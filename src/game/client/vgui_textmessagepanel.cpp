@@ -8,12 +8,12 @@
 //=============================================================================//
 #include "cbase.h"
 #include "itextmessage.h"
-#include <vgui_controls/Panel.h>
-#include <vgui/IVgui.h>
-#include <vgui/ILocalize.h>
-#include "VguiMatSurface/IMatSystemSurface.h"
-#include <vgui_controls/Controls.h>
-#include <vgui/ISurface.h>
+#include <vgui_controls/panel.h>
+#include <vgui/ivgui.h>
+#include <vgui/ilocalize.h>
+#include "vguimatsurface/imatsystemsurface.h"
+#include <vgui_controls/controls.h>
+#include <vgui/isurface.h>
 #include "hud.h"
 
 // memdbgon must be the last include file in a .cpp file!!!

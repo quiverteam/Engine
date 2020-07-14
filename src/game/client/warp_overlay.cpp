@@ -8,7 +8,7 @@
 #include "view.h"
 #include "c_sun.h"
 #include "particles_simple.h"
-#include "ClientEffectPrecacheSystem.h"
+#include "clienteffectprecachesystem.h"
 
 // memdbgon must be the last include file in a .cpp file!!!
 #include "tier0/memdbgon.h"

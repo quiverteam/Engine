@@ -8,14 +8,14 @@
 #include "sceneimage.h"
 #include "choreoscene.h"
 #include "iscenetokenprocessor.h"
-#include "scenefilecache/SceneImageFile.h"
+#include "scenefilecache/sceneimagefile.h"
 
 #include "lzma/lzma.h"
 
 #include "tier1/utlbuffer.h"
-#include "tier1/UtlStringMap.h"
+#include "tier1/utlstringmap.h"
 #include "tier1/utlvector.h"
-#include "tier1/UtlSortVector.h"
+#include "tier1/utlsortvector.h"
 
 #include "scriplib.h"
 #include "cmdlib.h"

@@ -8,7 +8,7 @@
 #include "cbase.h"
 #include "vgui_imagehealthpanel.h"
 #include "commanderoverlay.h"
-#include <KeyValues.h>
+#include <keyvalues.h>
 #include "mapdata.h"
 
 bool IsLocalPlayerInTactical( void );

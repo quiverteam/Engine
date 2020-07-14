@@ -10,7 +10,7 @@
 #include "player.h"
 #include "mathlib/mathlib.h"
 #include "entitylist.h"
-#include "SkyCamera.h"
+#include "skycamera.h"
 #include "playernet_vars.h"
 #include "fogcontroller.h"
 #include "tier0/vprof.h"

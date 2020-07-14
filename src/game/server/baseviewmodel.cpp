@@ -10,7 +10,7 @@
 #include "animation.h"
 #include "baseviewmodel.h"
 #include "player.h"
-#include <KeyValues.h>
+#include <keyvalues.h>
 #include "studio.h"
 #include "vguiscreen.h"
 #include "saverestore_utlvector.h"

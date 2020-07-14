@@ -8,7 +8,7 @@
 #define __VFLYOUTMENU_H__
 
 #include "basemodui.h"
-#include "VGenericPanelList.h"
+#include "vgenericpanellist.h"
 
 #define DEFAULT_STR_LEN 256
 

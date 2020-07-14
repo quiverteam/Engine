@@ -11,7 +11,7 @@
 #pragma once
 #endif
 
-#include <vgui_controls/TextEntry.h>
+#include <vgui_controls/textentry.h>
 
 class CCvarTextEntry : public vgui::TextEntry
 {

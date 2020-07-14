@@ -5,13 +5,13 @@
 // $NoKeywords: $
 //=============================================================================//
 
-#include "BackgroundMenuButton.h"
+#include "backgroundmenubutton.h"
 
-#include <KeyValues.h>
-#include <vgui/IImage.h>
-#include <vgui/IScheme.h>
-#include <vgui_controls/Menu.h>
-#include <vgui_controls/MenuItem.h>
+#include <keyvalues.h>
+#include <vgui/iimage.h>
+#include <vgui/ischeme.h>
+#include <vgui_controls/menu.h>
+#include <vgui_controls/menuitem.h>
 
 // memdbgon must be the last include file in a .cpp file!!!
 #include <tier0/memdbgon.h>

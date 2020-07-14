@@ -11,7 +11,7 @@
 #pragma once
 #endif
 
-#include <vgui_controls/Image.h>
+#include <vgui_controls/image.h>
 
 namespace vgui
 {

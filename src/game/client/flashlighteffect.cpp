@@ -12,7 +12,7 @@
 #include "view.h"
 #include "engine/ivdebugoverlay.h"
 #include "tier0/vprof.h"
-#include "tier1/KeyValues.h"
+#include "tier1/keyvalues.h"
 #include "toolframework_client.h"
 
 #ifdef HL2_CLIENT_DLL

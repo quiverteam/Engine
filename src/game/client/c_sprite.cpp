@@ -14,10 +14,10 @@
 #include "util_shared.h"
 #include "tier0/vprof.h"
 #include "materialsystem/imaterial.h"
-#include "materialsystem/IMaterialVar.h"
+#include "materialsystem/imaterialvar.h"
 #include "view_shared.h"
 #include "viewrender.h"
-#include "tier1/KeyValues.h"
+#include "tier1/keyvalues.h"
 #include "toolframework/itoolframework.h"
 #include "toolframework_client.h"
 

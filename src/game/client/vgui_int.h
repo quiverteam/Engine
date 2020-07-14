@@ -12,7 +12,7 @@
 
 #include "interface.h"
 
-#include <vgui/VGUI.h>
+#include <vgui/vgui.h>
 
 namespace vgui
 {

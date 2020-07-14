@@ -10,9 +10,9 @@
 #pragma once
 #endif
 
-#include "vgui_controls/PHandle.h"
-#include "UtlVector.h"
-#include "IVGuiModuleLoader.h"
+#include "vgui_controls/phandle.h"
+#include "utlvector.h"
+#include "ivguimoduleloader.h"
 
 class IVGuiModule;
 

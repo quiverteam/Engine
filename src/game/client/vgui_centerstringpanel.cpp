@@ -10,12 +10,12 @@
 #include <stdarg.h>
 #include "vguicenterprint.h"
 #include "ivrenderview.h"
-#include <vgui/IVgui.h>
-#include "VguiMatSurface/IMatSystemSurface.h"
-#include <vgui_controls/Label.h>
-#include <vgui_controls/Controls.h>
-#include <vgui/ISurface.h>
-#include <vgui/IScheme.h>
+#include <vgui/ivgui.h>
+#include "vguimatsurface/imatsystemsurface.h"
+#include <vgui_controls/label.h>
+#include <vgui_controls/controls.h>
+#include <vgui/isurface.h>
+#include <vgui/ischeme.h>
 
 // memdbgon must be the last include file in a .cpp file!!!
 #include "tier0/memdbgon.h"

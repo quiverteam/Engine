@@ -5,16 +5,16 @@
 // $NoKeywords: $
 //=============================================================================//
 #include "cbase.h"
-#include "IViewRender.h"
-#include "ClientEffectPrecacheSystem.h"
+#include "iviewrender.h"
+#include "clienteffectprecachesystem.h"
 #include "studio.h"
 #include "bone_setup.h"
 #include "engine/ivmodelinfo.h"
 #include "c_fire_smoke.h"
-#include "engine/IEngineSound.h"
+#include "engine/ienginesound.h"
 #include "iefx.h"
 #include "dlight.h"
-#include "tier0/ICommandLine.h"
+#include "tier0/icommandline.h"
 
 // memdbgon must be the last include file in a .cpp file!!!
 #include "tier0/memdbgon.h"

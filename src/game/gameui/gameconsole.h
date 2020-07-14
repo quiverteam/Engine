@@ -11,7 +11,7 @@
 #pragma once
 #endif
 
-#include "GameUI/IGameConsole.h"
+#include "gameui/igameconsole.h"
 
 class CGameConsoleDialog;
 

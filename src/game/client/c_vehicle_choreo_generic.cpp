@@ -7,9 +7,9 @@
 #include "cbase.h"
 #include "hud.h"		
 #include "c_props.h"
-#include "IClientVehicle.h"
-#include <vgui_controls/Controls.h>
-#include <Color.h>
+#include "iclientvehicle.h"
+#include <vgui_controls/controls.h>
+#include <color.h>
 #include "vehicle_choreo_generic_shared.h"
 #include "vehicle_viewblend_shared.h"
 

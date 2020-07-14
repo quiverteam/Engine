@@ -7,7 +7,7 @@
 #include "cbase.h"
 #include "npcevent.h"
 #include "vehicle_base.h"
-#include "engine/IEngineSound.h"
+#include "engine/ienginesound.h"
 #include "in_buttons.h"
 #include "soundenvelope.h"
 #include "soundent.h"

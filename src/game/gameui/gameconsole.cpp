@@ -8,15 +8,15 @@
 
 #include <stdio.h>
 
-#include "GameConsole.h"
-#include "GameConsoleDialog.h"
-#include "LoadingDialog.h"
-#include "vgui/ISurface.h"
+#include "gameconsole.h"
+#include "gameconsoledialog.h"
+#include "loadingdialog.h"
+#include "vgui/isurface.h"
 
-#include "KeyValues.h"
-#include "vgui/VGUI.h"
-#include "vgui/IVGUI.h"
-#include "vgui_controls/Panel.h"
+#include "keyvalues.h"
+#include "vgui/vgui.h"
+#include "vgui/ivgui.h"
+#include "vgui_controls/panel.h"
 #include "convar.h"
 
 // memdbgon must be the last include file in a .cpp file!!!

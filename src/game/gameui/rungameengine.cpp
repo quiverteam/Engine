@@ -6,8 +6,8 @@
 //===========================================================================//
 
 
-#include "IRunGameEngine.h"
-#include "EngineInterface.h"
+#include "irungameengine.h"
+#include "engineinterface.h"
 #include "tier1/strtools.h"
 #include "igameuifuncs.h"
 #include "tier1/convar.h"

@@ -13,8 +13,8 @@
 #pragma once
 #endif
 
-#include <vgui_controls/Button.h>
-#include "VGui_BitmapImage.h"
+#include <vgui_controls/button.h>
+#include "vgui_bitmapimage.h"
 
 //-----------------------------------------------------------------------------
 // forward declarations

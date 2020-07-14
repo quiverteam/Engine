@@ -5,7 +5,7 @@
 //=============================================================================
 #include <windows.h>
 #include "basehandle.h"
-#include "UtlVector.h"
+#include "utlvector.h"
 #include "usercmd.h"
 #include "cdll_client_int.h"
 #include "cdll_util.h"
@@ -13,7 +13,7 @@
 #include "convar.h"
 #include "tier0/icommandline.h"
 #include "forcefeedback.h"
-#include "FileSystem.h"
+#include "filesystem.h"
 
 #define DIRECTINPUT_VERSION 0x0800
 

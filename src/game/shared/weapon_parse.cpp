@@ -5,7 +5,7 @@
 // $NoKeywords: $
 //=============================================================================//
 #include "cbase.h"
-#include <KeyValues.h>
+#include <keyvalues.h>
 #include <tier0/mem.h>
 #include "filesystem.h"
 #include "utldict.h"

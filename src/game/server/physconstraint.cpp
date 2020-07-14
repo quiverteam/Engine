@@ -8,7 +8,7 @@
 #include "cbase.h"
 #include "physics.h"
 #include "entityoutput.h"
-#include "engine/IEngineSound.h"
+#include "engine/ienginesound.h"
 #include "vphysics/constraints.h"
 #include "igamesystem.h"
 #include "physics_saverestore.h"

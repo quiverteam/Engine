@@ -8,29 +8,29 @@
 #include <ctype.h>
 #include "basemodframe.h"
 #include "basemodpanel.h"
-#include "EngineInterface.h"
+#include "engineinterface.h"
 
-#include "VFooterPanel.h"
-#include "VGenericConfirmation.h"
-#include "VFlyoutMenu.h"
-#include "IGameUIFuncs.h"
+#include "vfooterpanel.h"
+#include "vgenericconfirmation.h"
+#include "vflyoutmenu.h"
+#include "igameuifuncs.h"
 
 // vgui controls
-#include <vgui/IVGui.h>
-#include "vgui/ISurface.h"
-#include "vgui/IInput.h"
-#include "vgui_controls/Tooltip.h"
-#include "vgui_controls/ImagePanel.h"
+#include <vgui/ivgui.h>
+#include "vgui/isurface.h"
+#include "vgui/iinput.h"
+#include "vgui_controls/tooltip.h"
+#include "vgui_controls/imagepanel.h"
 #include "vgui/ilocalize.h"
 
 #include "filesystem.h"
 #include "fmtstr.h"
 #include "cdll_util.h"
-#include "materialsystem\itexture.h"
+#include "materialsystem/itexture.h"
 
 // this is for InvalidateLayout
 // probably very stupid
-#include "..\vgui_controls\Panel.h"
+#include "../vgui_controls/panel.h"
 
 // memdbgon must be the last include file in a .cpp file!!!
 #include "tier0/memdbgon.h"

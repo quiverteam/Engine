@@ -16,7 +16,7 @@
 #include "c_baseanimatingoverlay.h"
 #include "sceneentity_shared.h"
 
-#include "UtlVector.h"
+#include "utlvector.h"
 
 //-----------------------------------------------------------------------------
 // Purpose: Item in list of loaded scene files

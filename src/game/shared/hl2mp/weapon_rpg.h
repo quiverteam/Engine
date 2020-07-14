@@ -21,7 +21,7 @@
 #endif
 
 #ifndef CLIENT_DLL
-#include "Sprite.h"
+#include "sprite.h"
 #include "npcevent.h"
 #include "beam_shared.h"
 

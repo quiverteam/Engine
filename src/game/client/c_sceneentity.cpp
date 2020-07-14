@@ -13,7 +13,7 @@
 #include "choreoscene.h"
 #include "filesystem.h"
 #include "ichoreoeventcallback.h"
-#include "scenefilecache/ISceneFileCache.h"
+#include "scenefilecache/iscenefilecache.h"
 #include "materialsystem/imaterialsystemhardwareconfig.h"
 #include "tier2/tier2.h"
 #include "hud_closecaption.h"

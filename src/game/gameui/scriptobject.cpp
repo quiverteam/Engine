@@ -7,12 +7,12 @@
 //===========================================================================//
 // CScriptObject and CDescription class definitions
 // 
-#include "ScriptObject.h"
+#include "scriptobject.h"
 #include <stdio.h>
 #include <stdlib.h>
-#include "EngineInterface.h"
-#include <vgui_controls/Label.h>
-#include "FileSystem.h"
+#include "engineinterface.h"
+#include <vgui_controls/label.h>
+#include "filesystem.h"
 #include "tier1/convar.h"
 
 // memdbgon must be the last include file in a .cpp file!!!

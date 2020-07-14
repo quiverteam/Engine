@@ -13,7 +13,7 @@
 #include "entitylist.h"
 #include "basecombatcharacter.h"
 #include "ndebugoverlay.h"
-#include "engine/IEngineSound.h"
+#include "engine/ienginesound.h"
 #include "ispatialpartition.h"
 #include "collisionutils.h"
 #include "tier0/vprof.h"

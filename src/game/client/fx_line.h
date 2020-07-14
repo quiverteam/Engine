@@ -33,7 +33,7 @@ struct FXLineData_t
 	IMaterial	*m_pMaterial;
 };
 
-#include "FX_StaticLine.h"
+#include "fx_staticline.h"
 
 class CFXLine : public CClientSideEffect
 {

@@ -28,7 +28,7 @@
 #include "ai_localnavigator.h"
 #include "ai_moveprobe.h"
 #include "ai_hint.h"
-#include "BasePropDoor.h"
+#include "basepropdoor.h"
 #include "props.h"
 #include "physics_npc_solver.h"
 

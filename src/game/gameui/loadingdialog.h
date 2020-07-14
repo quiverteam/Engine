@@ -11,8 +11,8 @@
 #pragma once
 #endif
 
-#include <vgui_controls/Frame.h>
-#include <vgui_controls/HTML.h>
+#include <vgui_controls/frame.h>
+#include <vgui_controls/html.h>
 
 //-----------------------------------------------------------------------------
 // Purpose: Dialog for displaying level loading status

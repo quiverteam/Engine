@@ -7,11 +7,11 @@
 
 #include "cbase.h"
 #include "fourwheelvehiclephysics.h"
-#include "engine/IEngineSound.h"
+#include "engine/ienginesound.h"
 #include "soundenvelope.h"
 #include "in_buttons.h"
 #include "player.h"
-#include "IEffects.h"
+#include "ieffects.h"
 #include "physics_saverestore.h"
 #include "vehicle_base.h"
 #include "isaverestore.h"

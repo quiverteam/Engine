@@ -7,10 +7,10 @@
 //=============================================================================//
 #include "cbase.h"
 #include "vgui_entityimagepanel.h"
-#include <KeyValues.h>
-#include "c_BaseTFPlayer.h"
-#include <vgui/IVGui.h>
-#include "vgui_BitmapImage.h"
+#include <keyvalues.h>
+#include "c_basetfplayer.h"
+#include <vgui/ivgui.h>
+#include "vgui_bitmapimage.h"
 
 // memdbgon must be the last include file in a .cpp file!!!
 #include "tier0/memdbgon.h"

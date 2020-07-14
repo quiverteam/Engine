@@ -11,9 +11,9 @@
 #pragma once
 #endif
 
-#include "AI_BaseNPC.h"
-#include "Sprite.h"
-#include "SpriteTrail.h"
+#include "ai_basenpc.h"
+#include "sprite.h"
+#include "spritetrail.h"
 #include "soundent.h"
 
 //Eye states

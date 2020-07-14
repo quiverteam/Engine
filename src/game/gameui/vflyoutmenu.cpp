@@ -5,14 +5,14 @@
 //=====================================================================================//
 
 #include "cbase.h"
-#include "VFlyoutMenu.h"
-#include "VGenericPanelList.h"
-#include "VFooterPanel.h"
-#include "VHybridButton.h"
+#include "vflyoutmenu.h"
+#include "vgenericpanellist.h"
+#include "vfooterpanel.h"
+#include "vhybridbutton.h"
 
-#include "tier1/KeyValues.h"
-#include "vgui/ISurface.h"
-#include "vgui/IScheme.h"
+#include "tier1/keyvalues.h"
+#include "vgui/isurface.h"
+#include "vgui/ischeme.h"
 
 #include "filesystem.h"
 #include "fmtstr.h"

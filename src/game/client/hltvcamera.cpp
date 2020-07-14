@@ -13,10 +13,10 @@
 #include "in_buttons.h"
 #include "text_message.h"
 #include "vgui_controls/controls.h"
-#include "vgui/ILocalize.h"
+#include "vgui/ilocalize.h"
 #include "vguicenterprint.h"
 #include "game/client/iviewport.h"
-#include <KeyValues.h>
+#include <keyvalues.h>
 
 #ifdef CSTRIKE_DLL
 	#include "c_cs_player.h"

@@ -11,7 +11,7 @@
 #pragma once
 #endif
 
-#include <vgui_controls/CheckButton.h>
+#include <vgui_controls/checkbutton.h>
 
 class CKeyToggleCheckButton : public vgui::CheckButton
 {

@@ -11,7 +11,7 @@
 
 #if defined( CLIENT_DLL )
 
-#include "IGameSystem.h"
+#include "igamesystem.h"
 #include <typeinfo>
 
 #endif

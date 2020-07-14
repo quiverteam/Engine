@@ -9,7 +9,7 @@
 #include "player.h"
 #include "items.h"
 #include "gamerules.h"
-#include "engine/IEngineSound.h"
+#include "engine/ienginesound.h"
 #include "iservervehicle.h"
 #include "physics_saverestore.h"
 

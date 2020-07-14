@@ -15,10 +15,10 @@
 #include "vphysics/object_hash.h"
 #include "vphysics/friction.h"
 #include "coordsize.h"
-#include <KeyValues.h>
+#include <keyvalues.h>
 #include "decals.h"
-#include "IEffects.h"
-#include "SoundEmitterSystem/isoundemittersystembase.h"
+#include "ieffects.h"
+#include "soundemittersystem/isoundemittersystembase.h"
 
 #include "physics_saverestore.h"
 

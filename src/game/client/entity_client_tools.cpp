@@ -5,7 +5,7 @@
 //=============================================================================
 #include "cbase.h"
 #include "toolframework/itoolentity.h"
-#include "tier1/KeyValues.h"
+#include "tier1/keyvalues.h"
 #include "sprite.h"
 #include "enginesprite.h"
 #include "toolframework_client.h"

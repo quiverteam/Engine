@@ -11,7 +11,7 @@
 #pragma once
 #endif
 
-#include <vgui_controls/PropertyDialog.h>
+#include <vgui_controls/propertydialog.h>
 
 class CCreateMultiplayerGameServerPage;
 class CCreateMultiplayerGameGameplayPage;

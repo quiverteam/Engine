@@ -7,7 +7,7 @@
 
 #include "cbase.h"
 
-#include "IViewRender.h"
+#include "iviewrender.h"
 #include "view.h"
 #include "studio.h"
 #include "bone_setup.h"
@@ -16,10 +16,10 @@
 #include "engine/ivdebugoverlay.h"
 #include "iviewrender_beams.h"
 #include "fx.h"
-#include "IEffects.h"
+#include "ieffects.h"
 #include "c_entitydissolve.h"
 #include "movevars_shared.h"
-#include "ClientEffectPrecacheSystem.h"
+#include "clienteffectprecachesystem.h"
 
 // memdbgon must be the last include file in a .cpp file!!!
 #include "tier0/memdbgon.h"

@@ -5,10 +5,10 @@
 //=====================================================================================//
 
 #include "cbase.h"
-#include "VGenericConfirmation.h"
+#include "vgenericconfirmation.h"
 
-#include "vgui_controls/Label.h"
-#include "vgui/ISurface.h"
+#include "vgui_controls/label.h"
+#include "vgui/isurface.h"
 #include "nb_button.h"
 #include "cdll_util.h"
 

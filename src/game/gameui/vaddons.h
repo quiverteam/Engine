@@ -8,8 +8,8 @@
 #define __VADDONS_H__
 
 #include "basemodui.h"
-#include "VGenericPanelList.h"
-#include "vgui_controls/CvarToggleCheckButton.h"
+#include "vgenericpanellist.h"
+#include "vgui_controls/cvartogglecheckbutton.h"
 #include "gameui_util.h"
 
 class CNB_Button;

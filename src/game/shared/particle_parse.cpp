@@ -6,7 +6,7 @@
 
 #include "cbase.h"
 #include "filesystem.h"
-#include <KeyValues.h>
+#include <keyvalues.h>
 #include "particle_parse.h"
 #include "particles/particles.h"
 

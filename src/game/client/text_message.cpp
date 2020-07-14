@@ -16,7 +16,7 @@
 #include "text_message.h"
 #include "client_textmessage.h"
 #include "vgui_controls/controls.h"
-#include "vgui/ILocalize.h"
+#include "vgui/ilocalize.h"
 
 // memdbgon must be the last include file in a .cpp file!!!
 #include "tier0/memdbgon.h"

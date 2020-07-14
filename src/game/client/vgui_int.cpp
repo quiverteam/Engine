@@ -15,23 +15,23 @@
 #include "inetgraphpanel.h"
 #include "idebugoverlaypanel.h"
 #include <vgui/isurface.h>
-#include <vgui/IVGui.h>
-#include <vgui/IInput.h>
+#include <vgui/ivgui.h>
+#include <vgui/iinput.h>
 #include "tier0/vprof.h"
 #include "iclientmode.h"
-#include <vgui_controls/Panel.h>
-#include <KeyValues.h>
-#include "FileSystem.h"
+#include <vgui_controls/panel.h>
+#include <keyvalues.h>
+#include "filesystem.h"
 
 using namespace vgui;
 
 void MP3Player_Create( vgui::VPANEL parent );
 void MP3Player_Destroy();
 
-#include <vgui/IInputInternal.h>
+#include <vgui/iinputinternal.h>
 vgui::IInputInternal *g_InputInternal = NULL;
 
-#include <vgui_controls/Controls.h>
+#include <vgui_controls/controls.h>
 
 // memdbgon must be the last include file in a .cpp file!!!
 #include "tier0/memdbgon.h"

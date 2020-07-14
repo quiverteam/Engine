@@ -6,7 +6,7 @@
 //=============================================================================//
 #include "cbase.h"
 #include "particle_collision.h"
-#include "engine/IVDebugOverlay.h"
+#include "engine/ivdebugoverlay.h"
 
 // memdbgon must be the last include file in a .cpp file!!!
 #include "tier0/memdbgon.h"

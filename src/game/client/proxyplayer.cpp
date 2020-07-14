@@ -5,12 +5,12 @@
 // $NoKeywords: $
 //=============================================================================//
 #include "cbase.h"
-#include <KeyValues.h>
-#include "materialsystem/IMaterialVar.h"
-#include "materialsystem/IMaterial.h"
-#include "materialsystem/ITexture.h"
-#include "materialsystem/IMaterialSystem.h"
-#include "FunctionProxy.h"
+#include <keyvalues.h>
+#include "materialsystem/imaterialvar.h"
+#include "materialsystem/imaterial.h"
+#include "materialsystem/itexture.h"
+#include "materialsystem/imaterialsystem.h"
+#include "functionproxy.h"
 #include "toolframework_client.h"
 
 // memdbgon must be the last include file in a .cpp file!!!
@@ -323,7 +323,7 @@ void CEntityRandomProxy::OnBind( void *pC_BaseEntity )
 
 EXPOSE_INTERFACE( CEntityRandomProxy, IMaterialProxy, "EntityRandom" IMATERIAL_PROXY_INTERFACE_VERSION );
 
-#include "UtlRBTree.h"
+#include "utlrbtree.h"
 
 //-----------------------------------------------------------------------------
 // Returns the player speed

@@ -11,7 +11,7 @@
 #pragma once
 #endif
 
-#include "SoundEmitterSystem/isoundemittersystembase.h"
+#include "soundemittersystem/isoundemittersystembase.h"
 
 namespace physicssound
 {

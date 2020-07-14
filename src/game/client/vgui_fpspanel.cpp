@@ -6,14 +6,14 @@
 
 #include "cbase.h"
 #include "ifpspanel.h"
-#include <vgui_controls/Panel.h>
+#include <vgui_controls/panel.h>
 #include "view.h"
-#include <vgui/IVGui.h>
+#include <vgui/ivgui.h>
 #include "vguimatsurface/imatsystemsurface.h"
-#include <vgui_controls/Controls.h>
-#include <vgui/ISurface.h>
-#include <vgui/IScheme.h>
-#include <vgui/IPanel.h>
+#include <vgui_controls/controls.h>
+#include <vgui/isurface.h>
+#include <vgui/ischeme.h>
+#include <vgui/ipanel.h>
 #include "materialsystem/imaterialsystemhardwareconfig.h"
 #include "filesystem.h"
 #include "../common/xbox/xboxstubs.h"

@@ -6,11 +6,11 @@
 //=============================================================================//
 
 
-#include "ModInfo.h"
-#include "KeyValues.h"
-#include "vgui_controls/Controls.h"
-#include "FileSystem.h"
-#include "EngineInterface.h"
+#include "modinfo.h"
+#include "keyvalues.h"
+#include "vgui_controls/controls.h"
+#include "filesystem.h"
+#include "engineinterface.h"
 
 // memdbgon must be the last include file in a .cpp file!!!
 #include <tier0/memdbgon.h>

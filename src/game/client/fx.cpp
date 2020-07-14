@@ -6,13 +6,13 @@
 // $NoKeywords: $
 //=============================================================================//
 #include "cbase.h"
-#include "engine/IEngineSound.h"
+#include "engine/ienginesound.h"
 #include "particles_simple.h"
 #include "particles_localspace.h"
 #include "dlight.h"
 #include "iefx.h"
 #include "clientsideeffects.h"
-#include "ClientEffectPrecacheSystem.h"
+#include "clienteffectprecachesystem.h"
 #include "glow_overlay.h"
 #include "effect_dispatch_data.h"
 #include "c_te_effect_dispatch.h"

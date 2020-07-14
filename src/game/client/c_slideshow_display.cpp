@@ -9,12 +9,12 @@
 #include "c_slideshow_display.h"
 #include "c_te_legacytempents.h"
 #include "tempent.h"
-#include "engine/IEngineSound.h"
+#include "engine/ienginesound.h"
 #include "dlight.h"
 #include "iefx.h"
 #include "soundemittersystem/isoundemittersystembase.h"
 #include "filesystem.h"
-#include "KeyValues.h"
+#include "keyvalues.h"
 
 // memdbgon must be the last include file in a .cpp file!!!
 #include "tier0/memdbgon.h"

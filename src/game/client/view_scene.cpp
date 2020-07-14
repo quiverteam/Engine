@@ -5,8 +5,8 @@
 //===========================================================================//
 
 #include "cbase.h"
-#include "materialsystem/IMaterialSystem.h"
-#include "materialsystem/IMaterialVar.h"
+#include "materialsystem/imaterialsystem.h"
+#include "materialsystem/imaterialvar.h"
 #include "materialsystem/imaterialsystemhardwareconfig.h"
 #include "rendertexture.h"
 #include "view_scene.h"

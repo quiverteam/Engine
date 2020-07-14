@@ -15,7 +15,7 @@
 #include "hierarchy.h"
 #include "game.h"
 #include "ndebugoverlay.h"
-#include "engine/IEngineSound.h"
+#include "engine/ienginesound.h"
 #include "model_types.h"
 #include "props.h"
 #include "physics_saverestore.h"

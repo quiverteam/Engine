@@ -5,9 +5,9 @@
 //=============================================================================
 
 #include "cbase.h"
-#include <vgui_controls/Controls.h>
-#include <vgui_controls/Panel.h>
-#include <vgui/ISurface.h>
+#include <vgui_controls/controls.h>
+#include <vgui_controls/panel.h>
+#include <vgui/isurface.h>
 #include "vgui_avatarimage.h"
 #if defined( _X360 )
 #include "xbox/xbox_win32stubs.h"

@@ -12,21 +12,21 @@
 #include <windows.h>
 #endif
 
-#include "ContentControlDialog.h"
+#include "contentcontroldialog.h"
 #include "checksum_md5.h"
-#include "EngineInterface.h"
+#include "engineinterface.h"
 
-#include <vgui/IInput.h>
-#include <vgui/ISystem.h>
-#include <vgui/ISurface.h>
-#include "tier1/KeyValues.h"
+#include <vgui/iinput.h>
+#include <vgui/isystem.h>
+#include <vgui/isurface.h>
+#include "tier1/keyvalues.h"
 #include "tier1/convar.h"
 
-#include <vgui_controls/Button.h>
-#include <vgui_controls/CheckButton.h>
-#include <vgui_controls/Label.h>
-#include <vgui_controls/RadioButton.h>
-#include <vgui_controls/TextEntry.h>
+#include <vgui_controls/button.h>
+#include <vgui_controls/checkbutton.h>
+#include <vgui_controls/label.h>
+#include <vgui_controls/radiobutton.h>
+#include <vgui_controls/textentry.h>
 
 #if defined( _X360 )
 #include "xbox/xbox_win32stubs.h"

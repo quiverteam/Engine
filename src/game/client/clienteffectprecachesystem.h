@@ -12,11 +12,11 @@
 #pragma once
 #endif
 
-#include "IGameSystem.h"
-#include "CommonMacros.h"
+#include "igamesystem.h"
+#include "commonmacros.h"
 #include "utlvector.h"
-#include "materialsystem/IMaterialSystem.h"
-#include "materialsystem/IMaterial.h"
+#include "materialsystem/imaterialsystem.h"
+#include "materialsystem/imaterial.h"
 
 //-----------------------------------------------------------------------------
 // Interface to automated system for precaching materials

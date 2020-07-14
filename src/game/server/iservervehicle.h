@@ -12,7 +12,7 @@
 #pragma once
 #endif
 
-#include "IVehicle.h"
+#include "ivehicle.h"
 #include "vphysics/vehicles.h"
 
 class CBaseEntity;

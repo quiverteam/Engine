@@ -1,6 +1,6 @@
 #include "cbase.h"
-#include "vgui_controls/ImagePanel.h"
-#include "VFlyoutMenu.h"
+#include "vgui_controls/imagepanel.h"
+#include "vflyoutmenu.h"
 
 using namespace BaseModUI;
 using namespace vgui;

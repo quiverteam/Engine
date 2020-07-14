@@ -17,7 +17,7 @@
 #include "entityoutput.h"
 #include "networkvar.h"
 #include "collisionproperty.h"
-#include "ServerNetworkProperty.h"
+#include "servernetworkproperty.h"
 #include "shareddefs.h"
 
 class CDamageModifier;

@@ -11,7 +11,7 @@
 #pragma once
 #endif
 
-#include "Sprite.h"
+#include "sprite.h"
 
 enum MoveType_t;
 enum MoveCollide_t;

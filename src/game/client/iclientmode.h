@@ -9,7 +9,7 @@
 #ifndef ICLIENTMODE_H
 #define ICLIENTMODE_H
 
-#include <vgui/VGUI.h>
+#include <vgui/vgui.h>
 
 class CViewSetup;
 class C_BaseEntity;

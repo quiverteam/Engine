@@ -6,10 +6,10 @@
 
 #include "cbase.h"
 #include "hudelement.h"
-#include <vgui_controls/Panel.h>
-#include <vgui_controls/Label.h>
-#include <vgui_controls/EditablePanel.h>
-#include <vgui_controls/ImagePanel.h>
+#include <vgui_controls/panel.h>
+#include <vgui_controls/label.h>
+#include <vgui_controls/editablepanel.h>
+#include <vgui_controls/imagepanel.h>
 #include <vgui/isurface.h>
 #include "c_baseplayer.h"
 #include "iclientmode.h"

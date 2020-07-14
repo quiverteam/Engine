@@ -10,7 +10,7 @@
 #include "text_message.h"
 #include "vguicenterprint.h"
 #include "hud_basechat.h"
-#include <vgui/ILocalize.h>
+#include <vgui/ilocalize.h>
 
 
 

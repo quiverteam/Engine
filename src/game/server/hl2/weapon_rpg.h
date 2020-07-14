@@ -13,7 +13,7 @@
 #endif
 
 #include "basehlcombatweapon.h"
-#include "Sprite.h"
+#include "sprite.h"
 #include "npcevent.h"
 #include "beam_shared.h"
 

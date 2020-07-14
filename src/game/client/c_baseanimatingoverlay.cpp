@@ -9,7 +9,7 @@
 #include "c_baseanimatingoverlay.h"
 #include "bone_setup.h"
 #include "tier0/vprof.h"
-#include "engine/IVDebugOverlay.h"
+#include "engine/ivdebugoverlay.h"
 #include "datacache/imdlcache.h"
 #include "eventlist.h"
 

@@ -10,7 +10,7 @@
 
 #ifdef CLIENT_DLL
 	#include "iclientmode.h"
-	#include <vgui_controls/AnimationController.h>
+	#include <vgui_controls/animationcontroller.h>
 	#include <igameevents.h>
 	#include "c_team.h"
 

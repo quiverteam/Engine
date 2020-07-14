@@ -5,12 +5,12 @@
 // $NoKeywords: $
 //===========================================================================//
 
-#include "GameConsoleDialog.h"
-#include "GameUI_Interface.h"
+#include "gameconsoledialog.h"
+#include "gameui_interface.h"
 #include "vgui/iinput.h"
 #include "vgui/isurface.h"
 #include "vgui/keycode.h"
-#include "LoadingDialog.h"
+#include "loadingdialog.h"
 #include "igameuifuncs.h"
 
 // memdbgon must be the last include file in a .cpp file!!!

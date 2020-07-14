@@ -8,7 +8,7 @@
 #include "cbase.h"
 #include "c_smoke_trail.h"
 #include "smoke_fog_overlay.h"
-#include "engine/IEngineTrace.h"
+#include "engine/ienginetrace.h"
 #include "view.h"
 #include "dlight.h"
 #include "iefx.h"

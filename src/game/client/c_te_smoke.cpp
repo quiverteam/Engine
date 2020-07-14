@@ -8,7 +8,7 @@
 //===========================================================================//
 #include "cbase.h"
 #include "c_basetempentity.h"
-#include "IEffects.h"
+#include "ieffects.h"
 #include "tier1/keyvalues.h"
 #include "toolframework_client.h"
 #include "tier0/vprof.h"

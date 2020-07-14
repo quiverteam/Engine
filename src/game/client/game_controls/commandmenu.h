@@ -9,12 +9,12 @@
 #ifndef COMMANDMENU_H
 #define COMMANDMENU_H
 
-#include <vgui_controls/Menu.h>
+#include <vgui_controls/menu.h>
 #include <game/client/iviewport.h>
 #include <filesystem.h>
-#include "UtlStack.h"
-#include "UtlVector.h"
-#include <KeyValues.h>
+#include "utlstack.h"
+#include "utlvector.h"
+#include <keyvalues.h>
 
 using namespace vgui;
 

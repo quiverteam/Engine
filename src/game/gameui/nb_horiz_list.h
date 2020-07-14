@@ -4,8 +4,8 @@
 #pragma once
 #endif
 
-#include <vgui/VGUI.h>
-#include <vgui_controls/EditablePanel.h>
+#include <vgui/vgui.h>
+#include <vgui_controls/editablepanel.h>
 #include "vgui_controls/phandle.h"
 
 // == MANAGED_CLASS_DECLARATIONS_START: Do not edit by hand ==

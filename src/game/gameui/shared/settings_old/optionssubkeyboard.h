@@ -11,10 +11,10 @@
 #pragma once
 #endif
 
-#include "UtlVector.h"
-#include "UtlSymbol.h"
+#include "utlvector.h"
+#include "utlsymbol.h"
 
-#include <vgui_controls/PropertyPage.h>
+#include <vgui_controls/propertypage.h>
 class VControlsListPanel;
 
 //-----------------------------------------------------------------------------

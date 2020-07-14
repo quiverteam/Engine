@@ -6,7 +6,7 @@
 //===========================================================================//
 
 #include "cbase.h"
-#include "C_Point_Camera.h"
+#include "c_point_camera.h"
 #include "toolframework/itoolframework.h"
 #include "toolframework_client.h"
 #include "tier1/keyvalues.h"

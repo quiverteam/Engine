@@ -9,7 +9,7 @@
 #include "c_pixel_visibility.h"
 #include "materialsystem/imesh.h"
 #include "materialsystem/imaterial.h"
-#include "ClientEffectPrecacheSystem.h"
+#include "clienteffectprecachesystem.h"
 #include "view.h"
 #include "utlmultilist.h"
 #include "vprof.h"

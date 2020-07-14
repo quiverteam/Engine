@@ -11,11 +11,11 @@
 #include "sentence.h"
 #include "hud_closecaption.h"
 #include "tier1/strtools.h"
-#include <vgui_controls/Controls.h>
-#include <vgui/IVgui.h>
-#include <vgui/ISurface.h>
-#include <vgui/IScheme.h>
-#include <vgui/ILocalize.h>
+#include <vgui_controls/controls.h>
+#include <vgui/ivgui.h>
+#include <vgui/isurface.h>
+#include <vgui/ischeme.h>
+#include <vgui/ilocalize.h>
 #include "iclientmode.h"
 #include "hud_macros.h"
 #include "checksum_crc.h"

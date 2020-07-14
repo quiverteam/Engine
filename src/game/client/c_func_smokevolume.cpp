@@ -7,7 +7,7 @@
 #include "cbase.h"
 #include "c_smoke_trail.h"
 #include "smoke_fog_overlay.h"
-#include "engine/IEngineTrace.h"
+#include "engine/ienginetrace.h"
 
 // memdbgon must be the last include file in a .cpp file!!!
 #include "tier0/memdbgon.h"

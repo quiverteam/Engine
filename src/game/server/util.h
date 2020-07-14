@@ -17,7 +17,7 @@
 #include "tempentity.h"
 #include "string_t.h"
 #include "gamestringpool.h"
-#include "engine/IEngineTrace.h"
+#include "engine/ienginetrace.h"
 #include "worldsize.h"
 #include "dt_send.h"
 #include "server_class.h"

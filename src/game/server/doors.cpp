@@ -10,7 +10,7 @@
 #include "entitylist.h"
 #include "physics.h"
 #include "ndebugoverlay.h"
-#include "engine/IEngineSound.h"
+#include "engine/ienginesound.h"
 #include "physics_npc_solver.h"
 
 #ifdef HL1_DLL
@@ -18,7 +18,7 @@
 #endif
 
 #ifdef CSTRIKE_DLL
-#include "KeyValues.h"
+#include "keyvalues.h"
 #endif
 
 // memdbgon must be the last include file in a .cpp file!!!

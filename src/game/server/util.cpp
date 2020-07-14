@@ -16,7 +16,7 @@
 #include "entitylist.h"
 #include "bspfile.h"
 #include "mathlib/mathlib.h"
-#include "IEffects.h"
+#include "ieffects.h"
 #include "vstdlib/random.h"
 #include "soundflags.h"
 #include "ispatialpartition.h"
@@ -37,7 +37,7 @@
 #include "util.h"
 
 #ifdef PORTAL
-#include "PortalSimulation.h"
+#include "portalsimulation.h"
 //#include "Portal_PhysicsEnvironmentMgr.h"
 #endif
 

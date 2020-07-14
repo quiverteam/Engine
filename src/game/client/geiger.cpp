@@ -13,12 +13,12 @@
 #include "cbase.h"
 #include "hudelement.h"
 #include "hud_macros.h"
-#include "engine/IEngineSound.h"
-#include "SoundEmitterSystem/isoundemittersystembase.h"
+#include "engine/ienginesound.h"
+#include "soundemittersystem/isoundemittersystembase.h"
 #include "iclientmode.h"
 #include <vgui_controls/controls.h>
-#include <vgui_controls/Panel.h>
-#include <vgui/ISurface.h>
+#include <vgui_controls/panel.h>
+#include <vgui/isurface.h>
 
 using namespace vgui;
 

@@ -11,8 +11,8 @@
 #endif
 
 #include "ai_basenpc_physicsflyer.h"
-#include "Sprite.h"
-#include "SpriteTrail.h"
+#include "sprite.h"
+#include "spritetrail.h"
 #include "player_pickup.h"
 
 // Start with the engine off and folded up.

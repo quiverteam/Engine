@@ -5,10 +5,10 @@
 // $NoKeywords: $
 //=============================================================================//
 
-#include "KeyToggleCheckButton.h"
-#include "EngineInterface.h"
-#include <vgui/IVGui.h>
-#include "IGameUIFuncs.h"
+#include "keytogglecheckbutton.h"
+#include "engineinterface.h"
+#include <vgui/ivgui.h>
+#include "igameuifuncs.h"
 
 // memdbgon must be the last include file in a .cpp file!!!
 #include <tier0/memdbgon.h>

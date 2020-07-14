@@ -6,21 +6,21 @@
 
 #include <stdio.h>
 
-#include "VGuiSystemModuleLoader.h"
-#include "Sys_Utils.h"
-#include "IVGuiModule.h"
-#include "ServerBrowser/IServerBrowser.h"
+#include "vguisystemmoduleloader.h"
+#include "sys_utils.h"
+#include "ivguimodule.h"
+#include "serverbrowser/iserverbrowser.h"
 
-#include <vgui/IPanel.h>
-#include <vgui/ISystem.h>
-#include <vgui/IVGui.h>
-#include <vgui/ILocalize.h>
-#include <KeyValues.h>
+#include <vgui/ipanel.h>
+#include <vgui/isystem.h>
+#include <vgui/ivgui.h>
+#include <vgui/ilocalize.h>
+#include <keyvalues.h>
 
-#include <vgui_controls/Controls.h>
-#include <vgui_controls/Panel.h>
+#include <vgui_controls/controls.h>
+#include <vgui_controls/panel.h>
 
-#include "FileSystem.h"
+#include "filesystem.h"
 
 // memdbgon must be the last include file in a .cpp file!!!
 #include "tier0/memdbgon.h"
@@ -31,7 +31,7 @@ CVGuiSystemModuleLoader g_VModuleLoader;
 #ifdef GAMEUI_EXPORTS
 extern vgui::VPANEL GetGameUIBasePanel();
 #else
-#include "../SteamUI/PlatformMainPanel.h"
+#include "../steamui/platformmainpanel.h"
 extern CPlatformMainPanel *g_pMainPanel;
 #endif
 

@@ -10,10 +10,10 @@
 #endif
 #include "achievementmgr.h"
 #include "icommandline.h"
-#include "KeyValues.h"
+#include "keyvalues.h"
 #include "filesystem.h"
 #include "steam/steam_api.h"
-#include "inputsystem/InputEnums.h"
+#include "inputsystem/inputenums.h"
 #include "usermessages.h"
 #include "fmtstr.h"
 #ifdef CLIENT_DLL
@@ -30,7 +30,7 @@
 #include "xbox/xbox_win32stubs.h"
 #endif
 #include "tier3/tier3.h"
-#include "vgui/ILocalize.h"
+#include "vgui/ilocalize.h"
 #ifdef _X360
 #include "ixboxsystem.h"
 #endif  // _X360

@@ -25,7 +25,7 @@
 #include "globalstate.h"
 #include "event_tempentity_tester.h"
 #include "ndebugoverlay.h"
-#include "engine/IEngineSound.h"
+#include "engine/ienginesound.h"
 #include <ctype.h>
 #include "tier1/strtools.h"
 #include "te_effect_dispatch.h"

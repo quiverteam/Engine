@@ -11,7 +11,7 @@
 #pragma once
 #endif
 
-#include "VguiTextWindow.h"
+#include "vguitextwindow.h"
 #include <spectatorgui.h>
 
 //-----------------------------------------------------------------------------

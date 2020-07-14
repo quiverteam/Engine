@@ -7,7 +7,7 @@
 
 #include "cbase.h"
 #include "hudelement.h"
-#include <vgui_controls/Panel.h>
+#include <vgui_controls/panel.h>
 #include <vgui/isurface.h>
 #include "hud_basetimer.h"
 

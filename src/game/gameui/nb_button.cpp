@@ -1,6 +1,6 @@
 #include "cbase.h"
 #include "nb_button.h"
-#include "vgui/ISurface.h"
+#include "vgui/isurface.h"
 
 // memdbgon must be the last include file in a .cpp file!!!
 #include "tier0/memdbgon.h"

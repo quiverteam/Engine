@@ -8,8 +8,8 @@
 #ifndef CSBACKGROUND_H
 #define CSBACKGROUND_H
 
-#include <vgui_controls/Frame.h>
-#include <vgui_controls/EditablePanel.h>
+#include <vgui_controls/frame.h>
+#include <vgui_controls/editablepanel.h>
 
 //-----------------------------------------------------------------------------
 // Purpose: Creates background image panels

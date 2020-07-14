@@ -17,7 +17,7 @@
 #include "vgui/ischeme.h"
 #include "vgui/ilocalize.h"
 #include "vgui/vgui.h"
-#include "tier1/KeyValues.h"
+#include "tier1/keyvalues.h"
 #include "toolframework/itoolframework.h"
 #endif
 

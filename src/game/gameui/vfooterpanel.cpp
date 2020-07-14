@@ -5,11 +5,11 @@
 //=====================================================================================//
 
 #include "cbase.h"
-#include "VFooterPanel.h"
-#include "vgui/IPanel.h"
-#include "vgui_controls/ImagePanel.h"
-#include "vgui_controls/Controls.h"
-#include "vgui/ISurface.h"
+#include "vfooterpanel.h"
+#include "vgui/ipanel.h"
+#include "vgui_controls/imagepanel.h"
+#include "vgui_controls/controls.h"
+#include "vgui/isurface.h"
 #include "vgui/ilocalize.h"
 
 // memdbgon must be the last include file in a .cpp file!!!

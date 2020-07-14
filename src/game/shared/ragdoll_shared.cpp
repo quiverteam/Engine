@@ -18,14 +18,14 @@
 #ifdef CLIENT_DLL 
 #include "c_fire_smoke.h"
 #include "c_entitydissolve.h"
-#include "engine/IEngineSound.h"
+#include "engine/ienginesound.h"
 #endif
 
 //SERVER
 #if !defined( CLIENT_DLL )
 #include "util.h"
-#include "EntityFlame.h"
-#include "EntityDissolve.h"
+#include "entityflame.h"
+#include "entitydissolve.h"
 #endif
 
 // memdbgon must be the last include file in a .cpp file!!!

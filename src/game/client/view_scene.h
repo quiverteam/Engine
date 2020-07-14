@@ -16,7 +16,7 @@
 #include "iviewrender.h"
 #include "view_shared.h"
 #include "rendertexture.h"
-#include "materialsystem/ITexture.h"
+#include "materialsystem/itexture.h"
 
 
 extern ConVar mat_wireframe;

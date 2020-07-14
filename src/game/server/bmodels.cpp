@@ -9,7 +9,7 @@
 #include "mathlib/mathlib.h"
 #include "physics.h"
 #include "ndebugoverlay.h"
-#include "engine/IEngineSound.h"
+#include "engine/ienginesound.h"
 #include "globals.h"
 #include "filters.h"
 

@@ -11,11 +11,11 @@
 #include "ivrenderview.h"
 #include "iinput.h"
 #include "usercmd.h"
-#include <vgui_controls/Controls.h>
-#include <vgui/ISurface.h>
-#include <vgui/IScheme.h>
+#include <vgui_controls/controls.h>
+#include <vgui/isurface.h>
+#include <vgui/ischeme.h>
 #include "hud.h"
-#include "IClientVehicle.h"
+#include "iclientvehicle.h"
 #include "in_buttons.h"
 #include "con_nprint.h"
 #include "hud_pdump.h"

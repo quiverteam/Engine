@@ -10,10 +10,10 @@
 #include "ai_speech.h"
 
 #include "game.h"
-#include "engine/IEngineSound.h"
-#include "KeyValues.h"
+#include "engine/ienginesound.h"
+#include "keyvalues.h"
 #include "ai_basenpc.h"
-#include "AI_Criteria.h"
+#include "ai_criteria.h"
 #include "isaverestore.h"
 #include "sceneentity.h"
 

@@ -8,7 +8,7 @@
 #include "cbase.h"
 #include "studio.h"
 #include "activitylist.h"
-#include "engine/IEngineSound.h"
+#include "engine/ienginesound.h"
 #include "ai_activity.h"
 #include "animation.h"
 #include "bone_setup.h"

@@ -9,7 +9,7 @@
 #include "ndebugoverlay.h"
 #include "spark.h"
 #include "vstdlib/random.h"
-#include "engine/IEngineSound.h"
+#include "engine/ienginesound.h"
 #include "tier1/strtools.h"
 #include "buttons.h"
 #include "eventqueue.h"

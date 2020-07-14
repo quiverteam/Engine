@@ -9,7 +9,7 @@
 
 #include "cbase.h"
 #include "basemodui.h"
-#include "vgui/IScheme.h"
+#include "vgui/ischeme.h"
 #include "const.h"
 #include "loadingtippanel.h"
 

@@ -9,8 +9,8 @@
 
 
 #include "basemodui.h"
-#include "VFlyoutMenu.h"
-#include "../settings_old/OptionsSubAudio.h"
+#include "vflyoutmenu.h"
+#include "../settings_old/optionssubaudio.h"
 
 
 #define MAX_DYNAMIC_AUDIO_LANGUAGES 15

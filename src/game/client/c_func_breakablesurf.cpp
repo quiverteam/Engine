@@ -7,12 +7,12 @@
 //=============================================================================//
 #include "cbase.h"
 #include "particles_simple.h"
-#include "IViewRender.h"
-#include "ProxyEntity.h"
-#include "materialsystem/IMaterialVar.h"
+#include "iviewrender.h"
+#include "proxyentity.h"
+#include "materialsystem/imaterialvar.h"
 #include "model_types.h"
 #include "engine/ivmodelinfo.h"
-#include "ClientEffectPrecacheSystem.h"
+#include "clienteffectprecachesystem.h"
 
 // memdbgon must be the last include file in a .cpp file!!!
 #include "tier0/memdbgon.h"

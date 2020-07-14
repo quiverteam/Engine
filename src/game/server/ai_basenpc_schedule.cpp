@@ -29,7 +29,7 @@
 #include "ai_squad.h"
 #include "ai_speech.h"
 #include "game.h"
-#include "IEffects.h"
+#include "ieffects.h"
 #include "vstdlib/random.h"
 #include "ndebugoverlay.h"
 #include "tier0/vcrmode.h"

@@ -8,8 +8,8 @@
 #define __BASEMODFRAME_H__
 
 #include "cbase.h"
-#include "vgui_controls/Panel.h"
-#include "vgui_controls/Frame.h"
+#include "vgui_controls/panel.h"
+#include "vgui_controls/frame.h"
 #include "tier1/utllinkedlist.h"
 
 #include "basemodpanel.h"

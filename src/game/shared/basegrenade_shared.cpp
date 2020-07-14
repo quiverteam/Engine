@@ -8,13 +8,13 @@
 #include "decals.h"
 #include "basegrenade_shared.h"
 #include "shake.h"
-#include "engine/IEngineSound.h"
+#include "engine/ienginesound.h"
 
 #if !defined( CLIENT_DLL )
 
 #include "soundent.h"
 #include "entitylist.h"
-#include "GameStats.h"
+#include "gamestats.h"
 
 #endif
 

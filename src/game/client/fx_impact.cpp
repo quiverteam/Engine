@@ -5,12 +5,12 @@
 //===========================================================================//
 #include "cbase.h"
 #include "decals.h"
-#include "materialsystem/IMaterialVar.h"
+#include "materialsystem/imaterialvar.h"
 #include "ieffects.h"
 #include "fx.h"
 #include "fx_impact.h"
 #include "view.h"
-#include "engine/IStaticPropMgr.h"
+#include "engine/istaticpropmgr.h"
 #include "c_impact_effects.h"
 #include "tier0/vprof.h"
 

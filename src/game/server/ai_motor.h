@@ -16,7 +16,7 @@
 #include "ai_component.h"
 #include "ai_navtype.h"
 #include "ai_movetypes.h"
-#include "AI_Interest_Target.h"
+#include "ai_interest_target.h"
 
 //-----------------------------------------------------------------------------
 // Forward declarations

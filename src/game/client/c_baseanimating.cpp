@@ -6,7 +6,7 @@
 //===========================================================================//
 #include "cbase.h"
 #include "c_baseanimating.h"
-#include "c_Sprite.h"
+#include "c_sprite.h"
 #include "model_types.h"
 #include "bone_setup.h"
 #include "ivrenderview.h"
@@ -14,17 +14,17 @@
 #include "dlight.h"
 #include "beamdraw.h"
 #include "cl_animevent.h"
-#include "engine/IEngineSound.h"
+#include "engine/ienginesound.h"
 #include "c_te_legacytempents.h"
 #include "activitylist.h"
 #include "animation.h"
 #include "tier0/vprof.h"
-#include "ClientEffectPrecacheSystem.h"
+#include "clienteffectprecachesystem.h"
 #include "ieffects.h"
 #include "engine/ivmodelinfo.h"
-#include "engine/IVDebugOverlay.h"
+#include "engine/ivdebugoverlay.h"
 #include "c_te_effect_dispatch.h"
-#include <KeyValues.h>
+#include <keyvalues.h>
 #include "c_rope.h"
 #include "isaverestore.h"
 #include "datacache/imdlcache.h"
@@ -49,7 +49,7 @@
 #include "vstdlib/jobthread.h"
 #include "bonetoworldarray.h"
 #include "posedebugger.h"
-#include "tier0/ICommandLine.h"
+#include "tier0/icommandline.h"
 #include "prediction.h"
 
 // memdbgon must be the last include file in a .cpp file!!!

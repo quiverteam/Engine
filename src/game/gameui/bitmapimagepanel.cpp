@@ -5,8 +5,8 @@
 // $NoKeywords: $
 //=============================================================================//
 
-#include "BitmapImagePanel.h"
-#include <vgui/ISurface.h>
+#include "bitmapimagepanel.h"
+#include <vgui/isurface.h>
 
 // memdbgon must be the last include file in a .cpp file!!!
 #include "tier0/memdbgon.h"

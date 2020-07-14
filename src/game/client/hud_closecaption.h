@@ -12,10 +12,10 @@
 #endif
 
 #include "hudelement.h"
-#include <vgui_controls/Panel.h>
+#include <vgui_controls/panel.h>
 #include "captioncompiler.h"
-#include "tier1/UtlSortVector.h"
-#include "tier1/UtlSymbol.h"
+#include "tier1/utlsortvector.h"
+#include "tier1/utlsymbol.h"
 
 class CSentence;
 class C_BaseFlex;

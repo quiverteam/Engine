@@ -5,8 +5,8 @@
 // $NoKeywords: $
 //=============================================================================//
 #include "cbase.h"
-#include "ParticleSphereRenderer.h"
-#include "materialsystem/IMaterialVar.h"
+#include "particlesphererenderer.h"
+#include "materialsystem/imaterialvar.h"
 
 // memdbgon must be the last include file in a .cpp file!!!
 #include "tier0/memdbgon.h"

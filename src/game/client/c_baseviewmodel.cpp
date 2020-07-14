@@ -16,7 +16,7 @@
 #include "cl_animevent.h"
 #include "eventlist.h"
 #include "tools/bonelist.h"
-#include <KeyValues.h>
+#include <keyvalues.h>
 #include "hltvcamera.h"
 
 // memdbgon must be the last include file in a .cpp file!!!

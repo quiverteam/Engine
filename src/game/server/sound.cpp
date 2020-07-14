@@ -21,11 +21,11 @@
 #include <ctype.h>
 #include "entitylist.h"
 #include "vstdlib/random.h"
-#include "engine/IEngineSound.h"
+#include "engine/ienginesound.h"
 #include "ndebugoverlay.h"
 #include "soundscape.h"
 #include "igamesystem.h"
-#include "KeyValues.h"
+#include "keyvalues.h"
 #include "filesystem.h"
 
 // memdbgon must be the last include file in a .cpp file!!!

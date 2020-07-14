@@ -10,11 +10,11 @@
 #pragma once
 #endif
 
-#include "UtlVector.h"
-#include "UtlDict.h"
-#include "ConVar.h"
+#include "utlvector.h"
+#include "utldict.h"
+#include "convar.h"
 #include <vgui/vgui.h>
-#include <Color.h>
+#include <color.h>
 #include <bitbuf.h>
 
 namespace vgui

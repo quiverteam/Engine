@@ -19,42 +19,42 @@
 #undef SendMessage
 #endif
 																
-#include "FileSystem.h"
-#include "GameUI_Interface.h"
-#include "Sys_Utils.h"
+#include "filesystem.h"
+#include "gameui_interface.h"
+#include "sys_utils.h"
 #include "string.h"
 #include "tier0/icommandline.h"
 
 // interface to engine
-#include "EngineInterface.h"
+#include "engineinterface.h"
 
-#include "VGuiSystemModuleLoader.h"
-#include "bitmap/TGALoader.h"
+#include "vguisystemmoduleloader.h"
+#include "bitmap/tgaloader.h"
 
-#include "GameConsole.h"
-#include "LoadingDialog.h"
-#include "CDKeyEntryDialog.h"
-#include "ModInfo.h"
-#include "game/client/IGameClientExports.h"
+#include "gameconsole.h"
+#include "loadingdialog.h"
+#include "cdkeyentrydialog.h"
+#include "modinfo.h"
+#include "game/client/igameclientexports.h"
 #include "materialsystem/imaterialsystem.h"
 #include "ixboxsystem.h"
 #include "iachievementmgr.h"
-#include "IGameUIFuncs.h"
-#include "IEngineVGUI.h"
+#include "igameuifuncs.h"
+#include "ienginevgui.h"
 //#include "video/ivideoservices.h"
 
 // vgui2 interface
 // note that GameUI project uses ..\vgui2\include, not ..\utils\vgui\include
-#include "vgui/Cursor.h"
-#include "tier1/KeyValues.h"
-#include "vgui/ILocalize.h"
-#include "vgui/IPanel.h"
-#include "vgui/IScheme.h"
-#include "vgui/IVGui.h"
-#include "vgui/ISystem.h"
-#include "vgui/ISurface.h"
-#include "vgui_controls/Menu.h"
-#include "vgui_controls/PHandle.h"
+#include "vgui/cursor.h"
+#include "tier1/keyvalues.h"
+#include "vgui/ilocalize.h"
+#include "vgui/ipanel.h"
+#include "vgui/ischeme.h"
+#include "vgui/ivgui.h"
+#include "vgui/isystem.h"
+#include "vgui/isurface.h"
+#include "vgui_controls/menu.h"
+#include "vgui_controls/phandle.h"
 #include "tier3/tier3.h"
 #include "matsys_controls/matsyscontrols.h"
 #include "steam/steam_api.h"
@@ -65,7 +65,7 @@
 #include "basemodpanel.h"
 #include "basemodui.h"
 //#include "..\game\shared\hl2ce\hl2ce_missioninfo.h"
-#include "shared\missioninfo.h"
+#include "shared/missioninfo.h"
 typedef BaseModUI::CBaseModPanel UI_BASEMOD_PANEL_CLASS;
 inline UI_BASEMOD_PANEL_CLASS & GetUiBaseModPanelClass() { return UI_BASEMOD_PANEL_CLASS::GetSingleton(); }
 inline UI_BASEMOD_PANEL_CLASS & ConstructUiBaseModPanelClass() { return * new UI_BASEMOD_PANEL_CLASS(); }
@@ -75,7 +75,7 @@ inline UI_BASEMOD_PANEL_CLASS & ConstructUiBaseModPanelClass() { return * new UI
 #endif // _X360
 
 #include "tier0/dbg.h"
-#include "engine/IEngineSound.h"
+#include "engine/ienginesound.h"
 #include "gameui_util.h"
 
 // memdbgon must be the last include file in a .cpp file!!!

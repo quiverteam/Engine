@@ -9,10 +9,10 @@
 #define GAMEUI_INTERFACE_H
 #pragma once
 
-#include "GameUI/IGameUI.h"
+#include "gameui/igameui.h"
 
-#include "vgui_controls/Panel.h"
-#include "vgui_controls/PHandle.h"
+#include "vgui_controls/panel.h"
+#include "vgui_controls/phandle.h"
 #include "convar.h"
 
 class IGameClientExports;

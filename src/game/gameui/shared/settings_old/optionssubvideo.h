@@ -11,12 +11,12 @@
 #pragma once
 #endif
 
-#include <vgui_controls/Panel.h>
-#include <vgui_controls/ComboBox.h>
-#include <vgui_controls/PropertyPage.h>
-#include "EngineInterface.h"
+#include <vgui_controls/panel.h>
+#include <vgui_controls/combobox.h>
+#include <vgui_controls/propertypage.h>
+#include "engineinterface.h"
 #include "igameuifuncs.h"
-#include "URLButton.h"
+#include "urlbutton.h"
 
 class CCvarSlider;
 

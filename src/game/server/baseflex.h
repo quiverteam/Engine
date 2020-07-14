@@ -12,7 +12,7 @@
 #endif
 
 
-#include "BaseAnimatingOverlay.h"
+#include "baseanimatingoverlay.h"
 #include "utlvector.h"
 #include "utlrbtree.h"
 #include "sceneentity_shared.h"

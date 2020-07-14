@@ -9,9 +9,9 @@
 #include "util_shared.h"
 #include "model_types.h"
 #include "convar.h"
-#include "IEffects.h"
+#include "ieffects.h"
 #include "vphysics/object_hash.h"
-#include "mathlib/IceKey.H"
+#include "mathlib/icekey.h"
 #include "checksum_crc.h"
 #include "particle_parse.h"
 

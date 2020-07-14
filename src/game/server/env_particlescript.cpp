@@ -7,7 +7,7 @@
 
 #include "cbase.h"
 #include "baseanimating.h"
-#include "SkyCamera.h"
+#include "skycamera.h"
 #include "studio.h"
 
 // memdbgon must be the last include file in a .cpp file!!!

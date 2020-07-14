@@ -1,11 +1,11 @@
 #include "cbase.h"
-#include "vgui_controls\Button.h"
-#include "vgui/ISurface.h"
-#include "vgui/IInput.h"
+#include "vgui_controls/button.h"
+#include "vgui/isurface.h"
+#include "vgui/iinput.h"
 #include "basemodui.h"
 //#include "nb_header_footer.h"
 //#include "..\game\shared\hl2ce\hl2ce_missioninfo.h"
-#include "shared\missioninfo.h"
+#include "shared/missioninfo.h"
 
 class Campaigns : public vgui::Button
 {

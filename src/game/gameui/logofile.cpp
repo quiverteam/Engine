@@ -10,10 +10,10 @@
 #include <windows.h>
 #endif
 #include <stdio.h>
-#include "UtlBuffer.h"
-#include <vgui/VGUI.h>
-#include <vgui_controls/Controls.h>
-#include "FileSystem.h"
+#include "utlbuffer.h"
+#include <vgui/vgui.h>
+#include <vgui_controls/controls.h>
+#include "filesystem.h"
 
 #if defined( _X360 )
 #include "xbox/xbox_win32stubs.h"

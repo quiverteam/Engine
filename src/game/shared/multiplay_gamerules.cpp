@@ -9,7 +9,7 @@
 #include "multiplay_gamerules.h"
 #include "viewport_panel_names.h"
 #include "gameeventdefs.h"
-#include <KeyValues.h>
+#include <keyvalues.h>
 #include "filesystem.h"
 #include "mp_shareddefs.h"
 
@@ -29,7 +29,7 @@
 	#include "voice_gamemgr.h"
 	#include "iscorer.h"
 	#include "hltvdirector.h"
-	#include "AI_Criteria.h"
+	#include "ai_criteria.h"
 	#include "sceneentity.h"
 	#include "basemultiplayerplayer.h"
 	#include "team.h"

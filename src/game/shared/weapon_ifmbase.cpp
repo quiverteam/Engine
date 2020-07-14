@@ -10,7 +10,7 @@
 
 #if defined( CLIENT_DLL )
 
-	#include "vgui/ISurface.h"
+	#include "vgui/isurface.h"
 	#include "vgui_controls/controls.h"
 	#include "hud_crosshair.h"
 

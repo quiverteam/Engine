@@ -8,13 +8,13 @@
 #ifdef IS_WINDOWS_PC
 #include "windows.h"
 #endif
-#include "VAddonAssociation.h"
-#include "VGenericConfirmation.h"
+#include "vaddonassociation.h"
+#include "vgenericconfirmation.h"
 
-#include "EngineInterface.h"
+#include "engineinterface.h"
 
-#include "vgui_controls/Label.h"
-#include "vgui/ISurface.h"
+#include "vgui_controls/label.h"
+#include "vgui/isurface.h"
 
 // memdbgon must be the last include file in a .cpp file!!!
 #include "tier0/memdbgon.h"

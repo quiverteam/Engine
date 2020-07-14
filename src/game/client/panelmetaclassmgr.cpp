@@ -8,12 +8,12 @@
 // $NoKeywords: $
 //=============================================================================//
 #include "cbase.h"
-#include "PanelMetaClassMgr.h"
-#include <KeyValues.h>
-#include <vgui_controls/Panel.h>
-#include "UtlDict.h"
+#include "panelmetaclassmgr.h"
+#include <keyvalues.h>
+#include <vgui_controls/panel.h>
+#include "utldict.h"
 #include "filesystem.h"
-#include <KeyValues.h>
+#include <keyvalues.h>
 
 // memdbgon must be the last include file in a .cpp file!!!
 #include "tier0/memdbgon.h"

@@ -6,12 +6,12 @@
 //=============================================================================//
 #include "cbase.h"
 #include "vgui_bitmapimage.h"
-#include <vgui_controls/Controls.h>
-#include <vgui/ISurface.h>
-#include <vgui_controls/Panel.h>
+#include <vgui_controls/controls.h>
+#include <vgui/isurface.h>
+#include <vgui_controls/panel.h>
 #include "panelmetaclassmgr.h"
-#include <KeyValues.h>
-#include <vgui/IPanel.h>
+#include <keyvalues.h>
+#include <vgui/ipanel.h>
 
 // memdbgon must be the last include file in a .cpp file!!!
 #include "tier0/memdbgon.h"

@@ -4,7 +4,7 @@
 //
 //=============================================================================//
 
-#include "IClientVehicle.h"
+#include "iclientvehicle.h"
 #include "vehicle_viewblend_shared.h"
 
 #ifndef C_VEHICLE_CRANE_H

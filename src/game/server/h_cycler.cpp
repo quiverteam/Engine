@@ -11,7 +11,7 @@
 #include "animation.h"
 #include "vstdlib/random.h"
 #include "h_cycler.h"
-#include "Sprite.h"
+#include "sprite.h"
 
 // memdbgon must be the last include file in a .cpp file!!!
 #include "tier0/memdbgon.h"

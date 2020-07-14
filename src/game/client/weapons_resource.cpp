@@ -8,8 +8,8 @@
 //=============================================================================//
 #include "cbase.h"
 #include "history_resource.h"
-#include <vgui_controls/Controls.h>
-#include <vgui/ISurface.h>
+#include <vgui_controls/controls.h>
+#include <vgui/isurface.h>
 #include "c_baseplayer.h"
 #include "hud.h"
 

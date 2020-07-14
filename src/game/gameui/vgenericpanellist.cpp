@@ -5,17 +5,17 @@
 //=====================================================================================//
 
 #include "cbase.h"
-#include "VGenericPanelList.h"
+#include "vgenericpanellist.h"
 
-#include "vgui_controls/Label.h"
-#include "vgui_controls/Panel.h"
-#include "vgui_controls/ScrollBar.h"
-#include "vgui/IInput.h"
-#include "vgui/ISurface.h"
-#include "vgui/IImage.h"
-#include "vgui/ILocalize.h"
-#include "vgui_controls/ImagePanel.h"
-#include "KeyValues.h"
+#include "vgui_controls/label.h"
+#include "vgui_controls/panel.h"
+#include "vgui_controls/scrollbar.h"
+#include "vgui/iinput.h"
+#include "vgui/isurface.h"
+#include "vgui/iimage.h"
+#include "vgui/ilocalize.h"
+#include "vgui_controls/imagepanel.h"
+#include "keyvalues.h"
 //#include "VFlyoutMenu.h"
 
 // memdbgon must be the last include file in a .cpp file!!!

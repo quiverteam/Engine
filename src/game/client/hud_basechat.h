@@ -12,11 +12,11 @@
 #endif
 
 #include "hudelement.h"
-#include <vgui_controls/Panel.h>
+#include <vgui_controls/panel.h>
 #include "vgui_basepanel.h"
 #include "vgui_controls/frame.h"
-#include <vgui_controls/TextEntry.h>
-#include <vgui_controls/RichText.h>
+#include <vgui_controls/textentry.h>
+#include <vgui_controls/richtext.h>
 #include <vgui_controls/button.h>
 #include <vgui_controls/checkbutton.h>
 

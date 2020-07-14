@@ -11,9 +11,9 @@
 #pragma once
 #endif
 
-#include <vgui_controls/Frame.h>
-#include <vgui_controls/Button.h>
-#include <vgui_controls/HTML.h>
+#include <vgui_controls/frame.h>
+#include <vgui_controls/button.h>
+#include <vgui_controls/html.h>
 
 #include <game/client/iviewport.h>
 #include "shareddefs.h"

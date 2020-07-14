@@ -15,7 +15,7 @@
 #include "tier0/vprof.h"
 #include "c_te_effect_dispatch.h"
 #include "collisionutils.h"
-#include <KeyValues.h>
+#include <keyvalues.h>
 #include <bitbuf.h>
 #include "utllinkedlist.h"
 #include "materialsystem/imaterialsystemhardwareconfig.h"

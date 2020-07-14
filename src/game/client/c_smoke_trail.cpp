@@ -8,7 +8,7 @@
 #include "cbase.h"
 #include "c_smoke_trail.h"
 #include "fx.h"
-#include "engine/IVDebugOverlay.h"
+#include "engine/ivdebugoverlay.h"
 #include "engine/ienginesound.h"
 #include "c_te_effect_dispatch.h"
 #include "glow_overlay.h"
@@ -16,7 +16,7 @@
 #include "tier1/keyvalues.h"
 #include "toolframework_client.h"
 #include "view.h"
-#include "ClientEffectPrecacheSystem.h"
+#include "clienteffectprecachesystem.h"
 
 // memdbgon must be the last include file in a .cpp file!!!
 #include "tier0/memdbgon.h"

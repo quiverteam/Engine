@@ -7,10 +7,10 @@
 
 
 #include "cbase.h"
-#include <KeyValues.h>
+#include <keyvalues.h>
 #include "engine/ienginesound.h"
 #include "filesystem.h"
-#include "SoundEmitterSystem/isoundemittersystembase.h"
+#include "soundemittersystem/isoundemittersystembase.h"
 #include "soundchars.h"
 #include "view.h"
 #include "engine/ivdebugoverlay.h"

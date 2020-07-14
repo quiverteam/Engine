@@ -6,11 +6,11 @@
 //=============================================================================//
 #include "cbase.h"
 #include "toggletextureproxy.h"
-#include "materialsystem/IMaterial.h"
-#include "materialsystem/IMaterialVar.h"
-#include "materialsystem/ITexture.h"
-#include <KeyValues.h>
-#include "FunctionProxy.h"
+#include "materialsystem/imaterial.h"
+#include "materialsystem/imaterialvar.h"
+#include "materialsystem/itexture.h"
+#include <keyvalues.h>
+#include "functionproxy.h"
 #include "toolframework_client.h"
 
 // memdbgon must be the last include file in a .cpp file!!!

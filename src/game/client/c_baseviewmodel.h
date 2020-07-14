@@ -13,7 +13,7 @@
 #endif
 
 #include "c_baseanimating.h"
-#include "UtlVector.h"
+#include "utlvector.h"
 #include "baseviewmodel_shared.h"
 
 #endif // C_BASEVIEWMODEL_H
