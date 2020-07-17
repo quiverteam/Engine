@@ -592,6 +592,28 @@ struct mstudioanim_t
 	inline mstudioanim_t	*pNext( void ) const { if (nextoffset != 0) return  (mstudioanim_t *)(((byte *)this) + nextoffset); else return NULL; };
 };
 
+#define STUDIO_FRAME_RAWPOS		0x01 // Vector48 in constants
+#define STUDIO_FRAME_RAWROT		0x02 // Quaternion48 in constants
+#define STUDIO_FRAME_ANIMPOS	0x04 // Vector48 in framedata
+#define STUDIO_FRAME_ANIMROT	0x08 // Quaternion48 in framedata
+#define STUDIO_FRAME_FULLANIMPOS	0x10 // Vector in framedata
+
+struct mstudio_frame_anim_t
+{
+	DECLARE_BYTESWAP_DATADESC();
+
+	inline byte* pBoneFlags( void ) const { return ( ( ( byte* )this ) + sizeof( struct mstudio_frame_anim_t ) ); };
+
+	int				constantsoffset;
+	inline byte* pConstantData( void ) const { return ( ( ( byte* )this ) + constantsoffset ); };
+
+	int				frameoffset;
+	int 			framelength;
+	inline byte* pFrameData( int iFrame ) const { return ( ( ( byte* )this ) + frameoffset + iFrame * framelength ); };
+
+	int				unused[3];
+};
+
 struct mstudiomovement_t
 {
 	DECLARE_BYTESWAP_DATADESC();
@@ -2890,7 +2912,7 @@ inline const mstudioflexcontroller_t *mstudioflexcontrollerui_t::pController( in
 #define STUDIO_AUTOPLAY	0x0008		// temporary flag that forces the sequence to always play
 #define STUDIO_POST		0x0010		// 
 #define STUDIO_ALLZEROS	0x0020		// this animation/sequence has no real animation data
-//						0x0040
+#define STUDIO_FRAMEANIM 0x0040		// animation is encoded as by frame x bone instead of RLE bone x frame
 #define STUDIO_CYCLEPOSE 0x0080		// cycle index is taken from a pose parameter index
 #define STUDIO_REALTIME	0x0100		// cycle index is taken from a real-time clock, not the animations cycle index
 #define STUDIO_LOCAL	0x0200		// sequence has a local context sequence

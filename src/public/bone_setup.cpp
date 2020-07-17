@@ -854,26 +854,26 @@ static void CalcZeroframeData( const CStudioHdr *pStudioHdr, const studiohdr_t *
 //-----------------------------------------------------------------------------
 // Purpose: Find and decode a sub-frame of animation, remapping the skeleton bone indexes
 //-----------------------------------------------------------------------------
-static void CalcVirtualAnimation( virtualmodel_t *pVModel, const CStudioHdr *pStudioHdr, Vector *pos, Quaternion *q, 
-	mstudioseqdesc_t &seqdesc, int sequence, int animation,
+static void CalcVirtualAnimation( virtualmodel_t* pVModel, const CStudioHdr* pStudioHdr, Vector* pos, Quaternion* q,
+	mstudioseqdesc_t& seqdesc, int sequence, int animation,
 	float cycle, int boneMask )
 {
 	int	i, j, k;
 
-	const mstudiobone_t *pbone;
-	const virtualgroup_t *pSeqGroup;
-	const studiohdr_t *pSeqStudioHdr;
-	const mstudiolinearbone_t *pSeqLinearBones;
-	const mstudiobone_t *pSeqbone;
-	const mstudioanim_t *panim;
-	const studiohdr_t *pAnimStudioHdr;
-	const mstudiolinearbone_t *pAnimLinearBones;
-	const mstudiobone_t *pAnimbone;
-	const virtualgroup_t *pAnimGroup;
+	const mstudiobone_t* pbone;
+	const virtualgroup_t* pSeqGroup;
+	const studiohdr_t* pSeqStudioHdr;
+	const mstudiolinearbone_t* pSeqLinearBones;
+	const mstudiobone_t* pSeqbone;
+	const mstudioanim_t* panim;
+	const studiohdr_t* pAnimStudioHdr;
+	const mstudiolinearbone_t* pAnimLinearBones;
+	const mstudiobone_t* pAnimbone;
+	const virtualgroup_t* pAnimGroup;
 
 	pSeqGroup = pVModel->pSeqGroup( sequence );
 	int baseanimation = pStudioHdr->iRelativeAnim( sequence, animation );
-	mstudioanimdesc_t &animdesc = pStudioHdr->pAnimdesc( baseanimation );
+	mstudioanimdesc_t& animdesc = pStudioHdr->pAnimdesc( baseanimation );
 	pSeqStudioHdr = pStudioHdr->pSeqStudioHdr( sequence );
 	pSeqLinearBones = pSeqStudioHdr->pLinearBones();
 	pSeqbone = pSeqStudioHdr->pBone( 0 );
@@ -885,36 +885,36 @@ static void CalcVirtualAnimation( virtualmodel_t *pVModel, const CStudioHdr *pSt
 	int					iFrame;
 	float				s;
 
-	float fFrame = cycle * (animdesc.numframes - 1);
+	float fFrame = cycle * ( animdesc.numframes - 1 );
 
-	iFrame = (int)fFrame;
-	s = (fFrame - iFrame);
+	iFrame = ( int )fFrame;
+	s = ( fFrame - iFrame );
 
 	int iLocalFrame = iFrame;
 	float flStall;
 	panim = animdesc.pAnim( &iLocalFrame, flStall );
 
-	float *pweight = seqdesc.pBoneweight( 0 );
+	float* pweight = seqdesc.pBoneweight( 0 );
 	pbone = pStudioHdr->pBone( 0 );
 
-	for (i = 0; i < pStudioHdr->numbones(); i++)
+	for ( i = 0; i < pStudioHdr->numbones(); i++ )
 	{
-		if (pStudioHdr->boneFlags(i) & boneMask)
+		if ( pStudioHdr->boneFlags( i ) & boneMask )
 		{
 			int j = pSeqGroup->boneMap[i];
-			if (j >= 0 && pweight[j] > 0.0f)
+			if ( j >= 0 && pweight[j] > 0.0f )
 			{
-				if (animdesc.flags & STUDIO_DELTA)
+				if ( animdesc.flags & STUDIO_DELTA )
 				{
 					q[i].Init( 0.0f, 0.0f, 0.0f, 1.0f );
 					pos[i].Init( 0.0f, 0.0f, 0.0f );
 				}
-				else if (pSeqLinearBones)
+				else if ( pSeqLinearBones )
 				{
-					q[i] = pSeqLinearBones->quat(j);
-					pos[i] = pSeqLinearBones->pos(j);
+					q[i] = pSeqLinearBones->quat( j );
+					pos[i] = pSeqLinearBones->pos( j );
 				}
-				else 
+				else
 				{
 					q[i] = pSeqbone[j].quat;
 					pos[i] = pSeqbone[j].pos;
@@ -927,30 +927,91 @@ static void CalcVirtualAnimation( virtualmodel_t *pVModel, const CStudioHdr *pSt
 	}
 
 	// if the animation isn't available, look for the zero frame cache
-	if (!panim)
+	if ( !panim )
 	{
 		CalcZeroframeData( pStudioHdr, pAnimStudioHdr, pAnimGroup, pAnimbone, animdesc, fFrame, pos, q, boneMask, 1.0 );
 		return;
 	}
 
-	// FIXME: change encoding so that bone -1 is never the case
-	while (panim && panim->bone < 255)
+	if ( animdesc.flags & STUDIO_FRAMEANIM )
 	{
-		j = pAnimGroup->masterBone[panim->bone];
-		if ( j >= 0 && ( pStudioHdr->boneFlags(j) & boneMask ) )
+		mstudio_frame_anim_t* pframeanim = ( mstudio_frame_anim_t* )panim;
+		byte* flags = pframeanim->pBoneFlags();
+		byte* constdata = pframeanim->pConstantData();
+		byte* framedata = pframeanim->pFrameData( iLocalFrame );
+		for ( i = 0; i < pStudioHdr->numbones(); i++, pbone++, pweight++, flags++ )
 		{
-			k = pSeqGroup->boneMap[j];
-
-			if (k >= 0 && pweight[k] > 0.0f)
+			if ( *flags & STUDIO_FRAME_RAWROT )
 			{
-				CalcBoneQuaternion( iLocalFrame, s, &pAnimbone[panim->bone], pAnimLinearBones, panim, q[j] );
-				CalcBonePosition  ( iLocalFrame, s, &pAnimbone[panim->bone], pAnimLinearBones, panim, pos[j] );
-#ifdef STUDIO_ENABLE_PERF_COUNTERS
-				pStudioHdr->m_nPerfAnimatedBones++;
-#endif
+				q[i] = *( Quaternion48* )constdata;
+				constdata += sizeof( Quaternion48 );
+			}
+			else if ( *flags & STUDIO_FRAME_ANIMROT )
+			{
+				q[i] = *( Quaternion48* )framedata;
+				framedata += sizeof( Quaternion48 );
+			}
+			else if ( &pAnimbone[i] )
+			{
+				if ( animdesc.flags & STUDIO_DELTA )
+				{
+					q[i].Init( 0.0f, 0.0f, 0.0f, 1.0f );
+				}
+				else
+				{
+					q[i] = ( ( mstudiobone_t* )&pAnimbone[i] )->quat;
+				}
+			}
+
+			if ( *flags & STUDIO_FRAME_RAWPOS )
+			{
+				pos[i] = *( Vector48* )constdata;
+				constdata += sizeof( Vector48 );
+			}
+			else if ( *flags & STUDIO_FRAME_ANIMPOS )
+			{
+				pos[i] = *( Vector48* )framedata;
+				framedata += sizeof( Vector48 );
+			}
+			else if ( *flags & STUDIO_FRAME_FULLANIMPOS )
+			{
+				pos[i] = *( Vector* )framedata;
+				framedata += sizeof( Vector );
+			}
+			else if ( &pAnimbone[i] )
+			{
+				if ( animdesc.flags & STUDIO_DELTA )
+				{
+					pos[i].Init( 0.0f, 0.0f, 0.0f );
+				}
+				else
+				{
+					pos[i] = ( ( mstudiobone_t* )&pAnimbone[i] )->pos;
+				}
 			}
 		}
-		panim = panim->pNext();
+	}
+	else
+	{
+		// FIXME: change encoding so that bone -1 is never the case
+		while ( panim && panim->bone < 255 )
+		{
+			j = pAnimGroup->masterBone[panim->bone];
+			if ( j >= 0 && ( pStudioHdr->boneFlags( j ) & boneMask ) )
+			{
+				k = pSeqGroup->boneMap[j];
+
+				if ( k >= 0 && pweight[k] > 0.0f )
+				{
+					CalcBoneQuaternion( iLocalFrame, s, &pAnimbone[panim->bone], pAnimLinearBones, panim, q[j] );
+					CalcBonePosition( iLocalFrame, s, &pAnimbone[panim->bone], pAnimLinearBones, panim, pos[j] );
+#ifdef STUDIO_ENABLE_PERF_COUNTERS
+					pStudioHdr->m_nPerfAnimatedBones++;
+#endif
+				}
+			}
+			panim = panim->pNext();
+		}
 	}
 
 	// cross fade in previous zeroframe data
@@ -1057,37 +1118,98 @@ static void CalcAnimation( const CStudioHdr *pStudioHdr,	Vector *pos, Quaternion
 		return;
 	}
 
-	// BUGBUG: the sequence, the anim, and the model can have all different bone mappings.
-	for (i = 0; i < pStudioHdr->numbones(); i++, pbone++, pweight++)
+	if ( animdesc.flags & STUDIO_FRAMEANIM )
 	{
-		if (panim && panim->bone == i)
+		mstudio_frame_anim_t* pframeanim = ( mstudio_frame_anim_t* )panim;
+		byte *flags = pframeanim->pBoneFlags();
+		byte* constdata = pframeanim->pConstantData();
+		byte* framedata = pframeanim->pFrameData( iLocalFrame );
+		for ( i = 0; i < pStudioHdr->numbones(); i++, pbone++, pweight++, flags++ )
 		{
-			if (*pweight > 0 && (pStudioHdr->boneFlags(i) & boneMask))
+			if ( *flags & STUDIO_FRAME_RAWROT )
 			{
-				CalcBoneQuaternion( iLocalFrame, s, pbone, pLinearBones, panim, q[i] );
-				CalcBonePosition  ( iLocalFrame, s, pbone, pLinearBones, panim, pos[i] );
+				q[i] = *( Quaternion48* )constdata;
+				constdata += sizeof( Quaternion48 );
+			}
+			else if ( *flags & STUDIO_FRAME_ANIMROT )
+			{
+				q[i] = *( Quaternion48* )framedata;
+				framedata += sizeof( Quaternion48 );
+			}
+			else if( pLinearBones )
+			{
+				if ( animdesc.flags & STUDIO_DELTA )
+				{
+					q[i].Init( 0.0f, 0.0f, 0.0f, 1.0f );
+				}
+				else
+				{
+					q[i] = pLinearBones->quat( i );
+				}
+			}
+
+			if ( *flags & STUDIO_FRAME_RAWPOS )
+			{
+				pos[i] = *( Vector48* )constdata;
+				constdata += sizeof( Vector48 );
+			}
+			else if ( *flags & STUDIO_FRAME_ANIMPOS )
+			{
+				pos[i] = *( Vector48* )framedata;
+				framedata += sizeof( Vector48 );
+			}
+			else if ( *flags & STUDIO_FRAME_FULLANIMPOS )
+			{
+				pos[i] = *( Vector* )framedata;
+				framedata += sizeof( Vector );
+			}
+			else if ( pLinearBones )
+			{
+				if ( animdesc.flags & STUDIO_DELTA )
+				{
+					pos[i].Init( 0.0f, 0.0f, 0.0f );
+				}
+				else
+				{
+					pos[i] = pLinearBones->pos( i );
+				}
+			}
+		}
+	}
+	else
+	{
+		// BUGBUG: the sequence, the anim, and the model can have all different bone mappings.
+		for ( i = 0; i < pStudioHdr->numbones(); i++, pbone++, pweight++ )
+		{
+			if ( panim && panim->bone == i )
+			{
+				if ( *pweight > 0 && ( pStudioHdr->boneFlags( i ) & boneMask ) )
+				{
+					CalcBoneQuaternion( iLocalFrame, s, pbone, pLinearBones, panim, q[i] );
+					CalcBonePosition( iLocalFrame, s, pbone, pLinearBones, panim, pos[i] );
 #ifdef STUDIO_ENABLE_PERF_COUNTERS
-				pStudioHdr->m_nPerfAnimatedBones++;
+					pStudioHdr->m_nPerfAnimatedBones++;
+					pStudioHdr->m_nPerfUsedBones++;
+#endif
+				}
+				panim = panim->pNext();
+			}
+			else if ( *pweight > 0 && ( pStudioHdr->boneFlags( i ) & boneMask ) )
+			{
+				if ( animdesc.flags & STUDIO_DELTA )
+				{
+					q[i].Init( 0.0f, 0.0f, 0.0f, 1.0f );
+					pos[i].Init( 0.0f, 0.0f, 0.0f );
+				}
+				else
+				{
+					q[i] = pbone->quat;
+					pos[i] = pbone->pos;
+				}
+#ifdef STUDIO_ENABLE_PERF_COUNTERS
 				pStudioHdr->m_nPerfUsedBones++;
 #endif
 			}
-			panim = panim->pNext();
-		}
-		else if (*pweight > 0 && (pStudioHdr->boneFlags(i) & boneMask))
-		{
-			if (animdesc.flags & STUDIO_DELTA)
-			{
-				q[i].Init( 0.0f, 0.0f, 0.0f, 1.0f );
-				pos[i].Init( 0.0f, 0.0f, 0.0f );
-			}
-			else
-			{
-				q[i] = pbone->quat;
-				pos[i] = pbone->pos;
-			}
-#ifdef STUDIO_ENABLE_PERF_COUNTERS
-			pStudioHdr->m_nPerfUsedBones++;
-#endif
 		}
 	}
 
