@@ -98,7 +98,7 @@ private:
 	CDmxElement* UnserializeElementIndex( CUtlBuffer &buf, CUtlVector<CDmxElement*> &elementList );
 	void UnserializeElementAttribute( CUtlBuffer &buf, CDmxAttribute *pAttribute, CUtlVector<CDmxElement*> &elementList );
 	void UnserializeElementArrayAttribute( CUtlBuffer &buf, CDmxAttribute *pAttribute, CUtlVector<CDmxElement*> &elementList );
-	bool UnserializeAttributes( CUtlBuffer &buf, CDmxElement *pElement, CUtlVector<CDmxElement*> &elementList, int nStrings, int *offsetTable, char *stringTable );
+	bool UnserializeAttributes( CUtlBuffer &buf, CDmxElement *pElement, CUtlVector<CDmxElement*> &elementList, int nStrings, int *offsetTable, char *stringTable, int nEncodingVersion );
 	int GetStringOffsetTable( CUtlBuffer &buf, int *offsetTable, int nStrings );
 };
 
@@ -333,7 +333,7 @@ void CDmxSerializer::UnserializeElementArrayAttribute( CUtlBuffer &buf, CDmxAttr
 //-----------------------------------------------------------------------------
 // Reads a single element
 //-----------------------------------------------------------------------------
-bool CDmxSerializer::UnserializeAttributes( CUtlBuffer &buf, CDmxElement *pElement, CUtlVector<CDmxElement*> &elementList, int nStrings, int *offsetTable, char *stringTable )
+bool CDmxSerializer::UnserializeAttributes( CUtlBuffer &buf, CDmxElement *pElement, CUtlVector<CDmxElement*> &elementList, int nStrings, int *offsetTable, char *stringTable, int nEncodingVersion )
 {
 	CDmxElementModifyScope modify( pElement );
 
@@ -364,6 +364,21 @@ bool CDmxSerializer::UnserializeAttributes( CUtlBuffer &buf, CDmxElement *pEleme
 		{
 		default:
 			pAttribute->Unserialize( nAttributeType, buf );
+			break;
+
+		case AT_STRING:
+			if ( stringTable && nEncodingVersion >= 4 )
+			{
+				int si = buf.GetShort();
+				if ( si >= nStrings )
+					return false;
+
+				pAttribute->SetValue( (const char *)stringTable + offsetTable[si] );
+			}
+			else
+			{
+				pAttribute->Unserialize( nAttributeType, buf );
+			}
 			break;
 
 		case AT_ELEMENT:
@@ -412,7 +427,7 @@ int CDmxSerializer::GetStringOffsetTable( CUtlBuffer &buf, int *offsetTable, int
 //-----------------------------------------------------------------------------
 bool CDmxSerializer::Unserialize( CUtlBuffer &buf, int nEncodingVersion, CDmxElement **ppRoot )
 {
-	if ( nEncodingVersion < 0 || nEncodingVersion > 2 )
+	if ( nEncodingVersion < 0 || nEncodingVersion > 4 )
 		return false;
 
 	bool bReadStringTable = nEncodingVersion >= 2;
@@ -430,7 +445,11 @@ bool CDmxSerializer::Unserialize( CUtlBuffer &buf, int nEncodingVersion, CDmxEle
 	char *stringTable = NULL;
 	if ( bReadStringTable )
 	{
-		nStrings = buf.GetShort();
+		if( nEncodingVersion >= 4 )
+			nStrings = buf.GetInt();
+		else
+			nStrings = buf.GetShort();
+
 		offsetTable = ( int* )stackalloc( nStrings * sizeof( int ) );
 
 		// this causes entire string table to be mapped in memory at once
@@ -445,7 +464,7 @@ bool CDmxSerializer::Unserialize( CUtlBuffer &buf, int nEncodingVersion, CDmxEle
 		return true;
 
 	char pTypeBuf[256];
-	char pName[2048];
+	char pNameBuf[2048];
 	DmObjectId_t id;
 
 	// Read + create all elements
@@ -465,7 +484,20 @@ bool CDmxSerializer::Unserialize( CUtlBuffer &buf, int nEncodingVersion, CDmxEle
 			buf.GetStringManualCharCount( pTypeBuf, sizeof( pTypeBuf ) );
 			pType = pTypeBuf;
 		}
-		buf.GetStringManualCharCount( pName, 2048 );
+
+		const char* pName = NULL;
+		if ( bReadStringTable && nEncodingVersion >= 4 )
+		{
+			int si = buf.GetShort();
+			if ( si >= nStrings )
+				return false;
+			pName = stringTable + offsetTable[si];
+		}
+		else
+		{
+			buf.GetStringManualCharCount( pNameBuf, 2048 );
+			pName = pNameBuf;
+		}
 		buf.Get( &id, sizeof(DmObjectId_t) );
 
 		CDmxElement *pElement = new CDmxElement( pType );
@@ -484,7 +516,7 @@ bool CDmxSerializer::Unserialize( CUtlBuffer &buf, int nEncodingVersion, CDmxEle
 	// Now read all attributes
 	for ( int i = 0; i < nElementCount; ++i )
 	{
-		UnserializeAttributes( buf, elementList[ i ], elementList, nStrings, offsetTable, stringTable );
+		UnserializeAttributes( buf, elementList[ i ], elementList, nStrings, offsetTable, stringTable, nEncodingVersion );
 	}
 
 	return buf.IsValid();
