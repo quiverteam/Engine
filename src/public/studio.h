@@ -1147,8 +1147,8 @@ struct mstudiotexture_t
 	mutable int32			material;
 	mutable int32			clientmaterial;
 #else
-	mutable void			*material;  // fixme: this needs to go away . .isn't used by the engine, but is used by studiomdl
-	mutable void			*clientmaterial;	// gary, replace with client material pointer if used
+	mutable IMaterial		*material;  // fixme: this needs to go away . .isn't used by the engine, but is used by studiomdl
+	mutable IMaterial		*clientmaterial;	// gary, replace with client material pointer if used
 #endif
 	int						unused[10];
 };
