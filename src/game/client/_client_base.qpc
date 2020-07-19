@@ -53,6 +53,7 @@ configuration
 			"tier3"
 			"vgui_controls"
 			"steam_api"
+			"raytrace"
 		}
 	}
 }
@@ -69,6 +70,7 @@ dependencies
 	"mathlib/mathlib.qpc"
 	"particles/particles.qpc"
 	"vgui2/vgui_controls/vgui_controls.qpc"
+	"raytrace/raytrace.qpc"
 }
 
 files
