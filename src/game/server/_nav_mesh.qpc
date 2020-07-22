@@ -1,0 +1,45 @@
+//-----------------------------------------------------------------------------
+//	_NAV_MESH.QPC
+//
+//	Project script for navigation mesh files (no NextBot files)
+//-----------------------------------------------------------------------------
+configuration
+{
+	compiler
+	{
+		preprocessor_definitions
+		{
+			"USE_NAV_MESH"
+		}
+	}
+}
+
+files
+{
+	folder "Source Files"
+	{
+		folder "Navigation Mesh"
+		{
+			"nav.h"
+			"nav_area.cpp"
+			"nav_area.h"
+			"nav_colors.cpp"
+			"nav_colors.h"
+			"nav_edit.cpp"
+			"nav_entities.cpp"
+			"nav_entities.h"
+			"nav_file.cpp"
+			"nav_generate.cpp"
+			"nav_ladder.cpp"
+			"nav_ladder.h"
+			"nav_merge.cpp"
+			"nav_mesh.cpp"
+			"nav_mesh.h"
+			"nav_mesh_factory.cpp"
+			"nav_node.cpp"
+			"nav_node.h"
+			"nav_pathfind.h"
+			"nav_simplify.cpp"
+		}
+	}
+}
