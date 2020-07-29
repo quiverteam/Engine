@@ -255,13 +255,12 @@ private:
 	void BindBlack( TextureStage_t stage );
 	void BindGrey( TextureStage_t stage );
 	void BindFBTexture( TextureStage_t stage, int textureIdex );
-	void CopyRenderTargetToTexture( ShaderAPITextureHandle_t texID )
+	void CopyRenderTargetToTexture( ShaderAPITextureHandle_t textureHandle )
 	{
+		CopyRenderTargetToTextureEx( textureHandle, 0, NULL, NULL );
 	}
 
-	void CopyRenderTargetToTextureEx( ShaderAPITextureHandle_t texID, int nRenderTargetID, Rect_t *pSrcRect, Rect_t *pDstRect )
-	{
-	}
+	void CopyRenderTargetToTextureEx( ShaderAPITextureHandle_t textureHandle, int nRenderTargetID, Rect_t *pSrcRect, Rect_t *pDstRect );
 
 	// Special system flat normal map binding.
 	void BindFlatNormalMap( TextureStage_t stage );

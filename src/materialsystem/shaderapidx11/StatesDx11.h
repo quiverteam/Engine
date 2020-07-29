@@ -376,7 +376,7 @@ namespace StatesDx11
 		ID3D11GeometryShader *m_pGeometryShader;
 		ID3D11PixelShader *m_pPixelShader;
 
-		ID3D11RenderTargetView *m_pRenderTargetView;
+		ID3D11RenderTargetView *m_pRenderTargetViews[D3D11_SIMULTANEOUS_RENDER_TARGET_COUNT];
 		ID3D11DepthStencilView *m_pDepthStencilView;
 
 		int m_MaxVSSampler;

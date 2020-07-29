@@ -27,6 +27,8 @@
 #include "../stdshaders/cpp_shader_constant_register_map.h"
 #include "Dx11Global.h"
 
+#include "ITextureInternal.h"
+
 // NOTE: This has to be the last file included!
 #include "tier0/memdbgon.h"
 
@@ -214,7 +216,6 @@ void CShaderAPIDx11::ResetRenderState( bool bFullReset )
 	m_ShadowState = NULL;
 	m_CurrentSnapshot = DEFAULT_SHADOW_STATE_ID;
 	m_DynamicState.Reset();
-	m_DynamicState.m_pRenderTargetView = GetTexture( m_hBackBuffer ).GetRenderTargetView();
 	m_DynamicState.m_pDepthStencilView = GetTexture( m_hDepthBuffer ).GetDepthStencilView();
 
 	m_ShaderState.SetDefault();
@@ -223,8 +224,7 @@ void CShaderAPIDx11::ResetRenderState( bool bFullReset )
 	IssueStateChanges( bFullReset );
 }
 
-void CShaderAPIDx11::SetRenderTargetEx( int id, ShaderAPITextureHandle_t colorTextureHandle,
-					ShaderAPITextureHandle_t depthTextureHandle )
+void CShaderAPIDx11::SetRenderTargetEx( int nRenderTargetID, ShaderAPITextureHandle_t colorTextureHandle, ShaderAPITextureHandle_t depthTextureHandle )
 {
 	// GR - need to flush batched geometry
 	FlushBufferedPrimitives();
@@ -250,17 +250,19 @@ void CShaderAPIDx11::SetRenderTargetEx( int id, ShaderAPITextureHandle_t colorTe
 	if ( colorTextureHandle != INVALID_SHADERAPI_TEXTURE_HANDLE )
 	{
 		CTextureDx11 *pRT = &GetTexture( colorTextureHandle );
-		m_DynamicState.m_pRenderTargetView = pRT->GetRenderTargetView();
+		m_DynamicState.m_pRenderTargetViews[nRenderTargetID] = pRT->GetRenderTargetView();
+		SetStateFlag( STATE_CHANGED_RENDERTARGET );
 	}
 	else
 	{
-		m_DynamicState.m_pRenderTargetView = NULL;
+		m_DynamicState.m_pRenderTargetViews[nRenderTargetID] = NULL;
 	}
 
 	if ( depthTextureHandle != INVALID_SHADERAPI_TEXTURE_HANDLE )
 	{
 		CTextureDx11 *pDT = &GetTexture( depthTextureHandle );
 		m_DynamicState.m_pDepthStencilView = pDT->GetDepthStencilView();
+		SetStateFlag( STATE_CHANGED_DEPTHBUFFER );
 	}
 	else
 	{
@@ -881,14 +883,25 @@ void CShaderAPIDx11::DoIssueViewports()
 
 void CShaderAPIDx11::DoIssueRenderTargets()
 {
-	if ( !m_DynamicState.m_pRenderTargetView )
+	int nCount = 0;
+	ID3D11RenderTargetView *rt;
+	for ( ; nCount < D3D11_SIMULTANEOUS_RENDER_TARGET_COUNT; nCount++ )
 	{
-		return;
+		rt = m_DynamicState.m_pRenderTargetViews[nCount];
+		if ( rt == NULL )
+			break;
 	}
 
-	D3D11DeviceContext()->OMSetRenderTargets(
-		1, &m_DynamicState.m_pRenderTargetView,
-		m_DynamicState.m_pDepthStencilView );
+	if ( nCount > 0 )
+	{
+		D3D11DeviceContext()->OMSetRenderTargets( nCount, m_DynamicState.m_pRenderTargetViews, NULL );
+	}
+	else
+	{
+		// push the back buffer
+		rt = GetTexture( m_hBackBuffer ).GetRenderTargetView();
+		D3D11DeviceContext()->OMSetRenderTargets( 1, &rt, m_DynamicState.m_pDepthStencilView );
+	}
 }
 
 //-------------------------------------------------------------------//
@@ -974,9 +987,21 @@ void CShaderAPIDx11::ClearBuffers( bool bClearColor, bool bClearDepth, bool bCle
 	FlushBufferedPrimitives();
 
 	// FIXME: This implementation is totally bust0red [doesn't guarantee exact color specified]
-	if ( bClearColor && D3D11DeviceContext() && m_DynamicState.m_pRenderTargetView )
+	if ( bClearColor && D3D11DeviceContext() )
 	{
-		D3D11DeviceContext()->ClearRenderTargetView( m_DynamicState.m_pRenderTargetView, m_DynamicState.m_ClearColor );
+		ID3D11RenderTargetView* rt;
+		for ( int i = 0; i < D3D11_SIMULTANEOUS_RENDER_TARGET_COUNT; i++ )
+		{
+			rt = m_DynamicState.m_pRenderTargetViews[i];
+			if ( rt == NULL )
+				break;
+
+			D3D11DeviceContext()->ClearRenderTargetView( rt, m_DynamicState.m_ClearColor );
+		}
+
+		// finally, free the back buffer
+		rt = GetTexture( m_hBackBuffer ).GetRenderTargetView();
+		D3D11DeviceContext()->ClearRenderTargetView( rt, m_DynamicState.m_ClearColor );
 	}
 
 	if ( bClearDepth && D3D11DeviceContext() && m_DynamicState.m_pDepthStencilView )
@@ -3693,6 +3718,43 @@ void CShaderAPIDx11::GetDX9LightState( LightState_t *state ) const
 
 	state->m_nNumLights = m_ShaderState.light.m_NumLights;
 	state->m_bStaticLight = m_pMesh->HasColorMesh();
+}
+
+
+void CShaderAPIDx11::CopyRenderTargetToTextureEx( ShaderAPITextureHandle_t textureHandle, int nRenderTargetID, Rect_t *pSrcRect, Rect_t *pDstRect )
+{
+	// don't use this
+	return;
+	
+	// LOCK_SHADERAPI();
+	VPROF_BUDGET( "CShaderAPIDx11::CopyRenderTargetToTexture", "Refraction overhead" );
+
+	if ( !TextureIsAllocated( textureHandle ) )
+		return;
+
+	CTextureDx11 *pTexture = &GetTexture( textureHandle );
+	Assert( pTexture );
+	ID3D11Resource *pD3DTexture = pTexture->GetTexture();
+	Assert( pD3DTexture );
+
+	ITexture *rt = g_pShaderUtil->GetRenderTargetEx( nRenderTargetID );
+
+	CTextureDx11 *pTextureRT;
+	if ( rt == NULL )
+	{
+		pTextureRT = &GetTexture( 0 ); // copy back buffer
+	}
+	else
+	{
+		ITextureInternal* texInt = static_cast<ITextureInternal*>(rt);
+		ShaderAPITextureHandle_t texHandle = texInt->GetTextureHandle( 0 );
+		pTextureRT = &GetTexture( texHandle );
+	}
+
+	ID3D11Resource *pD3DTextureRT = pTextureRT->GetTexture();
+	Assert( pD3DTextureRT );
+	
+	// need to draw a quad with the texture and downscale it
 }
 
 //------------------------------------------------------------------------------------
