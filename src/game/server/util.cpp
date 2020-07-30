@@ -2142,10 +2142,10 @@ void UTIL_ValidateSoundName( string_t &name, const char *defaultStr )
 //
 // Input  : token - Returns with a token, or zero length if the token was missing.
 //			str - String to parse.
-//			sep - Character to use as separator. UNDONE: allow multiple separator chars
+//			sep - Character to use as separator.
 // Output : Returns a pointer to the next token to be parsed.
 //-----------------------------------------------------------------------------
-const char *nexttoken(char *token, const char *str, char sep)
+const char *nexttoken(char *token, const char *str, const char* sep)
 {
 	if ((str == NULL) || (*str == '\0'))
 	{
@@ -2157,10 +2157,23 @@ const char *nexttoken(char *token, const char *str, char sep)
 	// Copy everything up to the first separator into the return buffer.
 	// Do not include separators in the return buffer.
 	//
-	while ((*str != sep) && (*str != '\0'))
+	int separators = strlen( sep );
+	while ( ( *str != '\0' ) )
 	{
-		*token++ = *str++;
+		for ( int i = 1; i <= separators; i++ )
+		{
+			if ( ( *str != sep[i-1] ) )
+			{
+				if ( i == separators )
+					*token++ = *str++;
+			}
+			else
+			{
+				goto endstring;
+			}
+		}
 	}
+endstring:
 	*token = '\0';
 
 	//
@@ -2172,6 +2185,35 @@ const char *nexttoken(char *token, const char *str, char sep)
 	}
 
 	return(++str);
+}
+
+const char* nexttoken( char* token, const char* str, char sep )
+{
+	if ( ( str == NULL ) || ( *str == '\0' ) )
+	{
+		*token = '\0';
+		return( NULL );
+	}
+
+	//
+	// Copy everything up to the first separator into the return buffer.
+	// Do not include separators in the return buffer.
+	//
+	while ( ( *str != sep ) && ( *str != '\0' ) )
+	{
+		*token++ = *str++;
+	}
+	*token = '\0';
+
+	//
+	// Advance the pointer unless we hit the end of the input string.
+	//
+	if ( *str == '\0' )
+	{
+		return( str );
+	}
+
+	return( ++str );
 }
 
 //-----------------------------------------------------------------------------

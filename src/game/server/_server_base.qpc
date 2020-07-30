@@ -6,6 +6,7 @@ macro OUTBINDIR "$SRCDIR/../game/$GAMENAME/bin/$PLAT_DIR"
 macro GAMENAME
 
 include "$SRCDIR/_qpc_scripts/source_dll_base.qpc"
+include "$SRCDIR/game/server/_nav_mesh.qpc"
 
 configuration
 {
@@ -444,21 +445,6 @@ files
 		"$SRCDIR/game/server/movie_explosion.h"
 		"$SRCDIR/game/shared/multiplay_gamerules.cpp"
 		"$SRCDIR/game/shared/multiplay_gamerules.h"
-		"$SRCDIR/game/server/nav.h"
-		"$SRCDIR/game/server/nav_area.cpp"
-		"$SRCDIR/game/server/nav_area.h"
-		"$SRCDIR/game/server/nav_colors.cpp"
-		"$SRCDIR/game/server/nav_colors.h"
-		"$SRCDIR/game/server/nav_edit.cpp"
-		"$SRCDIR/game/server/nav_file.cpp"
-		"$SRCDIR/game/server/nav_generate.cpp"
-		"$SRCDIR/game/server/nav_ladder.cpp"
-		"$SRCDIR/game/server/nav_ladder.h"
-		"$SRCDIR/game/server/nav_mesh.cpp"
-		"$SRCDIR/game/server/nav_mesh.h"
-		"$SRCDIR/game/server/nav_node.cpp"
-		"$SRCDIR/game/server/nav_node.h"
-		"$SRCDIR/game/server/nav_pathfind.h"
 		"$SRCDIR/game/server/NDebugOverlay.cpp"
 		"$SRCDIR/game/server/NDebugOverlay.h"
 		"$SRCDIR/game/server/networkstringtable_gamedll.h"

@@ -1,0 +1,45 @@
+//-----------------------------------------------------------------------------
+//	_NAV_MESH.QPC
+//
+//	Project script for navigation mesh files (no NextBot files)
+//-----------------------------------------------------------------------------
+configuration
+{
+	compiler
+	{
+		preprocessor_definitions
+		{
+			"USE_NAV_MESH"
+		}
+	}
+}
+
+files
+{
+	folder "Source Files"
+	{
+		folder "Navigation Mesh"
+		{
+			"$SRCDIR/game/server/nav.h"
+			"$SRCDIR/game/server/nav_area.cpp"
+			"$SRCDIR/game/server/nav_area.h"
+			"$SRCDIR/game/server/nav_colors.cpp"
+			"$SRCDIR/game/server/nav_colors.h"
+			"$SRCDIR/game/server/nav_edit.cpp"
+			"$SRCDIR/game/server/nav_entities.cpp"
+			"$SRCDIR/game/server/nav_entities.h"
+			"$SRCDIR/game/server/nav_file.cpp"
+			"$SRCDIR/game/server/nav_generate.cpp"
+			"$SRCDIR/game/server/nav_ladder.cpp"
+			"$SRCDIR/game/server/nav_ladder.h"
+			"$SRCDIR/game/server/nav_merge.cpp"
+			"$SRCDIR/game/server/nav_mesh.cpp"
+			"$SRCDIR/game/server/nav_mesh.h"
+			"$SRCDIR/game/server/nav_mesh_factory.cpp"
+			"$SRCDIR/game/server/nav_node.cpp"
+			"$SRCDIR/game/server/nav_node.h"
+			"$SRCDIR/game/server/nav_pathfind.h"
+			"$SRCDIR/game/server/nav_simplify.cpp"
+		}
+	}
+}

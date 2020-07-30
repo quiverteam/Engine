@@ -3551,7 +3551,7 @@ void Panel::RequestFocus(int direction)
 //-----------------------------------------------------------------------------
 void Panel::OnRequestFocus(VPANEL subFocus, VPANEL defaultPanel)
 {
-	CallParentFunction(new KeyValues("OnRequestFocus", "subFocus", subFocus, "defaultPanel", defaultPanel));
+	CallParentFunction(new KeyValues("OnRequestFocus", "subFocus", ( void* )subFocus, "defaultPanel", ( void* )defaultPanel));
 }
 
 //-----------------------------------------------------------------------------
@@ -5282,6 +5282,11 @@ void Panel::OnMessage(const KeyValues *params, VPANEL ifromPanel)
 					{
 						typedef void (Panel::*MessageFunc_IntInt_t)(int, int);
 						(this->*((MessageFunc_IntInt_t)pMap->func))( param1->GetInt(), param2->GetInt() );
+					}
+					else if ( ( DATATYPE_PTR == pMap->firstParamType ) && ( DATATYPE_PTR == pMap->secondParamType ) )
+					{
+						typedef void ( Panel::* MessageFunc_PtrPtr_t )( void*, void* );
+						( this->*( ( MessageFunc_PtrPtr_t )pMap->func ) )( param1->GetPtr(), param2->GetPtr() );
 					}
 					else if ( (DATATYPE_PTR == pMap->firstParamType) && (DATATYPE_INT == pMap->secondParamType) )
 					{

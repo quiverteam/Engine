@@ -579,7 +579,7 @@ int CThreadPool::YieldWait( CJob **ppJobs, int nJobs, bool bWaitAll, unsigned ti
 
 	for ( int i = 0; i < nJobs; i++ )
 	{
-		handles.AddToTail( *(ppJobs[i]->AccessEvent()) );
+		handles.AddToTail( ppJobs[i]->AccessEvent() );
 	}
 
 	return YieldWait( (CThreadEvent **)handles.Base(), handles.Count(), bWaitAll, timeout);

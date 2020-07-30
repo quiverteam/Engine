@@ -17,7 +17,7 @@
 #include "materialsystem/imaterial.h"
 #include "materialsystem/imaterialsystem.h"
 
-typedef int ShaderAPITextureHandle_t;
+typedef intp ShaderAPITextureHandle_t;
 FORWARD_DECLARE_HANDLE( ConstantBufferHandle_t );
 
 //-----------------------------------------------------------------------------

@@ -1,8 +1,13 @@
 schedules:
-  - cron: "20 03 * * *"
-    displayName: "Auto Build"
+  - cron: "20 4 * * Sun"
+    displayName: "Weekly Auto Build"
     branches:
-      include: ["dev", "qpc"]
+      include:
+      - master
+      - upcoming
+      - 64bit
+      - dx11
+      - posix-support
     always: "false" # Don't run unless changes happen
 
 
@@ -10,11 +15,22 @@ pool:
   vmImage: 'windows-2019'
 
 
-# useful variables:
+# useful pages:
 # https://docs.microsoft.com/en-us/azure/devops/pipelines/build/variables?view=azure-devops&tabs=yaml
+# https://docs.microsoft.com/en-us/azure/devops/pipelines/process/run-number?view=azure-devops&tabs=yaml
+# https://docs.microsoft.com/en-us/azure/devops/pipelines/process/conditions?view=azure-devops&tabs=yaml
 
 
 steps:
+- task: ado-discord-webhook@1
+  inputs:
+    channelId: '$(DiscordWebhookURL)'
+    webhookKey: '$(DiscordWebhookKey)'
+    name: 'quiver azure pipelines'
+    messageType: 'content'
+    content: 'Build $(Build.BuildId) on $(Build.SourceBranchName) branch started'
+
+
 - script: |
     py -m pip install --upgrade pip
     py -m pip install lxml
@@ -33,6 +49,18 @@ steps:
     platform: 'win32'
     configuration: 'Release'
     maximumCpuCount: true
+    createLogFile: true
+    logFileVerbosity: 'minimal'
+
+# check the log to see if the build failed, if it did, then send a webhook saying it failed
+- task: ado-discord-webhook@1
+  condition: failed()
+  inputs:
+    channelId: '$(DiscordWebhookURL)'
+    webhookKey: '$(DiscordWebhookKey)'
+    name: 'quiver azure pipelines'
+    messageType: 'content'
+    content: 'Build $(Build.BuildId) on $(Build.SourceBranchName) branch FAILED'
 
 - task: ArchiveFiles@2
   displayName: Compress game folder with 7z
@@ -40,7 +68,7 @@ steps:
     rootFolderOrFile: 'game/'
     includeRootFolder: false
     archiveType: '7z'
-    archiveFile: 'QuiverSource_$(Build.BuildId)_$(Build.SourceBranchName)_$(Build.BuildNumber).7z'
+    archiveFile: 'QuiverSource_$(Build.BuildId)_$(Build.SourceBranchName)_$(Date:yyyyMMdd).7z'
     replaceExistingArchive: true
 
 - task: GitHubRelease@0
@@ -52,13 +80,13 @@ steps:
     action: 'create'
     target: '$(Build.SourceVersion)'
     tagSource: 'manual'
-    tag: 'auto_build_$(Build.BuildId)_$(Build.SourceBranchName)_$(Build.BuildNumber)'
+    tag: 'auto_build_$(Build.BuildId)_$(Build.SourceBranchName)'
     # releaseNotesSource: 'input'
     isPreRelease: false
-    releaseNotes: "Auto Build on $(Build.Repository.Name) branch"
-    title: 'Auto Build $(Build.BuildId) - $(Build.SourceBranchName) - $(Build.BuildNumber)'
+    releaseNotes: "Auto Build on $(Build.Repository.Name) branch, on $(Date:yyyy-MM-dd) $(Hours):$(Minutes)"
+    title: 'Auto Build $(Build.BuildId) - $(Build.SourceBranchName)'
     assets: |
-      QuiverSource_$(Build.BuildId)_$(Build.SourceBranchName)_$(Build.BuildNumber).7z
+      QuiverSource_$(Build.BuildId)_$(Build.SourceBranchName)_$(Date:yyyyMMdd).7z
       
 - task: GitHubRelease@0
   condition: and(succeeded(), ne(variables['Build.SourceBranch'], 'refs/heads/master'))
@@ -69,10 +97,10 @@ steps:
     action: 'create'
     target: '$(Build.SourceVersion)'
     tagSource: 'manual'
-    tag: 'auto_build_$(Build.BuildId)_$(Build.SourceBranchName)_$(Build.BuildNumber)'
+    tag: 'auto_build_$(Build.BuildId)_$(Build.SourceBranchName)'
     # releaseNotesSource: 'input'
     isPreRelease: true
-    releaseNotes: "Auto Build on $(Build.Repository.Name) branch"
-    title: 'Auto Build $(Build.BuildId) - $(Build.SourceBranchName) - $(Build.BuildNumber)'
+    releaseNotes: "Auto Build on $(Build.Repository.Name) branch, on $(Date:yyyy-MM-dd) $(Hours):$(Minutes)"
+    title: 'Auto Build $(Build.BuildId) - $(Build.SourceBranchName)'
     assets: |
-      QuiverSource_$(Build.BuildId)_$(Build.SourceBranchName)_$(Build.BuildNumber).7z
+      QuiverSource_$(Build.BuildId)_$(Build.SourceBranchName)_$(Date:yyyyMMdd).7z

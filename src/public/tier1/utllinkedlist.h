@@ -385,14 +385,14 @@ private:
 
 // this is kind of ugly, but until C++ gets templatized typedefs in C++0x, it's our only choice
 template < class T >
-class CUtlFixedLinkedList : public CUtlLinkedList< T, int, true, int, CUtlFixedMemory< UtlLinkedListElem_t< T, int > > >
+class CUtlFixedLinkedList : public CUtlLinkedList< T, intp, true, intp, CUtlFixedMemory< UtlLinkedListElem_t< T, intp > > >
 {
 public:
 	CUtlFixedLinkedList( int growSize = 0, int initSize = 0 )
-		: CUtlLinkedList< T, int, true, int, CUtlFixedMemory< UtlLinkedListElem_t< T, int > > >( growSize, initSize ) {}
+		: CUtlLinkedList< T, intp, true, intp, CUtlFixedMemory< UtlLinkedListElem_t< T, intp > > >( growSize, initSize ) {}
 
-	typedef CUtlLinkedList< T, int, true, int, CUtlFixedMemory< UtlLinkedListElem_t< T, int > > > BaseClass;
-	bool IsValidIndex( int i ) const
+	typedef CUtlLinkedList< T, intp, true, intp, CUtlFixedMemory< UtlLinkedListElem_t< T, intp > > > BaseClass;
+	bool IsValidIndex( intp i ) const
 	{
 		if ( !BaseClass::Memory().IsIdxValid( i ) )
 			return false;
@@ -433,8 +433,12 @@ template <class T, class S, bool ML, class I, class M>
 CUtlLinkedList<T,S,ML,I,M>::CUtlLinkedList( int growSize, int initSize ) :
 	m_Memory( growSize, initSize ), m_LastAlloc( m_Memory.InvalidIterator() )
 {
+#ifdef PLATFORM_64BITS
+	COMPILE_TIME_ASSERT( sizeof( S ) == 4 || sizeof( S ) == 8 || ( ( ( S )-1 ) > 0 ) );
+#else
 	// Prevent signed non-int datatypes
-	COMPILE_TIME_ASSERT( sizeof(S) == 4 || ( ( (S)-1 ) > 0 ) );
+	COMPILE_TIME_ASSERT( sizeof( S ) == 4 || ( ( ( S )-1 ) > 0 ) );
+#endif
 	ConstructList();
 	ResetDbgInfo();
 }

@@ -34,7 +34,7 @@ float4 main( PS_INPUT i ) : COLOR
 	//lum = ( color.r + color.g + color.b ) / 3.0f;
 
 	float4 result;
-	if ( ( lum >= ComparisonMinMax_and_scale.x ) && ( lum < ComparisonMinMax_and_scale.y ) )
+	if ( step( ComparisonMinMax_and_scale.x, lum ) * step( lum, ComparisonMinMax_and_scale.y ) == 1 )
 		result = float4( 1, 0, 0, 1 );
 	else
 		result = float4( 0, 0, 0, 0 );

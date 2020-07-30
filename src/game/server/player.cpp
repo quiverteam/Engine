@@ -1672,13 +1672,6 @@ void CBasePlayer::Event_Killed( const CTakeDamageInfo &info )
 
 	m_flDeathTime = gpGlobals->curtime;
 
-	// only count alive players
-	if (m_lastNavArea)
-	{
-		m_lastNavArea->DecrementPlayerCount( GetTeamNumber() );
-		m_lastNavArea = NULL;
-	}
-
 	BaseClass::Event_Killed( info );
 }
 
@@ -3717,10 +3710,10 @@ void CBasePlayer::PreThink(void)
 		// player entered a new nav area
 		if (m_lastNavArea)
 		{
-			m_lastNavArea->DecrementPlayerCount( GetTeamNumber() );
+			m_lastNavArea->DecrementPlayerCount( GetTeamNumber(), entindex() );
 		}
 
-		area->IncrementPlayerCount( GetTeamNumber() );
+		area->IncrementPlayerCount( GetTeamNumber(), entindex() );
 
 		m_lastNavArea = area;
 		if ( area->GetPlace() != UNDEFINED_PLACE )
@@ -4843,14 +4836,6 @@ void CBasePlayer::Spawn( void )
 	m_lastx = m_lasty = 0;
 
 	m_lastNavArea = NULL;
-
-#ifndef _XBOX
-	/// @todo Do this once per round instead of once per player
-	if (TheNavMesh)
-	{
-		TheNavMesh->ClearPlayerCounts();
-	}
-#endif
 
 	Q_strncpy( m_szLastPlaceName.GetForModify(), "", MAX_PLACE_NAME_LENGTH );
 	

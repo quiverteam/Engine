@@ -159,6 +159,7 @@ public:
 
 //===================================================================================================================
 // Team Defines
+#define TEAM_ANY				-2
 #define	TEAM_INVALID			-1
 #define TEAM_UNASSIGNED			0	// not assigned to a team
 #define TEAM_SPECTATOR			1	// spectator team

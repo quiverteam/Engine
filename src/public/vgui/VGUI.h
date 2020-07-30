@@ -50,7 +50,12 @@ namespace vgui
 {
 // handle to an internal vgui panel
 // this is the only handle to a panel that is valid across dll boundaries
-typedef unsigned int VPANEL;
+
+#ifdef PLATFORM_64BITS
+typedef unsigned __int64 VPANEL;
+#else
+typedef unsigned __int32 VPANEL;
+#endif
 
 // handles to vgui objects
 // NULL values signify an invalid value

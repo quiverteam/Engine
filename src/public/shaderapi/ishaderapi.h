@@ -51,7 +51,7 @@ enum ShaderRenderTarget_t
 //-----------------------------------------------------------------------------
 // This must match the definition in playback.cpp!
 //-----------------------------------------------------------------------------
-typedef int ShaderAPITextureHandle_t;
+typedef intp ShaderAPITextureHandle_t;
 #define INVALID_SHADERAPI_TEXTURE_HANDLE 0
 
 
