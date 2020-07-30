@@ -217,6 +217,17 @@ enum MaterialContextType_t
 	MATERIAL_NULL_CONTEXT
 };
 
+//-----------------------------------------------------------------------------
+// VR
+//-----------------------------------------------------------------------------
+
+enum class MatVREye
+{
+	LEFT_EYE,
+	RIGHT_EYE
+};
+
+
 
 //-----------------------------------------------------------------------------
 // Light structure
@@ -1055,6 +1066,10 @@ public:
 
 	// For sv_pure mode. The filesystem figures out which files the client needs to reload to be "pure" ala the server's preferences.
 	virtual void ReloadFilesInList( IFileList *pFilesToReload ) = 0;
+
+	virtual bool VR_Supported() = 0;
+	virtual void VR_Submit( ITexture *leftEye, ITexture *rightEye ) = 0;
+	virtual void VR_Submit( ITexture *eyeRT, MatVREye eye ) = 0;
 };
 
 

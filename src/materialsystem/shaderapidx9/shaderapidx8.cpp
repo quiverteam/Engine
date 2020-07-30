@@ -1248,6 +1248,18 @@ public:
 
 	virtual void AcquireThreadOwnership();
 	virtual void ReleaseThreadOwnership();
+
+	virtual bool VR_Supported()
+	{
+		// no vr in dx9, unless we implement d3d9ex here
+		return false;
+	}
+
+	virtual void VR_Submit( ShaderAPITextureHandle_t handle, MatVREye eye )
+	{
+		Warning( "[VR] Trying to call VR_Submit() in dx9!\n" );
+	}
+
 private:
 	enum
 	{

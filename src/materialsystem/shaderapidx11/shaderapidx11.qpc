@@ -7,6 +7,7 @@
 macro SRCDIR		"..\.."
 macro OUTBINDIR	"$BINDEFAULT"
 macro DX9DIR		"..\shaderapidx9"
+macro OPENVR_DIR      "$SRCDIR/thirdparty/openvr"       [!$OPENVR_DIR]
 
 include "$SRCDIR\_qpc_scripts\source_dll_base.qpc"
 
@@ -20,6 +21,7 @@ configuration
 		include_directories
 		{
 			".."
+			"$OPENVR_DIR/headers"
 		}
 	}
 
@@ -48,6 +50,7 @@ configuration
 			"d3d11.lib"
 			"D3DCompiler.lib"
 			"dxguid.lib"
+			"$OPENVR_DIR/lib/win32/openvr_api.lib"
 		}
 	}
 }

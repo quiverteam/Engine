@@ -2234,6 +2234,10 @@ public:
 	virtual void ReloadFilesInList( IFileList *pFilesToReload )
 	{
 	}
+
+	virtual bool VR_Supported() { return false; }
+	virtual void VR_Submit( ITexture *leftEye, ITexture *rightEye ) {}
+	virtual void VR_Submit( ITexture *eyeTexture, MatVREye eye ) {}
 };
 
 

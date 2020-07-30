@@ -80,7 +80,7 @@ private:
 	IDXGIAdapter* GetAdapter( int nAdapter ) const;
 
 	// Used to enumerate adapters, attach to windows
-	IDXGIFactory *m_pDXGIFactory;
+	IDXGIFactory1 *m_pDXGIFactory;
 
 	bool m_bObeyDxCommandlineOverride: 1;
 

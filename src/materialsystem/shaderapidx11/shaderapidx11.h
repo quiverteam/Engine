@@ -796,6 +796,9 @@ private:
 		return false;
 	}
 
+	virtual bool VR_Supported();
+	virtual void VR_Submit( ShaderAPITextureHandle_t handle, MatVREye eye );
+
 private:
 	enum
 	{

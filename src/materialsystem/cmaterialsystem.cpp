@@ -3963,3 +3963,32 @@ CON_COMMAND( mat_hdr_enabled, "Report if HDR is enabled for debugging" )
 		Warning( "HDR Disabled\n" );
 	}
 }
+
+
+bool CMaterialSystem::VR_Supported()
+{
+	return g_pShaderAPI->VR_Supported();
+}
+
+ShaderAPITextureHandle_t GetTextureHandle( ITexture* tex )
+{
+	if ( tex == NULL )
+		return 0;
+
+	ITextureInternal* texInt = static_cast<ITextureInternal*>(tex);
+	ShaderAPITextureHandle_t texHandle = texInt->GetTextureHandle( 0 );
+	return texHandle;
+}
+
+void CMaterialSystem::VR_Submit( ITexture* leftEye, ITexture* rightEye )
+{
+	g_pShaderAPI->VR_Submit( GetTextureHandle( leftEye ), MatVREye::LEFT_EYE );
+	g_pShaderAPI->VR_Submit( GetTextureHandle( rightEye ), MatVREye::RIGHT_EYE );
+}
+
+void CMaterialSystem::VR_Submit( ITexture* eyeTexture, MatVREye eye )
+{
+	g_pShaderAPI->VR_Submit( GetTextureHandle( eyeTexture ), eye );
+}
+
+

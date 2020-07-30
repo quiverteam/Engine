@@ -26,8 +26,9 @@
 #include "materialsystem/IShader.h"
 #include "../stdshaders/cpp_shader_constant_register_map.h"
 #include "Dx11Global.h"
-
 #include "ITextureInternal.h"
+
+#include <openvr.h>
 
 // NOTE: This has to be the last file included!
 #include "tier0/memdbgon.h"
@@ -3755,6 +3756,25 @@ void CShaderAPIDx11::CopyRenderTargetToTextureEx( ShaderAPITextureHandle_t textu
 	Assert( pD3DTextureRT );
 	
 	// need to draw a quad with the texture and downscale it
+}
+
+
+bool CShaderAPIDx11::VR_Supported()
+{
+	return true;
+}
+
+
+void CShaderAPIDx11::VR_Submit( ShaderAPITextureHandle_t handle, MatVREye eye )
+{
+	vr::Texture_t vrTexture = { GetTexture( handle ).GetTexture2D(), vr::TextureType_DirectX, vr::ColorSpace_Auto };
+
+	vr::EVRCompositorError error = vr::VRCompositor()->Submit( eye == MatVREye::LEFT_EYE ? vr::EVREye::Eye_Left : vr::EVREye::Eye_Right, &vrTexture );
+
+	if ( error != vr::VRCompositorError_None )
+	{
+		Warning("[VR] vr::VRCompositor() failed to submit!\n");
+	}
 }
 
 //------------------------------------------------------------------------------------

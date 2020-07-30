@@ -84,7 +84,7 @@ bool CShaderDeviceMgrDx11::Connect( CreateInterfaceFn factory )
 	if ( !BaseClass::Connect( factory ) )
 		return false;
 
-	HRESULT hr = CreateDXGIFactory( __uuidof(IDXGIFactory), (void**)(&m_pDXGIFactory) );
+	HRESULT hr = CreateDXGIFactory1( __uuidof(IDXGIFactory1), (void**)(&m_pDXGIFactory) );
 	if ( FAILED( hr ) )
 	{
 		Warning( "Failed to create the DXGI Factory!\n" );

@@ -623,6 +623,9 @@ public:
 	virtual void EnableBuffer2FramesAhead( bool bEnable ) = 0;
 
 	virtual void SetDepthFeatheringPixelShaderConstant( int iConstant, float fDepthBlendScale ) = 0;
+
+	virtual bool VR_Supported() = 0;
+	virtual void VR_Submit( ShaderAPITextureHandle_t handle, MatVREye eye ) = 0;
 };
 
 
