@@ -24,6 +24,7 @@
 #include "tier1/utlblockmemory.h"
 #include "tier1/strtools.h"
 #include "vstdlib/random.h"
+#include <initializer_list>
 
 #define FOR_EACH_VEC( vecName, iteratorName ) \
 	for ( int iteratorName = 0; iteratorName < (vecName).Count(); iteratorName++ )
@@ -48,6 +49,7 @@ public:
 	typedef const T* const_iterator;
 
 	// constructor, destructor
+	CUtlVector( std::initializer_list<T> elements );
 	explicit CUtlVector( int growSize = 0, int initSize = 0 );
 	explicit CUtlVector( T* pMemory, int allocationCount, int numElements = 0 );
 	~CUtlVector();
@@ -554,6 +556,21 @@ public:
 //-----------------------------------------------------------------------------
 // constructor, destructor
 //-----------------------------------------------------------------------------
+template< typename T, class A >
+inline CUtlVector<T, A>::CUtlVector( std::initializer_list<T> elements ) :
+	m_Memory(0, (int)elements.size()), m_Size((int)elements.size())
+{
+	// If you have this many elements in the initializer list I think you have bigger problems, but still.
+	Assert(elements.size() < INT_MAX);
+
+	for ( int i = 0; i < (int)elements.size(); ++i )
+	{
+		Element( i ) = *(elements.begin() + i);
+	}
+
+	ResetDbgInfo();
+}
+
 template< typename T, class A >
 inline CUtlVector<T, A>::CUtlVector( int growSize, int initSize )	: 
 	m_Memory(growSize, initSize), m_Size(0)
