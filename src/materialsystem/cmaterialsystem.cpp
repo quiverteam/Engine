@@ -3980,7 +3980,7 @@ ShaderAPITextureHandle_t GetTextureHandle( ITexture* tex )
 	return texHandle;
 }
 
-void CMaterialSystem::VR_Submit( ITexture* leftEye, ITexture* rightEye )
+/*void CMaterialSystem::VR_Submit( ITexture* leftEye, ITexture* rightEye )
 {
 	g_pShaderAPI->VR_Submit( GetTextureHandle( leftEye ), MatVREye::LEFT_EYE );
 	g_pShaderAPI->VR_Submit( GetTextureHandle( rightEye ), MatVREye::RIGHT_EYE );
@@ -3989,6 +3989,16 @@ void CMaterialSystem::VR_Submit( ITexture* leftEye, ITexture* rightEye )
 void CMaterialSystem::VR_Submit( ITexture* eyeTexture, MatVREye eye )
 {
 	g_pShaderAPI->VR_Submit( GetTextureHandle( eyeTexture ), eye );
+}*/
+
+void* CMaterialSystem::VR_GetSubmitInfo( ITexture* eyeTexture )
+{
+	return g_pShaderAPI->VR_GetSubmitInfo( GetTextureHandle( eyeTexture ) );
+}
+
+void* CMaterialSystem::VR_GetDevice()
+{
+	return g_pShaderAPI->VR_GetDevice();
 }
 
 

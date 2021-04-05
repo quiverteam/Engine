@@ -315,7 +315,7 @@ CSysModule *Sys_LoadModule( const char *pModuleName, Sys_Flags flags /* = SYS_NO
 		{
 // So you can see what the error is in the debugger...
 #if defined( _WIN32 ) && !defined( _X360 )
-			char *lpMsgBuf;
+			/*char *lpMsgBuf;
 			
 			FormatMessage( 
 				FORMAT_MESSAGE_ALLOCATE_BUFFER | 
@@ -329,7 +329,11 @@ CSysModule *Sys_LoadModule( const char *pModuleName, Sys_Flags flags /* = SYS_NO
 				NULL 
 			);
 
-			LocalFree( (HLOCAL)lpMsgBuf );
+			LocalFree( (HLOCAL)lpMsgBuf );*/
+
+			DWORD error = GetLastError();
+			Warning( "Error(%d) - Failed to load %s:\n", error, pModuleName );
+
 #elif defined( _X360 )
 			DWORD error = GetLastError();
 			Msg( "Error(%d) - Failed to load %s:\n", error, pModuleName );

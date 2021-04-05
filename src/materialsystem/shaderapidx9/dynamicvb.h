@@ -286,6 +286,14 @@ CVertexBuffer::CVertexBuffer(D3DDeviceWrapper * pD3D, VertexFormat_t fmt, DWORD 
 	desc.Pool = m_bDynamic ? D3DPOOL_DEFAULT : D3DPOOL_MANAGED;
 	desc.FVF = theFVF;
 
+#if defined( IS_WINDOWS_PC ) && defined( SHADERAPIDX9 )	// this may not be supported on all platforms
+	extern bool g_ShaderDeviceUsingD3D9Ex;
+	if ( g_ShaderDeviceUsingD3D9Ex )
+	{
+		desc.Pool = D3DPOOL_DEFAULT;
+	}
+#endif
+
 	desc.Usage = D3DUSAGE_WRITEONLY;
 	if ( m_bDynamic )
 	{

@@ -208,6 +208,7 @@ public:
 	virtual int	 MaxUserClipPlanes() const;
 	virtual bool UseFastClipping() const;
 	virtual int  GetDXSupportLevel() const;
+	virtual bool IsD3D9Ex() const;
 	virtual const char *GetShaderDLLName() const;
 	virtual bool ReadPixelsFromFrontBuffer() const;
 	virtual bool PreferDynamicTextures() const;

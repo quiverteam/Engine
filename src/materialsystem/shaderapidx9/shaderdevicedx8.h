@@ -280,9 +280,11 @@ protected:
 	void ReacquireResourcesInternal( bool bResetState = false, bool bForceReacquire = false, char const *pszForceReason = NULL );
 
 #ifndef _X360
+public:
 	IDirect3DDevice9	*m_pD3DDevice;
 #endif
 
+protected:
 	D3DPRESENT_PARAMETERS m_PresentParameters;
 	ImageFormat			m_AdapterFormat;
 

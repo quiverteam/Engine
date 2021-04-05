@@ -1,8 +1,8 @@
 // ---------------------------------------------------------------
 // Base Console Application Settings
 // ---------------------------------------------------------------
-macro OUTBINNAME        "$SCRIPT_NAME" [!$OUTBINNAME]
-macro OUTBINDIR         "$BINDEFAULT"   [!$OUTBINDIR]
+macro OUTBINNAME        "$PROJECT_SCRIPT_NAME"      [!$OUTBINNAME]
+macro OUTBINDIR         "$BINDEFAULT"               [!$OUTBINDIR]
 macro CONSOLE_BASE      "1"
 
 include "$SRCDIR/_qpc_scripts/source_base.qpc"

@@ -10,6 +10,8 @@
 #pragma once
 #endif
 
+#include "vcollide_parse.h"
+
 // solid_t parsing
 class CSolidSetDefaults : public IVPhysicsKeyHandler
 {

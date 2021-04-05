@@ -1,8 +1,8 @@
 // ---------------------------------------------------------------
 // Base Application Settings
 // ---------------------------------------------------------------
-macro OUTBINNAME        "$SCRIPT_NAME" [!$OUTBINNAME]
-macro OUTBINDIR         "$BINDEFAULT"   [!$OUTBINDIR]
+macro OUTBINNAME        "$PROJECT_SCRIPT_NAME"      [!$OUTBINNAME]
+macro OUTBINDIR         "$BINDEFAULT"               [!$OUTBINDIR]
 
 include "$SRCDIR/_qpc_scripts/source_base.qpc"
 include "$SRCDIR/_qpc_scripts/win/exe_base.qpc" 	[$WINDOWS]

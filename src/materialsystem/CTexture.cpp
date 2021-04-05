@@ -1346,6 +1346,8 @@ void CTexture::AllocateShaderAPITextures()
 		nCreateFlags |= TEXTURE_CREATE_CUBEMAP;
 	}
 
+	// uh
+
 	if ( m_nFlags & TEXTUREFLAGS_RENDERTARGET )
 	{
 		nCreateFlags |= TEXTURE_CREATE_RENDERTARGET;
@@ -1358,7 +1360,7 @@ void CTexture::AllocateShaderAPITextures()
 			--nCount;
 		}
 	}
-	else
+	else if ( !HardwareConfig()->IsD3D9Ex() )
 	{
 		// If it's not a render target, use the texture manager in dx
 		nCreateFlags |= TEXTURE_CREATE_MANAGED;

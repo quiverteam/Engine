@@ -626,11 +626,19 @@ bool CSourceAppSystemGroup::Create()
 
 	// Load up the appropriate shader DLL
 	// This has to be done before connection.
-	char const* pDLLName = "shaderapidx11.dll";
+
+	char const* pDLLName = "shaderapidx9.dll";
+
+	if ( CommandLine()->FindParm( "-dx11" ) )
+	{
+		pDLLName = "shaderapidx11.dll";
+	}
+
 	if ( CommandLine()->FindParm( "-noshaderapi" ) )
 	{
 		pDLLName = "shaderapiempty.dll";
 	}
+
 	pMaterialSystem->SetShaderAPI( pDLLName );
 
 	double elapsed = Plat_FloatTime() - st;

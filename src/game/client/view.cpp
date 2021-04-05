@@ -481,8 +481,11 @@ const CViewSetup *CViewRender::GetViewSetup( void ) const
 // Output : const CViewSetup
 //-----------------------------------------------------------------------------
 const CViewSetup *CViewRender::GetPlayerViewSetup( void ) const
-{   
-	return &m_View;
+{
+	// if ( m_CurrentView )
+	return &m_CurrentView;
+
+	// return &m_View;
 }
 
 //-----------------------------------------------------------------------------

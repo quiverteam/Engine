@@ -15,6 +15,7 @@
 #include "tier0/mem.h"
 #include "s3tc_decode.h"
 #include "utlvector.h"
+#include "tier0/icommandline.h"
 
 // memdbgon must be the last include file in a .cpp file!!!
 #include "tier0/memdbgon.h"
@@ -389,6 +390,7 @@ bool CVTFTexture::Init( int nWidth, int nHeight, int nDepth, ImageFormat fmt, in
 
 	if ( ( m_nFlags & TEXTUREFLAGS_SRGB ) != 0 )
 	{
+		// fucks up dx9
 		m_Format = GetMatchingSRGBFormat( m_Format );
 	}
 
@@ -984,6 +986,7 @@ bool CVTFTexture::Unserialize( CUtlBuffer &buf, bool bHeaderOnly, int nSkipMipLe
 	// matching SRGB format.
 	if ( ( m_nFlags & TEXTUREFLAGS_SRGB ) != 0 )
 	{
+		// breaks dx9
 		m_Format = GetMatchingSRGBFormat( m_Format );
 	}
 
@@ -3400,6 +3403,12 @@ it was once.
 
 ImageFormat CVTFTexture::GetMatchingSRGBFormat( ImageFormat format ) const
 {
+	// really shitty and lazy hack, fix later
+	if ( !CommandLine()->CheckParm( "-dx11" ) )
+	{
+		return format;
+	}
+
 	switch ( format )
 	{
 	case IMAGE_FORMAT_RGBA8888:

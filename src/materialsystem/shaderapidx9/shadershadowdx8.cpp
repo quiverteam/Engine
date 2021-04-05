@@ -383,7 +383,8 @@ void CShaderShadowDX8::Init( )
 	for (i = 0; i < MAX_SAMPLERS; ++i)
 	{
 		m_ShadowState.m_SamplerState[i].m_TextureEnable = false;
-		m_ShadowState.m_SamplerState[i].m_SRGBReadEnable = false;
+		// m_ShadowState.m_SamplerState[i].m_SRGBReadEnable = false;
+		m_ShadowState.m_SamplerState[i].m_SRGBReadEnable = true;
 		m_ShadowState.m_SamplerState[i].m_Fetch4Enable = false;
 
 		// A *real* measure if the texture stage is being used.
@@ -842,7 +843,7 @@ void CShaderShadowDX8::EnableSRGBRead( Sampler_t sampler, bool bEnable )
 
 	if ( sampler < m_pHardwareConfig->GetSamplerCount() )
 	{
-		m_ShadowState.m_SamplerState[sampler].m_SRGBReadEnable = bEnable;
+		// m_ShadowState.m_SamplerState[sampler].m_SRGBReadEnable = bEnable;
 	}
 	else
 	{

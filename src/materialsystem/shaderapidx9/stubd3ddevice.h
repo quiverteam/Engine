@@ -390,6 +390,12 @@ public:
 		return m_pD3DDevice->CopyRects( pSourceSurface, pSourceRectsArray, cRects, pDestinationSurface, pDestPointsArray );
 	}
 
+	HRESULT __stdcall UpdateSurface(IDirect3DSurface9* pSourceSurface, CONST RECT* pSourceRect, IDirect3DSurface9* pDestSurface, CONST POINT* pDestPoint)
+	{
+		FPRINTF( s_FileHandle, "UpdateSurface\n" );
+		return m_pD3DDevice->UpdateSurface( pSourceSurface, pSourceRect, pDestSurface, pDestPoint );
+	}
+
     HRESULT __stdcall UpdateTexture(IDirect3DBaseTexture8* pSourceTexture,IDirect3DBaseTexture8* pDestinationTexture)
 	{
 		FPRINTF( s_FileHandle, "UpdateTexture\n" );

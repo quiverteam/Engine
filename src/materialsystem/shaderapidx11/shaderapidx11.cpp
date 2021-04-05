@@ -3764,17 +3764,14 @@ bool CShaderAPIDx11::VR_Supported()
 	return true;
 }
 
-
-void CShaderAPIDx11::VR_Submit( ShaderAPITextureHandle_t handle, MatVREye eye )
+void* CShaderAPIDx11::VR_GetSubmitInfo( ShaderAPITextureHandle_t handle )
 {
-	vr::Texture_t vrTexture = { GetTexture( handle ).GetTexture2D(), vr::TextureType_DirectX, vr::ColorSpace_Auto };
+	return (void*) GetTexture( handle ).GetTexture2D();
+}
 
-	vr::EVRCompositorError error = vr::VRCompositor()->Submit( eye == MatVREye::LEFT_EYE ? vr::EVREye::Eye_Left : vr::EVREye::Eye_Right, &vrTexture );
-
-	if ( error != vr::VRCompositorError_None )
-	{
-		Warning("[VR] vr::VRCompositor() failed to submit!\n");
-	}
+void* CShaderAPIDx11::VR_GetDevice()
+{
+	return g_pShaderDeviceDx11;
 }
 
 //------------------------------------------------------------------------------------

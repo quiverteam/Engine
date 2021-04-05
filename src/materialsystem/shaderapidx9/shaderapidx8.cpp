@@ -127,6 +127,10 @@ ConVar mat_force_flush_texturecache( "mat_force_flush_texturecache", "0" );
 
 extern ConVar mat_debugalttab;
 
+#if defined(IS_WINDOWS_PC) && defined(SHADERAPIDX9)
+extern bool g_ShaderDeviceUsingD3D9Ex;
+#endif
+
 #define ALLOW_SMP_ACCESS 0
 
 #if ALLOW_SMP_ACCESS
@@ -422,6 +426,8 @@ struct Texture_t
 		m_pTextureGroupCounterFrame = NULL;
 	}
 
+	HANDLE m_Handle;
+
 	// FIXME: Compress this info
 	D3DTEXTUREADDRESS		m_UTexWrap;
 	D3DTEXTUREADDRESS		m_VTexWrap;
@@ -455,6 +461,7 @@ struct Texture_t
 		IS_DEPTH_STENCIL         = 0x0002,
 		IS_DEPTH_STENCIL_TEXTURE = 0x0004,	// depth stencil texture, not surface
 		IS_RENDERABLE            = ( IS_DEPTH_STENCIL | IS_ALLOCATED ),
+		IS_LOCKABLE				 = 0x0008,
 		IS_FINALIZED             = 0x0010,	// 360: completed async hi-res load
 		IS_FAILED                = 0x0020,	// 360: failed during load
 		CAN_CONVERT_FORMAT       = 0x0040,	// 360: allow format conversion
@@ -1251,13 +1258,30 @@ public:
 
 	virtual bool VR_Supported()
 	{
-		// no vr in dx9, unless we implement d3d9ex here
+#if defined(IS_WINDOWS_PC) && defined(SHADERAPIDX9)
+		return g_ShaderDeviceUsingD3D9Ex;  // vr is only possible in dx9 with d3d9ex
+#else
 		return false;
+#endif
 	}
 
-	virtual void VR_Submit( ShaderAPITextureHandle_t handle, MatVREye eye )
+	virtual void* VR_GetSubmitInfo( ShaderAPITextureHandle_t handle )
 	{
-		Warning( "[VR] Trying to call VR_Submit() in dx9!\n" );
+		Texture_t *texture = NULL;
+		texture = &GetTexture( handle );
+
+		if ( texture == NULL )
+		{
+			Warning( "[VR] Trying to call VR_GetSubmitInfo() in dx9, while not in d3d9ex!\n" );
+			return NULL;
+		}
+
+		return texture->m_Handle;
+	}
+
+	virtual void* VR_GetDevice()
+	{
+		return Dx9Device()->m_pD3DDevice;
 	}
 
 private:
@@ -3226,7 +3250,7 @@ void CShaderAPIDx8::ResetDXRenderState( void )
 		else if ( g_pHardwareConfig->Caps().m_VendorID == VENDORID_NVIDIA )
 		{
 			// NVIDIA has a bug in their driver, so we can't call this on DX10 hardware right now
-			if ( !g_pHardwareConfig->UsesSRGBCorrectBlending() || ( g_pHardwareConfig->Caps().m_nDXSupportLevel < 90 ) )
+			if ( !g_pHardwareConfig->UsesSRGBCorrectBlending() /*|| ( g_pHardwareConfig->Caps().m_nDXSupportLevel < 90 )*/ )
 			{
 				// This helps the driver to know to turn on fast z reject for NVidia dx80 hardware
 				SetSupportedRenderStateForce( D3DRS_POINTSIZE, MAKEFOURCC( 'H', 'L', '2', 'A' ) );
@@ -3482,7 +3506,7 @@ void CShaderAPIDx8::ResetRenderState( bool bFullReset )
 		SamplerState(i).m_MinFilter = D3DTEXF_POINT;
 		SamplerState(i).m_MipFilter = D3DTEXF_NONE;
 		SamplerState(i).m_TextureEnable = false;
-		SamplerState(i).m_SRGBReadEnable = false;
+		SamplerState(i).m_SRGBReadEnable = true; //false;
 
 		// Just some initial state...
 		Dx9Device()->SetTexture( i, 0 );
@@ -6816,6 +6840,7 @@ ShaderAPITextureHandle_t CShaderAPIDx8::CreateDepthTexture(
 
 	ShaderAPITextureHandle_t i = CreateTextureHandle();
 	Texture_t *pTexture = &GetTexture( i );
+	HANDLE textureHandle = NULL;
 
 	pTexture->m_Flags = Texture_t::IS_ALLOCATED;
 	if( bTexture )
@@ -6873,15 +6898,17 @@ ShaderAPITextureHandle_t CShaderAPIDx8::CreateDepthTexture(
 			width, height, format, multisampleType, 0, TRUE, &pTexture->GetDepthStencilSurface(), &surfParameters );
 #else
 		hr = Dx9Device()->CreateDepthStencilSurface(
-			width, height, format, multisampleType, 0, TRUE, &pTexture->GetDepthStencilSurface(), NULL );
+			width, height, format, multisampleType, 0, TRUE, &pTexture->GetDepthStencilSurface(), &textureHandle );
 #endif
 	}
 	else
 	{
 		IDirect3DTexture9 *pTex;
-		hr = Dx9Device()->CreateTexture( width, height, 1, D3DUSAGE_DEPTHSTENCIL, format, D3DPOOL_DEFAULT, &pTex, NULL );
+		hr = Dx9Device()->CreateTexture( width, height, 1, D3DUSAGE_DEPTHSTENCIL, format, D3DPOOL_DEFAULT, &pTex, &textureHandle );
 		pTexture->SetTexture( pTex );
 	}
+
+	pTexture->m_Handle = textureHandle;
 
     if ( FAILED( hr ) )
 	{
@@ -6996,6 +7023,19 @@ void CShaderAPIDx8::CreateTextures(
 	bool isDepthBuffer = (creationFlags & TEXTURE_CREATE_DEPTHBUFFER) != 0;
 	bool isDynamic = (creationFlags & TEXTURE_CREATE_DYNAMIC) != 0;
 
+#if defined(IS_WINDOWS_PC) && defined(SHADERAPIDX9)
+	if ( g_ShaderDeviceUsingD3D9Ex && managed )
+	{
+		// Managed textures aren't available under D3D9Ex, but we never lose
+		// texture data, so it's ok to use the default pool. Really. We can't
+		// lock default-pool textures like we normally would to upload, but we
+		// have special logic to blit full updates via D3DX helper functions
+		// in D3D9Ex mode (see texturedx8.cpp)
+		managed = false;
+		creationFlags &= ~TEXTURE_CREATE_MANAGED;
+	}
+#endif
+
 	// Can't be both managed + dynamic. Dynamic is an optimization, but 
 	// if it's not managed, then we gotta do special client-specific stuff
 	// So, managed wins out!
@@ -7007,8 +7047,15 @@ void CShaderAPIDx8::CreateTextures(
 	// Create a set of texture handles
 	CreateTextureHandles( pHandles, count );
 	Texture_t **arrTxp = ( Texture_t ** ) stackalloc( count * sizeof( Texture_t * ) );
-
+	
 	unsigned short usSetFlags = 0;
+
+	if ( g_ShaderDeviceUsingD3D9Ex )
+	{
+		// allows texture locking in d3d9ex
+		usSetFlags |= ( IsPosix() || ( creationFlags & (TEXTURE_CREATE_DYNAMIC | TEXTURE_CREATE_MANAGED) ) ) ? Texture_t::IS_LOCKABLE : 0;
+	}
+
 	usSetFlags |= ( creationFlags & TEXTURE_CREATE_VERTEXTEXTURE)  ? Texture_t::IS_VERTEX_TEXTURE : 0;
 #if defined( _X360 )
 	usSetFlags |= ( creationFlags & TEXTURE_CREATE_RENDERTARGET ) ? Texture_t::IS_RENDER_TARGET : 0;
@@ -7050,7 +7097,9 @@ void CShaderAPIDx8::CreateTextures(
 		if ( numCopies <= 1 )
 		{
 			pTexture->m_NumCopies = 1;
-			pD3DTex = CreateD3DTexture( width, height, depth, dstImageFormat, numMipLevels, creationFlags );
+			HANDLE handle = NULL;
+			pD3DTex = CreateD3DTexture( width, height, depth, dstImageFormat, numMipLevels, creationFlags, handle );
+			pTexture->m_Handle = handle;
 			pTexture->SetTexture( pD3DTex );
 		}
 		else
@@ -7063,7 +7112,9 @@ void CShaderAPIDx8::CreateTextures(
 			}
 			for (int k = 0; k < numCopies; ++k)
 			{
-				pD3DTex = CreateD3DTexture( width, height, depth, dstImageFormat, numMipLevels, creationFlags );
+				HANDLE handle = NULL;
+				pD3DTex = CreateD3DTexture( width, height, depth, dstImageFormat, numMipLevels, creationFlags, handle );
+				pTexture->m_Handle = handle;
 				pTexture->SetTexture( k, pD3DTex );
 			}
 		}

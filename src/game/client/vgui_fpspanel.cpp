@@ -16,6 +16,7 @@
 #include <vgui/IPanel.h>
 #include "materialsystem/imaterialsystemhardwareconfig.h"
 #include "filesystem.h"
+#include "vr.h"
 #include "../common/xbox/xboxstubs.h"
 
 // memdbgon must be the last include file in a .cpp file!!!
@@ -283,15 +284,30 @@ void CFPSPanel::Paint()
 
 		g_pMatSystemSurface->DrawColoredText( m_hFont, x, 2+ i * ( vgui::surface()->GetFontTall( m_hFont ) + 2 ), 
 											  255, 255, 255, 255, 
-											  "pos:  %.02f %.02f %.02f", 
+											  "pos:    %.02f %.02f %.02f", 
 											  vecOrigin.x, vecOrigin.y, vecOrigin.z );
 		i++;
 
 		g_pMatSystemSurface->DrawColoredText( m_hFont, x, 2 + i * ( vgui::surface()->GetFontTall( m_hFont ) + 2 ), 
 											  255, 255, 255, 255, 
-											  "ang:  %.02f %.02f %.02f", 
+											  "ang:    %.02f %.02f %.02f", 
 											  angles.x, angles.y, angles.z );
 		i++;
+
+
+		if ( g_VR.active )
+		{
+			VRHostTracker* hmd = g_VR.GetHeadset();
+			if ( hmd )
+			{
+				QAngle hmdAng = hmd->ang;
+				g_pMatSystemSurface->DrawColoredText( m_hFont, x, 2 + i * ( vgui::surface()->GetFontTall( m_hFont ) + 2 ), 
+													 255, 255, 255, 255, 
+													 "vr ang: %.02f %.02f %.02f", 
+													 hmdAng.x, hmdAng.y, hmdAng.z );
+				i++;
+			}
+		}
 
 		Vector vel( 0, 0, 0 );
 		C_BasePlayer *player = C_BasePlayer::GetLocalPlayer();
@@ -302,7 +318,7 @@ void CFPSPanel::Paint()
 
 		g_pMatSystemSurface->DrawColoredText( m_hFont, x, 2 + i * ( vgui::surface()->GetFontTall( m_hFont ) + 2 ), 
 											  255, 255, 255, 255, 
-											  "vel:  %.2f", 
+											  "vel:    %.2f", 
 											  vel.Length() );
 	}
 }

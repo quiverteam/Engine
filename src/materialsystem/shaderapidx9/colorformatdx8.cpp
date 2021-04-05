@@ -435,7 +435,10 @@ bool D3DSupportsCompressedTextures()
 {
 	return	(g_D3DColorFormat[IMAGE_FORMAT_DXT1][0][0][0] != D3DFMT_UNKNOWN) &&
 			(g_D3DColorFormat[IMAGE_FORMAT_DXT3][0][0][0] != D3DFMT_UNKNOWN) &&
-			(g_D3DColorFormat[IMAGE_FORMAT_DXT5][0][0][0] != D3DFMT_UNKNOWN);
+			(g_D3DColorFormat[IMAGE_FORMAT_DXT5][0][0][0] != D3DFMT_UNKNOWN) &&
+			(g_D3DColorFormat[IMAGE_FORMAT_DXT1_SRGB][0][0][0] != D3DFMT_UNKNOWN) &&
+			(g_D3DColorFormat[IMAGE_FORMAT_DXT3_SRGB][0][0][0] != D3DFMT_UNKNOWN) &&
+			(g_D3DColorFormat[IMAGE_FORMAT_DXT5_SRGB][0][0][0] != D3DFMT_UNKNOWN);
 }
 
 

@@ -466,6 +466,7 @@ public:
 	// This here should be the major item looked at when checking for compat
 	// from anywhere other than the material system	shaders
 	virtual int	 GetDXSupportLevel() const			{ return 90; }
+	virtual bool IsD3D9Ex() const					{ return false; }
 	virtual const char *GetShaderDLLName() const	{ return false; }
 
 	virtual bool ReadPixelsFromFrontBuffer() const	{ return false; }
@@ -2236,8 +2237,10 @@ public:
 	}
 
 	virtual bool VR_Supported() { return false; }
-	virtual void VR_Submit( ITexture *leftEye, ITexture *rightEye ) {}
-	virtual void VR_Submit( ITexture *eyeTexture, MatVREye eye ) {}
+	virtual void* VR_GetSubmitInfo( ITexture *eyeTexture ) { return nullptr; };
+	virtual void* VR_GetDevice() { return nullptr; };
+	// virtual void VR_Submit( ITexture *leftEye, ITexture *rightEye ) {}
+	// virtual void VR_Submit( ITexture *eyeTexture, MatVREye eye ) {}
 };
 
 

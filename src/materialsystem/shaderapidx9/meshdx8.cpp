@@ -1167,13 +1167,23 @@ bool CIndexBufferDx8::Allocate()
 		D3DFMT_INDEX32 : D3DFMT_INDEX16;
 
 	DWORD usage = D3DUSAGE_WRITEONLY;
-	if ( m_bIsDynamic )
+	/*if ( m_bIsDynamic )
 	{
 		usage |= D3DUSAGE_DYNAMIC;
+	}*/
+
+	D3DPOOL d3dPool = m_bIsDynamic ? D3DPOOL_DEFAULT : D3DPOOL_MANAGED;
+
+#if defined(IS_WINDOWS_PC) && defined(SHADERAPIDX9)
+	extern bool g_ShaderDeviceUsingD3D9Ex;
+	if ( g_ShaderDeviceUsingD3D9Ex )
+	{
+		d3dPool = D3DPOOL_DEFAULT;
 	}
+#endif
 
 	HRESULT hr = Dx9Device()->CreateIndexBuffer( 
-		m_nBufferSize, usage, format, D3DPOOL_DEFAULT, &m_pIndexBuffer, NULL );
+		m_nBufferSize, usage, format, d3dPool, &m_pIndexBuffer, NULL );
 
 #if !defined( _X360 )
 	if ( ( hr == D3DERR_OUTOFVIDEOMEMORY ) || ( hr == E_OUTOFMEMORY ) )
@@ -1574,6 +1584,15 @@ bool CVertexBufferDx8::Allocate()
 	m_nFirstUnwrittenOffset = 0;
 
 	D3DPOOL pool = D3DPOOL_MANAGED;
+
+#if defined(IS_WINDOWS_PC) && defined(SHADERAPIDX9)
+	extern bool g_ShaderDeviceUsingD3D9Ex;
+	if ( g_ShaderDeviceUsingD3D9Ex )
+	{
+		pool = D3DPOOL_DEFAULT;
+	}
+#endif
+
 	DWORD usage = D3DUSAGE_WRITEONLY;
 	if ( m_bIsDynamic )
 	{

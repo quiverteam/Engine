@@ -846,6 +846,19 @@ int CHardwareConfig::GetDXSupportLevel() const
 	return m_Caps.m_nDXSupportLevel;
 }
 
+#ifdef SHADERAPIDX11
+bool CHardwareConfig::IsD3D9Ex() const
+{
+	return false;
+}
+#else
+extern bool g_ShaderDeviceUsingD3D9Ex;
+bool CHardwareConfig::IsD3D9Ex() const
+{
+	return g_ShaderDeviceUsingD3D9Ex;
+}
+#endif
+
 const char *CHardwareConfig::GetShaderDLLName() const
 {
 	return ( m_Caps.m_pShaderDLL && m_Caps.m_pShaderDLL[0] ) ? m_Caps.m_pShaderDLL : "DEFAULT";
@@ -870,6 +883,12 @@ bool CHardwareConfig::PreferDynamicTextures() const
 		// future proof safety, not allowing these
 		return false;
 	}
+
+#ifndef SHADERAPIDX11
+	extern bool g_ShaderDeviceUsingD3D9Ex;
+	if ( g_ShaderDeviceUsingD3D9Ex )
+		return g_ShaderDeviceUsingD3D9Ex;
+#endif
 
 	return m_Caps.m_PreferDynamicTextures;
 }

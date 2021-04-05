@@ -53,6 +53,13 @@ IDirect3D9 *m_pD3D;
 #endif
 
 
+#if defined(IS_WINDOWS_PC) && defined(SHADERAPIDX9)
+// HACK: need to pass knowledge of D3D9Ex usage into callers of D3D Create* methods
+// so they do not try to specify D3DPOOL_MANAGED, which is unsupported in D3D9Ex
+bool g_ShaderDeviceUsingD3D9Ex = false;
+#endif
+
+
 // hook into mat_forcedynamic from the engine.
 static ConVar mat_forcedynamic( "mat_forcedynamic", "0", FCVAR_CHEAT );
 
@@ -92,7 +99,34 @@ bool CShaderDeviceMgrDx8::Connect( CreateInterfaceFn factory )
 	if ( !BaseClass::Connect( factory ) )
 		return false;
 
-	m_pD3D = Direct3DCreate9(D3D_SDK_VERSION);
+	m_pD3D = NULL;
+
+	bool bD3D9ExAvailable = false;
+	if ( HMODULE hMod = ::LoadLibraryA( "d3d9.dll" ) )
+	{
+		typedef HRESULT ( WINAPI *CreateD3D9ExFunc_t )( UINT, IUnknown** );
+		if ( CreateD3D9ExFunc_t pfnCreateD3D9Ex = (CreateD3D9ExFunc_t) ::GetProcAddress( hMod, "Direct3DCreate9Ex" ) )
+		{
+			IUnknown *pD3D9Ex = NULL;
+			if ( (*pfnCreateD3D9Ex)( D3D_SDK_VERSION, &pD3D9Ex ) == S_OK && pD3D9Ex )
+			{
+				g_ShaderDeviceUsingD3D9Ex = true;
+				bD3D9ExAvailable = true;
+				// The following is more "correct" but incompatible with the Steam overlay:
+				//pD3D9Ex->QueryInterface( IID_IDirect3D9, (void**) &m_pD3D );
+				//pD3D9Ex->Release();
+				m_pD3D = static_cast< IDirect3D9* >( pD3D9Ex );
+			}
+		}
+		::FreeLibrary( hMod );
+	}
+
+	if ( !m_pD3D )
+	{
+		g_ShaderDeviceUsingD3D9Ex = false;
+		m_pD3D = Direct3DCreate9(D3D_SDK_VERSION);
+	}
+
 	if ( !m_pD3D )
 	{
 		Warning( "Failed to create D3D9!\n" );
@@ -2104,7 +2138,20 @@ bool CShaderDeviceDx8::TryDeviceReset()
 	// FIXME: Make this rebuild the Dx9Device from scratch!
 	// Helps with compatibility
 	HRESULT hr = Dx9Device()->Reset( &m_PresentParameters );
-	return !FAILED(hr);
+	bool bResetSuccess = !FAILED(hr);
+
+	#if defined(IS_WINDOWS_PC) && defined(SHADERAPIDX9)
+	if ( bResetSuccess && g_ShaderDeviceUsingD3D9Ex )
+	{
+		bResetSuccess = SUCCEEDED( Dx9Device()->TestCooperativeLevel() );
+		if ( bResetSuccess )
+		{
+			Warning("video driver has crashed and been reset, re-uploading resources now");
+		}
+	}
+	#endif
+
+	return bResetSuccess;
 }
 
 
@@ -2260,8 +2307,20 @@ void CShaderDeviceDx8::CheckDeviceLost( bool bOtherAppInitializing )
 	m_bIsMinimized = ( IsIconic( (HWND)m_hWnd ) == TRUE );
 	m_bOtherAppInitializing = bOtherAppInitializing;
 
-	RECORD_COMMAND( DX8_TEST_COOPERATIVE_LEVEL, 0 );
-	HRESULT hr = Dx9Device()->TestCooperativeLevel();
+	HRESULT hr = D3D_OK;
+#if defined(IS_WINDOWS_PC) && defined(SHADERAPIDX9)
+	if ( g_ShaderDeviceUsingD3D9Ex && m_DeviceState == DEVICE_STATE_OK )
+	{
+		// Steady state - PresentEx return value will mark us lost if necessary.
+		// We do not care if we are minimized in this state.
+		m_bIsMinimized = false; 
+	}
+	else
+#endif
+	{
+		RECORD_COMMAND( DX8_TEST_COOPERATIVE_LEVEL, 0 );
+		hr = Dx9Device()->TestCooperativeLevel();
+	}
 
 #ifdef _DEBUG
 	if ( mat_forcelostdevice.GetBool() )

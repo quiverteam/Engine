@@ -213,7 +213,8 @@ private:
 	void ForceFadeScaleToAlwaysVisible();
 	void RampToDefaultFadeScale();
 
-private:
+// private:
+public:
 	enum PhysgunState_t
 	{
 		PHYSGUN_MUST_BE_DETACHED = 0,

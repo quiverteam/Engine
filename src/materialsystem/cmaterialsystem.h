@@ -529,8 +529,11 @@ public:
 	virtual void							CompactMemory();
 
 	virtual bool VR_Supported();
-	virtual void VR_Submit( ITexture *leftEye, ITexture *rightEye );
-	virtual void VR_Submit( ITexture *eyeTexture, MatVREye eye );
+	virtual void* VR_GetSubmitInfo( ITexture *eyeTexture );
+	virtual void* VR_GetDevice();
+
+	// virtual void VR_Submit( ITexture *leftEye, ITexture *rightEye );
+	// virtual void VR_Submit( ITexture *eyeTexture, MatVREye eye );
 
 	// -----------------------------------------------------------
 private:

@@ -625,7 +625,9 @@ public:
 	virtual void SetDepthFeatheringPixelShaderConstant( int iConstant, float fDepthBlendScale ) = 0;
 
 	virtual bool VR_Supported() = 0;
-	virtual void VR_Submit( ShaderAPITextureHandle_t handle, MatVREye eye ) = 0;
+	virtual void* VR_GetSubmitInfo( ShaderAPITextureHandle_t handle ) = 0;
+	virtual void* VR_GetDevice() = 0;
+	// virtual void VR_Submit( ShaderAPITextureHandle_t handle, MatVREye eye ) = 0;
 };
 
 

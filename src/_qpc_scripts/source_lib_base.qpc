@@ -1,7 +1,7 @@
 // ---------------------------------------------------------------
 // Base Static Library Settings
 // ---------------------------------------------------------------
-macro OUTLIBNAME        "$SCRIPT_NAME"	[!$OUTLIBNAME]
+macro OUTLIBNAME        "$PROJECT_SCRIPT_NAME"          [!$OUTLIBNAME]
 macro OUTLIBDIR         "$SRCDIR/lib/public/$PLAT_DIR"  [!$OUTLIBDIR]
 macro IS_LIB_PROJECT    "1"
 

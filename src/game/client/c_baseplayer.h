@@ -263,6 +263,8 @@ public:
 	// Called when not in tactical mode. Allows view to be overriden for things like driving a tank.
 	virtual void				OverrideView( CViewSetup *pSetup );
 
+	C_BaseEntity				*GetViewEntity( void ) const { return m_hViewEntity; }
+
 	// returns the player name
 	const char *				GetPlayerName();
 	virtual const Vector		GetPlayerMins( void ) const; // uses local player
@@ -389,6 +391,8 @@ public:
 	int				m_nButtons;
 
 	CUserCmd		*m_pCurrentCommand;
+
+	EHANDLE			m_hViewEntity;
 
 	// Movement constraints
 	EHANDLE			m_hConstraintEntity;

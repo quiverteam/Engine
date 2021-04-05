@@ -1068,8 +1068,10 @@ public:
 	virtual void ReloadFilesInList( IFileList *pFilesToReload ) = 0;
 
 	virtual bool VR_Supported() = 0;
-	virtual void VR_Submit( ITexture *leftEye, ITexture *rightEye ) = 0;
-	virtual void VR_Submit( ITexture *eyeRT, MatVREye eye ) = 0;
+	virtual void* VR_GetSubmitInfo( ITexture *eyeRT ) = 0;
+	virtual void* VR_GetDevice() = 0;
+	// virtual void VR_Submit( ITexture *leftEye, ITexture *rightEye ) = 0;
+	// virtual void VR_Submit( ITexture *eyeRT, MatVREye eye ) = 0;
 };
 
 

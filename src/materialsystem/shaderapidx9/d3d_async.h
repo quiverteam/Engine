@@ -127,7 +127,8 @@ enum PushBufferCommand
 
 class D3DDeviceWrapper
 {
-private:
+// private:
+public:
 	IDirect3DDevice9 *m_pD3DDevice;
 #if SHADERAPI_USE_SMP
 	uintptr_t m_pASyncThreadHandle;
@@ -880,6 +881,11 @@ public:
 		}
 
 		return hr;
+	}
+
+	HRESULT UpdateSurface( IDirect3DSurface9* pSourceSurface, CONST RECT* pSourceRect, IDirect3DSurface9* pDestSurface, CONST POINT* pDestPoint )
+	{
+		return m_pD3DDevice->UpdateSurface( pSourceSurface, pSourceRect, pDestSurface, pDestPoint );
 	}
 
 	void Release( IDirect3DIndexBuffer9* ib )

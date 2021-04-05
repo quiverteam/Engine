@@ -16,6 +16,9 @@ macro PLAT_DIR	"linux32"	[$LINUX32]
 macro PLAT_DIR	"linux64"	[$LINUX64]
 macro PLAT_DIR	"macos"		[$MACOS]
 
+macro _LIB_EXT  ".lib"      [$WINDOWS]
+macro _LIB_EXT  ".ar"       [$LINUX]
+
 macro LIBPUBLIC	"$SRCDIR/lib/public/$PLAT_DIR"
 macro LIBCOMMON	"$SRCDIR/lib/common/$PLAT_DIR"
 

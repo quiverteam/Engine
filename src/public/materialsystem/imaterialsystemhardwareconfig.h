@@ -117,6 +117,7 @@ public:
 	// This here should be the major item looked at when checking for compat
 	// from anywhere other than the material system	shaders
 	DEFCONFIGMETHOD( int, GetDXSupportLevel(), 98 );
+	virtual bool IsD3D9Ex() const = 0;
 	virtual const char *GetShaderDLLName() const = 0;
 
 	virtual bool ReadPixelsFromFrontBuffer() const = 0;

@@ -215,6 +215,26 @@ CBasePlayer* UTIL_GetNearestPlayerPreferVisible(CBaseEntity* pLooker, int mask =
 CBasePlayer* UTIL_GetNearestVisiblePlayer(CBaseEntity* pLooker, int mask = MASK_SOLID_BRUSHONLY);
 CBasePlayer* UTIL_GetOtherNearestPlayer(const Vector& origin);
 
+bool UTIL_IsAnyPlayerLookingAtEntity( CBaseEntity* pEntity );
+bool UTIL_IsAnyPlayerLookingAtEntity( const Vector &vecSpot );
+
+bool UTIL_IsAnyPlayerVisible( CBaseEntity* pEntity );
+bool UTIL_IsAnyPlayerVisible( const Vector &vecSpot );
+
+// maybe make it UTIL_GetPlayerInRange()
+// bool UTIL_IsAnyPlayerInRange( CBaseEntity* pEntity, float dist );
+// bool UTIL_IsAnyPlayerInRange( const Vector &vecSpot, float dist );
+
+bool UTIL_AnyPlayerHasFlashlightOn();
+bool UTIL_IsIlluminatedByFlashlight( CBaseEntity *pEntity, float *flReturnDot );  // checks if any player is illuminating this entity
+
+#define UTIL_FOREACHPLAYER( i ) \
+	for ( int i = 1; i <= gpGlobals->maxClients; i++ )
+
+#define UTIL_GETNEXTPLAYER( i ) \
+	CBasePlayer *pPlayer = UTIL_PlayerByIndex( i ); \
+	if ( !pPlayer ) \
+		continue;
 
 // get the local player on a listen server
 CBasePlayer *UTIL_GetListenServerHost( void );

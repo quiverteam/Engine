@@ -18,6 +18,9 @@
 #include "ehandle.h"
 #include "inputsystem/AnalogCode.h"
 
+float ResponseCurve( int curve, float x, int axis, float sensitivity );
+float ResponseCurveLook( int curve, float x, int axis, float otherAxis, float dist, float frametime );
+
 //-----------------------------------------------------------------------------
 // Purpose: 
 //-----------------------------------------------------------------------------
@@ -104,44 +107,44 @@ public:
 	virtual		void		CAM_CameraThirdThink( void );	
 
 // Private Implementation
-private:
+// private:
 	// Implementation specific initialization
-	void		Init_Camera( void );
-	void		Init_Keyboard( void );
-	void		Init_Mouse( void );
-	void		Shutdown_Keyboard( void );
+	virtual void		Init_Camera( void );
+	virtual void		Init_Keyboard( void );
+	virtual void		Init_Mouse( void );
+	virtual void		Shutdown_Keyboard( void );
 	// Add a named key to the list queryable by the engine
-	void		AddKeyButton( const char *name, kbutton_t *pkb );
+	virtual void		AddKeyButton( const char *name, kbutton_t *pkb );
 	// Mouse/keyboard movement input helpers
-	void		ScaleMovements( CUserCmd *cmd );
-	void		ComputeForwardMove( CUserCmd *cmd );
-	void		ComputeUpwardMove( CUserCmd *cmd );
-	void		ComputeSideMove( CUserCmd *cmd );
-	void		AdjustAngles ( float frametime );
-	void		ClampAngles( QAngle& viewangles );
-	void		AdjustPitch( float speed, QAngle& viewangles );
-	void		AdjustYaw( float speed, QAngle& viewangles );
-	float		DetermineKeySpeed( float frametime );
-	void		GetAccumulatedMouseDeltasAndResetAccumulators( float *mx, float *my );
-	void		GetMouseDelta( float inmousex, float inmousey, float *pOutMouseX, float *pOutMouseY );
-	void		ScaleMouse( float *x, float *y );
-	void		ApplyMouse( QAngle& viewangles, CUserCmd *cmd, float mouse_x, float mouse_y );
-	void		MouseMove ( CUserCmd *cmd );
+	virtual void		ScaleMovements( CUserCmd *cmd );
+	virtual void		ComputeForwardMove( CUserCmd *cmd );
+	virtual void		ComputeUpwardMove( CUserCmd *cmd );
+	virtual void		ComputeSideMove( CUserCmd *cmd );
+	virtual void		AdjustAngles ( float frametime );
+	virtual void		ClampAngles( QAngle& viewangles );
+	virtual void		AdjustPitch( float speed, QAngle& viewangles );
+	virtual void		AdjustYaw( float speed, QAngle& viewangles );
+	virtual float		DetermineKeySpeed( float frametime );
+	virtual void		GetAccumulatedMouseDeltasAndResetAccumulators( float *mx, float *my );
+	virtual void		GetMouseDelta( float inmousex, float inmousey, float *pOutMouseX, float *pOutMouseY );
+	virtual void		ScaleMouse( float *x, float *y );
+	virtual void		ApplyMouse( QAngle& viewangles, CUserCmd *cmd, float mouse_x, float mouse_y );
+	virtual void		MouseMove ( CUserCmd *cmd );
 
 	// Joystick  movement input helpers
-	void		ControllerMove ( float frametime, CUserCmd *cmd );
-	void		JoyStickMove ( float frametime, CUserCmd *cmd );
-	float		ScaleAxisValue( const float axisValue, const float axisThreshold );
+	virtual void		ControllerMove ( float frametime, CUserCmd *cmd );
+	virtual void		JoyStickMove ( float frametime, CUserCmd *cmd );
+	virtual float		ScaleAxisValue( const float axisValue, const float axisThreshold );
 
 	// Call this to get the cursor position. The call will be logged in the VCR file if there is one.
-	void		GetMousePos(int &x, int &y);
-	void		SetMousePos(int x, int y);
-	void		GetWindowCenter( int&x, int& y );
+	virtual void		GetMousePos(int &x, int &y);
+	virtual void		SetMousePos(int x, int y);
+	virtual void		GetWindowCenter( int&x, int& y );
 	// Called once per frame to allow convar overrides to acceleration settings when mouse is active
-	void		CheckMouseAcclerationVars();
+	virtual void		CheckMouseAcclerationVars();
 
 // Private Data
-private:
+// private:
 	typedef struct
 	{
 		unsigned int AxisFlags;

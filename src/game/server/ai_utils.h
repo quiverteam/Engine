@@ -9,6 +9,7 @@
 
 #include "simtimer.h"
 #include "ai_component.h"
+#include "gamerules.h"
 
 #if defined( _WIN32 )
 #pragma once
@@ -28,7 +29,16 @@ inline CBasePlayer *AI_GetSinglePlayer()
 
 inline bool AI_IsSinglePlayer()
 {
-	return ( gpGlobals->maxClients == 1 );
+	if ( g_pGameRules->IsCoOp() )
+	{
+		return false;
+	}
+	else
+	{
+		return ( gpGlobals->maxClients == 1 );
+	}
+
+	// return ( gpGlobals->maxClients == 1 );
 }
 
 

@@ -45,8 +45,7 @@ void Sys_ShutdownGame( void );
 int Sys_InitGame( CreateInterfaceFn appSystemFactory, 
 			char const* pBaseDir, void *pwnd, int bIsDedicated );
 
-// sleep time when not focus
-#define NOT_FOCUS_SLEEP	50				
+static ConVar engine_no_focus_sleep( "engine_no_focus_sleep", "50", 0, "sleep time when out of focus" );
 
 
 //-----------------------------------------------------------------------------
@@ -225,7 +224,7 @@ void CEngine::Frame( void )
 	// FIXME:  Move this to main windows message pump?
 	if ( IsPC() && !game->IsActiveApp() && !sv.IsDedicated() )
 	{
-		g_pInputSystem->SleepUntilInput( NOT_FOCUS_SLEEP );
+		g_pInputSystem->SleepUntilInput( engine_no_focus_sleep.GetInt() );
 	}
 
 	// Get current time

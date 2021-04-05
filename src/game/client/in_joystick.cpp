@@ -73,9 +73,9 @@ static ConVar joy_pitchsensitivity( "joy_pitchsensitivity", "1", FCVAR_ARCHIVE |
 static ConVar joy_yawsensitivity( "joy_yawsensitivity", "-1", FCVAR_ARCHIVE | FCVAR_ARCHIVE_XBOX );
 
 // Advanced sensitivity and response
-static ConVar joy_response_move( "joy_response_move", "1", FCVAR_ARCHIVE, "'Movement' stick response mode: 0=Linear, 1=quadratic, 2=cubic, 3=quadratic extreme, 4=power function(i.e., pow(x,1/sensitivity)), 5=two-stage" );
+ConVar joy_response_move( "joy_response_move", "1", FCVAR_ARCHIVE, "'Movement' stick response mode: 0=Linear, 1=quadratic, 2=cubic, 3=quadratic extreme, 4=power function(i.e., pow(x,1/sensitivity)), 5=two-stage" );
 ConVar joy_response_move_vehicle("joy_response_move_vehicle", "6");
-static ConVar joy_response_look( "joy_response_look", "0", FCVAR_ARCHIVE, "'Look' stick response mode: 0=Default, 1=Acceleration Promotion" );
+ConVar joy_response_look( "joy_response_look", "0", FCVAR_ARCHIVE, "'Look' stick response mode: 0=Default, 1=Acceleration Promotion" );
 static ConVar joy_lowend( "joy_lowend", "1", FCVAR_ARCHIVE );
 static ConVar joy_lowmap( "joy_lowmap", "1", FCVAR_ARCHIVE );
 static ConVar joy_accelscale( "joy_accelscale", "0.6", FCVAR_ARCHIVE);
@@ -131,7 +131,7 @@ extern ConVar thirdperson_screenspace;
 //-----------------------------------------------
 // Response curve function for the move axes
 //-----------------------------------------------
-static float ResponseCurve( int curve, float x, int axis, float sensitivity )
+float ResponseCurve( int curve, float x, int axis, float sensitivity )
 {
 	switch ( curve )
 	{
@@ -431,7 +431,7 @@ static float ResponseCurveLookAccelerated( float x, int axis, float otherAxis, f
 
 //-----------------------------------------------
 //-----------------------------------------------
-static float ResponseCurveLook( int curve, float x, int axis, float otherAxis, float dist, float frametime )
+float ResponseCurveLook( int curve, float x, int axis, float otherAxis, float dist, float frametime )
 {
 	switch( curve )
 	{

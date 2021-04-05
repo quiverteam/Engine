@@ -135,7 +135,7 @@ static ImageFormat GetImageFormat( IDirect3DBaseTexture* pTexture )
 // Allocates the D3DTexture
 //-----------------------------------------------------------------------------
 IDirect3DBaseTexture* CreateD3DTexture( int width, int height, int nDepth, 
-		ImageFormat dstFormat, int numLevels, int nCreationFlags )
+		ImageFormat dstFormat, int numLevels, int nCreationFlags, HANDLE& handle )
 {
 	if ( nDepth <= 0 )
 	{
@@ -264,7 +264,7 @@ IDirect3DBaseTexture* CreateD3DTexture( int width, int height, int nDepth,
 				d3dFormat,
 				bManaged ? D3DPOOL_MANAGED : D3DPOOL_DEFAULT,
 				&pD3DTexture,
-				NULL );
+				&handle );
 
 #else
 		pD3DTexture = g_TextureHeap.AllocTexture( width, height, numLevels, usage, d3dFormat, bIsFallback, bNoD3DBits );
@@ -503,6 +503,7 @@ inline int DeterminePowerOfTwo( int val )
 	return pow;
 }
 
+#define USE_D3D9EX 1
 
 //-----------------------------------------------------------------------------
 // Blit in bits
@@ -536,6 +537,143 @@ static void BlitSurfaceBits( TextureLoadInfo_t &info, int xOffset, int yOffset, 
 	RECORD_INT( D3DLOCK_NOSYSLOCK );
 #endif
 
+#if USE_D3D9EX && !defined( DX_TO_GL_ABSTRACTION )
+	// if ( !info.m_bTextureIsLockable )
+	extern bool g_ShaderDeviceUsingD3D9Ex;
+	if ( g_ShaderDeviceUsingD3D9Ex )
+	{
+		// Copy from system memory to video memory using D3D9Device->UpdateSurface
+		bool bSuccess = false;
+
+		D3DSURFACE_DESC desc;
+		Verify( pTextureLevel->GetDesc( &desc ) == S_OK );
+		ImageFormat dstFormat = ImageLoader::D3DFormatToImageFormat( desc.Format );
+		D3DFORMAT dstFormatD3D = ImageLoader::ImageFormatToD3DFormat( dstFormat );
+
+		IDirect3DSurface* pSrcSurface = NULL;
+		bool bCopyBitsToSrcSurface = true;
+
+#if defined(IS_WINDOWS_PC) && defined(SHADERAPIDX9)
+		// D3D9Ex fast path: create a texture wrapping our own system memory buffer
+		// if the source and destination formats are exactly the same and the stride
+		// is tightly packed. no locking/blitting required.
+		// NOTE: the fast path does not work on sub-4x4 DXT compressed textures.
+		extern bool g_ShaderDeviceUsingD3D9Ex;
+		if ( g_ShaderDeviceUsingD3D9Ex &&
+			( info.m_SrcFormat == dstFormat || ( info.m_SrcFormat == IMAGE_FORMAT_DXT1_ONEBITALPHA && dstFormat == IMAGE_FORMAT_DXT1 ) ) &&
+			( !ImageLoader::IsCompressed( dstFormat ) || (info.m_nWidth >= 4 || info.m_nHeight >= 4) ) )
+		{
+			if ( srcStride == 0 || srcStride == info.m_nWidth * ImageLoader::SizeInBytes( info.m_SrcFormat ) )
+			{
+				IDirect3DTexture9* pTempTex = NULL;
+				if ( Dx9Device()->CreateTexture( info.m_nWidth, info.m_nHeight, 1, 0, dstFormatD3D, D3DPOOL_SYSTEMMEM, &pTempTex, (HANDLE*) &info.m_pSrcData ) == S_OK )
+				{
+					IDirect3DSurface* pTempSurf = NULL;
+					if ( pTempTex->GetSurfaceLevel( 0, &pTempSurf ) == S_OK )
+					{
+						pSrcSurface = pTempSurf;
+						bCopyBitsToSrcSurface = false;
+					}
+					pTempTex->Release();
+				}
+			}
+		}
+#endif
+
+		// If possible to create a texture of this size, create a temporary texture in
+		// system memory and then use the UpdateSurface method to copy between textures.
+		if ( !pSrcSurface && ( IsPowerOfTwo( info.m_nWidth ) && IsPowerOfTwo( info.m_nHeight ) ) )
+		{
+			int tempW = info.m_nWidth, tempH = info.m_nHeight, mip = 0;
+			if ( info.m_nLevel > 0 && ( ( tempW | tempH ) & 3 ) && ImageLoader::IsCompressed( dstFormat ) )
+			{
+				// Loading lower mip levels of DXT compressed textures is sort of tricky
+				// because we can't create textures that aren't multiples of 4, and we can't
+				// pass subrectangles of DXT textures into UpdateSurface. Create a temporary
+				// texture which is 1 or 2 mip levels larger and then lock the appropriate
+				// mip level to grab its correctly-dimensioned surface. -henryg 11/18/2011
+				mip = ( info.m_nLevel > 1 && ( ( tempW | tempH ) & 1 ) ) ? 2 : 1;
+				tempW <<= mip;
+				tempH <<= mip;
+			}
+			
+			IDirect3DTexture9* pTempTex = NULL;
+			IDirect3DSurface* pTempSurf = NULL;
+			if ( Dx9Device()->CreateTexture( tempW, tempH, mip+1, 0, dstFormatD3D, D3DPOOL_SYSTEMMEM, &pTempTex, NULL ) == S_OK )
+			{
+				if ( pTempTex->GetSurfaceLevel( mip, &pTempSurf ) == S_OK )
+				{
+					pSrcSurface = pTempSurf;
+					bCopyBitsToSrcSurface = true;
+				}
+				pTempTex->Release();
+			}
+		}
+
+		// Create an offscreen surface if the texture path wasn't an option.
+		if ( !pSrcSurface )
+		{
+			IDirect3DSurface* pTempSurf = NULL;
+			if ( Dx9Device()->CreateOffscreenPlainSurface( info.m_nWidth, info.m_nHeight, dstFormatD3D, D3DPOOL_SYSTEMMEM, &pTempSurf, NULL ) == S_OK )
+			{
+				pSrcSurface = pTempSurf;
+				bCopyBitsToSrcSurface = true;
+			}
+		}
+
+		// Lock and fill the surface
+		if ( bCopyBitsToSrcSurface && pSrcSurface )
+		{
+			if ( pSrcSurface->LockRect( &lockedRect, NULL, D3DLOCK_NOSYSLOCK ) == S_OK )
+			{
+				unsigned char *pImage = (unsigned char *)lockedRect.pBits;
+				ShaderUtil()->ConvertImageFormat( info.m_pSrcData, info.m_SrcFormat,
+					pImage, dstFormat, info.m_nWidth, info.m_nHeight, srcStride, lockedRect.Pitch );
+				pSrcSurface->UnlockRect();
+			}
+			else
+			{
+				// Lock failed.
+				pSrcSurface->Release();
+				pSrcSurface = NULL;
+			}
+		}
+	
+		// Perform the UpdateSurface call that blits between system and video memory
+		if ( pSrcSurface )
+		{
+			POINT pt = { xOffset, yOffset };
+			bSuccess = ( Dx9Device()->UpdateSurface( pSrcSurface, NULL, pTextureLevel, &pt ) == S_OK );
+			pSrcSurface->Release();
+		}
+		
+		if ( !bSuccess )
+		{
+			Warning( "CShaderAPIDX8::BlitTextureBits: couldn't lock texture rect or use UpdateSurface\n" );
+		}
+
+		pTextureLevel->Release();
+		return;
+	}
+	else
+	{
+		// lock the region (could be the full surface or less)
+		if ( FAILED( pTextureLevel->LockRect( &lockedRect, &srcRect, D3DLOCK_NOSYSLOCK ) ) )
+		{
+			Warning( "CShaderAPIDX8::BlitTextureBits: couldn't lock texture rect\n" );
+			pTextureLevel->Release();
+			return;
+		}
+
+		ImageFormat dstFormat = GetImageFormat( info.m_pTexture );
+		unsigned char *pImage = (unsigned char *)lockedRect.pBits;
+		// garymcthack : need to make a recording command for this.
+		ShaderUtil()->ConvertImageFormat( info.m_pSrcData, info.m_SrcFormat,
+										 pImage, dstFormat, info.m_nWidth, info.m_nHeight, srcStride, lockedRect.Pitch );
+	}
+
+#else
+
 	// lock the region (could be the full surface or less)
 	if ( FAILED( pTextureLevel->LockRect( &lockedRect, &srcRect, D3DLOCK_NOSYSLOCK ) ) )
 	{
@@ -544,11 +682,12 @@ static void BlitSurfaceBits( TextureLoadInfo_t &info, int xOffset, int yOffset, 
 		return;
 	}
 
-	// garymcthack : need to make a recording command for this.
 	ImageFormat dstFormat = GetImageFormat( info.m_pTexture );
 	unsigned char *pImage = (unsigned char *)lockedRect.pBits;
+	// garymcthack : need to make a recording command for this.
 	ShaderUtil()->ConvertImageFormat( info.m_pSrcData, info.m_SrcFormat,
 						pImage, dstFormat, info.m_nWidth, info.m_nHeight, srcStride, lockedRect.Pitch );
+#endif
 
 #ifndef RECORD_TEXTURES
 	RECORD_COMMAND( DX8_UNLOCK_TEXTURE, 4 );

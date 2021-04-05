@@ -797,7 +797,9 @@ private:
 	}
 
 	virtual bool VR_Supported();
-	virtual void VR_Submit( ShaderAPITextureHandle_t handle, MatVREye eye );
+	virtual void* VR_GetSubmitInfo( ShaderAPITextureHandle_t handle );
+	virtual void* VR_GetDevice();
+	// virtual void VR_Submit( ShaderAPITextureHandle_t handle, MatVREye eye );
 
 private:
 	enum

@@ -34,7 +34,7 @@ int ComputeTextureMemorySize( const GUID &nDeviceId, D3DDEVTYPE deviceType );
 // Texture creation
 //-----------------------------------------------------------------------------
 IDirect3DBaseTexture *CreateD3DTexture( int width, int height, int depth, 
-	ImageFormat dstFormat, int numLevels, int creationFlags );
+	ImageFormat dstFormat, int numLevels, int creationFlags, HANDLE& handle );
 
 
 //-----------------------------------------------------------------------------

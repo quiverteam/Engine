@@ -13,6 +13,7 @@
 #include "tier1/utlenvelope.h"
 #include "tier1/memstack.h"
 #include "mathlib/mathlib.h"
+#include "materialsystem/imesh.h"
 
 #include "tier0/memdbgon.h"
 
